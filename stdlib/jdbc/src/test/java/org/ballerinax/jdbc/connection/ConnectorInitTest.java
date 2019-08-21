@@ -16,6 +16,7 @@
  */
 package org.ballerinax.jdbc.connection;
 
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -38,6 +39,9 @@ public class ConnectorInitTest {
     private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR_INIT";
 
+    private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIRECTORY + DB_NAME;
+    private BValue[] args = { new BString(JDBC_URL) };
+
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile(Paths.get("test-src", "connection", "connector_init_test.bal").toString());
@@ -48,63 +52,63 @@ public class ConnectorInitTest {
 
     @Test
     public void testConnectorWithDefaultPropertiesForListedDB() {
-         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDefaultPropertiesForListedDB");
+         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDefaultPropertiesForListedDB", args);
          final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
          Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithWorkers() {
-         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithWorkers");
+         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithWorkers", args);
          final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
          Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClass() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClass");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClass", args);
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClassAndProps() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassAndProps");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassAndProps", args);
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClassWithoutURL() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassWithoutURL");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassWithoutURL", args);
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClassURLPriority() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassURLPriority");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassURLPriority", args);
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectionPoolProperties1() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectionPoolProperties1");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectionPoolProperties1", args);
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectionPoolProperties2() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectionPoolProperties2");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectionPoolProperties2", args);
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectionPoolProperties3() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectionPoolProperties3");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectionPoolProperties3", args);
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
@@ -114,7 +118,9 @@ public class ConnectorInitTest {
                   ".*Error in sql connector configuration: Failed to initialize pool: Database "
                   + "\".*/target/tempdb/NON_EXISTING_DB\" not found.*")
     public void testConnectionFailure() {
-        BRunUtil.invokeFunction(result, "testConnectionFailure");
+        String jdbcURL = "jdbc:h2:file:" + SQLDBUtils.DB_DIRECTORY + "NON_EXISTING_DB";
+        BValue[] arg = { new BString(jdbcURL) };
+        BRunUtil.invokeFunction(result, "testConnectionFailure", arg);
     }
 
     @AfterSuite

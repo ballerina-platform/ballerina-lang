@@ -15,7 +15,6 @@
 
 import ballerinax/java.jdbc;
 
-string jdbcURL = "jdbc:hsqldb:file:./target/tempdb/JDBC_BATCH_UPDATE_TEST_HSQLDB";
 string jdbcUserName = "SA";
 string jdbcPassword = "";
 
@@ -23,7 +22,7 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-function testBatchUpdate() returns [int[], jdbc:Error?, int, int] {
+function testBatchUpdate(string jdbcURL) returns [int[], jdbc:Error?, int, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -60,7 +59,7 @@ function testBatchUpdate() returns [int[], jdbc:Error?, int, int] {
     return [ret.updatedRowCount, ret.returnedError, key1, key2];
 }
 
-function testBatchUpdateSingleValParamArray() returns int[] {
+function testBatchUpdateSingleValParamArray(string jdbcURL) returns int[] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -82,7 +81,7 @@ function testBatchUpdateSingleValParamArray() returns int[] {
 
 type myBatchType string | int | float;
 
-function testBatchUpdateWithValues() returns int[] {
+function testBatchUpdateWithValues(string jdbcURL) returns int[] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -102,7 +101,7 @@ function testBatchUpdateWithValues() returns int[] {
     return ret.updatedRowCount;
 }
 
-function testBatchUpdateWithVariables() returns int[] {
+function testBatchUpdateWithVariables(string jdbcURL) returns int[] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -128,7 +127,7 @@ function testBatchUpdateWithVariables() returns int[] {
     return ret.updatedRowCount;
 }
 
-function testBatchUpdateWithFailure() returns @tainted [int[], int] {
+function testBatchUpdateWithFailure(string jdbcURL) returns @tainted [int[], int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -187,7 +186,7 @@ function testBatchUpdateWithFailure() returns @tainted [int[], int] {
     return [updateCount, count];
 }
 
-function testBatchUpdateWithNullParam() returns int[] {
+function testBatchUpdateWithNullParam(string jdbcURL) returns int[] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -202,7 +201,7 @@ function testBatchUpdateWithNullParam() returns int[] {
     return updateCount;
 }
 
-function testFailedBatchUpdate() returns [string, int, int] {
+function testFailedBatchUpdate(string jdbcURL) returns [string, int, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -251,7 +250,7 @@ function testFailedBatchUpdate() returns [string, int, int] {
     return [returnVal, batch1Status, batch2Status];
 }
 
-function testErrorWithBatchUpdate() returns @tainted [string, string, boolean, boolean, boolean] {
+function testErrorWithBatchUpdate(string jdbcURL) returns @tainted [string, string, boolean, boolean, boolean] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,

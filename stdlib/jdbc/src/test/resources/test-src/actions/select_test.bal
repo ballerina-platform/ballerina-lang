@@ -15,7 +15,6 @@
 
 import ballerinax/java.jdbc;
 
-string jdbcURL = "jdbc:hsqldb:file:./target/tempdb/JDBC_SELECT_TEST_HSQLDB";
 string jdbcUserName = "SA";
 string jdbcPassword = "";
 
@@ -45,7 +44,7 @@ type ResultBlob record {
     byte[] BLOB_TYPE;
 };
 
-function testSelectNumericData() returns [int, int, int, int, int, decimal, decimal, float, float] {
+function testSelectNumericData(string jdbcURL) returns [int, int, int, int, int, decimal, decimal, float, float] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -83,7 +82,8 @@ function testSelectNumericData() returns [int, int, int, int, int, decimal, deci
     return [intType, bigintType, smallintType, tinyintType, bitType, decimalType, numericType, floatType, realType];
 }
 
-function testSelectNumericDataWithDBError() returns [boolean, boolean, boolean, boolean, string, string, string, int] {
+function testSelectNumericDataWithDBError(string jdbcURL) returns [boolean, boolean, boolean, boolean, string, string,
+    string, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -123,7 +123,8 @@ function testSelectNumericDataWithDBError() returns [boolean, boolean, boolean, 
             errorCode];
 }
 
-function testSelectNumericDataWithApplicationError() returns [boolean, boolean, boolean, boolean, string, string] {
+function testSelectNumericDataWithApplicationError(string jdbcURL) returns [boolean, boolean, boolean, boolean,
+    string, string] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -163,7 +164,7 @@ function testSelectNumericDataWithApplicationError() returns [boolean, boolean, 
 }
 
 //TODO:Refactor with proper tables
-function testArrayOfQueryParameters() returns string {
+function testArrayOfQueryParameters(string jdbcURL) returns string {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -195,7 +196,7 @@ function testArrayOfQueryParameters() returns string {
 }
 
 //TODO:Refactor with proper tables
-function testBoolArrayOfQueryParameters() returns string {
+function testBoolArrayOfQueryParameters(string jdbcURL) returns string {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -226,7 +227,7 @@ function testBoolArrayOfQueryParameters() returns string {
 }
 
 //TODO:Refactor with proper tables
-function testBlobArrayOfQueryParameter() returns string {
+function testBlobArrayOfQueryParameter(string jdbcURL) returns string {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -260,7 +261,7 @@ function testBlobArrayOfQueryParameter() returns string {
     return firstName;
 }
 
-function testCloseConnectionPool() returns @tainted (int) {
+function testCloseConnectionPool(string jdbcURL) returns @tainted (int) {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,

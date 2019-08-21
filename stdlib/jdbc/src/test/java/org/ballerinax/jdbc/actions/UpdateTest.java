@@ -20,6 +20,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -45,6 +46,8 @@ public class UpdateTest {
     private TestDatabase testDatabase;
     private CompileResult result;
     private static final String UPDATE_TEST = "UpdateTest";
+    private static final String JDBC_URL = "jdbc:hsqldb:file:" + SQLDBUtils.DB_DIRECTORY + DB_NAME_HSQL;
+    private BValue[] args = { new BString(JDBC_URL) };
 
     @BeforeClass
     public void setup() {
@@ -56,61 +59,60 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testCreateTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testCreateTable");
+        BValue[] returns = BRunUtil.invoke(result, "testCreateTable", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test(groups = UPDATE_TEST)
     public void testBasicInsertData() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicInsertData");
+        BValue[] returns = BRunUtil.invoke(result, "testBasicInsertData", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertTrue(((BInteger) returns[1]).intValue() >= 0);
     }
 
     @Test(groups = UPDATE_TEST)
     public void testBasicInsertDataWithoutGeneratedKey() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicInsertDataWithoutGeneratedKey");
+        BValue[] returns = BRunUtil.invoke(result, "testBasicInsertDataWithoutGeneratedKey", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test(groups = UPDATE_TEST)
     public void testGeneratedKeyOnInsert() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertDataWithGeneratedKey");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertDataWithGeneratedKey", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertTrue(((BInteger) returns[1]).intValue() > 0);
     }
 
     @Test(groups = UPDATE_TEST)
     public void testBasicInsertDataWithDatabaseError() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicInsertDataWithDatabaseError");
+        BValue[] returns = BRunUtil.invoke(result, "testBasicInsertDataWithDatabaseError", args);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
-        System.out.println(returns[5].stringValue());
         Assert.assertTrue(returns[5].stringValue().contains("Failed to execute update query:"));
         Assert.assertEquals(returns[6].stringValue(), "42501");
-        Assert.assertEquals(returns[7].stringValue(),"{ballerinax/java.jdbc}DatabaseError");
+        Assert.assertEquals(returns[7].stringValue(), "{ballerinax/java.jdbc}DatabaseError");
         Assert.assertEquals(((BInteger) returns[8]).intValue(), -5501);
     }
 
     @Test(groups = UPDATE_TEST)
     public void testBasicInsertDataWithApplicationError() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicInsertDataWithApplicationError");
+        BValue[] returns = BRunUtil.invoke(result, "testBasicInsertDataWithApplicationError", args);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
-        Assert.assertEquals(returns[5].stringValue(),"{ballerinax/java.jdbc}ApplicationError");
+        Assert.assertEquals(returns[5].stringValue(), "{ballerinax/java.jdbc}ApplicationError");
     }
 
     @Test(groups = UPDATE_TEST)
     public void testUpdateTableData() {
-        BValue[] returns = BRunUtil.invoke(result, "testUpdateTableData");
+        BValue[] returns = BRunUtil.invoke(result, "testUpdateTableData", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }
@@ -118,7 +120,7 @@ public class UpdateTest {
     //Insert Numeric Values
     @Test(groups = UPDATE_TEST)
     public void testInsertNumericDataWithParameters() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertNumericDataWithParameters");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertNumericDataWithParameters", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2147483647);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 2147483650L);
@@ -133,7 +135,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertNumericDataWithDirectValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertNumericDataWithDirectValues");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertNumericDataWithDirectValues", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), -2147483648);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), -2147483650L);
@@ -148,7 +150,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertNumericDataWithNilValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertNumericDataWithNilValues");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertNumericDataWithNilValues", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertNull(returns[1]);
         Assert.assertNull(returns[2]);
@@ -164,7 +166,7 @@ public class UpdateTest {
     //Insert String Values
     @Test(groups = UPDATE_TEST)
     public void testInsertStringDataWithParameters() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertStringDataWithParameters");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertStringDataWithParameters", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(returns[1].stringValue(), "test1");
         Assert.assertEquals(returns[2].stringValue(), "test2     ");
@@ -178,7 +180,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertStringDataWithDirectParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertStringDataWithDirectParams");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertStringDataWithDirectParams", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(returns[1].stringValue(), "str1");
         Assert.assertEquals(returns[2].stringValue(), "str2      ");
@@ -192,7 +194,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertStringDataWithNilValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertStringDataWithNilValues");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertStringDataWithNilValues", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertNull(returns[1]);
         Assert.assertNull(returns[2]);
@@ -206,7 +208,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertStringDataWithEmptyValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertStringDataWithEmptyValues");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertStringDataWithEmptyValues", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(returns[1].stringValue(), "");
         Assert.assertEquals(returns[2].stringValue(), "          ");
@@ -221,7 +223,7 @@ public class UpdateTest {
     //Insert Boolean values
     @Test(groups = UPDATE_TEST)
     public void testInsertBoolDataAsIntsAndReturnInts() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsIntsAndReturnInts");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsIntsAndReturnInts", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
@@ -229,7 +231,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertBoolDataAsBoolAndReturnBool() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsBoolAndReturnBool");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsBoolAndReturnBool", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
@@ -237,7 +239,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertBoolDataAsBoolAndReturnBoolAsDirectParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsBoolAndReturnBoolAsDirectParams");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsBoolAndReturnBoolAsDirectParams", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
@@ -245,14 +247,14 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertBoolDataAsIntsInvalidParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsIntsInvalidParams");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsIntsInvalidParams", args);
         Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/java.jdbc}ApplicationError"));
         Assert.assertTrue(returns[0].stringValue().contains("Invalid integer value \"91\" specified for boolean"));
     }
 
     @Test(groups = UPDATE_TEST)
     public void testInsertBoolDataWithNilValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataWithNilValues");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataWithNilValues", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertNull(returns[1]);
         Assert.assertNull(returns[2]);
@@ -261,7 +263,7 @@ public class UpdateTest {
     //Insert binary values
     @Test(groups = UPDATE_TEST)
     public void testInsertBinaryDataWithParameters() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertBinaryDataWithParameters");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBinaryDataWithParameters", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(new String(((BValueArray) returns[1]).getBytes()), "blob data");
         Assert.assertEquals(new String(((BValueArray) returns[2]).getBytes()), "blob data");
@@ -273,7 +275,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertBinaryDataWithNilValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertBinaryDataWithNilValues");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBinaryDataWithNilValues", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertNull(returns[1]);
         Assert.assertNull(returns[2]);
@@ -286,7 +288,7 @@ public class UpdateTest {
     //Insert Date time Values
     @Test(groups = UPDATE_TEST)
     public void testInsertTimeDataAsString() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertTimeDataAsString");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTimeDataAsString", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertTrue(returns[1].stringValue().contains("2019-08-09"));
         Assert.assertTrue(returns[2].stringValue().contains("20:08:08"));
@@ -299,7 +301,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertTimeDataAsBallerinaTime() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertTimeDataAsBallerinaTime");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTimeDataAsBallerinaTime", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
@@ -312,7 +314,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertTimeDataAsInt() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertTimeDataAsInt");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTimeDataAsInt", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 72488000);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1565381288);
@@ -321,7 +323,7 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testInsertTimeDataAsBallerinaTimeWithNil() {
-        BValue[] returns = BRunUtil.invoke(result, "testInsertTimeDataAsBallerinaTimeWithNil");
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTimeDataAsBallerinaTimeWithNil", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertNull(returns[1]);
         Assert.assertNull(returns[2]);
@@ -333,20 +335,20 @@ public class UpdateTest {
 
     @Test(groups = UPDATE_TEST)
     public void testUpdateResult() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvalidUpdateOnUpdateResultRecord");
+        BValue[] returns = BRunUtil.invoke(result, "testInvalidUpdateOnUpdateResultRecord", args);
         Assert.assertTrue(returns[0].stringValue()
                 .contains("Invalid update of record field: modification not allowed on readonly value"));
     }
 
     @Test(groups = UPDATE_TEST)
     public void testStopClient() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testStopClient");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testStopClient", args);
         Assert.assertNull(returns[0]);
     }
 
     @Test(dependsOnGroups = UPDATE_TEST)
     public void testCloseConnectionPool() {
-        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
+        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", args);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }

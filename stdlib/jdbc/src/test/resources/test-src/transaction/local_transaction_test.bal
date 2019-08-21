@@ -13,7 +13,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
 import ballerina/transactions;
 import ballerinax/java.jdbc;
 
@@ -21,9 +20,9 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-function testLocalTransaction() returns @tainted [int, int, boolean, boolean] {
+function testLocalTransaction(string jdbcURL) returns @tainted [int, int, boolean, boolean] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -52,9 +51,9 @@ function testLocalTransaction() returns @tainted [int, int, boolean, boolean] {
     return [returnVal, count, committedBlockExecuted, abortedBlockExecuted];
 }
 
-function testTransactionRollback() returns @tainted [int, int, boolean] {
+function testTransactionRollback(string jdbcURL) returns @tainted [int, int, boolean] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -81,9 +80,9 @@ function testTransactionRollback() returns @tainted [int, int, boolean] {
     return [returnVal, count, stmtAfterFailureExecuted];
 }
 
-function testLocalTransactionUpdateWithGeneratedKeys() returns @tainted [int, int] {
+function testLocalTransactionUpdateWithGeneratedKeys(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -106,9 +105,9 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns @tainted [int, in
     return [returnVal, count];
 }
 
-function testTransactionRollbackUpdateWithGeneratedKeys() returns @tainted [int, int] {
+function testTransactionRollbackUpdateWithGeneratedKeys(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -133,9 +132,9 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns @tainted [int,
     return [returnVal, count];
 }
 
-function testLocalTransactionStoredProcedure() returns @tainted [int, int] {
+function testLocalTransactionStoredProcedure(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -157,9 +156,9 @@ function testLocalTransactionStoredProcedure() returns @tainted [int, int] {
     return [returnVal, count];
 }
 
-function testLocalTransactionRollbackStoredProcedure() returns @tainted [int, int, int, int] {
+function testLocalTransactionRollbackStoredProcedure(string jdbcURL) returns @tainted [int, int, int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 3}
@@ -191,9 +190,9 @@ function testLocalTransactionRollbackStoredProcedure() returns @tainted [int, in
     return [returnVal, count1, count2, count3];
 }
 
-function testLocalTransactionBatchUpdate() returns @tainted [int, int] {
+function testLocalTransactionBatchUpdate(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -233,9 +232,9 @@ function testLocalTransactionBatchUpdate() returns @tainted [int, int] {
     return [returnVal, count];
 }
 
-function testLocalTransactionRollbackBatchUpdate() returns @tainted [int, int] {
+function testLocalTransactionRollbackBatchUpdate(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -275,9 +274,9 @@ function testLocalTransactionRollbackBatchUpdate() returns @tainted [int, int] {
     return [returnVal, count];
 }
 
-function testTransactionAbort() returns @tainted [int, int] {
+function testTransactionAbort(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -307,9 +306,9 @@ function testTransactionAbort() returns @tainted [int, int] {
 }
 
 int testTransactionErrorPanicRetVal = 0;
-function testTransactionErrorPanic() returns @tainted [int, int, int] {
+function testTransactionErrorPanic(string jdbcURL) returns @tainted [int, int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -344,9 +343,9 @@ function testTransactionErrorPanicHelper(jdbc:Client testDB) {
     }
 }
 
-function testTransactionErrorPanicAndTrap() returns @tainted [int, int, int] {
+function testTransactionErrorPanicAndTrap(string jdbcURL) returns @tainted [int, int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -379,9 +378,9 @@ function testTransactionErrorPanicAndTrapHelper(int i) {
     }
 }
 
-function testTransactionCommitted() returns @tainted [int, int] {
+function testTransactionCommitted(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -404,9 +403,9 @@ function testTransactionCommitted() returns @tainted [int, int] {
     return [returnVal, count];
 }
 
-function testTwoTransactions() returns @tainted [int, int, int] {
+function testTwoTransactions(string jdbcURL) returns @tainted [int, int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -439,9 +438,9 @@ function testTwoTransactions() returns @tainted [int, int, int] {
     return [returnVal1, returnVal2, count];
 }
 
-function testTransactionWithoutHandlers() returns @tainted int {
+function testTransactionWithoutHandlers(string jdbcURL) returns @tainted int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -462,9 +461,9 @@ function testTransactionWithoutHandlers() returns @tainted int {
     return count;
 }
 
-function testLocalTransactionFailed() returns @tainted [string, int] {
+function testLocalTransactionFailed(string jdbcURL) returns @tainted [string, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -502,9 +501,9 @@ function testLocalTransactionFailedHelper(string status, jdbc:Client testDB) ret
     return a;
 }
 
-function testLocalTransactionSuccessWithFailed() returns @tainted [string, int] {
+function testLocalTransactionSuccessWithFailed(string jdbcURL) returns @tainted [string, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -547,18 +546,18 @@ function testLocalTransactionSuccessWithFailedHelper(string status, jdbc:Client 
     return a;
 }
 
-function testLocalTransactionFailedWithNextupdate() returns @tainted int {
+function testLocalTransactionFailedWithNextupdate(string jdbcURL) returns @tainted int {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     testDB1 = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
 
     testDB2 = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -587,9 +586,9 @@ function testLocalTransactionFailedWithNextupdateHelper(jdbc:Client testDB) {
     }
 }
 
-function testNestedTwoLevelTransactionSuccess() returns @tainted [int, int] {
+function testNestedTwoLevelTransactionSuccess(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -617,9 +616,9 @@ function testNestedTwoLevelTransactionSuccessParticipant(jdbc:Client testDB) {
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')");
 }
 
-function testNestedThreeLevelTransactionSuccess() returns @tainted [int, int] {
+function testNestedThreeLevelTransactionSuccess(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -654,9 +653,9 @@ function testNestedThreeLevelTransactionSuccessParticipant2(jdbc:Client testDB) 
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')");
 }
 
-function testNestedThreeLevelTransactionFailed() returns @tainted [int, int] {
+function testNestedThreeLevelTransactionFailed(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -707,9 +706,9 @@ function testNestedThreeLevelTransactionFailedHelperParticipant3(jdbc:Client tes
                                             values ('James', 'Clerk', 555, 5000.75, 'USA')");
 }
 
-function testLocalTransactionWithSelectAndForeachIteration() returns @tainted [int, int] {
+function testLocalTransactionWithSelectAndForeachIteration(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 5}
@@ -744,9 +743,9 @@ function testLocalTransactionWithSelectAndForeachIteration() returns @tainted [i
     return [returnVal, count];
 }
 
-function testLocalTransactionWithSelectAndHasNextIteration() returns @tainted [int, int] {
+function testLocalTransactionWithSelectAndHasNextIteration(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 5}
@@ -773,9 +772,9 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns @tainted [i
     return [returnVal, count];
 }
 
-function testCloseConnectionPool() returns @tainted int {
+function testCloseConnectionPool(string jdbcURL) returns @tainted int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}

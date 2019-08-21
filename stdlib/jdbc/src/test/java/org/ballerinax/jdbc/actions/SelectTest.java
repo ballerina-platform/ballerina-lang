@@ -20,6 +20,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -43,6 +44,8 @@ public class SelectTest {
     private SQLDBUtils.TestDatabase testDatabase;
     private CompileResult result;
     private static final String SELECT_TEST = "SelectTest";
+    private static final String JDBC_URL = "jdbc:hsqldb:file:" + SQLDBUtils.DB_DIRECTORY + DB_NAME_HSQL;
+    private BValue[] args = { new BString(JDBC_URL) };
 
     @BeforeClass
     public void setup() {
@@ -54,7 +57,7 @@ public class SelectTest {
 
     @Test(groups = SELECT_TEST)
     public void testSelectNumericData() {
-        BValue[] returns = BRunUtil.invoke(result, "testSelectNumericData");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectNumericData", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2147483647);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 32767);
@@ -68,20 +71,20 @@ public class SelectTest {
 
     @Test(groups = SELECT_TEST)
     public void testSelectNumericDataWithDBError() {
-        BValue[] returns = BRunUtil.invoke(result, "testSelectNumericDataWithDBError");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectNumericDataWithDBError", args);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(returns[4].stringValue().contains("Failed to execute select query:"));
         Assert.assertEquals(returns[5].stringValue(), "42501");
-        Assert.assertEquals(returns[6].stringValue(),"{ballerinax/java.jdbc}DatabaseError");
+        Assert.assertEquals(returns[6].stringValue(), "{ballerinax/java.jdbc}DatabaseError");
         Assert.assertEquals(((BInteger) returns[7]).intValue(), -5501);
     }
 
     @Test(groups = SELECT_TEST)
     public void testSelectNumericDataWithApplicationError() {
-        BValue[] returns = BRunUtil.invoke(result, "testSelectNumericDataWithApplicationError");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectNumericDataWithApplicationError", args);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
@@ -93,25 +96,25 @@ public class SelectTest {
 
     @Test(groups = SELECT_TEST)
     public void testArrayOfQueryParameters() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayOfQueryParameters");
+        BValue[] returns = BRunUtil.invoke(result, "testArrayOfQueryParameters", args);
         Assert.assertEquals(returns[0].stringValue(), "Peter");
     }
 
     @Test(groups = SELECT_TEST)
     public void testBoolArrayOfQueryParameters() {
-        BValue[] returns = BRunUtil.invoke(result, "testBoolArrayOfQueryParameters");
+        BValue[] returns = BRunUtil.invoke(result, "testBoolArrayOfQueryParameters", args);
         Assert.assertEquals(returns[0].stringValue(), "Peter");
     }
 
     @Test(groups = SELECT_TEST)
     public void testBlobArrayOfQueryParameter() {
-        BValue[] returns = BRunUtil.invoke(result, "testBlobArrayOfQueryParameter");
+        BValue[] returns = BRunUtil.invoke(result, "testBlobArrayOfQueryParameter", args);
         Assert.assertEquals(returns[0].stringValue(), "Peter");
     }
 
     @Test(dependsOnGroups = SELECT_TEST)
     public void testCloseConnectionPool() {
-        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
+        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", args);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }

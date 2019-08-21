@@ -27,9 +27,9 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-function testCountInTable() returns @tainted int {
+function testCountInTable(string jdbcURL) returns @tainted int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -44,9 +44,9 @@ function testCountInTable() returns @tainted int {
     return count;
 }
 
-function testFilterTable() returns @tainted [int, int, int] {
+function testFilterTable(string jdbcURL) returns @tainted [int, int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -67,9 +67,9 @@ function testFilterTable() returns @tainted [int, int, int] {
     return [count, id1, id2];
 }
 
-function testFilterWithAnonymousFuncOnTable() returns @tainted [int, int, int] {
+function testFilterWithAnonymousFuncOnTable(string jdbcURL) returns @tainted [int, int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -92,9 +92,9 @@ function testFilterWithAnonymousFuncOnTable() returns @tainted [int, int, int] {
     return [count, id1, id2];
 }
 
-function testFilterTableWithCount() returns @tainted int {
+function testFilterTableWithCount(string jdbcURL) returns @tainted int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -109,9 +109,9 @@ function testFilterTableWithCount() returns @tainted int {
     return count;
 }
 
-function testMapTable() returns @tainted string[] {
+function testMapTable(string jdbcURL) returns @tainted string[] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -126,9 +126,9 @@ function testMapTable() returns @tainted string[] {
     return names;
 }
 
-function testMapWithFilterTable() returns @tainted string[] {
+function testMapWithFilterTable(string jdbcURL) returns @tainted string[] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -142,9 +142,9 @@ function testMapWithFilterTable() returns @tainted string[] {
     return names;
 }
 
-function testFilterWithMapTable() returns @tainted string[] {
+function testFilterWithMapTable(string jdbcURL) returns @tainted string[] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -159,9 +159,9 @@ function testFilterWithMapTable() returns @tainted string[] {
     return names;
 }
 
-function testFilterWithMapAndCountTable() returns @tainted int {
+function testFilterWithMapAndCountTable(string jdbcURL) returns @tainted int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -176,9 +176,9 @@ function testFilterWithMapAndCountTable() returns @tainted int {
     return count;
 }
 
-function testAverageWithTable() returns @tainted float {
+function testAverageWithTable(string jdbcURL) returns @tainted float {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -193,9 +193,9 @@ function testAverageWithTable() returns @tainted float {
     return avgSal;
 }
 
-function testMinWithTable() returns @tainted float {
+function testMinWithTable(string jdbcURL) returns @tainted float {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -210,9 +210,9 @@ function testMinWithTable() returns @tainted float {
     return avgSal;
 }
 
-function testMaxWithTable() returns @tainted float {
+function testMaxWithTable(string jdbcURL) returns @tainted float {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -227,9 +227,9 @@ function testMaxWithTable() returns @tainted float {
     return avgSal;
 }
 
-function testSumWithTable() returns @tainted float {
+function testSumWithTable(string jdbcURL) returns @tainted float {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -244,9 +244,9 @@ function testSumWithTable() returns @tainted float {
     return avgSal;
 }
 
-function testCloseConnectionPool() returns @tainted int {
+function testCloseConnectionPool(string jdbcURL) returns @tainted int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}

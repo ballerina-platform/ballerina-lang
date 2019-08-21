@@ -18,6 +18,7 @@ package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -41,6 +42,8 @@ public class BatchUpdateTest {
     private SQLDBUtils.TestDatabase testDatabase;
     private CompileResult result;
     private static final String BATCH_UPDATE_TEST = "BatchUpdateTest";
+    private static final String JDBC_URL = "jdbc:hsqldb:file:" + SQLDBUtils.DB_DIRECTORY + DB_NAME_HSQL;
+    private BValue[] args = { new BString(JDBC_URL) };
 
     @BeforeClass
     public void setup() {
@@ -52,7 +55,7 @@ public class BatchUpdateTest {
 
     @Test(groups = BATCH_UPDATE_TEST)
     public void testBatchUpdate() {
-        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate");
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate", args);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 1);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 1);
         Assert.assertNull(returns[1]);
@@ -62,7 +65,7 @@ public class BatchUpdateTest {
 
     @Test(groups = BATCH_UPDATE_TEST)
     public void testBatchUpdateSingleValParamArray() {
-        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateSingleValParamArray");
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateSingleValParamArray", args);
         BValueArray retValue = (BValueArray) returns[0];
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
@@ -70,7 +73,7 @@ public class BatchUpdateTest {
 
     @Test(groups = BATCH_UPDATE_TEST)
     public void testBatchUpdateWithValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithValues");
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithValues", args);
         BValueArray retValue = (BValueArray) returns[0];
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
@@ -78,7 +81,7 @@ public class BatchUpdateTest {
 
     @Test(groups = BATCH_UPDATE_TEST)
     public void testBatchUpdateWithVariables() {
-        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithVariables");
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithVariables", args);
         BValueArray retValue = (BValueArray) returns[0];
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
@@ -86,7 +89,7 @@ public class BatchUpdateTest {
 
     @Test(groups = BATCH_UPDATE_TEST)
     public void testBatchUpdateWithFailure() {
-        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithFailure");
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithFailure", args);
         // This is the one after the failing batch. Depending on the driver this may or may not be executed hence the
         // result could be either 1 or -3
         int[] expectedResult = {1, 1, -3, -3};
@@ -100,14 +103,14 @@ public class BatchUpdateTest {
 
     @Test(groups = BATCH_UPDATE_TEST)
     public void testBatchUpdateWithNullParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithNullParam");
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithNullParam", args);
         BValueArray retValue = (BValueArray) returns[0];
         Assert.assertEquals(retValue.getInt(0), 1);
     }
 
-    @Test(groups = BATCH_UPDATE_TEST )
+    @Test(groups = BATCH_UPDATE_TEST)
     public void testFailedBatchUpdate() {
-        BValue[] returns = BRunUtil.invoke(result, "testFailedBatchUpdate");
+        BValue[] returns = BRunUtil.invoke(result, "testFailedBatchUpdate", args);
         Assert.assertTrue(returns[0].stringValue().contains("Failed to execute batch update:"));
         Assert.assertEquals(((BInteger) returns[1]).intValue(), -3);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), -3);
@@ -115,7 +118,7 @@ public class BatchUpdateTest {
 
     @Test(groups = BATCH_UPDATE_TEST)
     public void testErrorWithBatchUpdate() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorWithBatchUpdate");
+        BValue[] returns = BRunUtil.invoke(result, "testErrorWithBatchUpdate", args);
         Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(returns[0].stringValue().contains("array values are -3"));
         Assert.assertTrue(returns[1].stringValue().contains("{ballerinax/java.jdbc}DatabaseError"));

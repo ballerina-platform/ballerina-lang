@@ -19,16 +19,16 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-function testXATransactionSuccess() returns @tainted [int, int] {
+function testXATransactionSuccess(string jdbcURL1, string jdbcURL2) returns @tainted [int, int] {
     jdbc:Client testDB1 = new ({
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+        url: jdbcURL1,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
     jdbc:Client testDB2 = new ({
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+        url: jdbcURL2,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true}
@@ -54,16 +54,16 @@ function testXATransactionSuccess() returns @tainted [int, int] {
     return [count1, count2];
 }
 
-function testXATransactionSuccessWithDataSource() returns @tainted [int, int] {
+function testXATransactionSuccessWithDataSource(string jdbcURL1, string jdbcURL2) returns @tainted [int, int] {
     jdbc:Client testDB1 = new ({
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+        url: jdbcURL1,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"}
     });
 
     jdbc:Client testDB2 = new ({
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+        url: jdbcURL2,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"}
@@ -88,16 +88,16 @@ function testXATransactionSuccessWithDataSource() returns @tainted [int, int] {
     return [count1, count2];
 }
 
-function testXATransactionSuccessWithH2Client() returns @tainted [int, int] {
+function testXATransactionSuccessWithH2Client(string jdbcURL1, string jdbcURL2) returns @tainted [int, int] {
     jdbc:Client testDB1 = new ({
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+        url: jdbcURL1,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"}
     });
 
     jdbc:Client testDB2 = new ({
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+        url: jdbcURL2,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"}
@@ -122,17 +122,17 @@ function testXATransactionSuccessWithH2Client() returns @tainted [int, int] {
     return [count1, count2];
 }
 
-function testXATransactionFailed1() returns @tainted [int, int] {
+function testXATransactionFailed1(string jdbcURL1, string jdbcURL2) returns @tainted [int, int] {
 
     jdbc:Client testDB1 = new ({
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+        url: jdbcURL1,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
     jdbc:Client testDB2 = new ({
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+        url: jdbcURL2,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true}
@@ -162,17 +162,17 @@ function testXATransactionFailed1Helper(jdbc:Client testDB1, jdbc:Client testDB2
     }
 }
 
-function testXATransactionFailed2() returns @tainted [int, int] {
+function testXATransactionFailed2(string jdbcURL1, string jdbcURL2) returns @tainted [int, int] {
 
     jdbc:Client testDB1 = new ({
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+        url: jdbcURL1,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
     jdbc:Client testDB2 = new ({
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+        url: jdbcURL2,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true}
@@ -198,17 +198,17 @@ function testXATransactionFailed2Helper(jdbc:Client testDB1, jdbc:Client testDB2
     }
 }
 
-function testXATransactionRetry() returns @tainted [int, int] {
+function testXATransactionRetry(string jdbcURL1, string jdbcURL2) returns @tainted [int, int] {
 
     jdbc:Client testDB1 = new ({
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+        url: jdbcURL1,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
     jdbc:Client testDB2 = new ({
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+        url: jdbcURL2,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, isXA: true}

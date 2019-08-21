@@ -137,81 +137,82 @@ type ResultMapNillableTypeNonNillableElements record {
     string[]? STRING_ARRAY;
 };
 
-function testAssignNilToNonNillableInt() returns @tainted string {
-    return testAssignNilToNonNillableField("int_type", NonNillableInt);
+function testAssignNilToNonNillableInt(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("int_type", NonNillableInt, jdbcURL);
 }
 
-function testAssignNilToNonNillableLong() returns @tainted string {
-    return testAssignNilToNonNillableField("long_type", NonNillableLong);
+function testAssignNilToNonNillableLong(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("long_type", NonNillableLong, jdbcURL);
 }
 
-function testAssignNilToNonNillableFloat() returns @tainted string {
-    return testAssignNilToNonNillableField("float_type", NonNillableFloat);
+function testAssignNilToNonNillableFloat(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("float_type", NonNillableFloat, jdbcURL);
 }
 
-function testAssignNilToNonNillableDouble() returns @tainted string {
-    return testAssignNilToNonNillableField("double_type", NonNillableDouble);
+function testAssignNilToNonNillableDouble(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("double_type", NonNillableDouble, jdbcURL);
 }
 
-function testAssignNilToNonNillableBoolean() returns @tainted string {
-    return testAssignNilToNonNillableField("boolean_type", NonNillableBoolean);
+function testAssignNilToNonNillableBoolean(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("boolean_type", NonNillableBoolean, jdbcURL);
 }
 
-function testAssignNilToNonNillableString() returns @tainted string {
-    return testAssignNilToNonNillableField("string_type", NonNillableString);
+function testAssignNilToNonNillableString(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("string_type", NonNillableString, jdbcURL);
 }
 
-function testAssignNilToNonNillableNumeric() returns @tainted string {
-    return testAssignNilToNonNillableField("numeric_type", NonNillableNumeric);
+function testAssignNilToNonNillableNumeric(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("numeric_type", NonNillableNumeric, jdbcURL);
 }
 
-function testAssignNilToNonNillableTinyInt() returns @tainted string {
-    return testAssignNilToNonNillableField("tinyint_type", NonNillableTinyInt);
+function testAssignNilToNonNillableTinyInt(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("tinyint_type", NonNillableTinyInt, jdbcURL);
 }
 
-function testAssignNilToNonNillableSmallint() returns @tainted string {
-    return testAssignNilToNonNillableField("smallint_type", NonNillableSmallInt);
+function testAssignNilToNonNillableSmallint(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("smallint_type", NonNillableSmallInt, jdbcURL);
 }
 
-function testAssignNilToNonNillableDecimal() returns @tainted string {
-    return testAssignNilToNonNillableField("decimal_type", NonNillableDecimal);
+function testAssignNilToNonNillableDecimal(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("decimal_type", NonNillableDecimal, jdbcURL);
 }
 
-function testAssignNilToNonNillableReal() returns @tainted string {
-    return testAssignNilToNonNillableField("real_type", NonNillableReal);
+function testAssignNilToNonNillableReal(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("real_type", NonNillableReal, jdbcURL);
 }
 
-function testAssignNilToNonNillableClob() returns @tainted string {
-    return testAssignNilToNonNillableField("clob_type", NonNillableClob);
+function testAssignNilToNonNillableClob(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("clob_type", NonNillableClob, jdbcURL);
 }
 
-function testAssignNilToNonNillableBlob() returns @tainted string {
-    return testAssignNilToNonNillableField("blob_type", NonNillableBlob);
+function testAssignNilToNonNillableBlob(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("blob_type", NonNillableBlob, jdbcURL);
 }
 
-function testAssignNilToNonNillableBinary() returns @tainted string {
-    return testAssignNilToNonNillableField("binary_type", NonNillableBinary);
+function testAssignNilToNonNillableBinary(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("binary_type", NonNillableBinary, jdbcURL);
 }
 
-function testAssignNilToNonNillableDate() returns @tainted string {
-    return testAssignNilToNonNillableField("date_type", NonNillableDate);
+function testAssignNilToNonNillableDate(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("date_type", NonNillableDate, jdbcURL);
 }
 
-function testAssignNilToNonNillableTime() returns @tainted string {
-    return testAssignNilToNonNillableField("time_type", NonNillableTime);
+function testAssignNilToNonNillableTime(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("time_type", NonNillableTime, jdbcURL);
 }
 
-function testAssignNilToNonNillableDateTime() returns @tainted string {
-    return testAssignNilToNonNillableField("datetime_type", NonNillableDateTime);
+function testAssignNilToNonNillableDateTime(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("datetime_type", NonNillableDateTime, jdbcURL);
 }
 
-function testAssignNilToNonNillableTimeStamp() returns @tainted string {
-    return testAssignNilToNonNillableField("timestamp_type", NonNillableTimeStamp);
+function testAssignNilToNonNillableTimeStamp(string jdbcURL) returns @tainted string {
+    return testAssignNilToNonNillableField("timestamp_type", NonNillableTimeStamp, jdbcURL);
 }
 
-function testAssignNilToNonNillableField(string field, typedesc<record {}> recordType) returns @tainted string {
+function testAssignNilToNonNillableField(string field, typedesc<record {}> recordType, string jdbcURL) returns
+    @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -239,81 +240,81 @@ function testAssignNilToNonNillableField(string field, typedesc<record {}> recor
     return errorMessage;
 }
 
-function testAssignToInvalidUnionInt() returns @tainted string {
-    return testAssignToInvalidUnionField("int_type");
+function testAssignToInvalidUnionInt(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("int_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionLong() returns @tainted string {
-    return testAssignToInvalidUnionField("long_type");
+function testAssignToInvalidUnionLong(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("long_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionFloat() returns @tainted string {
-    return testAssignToInvalidUnionField("float_type");
+function testAssignToInvalidUnionFloat(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("float_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionDouble() returns @tainted string {
-    return testAssignToInvalidUnionField("double_type");
+function testAssignToInvalidUnionDouble(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("double_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionBoolean() returns @tainted string {
-    return testAssignToInvalidUnionField("boolean_type");
+function testAssignToInvalidUnionBoolean(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("boolean_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionString() returns @tainted string {
-    return testAssignToInvalidUnionField("string_type");
+function testAssignToInvalidUnionString(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("string_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionNumeric() returns @tainted string {
-    return testAssignToInvalidUnionField("numeric_type");
+function testAssignToInvalidUnionNumeric(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("numeric_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionTinyInt() returns @tainted string {
-    return testAssignToInvalidUnionField("tinyint_type");
+function testAssignToInvalidUnionTinyInt(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("tinyint_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionSmallint() returns @tainted string {
-    return testAssignToInvalidUnionField("smallint_type");
+function testAssignToInvalidUnionSmallint(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("smallint_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionDecimal() returns @tainted string {
-    return testAssignToInvalidUnionField("decimal_type");
+function testAssignToInvalidUnionDecimal(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("decimal_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionReal() returns @tainted string {
-    return testAssignToInvalidUnionField("real_type");
+function testAssignToInvalidUnionReal(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("real_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionClob() returns @tainted string {
-    return testAssignToInvalidUnionField("clob_type");
+function testAssignToInvalidUnionClob(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("clob_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionBlob() returns @tainted string {
-    return testAssignToInvalidUnionField("blob_type");
+function testAssignToInvalidUnionBlob(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("blob_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionBinary() returns @tainted string {
-    return testAssignToInvalidUnionField("binary_type");
+function testAssignToInvalidUnionBinary(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("binary_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionDate() returns @tainted string {
-    return testAssignToInvalidUnionField("date_type");
+function testAssignToInvalidUnionDate(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("date_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionTime() returns @tainted string {
-    return testAssignToInvalidUnionField("time_type");
+function testAssignToInvalidUnionTime(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("time_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionDateTime() returns @tainted string {
-    return testAssignToInvalidUnionField("datetime_type");
+function testAssignToInvalidUnionDateTime(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("datetime_type", jdbcURL);
 }
 
-function testAssignToInvalidUnionTimeStamp() returns @tainted string {
-    return testAssignToInvalidUnionField("timestamp_type");
+function testAssignToInvalidUnionTimeStamp(string jdbcURL) returns @tainted string {
+    return testAssignToInvalidUnionField("timestamp_type", jdbcURL);
 }
 
-function testAssignNullArrayToNonNillableWithNonNillableElements() returns @tainted string {
+function testAssignNullArrayToNonNillableWithNonNillableElements(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -334,9 +335,9 @@ function testAssignNullArrayToNonNillableWithNonNillableElements() returns @tain
     return errorMessage;
 }
 
-function testAssignNullArrayToNonNillableTypeWithNillableElements() returns @tainted string {
+function testAssignNullArrayToNonNillableTypeWithNillableElements(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -357,9 +358,9 @@ function testAssignNullArrayToNonNillableTypeWithNillableElements() returns @tai
     return errorMessage;
 }
 
-function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() returns @tainted string {
+function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -380,9 +381,9 @@ function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() re
     return errorMessage;
 }
 
-function testAssignNullElementArrayToNillableTypeWithNonNillableElements() returns @tainted string {
+function testAssignNullElementArrayToNillableTypeWithNonNillableElements(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -403,9 +404,9 @@ function testAssignNullElementArrayToNillableTypeWithNonNillableElements() retur
     return errorMessage;
 }
 
-function testAssignInvalidUnionArray() returns @tainted string {
+function testAssignInvalidUnionArray(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -424,9 +425,9 @@ function testAssignInvalidUnionArray() returns @tainted string {
     return message;
 }
 
-function testAssignInvalidUnionArrayElement() returns @tainted string {
+function testAssignInvalidUnionArrayElement(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -445,9 +446,9 @@ function testAssignInvalidUnionArrayElement() returns @tainted string {
     return message;
 }
 
-function testAssignInvalidUnionArray2() returns @tainted string {
+function testAssignInvalidUnionArray2(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -466,9 +467,9 @@ function testAssignInvalidUnionArray2() returns @tainted string {
     return message;
 }
 
-function testAssignToInvalidUnionField(string field) returns @tainted string {
+function testAssignToInvalidUnionField(string field, string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}

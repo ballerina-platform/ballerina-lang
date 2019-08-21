@@ -47,6 +47,8 @@ public class H2ActionsTest {
     private static final String DB_NAME = "TestDBH2";
     private static final String H2_TEST_GROUP = "H2_TEST";
     private SQLDBUtils.TestDatabase testDatabase;
+    private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIRECTORY_H2 + DB_NAME;
+    private BValue[] args = { new BString(JDBC_URL) };
 
     @BeforeClass
     public void setup() {
@@ -58,7 +60,7 @@ public class H2ActionsTest {
 
     @Test(groups = H2_TEST_GROUP)
     public void testSelect() {
-        BValue[] returns = BRunUtil.invoke(result, "testSelect");
+        BValue[] returns = BRunUtil.invoke(result, "testSelect", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].size(), 2);
@@ -68,16 +70,15 @@ public class H2ActionsTest {
 
     @Test(groups = H2_TEST_GROUP)
     public void testUpdate() {
-        BValue[] returns = BRunUtil.invoke(result, "testUpdate");
+        BValue[] returns = BRunUtil.invoke(result, "testUpdate", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = { H2_TEST_GROUP })
+    @Test(groups = H2_TEST_GROUP)
     public void testCall() {
-        BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(result, "testCall", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BString);
@@ -88,7 +89,7 @@ public class H2ActionsTest {
 
     @Test(groups = H2_TEST_GROUP)
     public void testGeneratedKeyOnInsert() {
-        BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert");
+        BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
         BInteger retValue = (BInteger) returns[0];
@@ -97,7 +98,7 @@ public class H2ActionsTest {
 
     @Test(groups = H2_TEST_GROUP)
     public void testBatchUpdate() {
-        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate");
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BValueArray);
         BValueArray retValue = (BValueArray) returns[0];
@@ -107,7 +108,7 @@ public class H2ActionsTest {
 
     @Test(groups = { H2_TEST_GROUP })
     public void testUpdateInMemory() {
-        BValue[] returns = BRunUtil.invoke(result, "testUpdateInMemory");
+        BValue[] returns = BRunUtil.invoke(result, "testUpdateInMemory", args);
         Assert.assertEquals(returns.length, 2);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
@@ -117,13 +118,13 @@ public class H2ActionsTest {
 
     @Test(groups = H2_TEST_GROUP)
     public void testInitWithNilDbOptions() {
-        BValue[] returns = BRunUtil.invoke(result, "testInitWithNilDbOptions");
+        BValue[] returns = BRunUtil.invoke(result, "testInitWithNilDbOptions", args);
         assertInitTestReturnValues(returns);
     }
 
     @Test(groups = H2_TEST_GROUP)
     public void testInitWithDbOptions() {
-        BValue[] returns = BRunUtil.invoke(result, "testInitWithDbOptions");
+        BValue[] returns = BRunUtil.invoke(result, "testInitWithDbOptions", args);
         assertInitTestReturnValues(returns);
     }
 
@@ -133,7 +134,7 @@ public class H2ActionsTest {
                           + "Property INVALID_PARAM does not exist on target class org.h2.jdbcx.JdbcDataSource.*",
           groups = { H2_TEST_GROUP })
     public void testInitWithInvalidDbOptions() {
-        BRunUtil.invoke(result, "testInitWithInvalidDbOptions");
+        BRunUtil.invoke(result, "testInitWithInvalidDbOptions", args);
         Assert.fail("Expected exception should have been thrown by this point");
     }
 
@@ -154,8 +155,6 @@ public class H2ActionsTest {
 
     @Test(dependsOnGroups = H2_TEST_GROUP)
     public void testCloseConnectionPool() {
-        BValue connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");
-        BValue[] args = { connectionCountQuery };
         BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", args);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);

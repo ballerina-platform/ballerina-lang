@@ -27,9 +27,9 @@ public type Result record {
     int val;
 };
 
-function testSelect() returns @tainted int[] {
+function testSelect(string jdbcURL) returns @tainted int[] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/H2Client/TestDBH2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -53,9 +53,9 @@ function testSelect() returns @tainted int[] {
     return customerIds;
 }
 
-function testUpdate() returns int {
+function testUpdate(string jdbcURL) returns int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/H2Client/TestDBH2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -71,9 +71,9 @@ function testUpdate() returns int {
     return insertCount;
 }
 
-function testCall() returns @tainted string {
+function testCall(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/H2Client/TestDBH2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -102,9 +102,9 @@ function testCall() returns @tainted string {
     return name;
 }
 
-function testGeneratedKeyOnInsert() returns string | int {
+function testGeneratedKeyOnInsert(string jdbcURL) returns string | int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/H2Client/TestDBH2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -125,9 +125,9 @@ function testGeneratedKeyOnInsert() returns string | int {
     return returnVal;
 }
 
-function testBatchUpdate() returns int[] {
+function testBatchUpdate(string jdbcURL) returns int[] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/H2Client/TestDBH2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -154,9 +154,9 @@ function testBatchUpdate() returns int[] {
     return x.updatedRowCount;
 }
 
-function testUpdateInMemory() returns @tainted [int, string] {
+function testUpdateInMemory(string jdbcURL) returns @tainted [int, string] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/H2Client/TestDBH2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -185,9 +185,9 @@ function testUpdateInMemory() returns @tainted [int, string] {
     return [insertCount, s];
 }
 
-function testInitWithNilDbOptions() returns int[] {
+function testInitWithNilDbOptions(string jdbcURL) returns int[] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/H2Client/TestDBH2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -195,9 +195,9 @@ function testInitWithNilDbOptions() returns int[] {
     return selectFunction(testDB);
 }
 
-function testInitWithDbOptions() returns int[] {
+function testInitWithDbOptions(string jdbcURL) returns int[] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/H2Client/TestDBH2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1},
@@ -212,9 +212,9 @@ function testInitWithDbOptions() returns int[] {
     return selectFunction(testDB);
 }
 
-function testInitWithInvalidDbOptions() returns int[] {
+function testInitWithInvalidDbOptions(string jdbcURL) returns int[] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/H2Client/TestDBH2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"},
@@ -223,15 +223,15 @@ function testInitWithInvalidDbOptions() returns int[] {
     return selectFunction(testDB);
 }
 
-function testCloseConnectionPool(string connectionCountQuery)
+function testCloseConnectionPool(string jdbcURL)
 returns @tainted int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/H2Client/TestDBH2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var result = testDB->select(connectionCountQuery, Result);
+    var result = testDB->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
     int count = -1;
     if (result is table<Result>) {
         while (result.hasNext()) {

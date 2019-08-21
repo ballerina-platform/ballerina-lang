@@ -35,39 +35,39 @@ type ResultBlobCorrectOrderWrongType record {
     int INT_TYPE;
 };
 
-function testWrongOrderInt() returns @tainted error? {
+function testWrongOrderInt(string jdbcURL) returns @tainted error? {
     return testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
-    WHERE row_id = 1");
+    WHERE row_id = 1", jdbcURL);
 }
 
-function testWrongOrderString() returns @tainted error? {
+function testWrongOrderString(string jdbcURL) returns @tainted error? {
     return testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
-    WHERE row_id = 1");
+    WHERE row_id = 1", jdbcURL);
 }
 
-function testWrongOrderBoolean() returns @tainted error? {
+function testWrongOrderBoolean(string jdbcURL) returns @tainted error? {
     return testWrongOrder("SELECT boolean_type, long_type, float_type, string_type, int_type, double_type from DataTable
-    WHERE row_id = 1");
+    WHERE row_id = 1", jdbcURL);
 }
 
-function testWrongOrderDouble() returns @tainted error? {
+function testWrongOrderDouble(string jdbcURL) returns @tainted error? {
     return testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
-    WHERE row_id = 1");
+    WHERE row_id = 1", jdbcURL);
 }
 
-function testWrongOrderFloat() returns @tainted error? {
+function testWrongOrderFloat(string jdbcURL) returns @tainted error? {
     return testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
-    WHERE row_id = 1");
+    WHERE row_id = 1", jdbcURL);
 }
 
-function testWrongOrderLong() returns @tainted error? {
+function testWrongOrderLong(string jdbcURL) returns @tainted error? {
     return testWrongOrder("SELECT boolean_type, string_type, float_type, long_type, int_type, double_type from DataTable
-    WHERE row_id = 1");
+    WHERE row_id = 1", jdbcURL);
 }
 
-function testWrongOrderBlobWrongOrder() returns @tainted error? {
+function testWrongOrderBlobWrongOrder(string jdbcURL) returns @tainted error? {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -90,9 +90,9 @@ function testWrongOrderBlobWrongOrder() returns @tainted error? {
     return retVal;
 }
 
-function testWrongOrderBlobCorrectOrderWrongType() returns @tainted error? {
+function testWrongOrderBlobCorrectOrderWrongType(string jdbcURL) returns @tainted error? {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -116,9 +116,9 @@ function testWrongOrderBlobCorrectOrderWrongType() returns @tainted error? {
     return retVal;
 }
 
-function testGreaterNoOfParams() returns @tainted error? {
+function testGreaterNoOfParams(string jdbcURL) returns @tainted error? {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -141,9 +141,9 @@ function testGreaterNoOfParams() returns @tainted error? {
     return retVal;
 }
 
-function testLowerNoOfParams() returns @tainted error? {
+function testLowerNoOfParams(string jdbcURL) returns @tainted error? {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -167,9 +167,9 @@ function testLowerNoOfParams() returns @tainted error? {
     return retVal;
 }
 
-function testWrongOrder(string queryStr) returns @tainted error? {
+function testWrongOrder(string queryStr, string jdbcURL) returns @tainted error? {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}

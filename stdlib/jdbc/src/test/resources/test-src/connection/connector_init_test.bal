@@ -37,9 +37,9 @@ jdbc:PoolOptions properties5 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSourc
 map<any> propertiesMap3 = {"loginTimeout": "1000"};
 jdbc:PoolOptions properties6 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
-function testConnectionPoolProperties1() returns @tainted json {
+function testConnectionPoolProperties1(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -52,9 +52,9 @@ function testConnectionPoolProperties1() returns @tainted json {
     return j;
 }
 
-function testConnectionPoolProperties2() returns @tainted json {
+function testConnectionPoolProperties2(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: properties
@@ -67,9 +67,9 @@ function testConnectionPoolProperties2() returns @tainted json {
     return j;
 }
 
-function testConnectionPoolProperties3() returns @tainted json {
+function testConnectionPoolProperties3(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        url: jdbcURL,
         username: "SA",
         password: ""
     });
@@ -82,9 +82,9 @@ function testConnectionPoolProperties3() returns @tainted json {
 }
 
 
-function testConnectorWithDefaultPropertiesForListedDB() returns @tainted json {
+function testConnectorWithDefaultPropertiesForListedDB(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {}
@@ -97,9 +97,9 @@ function testConnectorWithDefaultPropertiesForListedDB() returns @tainted json {
     return j;
 }
 
-function testConnectorWithWorkers() returns @tainted json {
+function testConnectorWithWorkers(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {}
@@ -121,9 +121,9 @@ function testConnectorWithWorkers() returns @tainted json {
     return wait w1;
 }
 
-function testConnectorWithDataSourceClass() returns @tainted json {
+function testConnectorWithDataSourceClass(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: properties3,
@@ -137,9 +137,9 @@ function testConnectorWithDataSourceClass() returns @tainted json {
     return j;
 }
 
-function testConnectorWithDataSourceClassAndProps() returns @tainted json {
+function testConnectorWithDataSourceClassAndProps(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: properties4,
@@ -153,9 +153,9 @@ function testConnectorWithDataSourceClassAndProps() returns @tainted json {
     return j;
 }
 
-function testConnectorWithDataSourceClassWithoutURL() returns @tainted json {
+function testConnectorWithDataSourceClassWithoutURL(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: properties5
@@ -168,9 +168,9 @@ function testConnectorWithDataSourceClassWithoutURL() returns @tainted json {
     return j;
 }
 
-function testConnectorWithDataSourceClassURLPriority() returns @tainted json {
+function testConnectorWithDataSourceClassURLPriority(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: properties6,
@@ -186,9 +186,9 @@ function testConnectorWithDataSourceClassURLPriority() returns @tainted json {
 }
 
 
-function testPropertiesGetUsedOnlyIfDataSourceGiven() returns @tainted json {
+function testPropertiesGetUsedOnlyIfDataSourceGiven(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1},
@@ -202,9 +202,9 @@ function testPropertiesGetUsedOnlyIfDataSourceGiven() returns @tainted json {
     return j;
 }
 
-function testConnectionFailure() {
+function testConnectionFailure(string jdbcURL) {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/NON_EXISTING_DB",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1},

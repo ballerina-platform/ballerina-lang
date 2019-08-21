@@ -18,6 +18,7 @@ package org.ballerinax.jdbc.table;
 
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -42,8 +43,10 @@ import static org.ballerinax.jdbc.utils.SQLDBUtils.FileBasedTestDatabase;
 public class TableIterationTest {
 
     private CompileResult result;
-    private static final String DB_NAME = "TEST_DATA_TABLE__ITR_DB";
+    private static final String DB_NAME = "TEST_DATA_TABLE_ITR_DB";
     private TestDatabase testDatabase;
+    private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIRECTORY + DB_NAME;
+    private BValue[] args = { new BString(JDBC_URL) };
 
     @BeforeClass
     public void setup() {
@@ -55,14 +58,14 @@ public class TableIterationTest {
 
     @Test(groups = "TableIterationTest", description = "Check count operation function on table")
     public void testCountInTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testCountInTable");
+        BValue[] returns = BRunUtil.invoke(result, "testCountInTable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
     }
 
     @Test(groups = "TableIterationTest", description = "Check filter operation")
     public void testFilterTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testFilterTable");
+        BValue[] returns = BRunUtil.invoke(result, "testFilterTable", args);
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
@@ -71,7 +74,7 @@ public class TableIterationTest {
 
     @Test(groups = "TableIterationTest", description = "Check filter operation")
     public void testFilterWithAnonymousFuncOnTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testFilterWithAnonymousFuncOnTable");
+        BValue[] returns = BRunUtil.invoke(result, "testFilterWithAnonymousFuncOnTable", args);
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
@@ -80,14 +83,14 @@ public class TableIterationTest {
 
     @Test(groups = "TableIterationTest", description = "Check filter and count operation")
     public void testFilterTableWithCount() {
-        BValue[] returns = BRunUtil.invoke(result, "testFilterTableWithCount");
+        BValue[] returns = BRunUtil.invoke(result, "testFilterTableWithCount", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
     @Test(groups = "TableIterationTest", description = "Check accessing data using foreach iteration")
     public void testMapTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testMapTable");
+        BValue[] returns = BRunUtil.invoke(result, "testMapTable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BValueArray) returns[0]).getString(0), "John");
         Assert.assertEquals(((BValueArray) returns[0]).getString(1), "Anne");
@@ -97,56 +100,56 @@ public class TableIterationTest {
 
     @Test(groups = "TableIterationTest", description = "Check map with filter operation")
     public void testMapWithFilterTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testMapWithFilterTable");
+        BValue[] returns = BRunUtil.invoke(result, "testMapWithFilterTable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BValueArray) returns[0]).getString(0), "Peter");
     }
 
     @Test(groups = "TableIterationTest", description = "Check filter with map operation")
     public void testFilterWithMapTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testFilterWithMapTable");
+        BValue[] returns = BRunUtil.invoke(result, "testFilterWithMapTable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BValueArray) returns[0]).getString(0), "Peter");
     }
 
     @Test(groups = "TableIterationTest", description = "Check filter count and map operation")
     public void testFilterWithMapAndCountTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testFilterWithMapAndCountTable");
+        BValue[] returns = BRunUtil.invoke(result, "testFilterWithMapAndCountTable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @Test(groups = "TableIterationTest", description = "Check min operation")
     public void testMinWithTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testMinWithTable");
+        BValue[] returns = BRunUtil.invoke(result, "testMinWithTable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 100.25);
     }
 
     @Test(groups = "TableIterationTest", description = "Check max operation")
     public void testMaxWithTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testMaxWithTable");
+        BValue[] returns = BRunUtil.invoke(result, "testMaxWithTable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 600.25);
     }
 
     @Test(groups = "TableIterationTest", description = "Check sum operation")
     public void testSumWithTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testSumWithTable");
+        BValue[] returns = BRunUtil.invoke(result, "testSumWithTable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1701.0);
     }
 
     @Test(groups = "TableIterationTest", description = "Check average operation")
     public void testAverageWithTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testAverageWithTable");
+        BValue[] returns = BRunUtil.invoke(result, "testAverageWithTable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 425.25);
     }
 
     @Test(dependsOnGroups = "TableIterationTest")
     public void testCloseConnectionPool() {
-        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
+        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", args);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }

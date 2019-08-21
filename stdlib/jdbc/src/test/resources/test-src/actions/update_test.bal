@@ -16,7 +16,6 @@
 import ballerina/time;
 import ballerinax/java.jdbc;
 
-string jdbcURL = "jdbc:hsqldb:file:./target/tempdb/JDBC_UPDATE_TEST_HSQLDB";
 string jdbcUserName = "SA";
 string jdbcPassword = "";
 
@@ -137,7 +136,7 @@ type TimeDataWithNil record {
 };
 
 //Update Remote Function Tests
-function testCreateTable() returns [int, int] {
+function testCreateTable(string jdbcURL) returns [int, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -156,7 +155,7 @@ function testCreateTable() returns [int, int] {
     return [updatedRowCount, generatedKeysMapLength];
 }
 
-function testBasicInsertData() returns [int, int] {
+function testBasicInsertData(string jdbcURL) returns [int, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -175,7 +174,7 @@ function testBasicInsertData() returns [int, int] {
     return [insertCount, generatedKey];
 }
 
-function testBasicInsertDataWithoutGeneratedKey() returns [int, int] {
+function testBasicInsertDataWithoutGeneratedKey(string jdbcURL) returns [int, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -194,7 +193,7 @@ function testBasicInsertDataWithoutGeneratedKey() returns [int, int] {
     return [insertCount, generatedKeyMapLength];
 }
 
-function testInsertDataWithGeneratedKey() returns [int, int] {
+function testInsertDataWithGeneratedKey(string jdbcURL) returns [int, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -213,8 +212,8 @@ function testInsertDataWithGeneratedKey() returns [int, int] {
     return [count, generatedKey];
 }
 
-function testBasicInsertDataWithDatabaseError() returns [boolean, boolean, boolean, boolean, boolean, string, string,
-string, int] {
+function testBasicInsertDataWithDatabaseError(string jdbcURL) returns [boolean, boolean, boolean, boolean, boolean,
+    string, string, string, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -264,8 +263,8 @@ string, int] {
     state, reason, errorCode];
 }
 
-function testBasicInsertDataWithApplicationError() returns [boolean, boolean, boolean, boolean, boolean, string,
-string] {
+function testBasicInsertDataWithApplicationError(string jdbcURL) returns [boolean, boolean, boolean, boolean, boolean,
+    string, string] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -315,7 +314,7 @@ string] {
     reason, message];
 }
 
-function testUpdateTableData() returns [int, int] {
+function testUpdateTableData(string jdbcURL) returns [int, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -337,7 +336,8 @@ function testUpdateTableData() returns [int, int] {
     return [updateCount, count];
 }
 
-function testInsertNumericDataWithParameters() returns [int, int, int, int, int, int, decimal, decimal, float, float] {
+function testInsertNumericDataWithParameters(string jdbcURL) returns [int, int, int, int, int, int, decimal, decimal,
+    float, float] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -399,7 +399,8 @@ function testInsertNumericDataWithParameters() returns [int, int, int, int, int,
     realType];
 }
 
-function testInsertNumericDataWithDirectValues() returns [int, int, int, int, int, int, decimal, decimal, float, float] {
+function testInsertNumericDataWithDirectValues(string jdbcURL) returns [int, int, int, int, int, int, decimal, decimal,
+    float, float] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -449,8 +450,8 @@ function testInsertNumericDataWithDirectValues() returns [int, int, int, int, in
     realType];
 }
 
-function testInsertNumericDataWithNilValues() returns [int?, int?, int?, int?, int?, int?, decimal?, decimal?, float?,
-float?] {
+function testInsertNumericDataWithNilValues(string jdbcURL) returns [int?, int?, int?, int?, int?, int?, decimal?, decimal?, float?,
+    float?] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -510,8 +511,8 @@ float?] {
     realType];
 }
 
-function testInsertStringDataWithParameters() returns [int, string, string, string, string, string, string, string,
-string] {
+function testInsertStringDataWithParameters(string jdbcURL) returns [int, string, string, string, string, string,
+    string, string, string] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -568,8 +569,8 @@ string] {
     longvarcharType, clobType];
 }
 
-function testInsertStringDataWithDirectParams() returns [int, string, string, string, string, string, string, string,
-string] {
+function testInsertStringDataWithDirectParams(string jdbcURL) returns [int, string, string, string, string, string,
+    string, string, string] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -618,8 +619,8 @@ string] {
     longvarcharType, clobType];
 }
 
-function testInsertStringDataWithNilValues() returns [int, string?, string?, string?, string?, string?, string?,
-string?, string?] {
+function testInsertStringDataWithNilValues(string jdbcURL) returns [int, string?, string?, string?, string?, string?,
+    string?, string?, string?] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -675,8 +676,8 @@ string?, string?] {
     longvarcharType, clobType];
 }
 
-function testInsertStringDataWithEmptyValues() returns [int, string, string, string, string, string, string, string,
-string] {
+function testInsertStringDataWithEmptyValues(string jdbcURL) returns [int, string, string, string, string, string,
+    string, string, string] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -689,7 +690,7 @@ string] {
     var result = testDB->update("Insert into StringTypes (id, varchar_type, charmax_type, char_type,
                                                     charactermax_type, character_type, nvarcharmax_type,
                                                     longvarchar_type, clob_type) values (?,?,?,?,?,?,?,?,?)",
-    intIDVal, "", "", "", "", "", "", "", "");
+                        intIDVal, "", "", "", "", "", "", "", "");
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
@@ -724,7 +725,7 @@ string] {
     longvarcharType, clobType];
 }
 
-function testInsertBoolDataAsIntsAndReturnInts() returns [int, int, int] {
+function testInsertBoolDataAsIntsAndReturnInts(string jdbcURL) returns [int, int, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -758,7 +759,7 @@ function testInsertBoolDataAsIntsAndReturnInts() returns [int, int, int] {
     return [insertCount, boolVal, bitVal];
 }
 
-function testInsertBoolDataAsBoolAndReturnBool() returns [int, boolean, boolean] {
+function testInsertBoolDataAsBoolAndReturnBool(string jdbcURL) returns [int, boolean, boolean] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -791,7 +792,7 @@ function testInsertBoolDataAsBoolAndReturnBool() returns [int, boolean, boolean]
     return [insertCount, boolVal, bitVal];
 }
 
-function testInsertBoolDataAsBoolAndReturnBoolAsDirectParams() returns [int, boolean, boolean] {
+function testInsertBoolDataAsBoolAndReturnBoolAsDirectParams(string jdbcURL) returns [int, boolean, boolean] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -820,7 +821,7 @@ function testInsertBoolDataAsBoolAndReturnBoolAsDirectParams() returns [int, boo
     return [insertCount, boolVal, bitVal];
 }
 
-function testInsertBoolDataAsIntsInvalidParams() returns jdbc:UpdateResult | jdbc:Error {
+function testInsertBoolDataAsIntsInvalidParams(string jdbcURL) returns jdbc:UpdateResult | jdbc:Error {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -838,7 +839,7 @@ function testInsertBoolDataAsIntsInvalidParams() returns jdbc:UpdateResult | jdb
     return result;
 }
 
-function testInsertBoolDataWithNilValues() returns [int, boolean?, boolean?] {
+function testInsertBoolDataWithNilValues(string jdbcURL) returns [int, boolean?, boolean?] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -872,7 +873,8 @@ function testInsertBoolDataWithNilValues() returns [int, boolean?, boolean?] {
     return [insertCount, boolVal, bitVal];
 }
 
-function testInsertBinaryDataWithParameters() returns [int, byte[], byte[], byte[], byte[], byte[], byte[]] {
+function testInsertBinaryDataWithParameters(string jdbcURL) returns [int, byte[], byte[], byte[], byte[], byte[],
+    byte[]] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -921,7 +923,8 @@ function testInsertBinaryDataWithParameters() returns [int, byte[], byte[], byte
     return [insertCount, binaryType, varbinaryType, blobType, longvarbinaryType, binaryvaryingType, binarylargetobjType];
 }
 
-function testInsertBinaryDataWithNilValues() returns [int, byte[]?, byte[]?, byte[]?, byte[]?, byte[]?, byte[]?] {
+function testInsertBinaryDataWithNilValues(string jdbcURL) returns [int, byte[]?, byte[]?, byte[]?, byte[]?, byte[]?,
+    byte[]?] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -970,7 +973,7 @@ function testInsertBinaryDataWithNilValues() returns [int, byte[]?, byte[]?, byt
     return [insertCount, binaryType, varbinaryType, blobType, longvarbinaryType, binaryvaryingType, binarylargetobjType];
 }
 
-function testInsertTimeDataAsString() returns [int, string, string, string, string, string, string] {
+function testInsertTimeDataAsString(string jdbcURL) returns [int, string, string, string, string, string, string] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -1020,7 +1023,8 @@ function testInsertTimeDataAsString() returns [int, string, string, string, stri
     return [insertCount, dateType, timenzType, timestampnzType, datetimeType, timezType, timestampzType];
 }
 
-function testInsertTimeDataAsBallerinaTime() returns [int, boolean, boolean, boolean, boolean, boolean, boolean] {
+function testInsertTimeDataAsBallerinaTime(string jdbcURL) returns [int, boolean, boolean, boolean, boolean, boolean,
+    boolean] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -1112,7 +1116,7 @@ function testInsertTimeDataAsBallerinaTime() returns [int, boolean, boolean, boo
     return [insertCount, dateEquals, timeEquals, timestampEquals, datetimeEquals, timezEquals, timestampzEquals];
 }
 
-function testInsertTimeDataAsInt() returns [int, int, int, int] {
+function testInsertTimeDataAsInt(string jdbcURL) returns [int, int, int, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -1153,8 +1157,8 @@ function testInsertTimeDataAsInt() returns [int, int, int, int] {
     return [insertCount, timenzType, timestampnzType, datetimeType];
 }
 
-function testInsertTimeDataAsBallerinaTimeWithNil() returns [int, time:Time?, time:Time?, time:Time?, time:Time?,
-time:Time?, time:Time?] {
+function testInsertTimeDataAsBallerinaTimeWithNil(string jdbcURL) returns [int, time:Time?, time:Time?, time:Time?,
+    time:Time?, time:Time?, time:Time?] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -1207,7 +1211,7 @@ time:Time?, time:Time?] {
     return [insertCount, dateType, timenzType, timestampnzType, datetimeType, timezType, timestampzType];
 }
 
-function testInvalidUpdateOnUpdateResultRecord() returns error | () {
+function testInvalidUpdateOnUpdateResultRecord(string jdbcURL) returns error | () {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -1230,7 +1234,7 @@ function testInvalidUpdateOnUpdateResultRecord() returns error | () {
     checkpanic testDB.stop();
 }
 
-function testStopClient() returns error? {
+function testStopClient(string jdbcURL) returns error? {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -1244,7 +1248,7 @@ function updateResultSet(jdbc:UpdateResult result) {
     result.updatedRowCount = 100;//Invalid update
 }
 
-function testCloseConnectionPool() returns @tainted (int) {
+function testCloseConnectionPool(string jdbcURL) returns @tainted (int) {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,

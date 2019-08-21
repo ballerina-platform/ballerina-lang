@@ -153,9 +153,9 @@ type Person record {
     string name;
 };
 
-function testToJson() returns @tainted json {
+function testToJson(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -168,9 +168,9 @@ function testToJson() returns @tainted json {
     return retVal;
 }
 
-function testToJsonComplexTypes() returns @tainted json {
+function testToJsonComplexTypes(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -182,9 +182,9 @@ function testToJsonComplexTypes() returns @tainted json {
     return retVal;
 }
 
-function testToJsonComplexTypesNil() returns @tainted json {
+function testToJsonComplexTypesNil(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -196,9 +196,9 @@ function testToJsonComplexTypesNil() returns @tainted json {
     return retVal;
 }
 
-function testToXml() returns xml {
+function testToXml(string jdbcURL) returns xml {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -211,9 +211,9 @@ function testToXml() returns xml {
     return retVal;
 }
 
-function testToXmlComplexTypes() returns xml {
+function testToXmlComplexTypes(string jdbcURL) returns xml {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -226,9 +226,9 @@ function testToXmlComplexTypes() returns xml {
     return retVal;
 }
 
-function testToXmlComplexTypesNil() returns xml {
+function testToXmlComplexTypesNil(string jdbcURL) returns xml {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -241,9 +241,9 @@ function testToXmlComplexTypesNil() returns xml {
     return retVal;
 }
 
-function testToXmlMultipleConsume() returns xml {
+function testToXmlMultipleConsume(string jdbcURL) returns xml {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -257,9 +257,9 @@ function testToXmlMultipleConsume() returns xml {
     return retVal;
 }
 
-function testToXmlWithAdd() returns xml {
+function testToXmlWithAdd(string jdbcURL) returns xml {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -281,9 +281,9 @@ function testToXmlWithAdd() returns xml {
     return result;
 }
 
-function testToJsonMultipleConsume() returns @tainted json {
+function testToJsonMultipleConsume(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -297,9 +297,9 @@ function testToJsonMultipleConsume() returns @tainted json {
     return result;
 }
 
-function toXmlComplex() returns xml {
+function toXmlComplex(string jdbcURL) returns xml {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -313,9 +313,9 @@ function toXmlComplex() returns xml {
     return convertedVal;
 }
 
-function testToXmlComplexWithStructDef() returns xml {
+function testToXmlComplexWithStructDef(string jdbcURL) returns xml {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -330,9 +330,9 @@ function testToXmlComplexWithStructDef() returns xml {
     return convertedVal;
 }
 
-function testToJsonComplex() returns @tainted json {
+function testToJsonComplex(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -347,9 +347,9 @@ function testToJsonComplex() returns @tainted json {
     return convertedVal;
 }
 
-function testToJsonComplexWithStructDef() returns @tainted json {
+function testToJsonComplexWithStructDef(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -363,9 +363,9 @@ function testToJsonComplexWithStructDef() returns @tainted json {
     return ret;
 }
 
-function testJsonWithNull() returns @tainted json {
+function testJsonWithNull(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -377,9 +377,9 @@ function testJsonWithNull() returns @tainted json {
     return convertedVal;
 }
 
-function testXmlWithNull() returns xml {
+function testXmlWithNull(string jdbcURL) returns xml {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -391,9 +391,9 @@ function testXmlWithNull() returns xml {
     return ret;
 }
 
-function testToXmlWithinTransaction() returns [string, int] {
+function testToXmlWithinTransaction(string jdbcURL) returns [string, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -416,10 +416,10 @@ function testToXmlWithinTransaction() returns [string, int] {
     checkpanic testDB.stop();
     return [resultXml, returnValue];
 }
-// TODO: #16033
-function testToJsonWithinTransaction() returns [string, int] {
+
+function testToJsonWithinTransaction(string jdbcURL) returns [string, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -443,9 +443,9 @@ function testToJsonWithinTransaction() returns [string, int] {
     return [result, returnValue];
 }
 
-function testGetPrimitiveTypes() returns @tainted [int, int, float, float, boolean, string, decimal] {
+function testGetPrimitiveTypes(string jdbcURL) returns @tainted [int, int, float, float, boolean, string, decimal] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -478,9 +478,9 @@ function testGetPrimitiveTypes() returns @tainted [int, int, float, float, boole
     return [i, l, f, d, b, s, dec];
 }
 
-function testGetComplexTypes() returns @tainted [byte[], string, byte[]] {
+function testGetComplexTypes(string jdbcURL) returns @tainted [byte[], string, byte[]] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -504,9 +504,9 @@ function testGetComplexTypes() returns @tainted [byte[], string, byte[]] {
     return [blobData, clob, binaryData];
 }
 
-function testArrayData() returns @tainted [int[], int[], decimal[], string[], boolean[]] {
+function testArrayData(string jdbcURL) returns @tainted [int[], int[], decimal[], string[], boolean[]] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -535,9 +535,9 @@ function testArrayData() returns @tainted [int[], int[], decimal[], string[], bo
     return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
-function testArrayDataInsertAndPrint() returns @tainted [int, int, int, int, int, int] {
+function testArrayDataInsertAndPrint(string jdbcURL) returns @tainted [int, int, int, int, int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -594,9 +594,9 @@ function testArrayDataInsertAndPrint() returns @tainted [int, int, int, int, int
     return [updatedCount, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen];
 }
 
-function testDateTime(int datein, int timein, int timestampin) returns @tainted [string, string, string, string] {
+function testDateTime(int datein, int timein, int timestampin, string jdbcURL) returns @tainted [string, string, string, string] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -633,9 +633,9 @@ function testDateTime(int datein, int timein, int timestampin) returns @tainted 
     return [date, time, timestamp, datetime];
 }
 
-function testDateTimeAsTimeStruct() returns @tainted [int, int, int, int, int, int, int, int] | error {
+function testDateTimeAsTimeStruct(string jdbcURL) returns @tainted [int, int, int, int, int, int, int, int] | error {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -690,9 +690,9 @@ function testDateTimeAsTimeStruct() returns @tainted [int, int, int, int, int, i
     datetimeInserted, datetimeRetrieved];
 }
 
-function testDateTimeInt(int datein, int timein, int timestampin) returns @tainted [int, int, int, int] {
+function testDateTimeInt(int datein, int timein, int timestampin, string jdbcURL) returns @tainted [int, int, int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -731,9 +731,9 @@ function testDateTimeInt(int datein, int timein, int timestampin) returns @taint
     return [date, time, timestamp, datetime];
 }
 
-function testBlobData() returns @tainted byte[] {
+function testBlobData(string jdbcURL) returns @tainted byte[] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -752,9 +752,9 @@ function testBlobData() returns @tainted byte[] {
     return blobData;
 }
 
-function testColumnAlias() returns @tainted [int, int, float, float, boolean, string, int] {
+function testColumnAlias(string jdbcURL) returns @tainted [int, int, float, float, boolean, string, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -788,9 +788,9 @@ function testColumnAlias() returns @tainted [int, int, float, float, boolean, st
     return [i, l, f, d, b, s, i2];
 }
 
-function testBlobInsert() returns int {
+function testBlobInsert(string jdbcURL) returns int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -814,9 +814,9 @@ function testBlobInsert() returns int {
     return insertCount;
 }
 
-function testTableAutoClose() returns @tainted [int, json] {
+function testTableAutoClose(string jdbcURL) returns @tainted [int, json] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -849,9 +849,9 @@ function testTableAutoClose() returns @tainted [int, json] {
     return [i, jsonData];
 }
 
-function testTableManualClose() returns @tainted int {
+function testTableManualClose(string jdbcURL) returns @tainted int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -900,15 +900,15 @@ function testTableManualClose() returns @tainted int {
     return data;
 }
 
-function testCloseConnectionPool(string connectionCountQuery) returns int {
+function testCloseConnectionPool(string jdbcURL) returns int {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var selectRet = testDB->select(connectionCountQuery, ResultCount);
+    var selectRet = testDB->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
     int retVal;
     if (selectRet is table<ResultCount>) {
         while (selectRet.hasNext()) {
@@ -926,9 +926,9 @@ function testCloseConnectionPool(string connectionCountQuery) returns int {
     return retVal;
 }
 
-function testTablePrintAndPrintln() {
+function testTablePrintAndPrintln(string jdbcURL) {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -946,9 +946,9 @@ function testTablePrintAndPrintln() {
     checkpanic testDB.stop();
 }
 
-function testMultipleRows() returns @tainted [int, int] {
+function testMultipleRows(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -973,9 +973,9 @@ function testMultipleRows() returns @tainted [int, int] {
     return [rs1.INT_TYPE, rs2.INT_TYPE];
 }
 
-function testMultipleRowsWithoutLoop() returns @tainted [int, int, int, int, string, string] {
+function testMultipleRowsWithoutLoop(string jdbcURL) returns @tainted [int, int, int, int, string, string] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1090,9 +1090,9 @@ function testMultipleRowsWithoutLoop() returns @tainted [int, int, int, int, str
     return [i1, i2, i3, i4, s1, s2];
 }
 
-function testHasNextWithoutConsume() returns [boolean, boolean, boolean] {
+function testHasNextWithoutConsume(string jdbcURL) returns [boolean, boolean, boolean] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1120,9 +1120,9 @@ function testHasNextWithoutConsume() returns [boolean, boolean, boolean] {
     return [b1, b2, b3];
 }
 
-function testGetFloatTypes() returns @tainted [float, float, decimal, decimal] {
+function testGetFloatTypes(string jdbcURL) returns @tainted [float, float, decimal, decimal] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1151,9 +1151,9 @@ function testGetFloatTypes() returns @tainted [float, float, decimal, decimal] {
     return [f, d, num, dec];
 }
 
-function testSignedIntMaxMinValues() returns @tainted [int, int, int, string, string, string] {
+function testSignedIntMaxMinValues(string jdbcURL) returns @tainted [int, int, int, string, string, string] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1232,9 +1232,9 @@ function testSignedIntMaxMinValues() returns @tainted [int, int, int, string, st
     return [maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str];
 }
 
-function testComplexTypeInsertAndRetrieval() returns @tainted [int, int, string, string, string, byte[][]] {
+function testComplexTypeInsertAndRetrieval(string jdbcURL) returns @tainted [int, int, string, string, string, byte[][]] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1301,9 +1301,9 @@ function testComplexTypeInsertAndRetrieval() returns @tainted [int, int, string,
     return [retDataInsert, retNullInsert, jsonStr, xmlStr, str, expected];
 }
 
-function testJsonXMLConversionwithDuplicateColumnNames() returns @tainted [json, xml] {
+function testJsonXMLConversionwithDuplicateColumnNames(string jdbcURL) returns @tainted [json, xml] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1321,9 +1321,9 @@ function testJsonXMLConversionwithDuplicateColumnNames() returns @tainted [json,
     return [j, x];
 }
 
-function testStructFieldNotMatchingColumnName() returns @tainted [int, int, int, int, int] {
+function testStructFieldNotMatchingColumnName(string jdbcURL) returns @tainted [int, int, int, int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1363,9 +1363,9 @@ function testStructFieldNotMatchingColumnName() returns @tainted [int, int, int,
     return [countAll, i1, i2, i3, i4];
 }
 
-function testGetPrimitiveTypesWithForEach() returns @tainted [int, int, float, float, boolean, string, decimal] {
+function testGetPrimitiveTypesWithForEach(string jdbcURL) returns @tainted [int, int, float, float, boolean, string, decimal] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1396,9 +1396,9 @@ function testGetPrimitiveTypesWithForEach() returns @tainted [int, int, float, f
     return [i, l, f, d, b, s, dec];
 }
 
-function testMultipleRowsWithForEach() returns @tainted [int, int] {
+function testMultipleRowsWithForEach(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1423,9 +1423,9 @@ function testMultipleRowsWithForEach() returns @tainted [int, int] {
     return [rs1.INT_TYPE, rs2.INT_TYPE];
 }
 
-function testTableAddInvalid() returns @tainted string {
+function testTableAddInvalid(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1446,9 +1446,9 @@ function testTableAddInvalid() returns @tainted string {
     return s;
 }
 
-function testTableRemoveInvalid() returns @tainted string {
+function testTableRemoveInvalid(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1470,9 +1470,9 @@ function testTableRemoveInvalid() returns @tainted string {
     return s;
 }
 
-function tableGetNextInvalid() returns @tainted string {
+function tableGetNextInvalid(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1494,9 +1494,9 @@ function isDelete(ResultPrimitiveInt p) returns boolean {
     return p.INT_TYPE < 2000;
 }
 
-function testToJsonAndAccessFromMiddle() returns @tainted [json, int] {
+function testToJsonAndAccessFromMiddle(string jdbcURL) returns @tainted [json, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1510,9 +1510,9 @@ function testToJsonAndAccessFromMiddle() returns @tainted [json, int] {
     return [result, jArray.length()];
 }
 
-function testToJsonAndIterate() returns @tainted [json, int] | error {
+function testToJsonAndIterate(string jdbcURL) returns @tainted [json, int] | error {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1525,9 +1525,9 @@ function testToJsonAndIterate() returns @tainted [json, int] | error {
     return [j, j.length()];
 }
 
-function testToJsonAndSetAsChildElement() returns @tainted json {
+function testToJsonAndSetAsChildElement(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1540,9 +1540,9 @@ function testToJsonAndSetAsChildElement() returns @tainted json {
     return j;
 }
 
-function testToJsonAndLengthof() returns @tainted [int, int] {
+function testToJsonAndLengthof(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1600,9 +1600,9 @@ function getXMLConversionResult(table<record {}> | error tableOrError) returns x
     return retVal;
 }
 
-function testSelectQueryWithCursorTable() returns error? {
+function testSelectQueryWithCursorTable(string jdbcURL) returns error? {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1620,9 +1620,9 @@ function testSelectQueryWithCursorTableHelper(table<IntData> t1) {
     select *;
 }
 
-function testJoinQueryWithCursorTable() returns error? {
+function testJoinQueryWithCursorTable(string jdbcURL) returns error? {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 2}
@@ -1638,10 +1638,10 @@ function testJoinQueryWithCursorTable() returns error? {
     return e;
 }
 
-function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns @tainted [int, int, float, float, boolean,
-string] {
+function testTypeCheckingConstrainedCursorTableWithClosedConstraint(string jdbcURL) returns @tainted [int, int, float,
+    float, boolean, string] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1679,9 +1679,9 @@ function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2
     select table1.int_type as int_type;
 }
 
-function testAssignStringValueToJsonField() returns @tainted json {
+function testAssignStringValueToJsonField(string jdbcURL) returns @tainted json {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1703,9 +1703,9 @@ type Order record {
     string name;
 };
 
-function testForEachInTableWithStmt() returns @tainted [int, int, float, string] {
+function testForEachInTableWithStmt(string jdbcURL) returns @tainted [int, int, float, string] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1730,9 +1730,9 @@ function testForEachInTableWithStmt() returns @tainted [int, int, float, string]
     return [id, age, salary, name];
 }
 
-function testForEachInTableWithIndex() returns @tainted [string, string] {
+function testForEachInTableWithIndex(string jdbcURL) returns @tainted [string, string] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
@@ -1754,9 +1754,9 @@ function testForEachInTableWithIndex() returns @tainted [string, string] {
     return [idStr, indexStr];
 }
 
-function testForEachInTable() returns [int, int, float, string] {
+function testForEachInTable(string jdbcURL) returns [int, int, float, string] {
     jdbc:Client testDB = new ({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        url: jdbcURL,
         username: "SA",
         password: "",
         poolOptions: {maximumPoolSize: 1}
