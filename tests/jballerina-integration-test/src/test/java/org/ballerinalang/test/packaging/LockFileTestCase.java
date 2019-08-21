@@ -176,7 +176,7 @@ public class LockFileTestCase extends BaseTest {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new
+            balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{}, new
                     LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
             Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
             return Files.exists(lockFilePath);
@@ -230,7 +230,7 @@ public class LockFileTestCase extends BaseTest {
         String module2BuildMsg = "target" + File.separator + "balo" + File.separator + module2BaloFileName;
         LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
         LogLeecher module2BuildLeecher = new LogLeecher(module2BuildMsg);
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
                 new LogLeecher[]{module1BuildLeecher, module2BuildLeecher}, testProj1Path.toString());
         module1BuildLeecher.waitForText(5000);
         module2BuildLeecher.waitForText(5000);
@@ -264,8 +264,8 @@ public class LockFileTestCase extends BaseTest {
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
         String fooBuildMsg = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new LogLeecher[]{fooBuildLeecher},
-                testProj2Path.toString());
+        balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
+                new LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
         fooBuildLeecher.waitForText(10000);
     
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
@@ -306,7 +306,7 @@ public class LockFileTestCase extends BaseTest {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{"-c", "--off-line"}, envVariables, new String[]{}, new
+            balClient.runMain("build", new String[]{"-a", "-c", "--off-line"}, envVariables, new String[]{}, new
                     LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
             fooBuildLeecher.waitForText(10000);
             return Files.exists(testProj2Path.resolve("Ballerina.lock"));
@@ -350,7 +350,7 @@ public class LockFileTestCase extends BaseTest {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new
+            balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{}, new
                     LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
             fooBuildLeecher.waitForText(10000);
             return Files.exists(testProj2Path.resolve("Ballerina.lock"));
@@ -397,7 +397,7 @@ public class LockFileTestCase extends BaseTest {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new
+            balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{}, new
                     LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
             fooBuildLeecher.waitForText(10000);
             return Files.exists(testProj2Path.resolve("Ballerina.lock"));
@@ -440,7 +440,7 @@ public class LockFileTestCase extends BaseTest {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new
+            balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{}, new
                     LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
             fooBuildLeecher.waitForText(10000);
             return Files.exists(testProj2Path.resolve("Ballerina.lock"));
