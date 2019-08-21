@@ -133,4 +133,9 @@ public class RuntimeUtils {
             Runtime.getRuntime().exit(1);
         }
     }
+
+    public static void silentlyLogBadSad(Throwable throwable) {
+        // These errors are unhandled errors in JVM, hence logging them to bre log.
+        breLog.error(throwable.getMessage(), throwable);
+    }
 }

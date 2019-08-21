@@ -1,4 +1,3 @@
-import ballerina/io;
 import ballerina/'lang\.int as ints;
 import ballerina/'lang\.float as floats;
 

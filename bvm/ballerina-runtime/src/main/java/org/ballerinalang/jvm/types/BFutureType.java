@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.TypeChecker;
+
+import java.util.ArrayList;
+
 /**
  * {@code BFutureType} represents a future value in Ballerina.
  *
@@ -58,6 +62,20 @@ public class BFutureType extends BType {
     @Override
     public int getTag() {
         return TypeTags.FUTURE_TAG;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BTableType)) {
+            return false;
+        }
+
+        BFutureType other = (BFutureType) obj;
+        if (constraint == other.constraint) {
+            return true;
+        }
+
+        return TypeChecker.checkIsType(constraint, other.constraint, new ArrayList<>());
     }
 
 }

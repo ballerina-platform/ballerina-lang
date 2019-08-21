@@ -1,4 +1,3 @@
-import ballerina/mime;
 import ballerina/http;
 
 string textValue = "Hello Ballerina!";

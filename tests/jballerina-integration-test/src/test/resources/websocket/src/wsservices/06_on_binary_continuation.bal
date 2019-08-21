@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 
 byte[] content = [];
 service onBinaryContinuation on new http:Listener(21007) {

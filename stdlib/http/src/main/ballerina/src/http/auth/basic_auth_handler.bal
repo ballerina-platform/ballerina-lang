@@ -15,10 +15,7 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/encoding;
 import ballerina/internal;
-import ballerina/log;
-import ballerina/runtime;
 
 # Defines the Basic Auth header handler for inbound and outbound HTTP traffic.
 #
