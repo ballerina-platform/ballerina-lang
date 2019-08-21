@@ -80,12 +80,12 @@ public class AddCommand implements BLauncherCmd {
     public AddCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
-        homeCache = userDir.resolve(".ballerina");
+        homeCache = RepoUtils.createAndGetHomeReposPath();
         initJarFs();
     }
 
     public AddCommand(Path userDir, PrintStream errStream) {
-        this(userDir, errStream, userDir.resolve(".ballerina"));
+        this(userDir, errStream, RepoUtils.createAndGetHomeReposPath());
     }
 
     public AddCommand(Path userDir, PrintStream errStream, Path homeCache) {
@@ -259,10 +259,12 @@ public class AddCommand implements BLauncherCmd {
         // find all balos matching org and module name.
         Path baloTemplate = findBaloTemplate(template);
         if (baloTemplate != null) {
+            String moduleName = getModuleName(baloTemplate);
+
             URI zipURI = URI.create("jar:file:" + baloTemplate.toString());
             try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
                 // Copy sources
-                Path srcDir = zipfs.getPath("/src").resolve("mytpl");
+                Path srcDir = zipfs.getPath("/src").resolve(moduleName);
                 // We do a string comparison to be efficient.
                 Files.walkFileTree(srcDir, new Copy(srcDir, modulePath));
 
@@ -274,11 +276,21 @@ public class AddCommand implements BLauncherCmd {
                 Files.walkFileTree(resourcesDir, new Copy(resourcesDir, modulePath));
             } catch (IOException e) {
                 CommandUtil.printError(errStream,
-                        "Error while applying template",
+                        "Error while applying template : " + e.getMessage(),
                         null,
                         false);
+                Runtime.getRuntime().exit(1);
             }
         }
+    }
+
+    private String getModuleName(Path baloTemplate) {
+        Path baloName = baloTemplate.getFileName();
+        if (baloName != null) {
+            String fileName = baloName.toString();
+            return fileName.split("-")[0];
+        }
+        return "";
     }
 
     private Path findBaloTemplate(String template) {
@@ -313,6 +325,7 @@ public class AddCommand implements BLauncherCmd {
                     "Unable to read home cache",
                     null,
                     false);
+            Runtime.getRuntime().exit(1);
         }
 
 
@@ -377,6 +390,7 @@ public class AddCommand implements BLauncherCmd {
                     "Unable to read home cache",
                     null,
                     false);
+            Runtime.getRuntime().exit(1);
         }
         // filter template modules
         return templates;
