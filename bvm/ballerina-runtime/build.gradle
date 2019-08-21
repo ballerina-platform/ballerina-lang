@@ -17,13 +17,6 @@
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
-configurations {
-    // configuration that holds jars to copy into runtime jar
-    dist {
-        transitive false
-    }
-}
-
 dependencies {
     implementation 'org.apache.ws.commons.axiom:axiom-impl'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
@@ -31,20 +24,12 @@ dependencies {
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-util'
     implementation 'org.awaitility:awaitility'
+    implementation 'org.apache.commons:commons-lang3'
 
     implementation project(':ballerina-config')
-
-    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
-    dist 'io.opentracing:opentracing-api:0.31.0'
-    dist 'io.opentracing:opentracing-util:0.31.0'
-    dist 'org.awaitility:awaitility:3.1.6'
+    implementation project(':ballerina-logging')
 }
 
-jar {
-    from { configurations.dist.collect { it.isDirectory() ? it : zipTree(it) } }
-}
 
 description = 'Ballerina - Runtime Core'
 

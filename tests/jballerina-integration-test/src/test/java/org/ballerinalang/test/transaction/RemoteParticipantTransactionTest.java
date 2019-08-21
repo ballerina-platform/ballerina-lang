@@ -52,17 +52,19 @@ public class RemoteParticipantTransactionTest extends BaseTest {
         int[] requiredPorts = new int[]{initiatorServicePort, participant1ServicePort};
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" +
                 File.separator + "transaction").getAbsolutePath();
-        String[] args = new String[]{"-e", "http.coordinator.host=127.0.0.1", "--experimental"};
+        String[] buildArgs = new String[] { "--experimental" };
+        String[] runtimeArgs = new String[] { "--", "http.coordinator.host=127.0.0.1" };
 
         serverInstance = new BServerInstance(balServer);
         HashMap<String, String> envProperties = new HashMap<>();
-        serverInstance.startServer(basePath, "participantservice", args, envProperties, requiredPorts);
+        serverInstance.startServer(basePath, "participantservice", buildArgs, runtimeArgs,
+                                   envProperties, requiredPorts);
 
         sepBalserverInstance = new BalServer();
         separateInstance = new BServerInstance(sepBalserverInstance);
         HashMap<String, String> env2Properties = new HashMap<>();
         int[] requiredPortsSepProc = new int[]{separateProcServicePort};
-        separateInstance.startServer(basePath, "participantSepProc", args, env2Properties,
+        separateInstance.startServer(basePath, "participantSepProc", buildArgs, runtimeArgs, env2Properties,
                 requiredPortsSepProc);
     }
 

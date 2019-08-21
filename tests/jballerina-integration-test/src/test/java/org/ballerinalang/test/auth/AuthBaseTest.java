@@ -47,9 +47,9 @@ public class AuthBaseTest extends BaseTest {
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "auth").getAbsolutePath();
         String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
-        String[] args = new String[]{"--config", ballerinaConfPath};
+        String[] args = new String[] { "--config", ballerinaConfPath };
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(basePath, "authservices", args, requiredPorts);
+        serverInstance.startServer(basePath, "authservices", null, args, requiredPorts);
     }
 
     @AfterGroups(value = "auth-test", alwaysRun = true)

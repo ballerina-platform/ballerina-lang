@@ -118,10 +118,6 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
                                                 File.separator + "websub" + File.separator + "subscriber" +
                                                 File.separator + "test_subscriber.bal").getAbsolutePath();
-    
-        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources" +
-                                        File.separator + "websub" + File.separator + "subscriber").getAbsolutePath();
-        
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(explicitIntentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherThree);
@@ -134,8 +130,8 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(unsubscriptionIntentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
 
-        String[] subscriberArgs = {"-e", "test.hub.url=" + hubUrl};
-        webSubSubscriber.startServer(sourceRoot, subscriberBal, subscriberArgs, new int[]{WEBSUB_PORT});
+        String[] subscriberArgs = {"--test.hub.url=" + hubUrl};
+        webSubSubscriber.startServer(subscriberBal, new String[0], subscriberArgs, new int[]{WEBSUB_PORT});
     }
 
     @Test
@@ -182,13 +178,9 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                           "websub" + File.separator + "subscriber" + File.separator +
                                           "test_unsubscription_client.bal").getAbsolutePath();
-    
-        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                                  "websub" + File.separator + "subscriber").getAbsolutePath();
-        
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                subscriptionChanger.runMain(sourceRoot, balFile);
+                subscriptionChanger.runMain(balFile);
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }

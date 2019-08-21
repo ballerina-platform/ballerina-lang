@@ -64,11 +64,9 @@ public class MetricsTestCase extends BaseTest {
         sqlServer = new FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScriptPath, SQLDBUtils.DB_DIRECTORY, DB_NAME);
         String balFile = new File(RESOURCE_LOCATION + "metrics-test.bal").getAbsolutePath();
         List<String> args = new ArrayList<>();
-        args.add("-e");
-        args.add(ObservabilityConstants.CONFIG_METRICS_ENABLED + "=true");
-        args.add("-e");
-        args.add(CONFIG_TABLE_METRICS + ".statistic.percentiles=0.5, 0.75, 0.98, 0.99, 0.999");
-        serverInstance.startServer(balFile, args.toArray(new String[args.size()]), new int[]{9090});
+        args.add("--" + ObservabilityConstants.CONFIG_METRICS_ENABLED + "=true");
+        args.add("--" + CONFIG_TABLE_METRICS + ".statistic.percentiles=0.5, 0.75, 0.98, 0.99, 0.999");
+        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[] { 9090 });
         addMetrics();
     }
 
