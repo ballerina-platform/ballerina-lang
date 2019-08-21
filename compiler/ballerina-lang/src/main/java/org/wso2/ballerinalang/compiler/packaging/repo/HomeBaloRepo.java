@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
@@ -69,48 +70,49 @@ public class HomeBaloRepo implements Repo<Path> {
                 return Patten.NULL;
             }
             
-            Path baloFilePath;
-            // check if version is empty. If so get the latest balo file directly.
-            if (versionStr.isEmpty()) {
-                Optional<Path> latestVersionPath =
-                        getLatestBaloFile(this.repoLocation.resolve(orgName).resolve(pkgName));
-                
-                if (latestVersionPath.isPresent()) {
-                    Path latestVersionDirectoryName = latestVersionPath.get().getFileName();
-                    if (null != latestVersionDirectoryName) {
-                        versionStr = latestVersionDirectoryName.toString();
-                        String baloFileName = pkgName + ".balo";
-                        // TODO: String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" +
-                        //  versionStr + ".balo";
-                        baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr)
-                                .resolve(baloFileName);
+            for (String platform : supportedPlatforms) {
+                Path baloFilePath;
+                // check if version is empty. If so get the latest balo file directly.
+                if (versionStr.isEmpty()) {
+                    Optional<Path> latestVersionPath = getLatestBaloFile(this.repoLocation.resolve(orgName)
+                            .resolve(pkgName));
+        
+                    if (latestVersionPath.isPresent()) {
+                        Path latestVersionDirectoryName = latestVersionPath.get().getFileName();
+                        if (null != latestVersionDirectoryName) {
+                            versionStr = latestVersionDirectoryName.toString();
+                            String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" +
+                                                  versionStr + ".balo";
+                            baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr).
+                                    resolve(baloFileName);
+                        } else {
+                            return Patten.NULL;
+                        }
                     } else {
                         return Patten.NULL;
                     }
                 } else {
-                    return Patten.NULL;
+                    // Get the existing balo file.
+                    String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + versionStr +
+                                          ".balo";
+                    baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr)
+                            .resolve(baloFileName);
                 }
-            } else {
-                // Get the existing balo file.
-                // TODO: String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" +
-                //  versionStr + ".balo";
-                String baloFileName = pkgName + ".balo";
-                baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr)
-                        .resolve(baloFileName);
-            }
-
-            // return Patten only if balo file exists.
-            Path baloFileName = baloFilePath.getFileName();
-            if (Files.exists(baloFilePath) && null != baloFileName) {
-                moduleID.version = new Name(versionStr);
-    
-                // update dependency manifests map for imports of this moduleID.
-                this.dependencyManifests.put(moduleID, RepoUtils.getManifestFromBalo(baloFilePath.toAbsolutePath()));
                 
-                return new Patten(path(orgName, pkgName),
-                        path(versionStr),
-                        path(baloFileName.toString(), ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
-                        Patten.WILDCARD_SOURCE);
+                // return Patten only if balo file exists.
+                Path baloFileName = baloFilePath.getFileName();
+                if (Files.exists(baloFilePath) && null != baloFileName) {
+                    moduleID.version = new Name(versionStr);
+    
+                    // update dependency manifests map for imports of this moduleID.
+                    this.dependencyManifests.put(moduleID,
+                            RepoUtils.getManifestFromBalo(baloFilePath.toAbsolutePath()));
+    
+                    return new Patten(path(orgName, pkgName),
+                            path(versionStr),
+                            path(baloFileName.toString(), ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
+                            Patten.WILDCARD_SOURCE);
+                }
             }
         
             return Patten.NULL;

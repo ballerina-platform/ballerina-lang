@@ -121,7 +121,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
     }
 
     if (langSpecVersion != "") {
-        req.setHeader("Ballerina-Language-Specficiation-Version", langSpecVersion);
+        req.setHeader("Ballerina-Language-Specification-Version", langSpecVersion);
     }
 
     req.addHeader("Accept-Encoding", "identity");
