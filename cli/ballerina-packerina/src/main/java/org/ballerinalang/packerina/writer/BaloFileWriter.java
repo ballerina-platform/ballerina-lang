@@ -267,6 +267,7 @@ public class BaloFileWriter {
         moduleObj.setModule_licenses(this.manifest.getProject().getLicense());
         moduleObj.setPlatform(this.manifest.getTargetPlatform());
         moduleObj.setBallerina_version(RepoUtils.getBallerinaVersion());
+        moduleObj.setTemplate(String.valueOf(manifest.getProject().getTemplates().contains(moduleName)));
         String moduleToml = writer.write(moduleObj);
         Files.write(moduleMetaFile, moduleToml.getBytes(Charset.defaultCharset()));
         
