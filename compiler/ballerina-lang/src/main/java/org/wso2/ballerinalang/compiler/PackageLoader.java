@@ -19,9 +19,7 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.CompilerOutputEntry;
@@ -56,8 +54,6 @@ import org.wso2.ballerinalang.compiler.packaging.repo.ZipRepo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -74,7 +70,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -393,30 +388,6 @@ public class PackageLoader {
 
 
     // Private methods
-
-    private void addImportPkg(BLangPackage bLangPackage, String orgName, String sourcePkgName, String version) {
-        List<Name> nameComps = getPackageNameComps(sourcePkgName);
-        List<BLangIdentifier> pkgNameComps = new ArrayList<>();
-        nameComps.forEach(comp -> {
-            IdentifierNode node = TreeBuilder.createIdentifierNode();
-            node.setValue(comp.value);
-            pkgNameComps.add((BLangIdentifier) node);
-        });
-
-        BLangIdentifier orgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        orgNameNode.setValue(orgName);
-        BLangIdentifier versionNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        versionNode.setValue(version);
-        BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
-        importDcl.pos = bLangPackage.pos;
-        importDcl.pkgNameComps = pkgNameComps;
-        importDcl.orgName = orgNameNode;
-        importDcl.version = versionNode;
-        BLangIdentifier alias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        alias.setValue(names.merge(Names.ORG_NAME_SEPARATOR, nameComps.get(nameComps.size() - 1)).value);
-        importDcl.alias = alias;
-        bLangPackage.imports.add(importDcl);
-    }
 
     private PackageID getPackageID(String org, String sourcePkg, String version) {
         // split from '.', '\' and '/'

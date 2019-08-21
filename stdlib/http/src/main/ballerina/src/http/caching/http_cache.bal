@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/cache;
+import ballerina/log;
 
 # Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
 # HTTP caching in the HTTP client endpoint.

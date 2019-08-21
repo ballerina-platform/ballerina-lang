@@ -22,6 +22,7 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/reflect;
 import ballerina/internal;
+import ballerina/config;
 
 # Intent verification request parameter `hub.challenge` representing the challenge that needs to be echoed by
 # susbscribers to verify intent.

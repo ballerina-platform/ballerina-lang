@@ -16,6 +16,7 @@
 
 import ballerina/cache;
 import ballerina/reflect;
+import ballerina/runtime;
 
 # Representation of the Authorization filter
 #

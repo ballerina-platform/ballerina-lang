@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/mime;
+
 # LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
 #
 # + loadBalanceClientConfig - The configurations for the load balance client endpoint

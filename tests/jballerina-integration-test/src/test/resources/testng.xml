@@ -272,13 +272,13 @@
         </classes>
     </test>
 
-    <test name="ballerina-packerina-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
-<!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
-            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
-            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
-        </classes>
-    </test>
+<!--    <test name="ballerina-packerina-tests" parallel="false">-->
+<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
+<!--&lt;!&ndash;            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>&ndash;&gt;-->
+<!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 </suite>

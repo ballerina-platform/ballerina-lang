@@ -31,7 +31,7 @@
 
 import ballerina/http;
 import ballerina/runtime;
-// import ballerina/testobserve;
+import ballerina/testobserve;
 
 @http:ServiceConfig {
     basePath:"/echoService"
