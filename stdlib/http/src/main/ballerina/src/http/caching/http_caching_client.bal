@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;

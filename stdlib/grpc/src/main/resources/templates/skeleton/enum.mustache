@@ -1,0 +1,3 @@
+public type {{messageName}} {{#fieldList}}"{{name}}"{{#unless @last}}|{{/unless}}{{/fieldList}};
+{{#fieldList}}const {{../messageName}} {{uppercase ../messageName}}_{{uppercase name}} = "{{name}}";
+{{/fieldList}}
