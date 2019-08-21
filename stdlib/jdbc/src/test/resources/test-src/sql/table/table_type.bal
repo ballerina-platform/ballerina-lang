@@ -432,7 +432,7 @@ function testToJsonWithinTransaction() returns [string, int] {
         if (dt is table<record {}>) {
             var j = typedesc<json>.constructFrom(dt);
             if (j is json) {
-                result = io:sprintf("%s", j);
+                result = io:sprintf("%s", j.toJsonString());
                 returnValue = 0;
             } else {
                 result = "<fail>error</fail>";
@@ -1201,7 +1201,7 @@ function testSignedIntMaxMinValues() returns @tainted [int, int, int, string, st
 
     if (dtRet is table<record {}>) {
         json j = getJsonConversionResult(dtRet);
-        jsonStr = io:sprintf("%s", j);
+        jsonStr = io:sprintf("%s", j.toJsonString());
     }
 
     var dtRet2 = testDB->select(selectSQL, ());
@@ -1270,7 +1270,7 @@ function testComplexTypeInsertAndRetrieval() returns @tainted [int, int, string,
     var selectRet = testDB->select(selectSQL, ());
 
     json j = getJsonConversionResult(selectRet);
-    jsonStr = io:sprintf("%s", j);
+    jsonStr = io:sprintf("%s", j.toJsonString());
 
     var selectRet2 = testDB->select(selectSQL, ());
 

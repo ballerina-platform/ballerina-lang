@@ -1024,7 +1024,7 @@ function testDateTimeNullInValues() returns string {
     var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 33", ResultDates);
     json j = getJsonConversionResult(dt);
-    string data = io:sprintf("%s", j);
+    string data = io:sprintf("%s", j.toJsonString());
     checkpanic testDB.stop();
     return data;
 }
@@ -1052,11 +1052,11 @@ function testComplexTypeRetrieval() returns [string, string, string, string] {
 
     var dt3 = testDB->select("SELECT * from BlobTable where row_id = 1", ());
     json j = getJsonConversionResult(dt3);
-    s3 = io:sprintf("%s", j);
+    s3 = io:sprintf("%s", j.toJsonString());
 
     var dt4 = testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     j = getJsonConversionResult(dt4);
-    s4 = io:sprintf("%s", j);
+    s4 = io:sprintf("%s", j.toJsonString());
 
     checkpanic testDB.stop();
     return [s1, s2, s3, s4];

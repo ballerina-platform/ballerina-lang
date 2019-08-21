@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -68,10 +69,11 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                     if (isNotNullAndEmpty(contentTypeValue)) {
                         String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
                         if (isNotNullAndEmpty(charsetValue)) {
-                            result = new ArrayValue(messageDataSource.toString().getBytes(charsetValue));
+                            result = new ArrayValue(StringUtils.getJsonString(messageDataSource)
+                                                            .getBytes(charsetValue));
                         } else {
-                            result = new ArrayValue(messageDataSource.toString().getBytes(
-                                    Charset.defaultCharset()));
+                            result = new ArrayValue(StringUtils.getJsonString(messageDataSource)
+                                                            .getBytes(Charset.defaultCharset()));
                         }
                     }
                 }

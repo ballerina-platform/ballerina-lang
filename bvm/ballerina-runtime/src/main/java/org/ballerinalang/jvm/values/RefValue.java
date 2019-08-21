@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -152,7 +153,7 @@ public interface RefValue {
      */
     default void serialize(OutputStream outputStream) {
         try {
-            outputStream.write(this.toString().getBytes(Charset.defaultCharset()));
+            outputStream.write(StringUtils.getJsonString(this).getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
             throw new BallerinaException("error occurred while serializing data", e);
         }

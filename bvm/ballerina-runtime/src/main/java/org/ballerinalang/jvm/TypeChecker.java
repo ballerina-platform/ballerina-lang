@@ -203,7 +203,7 @@ public class TypeChecker {
             return BTypes.typeNull;
         } else if (value instanceof Long) {
             return BTypes.typeInt;
-        } else if (value instanceof Double) {
+        } else if (value instanceof Double || value instanceof Float) {
             return BTypes.typeFloat;
         } else if (value instanceof DecimalValue) {
             return BTypes.typeDecimal;

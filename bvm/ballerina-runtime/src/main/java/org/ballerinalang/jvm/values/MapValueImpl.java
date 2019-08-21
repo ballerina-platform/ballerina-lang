@@ -470,7 +470,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 BType type = TypeChecker.getType(value);
                 if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.MAP_TAG ||
                     type.getTag() == TypeTags.TABLE_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
-                    sj.add(key + "=("+ StringUtils.getStringValue(strand, value, type) + ")");
+                    sj.add(key + "=(" + StringUtils.getStringValue(strand, value, type) + ")");
                     continue;
                 }
                 sj.add(key + "=" + StringUtils.getStringValue(strand, value, type));

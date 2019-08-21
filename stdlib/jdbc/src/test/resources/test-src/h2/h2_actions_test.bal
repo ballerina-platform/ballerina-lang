@@ -276,7 +276,7 @@ function testH2MemDBUpdate() returns [int, string] {
     if (dt is table<record {}>) {
         var j = typedesc<json>.constructFrom(dt);
         if (j is json) {
-            data = io:sprintf("%s", j);
+            data = io:sprintf("%s", j.toJsonString());
         }
     }
     int insertCount = 0;
