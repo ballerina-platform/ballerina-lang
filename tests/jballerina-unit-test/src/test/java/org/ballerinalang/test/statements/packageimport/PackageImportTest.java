@@ -107,4 +107,12 @@ public class PackageImportTest {
         String output = new String(baos.toByteArray());
         Assert.assertTrue(output.contains("initializing bar\nRunning foo"), "found: " + output);
     }
+
+    @Test
+    public void testUnderscoreAsPkgQualifier() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/statements/package/imports/invalid-package-qualifier-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "invalid package name '_'", 4, 5);
+    }
 }
