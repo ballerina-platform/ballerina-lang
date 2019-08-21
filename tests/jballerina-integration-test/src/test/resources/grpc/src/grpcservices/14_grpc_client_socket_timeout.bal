@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/grpc;
+import ballerina/io;
 import ballerina/runtime;
 
 @grpc:ServiceDescriptor {

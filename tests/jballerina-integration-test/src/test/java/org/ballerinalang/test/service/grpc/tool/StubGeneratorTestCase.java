@@ -70,7 +70,7 @@ public class StubGeneratorTestCase {
                 "Expected global variables not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
                 "Expected constants not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
                 "Expected imports not found in compile results.");
     }
 
@@ -81,13 +81,13 @@ public class StubGeneratorTestCase {
                 "helloWorldWithDependency_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 12);
         assertEquals(compileResult.getDiagnostics()[0].toString(),
-                "ERROR: .::helloWorldWithDependency_pb.bal:23:34:: unknown type 'HelloRequest'");
+                "ERROR: .::helloWorldWithDependency_pb.bal:22:34:: unknown type 'HelloRequest'");
         assertEquals(compileResult.getDiagnostics()[1].toString(),
-                "ERROR: .::helloWorldWithDependency_pb.bal:23:90:: unknown type 'HelloResponse'");
+                "ERROR: .::helloWorldWithDependency_pb.bal:22:90:: unknown type 'HelloResponse'");
         assertEquals(compileResult.getDiagnostics()[5].toString(),
-                "ERROR: .::helloWorldWithDependency_pb.bal:37:32:: unknown type 'ByeRequest'");
+                "ERROR: .::helloWorldWithDependency_pb.bal:36:32:: unknown type 'ByeRequest'");
         assertEquals(compileResult.getDiagnostics()[6].toString(),
-                "ERROR: .::helloWorldWithDependency_pb.bal:37:86:: unknown type 'ByeResponse'");
+                "ERROR: .::helloWorldWithDependency_pb.bal:36:86:: unknown type 'ByeResponse'");
     }
 
     @Test(description = "Test service stub generation for service definition with invalid dependency",
@@ -115,7 +115,7 @@ public class StubGeneratorTestCase {
                 "Expected global variables not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
                 "Expected constants not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
                 "Expected imports not found in compile results.");
     }
 
@@ -140,7 +140,7 @@ public class StubGeneratorTestCase {
                     "Expected global variables not found in compile results.");
             assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
                     "Expected constants not found in compile results.");
-            assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+            assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
                     "Expected imports not found in compile results.");
         } finally {
             if (Paths.get("temp", "helloWorld_pb.bal").toFile().exists()) {
@@ -163,7 +163,7 @@ public class StubGeneratorTestCase {
                 "Expected global variables not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
                 "Expected constants not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
                 "Expected imports not found in compile results.");
     }
 
@@ -181,7 +181,7 @@ public class StubGeneratorTestCase {
                 "Expected global variables not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
                 "Expected constants not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
                 "Expected imports not found in compile results.");
     }
 
@@ -198,7 +198,7 @@ public class StubGeneratorTestCase {
                 "Expected global variables not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
                 "Expected constants not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
                 "Expected imports not found in compile results.");
     }
 
@@ -225,7 +225,7 @@ public class StubGeneratorTestCase {
                 "Expected global variables not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
                 "Expected constants not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
                 "Expected imports not found in compile results.");
     }
 
@@ -276,7 +276,7 @@ public class StubGeneratorTestCase {
                 "Expected global variables not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
                 "Expected constants not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
                 "Expected imports not found in compile results.");
     }
 

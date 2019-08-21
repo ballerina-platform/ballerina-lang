@@ -1,5 +1,4 @@
 {{#if stubList}}import ballerina/grpc;
-import ballerina/io;
 {{/if}}{{#stubList}}
 public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Client client object {
 
