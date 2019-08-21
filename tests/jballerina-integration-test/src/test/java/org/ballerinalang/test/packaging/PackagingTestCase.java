@@ -130,7 +130,11 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
     public void testPull() {
-        String baloFileName = moduleName + ".balo";
+        String baloFileName = moduleName + "-"
+                              + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                              + ProgramFileConstants.ANY_PLATFORM + "-"
+                              + "0.1.0"
+                              + BLANG_COMPILED_PKG_BINARY_EXT;
         Path baloPath = Paths.get(ProjectDirConstants.BALO_CACHE_DIR_NAME,
                                  orgName, moduleName, "0.1.0");
 
