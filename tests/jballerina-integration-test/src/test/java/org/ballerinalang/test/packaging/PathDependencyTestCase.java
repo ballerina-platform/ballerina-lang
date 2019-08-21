@@ -95,7 +95,7 @@ public class PathDependencyTestCase extends BaseTest {
     
         String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
-        balClient.runMain("build", new String[]{}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{bazModuleBuildLeecher}, caseResources.resolve("TestProject2").toString());
         bazModuleBuildLeecher.waitForText(5000);
     
@@ -135,7 +135,7 @@ public class PathDependencyTestCase extends BaseTest {
         String m2BuildMsg = "target" + File.separator + "bin" + File.separator + m2ModuleExecutableFileName;
         LogLeecher m1ModuleBuildLeecher = new LogLeecher(m1BuildMsg);
         LogLeecher m2ModuleBuildLeecher = new LogLeecher(m2BuildMsg);
-        balClient.runMain("build", new String[]{}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{m1ModuleBuildLeecher, m2ModuleBuildLeecher},
                 caseResources.resolve("TestProject2").toString());
         m1ModuleBuildLeecher.waitForText(5000);
@@ -165,7 +165,7 @@ public class PathDependencyTestCase extends BaseTest {
 
         String toml4jBuildMsg = "target" + File.separator + "balo" + File.separator + toml4jModuleBaloFileName;
         LogLeecher toml4jBuildLeecher = new LogLeecher(toml4jBuildMsg);
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"--all", "-c"}, envVariables, new String[]{},
                 new LogLeecher[]{toml4jBuildLeecher}, caseResources.resolve("TestProject1").toString());
         toml4jBuildLeecher.waitForText(5000);
 
@@ -174,7 +174,7 @@ public class PathDependencyTestCase extends BaseTest {
 
         String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
-        balClient.runMain("build", new String[]{}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{bazModuleBuildLeecher}, caseResources.resolve("TestProject2").toString());
         bazModuleBuildLeecher.waitForText(5000);
 
@@ -246,7 +246,7 @@ public class PathDependencyTestCase extends BaseTest {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+            balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
                     new LogLeecher[]{}, caseResources.resolve("TestProject2").toString());
             return Files.exists(caseResources.resolve("TestProject2").resolve(Paths.get(feeBaloFilePath)));
         });
@@ -272,7 +272,7 @@ public class PathDependencyTestCase extends BaseTest {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{}, envVariables, new String[]{},
+            balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                     new LogLeecher[]{}, caseResources.resolve("TestProject3").toString());
             return Files.exists(caseResources.resolve("TestProject3").resolve(Paths.get(jeeExecutableFilePath)));
         });
@@ -294,7 +294,7 @@ public class PathDependencyTestCase extends BaseTest {
         Files.write(beeBalPath, replaced);
     
         beeModuleBuildLeecher = new LogLeecher(module1BuildMsg);
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
                 new LogLeecher[]{beeModuleBuildLeecher}, caseResources.resolve("TestProject1").toString());
         beeModuleBuildLeecher.waitForText(5000);
     
@@ -310,7 +310,7 @@ public class PathDependencyTestCase extends BaseTest {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{}, envVariables, new String[]{},
+            balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                     new LogLeecher[]{}, caseResources.resolve("TestProject3").toString());
             return Files.exists(caseResources.resolve("TestProject3").resolve(Paths.get(jeeExecutableFilePath)));
         });
@@ -339,7 +339,7 @@ public class PathDependencyTestCase extends BaseTest {
         
         String module1BuildMsg = "target" + File.separator + "balo" + File.separator + beeModuleBaloFileName;
         LogLeecher beeModuleBuildLeecher = new LogLeecher(module1BuildMsg);
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
                 new LogLeecher[]{beeModuleBuildLeecher}, caseResources.resolve("TestProject1").toString());
         beeModuleBuildLeecher.waitForText(5000);
         
@@ -348,7 +348,7 @@ public class PathDependencyTestCase extends BaseTest {
         
         String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
-        balClient.runMain("build", new String[]{}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{bazModuleBuildLeecher}, caseResources.resolve("TestProject2").toString());
         bazModuleBuildLeecher.waitForText(5000);
     
