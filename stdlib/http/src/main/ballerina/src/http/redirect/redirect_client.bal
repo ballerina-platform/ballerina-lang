@@ -356,7 +356,6 @@ function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndp
         forwarded: config.forwarded,
         followRedirects: config.followRedirects,
         retryConfig: config.retryConfig,
-        proxy: config.proxy,
         poolConfig: config.poolConfig,
         secureSocket: config.secureSocket,
         cache: config.cache,

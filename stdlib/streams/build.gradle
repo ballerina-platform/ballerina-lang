@@ -32,6 +32,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
@@ -52,6 +53,7 @@ dependencies {
     implementation project(':ballerina-internal')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-system')
+    implementation project(':ballerina-file')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-tool')
 
