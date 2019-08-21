@@ -80,7 +80,8 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
     
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: invalid ballerina source path, it should either be a module name " +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                "ballerina: invalid ballerina source path, it should either be a module name " +
                                       "in a ballerina project or a file with a '.bal' extension. use the -a or " +
                                       "--all flag to build or compile all modules.\n" +
                                       "\n" +
@@ -101,7 +102,7 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
         
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "Compiling source\n" +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
                                       "Generating executables\n" +
                                       "\thello_world-executable.jar\n");
@@ -127,7 +128,7 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
 
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "Compiling source\n" +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
                                       "Generating executables\n" +
                                       "\tfoo.jar\n");
@@ -142,7 +143,7 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
 
         buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "Compiling source\n" +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
                                       "Generating executables\n" +
                                       "\tbar.jar\n");
@@ -160,7 +161,7 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
     
         buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "Compiling source\n" +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
                                       "Generating executables\n" +
                                       "\t" +
@@ -177,7 +178,7 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
     
         buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "Compiling source\n" +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
                                       "Generating executables\n" +
                                       "\t" +
@@ -202,7 +203,7 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
         
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "Compiling source\n" +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" + "" +
                                       "Generating executables\n" + "" +
                                       "\thello_world-executable.jar\n");
@@ -227,7 +228,7 @@ public class BuildCommandTest extends CommandTest {
         new CommandLine(buildCommand).parse("hello_world.bal");
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: '" +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "ballerina: '" +
                                       this.testResources.resolve("oo").resolve("hello_world.bal").toString() +
                                       "' ballerina file does not exist.\n");
     }
@@ -241,7 +242,7 @@ public class BuildCommandTest extends CommandTest {
         new CommandLine(buildCommand).parse("xyz.bal");
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: '" +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "ballerina: '" +
                                       validBalFilePath.resolve("xyz.bal").toString() +
                                       "' ballerina file does not exist.\n");
     }
@@ -255,7 +256,8 @@ public class BuildCommandTest extends CommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: 'build' command requires a module name or a ballerina file to " +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                                      "ballerina: 'build' command requires a module name or a ballerina file to " +
                                       "build/compile. use '-a' or '--all' flag to build/compile all the modules of " +
                                       "the project.\n" +
                                       "\n" +
@@ -284,7 +286,7 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
         
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "Compiling source\n" +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" + "" +
                                       "Generating executables\n" + "" +
                                       "\thello_world-executable.jar\n");
@@ -315,7 +317,8 @@ public class BuildCommandTest extends CommandTest {
         new CommandLine(buildCommand).parse("xyz");
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: invalid ballerina source path, it should either be a module name " +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                "ballerina: invalid ballerina source path, it should either be a module name " +
                                       "in a ballerina project or a file with a '.bal' extension. use the -a or --all " +
                                       "flag to build or compile all modules.\n" +
                                       "\n" +
@@ -329,23 +332,28 @@ public class BuildCommandTest extends CommandTest {
     public void testBuildBalProjectToml() throws IOException {
         Path sourceRoot = this.testResources.resolve("ballerina-toml");
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
-        new CommandLine(buildCommand).parse("foo");
+        new CommandLine(buildCommand).parse("foo", "--skip-tests");
     
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "Compiling source\n" +
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\tbar/foo:1.2.0\n" +
                                       "\nCreating balos\n" +
-                                      "\ttarget/balo/foo-2019r3-any-1.2.0.balo\n" +
+                                      "\ttarget" + File.separator + "balo" + File.separator +
+                "foo-2019r3-any-1.2.0.balo\n" +
                                       "\n" +
                                       "Running tests\n" +
                                       "    bar/foo:1.2.0\n" +
                                       "\tNo tests found\n" +
                                       "\n" +
                                       "Generating executables\n" +
-                                      "\ttarget/bin/foo-executable.jar\n");
-    
-        deleteDirectory(sourceRoot.resolve("target"));
+                                      "\ttarget" + File.separator + "bin" + File.separator + "foo-executable.jar\n");
+
+        // Clean that target
+        CleanCommand cleanCommand = new CleanCommand(sourceRoot);
+        new CommandLine(cleanCommand).parse();
+        cleanCommand.execute();
+        readOutput(true);
     
         String tomlContent = "";
         Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
