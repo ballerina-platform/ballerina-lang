@@ -119,7 +119,7 @@ public class BootstrapRunner {
                                                            boolean dumpBir, String... birCachePaths) {
         List<String> commands = new ArrayList<>();
         commands.add(entryBir);
-        commands.add(""); // no native map for test file
+        commands.add(getMapPath());
         commands.add(jarOutputPath);
         commands.add(dumpBir ? "true" : "false"); // dump bir
         commands.addAll(Arrays.asList(birCachePaths));
