@@ -1166,6 +1166,9 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     public void setLength(long length) {
+        if (length == size) {
+            return;
+        }
         handleFrozenArrayValue();
         int newLength = (int) length;
         checkFixedLength(length);
@@ -1177,13 +1180,21 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     private void checkFixedLength(long length) {
-        if (arrayType != null && arrayType.getTag() == TypeTags.TUPLE_TAG) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
-                    RuntimeErrors.CANNOT_CHANGE_TUPLE_SIZE);
+        if (arrayType == null) {
+            return;
         }
-        if (((BArrayType) this.arrayType).getState() == ArrayState.CLOSED_SEALED) {
+        if (arrayType.getTag() == TypeTags.TUPLE_TAG) {
+            BTupleType tupleType = (BTupleType) this.arrayType;
+            if (tupleType.getRestType() == null) {
+                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                        RuntimeErrors.ILLEGAL_TUPLE_SIZE, size, length);
+            } else if (tupleType.getTupleTypes().size() > length) {
+                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                        RuntimeErrors.ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE, tupleType.getTupleTypes().size(), length);
+            }
+        } else if (((BArrayType) this.arrayType).getState() == ArrayState.CLOSED_SEALED) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
-                    RuntimeErrors.ILLEGAL_ARRAY_SIZE, length);
+                    RuntimeErrors.ILLEGAL_ARRAY_SIZE, size, length);
         }
     }
 
