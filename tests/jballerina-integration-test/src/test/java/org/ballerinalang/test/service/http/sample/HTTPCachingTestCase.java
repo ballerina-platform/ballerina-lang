@@ -34,12 +34,11 @@ import static org.testng.Assert.assertEquals;
 @Test(groups = "http-test")
 public class HTTPCachingTestCase extends HttpBaseTest {
 
-    private final String serviceHitCount = "x-service-hit-count";
-    private final String proxyHitCount = "x-proxy-hit-count";
-    private final String payload = "{\"message\":\"Hello, World!\"}";
-
     @Test(description = "Test basic caching behaviour")
     public void testPassthroughServiceByBasePath() throws IOException, InterruptedException {
+        final String serviceHitCount = "x-service-hit-count";
+        final String proxyHitCount = "x-proxy-hit-count";
+        final String payload = "{\"message\":\"Hello, World!\"}";
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9239, "cache"));
         assertEquals(response.getResponseCode(), 200);
         assertEquals(response.getHeaders().get(serviceHitCount), "1");
@@ -60,5 +59,14 @@ public class HTTPCachingTestCase extends HttpBaseTest {
         assertEquals(response.getHeaders().get(serviceHitCount), "1");
         assertEquals(response.getHeaders().get(proxyHitCount), "3");
         assertEquals(response.getData(), payload);
+    }
+
+    @Test(description = "Test no-cache cache control")
+    public void testNoCacheCacheControl() throws IOException, InterruptedException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9242, "nocache"));
+        assertEquals(response.getData(), "{\"message\":\"1st request\"}");
+
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9241, "nocachebackend"));
+        assertEquals(response.getData(), "{\"message\":\"2nd request\"}");
     }
 }
