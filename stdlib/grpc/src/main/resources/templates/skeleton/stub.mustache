@@ -1,5 +1,3 @@
-{{#if stubList}}import ballerina/grpc;
-{{/if}}{{#stubList}}
 public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Client client object {
 
     *grpc:AbstractClientEndpoint;
