@@ -151,6 +151,7 @@ public class SymbolTable {
     public BPackageSymbol langValueModuleSymbol;
     public BPackageSymbol langXmlModuleSymbol;
     public BPackageSymbol utilsPackageSymbol;
+    public boolean isLangLibLoaded = false;
 
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();

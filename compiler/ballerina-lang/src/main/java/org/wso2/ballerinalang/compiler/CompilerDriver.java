@@ -134,6 +134,9 @@ public class CompilerDriver {
     }
 
     void loadLangModules(List<PackageID> pkgIdList) {
+        if (symbolTable.isLangLibLoaded) {
+            return;
+        }
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
             symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
@@ -235,6 +238,7 @@ public class CompilerDriver {
         if (langLib.equals(XML)) {
             symbolTable.langXmlModuleSymbol = getLangModuleFromSource(XML);
         }
+        symbolTable.isLangLibLoaded = true;
     }
     // Private methods
 
