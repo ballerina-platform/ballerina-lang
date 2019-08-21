@@ -105,7 +105,8 @@ public class HomeBaloRepo implements Repo<Path> {
                     moduleID.version = new Name(versionStr);
     
                     // update dependency manifests map for imports of this moduleID.
-                    this.dependencyManifests.put(moduleID, RepoUtils.getManifestFromBalo(baloFilePath.toAbsolutePath()));
+                    this.dependencyManifests.put(moduleID,
+                            RepoUtils.getManifestFromBalo(baloFilePath.toAbsolutePath()));
     
                     return new Patten(path(orgName, pkgName),
                             path(versionStr),
