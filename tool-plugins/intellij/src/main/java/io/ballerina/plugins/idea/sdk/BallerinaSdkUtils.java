@@ -264,9 +264,17 @@ public class BallerinaSdkUtils {
             s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
             String path = s.hasNext() ? s.next().trim().replace(System.lineSeparator(), "").trim() : "";
             LOG.info(cmd + "command returned: " + path);
+
+            // Todo - verify
+            // Since errors might be coming from the input stream when retrieving ballerina distribution path, we need
+            // an additional check.
+            if (!new File(path).exists()) {
+                LOG.warn(String.format("Invalid result received by \"%s\" command. Received Output: %s", cmd, path));
+                return "";
+            }
             return path;
         } catch (Exception e) {
-            LOG.warn("Error occurred when executing the ballerina command: " + cmd);
+            LOG.warn("Unexpected error occurred when executing ballerina command: " + cmd, e);
             return "";
         }
     }
@@ -311,8 +319,9 @@ public class BallerinaSdkUtils {
             StringBuilder contentBuilder = new StringBuilder();
             stream.forEach(s -> contentBuilder.append(s).append("\n"));
             String balHomePath = contentBuilder.toString().trim();
-            // Removes "/bin" from the path since we only need the ballerina home root.
-            balHomePath = !Strings.isNullOrEmpty(balHomePath) ? balHomePath.replace("/bin", "") : "";
+            // Append "/ballerina" to content since we only need the ballerina home root.
+            balHomePath = !Strings.isNullOrEmpty(balHomePath) && balHomePath.endsWith("/bin") ?
+                    balHomePath.replace("/bin", "/bin/ballerina") : "";
             return balHomePath;
         } catch (Exception ignored) {
             return "";
