@@ -531,7 +531,7 @@ public class HttpUtil {
                 .createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD);
         return BallerinaValues.createRecord(detail, message, cause);
     }
-
+gti
     // TODO: Find a better way to get the error type than String matching.
     private static HttpErrorType getErrorType(String errorMessage) {
         // Every Idle Timeout triggered error is mapped to IdleTimeoutError
