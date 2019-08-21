@@ -728,15 +728,24 @@ public class BCompileUtil {
 
             final Runtime runtime = Runtime.getRuntime();
             final Process process = runtime.exec(actualArgs.toArray(new String[0]));
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
-            reader.lines().iterator().forEachRemaining(sj::add);
-            String result = sj.toString();
+            String consoleInput = getConsoleOutput(process.getInputStream());
+            String consoleError = getConsoleOutput(process.getErrorStream());
             process.waitFor();
-            return result;
-        } catch (Exception e) {
+            int exitValue = process.exitValue();
+            if (exitValue != 0) {
+                throw new RuntimeException(consoleError);
+            }
+            return consoleInput;
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
+    }
+
+    private static String getConsoleOutput(InputStream inputStream) {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+        reader.lines().iterator().forEachRemaining(sj::add);
+        return sj.toString();
     }
 
     private static CompileResult compileOnJBallerina(String sourceFilePath, boolean temp, boolean init) {
