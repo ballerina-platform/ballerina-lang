@@ -23,7 +23,7 @@ package org.ballerinalang.jvm.types;
  *
  * @since 0.995.0
  */
-class BByteType extends BType {
+public class BByteType extends BType {
 
     /**
      * Create a {@code BByteType} which represents the byte type.

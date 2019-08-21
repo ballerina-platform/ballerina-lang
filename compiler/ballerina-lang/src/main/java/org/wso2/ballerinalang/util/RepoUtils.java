@@ -18,9 +18,13 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.exceptions.TomlException;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -28,6 +32,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
 /**
@@ -223,5 +229,41 @@ public class RepoUtils {
     public static boolean isANightlyBuild() {
         return getBallerinaVersion().contains("SNAPSHOT");
     }
-
+    
+    /**
+     * Get the Ballerina.toml from a balo file.
+     *
+     * @param baloPath The path to balo file.
+     * @return Ballerina.toml contents.
+     */
+    public static Manifest getManifestFromBalo(Path baloPath) {
+        try (JarFile jar = new JarFile(baloPath.toString())) {
+            java.util.Enumeration enumEntries = jar.entries();
+            while (enumEntries.hasMoreElements()) {
+                JarEntry file = (JarEntry) enumEntries.nextElement();
+                if (file.getName().contains(ProjectDirConstants.MANIFEST_FILE_NAME)) {
+                    if (file.isDirectory()) { // if its a directory, ignore
+                        continue;
+                    }
+                    // get the input stream
+                    Manifest manifest;
+                    try (InputStream is = jar.getInputStream(file)) {
+                        manifest = ManifestProcessor.parseTomlContentAsStream(is);
+                    }
+                    
+                    return manifest;
+                }
+            }
+        } catch (IOException e) {
+            throw new BLangCompilerException("unable to read balo file: " + baloPath +
+                                             ". balo file seems to be corrupted.");
+        } catch (TomlException e) {
+            throw new BLangCompilerException("unable to read balo file: " + baloPath +
+                                             ". balo file seems to be corrupted: " + e.getMessage());
+        }
+    
+        throw new BLangCompilerException("unable to find '/metadata/Ballerina.toml' file in balo file: " +
+                                         baloPath + "");
+    }
+    
 }
