@@ -1,15 +1,15 @@
 NAME
-    Ballerina sdks - List available ballerina SDKs
+    Ballerina sdks - List available Ballerina SDKs
 
 SYNOPSIS
     ballerina sdks
 
 DESCRIPTION
-     Ballerina sdks List available ballerina SDKs
+     The `ballerina sdks` command lists all the available Ballerina SDKs.
 
 OPTIONS
-     Ballerina sdks command takes no options.
+     The `ballerina sdks` command does not take any options.
 
 EXAMPLES
-     List available Ballerina versions
+     List the available Ballerina SDK versions:
      $ ballerina sdk

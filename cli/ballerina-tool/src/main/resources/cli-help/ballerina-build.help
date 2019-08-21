@@ -1,5 +1,5 @@
 NAME
-    Ballerina build - Builds a Ballerina module(s) and generates executable
+    Ballerina build - Build a Ballerina module(s)/file and generate executable
     outputs.
 
 SYNOPSIS
@@ -7,32 +7,31 @@ SYNOPSIS
                     [<bal-file | module-name>]
 
 DESCRIPTION
-    Builds a Ballerina module(s)/file and produces an executable .jar file(s).
 
     Building a Ballerina project or a specific module in a project creates the
     executable .jar files in the <project-root>/target/bin directory.
 
-    Building a single Ballerina file will create an executable .jar file in the
+    Building a standalone Ballerina file will create an executable .jar file in the
     current directory. The name of the executable file will be
     <bal-file-name>-executable.jar.
 
     If the output file is specified with the -o flag, the output
     will be written to the given output file name. The -o flag will only work
-    for single files.
+    for standalone files.
 
 OPTIONS
     -o <output>
-        Writes the output to the given file. The provided output
+        Write the output to the given file. The provided output
         file name may or may not contain the ‘.jar’ extension.
 
     --off-line
-        Builds offline without downloading the dependencies.
+        Build offline without downloading the dependencies.
 
     --skip-tests
-        Skips test compilation and execution.
+        Skip test compilation and execution.
 
     --skip-lock
-        Skips using the lock file to resolve dependencies.
+        Skip using the lock file to resolve dependencies.
 
 EXAMPLES
     Build the hello source program:

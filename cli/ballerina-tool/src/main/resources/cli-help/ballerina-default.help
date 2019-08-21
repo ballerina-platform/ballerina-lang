@@ -29,49 +29,49 @@ OPTIONS
 
     -h
     --help
-         Prints usage details of a command.
+         Print usage details of a command.
 
 BALLERINA COMMANDS
     Available commands are:
-        compile    Compiles a Ballerina module/project into a sharable
+        compile    Compile a Ballerina module/project into a sharable
                    library(BALO).
-        build      Compiles a Ballerina program into an executable.
-        run        Runs a Ballerina program.
-        clean      Cleans the artifacts generated during the compile/build time.
-        test       Tests a Ballerina program.
-        doc        Generates Ballerina API documentation.
+        build      Compile a Ballerina program into an executable.
+        run        Run a Ballerina program.
+        clean      Clean the artifacts generated during the compile/build time.
+        test       Test a Ballerina program.
+        doc        Generate Ballerina API documentation.
 
-        pull       Downloads modules from Ballerina Central.
-        push       Uploads modules to Ballerina Central.
-        search     Searches for modules in Ballerina Central.
+        pull       Download modules from Ballerina Central.
+        push       Upload modules to Ballerina Central.
+        search     Searche for modules in Ballerina Central.
 
-        version    Prints the Ballerina version in use.
+        version    Print the Ballerina version in use.
 
-        new        Initializes a Ballerina project.
-        create     Initializes a Ballerina module from a template.
+        new        Initialize a Ballerina project.
+        create     Initialize a Ballerina module from a template.
 
-        sdks       Lists the available ballerina SDKs.
-        install    Installs a given SDK version.
-        use        Switches to a specific SDK version.
-        update     Updates to the latest SDK version.
-        remove     Deletes the locally-installed SDK version.
+        sdks       List the available Ballerina SDKs.
+        install    Install a given SDK version.
+        use        Switch to a specific SDK version.
+        update     Update to the latest SDK version.
+        remove     Delete the locally-installed SDK version.
 
-        encrypt    Encrypts sensitive data.
-        grpc       Generates a connector/service using a protobuf
+        encrypt    Encrypt sensitive data.
+        grpc       Generate a connector/service using a protobuf
                     definition.
-        openapi    Generates a client/service using an OpenAPI definition
-                    or exports an OpenAPI file for a Ballerina service.
-        format     Formats Ballerina source code.
+        openapi    Generate a client/service using an OpenAPI definition
+                    or export an OpenAPI file for a Ballerina service.
+        format     Format Ballerina source code.
 
 EXAMPLES
-    Check the version of Ballerina in use on your system:
+    Check the version of Ballerina, which is currently in use:
     $ ballerina -v
 
     Get help on how to use the Ballerina commands:
     $ ballerina run --help
 
-    Builds your hello Ballerina program:
+    Build your hello Ballerina program:
     $ ballerina build hello.bal
 
-    Tests your Ballerina program with tests defined with @test:
+    Test your Ballerina program with tests defined with @test:
     $ ballerina test hello.bal

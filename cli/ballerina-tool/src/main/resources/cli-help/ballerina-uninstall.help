@@ -6,28 +6,32 @@ SYNOPSIS
 
 DESCRIPTION
      Uninstalls or removes the given module from the home repository.
-     Home repository reside within the home folder (‘.ballerina’
+     The home repository resides within the home folder (‘.ballerina’
      folder by default).
 
 OPTIONS
-     Ballerina uninstall command takes no options.
+     The `ballerina uninstall` command does not take any options.
 
 DEFAULT BEHAVIOR
-     Uninstalls a module from home repository.
+     Uninstalls a module from the home repository.
 
 EXAMPLES
-     Uninstall math module installed locally
+     Uninstall the `math` module installed locally:
      $ ballerina uninstall org_name/math:0.0.1
-     This will remove the math module from the home repository
-     on a Mac or Linux machine in
+     This will remove the `math` module from the home repository.
+
+     On a Mac or Linux machine, the module will be:
      ~/.ballerina/repo/org_name/math/0.0.1/math.zip
-     On a Windows machine the module will be placed in
+
+     On a Windows machine, the module will be:
      \User\user_name\.ballerina\repo\org_name\math\0.0.1\math.zip
 
-     Uninstall math module pulled from central
+     Uninstall the `math` module pulled from central:
      $ ballerina uninstall org_name/math:0.0.1
-     This will remove the math module from the caches directory
-     on a Mac or Linux machine in
+     This will remove the `math` module from the `caches` directory.
+
+     On a Mac or Linux machine, the module will be:
      ~/.ballerina/caches/central.ballerina.io/org_name/math/0.0.1/math.zip
-     On a Windows machine the module will be placed in
+
+     On a Windows machine, the module will be:
      \User\user_name\.ballerina\repo\org_name\math\0.0.1\math.zip

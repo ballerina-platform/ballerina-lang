@@ -5,11 +5,11 @@ SYNOPSIS
     ballerina remove <sdk-version>
 
 DESCRIPTION
-     removes the given Ballerina version from project repository.
+     Remove the given Ballerina version from the project repository.
 
 OPTIONS
-     Ballerina remove command takes no options.
+     The `ballerina remove` command does not take any options.
 
 EXAMPLES
-     Remove Ballerina 1.0.0 version
+     Remove Ballerina 1.0.0 version:
      $ ballerina remove 1.0.0

@@ -1,5 +1,5 @@
 NAME
-    Ballerina list - List dependencies for project or module
+    Ballerina list - List dependencies for a Ballerina project or module
 
 SYNOPSIS
       ballerina list <module-name>
@@ -9,11 +9,11 @@ DESCRIPTION
      modules for a given Ballerina project or module.
 
 OPTIONS
-     Ballerina list command takes no options.
+     The `ballerina list` command does not accept any options.
 
 EXAMPLES
-     List modules and local transitive dependencies of a project
+     List modules and local transitive dependencies of a project:
      $ ballerina list
 
-     List dependencies for math module
+     List dependencies for the `math` module:
      $ ballerina list math

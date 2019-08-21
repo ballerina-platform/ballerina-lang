@@ -1,20 +1,20 @@
 NAME
-    Ballerina version - Print Ballerina version
+    Ballerina version - Print the Ballerina version
 
 SYNOPSIS
     ballerina <-v|-version|version>
 
 DESCRIPTION
-     Ballerina version command prints the current version in use.
+     The `ballerina version` command prints the Ballerina version, which is currently in use.
 
-     Note that ballerina -v and ballerina –version are  
-     identical to ballerina version. 
+     Note that `ballerina -v` and `ballerina –version` are  
+     identical to `ballerina version`. 
 
 OPTIONS
      -v
      -version
-         Shorthand syntax for ballerina version. 
+         Shorthand syntax for `ballerina version`. 
 
 EXAMPLES
-     What is the current Ballerina version installed on your machine?
+     Print the current Ballerina version installed in your machine:
      $ ballerina -v

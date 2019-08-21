@@ -1,13 +1,11 @@
 NAME
-    Ballerina compile - Compiles Ballerina module(s) and generates shareable
+    Ballerina compile - Compile Ballerina module(s) and generate shareable
     .balo file(s).
 
 SYNOPSIS
     ballerina compile [<module-name>] [--offline] [--skip-tests] [--skip-lock]
 
 DESCRIPTION
-    Compiles Ballerina module(s) and generates shareable .balo file(s).
-
     The command will only work from inside a Ballerina project and it will create .balo files
     for each module in the project. You can compile a specific module by passing
     the module name to the compile command.
@@ -15,13 +13,13 @@ DESCRIPTION
 OPTIONS
 
     --offline
-        Builds offline without downloading the dependencies.
+        Build offline without downloading the dependencies.
 
     --skip-tests
-        Skips test compilation and execution.
+        Skip test compilation and execution.
 
     --skip-lock
-        Skips using the lock file to resolve the dependencies.
+        Skip using the lock file to resolve the dependencies.
 
 EXAMPLES
     Compile all the modules in a project:
