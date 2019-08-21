@@ -34,7 +34,7 @@ function testRedeclareNamespaces() {
     xmlns "http://sample.com/wso2/d2" as ns3;
     
     if (true) {
-        xmlns "http://sample.com/wso2/a3" as ns0; // Valid scenario since xmlns can be shadowed
+        xmlns "http://sample.com/wso2/a3" as ns0;
     }
 }
 

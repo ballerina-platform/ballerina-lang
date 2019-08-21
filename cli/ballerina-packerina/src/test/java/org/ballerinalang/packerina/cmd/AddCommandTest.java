@@ -26,6 +26,7 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test cases for ballerina add command.
@@ -36,6 +37,7 @@ public class AddCommandTest extends CommandTest {
 
     private Path projectPath;
     private Path srcPath;
+    private Path homeCache = Paths.get("src", "test", "resources", "dot-ballerina").toAbsolutePath();
 
     @BeforeClass
     public void setup() throws IOException {
@@ -148,7 +150,7 @@ public class AddCommandTest extends CommandTest {
     public void testAddCommandWithInvalidTemplate() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mymodule2", "-t", "invalid"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, homeCache);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
@@ -173,7 +175,7 @@ public class AddCommandTest extends CommandTest {
     public void testAddCommandList() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"--list"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, homeCache);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
@@ -181,6 +183,8 @@ public class AddCommandTest extends CommandTest {
         Assert.assertTrue(output.contains("Available templates:"));
         Assert.assertTrue(output.contains("main"));
         Assert.assertTrue(output.contains("service"));
+        Assert.assertTrue(output.contains("testOrg/mytpl"));
+        Assert.assertFalse(output.contains("testOrg/another"));
     }
 
     @Test(description = "Test add command with help flag")
@@ -203,5 +207,40 @@ public class AddCommandTest extends CommandTest {
         addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("A module already exists with the given name"));
+    }
+
+    @Test(description = "Test add command with balo template")
+    public void testAddCommandWithBaloTemplate() throws IOException {
+        // Test if no arguments was passed in
+        String[] args = {"balomod", "-t testOrg/mytpl"};
+        AddCommand addCommand = new AddCommand(projectPath, printStream, homeCache);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
+        // Validate against spec
+        // -- balomod/
+        // --- Module.md      <- module level documentation
+        // --- main.bal       <- Contains default main method.
+        // --- resources/     <- resources for the module (available at runtime)
+        // --- tests/         <- tests for this module (e.g. unit tests)
+        // ---- testmain.bal  <- test file for main
+        // ---- resources/    <- resources for these tests
+        Path moduleDir = srcPath.resolve("balomod");
+
+        Assert.assertTrue(Files.exists(moduleDir));
+        Assert.assertTrue(Files.isDirectory(moduleDir));
+        Assert.assertTrue(Files.exists(moduleDir.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(moduleDir.resolve("resources")));
+        Assert.assertTrue(Files.isDirectory(moduleDir.resolve("resources")));
+        //Assert.assertTrue(Files.exists(moduleDir.resolve("Module.md")));
+
+        // Path moduleTests = moduleDir.resolve("tests");
+        // Assert.assertTrue(Files.exists(moduleTests));
+        // Assert.assertTrue(Files.isDirectory(moduleTests));
+        // Assert.assertTrue(Files.exists(moduleTests.resolve("main_test.bal")));
+        // Assert.assertTrue(Files.exists(moduleTests.resolve("resources")));
+        // Assert.assertTrue(Files.isDirectory(moduleTests.resolve("resources")));
+
+        Assert.assertTrue(readOutput().contains("Added new ballerina module"));
+
     }
 }

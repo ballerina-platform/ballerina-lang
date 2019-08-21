@@ -151,24 +151,13 @@ public class SymbolResolver extends BLangNodeVisitor {
             return true;
         }
 
-        BSymbol memSym = lookupMemberSymbol(pos, env.scope, env, symbol.name, expSymTag);
-        if (symbol.getKind() == SymbolKind.XMLNS) {
-            if (memSym.getKind() == SymbolKind.XMLNS) {
-                dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
-                return false;
-            }
-            if (memSym == symTable.notFoundSymbol) {
-                return true;
-            }
-        }
-
         if ((foundSym.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             // In order to remove duplicate errors.
             return false;
         }
 
         // if a symbol is found, then check whether it is unique
-        return isSameSymbol(pos, symbol, foundSym);
+        return isDistinctSymbol(pos, symbol, foundSym);
     }
 
     public boolean checkForUniqueSymbol(SymbolEnv env, BSymbol symbol, int expSymTag) {
@@ -176,7 +165,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
-        return isSameSymbol(symbol, foundSym);
+        return isDistinctSymbol(symbol, foundSym);
     }
 
     /**
@@ -200,7 +189,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         //if a symbol is found, then check whether it is unique
-        return isSameSymbol(pos, symbol, foundSym);
+        return isDistinctSymbol(pos, symbol, foundSym);
     }
 
     /**
@@ -212,10 +201,16 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
-    private boolean isSameSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
+    private boolean isDistinctSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
         if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
-            return true;
+            return false;
+        }
+
+        // Type names should be unique and cannot be shadowed
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
+            dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
+            return false;
         }
 
         if (isSymbolDefinedInRootPkgLvl(foundSym)) {
@@ -223,7 +218,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return false;
         }
 
-        if (!isSymbolOwnersSame(symbol, foundSym)) {
+        if (hasSameOwner(symbol, foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -239,28 +234,35 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
-    private boolean isSameSymbol(BSymbol symbol, BSymbol foundSym) {
+    private boolean isDistinctSymbol(BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
         if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
-            return true;
+            return false;
+        }
+
+        // Type names should be unique and cannot be shadowed
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
+            return false;
         }
 
         if (isSymbolDefinedInRootPkgLvl(foundSym)) {
             return false;
         }
 
-        return isSymbolOwnersSame(symbol, foundSym);
+        return !hasSameOwner(symbol, foundSym);
     }
 
 
-    private boolean isSymbolOwnersSame(BSymbol symbol, BSymbol foundSym) {
+    private boolean hasSameOwner(BSymbol symbol, BSymbol foundSym) {
         // check whether the given symbol owner is same as found symbol's owner
-        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE || foundSym.owner == symbol.owner) {
-            return false;
+        if (foundSym.owner == symbol.owner) {
+            return true;
         }
 
-        return !Symbols.isFlagOn(Flags.LAMBDA, symbol.flags) ||
-                ((foundSym.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE);
+        // If the symbol being defined is inside a lambda and the existing symbol is defined inside a function, both
+        // symbols are in the same block scope.
+        return Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE);
     }
 
     private boolean isSymbolDefinedInRootPkgLvl(BSymbol foundSym) {

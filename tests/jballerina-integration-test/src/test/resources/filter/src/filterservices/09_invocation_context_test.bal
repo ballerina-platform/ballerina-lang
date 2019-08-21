@@ -25,7 +25,8 @@ public type Filter15 object {
     public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
                         returns boolean {
         log:printInfo("Add attribute to invocation context from filter");
-        runtime:getInvocationContext().attributes[attributeName] = attributeValue;
+        var ctx = runtime:getInvocationContext();
+        ctx.attributes[attributeName] = attributeValue;
         return true;
     }
 
