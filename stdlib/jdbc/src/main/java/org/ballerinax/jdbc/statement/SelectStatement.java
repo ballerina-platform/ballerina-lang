@@ -60,7 +60,6 @@ public class SelectStatement extends AbstractSQLStatement {
 
     @Override
     public Object execute() {
-        //TODO: #16033
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -82,7 +81,6 @@ public class SelectStatement extends AbstractSQLStatement {
         } catch (SQLException e) {
             cleanupResources(rs, stmt, conn, true);
             handleErrorOnTransaction(this.strand);
-            //TODO: JBalMigration Commenting out transaction handling
             checkAndObserveSQLError(strand, "execute query failed: " + e.getMessage());
             return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {
