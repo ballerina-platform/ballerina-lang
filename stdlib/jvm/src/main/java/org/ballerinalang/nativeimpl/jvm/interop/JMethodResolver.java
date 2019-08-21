@@ -236,6 +236,7 @@ class JMethodResolver {
             case TypeTags.JSON_TAG:
                 return MapValue.class.isAssignableFrom(jParamType);
             case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.SERVICE_TAG:
                 return ObjectValue.class.isAssignableFrom(jParamType);
             case TypeTags.ERROR_TAG:
                 return ErrorValue.class.isAssignableFrom(jParamType);
