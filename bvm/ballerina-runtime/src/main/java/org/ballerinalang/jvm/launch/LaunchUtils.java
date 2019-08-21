@@ -119,7 +119,10 @@ public class LaunchUtils {
         Path ballerinaConfPath = Paths.get(System.getProperty("user.dir")).resolve("ballerina.conf");
         try {
             ConfigRegistry.getInstance().initRegistry(configArgs, configFilePath, ballerinaConfPath);
-            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
+            LogManager logManager = LogManager.getLogManager();
+            if (logManager instanceof BLogManager) {
+                ((BLogManager) logManager).loadUserProvidedLogConfiguration();
+            }
 
             if (observeFlag) {
                 ConfigRegistry.getInstance()
