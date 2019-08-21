@@ -60,7 +60,8 @@ public abstract class AbstractGetPayloadHandler {
                     switch (sourceType) {
                         case JSON:
                             dataSource = constructJsonDataSource(entity, inputStream);
-                            break;
+                            updateJsonDataSourceAndNotify(callback, entity, dataSource);
+                            return;
                         case TEXT:
                             dataSource = constructStringDataSource(entity, inputStream);
                             break;
@@ -102,6 +103,16 @@ public abstract class AbstractGetPayloadHandler {
 
     static void updateDataSource(ObjectValue entityObj, Object result) {
         EntityBodyHandler.addMessageDataSource(entityObj, result);
+        removeByteChannel(entityObj);
+    }
+
+
+    static void updateJsonDataSource(ObjectValue entityObj, Object result) {
+        EntityBodyHandler.addJsonMessageDataSource(entityObj, result);
+        removeByteChannel(entityObj);
+    }
+
+    private static void removeByteChannel(ObjectValue entityObj) {
         //Set byte channel to null, once the message data source has been constructed
         entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
     }
@@ -109,6 +120,13 @@ public abstract class AbstractGetPayloadHandler {
     private static void updateDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
                                           Object result) {
         updateDataSource(entityObj, result);
+        setReturnValuesAndNotify(callback, result);
+    }
+
+
+    private static void updateJsonDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
+                                              Object result) {
+        updateJsonDataSource(entityObj, result);
         setReturnValuesAndNotify(callback, result);
     }
 

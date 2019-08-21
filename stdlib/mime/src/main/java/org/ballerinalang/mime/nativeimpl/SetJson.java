@@ -44,7 +44,7 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 public class SetJson {
 
     public static void setJson(Strand strand, ObjectValue entityObj, Object jsonContent, String contentType) {
-        EntityBodyHandler.addMessageDataSource(entityObj, jsonContent);
+        EntityBodyHandler.addJsonMessageDataSource(entityObj, jsonContent);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : APPLICATION_JSON);
     }
 }

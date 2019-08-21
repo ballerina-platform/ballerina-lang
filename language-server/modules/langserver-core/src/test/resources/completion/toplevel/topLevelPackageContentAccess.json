@@ -1875,32 +1875,6 @@
       ]
     },
     {
-      "label": "WebSocketListener",
-      "kind": "Class",
-      "detail": "Object",
-      "documentation": {
-        "left": "Represents a WebSocket service endpoint."
-      },
-      "sortText": "120",
-      "insertText": "WebSocketListener",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
       "label": "BasicAuthHandler",
       "kind": "Class",
       "detail": "Object",
