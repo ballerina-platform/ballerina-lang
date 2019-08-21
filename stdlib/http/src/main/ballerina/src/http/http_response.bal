@@ -17,7 +17,6 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/crypto;
-import ballerina/encoding;
 import ballerina/time;
 import ballerina/internal;
 

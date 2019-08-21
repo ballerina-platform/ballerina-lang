@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/io;
 
 listener http:MockListener testEP = new(9090);
 

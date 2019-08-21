@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/kafka;
-import ballerina/io;
+
 
 string topic1 = "rebalance-topic-1";
 string topic2 = "rebalance-topic-2";

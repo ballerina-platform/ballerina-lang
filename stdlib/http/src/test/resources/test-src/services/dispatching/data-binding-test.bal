@@ -1,6 +1,5 @@
 import ballerina/encoding;
 import ballerina/http;
-import ballerina/mime;
 
 listener http:MockListener testEP = new(9090);
 

@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/io;
 import ballerina/websub;
 import ballerina/'lang\.object as lang;
 
