@@ -123,15 +123,15 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
-//        res.getCapabilities().setDocumentSymbolProvider(true);
-//        res.getCapabilities().setDefinitionProvider(true);
-//        res.getCapabilities().setReferencesProvider(true);
-//        res.getCapabilities().setCodeActionProvider(true);
+        res.getCapabilities().setDocumentSymbolProvider(false);
+        res.getCapabilities().setDefinitionProvider(false);
+        res.getCapabilities().setReferencesProvider(false);
+        res.getCapabilities().setCodeActionProvider(false);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         res.getCapabilities().setDocumentFormattingProvider(true);
-//        res.getCapabilities().setRenameProvider(true);
-//        res.getCapabilities().setWorkspaceSymbolProvider(true);
-//        res.getCapabilities().setImplementationProvider(true);
+        res.getCapabilities().setRenameProvider(false);
+        res.getCapabilities().setWorkspaceSymbolProvider(false);
+        res.getCapabilities().setImplementationProvider(false);
 //        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
