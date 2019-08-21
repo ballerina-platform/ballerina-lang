@@ -100,9 +100,9 @@ public class BaloFileWriter {
         }
         
         // Create the archive over write if exists
-        try (FileSystem balo = createBaloArchive(baloFilePath)) {
+        try (FileSystem baloFS = createBaloArchive(baloFilePath)) {
             // Now lets put stuff in
-            populateBaloArchive(balo, module);
+            populateBaloArchive(baloFS, module);
             buildContext.out().println("\t" + projectDirectory.relativize(baloFilePath));
         } catch (IOException e) {
             // todo Check for permission
@@ -134,8 +134,8 @@ public class BaloFileWriter {
         return FileSystems.newFileSystem(zipDisk, env);
     }
 
-    private void populateBaloArchive(FileSystem balo, BLangPackage module) throws IOException {
-        Path root = balo.getPath("/");
+    private void populateBaloArchive(FileSystem baloFS, BLangPackage module) throws IOException {
+        Path root = baloFS.getPath("/");
         Path projectDirectory = this.sourceDirectory.getPath();
         Path moduleSourceDir = projectDirectory.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
                 .resolve(module.packageID.name.value);
@@ -155,8 +155,8 @@ public class BaloFileWriter {
         //    └─ api-docs/
 
         addMetaData(root, moduleName, manifest);
-        addModuleSource(root, moduleSourceDir, moduleName);
-        addResources(root, moduleSourceDir);
+        addModuleSource(root, baloFS, moduleSourceDir, moduleName);
+        addResources(root, baloFS, moduleSourceDir);
         addModuleDoc(root, moduleSourceDir);
         addPlatformLibs(root, projectDirectory, moduleName);
     }
@@ -198,7 +198,7 @@ public class BaloFileWriter {
         }
     }
 
-    private void addResources(Path root, Path moduleSourceDir) throws IOException {
+    private void addResources(Path root, FileSystem fs, Path moduleSourceDir) throws IOException {
         // create the resources directory in zip
         Path resourceDir = moduleSourceDir.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
         Path resourceDirInBalo = root.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
@@ -206,12 +206,12 @@ public class BaloFileWriter {
 
         if (Files.exists(resourceDir)) {
             // copy resources file from module directory path in to zip
-            PathMatcher filter = FileSystems.getDefault().getPathMatcher("glob:**");
+            PathMatcher filter = fs.getPathMatcher("glob:**");
             Files.walkFileTree(resourceDir, new Copy(resourceDir, resourceDirInBalo, filter, filter));
         }
     }
 
-    private void addModuleSource(Path root, Path moduleSourceDir, String moduleName) throws IOException {
+    private void addModuleSource(Path root, FileSystem fs, Path moduleSourceDir, String moduleName) throws IOException {
         // create the module directory in zip
         Path srcInBalo = root.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
         Files.createDirectory(srcInBalo);
@@ -219,23 +219,21 @@ public class BaloFileWriter {
         Files.createDirectory(moduleDirInBalo);
 
         // copy only bal file from module directory path in to zip
-        PathMatcher fileFilter = FileSystems.getDefault()
-                .getPathMatcher("glob:**/*" + ProjectDirConstants.BLANG_SOURCE_EXT);
+        PathMatcher fileFilter = fs.getPathMatcher("glob:**/*" + ProjectDirConstants.BLANG_SOURCE_EXT);
         // exclude resources and tests directories
         PathMatcher dirFilter = path -> {
-            FileSystem fd = FileSystems.getDefault();
             String prefix = moduleDirInBalo
                     .resolve(ProjectDirConstants.RESOURCE_DIR_NAME).toString();
 
             // Skip resources directory
-            if (fd.getPathMatcher("glob:" + prefix + "**").matches(path)) {
+            if (fs.getPathMatcher("glob:" + prefix + "**").matches(path)) {
                 return false;
             }
             // Skip tests directory
             prefix = moduleDirInBalo
                     .resolve(ProjectDirConstants.TEST_DIR_NAME).toString();
             // Skip resources directory
-            if (fd.getPathMatcher("glob:" + prefix + "**").matches(path)) {
+            if (fs.getPathMatcher("glob:" + prefix + "**").matches(path)) {
                 return false;
             }
             return true;
