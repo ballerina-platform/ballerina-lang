@@ -78,6 +78,7 @@ public type AuthzHandler object {
                     return "Authorization failure for resource: " + serviceName + ", method: " + requestMethod;
                 });
             }
+            return authorized;
         }
         // This block will never execute, since `canProcess` function has validated the
         // `runtime:getInvocationContext()?.principal` is `runtime:Principal`
