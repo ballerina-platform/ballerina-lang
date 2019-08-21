@@ -16,6 +16,7 @@
 
 import ballerina/bir;
 import ballerina/jvm;
+import ballerina/io;
 
 type JMethodFunctionWrapper record {|
     * BIRFunctionWrapper;
