@@ -134,6 +134,11 @@ public class RuntimeUtils {
         }
     }
 
+    public static void handleUsageError(String errorMsg) {
+        errStream.println("ballerina: " + errorMsg);
+        Runtime.getRuntime().exit(1);
+    }
+
     public static void silentlyLogBadSad(Throwable throwable) {
         // These errors are unhandled errors in JVM, hence logging them to bre log.
         breLog.error(throwable.getMessage(), throwable);

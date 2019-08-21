@@ -126,10 +126,6 @@ public class BallerinaErrors {
         return createError(BallerinaErrors.NULL_REF_EXCEPTION);
     }
 
-    public static ErrorValue createUsageError(String errorMsg) {
-        return createError("ballerina: " + errorMsg);
-    }
-
     /**
      * Create ballerian error using java exception for interop.
      * @param e java exception
