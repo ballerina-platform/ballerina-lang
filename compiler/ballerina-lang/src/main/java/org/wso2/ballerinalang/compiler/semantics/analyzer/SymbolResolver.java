@@ -643,6 +643,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
                     ((BPackageSymbol) entry.symbol).compUnit.equals(compUnit)) {
+                ((BPackageSymbol) entry.symbol).isUsed = true;
                 return entry.symbol;
             }
 

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/task;
-import ballerina/runtime;
 
 
 task:TimerConfiguration configuration = {

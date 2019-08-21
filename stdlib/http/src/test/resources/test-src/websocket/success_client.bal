@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 
 service wsClientService = @http:WebSocketServiceConfig {} service {
 
