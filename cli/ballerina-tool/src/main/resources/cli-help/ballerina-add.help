@@ -6,7 +6,7 @@ SYNOPSIS
 
 DESCRIPTION
     Ballerina add command will initialize a new Ballerina module
-    inside a Ballerina Project. The command should be run from inside a Ballerina
+    inside a Ballerina project. The command should be run from inside a Ballerina
     project.
 
     You can also select different templates for the module.

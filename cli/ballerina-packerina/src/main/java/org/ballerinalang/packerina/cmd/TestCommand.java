@@ -133,7 +133,7 @@ public class TestCommand implements BLauncherCmd {
                 Path findRoot = ProjectDirs.findProjectRoot(sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(errStream,
-                            "Provides a Ballerina file as a " +
+                            "provide a Ballerina file as the " +
                                     "input or the run build command from inside a Ballerina project.",
                             "ballerina build [<filename.bal>]",
                             false);

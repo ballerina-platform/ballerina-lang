@@ -120,7 +120,7 @@ public class AddCommand implements BLauncherCmd {
         Path projectPath = ProjectDirs.findProjectRoot(userDir);
         if (null == projectPath) {
             CommandUtil.printError(errStream,
-                    "This is not a Ballerina project (or any parent up to the mount point).\n" +
+                    "current directory is not a Ballerina project.\n" +
                             "You should run this command from inside a Ballerina project.", null, false);
             return;
         }
@@ -128,9 +128,9 @@ public class AddCommand implements BLauncherCmd {
         // Check if an argument is provided
         if (null == argList) {
             CommandUtil.printError(errStream,
-                    "The following required arguments were not provided:\n" +
+                    "required arguments not provided:\n" +
                             "    <module-name>",
-                    "ballerina add <module-name> [-t|--template <template-name>].",
+                    "ballerina add <module-name> [-t|--template <template-name>]",
                     true);
             return;
         }
@@ -138,7 +138,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if more then one argument is provided
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
-                    "Too many arguments.",
+                    "too many arguments.",
                     "ballerina add <project-name>",
                     true);
             return;
@@ -149,7 +149,7 @@ public class AddCommand implements BLauncherCmd {
         boolean matches = RepoUtils.validatePkg(moduleName);
         if (!matches) {
             CommandUtil.printError(errStream,
-                    "Invalid module name: '" + moduleName + "' :\n" +
+                    "invalid module name: '" + moduleName + "' :\n" +
                          "Module name can only contain alphanumerics, underscores, and periods " +
                          "and the maximum length should be 256 characters.",
                     null,
@@ -160,8 +160,8 @@ public class AddCommand implements BLauncherCmd {
         // Check if the module already exists
         if (ProjectDirs.isModuleExist(projectPath, moduleName)) {
             CommandUtil.printError(errStream,
-                    "A module already exists with the given name: '" + moduleName + "' :\n" +
-                         "in the following path:"
+                    "a module named'" + moduleName + "' :\n" +
+                    "' already exists at: "
                          + projectPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(moduleName),
                     null,
                     false);
@@ -171,7 +171,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if the template exists
         if (!getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "Cannot find this template. Use `ballerina add --list` to view the available templates.",
+                    "template not found. Use `ballerina add --list` to view the available templates.",
                     null,
                     false);
             return;
@@ -181,13 +181,13 @@ public class AddCommand implements BLauncherCmd {
             createModule(projectPath, moduleName, template);
         } catch (ModuleCreateException e) {
             CommandUtil.printError(errStream,
-                    "Error occurred while creating the module: " + e.getMessage(),
+                    "error occurred while creating the module: " + e.getMessage(),
                     null,
                     false);
             return;
         }
 
-        errStream.println("Added a new Ballerina module at '" + userDir.relativize(projectPath
+        errStream.println("added a new Ballerina module at '" + userDir.relativize(projectPath
                 .resolve(ProjectDirConstants.SOURCE_DIR_NAME)
                 .resolve(moduleName)) + "'.");
     }
@@ -200,7 +200,7 @@ public class AddCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Adds a new Ballerina module.");
+        out.append("add a new Ballerina module.");
     }
 
     @Override
