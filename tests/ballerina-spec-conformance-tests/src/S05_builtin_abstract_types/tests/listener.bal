@@ -15,21 +15,24 @@
 // under the License.
 
 import ballerina/test;
+import ballerina/lang.'object;
 
 int globalVar = 0;
 const START_METHOD_INCREMENT_VALUE = 3;
 const ATTACH_METHOD_INCREMENT_VALUE = 2;
+const DETACH_METHOD_INCREMENT_VALUE = 5;
 
 // The Listener type is defined as follows.
 //
 // abstract object {
 //    function __attach (service s, string? name = ()) returns error?;
+//    function __detach (service s) returns error?;
 //    function __start () returns error?;
 //    function __gracefulStop() returns error?;
 //    function __immediateStop() returns error?;
 // }
 type CustomListener object {
-    *AbstractListener;
+    *'object:AbstractListener;
 
     private string listenerName;
 
@@ -52,6 +55,10 @@ type CustomListener object {
     public function __attach(service s, string? name = ()) returns error? {
         globalVar += ATTACH_METHOD_INCREMENT_VALUE;
     }
+
+    public function __detach(service s) returns error? {
+        globalVar += DETACH_METHOD_INCREMENT_VALUE;
+    }
 };
 
 @test:Config {
@@ -59,9 +66,15 @@ type CustomListener object {
 function testAbstractListener() {
     test:assertEquals(globalVar, START_METHOD_INCREMENT_VALUE + ATTACH_METHOD_INCREMENT_VALUE,
         msg = "expected service to attach to listener object");
+    error? err = customListener.__detach(testService);
+    test:assertEquals(globalVar, START_METHOD_INCREMENT_VALUE + ATTACH_METHOD_INCREMENT_VALUE +
+                                    DETACH_METHOD_INCREMENT_VALUE,
+            msg = "expected service to detach from the listener");
 }
 
-service testService on new CustomListener("custom-listener") {
+listener CustomListener customListener = new CustomListener("custom-listener");
+
+service testService on customListener {
     resource function sayHello() {
         // do nothing
     }

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+xmlns "http://sample.com/wso2/a1" as ns;
+
 int name = 10;
 
 type Person record {
@@ -97,4 +99,19 @@ function testNestedBlocks() returns string {
     }
 
     return "";
+}
+
+function testNamespaces1() returns xml {
+    xmlns "http://sample.com/wso2/a2" as ns;
+    return xml `<ns:greeting>Hello World!</ns:greeting>`;
+}
+
+function testNamespaces2(boolean x) returns xml {
+    if (x) {
+        xmlns "http://sample.com/wso2/a2" as ns;
+        return xml `<ns:greeting>Hello World!</ns:greeting>`;
+    } else {
+        xmlns "http://sample.com/wso2/a3" as ns;
+        return xml `<ns:greeting>Hello World!</ns:greeting>`;
+    }
 }

@@ -105,16 +105,16 @@ function testForeachWithOpenRecords3() returns any[] {
     return values;
 }
 
-//function testForeachOpWithOpenRecords() returns map<any> {
-//    Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, height: 5.9 };
-//    map<any> rec = {};
-//
-//    p.foreach(function (any entry) {
-//            rec[field] = value;
-//        });
-//
-//    return rec;
-//}
+function testForeachOpWithOpenRecords() returns any[] {
+    Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, "height": 5.9 };
+    any[] values = [];
+
+    p.forEach(function (any value) {
+            values.push(value);
+        });
+
+    return values;
+}
 
 function testMapOpWithOpenRecords() returns map<anydata> {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, "profession": "Software Engineer" };

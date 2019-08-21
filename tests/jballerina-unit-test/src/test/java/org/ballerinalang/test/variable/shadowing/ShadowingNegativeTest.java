@@ -21,25 +21,25 @@ package org.ballerinalang.test.variable.shadowing;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.assertEquals;
+
 /**
- * Tests variable shadowing in Ballerina.
+ * Tests shadowing in Ballerina.
  *
  * @since 0.974.0
  */
-public class VariableShadowingNegativeTest {
+public class ShadowingNegativeTest {
 
-    @Test(description = "Test shadowed variables")
+    @Test(description = "Test shadowed identifiers")
     public void testShadowedVariables() {
         CompileResult compileResult = BCompileUtil.compile(
-                "test-src/variable/shadowing/variable-shadowing-negative.bal");
-
-        Assert.assertEquals(compileResult.getErrorCount(), 12);
+                "test-src/variable/shadowing/shadowing_negative.bal");
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 24, 9);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'ns'", 27, 46);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 29, 20);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'ns'", 35, 42);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 50, 16);
@@ -50,6 +50,8 @@ public class VariableShadowingNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'x'", 78, 20);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'f'", 79, 20);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'x'", 91, 16);
-        BAssertUtil.validateError(compileResult, index, "redeclared symbol 'param'", 105, 12);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'param'", 105, 12);
+
+        assertEquals(index, compileResult.getErrorCount());
     }
 }

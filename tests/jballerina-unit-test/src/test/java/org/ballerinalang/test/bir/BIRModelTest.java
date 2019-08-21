@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
  */
 public class BIRModelTest {
 
-    @Test(description = "Test AST to BIR lowering", enabled = false)
+    @Test(description = "Test AST to BIR lowering")
     public void testBIRGen() {
         CompileResult result = BCompileUtil.compileAndGetBIR("test-src/bir/bir_model.bal");
         Assert.assertEquals(result.getErrorCount(), 0);

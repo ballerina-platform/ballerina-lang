@@ -406,39 +406,4 @@ public class SimpleConstantInBaloTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
-
-    @Test
-    public void testBooleanConcat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConcat");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "true rocks");
-    }
-
-    @Test
-    public void testIntConcat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConcat");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "24 rocks");
-    }
-
-    @Test
-    public void testByteConcat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConcat");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "12 rocks");
-    }
-
-    @Test
-    public void testFloatConcat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConcat");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "25.5 rocks");
-    }
-
-    @Test
-    public void testDecimalConcat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConcat");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "25.5 rocks");
-    }
 }
