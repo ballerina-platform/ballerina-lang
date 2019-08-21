@@ -886,6 +886,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForever foreverStatement) {
+        // marks the injected transaction import as used
+        Name compUnitName = names.fromString(foreverStatement.pos.getSource().getCompilationUnitName());
+        this.symResolver.resolvePrefixSymbol(env, Names.STREAMS_MODULE, compUnitName);
     }
 
     @Override

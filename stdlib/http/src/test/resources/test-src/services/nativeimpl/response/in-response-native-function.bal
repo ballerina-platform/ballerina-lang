@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/mime;
 import ballerina/io;
 
 function testContentType(http:Response res, string contentTypeValue) returns @tainted string? {

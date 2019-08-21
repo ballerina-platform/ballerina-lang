@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 
 listener http:Listener wsListener = new(9090, {host: "0.0.0.0"});
 
