@@ -38,7 +38,7 @@ import static org.ballerinalang.packerina.cmd.Constants.NEW_COMMAND;
  *
  * @since 0.992.0
  */
-@CommandLine.Command(name = NEW_COMMAND, description = "Creates a new Ballerina project.")
+@CommandLine.Command(name = NEW_COMMAND, description = "create a new Ballerina project.")
 public class NewCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -71,7 +71,7 @@ public class NewCommand implements BLauncherCmd {
         // Check if the project name is given
         if (null == argList) {
             CommandUtil.printError(errStream,
-                    "The following required arguments were not provided:\n" +
+                    "following required arguments were not provided:\n" +
                          "    <project-name>",
                     "ballerina new <project-name>.",
                     true);
@@ -80,7 +80,7 @@ public class NewCommand implements BLauncherCmd {
         // Check if one argument is given and not more than one argument.
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
-                    "Too many arguments.",
+                    "too many arguments.",
                     "ballerina new <project-name>",
                     true);
             return;
@@ -90,7 +90,7 @@ public class NewCommand implements BLauncherCmd {
         // Check if the directory or file exists with the given project name
         if (Files.exists(path)) {
             CommandUtil.printError(errStream,
-                    "The destination '" + path.toString() + "' already exists.",
+                    "destination '" + path.toString() + "' already exists.",
                     "ballerina new <project-name>",
                     true);
             return;
@@ -100,7 +100,7 @@ public class NewCommand implements BLauncherCmd {
         Path projectRoot = ProjectDirs.findProjectRoot(path);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
-            "This directory is already within a Ballerina project:" + projectRoot.toString(),
+            "this directory is already within a Ballerina project:" + projectRoot.toString(),
                     null,
                     false);
             return;
@@ -110,15 +110,15 @@ public class NewCommand implements BLauncherCmd {
             Files.createDirectories(path);
             CommandUtil.initProject(path);
         } catch (AccessDeniedException e) {
-            errStream.println("error: Error occurred while creating the project: " + "Insufficient permissions.");
+            errStream.println("error: error occurred while creating the project: " + "insufficient permissions.");
         } catch (IOException e) {
-            errStream.println("error: Error occurred while creating the project: " + e.getMessage());
+            errStream.println("error: error occurred while creating the project: " + e.getMessage());
             return;
         }
-        errStream.println("Created a new Ballerina project at " + userDir.relativize(path));
+        errStream.println("created a new Ballerina project at " + userDir.relativize(path));
         errStream.println();
         errStream.println("Next:");
-        errStream.println("    Use `ballerina add` to add a Ballerina module inside the project.");
+        errStream.println("    use `ballerina add` to add a Ballerina module inside the project.");
     }
 
     @Override
@@ -128,7 +128,7 @@ public class NewCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Creates a new Ballerina project.");
+        out.append("create a new Ballerina project.");
     }
 
     @Override

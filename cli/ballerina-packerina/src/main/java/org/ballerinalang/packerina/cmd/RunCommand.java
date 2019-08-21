@@ -69,32 +69,32 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
  *
  * @since 1.0.0
  */
-@CommandLine.Command(name = "run", description = "Builds and executes a Ballerina program.")
+@CommandLine.Command(name = "run", description = "build and execute a Ballerina program.")
 public class RunCommand implements BLauncherCmd {
     
     private final PrintStream errStream;
 
-    @CommandLine.Parameters(description = "Program arguments.")
+    @CommandLine.Parameters(description = "program arguments.")
     private List<String> argList;
 
     @CommandLine.Option(names = {"--sourceroot"},
-            description = "The path to the directory containing source files and modules.")
+            description = "the path to the directory containing source files and modules.")
     private String sourceRoot;
 
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Builds offline without downloading the dependencies and " +
-                                                              "then executes the Ballerina program.")
+    @CommandLine.Option(names = {"--off-line"}, description = "build offline without downloading the dependencies and " +
+                                                              "then execute the Ballerina program.")
     private boolean offline;
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
-    @CommandLine.Option(names = {"--config", "-c"}, description = "The path to the Ballerina configuration file.")
+    @CommandLine.Option(names = {"--config", "-c"}, description = "the path to the Ballerina configuration file.")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--observe", description = "Enable observability with the default configurations.")
+    @CommandLine.Option(names = "--observe", description = "enable observability with the default configurations.")
     private boolean observeFlag;
 
     @CommandLine.Option(names = "-e", description = "Ballerina environment parameters.")
@@ -103,10 +103,10 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "-B", description = "Ballerina VM options.")
     private Map<String, String> vmOptions = new HashMap<>();
 
-    @CommandLine.Option(names = "--experimental", description = "Enables the experimental language features.")
+    @CommandLine.Option(names = "--experimental", description = "enable experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = "--siddhiruntime", description = "Enables the Siddhi runtime for stream processing.")
+    @CommandLine.Option(names = "--siddhiruntime", description = "enable the Siddhi runtime for stream processing.")
     private boolean siddhiRuntimeFlag;
 
     public RunCommand() {
@@ -126,7 +126,7 @@ public class RunCommand implements BLauncherCmd {
 
         if (this.argList == null || this.argList.size() == 0) {
             CommandUtil.printError(this.errStream,
-                    "The Ballerina program is not provided.",
+                    "Ballerina program not provided.",
                     "ballerina run {<bal-file> | <module-name>}",
                     true);
     
@@ -208,7 +208,7 @@ public class RunCommand implements BLauncherCmd {
             try {
                 targetPath = Files.createTempDirectory("ballerina-run-" + System.nanoTime());
             } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("Error occurred when creating the executable.");
+                throw LauncherUtils.createLauncherException("error occurred when creating the executable.");
             }
         } else if (Files.exists(
                 sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
@@ -220,7 +220,7 @@ public class RunCommand implements BLauncherCmd {
             //// check if command executed from project root.
             if (!RepoUtils.isBallerinaProject(sourceRootPath)) {
                 CommandUtil.printError(this.errStream,
-                        "You are trying to run a module that is not inside a Ballerina project.",
+                        "you are trying to run a module that is not inside a Ballerina project.",
                         null,
                         false);
                 Runtime.getRuntime().exit(1);
@@ -230,7 +230,7 @@ public class RunCommand implements BLauncherCmd {
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
                 CommandUtil.printError(this.errStream,
-                        "You are trying to run a module by giving the absolute path. You only need to give " +
+                        "you are trying to run a module by giving the absolute path. You only need to give " +
                         "the name of the module.",
                         "ballerina run <module-name>.",
                         true);
@@ -260,7 +260,7 @@ public class RunCommand implements BLauncherCmd {
             targetPath = sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "This is an invalid Ballerina source path. It should either be a module name in a Ballerina project or a " +
+                    "invalid Ballerina source path. It should either be a module name in a Ballerina project or a " +
                     "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.",
                     "ballerina run {<bal-file> | <module-name>}",
                     true);

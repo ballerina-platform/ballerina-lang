@@ -68,7 +68,7 @@ public class CommandUtil {
 
         if (help) {
             stream.println();
-            stream.println("For more information try --help");
+            stream.println("For more information, try --help");
         }
     }
     

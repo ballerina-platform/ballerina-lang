@@ -34,7 +34,7 @@ import static org.ballerinalang.packerina.cmd.Constants.INIT_COMMAND;
 /**
  * Init command for creating a ballerina project.
  */
-@CommandLine.Command(name = INIT_COMMAND, description = "Initializes Ballerina project.")
+@CommandLine.Command(name = INIT_COMMAND, description = "initialize a Ballerina project.")
 public class InitCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -65,7 +65,7 @@ public class InitCommand implements BLauncherCmd {
         // If the current directory is a ballerina project ignore.
         if (ProjectDirs.isProject(this.userDir)) {
             CommandUtil.printError(errStream,
-                    "This directory is already a Ballerina project.",
+                    "this directory is already a Ballerina project.",
                     null,
                     false);
             return;
@@ -77,7 +77,7 @@ public class InitCommand implements BLauncherCmd {
         Path projectRoot = ProjectDirs.findProjectRoot(this.userDir);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
-                    "This directory is already within a Ballerina project:" + projectRoot.toString(),
+                    "this directory is already within the Ballerina project:" + projectRoot.toString(),
                     null,
                     false);
             return;
@@ -86,15 +86,15 @@ public class InitCommand implements BLauncherCmd {
         try {
             CommandUtil.initProject(this.userDir);
         } catch (AccessDeniedException e) {
-            errStream.println("error: Error occurred while initializing project: " + "Access Denied.");
+            errStream.println("error: error occurred while initializing project: " + "Access Denied.");
         } catch (IOException e) {
-            errStream.println("error: Error occurred while initializing project: " + e.getMessage());
+            errStream.println("error: error occurred while initializing project: " + e.getMessage());
             return;
         }
         errStream.println("Ballerina project initialized. ");
         errStream.println();
         errStream.println("Next:");
-        errStream.println("    Use `ballerina create` to create a Ballerina module.");
+        errStream.println("    use `ballerina create` to create a Ballerina module.");
     }
 
     @Override
@@ -104,7 +104,7 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Initializes a Ballerina project in the current directory.");
+        out.append("initialize a Ballerina project in the current directory.");
     }
 
     @Override

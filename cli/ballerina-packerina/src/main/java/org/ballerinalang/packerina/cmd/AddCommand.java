@@ -51,7 +51,7 @@ import static org.ballerinalang.packerina.cmd.Constants.ADD_COMMAND;
 /**
  * New command for adding a new module.
  */
-@CommandLine.Command(name = ADD_COMMAND, description = "Add a new module to a Ballerina project.")
+@CommandLine.Command(name = ADD_COMMAND, description = "add a new module to a Ballerina project.")
 public class AddCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -109,7 +109,7 @@ public class AddCommand implements BLauncherCmd {
         }
 
         if (list) {
-            errStream.println("Available templates:");
+            errStream.println("available templates:");
             for (String template: getTemplates()) {
                 errStream.println("    - " + template);
             }
