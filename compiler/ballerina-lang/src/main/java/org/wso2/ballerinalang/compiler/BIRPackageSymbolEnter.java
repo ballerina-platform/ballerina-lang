@@ -595,7 +595,7 @@ public class BIRPackageSymbolEnter {
         } else {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
                     enclScope.owner);
-            if (Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
+            if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
             }
         }
