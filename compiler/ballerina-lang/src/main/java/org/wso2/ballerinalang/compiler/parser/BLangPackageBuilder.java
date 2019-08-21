@@ -1856,11 +1856,7 @@ public class BLangPackageBuilder {
         }
         BLangImportPackage importDcl = getImportPackage(pos, ws, orgName, nameComps, version, alias);
         this.compUnit.addTopLevelNode(importDcl);
-        if (this.imports.contains(importDcl)) {
-            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_MODULE, importDcl.getQualifiedPackageName());
-        } else {
-            this.imports.add(importDcl);
-        }
+        this.imports.add(importDcl);
     }
 
     private BLangImportPackage getImportPackage(DiagnosticPos pos, Set<Whitespace> ws, String orgName,
@@ -1879,6 +1875,7 @@ public class BLangPackageBuilder {
         importDcl.version = versionNode;
         importDcl.orgName = (BLangIdentifier) this.createIdentifier(orgName);
         importDcl.alias = aliasNode;
+        importDcl.compUnit = (BLangIdentifier) this.createIdentifier(this.compUnit.getName());
         return importDcl;
     }
 

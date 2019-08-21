@@ -17,6 +17,7 @@
 import ballerina/encoding;
 import ballerina/internal;
 import ballerina/log;
+import ballerina/runtime;
 
 # Default charset to be used with password hashing.
 public const string DEFAULT_CHARSET = "UTF-8";

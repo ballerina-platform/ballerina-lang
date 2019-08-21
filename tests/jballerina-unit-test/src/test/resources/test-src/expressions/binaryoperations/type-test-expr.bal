@@ -810,3 +810,25 @@ function testFunctions2() returns [boolean, boolean, boolean, boolean] {
     boolean b4 = a is function() returns float;
     return [b1, b2, b3, b4];
 }
+
+function testFutureTrue() returns boolean {
+    any a = start name();
+    if (a is future<string>) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function testFutureFalse() returns boolean {
+    any a = start name();
+    if (a is future<int>) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function name() returns string {
+    return "em";
+}

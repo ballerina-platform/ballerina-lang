@@ -22,12 +22,16 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
+import java.nio.file.Paths;
+
+import static org.ballerinalang.stdlib.task.utils.TaskTestUtils.getFilePath;
+
 /**
  * Tests for Ballerina Task Service validation.
  */
 @Test
 public class ListenerServiceValidationTest {
-
+    private static final String TEST_DIRECTORY = "service-validation";
     @Test(
             description = "Tests compiler error for a task with more than two resource functions.",
             expectedExceptions = BLangRuntimeException.class,
@@ -35,7 +39,7 @@ public class ListenerServiceValidationTest {
                     + "Task service should include only one resource.*"
     )
     public void testMoreThanTwoResourceFunctions() {
-        BCompileUtil.compile("service-validation/more_than_one_resource.bal");
+        BCompileUtil.compile(getFilePath(Paths.get(TEST_DIRECTORY, "more_than_one_resource.bal")));
     }
 
     @Test(
@@ -45,16 +49,16 @@ public class ListenerServiceValidationTest {
                     + "Task service should include only one resource.*"
     )
     public void testNoResourceFunctions() {
-        BCompileUtil.compile("service-validation/no_resource_functions.bal");
+        BCompileUtil.compile(getFilePath(Paths.get(TEST_DIRECTORY, "no_resource_functions.bal")));
     }
 
     @Test(
             description = "Tests compiler error for a task with an invalid resource name.",
-            expectedExceptions = org.ballerinalang.util.exceptions.BLangRuntimeException.class,
+            expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
                     ".*Invalid resource function found: timerStart. Expected: 'onTrigger'.*"
     )
     public void testInvalidResourceName() {
-        BCompileUtil.compile("service-validation/invalid_resource.bal");
+        BCompileUtil.compile(getFilePath(Paths.get(TEST_DIRECTORY, "invalid_resource.bal")));
     }
 }
