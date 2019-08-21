@@ -146,6 +146,8 @@ public class TableUtils {
                 }
                 break;
             case TypeTags.XML_TAG:
+                stmt.setString(index, data.get(fieldName).toString());
+                break;
             case TypeTags.JSON_TAG:
                 if (value == null) {
                     stmt.setNull(index, Types.VARCHAR);
