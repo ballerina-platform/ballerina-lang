@@ -40,7 +40,7 @@ public interface IteratorValue extends RefValue, Iterator {
 
     @Override
     default String stringValue(Strand strand) {
-        return "iterator" + getType().toString();
+        return "iterator " + getType().toString();
     }
 
     @Override
