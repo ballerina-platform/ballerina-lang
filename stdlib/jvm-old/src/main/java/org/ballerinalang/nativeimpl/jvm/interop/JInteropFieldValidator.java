@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.interop;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.jvm.interop.JavaField.JFieldMethod;
 import org.ballerinalang.natives.annotations.BallerinaFunction;

@@ -17,15 +17,21 @@
  */
 package org.ballerinalang.nativeimpl.jvm.classwriter;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.objectweb.asm.ClassTooLargeException;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodTooLargeException;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.BYTE;
@@ -45,9 +51,22 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 )
 public class ToByteArray {
 
-    public static ArrayValue toByteArray(Strand strand, ObjectValue oCw) {
+    private static final String NAME = "name";
+
+    public static Object toByteArray(Strand strand, ObjectValue oCw) {
         ClassWriter cw = ASMUtil.getRefArgumentNativeData(oCw);
-        return new ArrayValue(cw.toByteArray());
+        try {
+            return new ArrayValue(cw.toByteArray());
+        } catch (MethodTooLargeException e) {
+            MapValue<String, String> details = new MapValueImpl<>(BTypes.typeErrorDetail);
+            details.put(NAME, e.getMethodName());
+            return BallerinaErrors.createError(ErrorReasons.METHOD_TOO_LARGE, details);
+        } catch (ClassTooLargeException e) {
+            MapValue<String, String> details = new MapValueImpl<>(BTypes.typeErrorDetail);
+            details.put(NAME, e.getClassName());
+            return BallerinaErrors.createError(ErrorReasons.CLASS_TOO_LARGE, details);
+        } catch (Exception e) {
+            return BallerinaErrors.createError(e.getMessage());
+        }
     }
 }
-
