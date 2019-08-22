@@ -88,7 +88,7 @@ public class ProtoMessageTestCase {
         MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(".", "Test2");
         bMapValue.put("a", "John");
         bMapValue.put("b", 1.2D);
-        bMapValue.put("c", 2.5F);
+        bMapValue.put("c", 2.5D);
         bMapValue.put("d", 1);
         bMapValue.put("e", 2L);
         bMapValue.put("f", 3L);
