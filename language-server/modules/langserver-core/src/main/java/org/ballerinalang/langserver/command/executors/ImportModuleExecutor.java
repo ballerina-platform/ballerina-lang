@@ -70,7 +70,7 @@ public class ImportModuleExecutor implements LSCommandExecutor {
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
             try {
-                LSModuleCompiler.getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false);
+                LSModuleCompiler.getBLangPackage(context, documentManager, LSCustomErrorStrategy.class, false);
             } catch (CompilationFailedException e) {
                 throw new LSCommandExecutorException("Couldn't compile the source", e);
             }

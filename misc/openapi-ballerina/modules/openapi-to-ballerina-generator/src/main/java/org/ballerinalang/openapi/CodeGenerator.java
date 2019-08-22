@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ballerinalang.openapi;
 
 import com.github.jknack.handlebars.Context;
@@ -56,6 +55,7 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.openapi.model.GenSrcFile.GenFileType;
 import static org.ballerinalang.openapi.utils.GeneratorConstants.GenType.GEN_CLIENT;
+import static org.ballerinalang.openapi.utils.GeneratorConstants.MODULE_MD;
 
 /**
  * This class generates Ballerina Services/Clients for a provided OAS definition.
@@ -76,6 +76,7 @@ public class CodeGenerator {
      *                       <li>mock</li>
      *                       <li>client</li>
      *                       </ul>
+     * @param executionPath  Command execution path
      * @param definitionPath Input Open Api Definition file path
      * @param serviceName    Output Service Name
      * @param outPath        Destination file path to save generated source files. If not provided
@@ -83,7 +84,7 @@ public class CodeGenerator {
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    public void generate(GenType type, String definitionPath, String serviceName, String outPath)
+    private void generate(GenType type, String executionPath, String definitionPath, String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
 
         if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
@@ -93,7 +94,7 @@ public class CodeGenerator {
 
         //Check if the selected path is a ballerina root for service generation
         //TODO check with team for root check
-        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(System.getProperty("user.dir")));
+        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(executionPath));
         if (type.equals(GenType.GEN_SERVICE) && projectRoot == null) {
             throw LauncherUtils.createUsageExceptionWithHelp("Ballerina service generation should be done " +
                     "from the project root. If you like to start with a new project use `ballerina init` command to " +
@@ -118,29 +119,43 @@ public class CodeGenerator {
         }
 
         List<GenSrcFile> genFiles = generateBalSource(type, definitionPath, serviceName);
-        writeGeneratedSources(genFiles, srcPath, implPath);
+        writeGeneratedSources(genFiles, srcPath, implPath, type);
     }
 
 
     /**
      * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
      * Generated source will be written to a ballerina module at {@code outPath}
-     * <p>Method can be user for generating Ballerina mock services and clients</p>
+     * Method can be user for generating Ballerina clients.
      *
-     * @param gt Output type. Following types are supported
-     *      <ul>
-     *          <li>mock</li>
-     *          <li>client</li>
-     *      </ul>
+     * @param executionPath  Command execution path
      * @param definitionPath Input Open Api Definition file path
-     * @param outPath Destination file path to save generated source files. If not provided
-     *      {@code definitionPath} will be used as the default destination path
-     * @throws IOException when file operations fail
+     * @param outPath        Destination file path to save generated source files. If not provided
+     *                       {@code definitionPath} will be used as the default destination path
+     * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    public void generate(GenType gt, String definitionPath, String outPath)
+    public void generateClient(String executionPath, String definitionPath, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(gt, definitionPath, null , outPath);
+        generate(GenType.GEN_CLIENT, executionPath, definitionPath, null, outPath);
+    }
+
+    /**
+     * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
+     * Generated source will be written to a ballerina module at {@code outPath}
+     * Method can be user for generating Ballerina clients.
+     *
+     * @param executionPath  Command execution path
+     * @param definitionPath Input Open Api Definition file path
+     * @param serviceName    service name for the generated service
+     * @param outPath        Destination file path to save generated source files. If not provided
+     *                       {@code definitionPath} will be used as the default destination path
+     * @throws IOException               when file operations fail
+     * @throws BallerinaOpenApiException when code generator fails
+     */
+    public void generateService(String executionPath, String definitionPath, String serviceName, String outPath)
+            throws IOException, BallerinaOpenApiException {
+        generate(GenType.GEN_SERVICE, executionPath, definitionPath, serviceName, outPath);
     }
 
     /**
@@ -211,9 +226,9 @@ public class CodeGenerator {
      * @param outPath      Destination path for writing the resulting source file
      * @throws IOException when file operations fail
      * @deprecated This method is now deprecated.
-     *              Use {@link #generateBalSource(GeneratorConstants.GenType, String, String) generate}
+     * Use {@link #generateBalSource(GeneratorConstants.GenType, String, String) generate}
      * and implement a file write functionality your self, if you need to customize file writing steps.
-     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String) generate}
+     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String, String, String) generate}
      * to directly write generated source to a ballerina module.
      */
     @Deprecated
@@ -243,7 +258,7 @@ public class CodeGenerator {
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
         cpTemplateLoader.setSuffix(GeneratorConstants.TEMPLATES_SUFFIX);
         fileTemplateLoader.setSuffix(GeneratorConstants.TEMPLATES_SUFFIX);
-        
+
         Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
         handlebars.registerHelpers(StringHelpers.class);
         handlebars.registerHelper("equals", (object, options) -> {
@@ -269,13 +284,25 @@ public class CodeGenerator {
         return handlebars.compile(templateName);
     }
 
-    private void writeGeneratedSources(List<GenSrcFile> sources, Path srcPath, Path implPath) throws IOException {
+    private void writeGeneratedSources(List<GenSrcFile> sources, Path srcPath, Path implPath, GenType type)
+            throws IOException {
         // Remove old generated files - if any - before regenerate
         // if srcPackage was not provided and source was written to main package nothing will be deleted.
         if (srcPackage != null && !srcPackage.isEmpty() && Files.exists(srcPath)) {
             final File[] listFiles = new File(String.valueOf(srcPath)).listFiles();
             if (listFiles != null) {
-                Arrays.stream(listFiles).forEach(File::delete);
+                Arrays.stream(listFiles).forEach(file -> {
+                    boolean deleteStatus = true;
+                    if (!file.isDirectory() && !file.getName().equals(MODULE_MD)) {
+                        deleteStatus = file.delete();
+                    }
+
+                    //Capture return value of file.delete() since if
+                    //unable to delete returns false from file.delete() without an exception.
+                    if (!deleteStatus) {
+                        outStream.println("Unable to clean module directory.");
+                    }
+                });
             }
 
         }
@@ -297,7 +324,13 @@ public class CodeGenerator {
         }
 
         //This will print the generated files to the console
-        outStream.println("Service generated successfully. Following files were created. \n" +
+        if (type.equals(GenType.GEN_SERVICE)) {
+            outStream.println("Service generated successfully and the OpenApi contract is copied to " + srcPackage
+                    + "/resources. this location will be referenced throughout the ballerina project.");
+        } else if (type.equals(GEN_CLIENT)) {
+            outStream.println("Client generated successfully.");
+        }
+        outStream.println(" Following files were created. \n" +
                 "src/ \n- " + srcPackage);
         Iterator<GenSrcFile> iterator = sources.iterator();
         while (iterator.hasNext()) {

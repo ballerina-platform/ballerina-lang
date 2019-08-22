@@ -45,7 +45,7 @@ function name1() returns error? {
     };
 
     table<Person> dt6 = table {
-        {key id, key age,salary,name, married}
+        {key id, key age, salary, name, married}
     };
 
     table<Person> dt7 = table {

@@ -129,10 +129,10 @@ public class LaunchUtils {
             }
 
         } catch (IOException e) {
-            RuntimeUtils.handleInitError("failed to read the specified configuration file: " +
+            RuntimeUtils.handleUsageError("failed to read the specified configuration file: " +
                                                  configFilePath);
         } catch (RuntimeException e) {
-            RuntimeUtils.handleInitError(e.getMessage());
+            RuntimeUtils.handleUsageError(e.getMessage());
         }
     }
 }

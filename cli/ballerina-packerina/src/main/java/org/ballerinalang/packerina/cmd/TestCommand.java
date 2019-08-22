@@ -103,6 +103,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
+    private String debugPort;
+
     @CommandLine.Option(names = {"--config"}, description = "path to the configuration file")
     private String configFilePath;
 

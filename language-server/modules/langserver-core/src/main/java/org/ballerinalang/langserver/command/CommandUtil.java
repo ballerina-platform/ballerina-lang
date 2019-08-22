@@ -579,7 +579,8 @@ public class CommandUtil {
         context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
         WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         try {
-            diagHelper.compileAndSendDiagnostics(client, context, docManager);
+            LSDocument lsDocument = new LSDocument(documentUri);
+            diagHelper.compileAndSendDiagnostics(client, context, lsDocument, docManager);
         } catch (CompilationFailedException e) {
             String msg = "Computing 'diagnostics' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(documentUri);
@@ -681,7 +682,7 @@ public class CommandUtil {
         context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
-        LSModuleCompiler.getBLangPackages(context, docManager, false, LSCustomErrorStrategy.class, true, false);
+        LSModuleCompiler.getBLangPackages(context, docManager, LSCustomErrorStrategy.class, true, false);
 
         // Get the current package.
         BLangPackage currentPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
@@ -811,7 +812,7 @@ public class CommandUtil {
         context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
-        List<BLangPackage> bLangPackages = LSModuleCompiler.getBLangPackages(context, documentManager, true,
+        List<BLangPackage> bLangPackages = LSModuleCompiler.getBLangPackages(context, documentManager,
                                                                              LSCustomErrorStrategy.class, true, false);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, bLangPackages);
         // Get the current package.

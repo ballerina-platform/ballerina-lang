@@ -134,19 +134,19 @@ public class RuntimeUtils {
         }
     }
 
-    public static void handleInitError(String errorMessage) {
-        errStream.println("ballerina: " + errorMessage);
-        Runtime.getRuntime().exit(1);
-    }
-
     public static void handleInvalidOption(String arg) {
-        handleInitError("value for option '--' (<String=String>) should be in KEY=VALUE format but was " + arg);
+        handleUsageError("value for option '--' (<String=String>) should be in KEY=VALUE format but was " + arg);
     }
 
     public static void handleInvalidConfig() {
-        handleInitError("value for option 'config' is missing");
+        handleUsageError("value for option 'config' is missing");
     }
-
+    
+    public static void handleUsageError(String errorMsg) {
+        errStream.println("ballerina: " + errorMsg);
+        Runtime.getRuntime().exit(1);
+    }
+    
     public static void silentlyLogBadSad(Throwable throwable) {
         // These errors are unhandled errors in JVM, hence logging them to bre log.
         breLog.error(throwable.getMessage(), throwable);

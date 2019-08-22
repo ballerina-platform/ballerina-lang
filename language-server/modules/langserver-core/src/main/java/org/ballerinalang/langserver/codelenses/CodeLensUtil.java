@@ -57,7 +57,7 @@ public class CodeLensUtil {
         List<CodeLens> lenses = new ArrayList<>();
         LSServiceOperationContext codeLensContext = new LSServiceOperationContext(LSContextOperation.TXT_CODE_LENS);
         codeLensContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager, true,
+        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager,
                                                                LSCustomErrorStrategy.class, false);
         // Source compilation has no errors, continue
         Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
