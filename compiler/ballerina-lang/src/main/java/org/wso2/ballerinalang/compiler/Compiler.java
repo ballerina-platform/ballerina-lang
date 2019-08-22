@@ -50,6 +50,7 @@ public class Compiler {
     private final PackageLoader pkgLoader;
     private final Manifest manifest;
     private PrintStream outStream;
+    private boolean langLibsLoaded;
 
     private Compiler(CompilerContext context) {
         context.put(COMPILER_KEY, this);
@@ -61,6 +62,7 @@ public class Compiler {
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.outStream = System.out;
+        this.langLibsLoaded = false;
     }
 
     public static Compiler getInstance(CompilerContext context) {
@@ -152,7 +154,10 @@ public class Compiler {
 
     private List<BLangPackage> compilePackages(List<PackageID> pkgIdList) {
 
-        this.compilerDriver.loadLangModules(pkgIdList);
+        if (!this.langLibsLoaded) {
+            this.compilerDriver.loadLangModules(pkgIdList);
+            this.langLibsLoaded = true;
+        }
         this.compilerDriver.loadUtilsPackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
