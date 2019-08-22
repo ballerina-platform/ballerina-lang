@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.is100ContinueRequest;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
 
@@ -79,6 +80,11 @@ public class ReceivingHeaders implements ListenerState {
             } else if (headersFrame.getHeaders().contains(HTTP2_METHOD)) {
                 // if the header frame is an initial header frame and also it has endOfStream
                 sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
+
+                //(https://httpwg.org/specs/rfc7231.html#header.expect)A client MUST NOT generate a 100-continue
+                // expectation in a request that does not include a message body.
+                //TODO:Handle how the server should react to this situation.
+
                 // Add empty last http content if no data frames available in the http request
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
                 initializeDataEventListeners(ctx, streamId, sourceReqCMsg);
@@ -90,7 +96,12 @@ public class ReceivingHeaders implements ListenerState {
             HttpCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
             sourceReqCMsg.setHttp2MessageStateContext(http2MessageStateContext);
             initializeDataEventListeners(ctx, streamId, sourceReqCMsg);
-            http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
+            if (is100ContinueRequest(sourceReqCMsg)) {
+                http2MessageStateContext.setListenerState(
+                        new Expect100ContinueHeaderReceived(http2MessageStateContext));
+            } else {
+                http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
+            }
         }
     }
 
