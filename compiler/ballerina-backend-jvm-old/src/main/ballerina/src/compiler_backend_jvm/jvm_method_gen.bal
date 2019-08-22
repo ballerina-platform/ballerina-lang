@@ -1267,7 +1267,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
     // set system properties
-    setSystemProperties(mv);
+    initConfigurations(mv);
     // start all listeners
     startListeners(mv, serviceEPAvailable);
 
@@ -1390,8 +1390,11 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitEnd();
 }
 
-function setSystemProperties(jvm:MethodVisitor mv) {
-    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "setSystemProperties", "()V", false);
+function initConfigurations(jvm:MethodVisitor mv) {
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, 
+                "initConfigurations", io:sprintf("([L%s;)[L%s;", STRING_VALUE, STRING_VALUE), false);
+    mv.visitVarInsn(ASTORE, 0);
 }
 
 function startListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
