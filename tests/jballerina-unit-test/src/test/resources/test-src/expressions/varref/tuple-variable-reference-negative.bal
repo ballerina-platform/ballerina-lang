@@ -140,3 +140,9 @@ function fn1(any t) returns [string, int, boolean, int, float, int] {
     return [s, i1, b, y, f, i2];
 }
 
+function testDuplicateBinding() returns [int, int] {
+    [int, int] x = [1, 2];
+    int a;
+    [a, a] = x;
+    return [a, a];
+}

@@ -163,3 +163,14 @@ function testRestParameterType() {
     ObjectRestRecord rec2 = { name: "A", married: true, "extra": new };
     { name, ...other2 } = rec2; // incompatible types: expected 'map<error>', found 'map'
 }
+
+type IntRecord record {|
+    int i;
+    int j;
+|};
+
+function testDuplicateBinding() {
+    int x;
+    IntRecord rec1 = { i: 1, j: 2 };
+    { i: x, j: x } = rec1;
+}

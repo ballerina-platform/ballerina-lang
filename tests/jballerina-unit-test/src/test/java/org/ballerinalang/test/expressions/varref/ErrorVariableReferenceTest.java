@@ -204,7 +204,7 @@ public class ErrorVariableReferenceTest {
     public void testNegativeErrorVariables() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/error_variable_reference_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 14);
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
@@ -236,5 +236,9 @@ public class ErrorVariableReferenceTest {
                                   "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 32);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 145, 19);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "variables in a binding pattern must be distinct; found duplicate variable 's'", 151, 24);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "variables in a binding pattern must be distinct; found duplicate variable 's'", 151, 36);
     }
 }

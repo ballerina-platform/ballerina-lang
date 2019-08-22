@@ -294,6 +294,7 @@ public enum DiagnosticCode {
     INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
     INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN("invalid.error.destructuring.reason"),
     INVALID_ERROR_MATCH_PATTERN("invalid.error.match.pattern"),
+    DUPLICATE_VARIABLE_IN_BINDING_PATTERN("duplicate.variable.in.binding.pattern"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
