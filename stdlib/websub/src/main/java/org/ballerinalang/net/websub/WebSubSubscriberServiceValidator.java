@@ -19,29 +19,17 @@
 
 package org.ballerinalang.net.websub;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.BALLERINA;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERIC_SUBSCRIBER_SERVICE_TYPE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_INTENT_VERIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
@@ -120,104 +108,5 @@ public class WebSubSubscriberServiceValidator {
         if (!resourceReturnsErrorOrNil) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "invalid return type: expected error?");
         }
-    }
-
-    // Runtime Validation for Specific Subscriber Services.
-
-    private static void validateOnIntentVerificationResource(HttpResource resource) {
-        List<BType> paramTypes = resource.getParamTypes();
-        validateParamCount(paramTypes, 2, resource.getName());
-        validateCallerParam(paramTypes.get(0));
-        validateIntentVerificationParam(paramTypes.get(1));
-    }
-
-    private static void validateCustomNotificationResource(HttpResource resource, BRecordType recordType) {
-        List<BType> paramTypes = resource.getParamTypes();
-        validateParamCount(paramTypes, CUSTOM_RESOURCE_PARAM_COUNT, resource.getName());
-        validateNotificationParam(resource.getName(), paramTypes.get(0));
-        validateRecordType(resource.getName(), paramTypes.get(1), recordType);
-    }
-
-    static void validateCustomResources(List<HttpResource> resources, WebSubServicesRegistry serviceRegistry) {
-        List<String> invalidResourceNames = retrieveInvalidResourceNames(resources,
-                                                                         serviceRegistry.getResourceDetails());
-
-        if (!invalidResourceNames.isEmpty()) {
-            throw BallerinaErrors.createError("Resource name(s) not included in the topic-resource mapping " +
-                                                      "found: " + invalidResourceNames);
-        }
-    }
-
-    private static List<String> retrieveInvalidResourceNames(List<HttpResource> resources,
-                                                             HashMap<String, BRecordType> resourceDetails) {
-        Set<String> resourceNames = resourceDetails.keySet();
-        List<String> invalidResourceNames = new ArrayList<>();
-
-        for (HttpResource resource : resources) {
-            String resourceName = resource.getName();
-
-            if (RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
-                validateOnIntentVerificationResource(resource);
-            } else if (!resourceNames.contains(resourceName)) {
-                invalidResourceNames.add(resourceName);
-            } else {
-                validateCustomNotificationResource(resource, resourceDetails.get(resourceName));
-            }
-        }
-        return invalidResourceNames;
-    }
-
-    private static void validateParamCount(List<BType> paramTypes, int expectedCount, String resourceName) {
-        int paramCount = paramTypes.size();
-        if (paramCount < expectedCount) {
-            throw BallerinaErrors.createError(String.format("Invalid param count for WebSub Resource '%s': expected " +
-                                                                    "'%d', found '%d'",
-                                                            resourceName, expectedCount, paramCount));
-        }
-    }
-
-    private static void validateCallerParam(BType paramVarType) {
-        if (!isExpectedObjectParam(paramVarType, WEBSUB_SERVICE_CALLER)) {
-            throw BallerinaErrors.createError(
-                    String.format("Invalid parameter type '%s' in resource '%s'. Requires '%s:%s'",
-                                  paramVarType.getQualifiedName(), RESOURCE_NAME_ON_INTENT_VERIFICATION, WEBSUB_PACKAGE,
-                                  WEBSUB_SERVICE_CALLER));
-        }
-    }
-
-    private static void validateIntentVerificationParam(BType paramVarType) {
-        if (!isExpectedObjectParam(paramVarType, WEBSUB_INTENT_VERIFICATION_REQUEST)) {
-            throw BallerinaErrors.createError(
-                    String.format("Invalid parameter type '%s' in resource '%s'. Requires '%s:%s'",
-                                  paramVarType.getQualifiedName(), RESOURCE_NAME_ON_INTENT_VERIFICATION, WEBSUB_PACKAGE,
-                                  WEBSUB_INTENT_VERIFICATION_REQUEST));
-        }
-    }
-
-    private static void validateNotificationParam(String resourceName, BType paramVarType) {
-        if (!isExpectedObjectParam(paramVarType, WEBSUB_NOTIFICATION_REQUEST)) {
-            throw BallerinaErrors.createError(
-                    String.format("Invalid parameter type '%s' in resource '%s'. Requires '%s:%s'",
-                                  paramVarType.getQualifiedName(), resourceName, WEBSUB_PACKAGE,
-                                  WEBSUB_NOTIFICATION_REQUEST));
-        }
-    }
-
-    private static void validateRecordType(String resourceName, BType paramVarType, BRecordType recordType) {
-        if (!TypeChecker.isSameType(paramVarType, recordType)) {
-            throw BallerinaErrors.createError(
-                    String.format("Invalid parameter type '%s' in resource '%s'. Requires '%s'",
-                                  paramVarType.getQualifiedName(), resourceName, recordType.getQualifiedName()));
-        }
-    }
-
-    private static boolean isExpectedObjectParam(BType specifiedType, String expectedWebSubRecordName) {
-        if (specifiedType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
-            return false;
-        }
-        BObjectType objectType = (BObjectType) specifiedType;
-        return objectType.getPackage().org.equals(BALLERINA) &&
-                objectType.getPackage().name.equals(WEBSUB) &&
-                objectType.getName().equals(expectedWebSubRecordName);
     }
 }
