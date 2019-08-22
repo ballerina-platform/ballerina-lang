@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/log;
 import ballerina/runtime;
 import ballerina/system;
 import ballerina/'lang\.object as lang;
@@ -48,6 +47,10 @@ public type Listener object {
 
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
+    }
+
+    public function __detach(service s) returns error? {
+        return self.detach(s);
     }
 
     public function __init(int port, public ListenerConfiguration? config = ()) {
@@ -99,7 +102,7 @@ public type Listener object {
     #
     # + s - The service that needs to be detached
     # + return - An `error` if there is any error occurred during the service detachment process or else nil
-    public function detach(service s) returns error? = external;
+    function detach(service s) returns error? = external;
 };
 
 # Presents a read-only view of the remote address.
@@ -305,8 +308,9 @@ type AttributeFilter object {
     *RequestFilter;
 
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        runtime:getInvocationContext().attributes[SERVICE_NAME] = context.getServiceName();
-        runtime:getInvocationContext().attributes[RESOURCE_NAME] = context.getResourceName();
+        var ctx = runtime:getInvocationContext();
+        ctx.attributes[SERVICE_NAME] = context.getServiceName();
+        ctx.attributes[RESOURCE_NAME] = context.getResourceName();
         return true;
     }
 };
@@ -343,6 +347,8 @@ public type WebSocketListener object {
         return self.httpEndpoint.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
 
     # Gets invoked during module initialization to initialize the endpoint.
     #

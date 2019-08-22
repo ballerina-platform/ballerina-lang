@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 

@@ -16,7 +16,6 @@
 // This is server implementation for bidirectional streaming scenario
 
 import ballerina/grpc;
-import ballerina/io;
 
 // Server endpoint configuration
 listener grpc:Listener server7 = new (9095);

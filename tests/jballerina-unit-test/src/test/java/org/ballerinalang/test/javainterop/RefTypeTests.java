@@ -53,6 +53,17 @@ public class RefTypeTests {
         Assert.assertEquals(arr.stringValue(), "[1, 8]");
     }
 
+    @Test(description = "Test interoperability with ballerina service type value as a param")
+    public void testInteropWithServiceTypesAndStringReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "acceptServiceAndBooleanReturn");
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        BBoolean bool = (BBoolean) returns[0];
+        Assert.assertTrue(bool.booleanValue());
+    }
+
+
     @Test(description = "Test interoperability with ballerina ref types as params and map return")
     public void testInteropWithRefTypesAndMapReturn() {
         BValue[] returns = BRunUtil.invoke(result, "interopWithRefTypesAndMapReturn");

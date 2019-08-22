@@ -17,20 +17,22 @@
 */
 package org.ballerinalang.test.functions;
 
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.NativeElementRepository;
-import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.test.utils.mock.StandardNativeElementProvider;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
 
 /**
  * Test function signatures and calling with optional and named params.
@@ -376,13 +378,9 @@ public class FunctionSignatureTest {
         Assert.assertEquals(returns[5].stringValue(), "[]");
     }
 
-    @Test(enabled = false) // disabling due to, external functions not yet supported in tests
+    @Test()
     public void testOptionalArgsInNativeFunc() {
-        NativeElementRepository repo = NativeUnitLoader.getInstance().getNativeElementRepository();
-        StandardNativeElementProvider provider = new StandardNativeElementProvider();
-        provider.populateNatives(repo);
-
-        CompileResult result = BCompileUtil.compile(this, "test-src/functions/", "foo.bar");
+        CompileResult result = BCompileUtil.compile(this, "test-src/functions/TestProj", "foo.bar");
         BValue[] returns = BRunUtil.invoke(result, "testOptionalArgsInNativeFunc");
 
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -399,9 +397,6 @@ public class FunctionSignatureTest {
 
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Doe");
-
-        Assert.assertTrue(returns[5] instanceof BValueArray);
-        Assert.assertEquals(returns[5].stringValue(), "[4, 5, 6]");
     }
 
     @Test
@@ -434,5 +429,18 @@ public class FunctionSignatureTest {
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
         Assert.assertEquals(returns[1].stringValue(), "inner default world");
+    }
+
+    public static ArrayValue mockedNativeFuncWithOptionalParams(long a, double b, String c,
+                                                                long d, String e) {
+        BTupleType tupleType = new BTupleType(
+                Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
+        ArrayValue tuple = new ArrayValue(tupleType);
+        tuple.add(0, Long.valueOf(a));
+        tuple.add(1, Double.valueOf(b));
+        tuple.add(2, (Object) c);
+        tuple.add(3, Long.valueOf(d));
+        tuple.add(4, (Object) e);
+        return tuple;
     }
 }

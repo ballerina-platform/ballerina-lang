@@ -99,9 +99,7 @@ public type Cache object {
                     timerStarted = true;
                 }
             }
-
         }
-
     }
 
     # Checks whether the given key has an accociated cache value.
@@ -123,7 +121,7 @@ public type Cache object {
     # + key - value which should be used as the key
     # + value - value to be cached
     public function put(string key, any value) {
-        // We need to synchronize this process otherwise concurrecy might cause issues.
+        // We need to synchronize this process otherwise concurrency might cause issues.
          lock {
             int cacheCapacity = self.capacity;
             int cacheSize = self.entries.length();

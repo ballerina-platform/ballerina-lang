@@ -39,6 +39,10 @@ public type MockListener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+        return self.detach(s);
+    }
+
     public function __init(int port, ListenerConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;

@@ -18,8 +18,8 @@
  package org.ballerinalang.jvm.values;
 
  import org.ballerinalang.jvm.scheduling.Strand;
+ import org.ballerinalang.jvm.types.BFutureType;
  import org.ballerinalang.jvm.types.BType;
- import org.ballerinalang.jvm.types.BTypes;
  import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
  import java.util.Map;
@@ -42,9 +42,12 @@
 
      public CallableUnitCallback callback;
 
-     public FutureValue(Strand strand, CallableUnitCallback callback) {
+     BType type;
+
+     public FutureValue(Strand strand, CallableUnitCallback callback, BType constraint) {
          this.strand = strand;
          this.callback = callback;
+         this.type = new BFutureType(constraint);
      }
 
      @Override
@@ -62,7 +65,7 @@
 
      @Override
      public BType getType() {
-         return BTypes.typeFuture;
+         return this.type;
      }
 
      @Override

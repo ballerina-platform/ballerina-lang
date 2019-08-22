@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/internal;
-import ballerina/'lang\.int as langint;
 import ballerina/'lang\.object as lang;
 import ballerina/log;
 
@@ -41,6 +39,9 @@ public type Listener object {
     public function __attach(service s, string? name = ()) returns error? {
         // TODO: handle data and return error on error
         self.registerWebSubSubscriberService(s);
+    }
+
+    public function __detach(service s) returns error? {
     }
 
     public function __start() returns error? {

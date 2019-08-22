@@ -1,6 +1,6 @@
 
 import a;
-import b;
+import b as _;
 
 int b = a:updateA1(10);
 

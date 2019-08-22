@@ -24,7 +24,7 @@ package org.ballerinalang.jvm.types;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-class BFloatType extends BType {
+public class BFloatType extends BType {
 
     /**
      * Create a {@code BFloatType} which represents the boolean type.

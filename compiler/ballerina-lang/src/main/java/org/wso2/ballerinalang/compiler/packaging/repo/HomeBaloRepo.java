@@ -19,12 +19,14 @@
 package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.SortablePath;
 import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,10 +34,12 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
@@ -43,17 +47,20 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  */
 public class HomeBaloRepo implements Repo<Path> {
     private Path repoLocation;
-    ZipConverter zipConverter;
-    List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
+    private ZipConverter zipConverter;
+    private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
+    private Map<PackageID, Manifest> dependencyManifests;
     
-    public HomeBaloRepo(Path repo) {
-        this.repoLocation = repo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
-        this.zipConverter = new ZipConverter(repo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
+    public HomeBaloRepo(Map<PackageID, Manifest> dependencyManifests) {
+        this.repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
+        this.dependencyManifests = dependencyManifests;
+        this.zipConverter = new ZipConverter(this.repoLocation);
         supportedPlatforms.add("any");
     }
     
     public Patten calculate(PackageID moduleID) {
         try {
+            // if path to balo is not given in the manifest file
             String orgName = moduleID.getOrgName().getValue();
             String pkgName = moduleID.getName().getValue();
             String versionStr = moduleID.getPackageVersion().getValue();
@@ -63,44 +70,49 @@ public class HomeBaloRepo implements Repo<Path> {
                 return Patten.NULL;
             }
             
-            Path baloFilePath;
-            // check if version is empty. If so get the latest balo file directly.
-            if (versionStr.isEmpty()) {
-                Optional<Path> latestVersionPath =
-                        getLatestBaloFile(this.repoLocation.resolve(orgName).resolve(pkgName));
-                
-                if (latestVersionPath.isPresent()) {
-                    Path latestVersionDirectoryName = latestVersionPath.get().getFileName();
-                    if (null != latestVersionDirectoryName) {
-                        versionStr = latestVersionDirectoryName.toString();
-                        String baloFileName = pkgName + ".balo";
-                        // TODO: String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" +
-                        //  versionStr + ".balo";
-                        baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr)
-                                .resolve(baloFileName);
+            for (String platform : supportedPlatforms) {
+                Path baloFilePath;
+                // check if version is empty. If so get the latest balo file directly.
+                if (versionStr.isEmpty()) {
+                    Optional<Path> latestVersionPath = getLatestBaloFile(this.repoLocation.resolve(orgName)
+                            .resolve(pkgName));
+        
+                    if (latestVersionPath.isPresent()) {
+                        Path latestVersionDirectoryName = latestVersionPath.get().getFileName();
+                        if (null != latestVersionDirectoryName) {
+                            versionStr = latestVersionDirectoryName.toString();
+                            String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" +
+                                                  versionStr + ".balo";
+                            baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr).
+                                    resolve(baloFileName);
+                        } else {
+                            return Patten.NULL;
+                        }
                     } else {
                         return Patten.NULL;
                     }
                 } else {
-                    return Patten.NULL;
+                    // Get the existing balo file.
+                    String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + versionStr +
+                                          ".balo";
+                    baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr)
+                            .resolve(baloFileName);
                 }
-            } else {
-                // Get the existing balo file.
-                // TODO: String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" +
-                //  versionStr + ".balo";
-                String baloFileName = pkgName + ".balo";
-                baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr)
-                        .resolve(baloFileName);
-            }
-
-            // return Patten only if balo file exists.
-            Path baloFileName = baloFilePath.getFileName();
-            if (Files.exists(baloFilePath) && null != baloFileName) {
-                moduleID.version = new Name(versionStr);
-                return new Patten(path(orgName, pkgName),
-                        path(versionStr),
-                        path(baloFileName.toString(), ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
-                        Patten.WILDCARD_SOURCE);
+                
+                // return Patten only if balo file exists.
+                Path baloFileName = baloFilePath.getFileName();
+                if (Files.exists(baloFilePath) && null != baloFileName) {
+                    moduleID.version = new Name(versionStr);
+    
+                    // update dependency manifests map for imports of this moduleID.
+                    this.dependencyManifests.put(moduleID,
+                            RepoUtils.getManifestFromBalo(baloFilePath.toAbsolutePath()));
+    
+                    return new Patten(path(orgName, pkgName),
+                            path(versionStr),
+                            path(baloFileName.toString(), ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
+                            Patten.WILDCARD_SOURCE);
+                }
             }
         
             return Patten.NULL;
@@ -136,6 +148,6 @@ public class HomeBaloRepo implements Repo<Path> {
     
     @Override
     public String toString() {
-        return "{t:'BaloRepo', c:'" + this.zipConverter + "'}";
+        return "{t:'HomeBaloRepo', c:'" + this.zipConverter + "'}";
     }
 }
