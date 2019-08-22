@@ -456,9 +456,13 @@ public class BServerInstance implements BServer {
      * @param envProperties environmental properties to be appended to the environment
      * @throws BallerinaTestException if starting services failed
      */
-    public void runJar(String balFile, String[] args, Map<String, String> envProperties) throws BallerinaTestException {
+    private void runJar(String balFile, String[] args, Map<String, String> envProperties)
+            throws BallerinaTestException {
         File commandDir = new File(balServer.getServerHome());
-        executeJarFile(balFile.substring(0, balFile.length() - 4) + "-executable.jar", args, envProperties, commandDir);
+        String balFileName = Paths.get(balFile).getFileName().toString();
+        String jarPath = Paths.get(commandDir.getAbsolutePath(), balFileName.substring(0, balFileName.length() -
+                4) + "-executable.jar").toString();
+        executeJarFile(jarPath, args, envProperties, commandDir);
     }
 
     /**
