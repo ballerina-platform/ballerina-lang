@@ -41,6 +41,9 @@ public type Listener object {
         self.registerWebSubSubscriberService(s);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     public function __start() returns error? {
         // TODO: handle data and return error on error
         self.startWebSubSubscriberServiceEndpoint();
@@ -194,7 +197,7 @@ public type ExtensionConfig record {|
     //    "watch" : ("onWatch", WatchEvent),
     //    "create" : ("onCreate", CreateEvent)
     //  };
-    map<[string, typedesc<record{| json...; |}>]>? headerResourceMap = ();
+    map<[string, typedesc<record {}>]>? headerResourceMap = ();
 
     // e.g.,
     //  payloadKeyResourceMap = {
@@ -203,7 +206,7 @@ public type ExtensionConfig record {|
     //        "branch.deleted":  ("onBranchDelete", BranchDeletedEvent)
     //    }
     //  };
-    map<map<[string, typedesc<record{| json...; |}>]>>? payloadKeyResourceMap = ();
+    map<map<[string, typedesc<record {}>]>>? payloadKeyResourceMap = ();
 
     // e.g.,
     //  headerAndPayloadKeyResourceMap = {
@@ -215,7 +218,7 @@ public type ExtensionConfig record {|
     //        }
     //    }
     //  };
-    map<map<map<[string, typedesc<record{| json...; |}>]>>>? headerAndPayloadKeyResourceMap = ();
+    map<map<map<[string, typedesc<record {}>]>>>? headerAndPayloadKeyResourceMap = ();
 |};
 
 # The function called to discover hub and topic URLs defined by a resource URL.

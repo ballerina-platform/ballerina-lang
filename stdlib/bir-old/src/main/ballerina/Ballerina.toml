@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "bir"
+    version = "@project.version@"
+    path = "../libs/ballerina-bir-old-1.0.0-beta-SNAPSHOT.jar"
+    groupId = "ballerina"
+    modules = ["bir"]

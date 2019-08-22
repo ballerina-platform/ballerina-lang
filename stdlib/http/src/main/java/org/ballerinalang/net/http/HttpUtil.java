@@ -529,7 +529,8 @@ public class HttpUtil {
     private static MapValue<String, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
         MapValue<String, Object> detail = BallerinaValues
                 .createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD);
-        return BallerinaValues.createRecord(detail, message, cause);
+        return cause == null ? BallerinaValues.createRecord(detail, message) :
+                BallerinaValues.createRecord(detail, message, cause);
     }
 
     // TODO: Find a better way to get the error type than String matching.

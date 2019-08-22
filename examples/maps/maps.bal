@@ -9,7 +9,7 @@ public function main() {
         city: "Colombo 03", country: "Sri Lanka" };
     io:println(addrMap);
 
-    // Retrieves a value using index-based access.
+    // Retrieves a value using member access.
     string country = <string>addrMap["country"];
     io:println(country);
 
@@ -54,9 +54,9 @@ public function main() {
     map<string> stringMap = {};
     stringMap["index"] = "100892N";
 
-    // The return type of index-based access will be `T?` where `T` is the constraint type of the map.
-    // If the key does not exist, `nil` is returned.
-    // The Elvis operator `?:` is a conditional operator that handles `nil`.
+    // The return type of member access will be `T?` where `T` is the constraint type of the map.
+    // If the key does not exist, nil (`()`) is returned.
+    // The Elvis operator `?:` is a conditional operator that handles `()`.
     // If the given expression evaluates to nil, the second expression is evaluated and its value is returned.
     string index2 = stringMap["index"] ?: "";
     io:println(index2);

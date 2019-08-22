@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -174,7 +175,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         && context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY)) {
                     return Either.forLeft(completions);
                 }
-                LSModuleCompiler.getBLangPackage(context, documentManager, false, null, false);
+                LSModuleCompiler.getBLangPackage(context, documentManager, null, false);
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
                 CompletionUtil.resolveSymbols(context);
@@ -249,7 +250,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 // Prune the source and compile
                 SourcePruner.pruneSource(context);
-                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, false,
+                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
                                                                              LSCustomErrorStrategy.class, false);
 
                 // Capture visible symbols of the cursor position
@@ -359,7 +360,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DOC_SYMBOL);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 context.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
-                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, false,
+                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
                                                                              LSCustomErrorStrategy.class, false);
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
@@ -589,7 +590,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             try {
                 BLangPackage bLangPackage =
-                        LSModuleCompiler.getBLangPackage(context, documentManager, false,
+                        LSModuleCompiler.getBLangPackage(context, documentManager,
                                                          GotoImplementationCustomErrorStrategy.class, false);
                 List<Location> locations = GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
                                                                                             position.getPosition(),
@@ -628,7 +629,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LanguageClient client = this.languageServer.getClient();
                 LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DID_OPEN);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
-                diagnosticsHelper.compileAndSendDiagnostics(client, context, documentManager);
+                LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
+                diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
             } catch (CompilationFailedException e) {
                 String msg = "Computing 'diagnostics' failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -668,7 +670,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     LSServiceOperationContext ctx = new LSServiceOperationContext(LSContextOperation.TXT_DID_CHANGE);
                     String fileURI = params.getTextDocument().getUri();
                     ctx.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
-                    diagnosticsHelper.compileAndSendDiagnostics(client, ctx, documentManager);
+                    LSDocument lsDocument = new LSDocument(fileURI);
+                    diagnosticsHelper.compileAndSendDiagnostics(client, ctx, lsDocument, documentManager);
+                    // Clear current cache upon successfull compilation
+                    // If the compiler fails, still we'll have the cached entry(marked as outdated)
+                    LSCompilerCache.clear(ctx, lsDocument.getProjectRoot());
                 } catch (CompilationFailedException e) {
                     String msg = "Computing 'diagnostics' failed!";
                     logError(msg, e, params.getTextDocument(), (Position) null);

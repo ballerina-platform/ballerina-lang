@@ -1,7 +1,7 @@
-import testorg/foo version v1;
+import testorg/foo;
 
 function testInvokeFunctionInMixOrder1() returns [int, float, string, int, string, int[]] {
-    return foo:functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", 40, 50, d=30, 60);
+    return foo:functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", 40, 50);
 }
 
 function testInvokeFunctionInMixOrder2() returns [int, float, string, int, string, int[]] {

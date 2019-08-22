@@ -1,7 +1,7 @@
 function (string a, int b) returns string glf1 = concat;
 
 function (string a, boolean b) returns string glf2 = function (string a, boolean b) returns string {
-                                                               return a + b;
+                                                               return a + b.toString();
                                                            };
 
 function (string, int) returns string glf3 = function (string a, int b) returns string {
@@ -29,6 +29,6 @@ public function setGlf3(function (string, int) returns string func) {
 }
 
 function concat (string x, int y) returns string {
-    string result = x + y;
+    string result = x + y.toString();
     return result;
 }

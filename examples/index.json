@@ -721,6 +721,10 @@
         "column": 1,
         "category": "Working over the network",
         "samples": [{
+                "name": "Client Endpoint",
+                "url": "websocket-client"
+            },
+            {
                 "name": "Basic Server Functionalities",
                 "url": "websocket-basic-sample"
             },

@@ -85,19 +85,17 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
                     symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
                     List<BLangPackage> bLangPackage = LSModuleCompiler.getBLangPackages(symbolsContext,
-                                                                                  workspaceDocumentManager,
-                                                                                  false, LSCustomErrorStrategy.class,
-                                                                                  true, false);
-                    if (bLangPackage != null) {
-                        bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
-                            String unitName = compUnit.getName();
-                            String sourceRoot = LSCompilerUtil.getProjectRoot(path);
-                            String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
-                            String hash = generateHash(compUnit, basePath);
-                            compUnits.put(hash, new Object[]{
-                                    new File(basePath + File.separator + unitName).toURI(), compUnit});
-                        }));
-                    }
+                                                                                        workspaceDocumentManager,
+                                                                                        LSCustomErrorStrategy.class,
+                                                                                        true, false);
+                    bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
+                        String unitName = compUnit.getName();
+                        String sourceRoot = LSCompilerUtil.getProjectRoot(path);
+                        String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
+                        String hash = generateHash(compUnit, basePath);
+                        compUnits.put(hash, new Object[]{
+                                new File(basePath + File.separator + unitName).toURI(), compUnit});
+                    }));
                 }
 
                 compUnits.values().forEach(compilationUnit -> {
