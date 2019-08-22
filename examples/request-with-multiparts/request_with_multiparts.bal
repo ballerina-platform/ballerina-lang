@@ -99,7 +99,7 @@ function handleContent(mime:Entity bodyPart) {
             //Extracts `json` data from the body part.
             var payload = bodyPart.getJson();
             if (payload is json) {
-                log:printInfo(payload.toString());
+                log:printInfo(payload.toJsonString());
             } else {
                 log:printError(<string> payload.detail().message);
             }
