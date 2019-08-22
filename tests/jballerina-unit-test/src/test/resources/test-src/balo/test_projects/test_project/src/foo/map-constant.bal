@@ -124,25 +124,25 @@ function getA1() returns map<string>[] {
 }
 
 public const map<boolean> bm4 = { "bm4k": true };
-public const map<boolean> bm5 = { "bm5kn": bm4.bm4k };
+public const map<boolean> bm5 = { "bm5kn": true };
 
 public const map<int> im4 = { "im4k": 123 };
-public const map<int> im5 = { "im5kn": im4.im4k };
+public const map<int> im5 = { "im5kn": 123 };
 
 public const map<byte> bytem4 = { "bytem4k": 64 };
-public const map<byte> bytem5 = { "bytem5kn": bytem4.bytem4k };
+public const map<byte> bytem5 = { "bytem5kn": 64 };
 
 public const map<float> fm4 = { "fm4k": 12.5 };
-public const map<float> fm5 = { "fm5kn": fm4.fm4k };
+public const map<float> fm5 = { "fm5kn": 12.5 };
 
 public const map<decimal> dm4 = { "dm4k": 5.56 };
-public const map<decimal> dm5 = { "dm5kn": dm4.dm4k };
+public const map<decimal> dm5 = { "dm5kn": 5.56 };
 
 public const map<string> sm4 = { "sm4k": "sm4v" };
-public const map<string> sm5 = { "sm5kn": sm4.sm4k };
+public const map<string> sm5 = { "sm5kn": "sm4v" };
 
 public const map<()> nm4 = { "nm4k": () };
-public const map<()> nm5 = { "nm5kn": nm4.nm4k };
+public const map<()> nm5 = { "nm5kn": () };
 
 // -----------------------------------------------------------
 

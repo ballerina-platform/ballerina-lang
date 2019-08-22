@@ -37,9 +37,11 @@ public class OpenAPICmdTest extends OpenAPICommandTest {
 
         String output = readOutput(true);
         Assert.assertTrue(output.contains("NAME\n" +
-                "    Ballerina openapi - Generates Ballerina code for a provided\n" +
-                "    OpenApi definition or exports the OpenApi definition of a\n" +
-                "    Ballerina service."));
+                "    Ballerina OpenAPI - Tools that can help to convert OpenAPI" +
+                " contract to Ballerina service, Ballerina service\n" +
+                "    to OpenAPI contract and to generate the service client.\n" +
+                "\n    Note: This is an Experimental tool ship under ballerina hence" +
+                " this will only support limited set of functionality."));
     }
 
     @Test(description = "Test openapi command without help flag")
@@ -50,8 +52,10 @@ public class OpenAPICmdTest extends OpenAPICommandTest {
 
         String output = readOutput(true);
         Assert.assertTrue(output.contains("NAME\n" +
-                "    Ballerina openapi - Generates Ballerina code for a provided\n" +
-                "    OpenApi definition or exports the OpenApi definition of a\n" +
-                "    Ballerina service."));
+                "    Ballerina OpenAPI - Tools that can help to convert" +
+                " OpenAPI contract to Ballerina service, Ballerina service\n" +
+                "    to OpenAPI contract and to generate the service client.\n" +
+                "\n    Note: This is an Experimental tool ship under ballerina hence" +
+                " this will only support limited set of functionality."));
     }
 }

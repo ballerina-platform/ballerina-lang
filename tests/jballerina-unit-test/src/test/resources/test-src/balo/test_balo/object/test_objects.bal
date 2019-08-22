@@ -1,4 +1,4 @@
-import testorg/foo version v1;
+import testorg/foo;
 
 public function testSimpleObjectAsStruct () returns [int, string, int, string] {
     foo:Man p = new ();
@@ -145,7 +145,11 @@ function testCyclicReferenceWithDefaultable () returns int {
     foo:Cat em = new;
     em.age = 89;
     p.emp = em;
-    return (p.emp.age ?: 56);
+    var emp = p.emp;
+    if (emp is foo:Cat) {
+        return emp.age;
+    }
+    return 56;
 }
 
 function testRecursiveObjectWithNill() returns int {
