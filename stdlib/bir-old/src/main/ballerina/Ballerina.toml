@@ -8,6 +8,6 @@ target = "java"
     [[platform.libraries]]
     artafactId = "bir"
     version = "@project.version@"
-    path = "../libs/ballerina-bir-old-1.0.0-beta-SNAPSHOT.jar"
+    path = "../libs/ballerina-bir-old-1.0.0-alpha3.jar"
     groupId = "ballerina"
     modules = ["bir"]
