@@ -302,4 +302,11 @@
             <class name="org.ballerinalang.test.cache.CacheBaseTest"/>
         </classes>
     </test>
+
+    <test name="ballerina-run-tests" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <packages>
+            <package name="org.ballerinalang.test.run.*"/>
+        </packages>
+    </test>
 </suite>
