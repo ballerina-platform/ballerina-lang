@@ -29,6 +29,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -225,5 +226,13 @@ public class LangLibStringTest {
                 {"a".codePoints().asLongStream().toArray(),     "a"},
                 {"a👻cd".codePoints().asLongStream().toArray(), "a👻cd"},
         };
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StringOperationError " +
+                    "message=String index out of range. Length:'6' requested: '7' to '9'.*")
+    public void testSubstringOutRange() {
+        BRunUtil.invoke(compileResult, "testSubstringOutRange");
+        Assert.fail();
     }
 }

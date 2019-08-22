@@ -70,7 +70,8 @@ public enum RuntimeErrors {
     ILLEGAL_TUPLE_INSERTION("illegal.tuple.insertion", "RUNTIME_0044"),
     ILLEGAL_ARRAY_SIZE("illegal.array.size", "RUNTIME_0045"),
     ILLEGAL_TUPLE_SIZE("illegal.tuple.size", "RUNTIME_0046"),
-    ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE("illegal.rest.tuple.size", "RUNTIME_0047");
+    ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE("illegal.rest.tuple.size", "RUNTIME_0047"),
+    STRING_INDEX_OUT_OF_RANGE("string.index.out.of.range", "RUNTIME_0048");
 
     private String errorMsgKey;
     private String errorCode;
