@@ -18,9 +18,7 @@
 package org.ballerinalang.stdlib.io.channels;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
-import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 
 /**
@@ -28,7 +26,7 @@ import java.nio.channels.WritableByteChannel;
  */
 public class BlobIOChannel extends Channel {
 
-    public BlobIOChannel(BlobChannel channel) throws BallerinaIOException {
+    public BlobIOChannel(BlobChannel channel) {
         super(channel);
         this.setReadable(channel.isReadable());
     }
@@ -37,18 +35,13 @@ public class BlobIOChannel extends Channel {
      * {@inheritDoc}
      */
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Channel getChannel() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isSelectable() {
-        return false;
     }
 
     @Override

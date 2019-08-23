@@ -19,9 +19,7 @@
 package org.ballerinalang.mime.util;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
-import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 
 /**
@@ -32,12 +30,12 @@ import java.nio.channels.WritableByteChannel;
  */
 public class EntityWrapper extends Channel {
 
-    public EntityWrapper(EntityBodyChannel channel) throws BallerinaIOException {
+    public EntityWrapper(EntityBodyChannel channel) {
         super(channel);
     }
 
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) {
         //For the time being not applicable
         throw new UnsupportedOperationException();
     }
@@ -45,11 +43,6 @@ public class EntityWrapper extends Channel {
     @Override
     public Channel getChannel() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isSelectable() {
-        return false;
     }
 
     @Override

@@ -17,7 +17,6 @@
 
 package org.ballerinalang.stdlib.io.channels.base;
 
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,18 +66,9 @@ public abstract class Channel implements IOChannel {
      * </p>
      *
      * @param byteChannel which will be used to read/write content.
-     * @throws BallerinaIOException initialization error.
      */
-    public Channel(ByteChannel byteChannel) throws BallerinaIOException {
-        if (null != byteChannel) {
-            this.byteChannel = byteChannel;
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Initializing ByteChannel with ref id %d", byteChannel.hashCode()));
-            }
-        } else {
-            String message = "Provided channel cannot be initialized";
-            throw new BallerinaIOException(message);
-        }
+    public Channel(ByteChannel byteChannel) {
+        this.byteChannel = byteChannel;
     }
 
     /**
@@ -156,12 +146,12 @@ public abstract class Channel implements IOChannel {
      * This will return {@link InputStream} from underlying {@link ByteChannel}.
      *
      * @return An {@link InputStream}
-     * @throws BallerinaIOException error occur during obtaining input-stream.
+     * @throws IOException error occur during obtaining input-stream.
      */
-    public InputStream getInputStream() throws BallerinaIOException {
+    public InputStream getInputStream() throws IOException {
         if (!byteChannel.isOpen()) {
             String message = "Channel is already closed.";
-            throw new BallerinaIOException(message);
+            throw new IOException(message);
         }
         return Channels.newInputStream(byteChannel);
     }

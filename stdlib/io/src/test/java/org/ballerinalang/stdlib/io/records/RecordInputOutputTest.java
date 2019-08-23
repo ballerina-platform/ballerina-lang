@@ -23,6 +23,7 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.util.TestUtil;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -47,7 +48,7 @@ public class RecordInputOutputTest {
     }
 
     @Test(description = "Reads records from file")
-    public void readRecords() throws IOException, URISyntaxException {
+    public void readRecords() throws IOException, URISyntaxException, BallerinaIOException {
         int expectedFieldCount = 3;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
@@ -71,7 +72,7 @@ public class RecordInputOutputTest {
     }
 
     @Test(description = "Processors records in sequence with hasNext()")
-    public void processRecordSequence() throws IOException, URISyntaxException {
+    public void processRecordSequence() throws IOException, URISyntaxException, BallerinaIOException {
         int expectedFieldCount = 3;
         boolean hasNext = false;
         //Number of characters in this file would be 6
@@ -104,7 +105,7 @@ public class RecordInputOutputTest {
     }
 
     @Test(description = "Read lengthy records")
-    public void readLongRecord() throws IOException, URISyntaxException {
+    public void readLongRecord() throws IOException, URISyntaxException, BallerinaIOException {
         int expectedFieldCount = 18;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample4.csv");
@@ -120,7 +121,7 @@ public class RecordInputOutputTest {
     }
 
     @Test(description = "Read records which are not indented properly")
-    public void readNonIndentedRecords() throws IOException, URISyntaxException {
+    public void readNonIndentedRecords() throws IOException, URISyntaxException, BallerinaIOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample2.csv");
         Channel channel = new MockByteChannel(byteChannel);

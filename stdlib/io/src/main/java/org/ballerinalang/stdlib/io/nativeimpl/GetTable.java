@@ -36,12 +36,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -80,7 +80,7 @@ public class GetTable {
                 records.add(delimitedChannel.read());
             }
             return getTable(typedescValue, records);
-        } catch (IOException e) {
+        } catch (BallerinaIOException e) {
             String msg = "Failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
             return IOUtils.createError(e.getMessage());

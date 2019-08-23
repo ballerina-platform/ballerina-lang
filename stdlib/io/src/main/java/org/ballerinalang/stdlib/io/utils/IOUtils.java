@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.io.utils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
@@ -142,10 +141,9 @@ public class IOUtils {
      *
      * @param characterChannel the character channel the payload should be written.
      * @param payload          the content.
-     * @throws BallerinaException during i/o error.
+     * @throws BallerinaIOException during i/o error.
      */
-    public static void writeFull(CharacterChannel characterChannel, String payload)
-            throws BallerinaException {
+    public static void writeFull(CharacterChannel characterChannel, String payload) throws BallerinaIOException {
         try {
             int totalNumberOfCharsWritten = 0;
             int numberOfCharsWritten;
@@ -155,12 +153,13 @@ public class IOUtils {
                 totalNumberOfCharsWritten = totalNumberOfCharsWritten + numberOfCharsWritten;
             } while (totalNumberOfCharsWritten != lengthOfPayload && numberOfCharsWritten != 0);
             if (totalNumberOfCharsWritten != lengthOfPayload) {
-                String message = "JSON payload was partially written expected: " + lengthOfPayload + ", written : " +
-                        totalNumberOfCharsWritten;
-                throw new BallerinaException(message);
+                String message = String
+                        .format("JSON payload was partially written expected: %d, written : %d", lengthOfPayload,
+                                totalNumberOfCharsWritten);
+                throw new BallerinaIOException(message);
             }
         } catch (IOException e) {
-            throw new BallerinaException(e);
+            throw new BallerinaIOException("Unable to write the content fully", e);
         }
     }
 
@@ -207,13 +206,13 @@ public class IOUtils {
      *
      * @param path the file location url
      */
-    private static void createDirsExtended(Path path) {
+    private static void createDirsExtended(Path path) throws BallerinaIOException {
         Path parent = path.getParent();
         if (parent != null && !parent.toFile().exists()) {
             try {
                 Files.createDirectories(parent);
             } catch (IOException e) {
-                throw new BallerinaException("Error in creating directory.", e);
+                throw new BallerinaIOException("Error in creating directory.", e);
             }
         }
     }
@@ -223,18 +222,18 @@ public class IOUtils {
      *
      * @param path       path to the file.
      * @param accessMode file access mode.
-     * @return the filechannel which will hold the reference.
-     * @throws IOException during i/o error.
+     * @return the file channel which will hold the reference.
+     * @throws BallerinaIOException during i/o error.
      */
-    public static FileChannel openFileChannelExtended(Path path, String accessMode) throws IOException {
+    public static FileChannel openFileChannelExtended(Path path, String accessMode) throws BallerinaIOException {
         String accessLC = accessMode.toLowerCase(Locale.getDefault());
         Set<OpenOption> opts = new HashSet<>();
         if (accessLC.contains("r")) {
             if (!path.toFile().exists()) {
-                throw new BallerinaException("file not found: " + path);
+                throw new BallerinaIOException("file not found: " + path);
             }
             if (!Files.isReadable(path)) {
-                throw new BallerinaException("file is not readable: " + path);
+                throw new BallerinaIOException("file is not readable: " + path);
             }
             opts.add(StandardOpenOption.READ);
         }
@@ -242,7 +241,7 @@ public class IOUtils {
         boolean append = accessLC.contains("a");
         if (write || append) {
             if (path.toFile().exists() && !Files.isWritable(path)) {
-                throw new BallerinaException("file is not writable: " + path);
+                throw new BallerinaIOException("file is not writable: " + path);
             }
             createDirsExtended(path);
             opts.add(StandardOpenOption.CREATE);
@@ -252,7 +251,13 @@ public class IOUtils {
                 opts.add(StandardOpenOption.WRITE);
             }
         }
-        return FileChannel.open(path, opts);
+        try {
+            return FileChannel.open(path, opts);
+        } catch (IOException e) {
+            throw new BallerinaIOException("unable to open the file", e);
+        } catch (UnsupportedOperationException e) {
+            throw new BallerinaIOException("unable to open file due to an unsupported operation", e);
+        }
     }
 
     /**
@@ -263,11 +268,11 @@ public class IOUtils {
      * @param mode     permission to access the file.
      * @param format   format of the CSV file.
      * @return delimited record channel to read from CSV.
-     * @throws IOException during I/O error.
+     * @throws BallerinaIOException during I/O error.
      */
     public static DelimitedRecordChannel createDelimitedRecordChannelExtended(String filePath, String encoding,
                                                                               String mode, Format format)
-            throws IOException {
+            throws BallerinaIOException {
         Path path = Paths.get(filePath);
         FileChannel sourceChannel = openFileChannelExtended(path, mode);
         FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);

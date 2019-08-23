@@ -25,11 +25,10 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
-import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -55,15 +54,13 @@ public class OpenReadableFile extends AbstractNativeChannel {
         Object channel;
         try {
             channel = createChannel(inFlow(pathUrl));
-        } catch (AccessDeniedException e) {
-            channel = IOUtils.createError("Do not have access to read file: " + e.getMessage());
-        } catch (Throwable e) {
+        } catch (BallerinaIOException e) {
             channel = IOUtils.createError("Failed to open file: " + e.getMessage());
         }
         return channel;
     }
 
-    private static Channel inFlow(String pathUrl) throws IOException {
+    private static Channel inFlow(String pathUrl) throws BallerinaIOException {
         Path path = Paths.get(pathUrl);
         FileChannel fileChannel = IOUtils.openFileChannelExtended(path, READ_ACCESS_MODE);
         Channel channel = new FileIOChannel(fileChannel);

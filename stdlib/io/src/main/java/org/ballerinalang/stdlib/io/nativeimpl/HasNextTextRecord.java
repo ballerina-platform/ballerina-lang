@@ -26,9 +26,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-
-import java.io.IOException;
 
 /**
  * Extern function ballerina/io#hasNextTextRecord.
@@ -53,7 +52,7 @@ public class HasNextTextRecord {
             if (!textRecordChannel.hasReachedEnd()) {
                 try {
                     return textRecordChannel.hasNext();
-                } catch (IOException e) {
+                } catch (BallerinaIOException e) {
                     throw new BallerinaException("Error occurred while checking hasNext on ReadableTextRecordChannel",
                             e);
                 }

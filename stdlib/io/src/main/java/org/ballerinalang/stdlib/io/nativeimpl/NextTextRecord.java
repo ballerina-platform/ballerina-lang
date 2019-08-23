@@ -25,12 +25,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * Extern function ballerina/io#nextTextRecords.
@@ -59,7 +58,7 @@ public class NextTextRecord {
         } else {
             try {
                 return new ArrayValue(delimitedRecordChannel.read());
-            } catch (IOException e) {
+            } catch (BallerinaIOException e) {
                 log.error("Error occurred while reading next text record from ReadableTextRecordChannel", e);
                 return IOUtils.createError(e.getMessage());
             }

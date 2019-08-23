@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.io.utils;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 
-import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 
 /**
@@ -29,12 +28,12 @@ import java.nio.channels.WritableByteChannel;
  * @since 0.970.0
  */
 public class Base64Wrapper extends Channel {
-    public Base64Wrapper(Base64ByteChannel channel) throws BallerinaIOException {
+    public Base64Wrapper(Base64ByteChannel channel) {
         super(channel);
     }
 
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) {
         //For the time being not applicable
         throw new UnsupportedOperationException();
     }
@@ -42,11 +41,6 @@ public class Base64Wrapper extends Channel {
     @Override
     public Channel getChannel() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isSelectable() {
-        return false;
     }
 
     @Override

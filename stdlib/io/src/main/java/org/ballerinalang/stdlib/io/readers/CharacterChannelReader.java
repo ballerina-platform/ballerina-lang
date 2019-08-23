@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.io.readers;
 
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,14 +45,19 @@ public class CharacterChannelReader extends Reader {
             log.debug(String.format("Read offset: %d length: %d", off, len));
         }
         if (!channel.hasReachedEnd()) {
-            String content = channel.read(len);
-            if (!content.isEmpty()) {
-                final char[] chars = content.toCharArray();
-                System.arraycopy(chars, 0, cbuf, off, chars.length);
-                if (log.isDebugEnabled()) {
-                    log.debug(String.format("No of characters read: %d", chars.length));
+            String content;
+            try {
+                content = channel.read(len);
+                if (!content.isEmpty()) {
+                    final char[] chars = content.toCharArray();
+                    System.arraycopy(chars, 0, cbuf, off, chars.length);
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("No of characters read: %d", chars.length));
+                    }
+                    return chars.length;
                 }
-                return chars.length;
+            } catch (BallerinaIOException e) {
+                throw new IOException(e);
             }
         }
         return -1;

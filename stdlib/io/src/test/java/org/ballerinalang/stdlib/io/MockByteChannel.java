@@ -20,7 +20,6 @@
 package org.ballerinalang.stdlib.io;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
 import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -38,18 +37,13 @@ public class MockByteChannel extends Channel {
      * {@inheritDoc}
      */
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Channel getChannel() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isSelectable() {
-        return false;
     }
 
     public boolean remaining() {

@@ -25,12 +25,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * Extern function ballerina/io#readCharacters.
@@ -59,7 +58,7 @@ public class ReadCharacters {
         } else {
             try {
                 return characterChannel.read((int) numberOfCharacters);
-            } catch (IOException e) {
+            } catch (BallerinaIOException e) {
                 log.error("Error occurred while reading characters.", e);
                 return IOUtils.createError(e.getMessage());
             }

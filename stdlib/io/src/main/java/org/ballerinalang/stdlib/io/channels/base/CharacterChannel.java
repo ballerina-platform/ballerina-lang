@@ -17,6 +17,7 @@
 
 package org.ballerinalang.stdlib.io.channels.base;
 
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,17 +211,25 @@ public class CharacterChannel implements IOChannel {
      *
      * @param numberOfBytesRequired number of bytes required from the channel.
      * @param numberOfCharsRequired number of characters required.
-     * @throws IOException errors occur while reading and encoding characters.
+     * @throws BallerinaIOException errors occur while processing character buffer.
      */
     private void asyncReadBytesFromChannel(int numberOfBytesRequired, int numberOfCharsRequired)
-            throws IOException {
+            throws BallerinaIOException {
         ByteBuffer buffer;
         int numberOfCharsProcessed = 0;
         CharBuffer intermediateCharacterBuffer;
         //Provided at this point any remaining character left in the buffer is copied
         charBuffer = CharBuffer.allocate(numberOfBytesRequired);
-        buffer = contentBuffer.get(numberOfBytesRequired, channel);
-        intermediateCharacterBuffer = bytesDecoder.decode(buffer);
+        try {
+            buffer = contentBuffer.get(numberOfBytesRequired, channel);
+        } catch (IOException e) {
+            throw new BallerinaIOException("Error occurred while reading from channel", e);
+        }
+        try {
+            intermediateCharacterBuffer = bytesDecoder.decode(buffer);
+        } catch (CharacterCodingException e) {
+            throw new BallerinaIOException("Character decoding error while reading from buffer", e);
+        }
         numberOfCharsProcessed = numberOfCharsProcessed + intermediateCharacterBuffer.limit();
         charBuffer.put(intermediateCharacterBuffer);
         //We make the char buffer ready to read
@@ -263,7 +272,8 @@ public class CharacterChannel implements IOChannel {
      * @param buffer                 the buffer which will hold the content.
      * @param numberOfCharsProcessed number of characters processed.
      */
-    private void processChars(int numberOfCharsRequired, ByteBuffer buffer, int numberOfCharsProcessed) {
+    private void processChars(int numberOfCharsRequired, ByteBuffer buffer, int numberOfCharsProcessed)
+            throws BallerinaIOException {
         final int minimumNumberOfCharsRequired = 0;
         if (numberOfCharsProcessed > minimumNumberOfCharsRequired) {
             int lastCharacterIndex = numberOfCharsProcessed - 1;
@@ -281,9 +291,9 @@ public class CharacterChannel implements IOChannel {
      *
      * @param numberOfCharacters number of characters which needs to be read.
      * @return characters which were read.
-     * @throws IOException during I/O error.
+     * @throws BallerinaIOException during I/O error.
      */
-    public String read(int numberOfCharacters) throws IOException {
+    public String read(int numberOfCharacters) throws BallerinaIOException {
         StringBuilder content;
         try {
             //Will identify the number of characters required
@@ -311,8 +321,8 @@ public class CharacterChannel implements IOChannel {
                 charsRequiredToBeReadFromChannel = charBuffer.limit();
             }
             appendCharsToString(content, charsRequiredToBeReadFromChannel);
-        } catch (IOException e) {
-            throw new IOException("Error occurred while reading characters from buffer", e);
+        } catch (BallerinaIOException e) {
+            throw new BallerinaIOException("Error occurred while reading characters from buffer", e);
         }
         return content.toString();
     }
@@ -356,16 +366,6 @@ public class CharacterChannel implements IOChannel {
             String message = "Error occurred while writing bytes to the channel " + channel.hashCode();
             throw new IOException(message, e);
         }
-    }
-
-    /**
-     * Specified whether the channel is selectable.
-     *
-     * @return true if the channel is selectable.
-     */
-    @Override
-    public boolean isSelectable() {
-        return channel.isSelectable();
     }
 
     /**
