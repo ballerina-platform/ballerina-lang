@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.io.utils;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -33,13 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneId;
-import java.time.zone.ZoneRulesException;
 import java.util.Base64;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * A util class for handling common functions across native implementation.
@@ -47,10 +42,6 @@ import java.util.TimeZone;
  * @since 0.95.4
  */
 public class Utils {
-
-    public static final String PACKAGE_TIME = "ballerina/time";
-    public static final String STRUCT_TYPE_TIME = "Time";
-    public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
 
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina/mime";
@@ -61,42 +52,12 @@ public class Utils {
     private static final String DECODING_ERROR = "{ballerina/mime}DecodingFailed";
 
 
-    public static MapValue<String, Object> createTimeZone(MapValue timezoneStructInfo, String zoneIdValue) {
-        String zoneIdName;
-        try {
-            ZoneId zoneId = ZoneId.of(zoneIdValue);
-            zoneIdName = zoneId.toString();
-            //Get offset in seconds
-            TimeZone tz = TimeZone.getTimeZone(zoneId);
-            int offsetInMills = tz.getOffset(new Date().getTime());
-            int offset = offsetInMills / 1000;
-            return BallerinaValues.createRecord(timezoneStructInfo, zoneIdName, offset);
-        } catch (ZoneRulesException e) {
-            throw new BallerinaException("invalid timezone id: " + zoneIdValue);
-        }
-    }
-
-    public static MapValue<String, Object> createTimeStruct(MapValue timezoneStructInfo,
-                                                        MapValue timeStructInfo, long millis, String zoneIdName) {
-        MapValue<String, Object> timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
-        return BallerinaValues.createRecord(timeStructInfo, millis, timezone);
-    }
-
-    public static MapValue<String, Object> getTimeZoneStructInfo() {
-        return BallerinaValues.createRecordValue(PACKAGE_TIME, STRUCT_TYPE_TIMEZONE);
-    }
-
-    public static MapValue<String, Object> getTimeStructInfo() {
-        return BallerinaValues.createRecordValue(PACKAGE_TIME, STRUCT_TYPE_TIME);
-    }
-
     private static ErrorValue createBase64Error(String reason, String msg, boolean isMimeSpecific) {
         if (isMimeSpecific) {
             return BallerinaErrors.createError(reason, populateMimeErrorRecord(msg));
         }
         return BallerinaErrors.createError(IOConstants.ErrorCode.GenericError.errorCode(), msg);
     }
-
 
     public static MapValue populateMimeErrorRecord(String msg) {
         Map<String, Object> valueMap = new HashMap<>();

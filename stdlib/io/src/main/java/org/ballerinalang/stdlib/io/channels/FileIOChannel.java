@@ -17,8 +17,8 @@
 
 package org.ballerinalang.stdlib.io.channels;
 
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -36,8 +36,7 @@ public class FileIOChannel extends Channel {
      */
     private FileChannel channel;
 
-
-    public FileIOChannel(FileChannel channel) throws BallerinaIOException {
+    public FileIOChannel(FileChannel channel) {
         super(channel);
         this.channel = channel;
     }
@@ -48,22 +47,17 @@ public class FileIOChannel extends Channel {
      * {@inheritDoc}
      */
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) {
         try {
             channel.transferTo(position, count, dstChannel);
         } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while transferring file", e);
+            throw new BallerinaException("Error occurred while transferring file", e);
         }
     }
 
     @Override
     public Channel getChannel() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isSelectable() {
-        return false;
     }
 
     @Override

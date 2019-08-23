@@ -21,6 +21,7 @@ import org.ballerinalang.stdlib.io.MockByteChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.util.TestUtil;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -45,7 +46,7 @@ public class CharacterInputOutputBufferTest {
     }
 
     @Test(description = "Read characters which does not fit to the fixed buffer limit")
-    public void readFussyCharacters() throws IOException, URISyntaxException {
+    public void readFussyCharacters() throws IOException, URISyntaxException, BallerinaIOException {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/utf8file.txt");
@@ -65,7 +66,7 @@ public class CharacterInputOutputBufferTest {
     }
 
     @Test(description = "Reads characters which are represented with long bytes")
-    public void readLongCharacters() throws IOException, URISyntaxException {
+    public void readLongCharacters() throws IOException, URISyntaxException, BallerinaIOException {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/longChars.txt");
@@ -87,7 +88,7 @@ public class CharacterInputOutputBufferTest {
     }
 
     @Test(description = "Read corrupted characters from text")
-    public void readCorruptedCharacters() throws IOException, URISyntaxException {
+    public void readCorruptedCharacters() throws IOException, URISyntaxException, BallerinaIOException {
         int numberOfCharactersToRead;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/corruptedText");
@@ -113,7 +114,8 @@ public class CharacterInputOutputBufferTest {
     }
 
     @Test(description = "Read from file which has all corrupted chars")
-    public void readCorruptedCharactersIntoMultipleChannelReads() throws IOException, URISyntaxException {
+    public void readCorruptedCharactersIntoMultipleChannelReads()
+            throws IOException, URISyntaxException, BallerinaIOException {
         int numberOfCharactersToRead;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/corruptedText2");
@@ -135,7 +137,7 @@ public class CharacterInputOutputBufferTest {
     }
 
     @Test(description = "Read characters into multiple iterations")
-    public void readCharacters() throws IOException, URISyntaxException {
+    public void readCharacters() throws IOException, URISyntaxException, BallerinaIOException {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");

@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.csv.Format;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
@@ -73,7 +74,7 @@ public class CreateCsvChannel {
                     IOUtils.createDelimitedRecordChannelExtended(filePath, charset, accessMode, Format.valueOf(format));
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
             return textRecordChannel;
-        } catch (Throwable e) {
+        } catch (BallerinaIOException e) {
             String message = "Error occurred while converting character channel to textRecord channel:" + e
                     .getMessage();
             log.error(message, e);

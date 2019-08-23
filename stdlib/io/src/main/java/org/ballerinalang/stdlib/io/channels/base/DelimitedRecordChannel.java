@@ -173,7 +173,7 @@ public class DelimitedRecordChannel implements IOChannel {
      * @return the requested record.
      * @throws BallerinaIOException during I/O error.
      */
-    private String readRecord() throws BallerinaIOException, IOException {
+    private String readRecord() throws BallerinaIOException {
         String record = null;
         final int minimumRecordCount = 1;
         final int numberOfSplits = 2;
@@ -248,7 +248,7 @@ public class DelimitedRecordChannel implements IOChannel {
      *
      * @return the record content.
      */
-    private String readRecordFromChannel() throws IOException {
+    private String readRecordFromChannel() throws BallerinaIOException {
         String readCharacters;
         readCharacters = channel.read(recordCharacterCount);
         if (log.isTraceEnabled()) {
@@ -336,9 +336,9 @@ public class DelimitedRecordChannel implements IOChannel {
      * </p>
      *
      * @return the list of fields.
-     * @throws IOException during I/O error.
+     * @throws BallerinaIOException during I/O errors
      */
-    public String[] read() throws IOException {
+    public String[] read() throws BallerinaIOException {
         final int emptyArrayIndex = 0;
         String[] fields = new String[emptyArrayIndex];
         if (remaining) {
@@ -433,16 +433,6 @@ public class DelimitedRecordChannel implements IOChannel {
     }
 
     /**
-     * Specified whether the channel is selectable.
-     *
-     * @return true if the channel is selectable.
-     */
-    @Override
-    public boolean isSelectable() {
-        return channel.isSelectable();
-    }
-
-    /**
      * Provides the id of the channel.
      *
      * @return the id of the channel.
@@ -471,9 +461,9 @@ public class DelimitedRecordChannel implements IOChannel {
      * Check whether there are more records or not.
      *
      * @return true if more records in the channel else false.
-     * @throws IOException if an error occurs while reading from channel.
+     * @throws BallerinaIOException if encoding error or channel reading error happens
      */
-    public boolean hasNext() throws IOException {
+    public boolean hasNext() throws BallerinaIOException {
         if (remaining && persistentCharSequence.length() == 0) {
             //If this is the case we need to further verify whether there will be more bytes left to be read
             //Remaining can become false in the next iteration

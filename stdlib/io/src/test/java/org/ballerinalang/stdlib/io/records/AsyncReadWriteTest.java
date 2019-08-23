@@ -24,6 +24,7 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.util.TestUtil;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -32,7 +33,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Represents the framework for read/write delimited text records.
@@ -49,7 +49,7 @@ public class AsyncReadWriteTest {
     }
 
     @Test(description = "Test which will read text records from a given channel using async io framework")
-    public void readTextRecords() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+    public void readTextRecords() throws IOException, URISyntaxException, BallerinaIOException {
         int expectedFieldCount = 3;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
@@ -63,7 +63,7 @@ public class AsyncReadWriteTest {
     }
 
     @Test(description = "Test which will write records to a channel using async io framework")
-    public void writeRecords() throws IOException, ExecutionException, InterruptedException {
+    public void writeRecords() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(currentDirectoryPath + "records.csv");
         Channel channel = new MockByteChannel(byteChannel);
