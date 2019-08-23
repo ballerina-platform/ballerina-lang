@@ -646,8 +646,15 @@ public class TypeChecker extends BLangNodeVisitor {
                             // TODO: 8/21/19 The fix below is a temporary one. The rest type should be NoType if
                             //  absent. Should be able to simply pass tupleType.restType as the expType.
                             //  https://github.com/ballerina-platform/ballerina-lang/issues/18074
-                            BType expRestType = tupleType.restType != null ? tupleType.restType : symTable.noType;
-                            restType = checkExpr(listConstructor.exprs.get(i), env, expRestType);
+                            if (tupleType.restType != null) {
+                                restType = checkExpr(listConstructor.exprs.get(i), env, tupleType.restType);
+                            } else {
+                                // tuple type size != list constructor exprs
+                                dlog.error(listConstructor.pos, DiagnosticCode.SYNTAX_ERROR,
+                                        "tuple and expression size does not match");
+                                resultType = symTable.semanticError;
+                                return;
+                            }
                         }
                     }
                     actualType = new BTupleType(results);
