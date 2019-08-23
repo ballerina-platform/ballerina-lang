@@ -18,19 +18,39 @@
 
 package org.ballerinalang.toml.model;
 
+import org.ballerinalang.compiler.BLangCompilerException;
+
 /**
  * Dependency definition in Ballerina.toml manifest file.
  */
 public class Dependency {
-    private String moduleName;
+    private String moduleID;
     private DependencyMetadata metadata;
     
-    public String getModuleName() {
-        return moduleName == null ? null : moduleName.replaceAll("^\"|\"$", "");
+    public String getModuleID() {
+        return moduleID == null ? null : moduleID.replaceAll("^\"|\"$", "");
     }
     
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName.replaceAll("^\"|\"$", "");
+    public void setModuleID(String moduleID) {
+        this.moduleID = moduleID.replaceAll("^\"|\"$", "");
+    }
+    
+    public String getOrgName() {
+        String[] moduleIDParts = this.getModuleID().split("/");
+        if (moduleIDParts.length == 2) {
+            return moduleIDParts[0];
+        }
+        throw new BLangCompilerException("invalid dependency name. dependency should be in the format " +
+                                         "<org-name>/<module-name>.");
+    }
+    
+    public String getModuleName() {
+        String[] moduleIDParts = this.getModuleID().split("/");
+        if (moduleIDParts.length == 2) {
+            return moduleIDParts[1];
+        }
+        throw new BLangCompilerException("invalid dependency name. dependency should be in the format " +
+                                         "<org-name>/<module-name>.");
     }
     
     public DependencyMetadata getMetadata() {

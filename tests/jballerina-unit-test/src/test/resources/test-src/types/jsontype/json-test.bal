@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/internal;
 
 function remove () returns (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};

@@ -31,6 +31,7 @@ public class Project {
     private List<String> authors = new LinkedList<>();
     private String repository = "";
     private List<String> keywords = new LinkedList<>();
+    private List<String> templates = new LinkedList<>();
     
     public String getOrgName() {
         return orgName;
@@ -78,5 +79,13 @@ public class Project {
     
     public void setKeywords(List<String> keywords) {
         this.keywords = keywords;
+    }
+
+    public List<String> getTemplates() {
+        return templates;
+    }
+
+    public void setTemplates(List<String> templates) {
+        this.templates = templates;
     }
 }

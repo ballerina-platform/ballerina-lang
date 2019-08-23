@@ -27,6 +27,7 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
+import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -45,6 +46,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
@@ -446,6 +448,31 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         }
     }
     
+    /**
+     * Check if the a given dependency is from provided by path to the balo.
+     *
+     * @param moduleID The modules ID.
+     * @return True if given by path, else false.
+     */
+    public Optional<Dependency> getImportPathDependency(PackageID moduleID) {
+        CompilerContext context = this.get(BuildContextField.COMPILER_CONTEXT);
+        if (null == context) {
+            return Optional.empty();
+        }
+    
+        Manifest manifest = ManifestProcessor.getInstance(context).getManifest();
+        return manifest.getDependencies().stream()
+                .filter(dep -> dep.getOrgName().equals(moduleID.orgName.value) &&
+                               dep.getModuleName().equals(moduleID.name.value) &&
+                                null != dep.getMetadata().getPath())
+                .findFirst();
+    }
+    
+    /**
+     * Get the path to the lock file.
+     *
+     * @return The path.
+     */
     public Path getLockFilePath() {
         Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
         return sourceRootPath.resolve(ProjectDirConstants.LOCK_FILE_NAME);

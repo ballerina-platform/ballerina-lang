@@ -36,8 +36,13 @@ public class JBallerinaInMemoryClassLoader {
 
     private URLClassLoader cl;
 
+    private Path compiledJarPath;
+    private Path importsCachePath;
+
     public JBallerinaInMemoryClassLoader(Path testJarPath, File importsCache) {
         try {
+            this.compiledJarPath = testJarPath;
+            this.importsCachePath = importsCache.toPath();
             int index = 0;
             URL[] jars;
             if (importsCache.isDirectory()) {
@@ -65,4 +70,11 @@ public class JBallerinaInMemoryClassLoader {
         }
     }
 
+    public Path getCompiledJarPath() {
+        return compiledJarPath;
+    }
+
+    public Path getImportsCachePath() {
+        return importsCachePath;
+    }
 }

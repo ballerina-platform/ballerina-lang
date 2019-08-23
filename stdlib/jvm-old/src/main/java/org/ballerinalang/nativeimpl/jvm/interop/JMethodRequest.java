@@ -137,8 +137,8 @@ class JMethodRequest {
             MapValue arrayTypeValue = ((MapValue) bTypeValue);
             String typeName = arrayTypeValue.getStringValue(TYPE_NAME_FIELD);
             switch (typeName) {
-                case "handle":
-                    throw new UnsupportedOperationException("Handle types are not supported in bootstrapping pack");
+                case TypeConstants.HANDLE_TNAME:
+                    return BTypes.typeHandle;
                 case TypeConstants.SERVICE:
                     return BTypes.typeAnyService;
                 case TypeConstants.TYPEDESC_TNAME:

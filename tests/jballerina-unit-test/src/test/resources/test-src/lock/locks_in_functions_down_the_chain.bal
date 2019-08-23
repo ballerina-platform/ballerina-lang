@@ -1,4 +1,3 @@
-import ballerina/runtime;
 
 string lockString = "";
 

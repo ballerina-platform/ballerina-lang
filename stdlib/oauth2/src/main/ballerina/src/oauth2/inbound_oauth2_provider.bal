@@ -18,7 +18,6 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/internal;
 import ballerina/mime;
-import ballerina/runtime;
 
 # Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #

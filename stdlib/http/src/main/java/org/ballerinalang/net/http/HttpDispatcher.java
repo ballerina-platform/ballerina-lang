@@ -227,7 +227,7 @@ public class HttpDispatcher {
                     return stringDataSource;
                 case TypeTags.JSON_TAG:
                     Object bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
-                    EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
+                    EntityBodyHandler.addJsonMessageDataSource(inRequestEntity, bjson);
                     return bjson;
                 case TypeTags.XML_TAG:
                     XMLValue bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
@@ -287,7 +287,7 @@ public class HttpDispatcher {
      */
     private static Object getBJsonValue(ObjectValue inRequestEntity) {
         Object bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
-        EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
+        EntityBodyHandler.addJsonMessageDataSource(inRequestEntity, bjson);
         return bjson;
     }
 

@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/log;
 
 function testParseHeader (string value) returns [string, map<any>]|error {
     var result = http:parseHeader(value);

@@ -46,7 +46,8 @@ public class BallerinaOperation implements BallerinaOpenApiObject<BallerinaOpera
     private String description;
     private ExternalDocumentation externalDocs;
     private String operationId;
-    private List<BallerinaParameter> parameters;
+    private List<BallerinaParameter> pathParameters;
+    private List<BallerinaParameter> queryParameters;
     private BallerinaRequestBody requestBody;
     private Set<Map.Entry<String, ApiResponse>> responses;
     private Set<Map.Entry<String, Callback>> callbacks;
@@ -77,7 +78,8 @@ public class BallerinaOperation implements BallerinaOpenApiObject<BallerinaOpera
         this.externalDocs = operation.getExternalDocs();
         this.security = operation.getSecurity();
 
-        this.parameters = new ArrayList<>();
+        this.pathParameters = new ArrayList<>();
+        this.queryParameters = new ArrayList<>();
         this.methods = null;
         this.requestBody = new BallerinaRequestBody().buildContext(operation.getRequestBody(), openAPI);
 
@@ -91,7 +93,11 @@ public class BallerinaOperation implements BallerinaOpenApiObject<BallerinaOpera
         }
         if (operation.getParameters() != null) {
             for (Parameter parameter : operation.getParameters()) {
-                this.parameters.add(new BallerinaParameter().buildContext(parameter, openAPI));
+                if (parameter.getIn().equals("path")) {
+                    this.pathParameters.add(new BallerinaParameter().buildContext(parameter, openAPI));
+                } else if (parameter.getIn().equals("query")) {
+                    this.queryParameters.add(new BallerinaParameter().buildContext(parameter, openAPI));
+                }
             }
         }
 
@@ -118,7 +124,8 @@ public class BallerinaOperation implements BallerinaOpenApiObject<BallerinaOpera
         Object summary = extension.get("summary");
         Object description = extension.get("description");
         Object xMethodsObj = extension.get("x-METHODS");
-        this.parameters = new ArrayList<>();
+        this.queryParameters = new ArrayList<>();
+        this.pathParameters = new ArrayList<>();
 
         if (operationId != null) {
             // OperationId with spaces will cause trouble in ballerina code.
@@ -135,12 +142,12 @@ public class BallerinaOperation implements BallerinaOpenApiObject<BallerinaOpera
             this.description = description.toString();
         }
         if (xMethodsObj != null && (xMethodsObj instanceof ArrayList)) {
-            this.methods =  (ArrayList) xMethodsObj;
+            this.methods = (ArrayList) xMethodsObj;
         }
 
         return this;
     }
-    
+
     @Override
     public BallerinaOperation getDefaultValue() {
         return new BallerinaOperation();
@@ -166,8 +173,12 @@ public class BallerinaOperation implements BallerinaOpenApiObject<BallerinaOpera
         return operationId;
     }
 
-    public List<BallerinaParameter> getParameters() {
-        return parameters;
+    public List<BallerinaParameter> getQueryParameters() {
+        return queryParameters;
+    }
+
+    public List<BallerinaParameter> getPathParameters() {
+        return pathParameters;
     }
 
     public BallerinaRequestBody getRequestBody() {

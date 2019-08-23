@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/reflect;
-
 # The `Node` object represents a node in the linkedlist data structure.
 #
 # + data - description

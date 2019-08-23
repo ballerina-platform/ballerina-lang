@@ -16,7 +16,6 @@
 
 import ballerina/io;
 import ballerina/mime;
-import ballerina/http;
 import ballerina/websub;
 
 listener websub:Listener websubEP = new websub:Listener(23282);

@@ -66,13 +66,17 @@ public enum Snippet {
 
     DEF_ERROR(SnippetGenerator.getErrorDefinitionSnippet()),
 
+    DEF_REMOTE_FUNCTION(SnippetGenerator.getRemoteFunctionSnippet()),
+
     DEF_INIT_FUNCTION(SnippetGenerator.getInitFunctionSnippet()),
 
     DEF_ATTACH_FUNCTION(SnippetGenerator.getAttachFunctionSnippet()),
 
     DEF_START_FUNCTION(SnippetGenerator.getStartFunctionSnippet()),
 
-    DEF_STOP_FUNCTION(SnippetGenerator.getStopFunctionSnippet()),
+    DEF_GRACEFUL_STOP_FUNCTION(SnippetGenerator.getGracefulStopFunctionSnippet()),
+
+    DEF_IMMEDIATE_STOP_FUNCTION(SnippetGenerator.getImmediateStopFunctionSnippet()),
 
     // Expressions Snippets
     EXPR_MATCH(SnippetGenerator.getMatchExpressionSnippet()),
@@ -84,6 +88,8 @@ public enum Snippet {
     KW_NEW(SnippetGenerator.getNewKeywordSnippet()),
 
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
+
+    KW_CHECK_PANIC(SnippetGenerator.getCheckPanicKeywordSnippet()),
 
     KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
 

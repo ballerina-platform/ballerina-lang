@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
-import ballerina/io;
-
 public type FuncBodyParser object {
     BirChannelReader reader;
     map<VariableDcl> localVarMap;

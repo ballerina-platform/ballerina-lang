@@ -80,5 +80,4 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     public String toString() {
         return "record { " + this.fields + " }";
     }
-
 }

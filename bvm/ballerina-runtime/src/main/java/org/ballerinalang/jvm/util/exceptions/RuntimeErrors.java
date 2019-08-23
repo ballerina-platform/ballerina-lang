@@ -69,7 +69,8 @@ public enum RuntimeErrors {
     JAVA_NULL_REFERENCE("java.null.reference", "RUNTIME_0043"),
     ILLEGAL_TUPLE_INSERTION("illegal.tuple.insertion", "RUNTIME_0044"),
     ILLEGAL_ARRAY_SIZE("illegal.array.size", "RUNTIME_0045"),
-    CANNOT_CHANGE_TUPLE_SIZE("cannot.change.tuple.size", "RUNTIME_0046");
+    ILLEGAL_TUPLE_SIZE("illegal.tuple.size", "RUNTIME_0046"),
+    ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE("illegal.rest.tuple.size", "RUNTIME_0047");
 
     private String errorMsgKey;
     private String errorCode;
