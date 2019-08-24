@@ -1,14 +1,14 @@
-import testorg/foo version v1;
+import testorg/foo;
 
 //------------ Testing a function with all types of parameters ---------
 
 function testInvokeFunctionInOrder1() returns [int, float, string, int, string, int[]] {
-    return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob", 40, 50, 60);
+    return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob");
 }
 
 function testInvokeFunctionInOrder2() returns [int, float, string, int, string, int[]] {
     int[] array = [40, 50, 60];
-    return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob", ...array);
+    return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob");
 }
 
 function testInvokeFunctionWithoutRestArgs() returns [int, float, string, int, string, int[]] {
@@ -24,7 +24,7 @@ function testInvokeFunctionWithRequiredArgsOnly() returns [int, float, string, i
 }
 
 function funcInvocAsRestArgs() returns [int, float, string, int, string, int[]] {
-    return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob", ...getIntArray());
+    return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob");
 }
 
 function getIntArray() returns int[] {

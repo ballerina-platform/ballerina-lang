@@ -6,6 +6,22 @@
   "source": "function/source/completionAfterReturn.bal",
   "items": [
     {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "check ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "test",
       "kind": "Variable",
       "detail": "string",
@@ -20,7 +36,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
         }
       },
       "sortText": "130",

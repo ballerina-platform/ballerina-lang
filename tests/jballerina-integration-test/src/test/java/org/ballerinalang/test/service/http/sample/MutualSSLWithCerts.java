@@ -42,8 +42,8 @@ public class MutualSSLWithCerts extends BaseTest {
 
         String balFile = Paths.get("src", "test", "resources", "mutualSSL", "ssl_client.bal").toAbsolutePath()
                 .toString();
-    
-        String[] flags = { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert};
+
+        String[] flags = { "--certificate.key=" + privateKey, "--public.cert=" + publicCert };
 
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);

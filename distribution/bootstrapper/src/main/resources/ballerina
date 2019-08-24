@@ -238,13 +238,13 @@ else
         $JAVA_OPTS \
         -classpath "$BALLERINA_CLASSPATH" \
         -Dballerina.home=$BALLERINA_HOME \
-        -Dballerina.version=0.992.0-m7 \
+        -Dballerina.version=1.0.0-alpha2 \
         -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
         -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
         -Denable.nonblocking=false \
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
-	    -DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true \
-        org.ballerinalang.launcher.Main "$@"
+        -DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true \
+        org.ballerinalang.tool.Main "$@"
 fi

@@ -101,10 +101,12 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
             fillTypes(context, completionItems);
             completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(context));
             completionItems.add(Snippet.DEF_FUNCTION.get().build(context));
+            completionItems.add(Snippet.DEF_REMOTE_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_INIT_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_ATTACH_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_START_FUNCTION.get().build(context));
-            completionItems.add(Snippet.DEF_STOP_FUNCTION.get().build(context));
+            completionItems.add(Snippet.DEF_GRACEFUL_STOP_FUNCTION.get().build(context));
+            completionItems.add(Snippet.DEF_IMMEDIATE_STOP_FUNCTION.get().build(context));
             completionItems.add(Snippet.KW_PUBLIC.get().build(context));
         }
 

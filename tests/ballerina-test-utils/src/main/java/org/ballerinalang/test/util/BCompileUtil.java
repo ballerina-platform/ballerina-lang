@@ -60,9 +60,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -707,24 +709,43 @@ public class BCompileUtil {
         }
     }
 
-    public static void runMain(CompileResult compileResult, String[] args) throws Throwable {
-        String initClassName = BFileUtil.getQualifiedClassName(((BLangPackage)
-                compileResult.getAST()).packageID.orgName.value,
-                ((BLangPackage) compileResult.getAST()).packageID.name.value, MODULE_INIT_CLASS_NAME);
-        Class<?> initClazz = compileResult.classLoader.loadClass(initClassName);
-        Method mainMethod;
+    public static String runMain(CompileResult compileResult, String[] args) {
+        BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());
+        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID.orgName.value,
+                compiledPkg.packageID.name.value, MODULE_INIT_CLASS_NAME);
+        JBallerinaInMemoryClassLoader classLoader = compileResult.classLoader;
+        Class<?> initClazz = classLoader.loadClass(initClassName);
+
         try {
-            mainMethod = initClazz.getDeclaredMethod("main", String[].class);
-            mainMethod.invoke(null, (Object) args);
-        } catch (InvocationTargetException e) {
-            if (e.getTargetException() instanceof ErrorValue) {
-                throw e.getTargetException();
+            final List<String> actualArgs = new ArrayList<>();
+            actualArgs.add(0, "java");
+            actualArgs.add(1, "-cp");
+            String classPath = System.getProperty("java.class.path") + ":" + classLoader.getCompiledJarPath() + ":" +
+                    classLoader.getImportsCachePath();
+            actualArgs.add(2, classPath);
+            actualArgs.add(3, initClazz.getCanonicalName());
+            actualArgs.addAll(Arrays.asList(args));
+
+            final Runtime runtime = Runtime.getRuntime();
+            final Process process = runtime.exec(actualArgs.toArray(new String[0]));
+            String consoleInput = getConsoleOutput(process.getInputStream());
+            String consoleError = getConsoleOutput(process.getErrorStream());
+            process.waitFor();
+            int exitValue = process.exitValue();
+            if (exitValue != 0) {
+                throw new RuntimeException(consoleError);
             }
-            throw new RuntimeException("Main method invocation failed", e);
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+            return consoleInput;
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
+    }
 
+    private static String getConsoleOutput(InputStream inputStream) {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+        reader.lines().iterator().forEachRemaining(sj::add);
+        return sj.toString();
     }
 
     private static CompileResult compileOnJBallerina(String sourceFilePath, boolean temp, boolean init) {
