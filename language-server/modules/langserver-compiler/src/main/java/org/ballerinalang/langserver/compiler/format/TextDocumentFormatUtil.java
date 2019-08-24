@@ -97,13 +97,13 @@ public class TextDocumentFormatUtil {
     public static JsonObject getAST(Path file, WorkspaceDocumentManager documentManager, LSContext context)
             throws JSONGenerationException, CompilationFailedException {
         String path = file.toAbsolutePath().toString();
-        LSDocument lsDocument = new LSDocument(path);
+        LSDocument lsDocument = new LSDocument(file.toUri().toString());
         String packageName = lsDocument.getOwnerModule();
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
         final BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
-                true, LSCustomErrorStrategy.class, false);
+                                                                           LSCustomErrorStrategy.class, false);
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();

@@ -33,17 +33,15 @@ public class PrintExecutablePathTask implements Task {
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         for (BLangPackage module : buildContext.getModules()) {
-            Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
-            Path relativePathToExecutable = sourceRootPath.relativize(executablePath);
-            if (null != relativePathToExecutable) {
+            if (module.symbol.entryPointExists) {
+                Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
+                Path relativePathToExecutable = sourceRootPath.relativize(executablePath);
                 if (relativePathToExecutable.toString().contains("..") ||
                     relativePathToExecutable.toString().contains("." + File.separator)) {
                     buildContext.out().println("\t" + executablePath.toString());
                 } else {
                     buildContext.out().println("\t" + relativePathToExecutable.toString());
                 }
-            } else {
-                buildContext.out().println("\t" + executablePath.toString());
             }
         }
     }

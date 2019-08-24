@@ -30,6 +30,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "Statement",

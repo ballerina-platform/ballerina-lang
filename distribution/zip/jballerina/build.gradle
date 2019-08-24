@@ -224,6 +224,7 @@ dependencies {
     dist project(':ballerina-grpc')
     dist project(':ballerina-jdbc')
     dist project(':ballerina-http')
+    dist project(':ballerina-openapi')
     dist project(':ballerina-encoding')
     dist project(':ballerina-internal')
     dist project(':ballerina-io')

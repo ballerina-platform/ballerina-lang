@@ -20,7 +20,7 @@ import java.util.List;
  */
 @CommandLine.Command(name = "gen-contract")
 public class OpenApiGenContractCmd implements BLauncherCmd {
-    private static final String CMD_NAME = "openapi";
+    private static final String CMD_NAME = "openapi-gen-contract";
 
     private static final PrintStream outStream = System.err;
 
@@ -47,6 +47,10 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
 
     @Override
     public void execute() {
+
+        //User notification of using an experimental tool
+        outStream.println("Note: This is an Experimental tool ship under ballerina hence this will only support" +
+                " limited set of functionality.");
 
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
@@ -116,7 +120,7 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return null;
+        return CMD_NAME;
     }
 
     @Override
@@ -142,7 +146,7 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
      */
     private boolean checkModuleExist(String moduleName) {
         Path userLocation = Paths.get(System.getProperty("user.dir"));
-        Path moduleLocation = userLocation.resolve(moduleName);
+        Path moduleLocation = userLocation.resolve("src").resolve(moduleName);
 
         return Files.exists(moduleLocation);
     }

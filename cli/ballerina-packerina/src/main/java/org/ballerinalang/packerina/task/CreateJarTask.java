@@ -80,7 +80,8 @@ public class CreateJarTask implements Task {
             // If the module is part of the project write it to project jar cache check if file exist
             // If not write it to home jar cache
             // skip ballerina and ballerinax
-            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)) {
+            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)  ||
+                                                                buildContext.getImportPathDependency(id).isPresent()) {
                 jarFilePath = buildContext.getJarPathFromTargetCache(id);
                 birFilePath = buildContext.getBirPathFromTargetCache(id);
             } else {
@@ -91,7 +92,7 @@ public class CreateJarTask implements Task {
                 BootstrapRunner.generateJarBinaryViaCompiledBackend(tmpDir,
                         birFilePath.toString(), jarFilePath.toString(), this.dumpBir, reps);
             }
-            writeImportJar(tmpDir, bimport.imports, sourceRoot, buildContext);
+            writeImportJar(tmpDir, bimport.imports, sourceRoot, buildContext, reps);
         }
     }
 }

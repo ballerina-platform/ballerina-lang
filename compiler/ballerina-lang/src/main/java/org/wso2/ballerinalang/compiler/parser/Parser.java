@@ -45,6 +45,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 /**
@@ -114,7 +116,8 @@ public class Parser {
             compUnit.setName(sourceEntry.getEntryName());
             compUnit.pos = new DiagnosticPos(diagnosticSrc, 1, 1, 1, 1);
 
-            ANTLRInputStream ais = new ANTLRInputStream(new ByteArrayInputStream(sourceEntry.getCode()));
+            ANTLRInputStream ais = new ANTLRInputStream(new InputStreamReader(new ByteArrayInputStream(sourceEntry
+                    .getCode()), StandardCharsets.UTF_8));
             ais.name = entryName;
             BallerinaLexer lexer = new BallerinaLexer(ais);
             lexer.removeErrorListeners();
