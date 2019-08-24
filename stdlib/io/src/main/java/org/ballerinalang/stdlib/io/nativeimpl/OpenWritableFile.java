@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -63,7 +64,9 @@ public class OpenWritableFile extends AbstractNativeChannel {
         try {
             return createChannel(inFlow(pathUrl, accessMode));
         } catch (BallerinaIOException e) {
-            return IOUtils.createError("Failed to open file: " + e.getMessage());
+            return IOUtils.createError(e.getMessage());
+        } catch (ErrorValue e) {
+            return e;
         }
     }
 

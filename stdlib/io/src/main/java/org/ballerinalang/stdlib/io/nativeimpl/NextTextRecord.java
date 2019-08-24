@@ -54,7 +54,7 @@ public class NextTextRecord {
         DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(
                 IOConstants.TXT_RECORD_CHANNEL_NAME);
         if (delimitedRecordChannel.hasReachedEnd()) {
-            return IOUtils.createError(IOConstants.IO_EOF);
+            return IOUtils.createEoFError();
         } else {
             try {
                 return new ArrayValue(delimitedRecordChannel.read());

@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Tests operations through the async io framework.
@@ -47,8 +46,7 @@ public class AsyncReadWriteTest {
     }
 
     @Test(description = "Read into fixed byte[] using async io framework")
-    public void readBytes() throws IOException, URISyntaxException, ExecutionException,
-            InterruptedException {
+    public void readBytes() throws IOException, URISyntaxException {
         byte[] content = new byte[2];
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
@@ -75,8 +73,7 @@ public class AsyncReadWriteTest {
     }
 
     @Test(description = "Reads bytes and validate the byte content")
-    public void readContentValidationTest() throws IOException, URISyntaxException, ExecutionException,
-            InterruptedException {
+    public void readContentValidationTest() throws IOException, URISyntaxException {
         byte[] content = new byte[3];
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
@@ -98,7 +95,7 @@ public class AsyncReadWriteTest {
     }
 
     @Test(description = "Write into a channel using async io framework")
-    public void writeBytes() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+    public void writeBytes() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(currentDirectoryPath + "write.txt");
         Channel channel = new MockByteChannel(byteChannel);

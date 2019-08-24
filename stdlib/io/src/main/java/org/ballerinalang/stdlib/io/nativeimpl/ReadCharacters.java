@@ -54,7 +54,7 @@ public class ReadCharacters {
         CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(
                 IOConstants.CHARACTER_CHANNEL_NAME);
         if (characterChannel.hasReachedEnd()) {
-            return IOUtils.createError(IOConstants.IO_EOF);
+            return IOUtils.createEoFError();
         } else {
             try {
                 return characterChannel.read((int) numberOfCharacters);

@@ -55,11 +55,6 @@ public class IOConstants {
     public static final String IO_PACKAGE = "ballerina/io";
 
     /**
-     * Error flag to indicate when file reaches it's end.
-     */
-    public static final String IO_EOF = "io.EOF";
-
-    /**
      * Represents the base number of proto-buf.
      */
     public static final int PROTO_BUF_BASE = 7;
@@ -84,7 +79,11 @@ public class IOConstants {
      */
     public enum ErrorCode {
 
-        GenericError("{ballerina/io}GenericError"), ConnectionTimedOut("{ballerina/io}ConnectionTimedOut");
+        GenericError("{ballerina/io}GenericError"),
+        ConnectionTimedOut("{ballerina/io}ConnectionTimedOut"),
+        AccessDeniedError("{ballerina/io}AccessDeniedError"),
+        FileNotFoundError("{ballerina/io}FileNotFoundError"),
+        EoF("{ballerina/io}EoF");
 
         private String errorCode;
 

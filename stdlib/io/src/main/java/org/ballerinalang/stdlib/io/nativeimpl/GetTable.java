@@ -73,7 +73,7 @@ public class GetTable {
             DelimitedRecordChannel delimitedChannel = (DelimitedRecordChannel) delimitedObj
                     .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             if (delimitedChannel.hasReachedEnd()) {
-                return IOUtils.createError(IOConstants.IO_EOF);
+                return IOUtils.createEoFError();
             }
             List<String[]> records = new ArrayList<>();
             while (delimitedChannel.hasNext()) {

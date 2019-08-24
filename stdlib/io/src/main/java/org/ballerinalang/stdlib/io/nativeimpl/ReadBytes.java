@@ -66,7 +66,7 @@ public class ReadBytes {
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         ByteBuffer content = ByteBuffer.wrap(new byte[arraySize]);
         if (byteChannel.hasReachedEnd()) {
-            return IOUtils.createError(IOConstants.IO_EOF);
+            return IOUtils.createEoFError();
         } else {
             try {
                 int numberOfBytesRead = byteChannel.read(content);

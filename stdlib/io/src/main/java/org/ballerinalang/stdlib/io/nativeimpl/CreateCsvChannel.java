@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -79,6 +80,8 @@ public class CreateCsvChannel {
                     .getMessage();
             log.error(message, e);
             return IOUtils.createError(message);
+        } catch (ErrorValue e) {
+            return e;
         }
     }
 }

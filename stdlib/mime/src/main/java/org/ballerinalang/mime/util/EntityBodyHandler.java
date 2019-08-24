@@ -365,15 +365,16 @@ public class EntityBodyHandler {
 
     /**
      * Decode a given entity body to get a set of child parts and set them to parent entity's multipart data field.
-     *  @param entityObj Parent entity that the nested parts reside
-     * @param byteChannel  Represent ballerina specific byte channel
+     *
+     * @param entityObj   Parent entity that the nested parts reside
+     * @param byteChannel Represent ballerina specific byte channel
+     * @throws IOException When an error occurs while getting inputstream
      */
     public static void decodeEntityBody(ObjectValue entityObj, Channel byteChannel) throws IOException {
         String contentType = MimeUtil.getContentTypeWithParameters(entityObj);
         if (!isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             return;
         }
-
         try {
             MultipartDecoder.parseBody(entityObj, contentType, byteChannel.getInputStream());
         } catch (IOException e) {

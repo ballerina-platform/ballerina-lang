@@ -57,7 +57,7 @@ public class ReadString {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Channel %d reached it's end", channel.hashCode()));
             }
-            return IOUtils.createError(IOConstants.IO_EOF);
+            return IOUtils.createEoFError();
         } else {
             try {
                 return channel.readString((int) nBytes, encoding);

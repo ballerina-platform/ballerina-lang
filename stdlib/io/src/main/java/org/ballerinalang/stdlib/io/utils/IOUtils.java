@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -40,8 +41,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
+import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.AccessDeniedError;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.EoF;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.FileNotFoundError;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.GenericError;
 
 /**
@@ -85,6 +88,15 @@ public class IOUtils {
         return BallerinaErrors.createError(code.errorCode(), createDetailRecord(errorMsg, null));
     }
 
+    /**
+     * Create an EoF error instance.
+     *
+     * @return EoF Error
+     */
+    public static ErrorValue createEoFError() {
+        return IOUtils.createError(EoF, "EoF when reading from the channel");
+    }
+
     private static MapValue<String, Object> createDetailRecord(Object... values) {
         MapValue<String, Object> detail = BallerinaValues
                 .createRecordValue(PACKAGE_IO, IOConstants.DETAIL_RECORD_TYPE_NAME);
@@ -98,9 +110,9 @@ public class IOUtils {
      * @param content content which should be written.
      * @param offset  the start index of the bytes which should be written.
      * @return the number of bytes written to the channel.
-     * @throws ExecutionException   errors which occur during execution.
+     * @throws IOException   errors which occur during execution.
      */
-    public static int writeFull(Channel channel, byte[] content, int offset) throws ExecutionException {
+    public static int writeFull(Channel channel, byte[] content, int offset) throws IOException {
         do {
             offset = offset + write(channel, content, offset);
         } while (offset < content.length);
@@ -119,17 +131,12 @@ public class IOUtils {
      * @param content content which should be written.
      * @param offset  offset which should be set when writing bytes.
      * @return the number of bytes written.
-     * @throws ExecutionException   error while execution.
+     * @throws IOException   error while execution.
      */
-    private static int write(Channel channel, byte[] content, int offset) throws ExecutionException {
+    private static int write(Channel channel, byte[] content, int offset) throws IOException {
         ByteBuffer writeBuffer = ByteBuffer.wrap(content);
         writeBuffer.position(offset);
-        int write;
-        try {
-            write = channel.write(writeBuffer);
-        } catch (IOException e) {
-            throw new ExecutionException(e);
-        }
+        int write = channel.write(writeBuffer);
         offset = offset + write;
         return offset;
     }
@@ -170,8 +177,9 @@ public class IOUtils {
      * @param channel the channel the content should be read into.
      * @return the number of bytes read.
      * @throws IOException   errors which occurs while execution.
+     * @throws ErrorValue instance of {ballerina/io}EoF when channel reach the EoF.
      */
-    public static int readFull(Channel channel, byte[] content) throws IOException {
+    public static int readFull(Channel channel, byte[] content) throws IOException, ErrorValue {
         int numberOfBytesToRead = content.length;
         int nBytesRead = 0;
         do {
@@ -192,10 +200,11 @@ public class IOUtils {
      * @param content byte [] which will hold the content which is read.
      * @return the number of bytes read.
      * @throws IOException   errors which occur during execution.
+     * @throws ErrorValue instance of {ballerina/io}EoF when channel reach the EoF.
      */
-    private static int read(Channel channel, byte[] content) throws IOException {
+    private static int read(Channel channel, byte[] content) throws IOException, ErrorValue {
         if (channel.hasReachedEnd()) {
-            throw new IOException(IOConstants.IO_EOF);
+            throw createEoFError();
         } else {
             return channel.read(ByteBuffer.wrap(content));
         }
@@ -206,14 +215,10 @@ public class IOUtils {
      *
      * @param path the file location url
      */
-    private static void createDirsExtended(Path path) throws BallerinaIOException {
+    private static void createDirsExtended(Path path) throws IOException {
         Path parent = path.getParent();
         if (parent != null && !parent.toFile().exists()) {
-            try {
-                Files.createDirectories(parent);
-            } catch (IOException e) {
-                throw new BallerinaIOException("Error in creating directory.", e);
-            }
+            Files.createDirectories(parent);
         }
     }
 
@@ -230,7 +235,8 @@ public class IOUtils {
         Set<OpenOption> opts = new HashSet<>();
         if (accessLC.contains("r")) {
             if (!path.toFile().exists()) {
-                throw new BallerinaIOException("file not found: " + path);
+                String msg = "no such file or directory: " + path.toFile().getAbsolutePath();
+                throw createError(FileNotFoundError, msg);
             }
             if (!Files.isReadable(path)) {
                 throw new BallerinaIOException("file is not readable: " + path);
@@ -239,24 +245,25 @@ public class IOUtils {
         }
         boolean write = accessLC.contains("w");
         boolean append = accessLC.contains("a");
-        if (write || append) {
-            if (path.toFile().exists() && !Files.isWritable(path)) {
-                throw new BallerinaIOException("file is not writable: " + path);
-            }
-            createDirsExtended(path);
-            opts.add(StandardOpenOption.CREATE);
-            if (append) {
-                opts.add(StandardOpenOption.APPEND);
-            } else {
-                opts.add(StandardOpenOption.WRITE);
-            }
-        }
         try {
+            if (write || append) {
+                if (path.toFile().exists() && !Files.isWritable(path)) {
+                    throw new BallerinaIOException("file is not writable: " + path);
+                }
+                createDirsExtended(path);
+                opts.add(StandardOpenOption.CREATE);
+                if (append) {
+                    opts.add(StandardOpenOption.APPEND);
+                } else {
+                    opts.add(StandardOpenOption.WRITE);
+                }
+            }
             return FileChannel.open(path, opts);
-        } catch (IOException e) {
-            throw new BallerinaIOException("unable to open the file", e);
-        } catch (UnsupportedOperationException e) {
-            throw new BallerinaIOException("unable to open file due to an unsupported operation", e);
+        } catch (AccessDeniedException e) {
+            String msg = "do not have necessary permissions to access: " + e.getMessage();
+            throw createError(AccessDeniedError, msg);
+        } catch (IOException | UnsupportedOperationException e) {
+            throw new BallerinaIOException("fail to open file: " + e.getMessage(), e);
         }
     }
 
