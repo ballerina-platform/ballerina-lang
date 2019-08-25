@@ -18,17 +18,15 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/io;
 
-//final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
-
 @http:WebSocketServiceConfig {
 }
-service on new http:WebSocketListener(21029) {
+service on new http:WebSocketListener(30004) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketFailoverClient wsClientEp = new({ callbackService:
             failoverClientWithRetryCallbackService, readyOnConnect: false, targetUrls:
             ["ws://localhost:8080/websocket", "ws://localhost:15100/websocket",
-            "ws://localhost:15200/websocket"], retryConfig: {}});
+            "ws://localhost:15200/websocket"], retryConfig: {maxCount: 5}});
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
@@ -38,8 +36,7 @@ service on new http:WebSocketListener(21029) {
     }
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
-        http:WebSocketFailoverClient clientEp = getAssociatedClientEndpoint1(wsEp);
-        io:println(clientEp.isOpen());
+        http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
         var returnVal = clientEp->pushText(text);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -47,7 +44,7 @@ service on new http:WebSocketListener(21029) {
     }
 
     resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
-        http:WebSocketFailoverClient clientEp = getAssociatedClientEndpoint1(wsEp);
+        http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
         var returnVal = clientEp->pushBinary(data);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -55,7 +52,7 @@ service on new http:WebSocketListener(21029) {
     }
 
     resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
-        http:WebSocketFailoverClient clientEp = getAssociatedClientEndpoint1(wsEp);
+        http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
         var returnVal = clientEp->close(statusCode, reason);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -64,9 +61,8 @@ service on new http:WebSocketListener(21029) {
 
     //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketCaller caller, error err) {
-
         http:WebSocketFailoverClient clientEp =
-                        getAssociatedClientEndpoint1(caller);
+                        getAssociatedFailoverClientEndpoint(caller);
         var e = clientEp->close(1011, <string>err.detail()["message"]);
         if (e is http:WebSocketError) {
             log:printError("Error occurred when closing the connection",
@@ -80,7 +76,7 @@ service on new http:WebSocketListener(21029) {
 
 service failoverClientWithRetryCallbackService = @http:WebSocketServiceConfig {} service {
     resource function onText(http:WebSocketFailoverClient wsEp, string text) {
-        http:WebSocketCaller serviceEp = getAssociatedListener1(wsEp);
+        http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
         var returnVal = serviceEp->pushText(text);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -88,7 +84,7 @@ service failoverClientWithRetryCallbackService = @http:WebSocketServiceConfig {}
     }
 
     resource function onBinary(http:WebSocketFailoverClient wsEp, byte[] data) {
-        http:WebSocketCaller serviceEp = getAssociatedListener1(wsEp);
+        http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
         var returnVal = serviceEp->pushBinary(data);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -96,7 +92,7 @@ service failoverClientWithRetryCallbackService = @http:WebSocketServiceConfig {}
     }
 
     resource function onClose(http:WebSocketFailoverClient wsEp, int statusCode, string reason) {
-        http:WebSocketCaller serviceEp = getAssociatedListener1(wsEp);
+        http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
         var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -105,8 +101,7 @@ service failoverClientWithRetryCallbackService = @http:WebSocketServiceConfig {}
 
     //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketFailoverClient caller, error err) {
-
-        http:WebSocketCaller serverEp = getAssociatedListener1(caller);
+        http:WebSocketCaller serverEp = getAssociatedFailoverListener(caller);
         var e = serverEp->close(1011, <string>err.detail()["message"]);
         if (e is http:WebSocketError) {
             log:printError("Error occurred when closing the connection",

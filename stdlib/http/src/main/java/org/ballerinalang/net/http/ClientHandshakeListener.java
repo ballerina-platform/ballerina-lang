@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http;
 
-import io.netty.util.concurrent.BlockingOperationException;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocketclientendpoint.RetryContext;
@@ -35,22 +34,26 @@ import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONF
 import static org.ballerinalang.net.http.WebSocketConstants.CONNECTED_TO;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_RECONNECT;
-import static org.ballerinalang.net.http.WebSocketUtil.doReconnect;
 import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
+import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
+import static org.ballerinalang.net.http.WebSocketUtil.setReconnectContexValue;
+import static org.ballerinalang.net.http.WebSocketUtil.setWebSocketEndpoint;
 
 /**
  * The handshake listener for the client.
+ *
+ * @since 1.0.0
  */
 public class ClientHandshakeListener extends WebSocketClientHandshakeListener {
     private final WebSocketService wsService;
-    private final WebSocketClientConnectorListener clientConnectorListener;
+    private final ClientListener clientConnectorListener;
     private final boolean readyOnConnect;
     private final ObjectValue webSocketClient;
     private CountDownLatch countDownLatch;
     private static final Logger logger = LoggerFactory.getLogger(ClientHandshakeListener.class);
 
     public ClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
-                                   WebSocketClientConnectorListener clientConnectorListener, boolean readyOnConnect,
+                                   ClientListener clientConnectorListener, boolean readyOnConnect,
                                    CountDownLatch countDownLatch) {
         super(webSocketClient, wsService, clientConnectorListener, readyOnConnect, countDownLatch);
         this.webSocketClient = webSocketClient;
@@ -62,9 +65,8 @@ public class ClientHandshakeListener extends WebSocketClientHandshakeListener {
 
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
-        //using only one service endpoint in the client as there can be only one connection.
-        webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD,
-                HttpUtil.createResponseStruct(carbonResponse));
+        //Using only one service endpoint in the client as there can be only one connection.
+        webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(carbonResponse));
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
                 WebSocketConstants.WEBSOCKET_CONNECTOR);
         WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
@@ -83,16 +85,11 @@ public class ClientHandshakeListener extends WebSocketClientHandshakeListener {
             RetryContext retryConfig = (RetryContext) webSocketClient.getNativeData(RETRY_CONFIG);
             logger.info(CONNECTED_TO + webSocketClient.getStringValue(WebSocketConstants.
                     CLIENT_URL_CONFIG));
-            if (retryConfig.getConnectionState()) {
-                webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
-            } else {
-                WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
-            }
-            if (retryConfig.getConnectionState() || readyOnConnect) {
+            setWebSocketEndpoint(retryConfig, webSocketClient, webSocketConnection);
+            if (retryConfig.isConnectionMade() || readyOnConnect) {
                 webSocketConnection.readNextFrame();
             }
-            retryConfig.setConnectionState();
-            retryConfig.setReconnectAttempts(0);
+            setReconnectContexValue(retryConfig);
         }
         countDownLatch.countDown();
     }
@@ -108,9 +105,9 @@ public class ClientHandshakeListener extends WebSocketClientHandshakeListener {
                 wsService, null, webSocketClient);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         countDownLatch.countDown();
-        if (throwable instanceof IOException || throwable instanceof BlockingOperationException) {
+        if (throwable instanceof IOException) {
             if (hasRetryConfig(webSocketClient)) {
-                if (!doReconnect(connectionInfo)) {
+                if (!reconnect(connectionInfo)) {
                     WebSocketDispatcher.dispatchError(connectionInfo, throwable);
                     logger.info(STATEMENT_FOR_RECONNECT +
                             webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));

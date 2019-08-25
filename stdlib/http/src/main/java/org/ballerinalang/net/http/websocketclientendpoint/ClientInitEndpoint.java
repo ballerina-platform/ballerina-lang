@@ -39,7 +39,7 @@ import static org.ballerinalang.net.http.WebSocketUtil.populateRetryConnectorCon
 /**
  * Initialize the WebSocket Client.
  *
- * @since 0.966
+ * @since 1.0.0
  */
 
 @BallerinaFunction(

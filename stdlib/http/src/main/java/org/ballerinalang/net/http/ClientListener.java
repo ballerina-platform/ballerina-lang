@@ -19,21 +19,28 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.http.exception.WebSocketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.io.IOException;
 
 import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_RECONNECT;
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
-import static org.ballerinalang.net.http.WebSocketUtil.doReconnect;
 import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
+import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
 import static org.ballerinalang.net.http.WebSocketUtil.setCloseMessage;
 
 /**
  * Client connector listener for WebSocket.
+ *
+ * @since 1.0.0
  */
 public class ClientListener extends WebSocketClientConnectorListener {
     private WebSocketOpenConnectionInfo connectionInfo;
@@ -44,11 +51,43 @@ public class ClientListener extends WebSocketClientConnectorListener {
     }
 
     @Override
+    public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
+        throw new WebSocketException("onHandshake and onOpen is not supported for WebSocket client service");
+    }
+
+    @Override
+    public void onMessage(WebSocketTextMessage webSocketTextMessage) {
+        try {
+            WebSocketDispatcher.dispatchTextMessage(connectionInfo, webSocketTextMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
+    }
+
+    @Override
+    public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
+        try {
+            WebSocketDispatcher.dispatchBinaryMessage(connectionInfo, webSocketBinaryMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
+    }
+
+    @Override
+    public void onMessage(WebSocketControlMessage webSocketControlMessage) {
+        try {
+            WebSocketDispatcher.dispatchControlMessage(connectionInfo, webSocketControlMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
+    }
+
+    @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
         int statusCode = webSocketCloseMessage.getCloseCode();
         if (hasRetryConfig(webSocketClient) && statusCode == STATUS_CODE_ABNORMAL_CLOSURE) {
-            if (!doReconnect(connectionInfo)) {
+            if (!reconnect(connectionInfo)) {
                 logger.info(STATEMENT_FOR_RECONNECT +
                         webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
                 setCloseMessage(connectionInfo, webSocketCloseMessage);
@@ -68,7 +107,7 @@ public class ClientListener extends WebSocketClientConnectorListener {
         ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
         if (throwable instanceof IOException) {
             if (hasRetryConfig(webSocketClient)) {
-                if (!doReconnect(connectionInfo)) {
+                if (!reconnect(connectionInfo)) {
                     logger.info(STATEMENT_FOR_RECONNECT +
                             webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
                 }
@@ -81,6 +120,24 @@ public class ClientListener extends WebSocketClientConnectorListener {
                         "has some issue that needs to fix.");
             }
             WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+        }
+    }
+
+    @Override
+    public void onIdleTimeout(WebSocketControlMessage controlMessage) {
+        try {
+            WebSocketDispatcher.dispatchIdleTimeout(connectionInfo);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
+    }
+
+    @Override
+    public void onClose(WebSocketConnection webSocketConnection) {
+        try {
+            WebSocketUtil.setListenerOpenField(connectionInfo);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
         }
     }
 }

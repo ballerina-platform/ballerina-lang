@@ -103,6 +103,7 @@ public class WebSocketConstants {
     public static final String SUB_TARGET_URLS_INDEX = "subtargetUrlsIndex";
     public static final String ONE = "1";
     public static final String ZERO = "0";
+    public static final String WAITING_TIME = "60";
     public static final String RECONNECTING = "reconnecting...";
     public static final String COUNT_DOWN_LATCH = "countDownLatch";
     public static final String CLIENT_CONNECTOR = "clientConnector";

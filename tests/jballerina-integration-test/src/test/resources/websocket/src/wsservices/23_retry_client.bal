@@ -19,7 +19,7 @@ import ballerina/log;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:WebSocketListener(21028) {
+service on new http:WebSocketListener(30003) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
@@ -55,21 +55,6 @@ service on new http:WebSocketListener(21028) {
             panic <error> returnVal;
         }
     }
-
-    //This resource gets invoked when an error occurs in the connection.
-    resource function onError(http:WebSocketCaller caller, error err) {
-
-        http:WebSocketClient clientEp =
-                        getAssociatedClientEndpoint(caller);
-        var e = clientEp->close(1011, "Unexpected condition");
-        if (e is http:WebSocketError) {
-            log:printError("Error occurred when closing the connection",
-                            <error> e);
-        }
-        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
-        log:printError("Unexpected error hence closing the connection",
-                        <error> err);
-    }
 }
 
 service retryClientCallbackService = @http:WebSocketServiceConfig {} service {
@@ -96,29 +81,4 @@ service retryClientCallbackService = @http:WebSocketServiceConfig {} service {
             panic <error> returnVal;
         }
     }
-
-    //This resource gets invoked when an error occurs in the connection.
-    resource function onError(http:WebSocketClient caller, error err) {
-
-        http:WebSocketCaller serverEp =
-                        getAssociatedListener(caller);
-        var e = serverEp->close(1011, "Unexpected condition");
-        if (e is http:WebSocketError) {
-            log:printError("Error occurred when closing the connection",
-                            err = e);
-        }
-        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
-        log:printError("Unexpected error hense closing the connection",
-                        <error> err);
-    }
 };
-
-//public function getAssociatedClientEndpoint(http:WebSocketCaller wsServiceEp) returns (http:WebSocketClient) {
-//    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION];
-//    return returnVal;
-//}
-//
-//public function getAssociatedListener(http:WebSocketClient wsClientEp) returns (http:WebSocketCaller) {
-//    var returnVal = <http:WebSocketCaller>wsClientEp.attributes[ASSOCIATED_CONNECTION];
-//    return returnVal;
-//}

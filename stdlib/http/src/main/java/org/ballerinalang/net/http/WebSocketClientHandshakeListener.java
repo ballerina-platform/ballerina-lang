@@ -54,9 +54,8 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
 
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
-        //using only one service endpoint in the client as there can be only one connection.
-        webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD,
-                                    HttpUtil.createResponseStruct(carbonResponse));
+        //Using only one service endpoint in the client as there can be only one connection.
+        webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(carbonResponse));
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
                 WebSocketConstants.WEBSOCKET_CONNECTOR);
         WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(

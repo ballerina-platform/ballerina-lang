@@ -27,6 +27,6 @@ import org.testng.annotations.Test;
 @Test(groups = {"websocket-test"})
 public class RetryTest extends RetryClientTest {
     public RetryTest() {
-        super(15300, false, "ws://localhost:21028");
+        super(15300, false, "ws://localhost:30003");
     }
 }

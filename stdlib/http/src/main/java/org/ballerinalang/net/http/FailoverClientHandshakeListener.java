@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http;
 
-import io.netty.util.concurrent.BlockingOperationException;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocketclientendpoint.FailoverContext;
@@ -38,20 +37,23 @@ import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
 import static org.ballerinalang.net.http.WebSocketUtil.doAction;
 import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
+import static org.ballerinalang.net.http.WebSocketUtil.setFailoverWebSocketEndpoint;
 
 /**
  * The handshake listener for the failover client.
+ *
+ * @since 1.0.0
  */
 public class FailoverClientHandshakeListener extends WebSocketClientHandshakeListener {
     private final WebSocketService wsService;
-    private final WebSocketClientConnectorListener clientConnectorListener;
+    private final FailoverClientListener clientConnectorListener;
     private final boolean readyOnConnect;
     private final ObjectValue webSocketClient;
     private CountDownLatch countDownLatch;
     private static final Logger logger = LoggerFactory.getLogger(FailoverClientHandshakeListener.class);
 
     FailoverClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
-                                    WebSocketClientConnectorListener clientConnectorListener, boolean readyOnConnect,
+                                    FailoverClientListener clientConnectorListener, boolean readyOnConnect,
                                     CountDownLatch countDownLatch) {
         super(webSocketClient, wsService, clientConnectorListener, readyOnConnect, countDownLatch);
         this.webSocketClient = webSocketClient;
@@ -64,8 +66,7 @@ public class FailoverClientHandshakeListener extends WebSocketClientHandshakeLis
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
         //using only one service endpoint in the client as there can be only one connection.
-        webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD,
-                HttpUtil.createResponseStruct(carbonResponse));
+        webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(carbonResponse));
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
                 WebSocketConstants.WEBSOCKET_CONNECTOR);
         WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
@@ -74,11 +75,7 @@ public class FailoverClientHandshakeListener extends WebSocketClientHandshakeLis
         clientConnectorListener.setConnectionInfo(connectionInfo);
         webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
         FailoverContext failoverConfig = (FailoverContext) webSocketClient.getNativeData(FAILOVER_CONFIG);
-        if (failoverConfig.isConnectionMade()) {
-            webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
-        } else {
-            WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
-        }
+        setFailoverWebSocketEndpoint(failoverConfig, webSocketClient, webSocketConnection);
         // Read the next frame when readyOnConnect is true in first connection or after the first connection
         if (failoverConfig.isConnectionMade() || readyOnConnect) {
             webSocketConnection.readNextFrame();
@@ -86,17 +83,16 @@ public class FailoverClientHandshakeListener extends WebSocketClientHandshakeLis
         // Following these are created for future connection
         // Check whether the config has retry config or not
         // It has retry config, set these variable to default variable
-        FailoverContext failoverContext = ((FailoverContext) webSocketClient.getNativeData(FAILOVER_CONFIG));
         if (hasRetryConfig(webSocketClient)) {
             ((RetryContext) webSocketClient.getNativeData(RETRY_CONFIG)).setReconnectAttempts(0);
-            failoverContext.setFinishedFailover(false);
+            failoverConfig.setFinishedFailover(false);
         }
         ArrayList targets = failoverConfig.getTargetUrls();
         int currentIndex = failoverConfig.getCurrentIndex();
         logger.info(CONNECTED_TO + targets.get(currentIndex).toString());
         // Set failover context variable's value
-        failoverContext.setInitialIndex(currentIndex);
-        failoverContext.setConnectionMade();
+        failoverConfig.setInitialIndex(currentIndex);
+        failoverConfig.setConnectionMade();
         countDownLatch.countDown();
     }
 
@@ -111,7 +107,7 @@ public class FailoverClientHandshakeListener extends WebSocketClientHandshakeLis
                 wsService, null, webSocketClient);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         countDownLatch.countDown();
-        if (throwable instanceof IOException || throwable instanceof BlockingOperationException) {
+        if (throwable instanceof IOException) {
             doAction(connectionInfo, throwable, null);
         } else {
             logger.info("A connection has some issue that needs to fix.");

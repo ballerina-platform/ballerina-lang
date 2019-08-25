@@ -163,14 +163,14 @@ public class RetryContext {
      *
      * @return connectionMade
      */
-    public boolean getConnectionState() {
+    public boolean isConnectionMade() {
         return connectionMade;
     }
 
     /**
      * Assign the connection state of the RetryContext to the variable connectionMade.
      */
-    public void setConnectionState() {
+    public void setConnectionMade() {
         this.connectionMade = true;
     }
 }

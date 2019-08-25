@@ -25,6 +25,7 @@ import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
@@ -40,9 +41,9 @@ public class FailoverClientTest extends WebSocketTestCommons {
     private WebSocketRemoteServer remoteServer15200;
     private String url;
     private int port;
-    private ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
     private boolean sslEnabled;
     private int time = 50;
+    private static final PrintStream console = System.out;
 
     public FailoverClientTest(int port, boolean sslEnabled, String url) {
         this.port = port;
@@ -61,7 +62,6 @@ public class FailoverClientTest extends WebSocketTestCommons {
         client.setCountDownLatch(countDownLatch);
         countDownLatch.await(time, TimeUnit.SECONDS);
         String textSent = "hi all";
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendText(textSent);
         countDownLatch.await(10, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSent);
@@ -79,11 +79,10 @@ public class FailoverClientTest extends WebSocketTestCommons {
         remoteServer15100.run();
         countDownLatch.await(time, TimeUnit.SECONDS);
         WebSocketTestClient client = new WebSocketTestClient(url);
-        client.handshake();
         client.setCountDownLatch(countDownLatch);
+        client.handshake();
         countDownLatch.await(time, TimeUnit.SECONDS);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendBinary(bufferSent);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
@@ -102,12 +101,10 @@ public class FailoverClientTest extends WebSocketTestCommons {
         client.setCountDownLatch(countDownLatch);
         countDownLatch.await(time, TimeUnit.SECONDS);
         CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
-
         Assert.assertNotNull(closeWebSocketFrame);
         Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
-        Assert.assertTrue(closeWebSocketFrame.reasonText().contains("Connection refused: " +
-                "localhost/127.0.0.1:15200"));
-
+        console.println(closeWebSocketFrame.reasonText());
+        Assert.assertTrue(closeWebSocketFrame.reasonText().contains("Unexpected condition"));
         closeWebSocketFrame.release();
     }
 
@@ -119,6 +116,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
         remoteServer15100 = new WebSocketRemoteServer(port);
         remoteServer15100.run();
         remoteServer15200.run();
+        ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
         countDownLatch.await(12, TimeUnit.SECONDS);
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
@@ -134,16 +132,15 @@ public class FailoverClientTest extends WebSocketTestCommons {
         CountDownLatch countDownLatch1 = new CountDownLatch(1);
         countDownLatch1.await(20, TimeUnit.SECONDS);
         String text = "hi";
-        countDownLatch.await(12, TimeUnit.SECONDS);
+        countDownLatch1.await(12, TimeUnit.SECONDS);
         client.sendText(text);
-        countDownLatch.await(10, TimeUnit.SECONDS);
+        countDownLatch1.await(10, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), text);
         client.sendBinary(bufferSent);
         countDownLatch1.await(12, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
         remoteServer15200.stop();
-        countDownLatch.await(time, TimeUnit.SECONDS);
         CountDownLatch countDownLatch2 = new CountDownLatch(1);
         countDownLatch2.await(12, TimeUnit.SECONDS);
     }
