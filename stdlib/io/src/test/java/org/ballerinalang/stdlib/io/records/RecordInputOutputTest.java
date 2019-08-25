@@ -17,7 +17,7 @@
 
 package org.ballerinalang.stdlib.io.records;
 
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.stdlib.io.MockByteChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
@@ -153,12 +153,12 @@ public class RecordInputOutputTest {
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] recordOne = {"Foo", "Bar", "911"};
-        BValueArray recordOneArr = new BValueArray(recordOne);
+        ArrayValue recordOneArr = new ArrayValue(recordOne);
 
         recordChannel.write(recordOneArr);
 
         String[] recordTwo = {"Jim", "Com", "119"};
-        BValueArray recordTwoArr = new BValueArray(recordTwo);
+        ArrayValue recordTwoArr = new ArrayValue(recordTwo);
 
         recordChannel.write(recordTwoArr);
         recordChannel.close();

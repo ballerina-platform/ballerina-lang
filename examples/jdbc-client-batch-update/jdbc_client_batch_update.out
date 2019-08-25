@@ -5,6 +5,7 @@ The update operation - Creating a table:
 Create student table status: 0
 Batch 1 update counts: 1
 Batch 2 update counts: 1
+Generated keys are: 1, 2 and 3
 Data in students table:
 Student:1|Peter|10
 Student:2|John|15

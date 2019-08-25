@@ -38,7 +38,7 @@ function testConvertStampRecordToRecord() returns [Person, Employee]|error {
 }
 
 function testConvertStampRecordToJSON() returns [Employee, json]|error {
-    Employee e = { name: "Waruna", status: "married", batch: "Batch9", school: "DEF College" };
+    Employee e = { name: "Waruna", status: "married", batch: "Batch9", "school": "DEF College" };
     json j = check json.constructFrom(e);
     e.name = "John";
     map<json> nj = <map<json>> j;
@@ -47,7 +47,7 @@ function testConvertStampRecordToJSON() returns [Employee, json]|error {
 }
 
 function testConvertStampRecordToMap() returns [Employee, map<any>]|error {
-    Employee e = { name: "John", status: "single", batch: "Batch9", school: "ABC College" };
+    Employee e = { name: "John", status: "single", batch: "Batch9", "school": "ABC College" };
     map<anydata> m = check map<anydata>.constructFrom(e);
     m["name"] = "Waruna";
     e.name = "Mike";

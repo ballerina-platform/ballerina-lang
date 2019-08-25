@@ -18,15 +18,14 @@
 package org.ballerinalang.stdlib.io.channels.base;
 
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.io.csv.Format;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -193,6 +192,13 @@ public class DelimitedRecordChannel implements IOChannel {
                 }
             } else {
                 readRecordFromChannel();
+                if (channel.hasReachedEnd()) {
+                    delimitedRecord = persistentCharSequence.toString().
+                            split(getRecordSeparatorForReading(), numberOfSplits);
+                    record = (delimitedRecord.length == numberOfSplits) ?
+                            processIdentifiedRecord(delimitedRecord) :
+                            readFinalRecord();
+                }
             }
         } while (record == null && !channel.hasReachedEnd());
 
@@ -284,32 +290,25 @@ public class DelimitedRecordChannel implements IOChannel {
 
     /**
      * <p>
-     * Recursively split based on given regEx.
+     * Split based on given regEx.
      * </p>
      * <p>
-     * This operation will ignore blanks.
+     * This operation will produce null for blanks.
      * </p>
      *
      * @param record record which should be separated.
      * @param regex  condition which should be used to split.
      * @return the list of fields
      */
-    private String[] recursiveSplit(String record, String regex) {
-        final int recursiveIndex = 2;
-        final String empty = "";
-        ArrayList<String> records = new ArrayList<>();
-        String[] splitRecords;
-        do {
-            splitRecords = record.split(regex, recursiveIndex);
-            int numberOfFields = splitRecords.length;
-            String field = splitRecords[0];
-            record = numberOfFields == recursiveIndex ? splitRecords[1] : empty;
-            if (field.trim().isEmpty()) {
-                field = null;
+    private String[] splitIgnoreBlanks(String record, String regex) {
+        Pattern reg = Pattern.compile(regex);
+        String[] split = reg.split(record);
+        for (int i = 0; i < split.length; i++) {
+            if (split[i].isEmpty()) {
+                split[i] = null;
             }
-            records.add(field);
-        } while (splitRecords.length == recursiveIndex);
-        return records.toArray(new String[0]);
+        }
+        return split;
     }
 
     /**
@@ -321,7 +320,7 @@ public class DelimitedRecordChannel implements IOChannel {
     private String[] getFields(String record) {
         String fieldSeparatorForReading = getFieldSeparatorForReading();
         if (null != format && format.shouldIgnoreBlanks()) {
-            return recursiveSplit(record, fieldSeparatorForReading);
+            return splitIgnoreBlanks(record, fieldSeparatorForReading);
         } else {
             return record.split(fieldSeparatorForReading);
         }
@@ -386,37 +385,6 @@ public class DelimitedRecordChannel implements IOChannel {
      * @param fields the list of fields in the record.
      * @return the record constructed through the fields.
      */
-    //TODO Remove after migration : implemented using bvm values/types
-    private String composeRecord(BValueArray fields) {
-        StringBuilder recordConsolidator = new StringBuilder();
-        String finalizedRecord;
-        long numberOfFields = fields.size();
-        final int fieldStartIndex = 0;
-        final long secondLastFieldIndex = numberOfFields - 1;
-        if (log.isDebugEnabled()) {
-            log.debug("Number of fields to be composed " + numberOfFields);
-        }
-        for (int fieldCount = fieldStartIndex; fieldCount < numberOfFields; fieldCount++) {
-            String currentFieldString = fields.getString(fieldCount);
-            if (currentFieldString.contains(getFieldSeparatorForWriting())) {
-                currentFieldString = encloseField(currentFieldString);
-            }
-            recordConsolidator.append(currentFieldString);
-            if (fieldCount < secondLastFieldIndex) {
-                //The idea here is to omit appending the field separator after the final field
-                recordConsolidator.append(getFieldSeparatorForWriting());
-            }
-        }
-        finalizedRecord = recordConsolidator.toString();
-        return finalizedRecord;
-    }
-
-    /**
-     * Will place the relevant fields together to/form a record.
-     *
-     * @param fields the list of fields in the record.
-     * @return the record constructed through the fields.
-     */
     private String composeRecord(ArrayValue fields) {
         StringBuilder recordConsolidator = new StringBuilder();
         String finalizedRecord;
@@ -439,27 +407,6 @@ public class DelimitedRecordChannel implements IOChannel {
         }
         finalizedRecord = recordConsolidator.toString();
         return finalizedRecord;
-    }
-
-    /**
-     * Writes a given record to a file.
-     *
-     * @param fields the list of fields composing the record.
-     * @throws IOException during I/O error.
-     */
-    //TODO Remove after migration : implemented using bvm values/types
-    public void write(BValueArray fields) throws IOException {
-        final int writeOffset = 0;
-        String record = composeRecord(fields);
-        record = record + getRecordSeparatorForWriting();
-        if (log.isTraceEnabled()) {
-            log.trace("The record " + numberOfRecordsWrittenToChannel + " composed for writing, " + record);
-        }
-        channel.write(record, writeOffset);
-        if (log.isDebugEnabled()) {
-            log.debug("Record " + numberOfRecordsReadThroughChannel + " written to the channel " + channel.hashCode());
-        }
-        numberOfRecordsWrittenToChannel++;
     }
 
     /**

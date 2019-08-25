@@ -22,7 +22,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -47,9 +46,12 @@ public class ClosedRecordEquivalencyRulesTest {
     @Test(description = "Negative tests for when both LHS and RHS are closed")
     public void testClosedRecordNegatives() {
         CompileResult negative = BCompileUtil.compile("test-src/record/equiv_rules_neg_cr_to_cr.bal");
-        assertEquals(negative.getErrorCount(), 2);
-        validateError(negative, 0, "incompatible types: expected 'AnotherPerson', found 'Person1'", 28, 24);
-        validateError(negative, 1, "incompatible types: expected 'AnotherPerson', found 'Person2'", 38, 24);
+        int i = 0;
+        validateError(negative, i++, "incompatible types: expected 'AnotherPerson', found 'Person1'", 28, 24);
+        validateError(negative, i++, "incompatible types: expected 'AnotherPerson', found 'Person2'", 38, 24);
+        validateError(negative, i++, "incompatible types: expected 'AnotherPerson3', found 'Person1'", 49, 25);
+        validateError(negative, i++, "incompatible types: expected 'AnotherPerson3', found 'Person1'", 55, 25);
+        assertEquals(negative.getErrorCount(), i);
     }
 
     @Test(description = "Test assigning a closed record to a cloesd record type variable")
@@ -62,20 +64,6 @@ public class ClosedRecordEquivalencyRulesTest {
     public void testCRToCRClosedToClosedAssignment2() {
         BValue[] returns = BRunUtil.invoke(closedRecToClosedRec, "testClosedToClosedAssignment2");
         assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
-    }
-
-    @Test(description = "RHS and LHS closed with additional fields (optional) than RHS")
-    public void testCRToCRClosedToClosedAssignment3() {
-        BValue[] returns = BRunUtil.invoke(closedRecToClosedRec, "testClosedToClosedAssignment3");
-        assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
-    }
-
-    @Test(description = "RHS and LHS closed with additional fields (optional) than RHS",
-          expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid field access: field 'weight' not found in record type " +
-                  "'Person1'.*")
-    public void testCRToCRClosedToClosedAssignment4() {
-        BRunUtil.invoke(closedRecToClosedRec, "testClosedToClosedAssignment4");
     }
 
     @Test(description = "RHS and LHS closed with RHS required fields corresponding to LHS optional fields")

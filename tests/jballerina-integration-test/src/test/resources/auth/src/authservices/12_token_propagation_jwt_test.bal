@@ -20,10 +20,12 @@ import ballerina/jwt;
 jwt:InboundJwtAuthProvider jwtAuthProvider12_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 http:BearerAuthHandler jwtAuthHandler12_1 = new(jwtAuthProvider12_1);
@@ -40,7 +42,7 @@ listener http:Listener listener12_1 = new(20015, {
     }
 });
 
-jwt:OutboundJwtAuthProvider jwtAuthProvider12_2 = new(());
+jwt:OutboundJwtAuthProvider jwtAuthProvider12_2 = new;
 http:BearerAuthHandler jwtAuthHandler12_2 = new(jwtAuthProvider12_2);
 
 http:Client nyseEP12 = new("https://localhost:20016", {
@@ -73,10 +75,12 @@ service passthroughService12 on listener12_1 {
 jwt:InboundJwtAuthProvider jwtAuthProvider12_3 = new({
     issuer: "example1",
     audience: ["ballerina"],
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 http:BearerAuthHandler jwtAuthHandler12_3 = new(jwtAuthProvider12_3);

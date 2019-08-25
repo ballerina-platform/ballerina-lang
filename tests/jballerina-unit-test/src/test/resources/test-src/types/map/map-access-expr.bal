@@ -6,8 +6,8 @@ function mapAccessTest(int x, int y) returns (int) {
     testMap["second"] = y;
     testMap["third"] = x + y;
     testMap["forth"] = x - y;
-    xx = <int> testMap.first;
-    yy = <int> testMap.second;
+    xx = <int> testMap["first"];
+    yy = <int> testMap["second"];
 
     return xx + yy;
 }
@@ -52,9 +52,9 @@ function constructString(map<any> m) returns (string) {
     return returnStr;
 }
 
-function testMapClear() returns (int) {
+function testMapRemoveAll() returns (int) {
     map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
-    namesMap.clear();
+    namesMap.removeAll();
     return namesMap.length();
 }
 
@@ -85,7 +85,11 @@ function testGetMapValues () returns [string, string] {
                   addressArray:addressArray,
                   finfo:j
                 };
-    any[] values = m.values();
+    any[] values = [];
+    values = m.reduce(function(any[] arr, any value) returns any[] {
+        arr[arr.length()] = value;
+        return arr;
+    }, values);
     var nam = <string> values[0];
     var jsn = <json> values[8];
     var city = <string> jsn.city;
@@ -94,12 +98,12 @@ function testGetMapValues () returns [string, string] {
 
 function testMapRemovePositive() returns [boolean, boolean, boolean] {
     map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
-    return [namesMap.hasKey("fname"), namesMap.remove("fname"), namesMap.hasKey("fname")];
+    return [namesMap.hasKey("fname"), namesMap.remove("fname") === "Supun", namesMap.hasKey("fname")];
 }
 
-function testMapRemoveNegative() returns [boolean, boolean, boolean] {
+function testMapRemoveNegative() {
     map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
-    return [namesMap.hasKey("fname2"), namesMap.remove("fname2"), namesMap.hasKey("fname2")];
+    _ = namesMap.remove("fname2"); // panic
 }
 
 function testMapConcurrentAccess() returns int {
@@ -116,8 +120,8 @@ function processConcurrent(map<int> intMap, int n) {
       string k;
       while (i < n) {
          intMap["X"] = 100;
-         j = intMap.X;
-         k = string.convert(i);
+         j = intMap.get("X");
+         k = i.toString();
          intMap[k] = i;
          i = intMap[k] ?: 0;  
          _ = intMap.remove(k);
@@ -131,8 +135,8 @@ function processConcurrent(map<int> intMap, int n) {
       int n2 = n * 2;
       while (i < n2) {
          intMap["X"] = 200;
-         j = intMap.X;
-         k = string.convert(i);
+         j = intMap.get("X");
+         k = i.toString();
          intMap[k] = i;
          i = intMap[k] ?: 0;
          _ = intMap.remove(k);
@@ -155,8 +159,8 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
         string k;
         while (i < n) {
             intMap["X"] = 100;
-            j = intMap.X;
-            k = string.convert(i);
+            j = intMap.get("X");
+            k = i.toString();
             intMap[k] = i;
             i = intMap[k] ?: 0;  
             _ = intMap.remove(k);
@@ -170,8 +174,8 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
         int n2 = n * 2;
         while (i < n2) {
             intMap["X"] = 200;
-            j = intMap.X;
-            k = string.convert(i);
+            j = intMap.get("X");
+            k = i.toString();
             intMap[k] = i;
             i = intMap[k] ?: 0;
             _ = intMap.remove(k);

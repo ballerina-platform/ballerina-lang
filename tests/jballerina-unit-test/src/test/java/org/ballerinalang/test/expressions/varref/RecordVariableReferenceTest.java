@@ -32,8 +32,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.text.MessageFormat;
-
 /**
  * TestCases for Record Variable References.
  *
@@ -187,22 +185,14 @@ public class RecordVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 21);
         final String undefinedSymbol = "undefined symbol ";
-        final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'fName'", 43, 12);
         BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'married'", 43, 19);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 43, 41);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 43, 49);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 43, 63);
-        BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(expectingClosedRecord, "'Age'"), 43, 33);
-        BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(expectingClosedRecord, "'Age'"), 62, 33);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'Person'", 69, 5);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 43, 40);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 43, 48);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 43, 61);
         BAssertUtil.validateError(resultNegative, ++i, "variable assignment is required", 94, 5);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 95, 12);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -227,5 +217,7 @@ public class RecordVariableReferenceTest {
                                   "incompatible types: expected 'map<int>', found 'map<anydata>'", 161, 16);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<error>', found 'map'",
                                   164, 16);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 }

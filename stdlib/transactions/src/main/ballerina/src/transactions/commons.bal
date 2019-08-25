@@ -34,8 +34,8 @@ map<TwoPhaseCommitTransaction> participatedTransactions = {};
 cache:Cache httpClientCache = new;
 
 listener task:Listener timer = new({
-    interval: 60000,
-    initialDelay: 1000
+    intervalInMillis: 60000,
+    initialDelayInMillis: 1000
 });
 
 service scheduleTimer on timer {
@@ -154,7 +154,7 @@ function protocolCompatible(string coordinationType, UProtocol?[] participantPro
 
 function respondToBadRequest(http:Caller ep, string msg) {
     log:printError(msg);
-    http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
+    http:Response res = new;  res.statusCode = http:STATUS_BAD_REQUEST;
     RequestError requestError = {errorMessage:msg};
     var resPayload = typedesc<json>.constructFrom(requestError);
     if (resPayload is json) {
@@ -283,8 +283,8 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
             if (httpClientCache.hasKey(registerAtURL)) {
                 return <InitiatorClientEP>httpClientCache.get(registerAtURL);
             }
-            initiatorEP = new({ registerAtURL: registerAtURL, timeoutMillis: 15000,
-                retryConfig: { count: 2, interval: 5000 }
+            initiatorEP = new({ registerAtURL: registerAtURL, timeoutInMillis: 15000,
+                retryConfig: { count: 2, intervalInMillis: 5000 }
             });
             httpClientCache.put(registerAtURL, initiatorEP);
             return initiatorEP;
@@ -302,7 +302,7 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
                 return <Participant2pcClientEP>httpClientCache.get(<@untainted>participantURL);
             }
             participantEP = new({ participantURL: participantURL,
-                timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
+                timeoutInMillis: 15000, retryConfig: { count: 2, intervalInMillis: 5000 }
             });
             httpClientCache.put(participantURL, participantEP);
             return participantEP;

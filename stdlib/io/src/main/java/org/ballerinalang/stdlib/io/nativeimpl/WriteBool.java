@@ -71,6 +71,8 @@ public class WriteBool {
         Throwable error = eventContext.getError();
         if (null != error) {
             callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        } else {
+            callback.setReturnValues(null);
         }
         callback.notifySuccess();
         return result;

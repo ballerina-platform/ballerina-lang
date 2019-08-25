@@ -49,21 +49,24 @@ public class OpenRecordEquivalencyRulesTest {
     public void testORToORNeg() {
         CompileResult negative = BCompileUtil.compile("test-src/record/equiv_rules_neg_or_to_or.bal");
         int index = 0;
-        assertEquals(negative.getErrorCount(), 4);
         validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person1'", 28, 24);
         validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person2'", 38, 24);
         validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person3'", 50, 24);
-        validateError(negative, index, "incompatible types: expected 'AnotherPerson', found 'Person4'", 61, 24);
+        validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person4'", 61, 24);
+        validateError(negative, index++, "incompatible types: expected 'AnotherPerson2', found 'Person1'", 72, 25);
+        assertEquals(negative.getErrorCount(), index);
     }
 
     @Test(description = "Negative tests for when LHS is open and RHS is closed")
     public void testCRToORNeg() {
         CompileResult negative = BCompileUtil.compile("test-src/record/equiv_rules_neg_cr_to_or.bal");
         int index = 0;
-        assertEquals(negative.getErrorCount(), 3);
         validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person1'", 28, 24);
         validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person2'", 38, 24);
-        validateError(negative, index, "incompatible types: expected 'AnotherPerson', found 'Person3'", 50, 24);
+        validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person3'", 50, 24);
+        validateError(negative, index++, "incompatible types: expected 'AnotherPerson2', found 'Person1'", 61, 25);
+        validateError(negative, index++, "incompatible types: expected 'AnotherPerson2', found 'Person1'", 67, 25);
+        assertEquals(negative.getErrorCount(), index);
     }
 
     @Test(description = "Test assigning a closed record to an open record type variable")
@@ -78,26 +81,12 @@ public class OpenRecordEquivalencyRulesTest {
         assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
     }
 
-    @Test(description = "RHS closed and LHS open with additional fields (optional) than RHS")
-    public void testCRToORClosedToOpenAssignment3() {
-        BValue[] returns = BRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment3");
-        assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
-    }
-
-    @Test(description = "RHS closed and LHS open and assigning to an extra optional field in LHS",
-          expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid field access: field 'weight' not found in record type " +
-                  "'Person1'.*")
-    public void testCRToORClosedToOpenAssignment4() {
-        BRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment4");
-    }
-
     @Test(description = "RHS closed and LHS open and adding a rest field in LHS",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*invalid field access: field 'rest' not found in record type " +
                   "'Person1'.*")
-    public void testCRToORClosedToOpenAssignment5() {
-        BRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment5");
+    public void testCRToORClosedToOpenAssignment3() {
+        BRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment3");
     }
 
     @Test(description = "RHS closed and LHS open with RHS required fields corresponding to LHS optional fields")
@@ -136,12 +125,6 @@ public class OpenRecordEquivalencyRulesTest {
     @Test(description = "RHS and LHS both open with RHS field types which are assignable to LHS field types")
     public void testORToOROpenToOpenAssignment2() {
         BValue[] returns = BRunUtil.invoke(openRecToOpenRec, "testOpenToOpenAssignment2");
-        assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
-    }
-
-    @Test(description = "RHS and LHS both open with additional fields (optional) than RHS")
-    public void testORToOROpenToOpenAssignment3() {
-        BValue[] returns = BRunUtil.invoke(openRecToOpenRec, "testOpenToOpenAssignment3");
         assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
     }
 

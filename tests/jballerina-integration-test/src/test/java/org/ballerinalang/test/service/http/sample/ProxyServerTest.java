@@ -39,10 +39,11 @@ public class ProxyServerTest extends HttpBaseTest {
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "proxy" + File.separator + "proxyClient.bal").getAbsolutePath();
-
+    
         ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.runMain(balFile, new LogLeecher[]{clientLeecher});
+        ballerinaClient.runMain(balFile, new String[]{}, new String[]{}, null, new String[]{},
+                new LogLeecher[]{clientLeecher});
         clientLeecher.waitForText(20000);
     }
 

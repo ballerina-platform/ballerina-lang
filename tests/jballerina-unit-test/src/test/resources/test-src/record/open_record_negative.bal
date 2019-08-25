@@ -5,7 +5,7 @@ type Person record {|
 |};
 
 function invalidRestField() {
-    Person p = {name:"John", age:20, height:6, employed:false, city:"Colombo"};
+    Person p = { name: "John", age: 20, "height": 6, "employed": false, "city": "Colombo" };
 }
 
 type PersonA record {
@@ -14,7 +14,7 @@ type PersonA record {
 };
 
 function emptyRecordForAnyRestField() {
-    PersonA p = {name:"John", misc:{}};
+    PersonA p = { name:"John", "misc": {} };
 }
 
 type Pet record {

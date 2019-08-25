@@ -60,7 +60,7 @@ public class TableDataStreamingTestCase extends BaseTest {
         envProperties.put("JAVA_OPTS", "-Xms150m -Xmx150m");
         int[] requiredPorts = {9090};
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFile, null, envProperties, requiredPorts);
+        serverInstance.startServer(balFile, null, null, envProperties, requiredPorts);
     }
 
     private void setUpDatabase() throws SQLException {

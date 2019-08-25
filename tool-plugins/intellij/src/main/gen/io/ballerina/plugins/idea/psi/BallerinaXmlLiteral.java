@@ -23,10 +23,10 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaXmlLiteral extends PsiElement {
 
-  @Nullable
-  BallerinaXmlItem getXmlItem();
+  @NotNull
+  BallerinaXmlAllowedText getXmlAllowedText();
 
-  @Nullable
+  @NotNull
   PsiElement getXmlLiteralEnd();
 
   @NotNull

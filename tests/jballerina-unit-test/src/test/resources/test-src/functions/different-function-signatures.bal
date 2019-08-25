@@ -162,11 +162,6 @@ function testDefaultableParamInnerFunc () returns [int, string] {
     return p.test1(a = 50);
 }
 
-function testDefaultableParamOuterFunc () returns [int, string] {
-    Person p = new;
-    return p.test2(a = 40);
-}
-
 type Person object {
     public int age = 0;
 

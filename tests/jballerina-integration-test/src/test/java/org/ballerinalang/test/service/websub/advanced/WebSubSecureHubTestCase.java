@@ -54,11 +54,11 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
     private static final String INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG =
             "Subscription Request failed at Hub[https://localhost:23191/websub/hub], for Topic[http://two.persistence" +
                     ".topic.com]: Error in request: Mode[subscribe] at Hub[https://localhost:23191/websub/hub] - " +
-                    "Authentication failure";
+                    "Authentication failure.";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_THREE_LOG =
             "Subscription Request failed at Hub[https://localhost:23191/websub/hub], for Topic[http://one.persistence" +
                     ".topic.com]: Error in request: Mode[subscribe] at Hub[https://localhost:23191/websub/hub] - " +
-                    "Authorization failure ";
+                    "Authorization failure.";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_FOUR_LOG = "ballerina: Intent Verification agreed - " +
             "Mode [subscribe], Topic [http://one.websub.topic.com], Lease Seconds [1200]";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG =
@@ -89,7 +89,7 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
 
-        webSubSubscriber.startServer(subscriberBal, new String[0], new int[]{WEBSUB_PORT});
+        webSubSubscriber.startServer(subscriberBal, new String[0], new String[0], new int[]{WEBSUB_PORT});
     }
 
     @Test

@@ -19,7 +19,6 @@ package org.ballerinalang.test.service.grpc.tool;
 
 import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
-import org.ballerinalang.protobuf.exception.BalGenToolException;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
@@ -51,15 +50,15 @@ public class InvalidServiceContractTestCase {
             InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
-        Path sourcePath = Paths.get("grpc", "tool");
+        Path sourcePath = Paths.get("grpc", "src", "tool");
         Path sourceRoot = resourceDir.resolve(sourcePath);
-        Path protoPath = Paths.get("grpc", "tool", "helloWorld2.proto");
+        Path protoPath = Paths.get("grpc", "src", "tool", "helloWorld2.proto");
         Path protoRoot = resourceDir.resolve(protoPath);
         grpcCmd1.setBalOutPath(sourceRoot.toString());
         grpcCmd1.setProtoPath(protoRoot.toString());
         try {
             grpcCmd1.execute();
-        } catch (BalGenToolException e) {
+        } catch (Exception e) {
             Assert.assertEquals(e.getMessage(), "Provided service proto file is not readable. Please input valid " +
                     "proto file location.");
         }
@@ -69,15 +68,15 @@ public class InvalidServiceContractTestCase {
     public void testInvalidProtoSyntax() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
-        Path sourcePath = Paths.get("grpc", "tool");
+        Path sourcePath = Paths.get("grpc", "src", "tool");
         Path sourceRoot = resourceDir.resolve(sourcePath);
-        Path protoPath = Paths.get("grpc", "tool", "helloWorldErrorSyntax.proto");
+        Path protoPath = Paths.get("grpc", "src", "tool", "helloWorldErrorSyntax.proto");
         Path protoRoot = resourceDir.resolve(protoPath);
         grpcCmd1.setBalOutPath(sourceRoot.toAbsolutePath().toString());
         grpcCmd1.setProtoPath(protoRoot.toAbsolutePath().toString());
         try {
             grpcCmd1.execute();
-        } catch (BalGenToolException e) {
+        } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("helloWorldErrorSyntax.proto:3:27: \"HelloRequest\" " +
                     "is not defined."));
         }

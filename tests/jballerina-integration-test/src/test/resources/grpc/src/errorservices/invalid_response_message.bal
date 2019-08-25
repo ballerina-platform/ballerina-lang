@@ -22,7 +22,7 @@ listener grpc:Listener server2 = new (9090, {
 service HelloWorld on server2 {
     resource function invalidRespType(grpc:Caller caller, string name) {
         string? message = "Hello " + name;
-        error? err = caller->send(message);
+        grpc:Error? err = caller->send(message);
         checkpanic caller->complete();
     }
 }

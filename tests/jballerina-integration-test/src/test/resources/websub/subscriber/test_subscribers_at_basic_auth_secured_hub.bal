@@ -16,7 +16,6 @@
 
 import ballerina/auth;
 import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 

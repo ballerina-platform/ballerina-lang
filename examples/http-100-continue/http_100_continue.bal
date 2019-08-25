@@ -13,7 +13,7 @@ service helloWorld on new http:Listener(9090) {
         // Check if the client expects a 100-continue response.
         if (request.expects100Continue()) {
             string mediaType = request.getHeader("Content-Type");
-            if (mediaType.equalsIgnoreCase("text/plain")) {
+            if (mediaType.toLowerAscii() == "text/plain") {
                 // Send a 100-continue response to the client.
                 var result = caller->continue();
                 if (result is error) {
@@ -47,7 +47,7 @@ service helloWorld on new http:Listener(9090) {
             }
         } else {
             res.statusCode = 500;
-            res.setPayload(untaint <string> payload.detail().message);
+            res.setPayload(<@untainted> <string> payload.detail()?.message);
             var result = caller->respond(res);
             if (result is error) {
                 log:printError("Error sending response", err = result);

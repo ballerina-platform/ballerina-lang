@@ -19,6 +19,8 @@ package org.ballerinalang.net.grpc.builder.utils;
 
 import java.util.Locale;
 
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
+
 /**
  * Util functions which are use when generating . bal stub
  */
@@ -49,30 +51,31 @@ public class BalGenerationUtils {
      */
     public static String getMappingBalType(String protoType) {
         switch (protoType) {
-            case "DoubleValue":
-            case "FloatValue": {
+            case ".google.protobuf.DoubleValue":
+            case ".google.protobuf.FloatValue": {
                 return "float";
             }
-            case "Int32Value":
-            case "Int64Value":
-            case "UInt64Value":
-            case "UInt32Value": {
+            case ".google.protobuf.Int32Value":
+            case ".google.protobuf.Int64Value":
+            case ".google.protobuf.UInt64Value":
+            case ".google.protobuf.UInt32Value": {
                 return "int";
             }
-            case "BoolValue": {
+            case ".google.protobuf.BoolValue": {
                 return "boolean";
             }
-            case "StringValue": {
+            case ".google.protobuf.StringValue": {
                 return "string";
             }
-            case "BytesValue": {
+            case ".google.protobuf.BytesValue": {
                 return "byte[]";
             }
-            case "Empty": {
+            case ".google.protobuf.Empty": {
                 return null;
             }
             default: { // to handle structs
-                return protoType;
+                return protoType.substring(protoType.lastIndexOf
+                        (PACKAGE_SEPARATOR) + 1);
             }
         }
     }

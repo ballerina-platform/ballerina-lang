@@ -23,6 +23,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
@@ -85,8 +86,8 @@ public class DefinitionContextProvider extends LSCompletionProvider {
     }
 
     private List<CompletionItem> getTypesAndPackages(LSContext ctx) {
-        List<CompletionItem> completionItems =
-                new ArrayList<>(this.getBasicTypes(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY)));
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<CompletionItem> completionItems = new ArrayList<>(this.getBasicTypes(visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
 
         return completionItems;

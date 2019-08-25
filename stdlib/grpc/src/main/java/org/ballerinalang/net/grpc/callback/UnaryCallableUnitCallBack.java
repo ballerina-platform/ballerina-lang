@@ -20,7 +20,6 @@ package org.ballerinalang.net.grpc.callback;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.StreamObserver;
-import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
@@ -36,10 +35,6 @@ public class UnaryCallableUnitCallBack extends AbstractCallableUnitCallBack {
     private boolean emptyResponse;
     
     public UnaryCallableUnitCallBack(StreamObserver requestSender, boolean isEmptyResponse) {
-        if (requestSender == null) {
-            throw new ServerRuntimeException("Error while initializing Streaming service callback. StreamObserver is " +
-                    "null");
-        }
         this.requestSender = requestSender;
         this.emptyResponse = isEmptyResponse;
     }

@@ -307,6 +307,8 @@ function test12() returns xml {
 
 type AccountNotFoundErrorData record {
     int accountID;
+    string message?;
+    error cause?;
 };
 
 type AccountNotFoundError error<string, AccountNotFoundErrorData>;

@@ -19,7 +19,6 @@ import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
 import ballerina/log;
-import ballerina/mime;
 import ballerina/system;
 import ballerina/time;
 import ballerina/'lang\.int as langint;
@@ -43,7 +42,7 @@ service {
     }
     resource function status(http:Caller httpCaller, http:Request request) {
         http:Response response = new;
-        response.statusCode = http:ACCEPTED_202;
+        response.statusCode = http:STATUS_ACCEPTED;
         response.setTextPayload("Ballerina Hub Service - Up and Running!");
         checkpanic httpCaller->respond(response);
     }
@@ -76,12 +75,12 @@ service {
             string callback = decodedCallbackFromParams is string ? decodedCallbackFromParams : callbackFromParams;
             var validationStatus = validateSubscriptionChangeRequest(mode, topic, callback);
             if (validationStatus is error) {
-                response.statusCode = http:BAD_REQUEST_400;
+                response.statusCode = http:STATUS_BAD_REQUEST;
                 string errorMessage = <string> validationStatus.detail()?.message;
                 response.setTextPayload(errorMessage);
             } else {
                 validSubscriptionChangeRequest = true;
-                response.statusCode = http:ACCEPTED_202;
+                response.statusCode = http:STATUS_ACCEPTED;
             }
 
             var responseError = httpCaller->respond(response);
@@ -95,7 +94,7 @@ service {
             return;
         } else if (mode == MODE_REGISTER) {
             if (!remotePublishConfig.enabled || !hubTopicRegistrationRequired) {
-                response.statusCode = http:BAD_REQUEST_400;
+                response.statusCode = http:STATUS_BAD_REQUEST;
                 response.setTextPayload("Remote topic registration not allowed/not required at the Hub");
                 log:printWarn("Remote topic registration denied at Hub");
                 var responseError = httpCaller->respond(response);
@@ -108,11 +107,11 @@ service {
             var registerStatus = registerTopicAtHub(topic);
             if (registerStatus is error) {
                 string errorMessage = <string> registerStatus.detail()?.message;
-                response.statusCode = http:BAD_REQUEST_400;
+                response.statusCode = http:STATUS_BAD_REQUEST;
                 response.setTextPayload(errorMessage);
                 log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
             } else {
-                response.statusCode = http:ACCEPTED_202;
+                response.statusCode = http:STATUS_ACCEPTED;
                 log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
             }
             var responseError = httpCaller->respond(response);
@@ -121,7 +120,7 @@ service {
             }
         } else if (mode == MODE_UNREGISTER) {
             if (!remotePublishConfig.enabled || !hubTopicRegistrationRequired) {
-                response.statusCode = http:BAD_REQUEST_400;
+                response.statusCode = http:STATUS_BAD_REQUEST;
                 response.setTextPayload("Remote unregistration not allowed/not required at the Hub");
                 log:printWarn("Remote topic unregistration denied at Hub");
                 var responseError = httpCaller->respond(response);
@@ -134,11 +133,11 @@ service {
             var unregisterStatus = unregisterTopicAtHub(topic);
             if (unregisterStatus is error) {
                 string errorMessage = <string> unregisterStatus.detail()?.message;
-                response.statusCode = http:BAD_REQUEST_400;
+                response.statusCode = http:STATUS_BAD_REQUEST;
                 response.setTextPayload(errorMessage);
                 log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
             } else {
-                response.statusCode = http:ACCEPTED_202;
+                response.statusCode = http:STATUS_ACCEPTED;
                 log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
             }
             var responseError = httpCaller->respond(response);
@@ -174,7 +173,7 @@ service {
                                                     + errorCause;
                             log:printError(errorMessage);
                             response.setTextPayload(<@untainted string> errorMessage);
-                            response.statusCode = http:BAD_REQUEST_400;
+                            response.statusCode = http:STATUS_BAD_REQUEST;
                             var responseError = httpCaller->respond(response);
                             if (responseError is error) {
                                 log:printError("Error responding on update fetch failure", responseError);
@@ -198,7 +197,7 @@ service {
                         string errorCause = <string> binaryPayload.detail()?.message;
                         string errorMessage = "Error extracting payload: " + <@untainted string> errorCause;
                         log:printError(errorMessage);
-                        response.statusCode = http:BAD_REQUEST_400;
+                        response.statusCode = http:STATUS_BAD_REQUEST;
                         response.setTextPayload(errorMessage);
                         var responseError = httpCaller->respond(response);
                         if (responseError is error) {
@@ -215,7 +214,7 @@ service {
                         log:printError(errorMessage);
                     } else {
                         log:printInfo("Update notification done for Topic [" + topic + "]");
-                        response.statusCode = http:ACCEPTED_202;
+                        response.statusCode = http:STATUS_ACCEPTED;
                         var responseError = httpCaller->respond(response);
                         if (responseError is error) {
                             log:printError("Error responding on update notification for topic[" + topic
@@ -228,13 +227,13 @@ service {
                     log:printDebug(errorMessage);
                     response.setTextPayload(<@untainted string> errorMessage);
                 }
-                response.statusCode = http:BAD_REQUEST_400;
+                response.statusCode = http:STATUS_BAD_REQUEST;
                 var responseError = httpCaller->respond(response);
                 if (responseError is error) {
                     log:printError("Error responding to publish request", responseError);
                 }
             } else {
-                response.statusCode = http:BAD_REQUEST_400;
+                response.statusCode = http:STATUS_BAD_REQUEST;
                 var responseError = httpCaller->respond(response);
                 if (responseError is error) {
                     log:printError("Error responding to request", responseError);
@@ -484,7 +483,7 @@ returns error? {
             if (isSuccessStatusCode(respStatusCode)) {
                 log:printDebug("Content delivery to callback[" + callback + "] successful for topic["
                                     + subscriptionDetails.topic + "]");
-            } else if (respStatusCode == http:GONE_410) {
+            } else if (respStatusCode == http:STATUS_GONE) {
                 removeSubscription(subscriptionDetails.topic, callback);
                 if (hubPersistenceEnabled) {
                     persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);

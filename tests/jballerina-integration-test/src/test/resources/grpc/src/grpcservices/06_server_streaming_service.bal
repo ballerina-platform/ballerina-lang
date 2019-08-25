@@ -31,8 +31,8 @@ service HelloWorld45 on ep6 {
         io:println("Server received hello from " + name);
         string[] greets = ["Hi", "Hey", "GM"];
         foreach var greet in greets {
-            error? err = caller->send(greet + " " + name);
-            if (err is error) {
+            grpc:Error? err = caller->send(greet + " " + name);
+            if (err is grpc:Error) {
                 io:println("Error from Connector: " + err.reason());
             } else {
                 io:println("send reply: " + greet + " " + name);

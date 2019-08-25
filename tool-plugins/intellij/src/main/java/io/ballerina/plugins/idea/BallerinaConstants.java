@@ -86,5 +86,5 @@ public class BallerinaConstants {
     public static final String BALLERINA_DEBUG_LAUNCHER_PATH = "lib/tools/debug-adapter/launcher";
     public static final String BALLERINA_DEBUG_LAUNCHER_NAME = "debug-adapter-launcher";
 
-
+    public static final String BALLERINA_LS_DEBUG_LOG_PREFIX = "LS_DEBUG: ";
 }

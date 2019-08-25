@@ -505,23 +505,27 @@ public class ObjectTest {
         int index = 0;
 
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 34, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/mod:0.0.0:Employee'",
+        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/mod:1.0.0:Employee'",
                                   34, 17);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
                                   38, 14);
-        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/mod:0.0.0:Employee'",
+        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/mod:1.0.0:Employee'",
                                   38, 14);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 45, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/pkg1:Employee'", 45, 17);
+        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/pkg1:1.0.0:Employee'", 45,
+                                    17);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'email'", 46, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'testorg/pkg1:Employee'", 46, 17);
+        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'testorg/pkg1:1.0.0:Employee'",
+                                46, 17);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
                                   49, 14);
-        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/pkg1:Employee'",
+        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object " +
+                                                   "'testorg/pkg1:1.0.0:Employee'",
                                   49, 14);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol " + "'Employee" +
                 ".getEmail'", 50, 17);
-        BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object 'testorg/pkg1:Employee'",
+        BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object " +
+                                                   "'testorg/pkg1:1.0.0:Employee'",
                                   50, 17);
     }
 
@@ -601,6 +605,14 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[3]).intValue(), 12500);
     }
 
+    @Test
+    public void testObjectWithFutureTypeFieldWithValue() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_with_future_type_field.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "getIntFromFutureField");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
     @Test(description = "Test initialization of object union")
     @SuppressWarnings("unchecked")
     public void testUnionTypeObjectInit() {
@@ -659,7 +671,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
-    @Test(dataProvider = "missingNativeImplFiles")
+    @Test(dataProvider = "missingNativeImplFiles", groups = "brokenOnJBallerina")
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
             BCompileUtil.compile(filePath);

@@ -2,6 +2,6 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run check.bal
 12
-{ballerina}ConversionError {"message":"incompatible convert operation: 'string' value 'invalid' cannot be converted as 'int'"}
+error {ballerina}NumberParsingError message='string' value 'invalid' cannot be converted to 'int'
 120
-{ballerina}ConversionError {"message":"incompatible convert operation: 'string' value 'Invalid' cannot be converted as 'int'"}
+error {ballerina}NumberParsingError message='string' value 'Invalid' cannot be converted to 'int'

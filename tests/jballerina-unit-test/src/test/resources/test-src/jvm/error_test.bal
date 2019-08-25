@@ -125,6 +125,7 @@ function panicWithReasonAndDetailMap() {
 type DetailRec record {
     string message;
     int statusCode;
+    error cause?;
 };
 
 function panicWithReasonAndDetailRecord() {

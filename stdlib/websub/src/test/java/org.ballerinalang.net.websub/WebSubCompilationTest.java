@@ -39,7 +39,7 @@ public class WebSubCompilationTest {
         Assert.assertEquals(negativeCompilationResult.getDiagnostics().length, 13);
     }
 
-    @Test(description = "Test specifying > 1 SubscriberServiceConfig annotations", enabled = false)
+    @Test(description = "Test specifying > 1 SubscriberServiceConfig annotations")
     public void testInvalidAnnotationCount() {
         CompileResult invalidAnnotsResult = BCompileUtil.compile("test-src/compilation/test_multiple_annots.bal");
         BAssertUtil.validateError(invalidAnnotsResult, 0,

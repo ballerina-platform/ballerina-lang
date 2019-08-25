@@ -50,7 +50,8 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
     @BeforeClass(alwaysRun = true)
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "02_array_field_type_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "02_array_field_type_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
@@ -116,17 +117,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         //    A a1 = {name: "Sam"};
         //    A a2 = {name: "John"};
         //    TestStruct structArray = {values:[a1, a2]};
-        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(".", "TestStruct");
-        MapValue<String, Object> a1 = BallerinaValues.createRecordValue(".", "A");
-        MapValue<String, Object> a2 = BallerinaValues.createRecordValue(".", "A");
-
-        a1.put("name", new BString("Sam"));
-        a2.put("name", new BString("John"));
-        ArrayValue refArray = new ArrayValue(a1.getType());
-        refArray.add(0, a1);
-        refArray.add(1, a2);
-        requestStruct.put("values", refArray);
-        BValue[] responses = BRunUtil.invoke(result, "testStructArrayInput", new Object[]{requestStruct});
+        BValue[] responses = BRunUtil.invoke(result, "testStructArrayInput", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         final BString response = (BString) responses[0];

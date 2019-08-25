@@ -18,8 +18,9 @@
 package org.ballerinalang.test.service.grpc.sample;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BServiceUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -45,63 +46,24 @@ public class ErrorServiceTestCase extends BaseTest {
 
     @Test(description = "Test case for running unary service without listener port")
     public void testServiceWithoutPort() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices", "service_without_port.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        Assert.assertEquals(result.getErrorCount(), 1);
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "errorservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "service_without_port.bal", false, false);
+        Assert.assertEquals(result.getErrorCount(), 2);
         Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "not enough arguments in call to 'new()'");
     }
 
-    @Test(description = "Test case for running secured unary service without keystore file")
-    public void testServiceWithoutKeystoreFile() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices",
-                "service_without_keystorefile.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        assertUnaryCompileResult(result);
-        try {
-            BServiceUtil.runService(result);
-            Assert.fail("Secure Service should not start without keystore file");
-        } catch (BLangRuntimeException ex) {
-            Assert.assertTrue(ex.getMessage().contains(
-                    "error: Keystore file location must be provided for secure connection"));
-        }
-    }
-
-    @Test(description = "Test case for running secured unary service without keystore password")
-    public void testServiceWithoutKeystorePassword() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices",
-                "service_without_keystorepass.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        assertUnaryCompileResult(result);
-        try {
-            BServiceUtil.runService(result);
-            Assert.fail("Secure Service should not start without keystore file");
-        } catch (BLangRuntimeException ex) {
-            Assert.assertTrue(ex.getMessage()
-                    .contains("error: Keystore password must be provided for secure connection"));
-        }
-    }
-
-    @Test(description = "Test case for running unary service with same port")
+    @Test(description = "Test case for running unary service with same port", enabled = false)
     public void testServiceWithSamePort() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices",
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "errorservices",
                 "service_with_sameport.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        assertUnaryCompileResult(result);
         try {
-            BServiceUtil.runService(result);
+            BServerInstance grpcServer = new BServerInstance(balServer);
+            grpcServer.startServer(balFilePath.toAbsolutePath().toString());
             Assert.fail("Service should not start with same listener port");
-        } catch (BLangRuntimeException ex) {
+        } catch (BLangRuntimeException | BallerinaTestException ex) {
             Assert.assertTrue(ex.getMessage()
                     .contains("'localhost:8085': Address already in use"));
         }
-    }
-
-    private void assertUnaryCompileResult(CompileResult result) {
-        Assert.assertEquals(result.getErrorCount(), 0, "Compilation errors in source file");
-        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
-        Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().size(), 1,
-                "Service node should have one default annotation");
-        Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().get(0).getAnnotationName
-                ().getValue(), "ServiceDescriptor");
     }
 }

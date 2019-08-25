@@ -22,6 +22,7 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectBundle;
@@ -34,16 +35,18 @@ import com.intellij.psi.PsiManager;
 import com.intellij.ui.EditorNotificationPanel;
 import com.intellij.ui.EditorNotifications;
 import com.intellij.util.messages.MessageBusConnection;
+import icons.BallerinaIcons;
 import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import io.ballerina.plugins.idea.project.BallerinaLibrariesService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionConfigurable;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * Provides a notifications if a non Ballerina SDK is added to a Ballerina project or a module.
@@ -52,7 +55,6 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
         implements DumbAware {
 
     private static final Key<EditorNotificationPanel> KEY = Key.create("Setup Ballerina SDK");
-
     private final Project myProject;
 
     public WrongSdkConfigurationNotificationProvider(@NotNull Project project,
@@ -92,7 +94,7 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
 
         Module module = ModuleUtilCore.findModuleForPsiElement(psiFile);
         if (module == null) {
-            String sdkHomePath = BallerinaSdkUtils.autoDetectSdk();
+            String sdkHomePath = BallerinaSdkUtils.autoDetectSdk(myProject);
             if (Strings.isNullOrEmpty(sdkHomePath)) {
                 return createMissingSdkPanel(myProject, null);
             }
@@ -101,7 +103,7 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
 
         String sdkHomePath = BallerinaSdkUtils.getBallerinaSdkFor(myProject, module).getSdkPath();
         if (Strings.isNullOrEmpty(sdkHomePath)) {
-            sdkHomePath = BallerinaSdkUtils.autoDetectSdk();
+            sdkHomePath = BallerinaSdkUtils.autoDetectSdk(myProject);
         }
         if (Strings.isNullOrEmpty(sdkHomePath)) {
             return createMissingSdkPanel(myProject, module);
@@ -111,21 +113,35 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
 
     @NotNull
     private static EditorNotificationPanel createMissingSdkPanel(@NotNull Project project, @Nullable Module module) {
+
         EditorNotificationPanel panel = new EditorNotificationPanel();
         panel.setText("Ballerina plugin could not detect a Ballerina SDK. Some of the plugin features are disabled.\n");
+        panel.icon(BallerinaIcons.ICON);
+
         if (module != null) {
             panel.createActionLabel(ProjectBundle.message("project.sdk.setup"),
                     () -> BallerinaSdkService.getInstance(project).chooseAndSetSdk(module));
         }
+
         panel.createActionLabel("Install Ballerina Distribution",
                 () -> {
                     try {
                         URI ballerinaDownloadUri = new URI("https://ballerina.io/downloads/");
                         BrowserUtil.browse(ballerinaDownloadUri);
-                    } catch (URISyntaxException e) {
+                    } catch (Exception e) {
                         // Todo
                     }
                 });
+
+        if (!BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+            panel.createActionLabel("Enable ballerina home auto detection",
+                    () -> {
+                        ShowSettingsUtil.getInstance().editConfigurable(project,
+                                new BallerinaAutoDetectionConfigurable(project, true));
+                        BallerinaSdkUtils.showRestartDialog(project);
+                    });
+        }
+
         return panel;
     }
 }

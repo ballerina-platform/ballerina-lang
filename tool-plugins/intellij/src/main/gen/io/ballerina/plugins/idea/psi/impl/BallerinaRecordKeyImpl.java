@@ -50,6 +50,18 @@ public class BallerinaRecordKeyImpl extends ASTWrapperPsiElement implements Ball
 
   @Override
   @Nullable
+  public PsiElement getLeftBracket() {
+    return findChildByType(LEFT_BRACKET);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightBracket() {
+    return findChildByType(RIGHT_BRACKET);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getIdentifier() {
     return findChildByType(IDENTIFIER);
   }

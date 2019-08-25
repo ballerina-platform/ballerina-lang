@@ -15,16 +15,9 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/cache;
 import ballerina/internal;
 import ballerina/log;
-import ballerina/runtime;
 import ballerina/time;
-
-const string SCOPES = "scope";
-const string GROUPS = "groups";
-const string USERNAME = "name";
-const string AUTH_TYPE_JWT = "jwt";
 
 # Represents inbound JWT auth provider.
 #
@@ -55,7 +48,8 @@ public type InboundJwtAuthProvider object {
         if (self.jwtValidatorConfig.jwtCache.hasKey(credential)) {
             var payload = authenticateFromCache(self.jwtValidatorConfig, credential);
             if (payload is JwtPayload) {
-                setAuthenticationContext(payload, credential);
+                auth:setAuthenticationContext("jwt", credential);
+                setPrincipal(payload);
                 return true;
             } else {
                 return false;
@@ -64,7 +58,8 @@ public type InboundJwtAuthProvider object {
 
         var validationResult = validateJwt(credential, self.jwtValidatorConfig);
         if (validationResult is JwtPayload) {
-            setAuthenticationContext(validationResult, credential);
+            auth:setAuthenticationContext("jwt", credential);
+            setPrincipal(validationResult);
             addToAuthenticationCache(self.jwtValidatorConfig, credential, validationResult?.exp, validationResult);
             return true;
         } else {
@@ -105,35 +100,27 @@ function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string 
     }
 }
 
-function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) {
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (principal is runtime:Principal) {
-        string? iss = jwtPayload?.iss;
-        string? sub = jwtPayload?.sub;
-        principal.userId = (iss is () ? "" : iss) + ":" + (sub is () ? "" : sub);
-        // By default set sub as username.
-        principal.username = (sub is () ? "" : sub);
-        map<json>? claims = jwtPayload?.customClaims;
-        if (claims is map<json>) {
-            principal.claims = claims;
-            if (claims.hasKey(SCOPES)) {
-                var scopeString = claims[SCOPES];
-                if (scopeString is string) {
-                    principal.scopes = internal:split(scopeString, " ");
-                }
-            }
-            if (claims.hasKey(USERNAME)) {
-                var name = claims[USERNAME];
-                if (name is string) {
-                    principal.username = name;
-                }
+function setPrincipal(JwtPayload jwtPayload) {
+    string? iss = jwtPayload?.iss;
+    string? sub = jwtPayload?.sub;
+    string userId = (iss is () ? "" : iss) + ":" + (sub is () ? "" : sub);
+    // By default set sub as username.
+    string username = (sub is () ? "" : sub);
+    auth:setPrincipal(userId, username);
+    map<json>? claims = jwtPayload?.customClaims;
+    if (claims is map<json>) {
+        auth:setPrincipal(claims = claims);
+        if (claims.hasKey(SCOPE)) {
+            var scopeString = claims[SCOPE];
+            if (scopeString is string) {
+                auth:setPrincipal(scopes = internal:split(scopeString, " "));
             }
         }
-    }
-
-    runtime:AuthenticationContext? authenticationContext = runtime:getInvocationContext()?.authenticationContext;
-    if (authenticationContext is runtime:AuthenticationContext) {
-        authenticationContext.scheme = AUTH_TYPE_JWT;
-        authenticationContext.authToken = jwtToken;
+        if (claims.hasKey(USERNAME)) {
+            var name = claims[USERNAME];
+            if (name is string) {
+                auth:setPrincipal(username = name);
+            }
+        }
     }
 }

@@ -22,30 +22,15 @@ import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
-import org.ballerinalang.testerina.core.entity.TesterinaFunction;
-import org.ballerinalang.tool.LauncherUtils;
-import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.Instruction;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -223,41 +208,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     }
 
-    /**
-     * TODO this is a temporary solution, till we get a proper API from Ballerina Core.
-     * This method will get executed at the completion of the processing of a ballerina module.
-     *
-     * @param programFile {@link ProgramFile} corresponds to the current ballerina module
-     */
-    public void packageProcessed(ProgramFile programFile) {
-        if (!enabled) {
-            return;
-        }
-        //packageInit = false;
-        // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
-        suite = TesterinaRegistry.getInstance().getTestSuites().get(programFile.getEntryPkgName());
-        if (suite == null) {
-            throw LauncherUtils.createLauncherException("No test suite found for [module]: "
-                    + programFile.getEntryPkgName());
-        }
-        // By default the test init function is set as the init function of the test suite
-        FunctionInfo initFunction = programFile.getEntryPackage().getTestInitFunctionInfo();
-        // But if there is no test init function, then the package init function is set as the init function of the
-        // test suite
-        if (initFunction == null) {
-            initFunction = programFile.getEntryPackage().getInitFunctionInfo();
-        }
-        suite.setInitFunction(new TesterinaFunction(programFile, initFunction, TesterinaFunction.Type.TEST_INIT));
-        // add all functions of the package as utility functions
-        Arrays.stream(programFile.getEntryPackage().getFunctionInfoEntries()).forEach(functionInfo -> {
-            suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.UTIL));
-        });
-        resolveFunctions(suite);
-        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
-        List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
-        suite.setTests(sortedTests);
-        suite.setProgramFile(programFile);
-    }
+
 
     /**
      * Process a given {@link TestSuite} and inject the user defined mock functions.
@@ -265,7 +216,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      * @param suite a @{@link TestSuite}
      */
     public static void injectMocks(TestSuite suite) {
-        ProgramFile programFile = suite.getProgramFile();
+        /*ProgramFile programFile = suite.getProgramFile();
         Map<String, TesterinaFunction> mockFunctions = suite.getMockFunctionsMap();
         mockFunctions.forEach((k, v) -> {
             String[] info = k.split(MOCK_ANNOTATION_DELIMITER);
@@ -289,7 +240,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     }
                 }
             }
-        });
+        });*/
     }
 
     /**
@@ -298,7 +249,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      * @param suite a @{@link TestSuite}
      */
     public static void resetMocks(TestSuite suite) {
-        ProgramFile programFile = suite.getProgramFile();
+        /*ProgramFile programFile = suite.getProgramFile();
         Map<String, TesterinaFunction> mockFunctions = suite.getMockFunctionsMap();
         Map<String, FunctionInfo> mockedRealFunctionsMap = suite.getMockedRealFunctionsMap();
 
@@ -319,209 +270,10 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     }
                 }
             }
-        });
+        });*/
     }
 
-    private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
-        List<Test> sortedTests = new ArrayList<>();
-//        outStream.println("Test execution order: ");
-        for (int idx : testExecutionOrder) {
-            sortedTests.add(tests.get(idx));
-//            outStream.println(sortedTests.get(sortedTests.size() - 1).getTestFunction().getName());
-        }
-//        outStream.println("**********************");
-        return sortedTests;
-    }
 
-    /**
-     * Resolve function names to {@link TesterinaFunction}s.
-     *
-     * @param suite {@link TestSuite} whose functions to be resolved.
-     */
-    private static void resolveFunctions(TestSuite suite) {
-        List<TesterinaFunction> functions = suite.getTestUtilityFunctions();
-        List<String> functionNames = functions.stream().map(testerinaFunction -> testerinaFunction.getName()).collect
-                (Collectors.toList());
-        for (Test test : suite.getTests()) {
-            if (test.getTestName() != null && functionNames.contains(test.getTestName())) {
-                test.setTestFunction(functions.stream().filter(e -> e.getName().equals(test
-                        .getTestName())).findFirst().get());
-            }
-
-            if (test.getBeforeTestFunction() != null) {
-                if (functionNames.contains(test.getBeforeTestFunction())) {
-                    test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
-                        .getBeforeTestFunction())).findFirst().get());
-                } else {
-                    String msg = String.format("Cannot find the specified before function : [%s] for testerina " +
-                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
-                    throw LauncherUtils.createLauncherException(msg);
-                }
-            }
-            if (test.getAfterTestFunction() != null) {
-                if (functionNames.contains(test.getAfterTestFunction())) {
-                    test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
-                        .getAfterTestFunction())).findFirst().get());
-                } else {
-                    String msg = String.format("Cannot find the specified after function : [%s] for testerina " +
-                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
-                    throw LauncherUtils.createLauncherException(msg);
-                }
-            }
-
-            if (test.getDataProvider() != null && functionNames.contains(test.getDataProvider())) {
-                String dataProvider = test.getDataProvider();
-                test.setDataProviderFunction(functions.stream().filter(e -> e.getName().equals(test.getDataProvider()
-                )).findFirst().map(func -> {
-                    // TODO these validations are not working properly with the latest refactoring
-                    if (func.getbFunction().getRetParamTypes().length == 1) {
-                        BType bType = func.getbFunction().getRetParamTypes()[0];
-                        if (bType.getTag() == TypeTags.ARRAY_TAG) {
-                            BArrayType bArrayType = (BArrayType) bType;
-                            int tag = bArrayType.getElementType().getTag();
-                            if (!(tag == TypeTags.ARRAY_TAG || tag == TypeTags.TUPLE_TAG)) {
-                                String message = String.format("Data provider function [%s] should return an array of" +
-                                        " arrays or an array of tuples.", dataProvider);
-                                throw LauncherUtils.createLauncherException(message);
-                            }
-                        } else {
-                            String message = String.format("Data provider function [%s] should return an array of " +
-                                    "arrays or an array of tuples.", dataProvider);
-                            throw LauncherUtils.createLauncherException(message);
-                        }
-                    } else {
-                        String message = String.format("Data provider function [%s] should have only one return type" +
-                                ".", dataProvider);
-                        throw LauncherUtils.createLauncherException(message);
-                    }
-                    return func;
-                }).get());
-
-                if (test.getDataProviderFunction() == null) {
-                    String message = String.format("Data provider function [%s] cannot be found.", dataProvider);
-                    throw LauncherUtils.createLauncherException(message);
-                }
-            }
-            for (String dependsOnFn : test.getDependsOnTestFunctions()) {
-                if (!functions.stream().parallel().anyMatch(func -> func.getName().equals(dependsOnFn))) {
-                    throw LauncherUtils.createLauncherException("Cannot find the specified dependsOn function : "
-                            + dependsOnFn);
-                }
-                test.addDependsOnTestFunction(functions.stream().filter(e -> e.getName().equals(dependsOnFn))
-                                                       .findFirst().get());
-            }
-        }
-
-        // resolve mock functions
-        suite.getMockFunctionNamesMap().forEach((id, functionName) -> {
-            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
-                    (functionName)).findFirst().get();
-            suite.addMockFunctionObj(id, function);
-        });
-
-        suite.getBeforeSuiteFunctionNames().forEach(functionName -> {
-            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
-                    (functionName)).findFirst().get();
-            suite.addBeforeSuiteFunctionObj(function);
-        });
-
-        suite.getAfterSuiteFunctionNames().forEach(functionName -> {
-            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
-                    (functionName)).findFirst().get();
-            suite.addAfterSuiteFunctionObj(function);
-        });
-
-        suite.getBeforeEachFunctionNames().forEach(functionName -> {
-            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
-                    (functionName)).findFirst().get();
-            suite.addBeforeEachFunctionObj(function);
-        });
-
-        suite.getAfterEachFunctionNames().forEach(functionName -> {
-            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
-                    (functionName)).findFirst().get();
-            suite.addAfterEachFunctionObj(function);
-        });
-
-    }
-
-    private static int[] checkCyclicDependencies(List<Test> tests) {
-        int numberOfNodes = tests.size();
-        int[] indegrees = new int[numberOfNodes];
-        int[] sortedElts = new int[numberOfNodes];
-
-        List<Integer> dependencyMatrix[] = new ArrayList[numberOfNodes];
-        for (int i = 0; i < numberOfNodes; i++) {
-            dependencyMatrix[i] = new ArrayList<>();
-        }
-        List<String> testNames = tests.stream().map(k -> k.getTestName()).collect(Collectors.toList());
-
-        int i = 0;
-        for (Test test : tests) {
-            if (!test.getDependsOnTestFunctions().isEmpty()) {
-                for (String dependsOnFn : test.getDependsOnTestFunctions()) {
-                    int idx = testNames.indexOf(dependsOnFn);
-                    if (idx == -1) {
-                        String message = String.format("Test [%s] depends on function [%s], but it couldn't be found" +
-                                                               ".", test.getTestFunction().getName(), dependsOnFn);
-                        throw LauncherUtils.createLauncherException(message);
-                    }
-                    dependencyMatrix[i].add(idx);
-                }
-            }
-            i++;
-        }
-
-        // fill in degrees
-        for (int j = 0; j < numberOfNodes; j++) {
-            List<Integer> dependencies = dependencyMatrix[j];
-            for (int node : dependencies) {
-                indegrees[node]++;
-            }
-        }
-
-        // Create a queue and enqueue all vertices with indegree 0
-        Queue<Integer> q = new LinkedList<Integer>();
-        for (i = 0; i < numberOfNodes; i++) {
-            if (indegrees[i] == 0) {
-                q.add(i);
-            }
-        }
-
-        // Initialize count of visited vertices
-        int cnt = 0;
-
-        // Create a vector to store result (A topological ordering of the vertices)
-        Vector<Integer> topOrder = new Vector<Integer>();
-        while (!q.isEmpty()) {
-            // Extract front of queue (or perform dequeue) and add it to topological order
-            int u = q.poll();
-            topOrder.add(u);
-
-            // Iterate through all its neighbouring nodes of dequeued node u and decrease their in-degree by 1
-            for (int node : dependencyMatrix[u]) {
-                // If in-degree becomes zero, add it to queue
-                if (--indegrees[node] == 0) {
-                    q.add(node);
-                }
-            }
-            cnt++;
-        }
-
-        // Check if there was a cycle
-        if (cnt != numberOfNodes) {
-            String message = "Cyclic test dependency detected";
-            throw LauncherUtils.createLauncherException(message);
-        }
-
-        i = numberOfNodes - 1;
-        for (int elt : topOrder) {
-            sortedElts[i] = elt;
-            i--;
-        }
-
-        return sortedElts;
-    }
 
     /**
      * Check whether there is a common element in two Lists.
@@ -546,11 +298,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         return bLangPackage.packageID.toString();
     }
 
-    private static int getTestInstructionsPosition(PackageInfo packageInfo) {
+    /*private static int getTestInstructionsPosition(PackageInfo packageInfo) {
         FunctionInfo testInitFunctionInfo = packageInfo.getTestInitFunctionInfo();
         if (testInitFunctionInfo != null) {
             return testInitFunctionInfo.getDefaultWorkerInfo().getCodeAttributeInfo().getCodeAddrs();
         }
         return packageInfo.getInstructions().length;
-    }
+    }*/
 }

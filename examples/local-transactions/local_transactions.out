@@ -3,7 +3,7 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run  --experimental local_transactions.bal
-[ballerina/http] started HTTP/WS endpoint 172.17.0.1:49479
+[ballerina/http] started HTTP/WS listener 172.17.0.1:49479
 Create CUSTOMER table status: 0
 Create SALARY table status: 0
 2018-12-04 20:16:37,124 INFO  [ballerina/log] - Created transaction: 1fba678d-d677-4301-bd1b-a7fa60664f6a

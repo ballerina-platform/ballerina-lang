@@ -49,65 +49,65 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
 
     @Test(description = "Test compiler plugin for unary service with primitive params.")
     public void testUnaryServiceWithPrimitiveParams() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "07_unary_server.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "grpcservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "07_unary_server.bal", false, false);
         assertUnaryCompileResult(result);
     }
 
     @Test(description = "Test compiler plugin for unary service with header params.")
     public void testUnaryServiceWithHeaderParams() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "08_unary_service_with_headers.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "grpcservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "08_unary_service_with_headers.bal", false, false);
         assertUnaryCompileResult(result);
     }
 
     @Test(description = "Test compiler plugin for server streaming service.")
     public void testServerStreamingService() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "06_server_streaming_service.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "grpcservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "06_server_streaming_service.bal", false, false);
         assertUnaryCompileResult(result);
     }
 
     @Test(description = "Test compiler plugin for client streaming service.")
     public void testClientStreamingService() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "04_client_streaming_service.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "grpcservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "04_client_streaming_service.bal", false, false);
         assertStreamingCompileResult(result);
     }
 
     @Test(description = "Test compiler plugin for bidirectional streaming service.")
     public void testBidirectionStreamingService() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "03_bidirectional_streaming_service.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "grpcservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "03_bidirectional_streaming_service.bal", false, false);
         assertStreamingCompileResult(result);
     }
 
     @Test(description = "Test compiler plugin for unary service with array field params.")
     public void testUnaryServiceWithArrayFieldParams() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "02_array_field_type_service.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "grpcservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "02_array_field_type_service.bal", false, false);
         assertUnaryCompileResult(result);
     }
 
     @Test(description = "Test compiler plugin for unary service with custom type params.")
     public void testUnaryServiceWithCustomTypeParams() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "01_advanced_type_service.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "grpcservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "01_advanced_type_service.bal", false, false);
         assertUnaryCompileResult(result);
     }
 
     @Test(description = "Test compiler plugin for unary service with resource annotation.")
     public void testUnaryServiceWithResourceAnnotation() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices",
-                "unary_service_with_annotation.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "errorservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "unary_service_with_annotation.bal", false, false);
         assertUnaryCompileResult(result);
         Descriptors.FileDescriptor fileDescriptor = getDescriptor(result.getAST().getServices().get(0)
                 .getAnnotationAttachments().get(0).getExpression());
@@ -150,9 +150,9 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
 
     @Test(description = "Test compiler plugin for service with checked expression.")
     public void testServiceWithCheckedExpr() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices",
-                "service_with_checkedexpr.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "errorservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "service_with_checkedexpr.bal", false, false);
         assertUnaryCompileResult(result);
         Descriptors.FileDescriptor fileDescriptor = getDescriptor(result.getAST().getServices().get(0)
                 .getAnnotationAttachments().get(0).getExpression());
@@ -165,9 +165,9 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
 
     @Test(description = "Test compiler plugin for streaming service with resource annotation.")
     public void testStreamingServiceWithResourceAnnotation() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices",
-                "streaming_service_with_annotation.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "errorservices");
+        CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
+                "streaming_service_with_annotation.bal", false, false);
         assertStreamingCompileResult(result);
         Descriptors.FileDescriptor fileDescriptor = getDescriptor(result.getAST().getServices().get(0)
                 .getAnnotationAttachments().get(1).getExpression());

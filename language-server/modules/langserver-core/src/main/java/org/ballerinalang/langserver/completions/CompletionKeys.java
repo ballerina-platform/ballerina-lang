@@ -71,6 +71,8 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IN_INVOCATION_PARAM_CONTEXT_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<Class> ITEM_SORTER_KEY
+            = new LSContext.Key<>();
     
     // Following key is used for the completion within the if else/ while condition context
     public static final LSContext.Key<Boolean> IN_CONDITION_CONTEXT_KEY

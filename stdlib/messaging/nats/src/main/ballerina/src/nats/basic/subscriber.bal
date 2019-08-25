@@ -40,6 +40,9 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     function register(service serviceType, string? name) returns error? = external;
 
     # Starts the listener in the lifecyle.
@@ -51,10 +54,14 @@ public type Listener object {
 
     function start() = external;
 
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
     # Stops the listener in the lifecyle.
     #
     # + return - error or ().
-    public function __stop() returns error? {
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 

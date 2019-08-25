@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "socket"
+    version = "@project.version@"
+    path = "./lib/ballerina-socket-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["socket"]

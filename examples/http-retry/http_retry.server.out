@@ -1,8 +1,8 @@
 # To start the services, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run http_retry.bal.bal
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:8080
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS listener 0.0.0.0:8080
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 2018-12-04 13:50:00,687 INFO  [ballerina/log] - Request received from the client to delayed service.
 2018-12-04 13:50:05,713 INFO  [ballerina/log] - Request received from the client to delayed service.
 2018-12-04 13:50:05,716 ERROR [ballerina/log] - Error sending response from mock service : {ballerina/http}HTTPError {message:"Connection between remote client and host is closed"}

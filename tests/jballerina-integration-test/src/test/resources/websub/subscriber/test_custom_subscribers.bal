@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
 import ballerina/io;
 import ballerina/websub;
 import ballerina/'lang\.object as lang;
@@ -25,18 +24,23 @@ public type WebhookListenerConfiguration record {
     string host = "";
 };
 
-public type MockActionEvent record {
+public type MockActionEvent record {|
     string action;
-};
+|};
 
-public type MockDomainEvent record {
+public type MockDomainEvent record {|
     string domain;
-};
+|};
 
 @websub:SubscriberServiceConfig {
     path:"/key"
 }
 service keyWebhook on new WebhookServerForPayload(23585) {
+    resource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest verRequest) {
+        io:println("Intent verification request received");
+        checkpanic caller->accepted();
+    }
+
     resource function onCreated(websub:Notification notification, MockActionEvent event) {
         io:println("Created Notification Received, action: ", event.action);
     }
@@ -121,7 +125,7 @@ public type WebhookServerForPayload object {
             }
         };
         string host = config is () ? "" : config.host;
-        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+        websub:SubscriberListenerConfiguration sseConfig = {
             host: host,
             extensionConfig: extensionConfig
         };
@@ -132,12 +136,20 @@ public type WebhookServerForPayload object {
         return self.websubListener.__attach(s, name);
     }
 
+    public function __detach(service s) returns error? {
+        return self.websubListener.__detach(s);
+    }
+
     public function __start() returns error? {
         return self.websubListener.__start();
     }
 
-    public function __stop() returns error? {
-        return self.websubListener.__stop();
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
+        return self.websubListener.__immediateStop();
     }
 };
 
@@ -159,7 +171,7 @@ public type WebhookServerForHeader object {
             }
         };
         string host = config is () ? "" : config.host;
-        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+        websub:SubscriberListenerConfiguration sseConfig = {
             host: host,
             extensionConfig: extensionConfig
         };
@@ -170,12 +182,20 @@ public type WebhookServerForHeader object {
         return self.websubListener.__attach(s, name);
     }
 
+    public function __detach(service s) returns error? {
+        return self.websubListener.__detach(s);
+    }
+
     public function __start() returns error? {
         return self.websubListener.__start();
     }
 
-    public function __stop() returns error? {
-        return self.websubListener.__stop();
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
+        return self.websubListener.__immediateStop();
     }
 };
 
@@ -218,7 +238,7 @@ public type WebhookServerForHeaderAndPayload object {
             }
         };
         string host = config is () ? "" : config.host;
-        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+        websub:SubscriberListenerConfiguration sseConfig = {
             host: host,
             extensionConfig: extensionConfig
         };
@@ -229,11 +249,19 @@ public type WebhookServerForHeaderAndPayload object {
         return self.websubListener.__attach(s, name);
     }
 
+    public function __detach(service s) returns error? {
+        return self.websubListener.__detach(s);
+    }
+
     public function __start() returns error? {
         return self.websubListener.__start();
     }
 
-    public function __stop() returns error? {
-        return self.websubListener.__stop();
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
+        return self.websubListener.__immediateStop();
     }
 };

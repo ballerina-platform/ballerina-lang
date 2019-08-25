@@ -18,8 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -36,9 +36,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,6 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private final SymbolTable symTable;
     private final Desugar desugar;
-    private final BLangDiagnosticLog dlog;
 
     private BLangNode result;
     private BSymbol mapVarSymbol;
@@ -65,7 +63,6 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
         context.put(STREAMING_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static StreamsPostSelectDesugar getInstance(CompilerContext context) {
@@ -113,8 +110,24 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createLiteral(varRef.pos, symTable.stringType, getEquivalentOutputMapField(key)));
             result = desugar.addConversionExprIfRequired((BLangExpression) result, varRef.type);
         } else {
+            if (!(varRef.symbol.owner instanceof BPackageSymbol)) {
+                varRef.symbol.closure = true;
+            }
             result = varRef;
         }
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        result = desugar.addConversionExprIfRequired((BLangExpression) rewrite(conversionExpr.expr),
+                conversionExpr.type);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess indexBasedAccess) {
+        indexBasedAccess.expr = (BLangExpression) rewrite(indexBasedAccess.expr);
+        indexBasedAccess.indexExpr = (BLangExpression) rewrite(indexBasedAccess.indexExpr);
+        result = desugar.addConversionExprIfRequired(indexBasedAccess, indexBasedAccess.type);
     }
 
     @Override
@@ -146,15 +159,8 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess expr) {
-
-        result = desugar.addConversionExprIfRequired(createMapVariableIndexAccessExpr(expr), expr.type);
-
-        BType type = expr.expr.type;
-        if (type != null && type.tag == TypeTags.STREAM) {
-            dlog.error(expr.pos, DiagnosticCode.STREAM_ATTR_NOT_ALLOWED_IN_HAVING_ORDER_BY, expr.field.value);
-        }
+        result = desugar.addConversionExprIfRequired((BLangExpression) rewrite(expr), expr.type);
     }
-
 
     private String getEquivalentOutputMapField(String key) {
         return "OUTPUT." + key;

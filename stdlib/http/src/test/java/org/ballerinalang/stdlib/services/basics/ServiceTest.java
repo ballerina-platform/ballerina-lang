@@ -59,6 +59,10 @@ public class ServiceTest {
     public void setup() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/echo-service.bal");
         negativeResult = BCompileUtil.compile("test-src/services/service-negative.bal");
+
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException(compileResult.toString());
+        }
     }
 
     @Test
@@ -136,19 +140,6 @@ public class ServiceTest {
         Assert.assertNotNull(responseMsgPayload);
         Assert.assertEquals(responseMsgPayload, "hello");
     }
-
-//    @Test(description = "Test accessing service level variable in resource")
-//    public void testGetServiceLevelString() {
-//        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
-//        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
-//        Assert.assertNotNull(responseMsg);
-//
-//        String responseMsgPayload = StringUtils
-//                .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
-//        StringDataSource stringDataSource = new StringDataSource(responseMsgPayload);
-//        Assert.assertNotNull(stringDataSource);
-//        Assert.assertEquals(stringDataSource.getValue(), "sample value");
-//    }
 
     @Test(description = "Test using constant as annotation attribute value")
     public void testConstantValueAsAnnAttributeVal() {
@@ -229,9 +220,8 @@ public class ServiceTest {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
-        Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg),
-                            "Error occurred while extracting text data from entity : Empty content");
+
+        assertResponseMessage(responseMsg, "Error occurred while extracting text data from entity : Empty content");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")
@@ -242,20 +232,38 @@ public class ServiceTest {
         requestMsg.setHeader("Content-Type", APPLICATION_JSON);
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
-        Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Invalid content type : expected " +
-                "'application/x-www-form-urlencoded'");
+        assertResponseMessage(responseMsg, "Invalid content type : expected 'application/x-www-form-urlencoded'");
+    }
+
+    @Test(description = "Test GetFormParams with different media type mutations")
+    public void testGetFormParamsWithDifferentMediaTypeMutations() {
+        String path = "/echo/getFormParams";
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        requestMsg.setHeader("Content-Type", APPLICATION_FORM + "; charset=UTF-8");
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
+
+        assertResponseMessage(responseMsg, "{\"Name\":\"WSO2\", \"Team\":\"\"}");
+
+        //Test GetFormParams with case insensitive media type + params
+        requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        requestMsg.setHeader("Content-Type", "Application/x-www-Form-urlencoded; ");
+        responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
+
+        assertResponseMessage(responseMsg, "{\"Name\":\"WSO2\", \"Team\":\"\"}");
     }
 
     @Test(description = "Test GetFormParams without inbound content type header media type")
     public void testGetFormParamsWithoutContentType() {
         String path = "/echo/getFormParams";
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST",
-                                                                      "firstName=WSO2&company=BalDance");
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
+        assertResponseMessage(responseMsg, "Content-Type header is not available");
+    }
+
+    private void assertResponseMessage(HttpCarbonMessage responseMsg, String expectedMessage) {
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Content-Type header is not available");
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), expectedMessage);
     }
 
     @Test(description = "Test Http PATCH verb dispatching with a responseMsgPayload")

@@ -3,7 +3,8 @@ import ballerina/io;
 type SampleError error <string, Foo>;
 
 type Foo record {|
-    string message;
+    string message?;
+    error cause?;
     boolean fatal;
 |};
 

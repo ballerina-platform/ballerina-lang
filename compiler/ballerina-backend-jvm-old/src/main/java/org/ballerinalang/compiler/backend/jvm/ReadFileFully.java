@@ -18,12 +18,11 @@
  */
 package org.ballerinalang.compiler.backend.jvm;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,17 +40,12 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
                 @Argument(name = "path", type = STRING),
         }
 )
-public class ReadFileFully extends BlockingNativeCallableUnit {
+public class ReadFileFully {
 
-    private static final String PKG_ENTRIES = "pkgEntries";
-    private static final String MANIFEST_ENTRIES = "manifestEntries";
 
-    @Override
-    public void execute(Context context) {
-        String path = context.getStringArgument(0);
-
+    public static ArrayValue readFileFully(Strand strand, String path) {
         try {
-            context.setReturnValues(new BValueArray(Files.readAllBytes(Paths.get(path))));
+            return new ArrayValue(Files.readAllBytes(Paths.get(path)));
         } catch (IOException e) {
             throw new BallerinaException(e);
         }

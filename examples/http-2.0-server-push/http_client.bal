@@ -3,8 +3,7 @@ import ballerina/log;
 
 // Create an HTTP client endpoint that can send HTTP/2 messages.
 // HTTP version is set to 2.0.
-http:Client clientEP = new("http://localhost:7090",
-    config = { httpVersion: "2.0" });
+http:Client clientEP = new("http://localhost:7090", { httpVersion: "2.0" });
 
 public function main() {
 

@@ -92,10 +92,25 @@ public class ObjectSubtypingTest {
                       28, 5);
         validateError(result, i++, format(msgFormat, "ObjWithPvtField", "AnotherObjWithAPvtField"), 45, 26);
         validateError(result, i++, format(msgFormat, "ObjWithPvtMethod", "AnotherObjWithPvtMethod"), 46, 27);
-        validateError(result, i++, format(msgFormat, "testorg/subtyping:v1:ModuleLevelSubtypableObj", "Subtype1"),
+        validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj", "Subtype1"),
                       65, 45);
-        validateError(result, i++, format(msgFormat, "testorg/subtyping:v1:ModuleLevelSubtypableObj2", "Subtype2"),
+        validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj2", "Subtype2"),
                       66, 46);
+        assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test
+    public void testObjSubtypingNegatives() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/object-subtype-negative.bal");
+        int i = 0;
+        validateError(result, i++, "uninitialized field 'intField1'", 18, 46);
+        validateError(result, i++, "uninitialized field 'intField2'", 18, 61);
+        validateError(result, i++,
+                "incompatible types: expected '(object { int intField1; int intField2; }|record {| null...; |}|4)', " +
+                        "found 'testObj'", 22, 17);
+        validateError(result, i++,
+                "incompatible types: expected '(object { int intField1; int intField2; }|string|boolean|1)', " +
+                        "found 'testObj'", 23, 19);
         assertEquals(result.getErrorCount(), i);
     }
 }

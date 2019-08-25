@@ -35,8 +35,8 @@ ldap:LdapConnectionConfig ldapConfig = {
     membershipAttribute: "member",
     userRolesCacheEnabled: true,
     connectionPoolingEnabled: false,
-    ldapConnectionTimeout: 5000,
-    readTimeout: 60000,
+    connectionTimeoutInMillis: 5000,
+    readTimeoutInMillis: 60000,
     retryAttempts: 3
 };
 

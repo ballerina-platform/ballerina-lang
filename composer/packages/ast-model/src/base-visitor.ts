@@ -183,6 +183,15 @@ export interface Visitor {
     parent?: Ballerina.ASTNode
   ): void;
 
+  beginVisitErrorVariable?(
+    node: Ballerina.ErrorVariable,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitErrorVariable?(
+    node: Ballerina.ErrorVariable,
+    parent?: Ballerina.ASTNode
+  ): void;
+
   beginVisitErrorVariableRef?(
     node: Ballerina.ErrorVariableRef,
     parent?: Ballerina.ASTNode

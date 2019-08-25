@@ -144,7 +144,7 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(remoteHubJsonNotificationLogLeecherTwo);
 
         String[] subscriberArgs = {};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{WEBSUB_PORT});
+        webSubSubscriber.startServer(subscriberBal, new String[0], subscriberArgs, new int[]{WEBSUB_PORT});
     }
 
     @Test

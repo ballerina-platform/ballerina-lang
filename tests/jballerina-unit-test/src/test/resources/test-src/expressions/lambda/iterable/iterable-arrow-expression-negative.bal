@@ -19,30 +19,18 @@ function testSingleIterable() {
     map<string> words = { a: "ant", b: "bear"};
     float[] flArray = [4.0, 5.0, 6.0, 7.0];
 
-    string[] lambda1 = words.map(word => word.toUpper()); // function invocation on type '(string,string)' is not supported
-    int[] lambda2 = words.map(word => word[1].toUpper()); // incompatible types: expected 'int[]', found '(string) collection'
-    string[] lambda3 = words.map((index, word) => word[1].toUpper()); // invalid number of parameters used in arrow expression. expected: '1' but found '2'
+    int[] lambda2 = words.map(word => word[1].toUpperAscii()); // incompatible types: expected 'int[]', found 'map<string>'
+    string[] lambda3 = words.map((index, word) => word[1].toUpperAscii()); // invalid number of parameters used in arrow expression. expected: '1' but found '2'
 
-    float avg1 = flArray.map((index, value) => value).average(); // invalid number of parameters used in arrow expression. expected: '1' but found '2'
-    string avg2 = flArray.map(entry => entry).average(); // incompatible types: expected 'string', found 'float'
-    string avg3 = flArray.map(entry => entry.toUpper()).average(); // undefined function 'float.toUpper'
-    string str1 = flArray.map(entry => string.convert(entry)); // incompatible types: expected 'string', found '(string) collection'
-
+    int avg1 = flArray.map((index, value) => value).length(); // invalid number of parameters used in arrow expression. expected: '1' but found '2'
+    string avg2 = flArray.map(entry => entry).length(); // incompatible types: expected 'int', found 'int'
+    string avg3 = flArray.map(entry => entry.toUpperAscii()).length(); // undefined function 'toUpperAscii'
+    string str1 = flArray.map(entry => entry.toString()); // incompatible types: expected 'string', found 'string[]'
 }
 
 function testChainedIterable() {
     map<string> words = { a: "ant", b: "bear"};
     float[] flArray = [4.0, 5.0, 6.0, 7.0];
-
-    string[] lambda1 = words.filter(word => word[1] == "ant").map(word => word.toUpper() + " MAN");
-    // function invocation on type '(string,string)' is not supported
-    string[] str = words.filter(word => word[1] == "ant").map(word => word[1].toUpper() + " MAN").count();
-    // incompatible types: expected 'string[]', found 'int'
-
-}
-
-function testForeach() {
-    int add = 0;
-    int[] fa = [-5, 2, 4];
-    fa.foreach(val => val + 1); // arrow expression can not be used with 'foreach' iterable
+    string[] lambda1 = words.filter(word => word[1] == "ant").map(word => word.toUpperAscii() + " MAN"); // incompatible types: expected 'string[]', found 'map<string>'
+    string[] str = words.filter(word => word[1] == "ant").map(word => word[1].toUpperAscii() + " MAN").length(); // incompatible types: expected 'string[]', found 'int'
 }

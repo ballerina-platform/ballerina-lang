@@ -50,14 +50,8 @@ import java.security.cert.X509Certificate;
 public class DecodePublicKey {
 
     @SuppressWarnings("unchecked")
-    public static Object decodePublicKey(Strand strand, Object keyStoreValue, Object keyAliasValue) {
+    public static Object decodePublicKey(Strand strand, Object keyStoreValue, String keyAlias) {
         MapValue<String, Object> keyStore = (MapValue<String, Object>) keyStoreValue;
-        String keyAlias = String.valueOf(keyAliasValue);
-
-        // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
-        if (keyStore == null) {
-            return CryptoUtils.createError("Key store information is required");
-        }
 
         File keyStoreFile = new File(
                 CryptoUtils.substituteVariables(keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).toString()));

@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run clone.bal
-Source value: {name:"Alex", age:24, married:false, salary:8000.0, address:{country:"USA", state:"NC", city:"Raleigh", street:"Daniels St"}}
-Cloned value: {name:"Alex", age:24, married:false, salary:8000.0, address:{country:"USA", state:"NC", city:"Raleigh", street:"Daniels St"}}
+Source value: name=Alex age=24 married=false salary=8000.0 address=country=USA state=NC city=Raleigh street=Daniels St
+Cloned value: name=Alex age=24 married=false salary=8000.0 address=country=USA state=NC city=Raleigh street=Daniels St
 Source and Clone are at two different memory locations: true

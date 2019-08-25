@@ -9,7 +9,8 @@
       "label": "v1",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "v1 {\n\tfoo: \"${1}\"}",
+      "sortText": "120",
+      "insertText": "v1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/socket;
 
-service timeoutServer on new socket:Listener(61599, {readTimeoutInMilliseconds: 20000}) {
+service timeoutServer on new socket:Listener(61599, {readTimeoutInMillis: 20000}) {
 
     resource function onConnect(socket:Caller caller) {
         log:printInfo("Join: " + caller.remotePort.toString());

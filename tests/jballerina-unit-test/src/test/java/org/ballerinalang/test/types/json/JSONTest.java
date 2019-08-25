@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.test.types.json;
 
-import org.apache.axiom.om.OMNode;
-import org.apache.axiom.om.OMText;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
@@ -28,8 +26,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -46,31 +42,6 @@ public class JSONTest {
 
     private CompileResult compileResult;
     private static final String json1 = "{'name':{'fname':'Jack','lname':'Taylor'}, 'state':'CA', 'age':20}";
-    private static final String jsonToXML1 = "{'bookStore':{'storeName':'foo','postalCode':94,'isOpen':true,'address':"
-            + "{'street':'PalmGrove','city':'Colombo','country':'SriLanka'},'codes':[4, 8, 9]}}";
-    private static final String jsonToXML2 = "{'books':[{'bookName':'book1','bookId':101},{'bookName':'book2',"
-            + "'bookId':102},{'bookName':'book3','bookId':103}]}";
-    private static final String jsonToXML3 = "{'books':[[{'bookName':'book1','bookId':101}],[{'bookName':'book2',"
-            + "'bookId':102}],[{'bookName':'book3','bookId':103}]]}";
-    private static final String jsonToXML4 = "{'books':['book1','book2','book3']}";
-    private static final String jsonToXML5 = "5";
-    private static final String jsonToXML6 = "[3,4,5]";
-    private static final String jsonToXML7 = "{'bookStore':{'storeName':'foo','postalCode':94,'isOpen':true,'address':"
-            + "{'street':'PalmGrove','city': 'Colombo','country':'SriLanka'},'codes':[4, 8, 9]},'metaInfo':'someinfo'}";
-    private static final String jsonToXML8 = "{'name': 'John','age': 30,'car': null}";
-    private static final String jsonToXML9 = "{'Person':{'name':'John','age':30,'car':null}}";
-    private static final String jsonToXML10 = "{'address': {},'homeAddresses': [],'phoneNumbers': []}";
-    private static final String jsonToXML11 = "{'info':{'address': {},'homeAddresses': ['a', 'b'],'phoneNumbers': []}}";
-    private static final String jsonToXML12 = "{'info':{'name': 'John','age': 30,'car': 'honda', '@id': '100'}}";
-    private static final String jsonToXML13 = "{'bookStore':{'@storeName':'foo','postalCode':94,'isOpen':true,"
-            + "'address':{'street':'PalmGrove','@city':'Colombo','country':'SriLanka'},'codes':[4, 8, 9]}}";
-    private static final String jsonToXML14 = "{'bookStore':{'#storeName':'foo','postalCode':94,'isOpen':true,"
-            + "'address':{'street':'PalmGrove','#city':'Colombo','country':'SriLanka'},'codes':[4, 8, 9]}}";
-    private static final String jsonToXML15 = "{\"key\":\"value\"}";
-    private static final String jsonToXML16 = "{\"key1\": \"value1\",\"key2\": \"value2\"}";
-    private static final String jsonToXML17 = "[\"test\", 6, true]";
-    private static final String jsonToXML18 = "{\"foo\":{\"@key\": \"value\"}}";
-    private static final String jsonToXML19 = "{\"foo\":{\"@key\": \"value\",\"test\":\"hello\"}}";
 
     @BeforeClass
     public void setup() {
@@ -175,251 +146,6 @@ public class JSONTest {
         Assert.assertEquals(errorMsg, "unrecognized token 'some' at line: 1 column: 6");
     }
 
-    @Test(description = "Convert complex json object in to xml", groups = "brokenOnLangLibChange")
-    public void testToXMLComplexObject() {
-        BValue[] args = {JsonParser.parse(jsonToXML1)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<bookStore><storeName>foo"
-                + "</storeName><postalCode>94</postalCode><isOpen>true</isOpen><address><street>PalmGrove</street>"
-                + "<city>Colombo</city><country>SriLanka</country></address><codes><item>4</item><item>8</item>"
-                + "<item>9</item></codes></bookStore>");
-    }
-
-    @Test(description = "Convert json object with array within", groups = "brokenOnLangLibChange")
-    public void testToXMLArrayObject() {
-        BValue[] args = {JsonParser.parse(jsonToXML2)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<books><item><bookName>book1</bookName><bookId>101</bookId>"
-                + "</item><item><bookName>book2</bookName><bookId>102</bookId></item><item><bookName>book3</bookName>"
-                + "<bookId>103</bookId></item></books>");
-    }
-
-    @Test(description = "Convert json object which has an array within an array", groups = "brokenOnLangLibChange")
-    public void testToXMLArrayWithinArrayObject() {
-        BValue[] args = {JsonParser.parse(jsonToXML3)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<books><item><item><bookName>book1</bookName><bookId>101"
-                + "</bookId></item></item><item><item><bookName>book2</bookName><bookId>102</bookId></item></item>"
-                + "<item><item><bookName>book3</bookName><bookId>103</bookId></item></item></books>");
-    }
-
-    @Test(description = "Convert json object with simple array", groups = "brokenOnLangLibChange")
-    public void testToXMLSimpleArrayObject() {
-        BValue[] args = {JsonParser.parse(jsonToXML4)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<books><item>book1</item><item>book2</item><item>book3"
-                + "</item></books>");
-    }
-
-    @Test(description = "Convert a json object with number value only", groups = "brokenOnLangLibChange")
-    public void testToXMLJsonWithValue() {
-        BValue[] args = { JsonParser.parse(jsonToXML5) };
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLString", args);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-
-        String returnElement = (returns[0]).stringValue();
-        Assert.assertEquals(returnElement, "5");
-    }
-
-    @Test(description = "Convert a json object with string value only", groups = "brokenOnLangLibChange")
-    public void testToXMLJsonWithStringValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLStringValue");
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(((OMText) returnElement).getText(), "value");
-    }
-
-    @Test(description = "Convert a json object with boolean value only", groups = "brokenOnLangLibChange")
-    public void testToXMLBooleanValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLBooleanValue");
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(((OMText) returnElement).getText(), "true");
-    }
-
-    @Test(description = "Convert json object with key value", groups = "brokenOnLangLibChange")
-    public void testToXMLKeyValue() {
-        BValue[] args = {JsonParser.parse(jsonToXML15)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<key>value</key>");
-    }
-
-    @Test(description = "Convert a json object", groups = "brokenOnLangLibChange")
-    public void testToXMLJsonObject() {
-        BValue[] args = {JsonParser.parse(jsonToXML16)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-
-        String textValue = returns[0].stringValue();
-        Assert.assertEquals(textValue, "<key1>value1</key1><key2>value2</key2>");
-    }
-
-    @Test(description = "Convert a json array with different types", groups = "brokenOnLangLibChange")
-    public void testToXMLJsonArrayWithDifferentTypes() {
-        BValue[] args = {JsonParser.parse(jsonToXML17)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-
-        String textValue = returns[0].stringValue();
-        Assert.assertEquals(textValue, "<item>test</item><item>6</item><item>true</item>");
-    }
-
-    @Test(description = "Convert json object with attribute", groups = "brokenOnLangLibChange")
-    public void testToXMLKeyWithAttribute() {
-        BValue[] args = {JsonParser.parse(jsonToXML18)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<foo key=\"value\"></foo>");
-    }
-
-    @Test(description = "Convert json object with attribute and value", groups = "brokenOnLangLibChange")
-    public void testToXMLKeyWithAttributeAndValue() {
-        BValue[] args = {JsonParser.parse(jsonToXML19)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<foo key=\"value\"><test>hello</test></foo>");
-    }
-
-    @Test(description = "Convert a json object with array", groups = "brokenOnLangLibChange")
-    public void testToXMLJsonArray() {
-        BValue[] args = {JsonParser.parse(jsonToXML6)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-
-        String textValue = returns[0].stringValue();
-        Assert.assertEquals(textValue, "<item>3</item><item>4</item><item>5</item>");
-    }
-
-    @Test(description = "Convert a json object with multi rooted object", groups = "brokenOnLangLibChange")
-    public void testToXMLMultirootedObjects() {
-        BValue[] args = {JsonParser.parse(jsonToXML7)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-
-        String textValue = returns[0].stringValue();
-        Assert.assertEquals(textValue, "<bookStore><storeName>foo</storeName><postalCode>94</postalCode>"
-                + "<isOpen>true</isOpen><address><street>PalmGrove</street><city>Colombo</city>"
-                + "<country>SriLanka</country></address><codes><item>4</item><item>8</item><item>9</item></codes>"
-                + "</bookStore><metaInfo>someinfo</metaInfo>");
-    }
-
-    @Test(description = "Convert a json object with null elements in the array", groups = "brokenOnLangLibChange")
-    public void testToXMLNullElementsInArray() {
-        BValue[] args = {JsonParser.parse(jsonToXML8)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-
-        String textValue = returns[0].stringValue();
-        Assert.assertEquals(textValue, "<name>John</name><age>30</age>"
-                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></car>");
-    }
-
-    @Test(description = "Convert a json object with null object elements", groups = "brokenOnLangLibChange")
-    public void testToXMLNullElementsInObject() {
-        BValue[] args = {JsonParser.parse(jsonToXML9)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<Person><name>John</name><age>30</age>"
-                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></car></Person>");
-    }
-
-    @Test(description = "Convert a json object with empty elements", groups = "brokenOnLangLibChange")
-    public void testToXMLEmptyElements() {
-        BValue[] args = {JsonParser.parse(jsonToXML10)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-
-        String textValue = returns[0].stringValue();
-        Assert.assertEquals(textValue, "<address></address><homeAddresses></homeAddresses>" +
-                "<phoneNumbers></phoneNumbers>");
-    }
-
-    @Test(description = "Convert a json object with empty elements and non emepty elements",
-            groups = "brokenOnLangLibChange")
-    public void testToXMLEmptyElementsWithNonEmpty() {
-        BValue[] args = {JsonParser.parse(jsonToXML11)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<info><address></address><homeAddresses><item>a</item>"
-                + "<item>b</item></homeAddresses><phoneNumbers></phoneNumbers></info>");
-    }
-
-    @Test(description = "Convert a simple json object with attributes", groups = "brokenOnLangLibChange")
-    public void testToXMLAttributes() {
-        BValue[] args = {JsonParser.parse(jsonToXML12)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<info id=\"100\"><name>John</name><age>30</age><car>honda</car>"
-                + "</info>");
-    }
-
-    @Test(description = "Convert a complex json object with attributes", groups = "brokenOnLangLibChange")
-    public void testToXMLComplexAttributes() {
-        BValue[] args = {JsonParser.parse(jsonToXML13)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<bookStore storeName=\"foo\"><postalCode>94</postalCode>"
-                + "<isOpen>true</isOpen><address city=\"Colombo\"><street>PalmGrove</street><country>SriLanka</country>"
-                + "</address><codes><item>4</item><item>8</item><item>9</item></codes></bookStore>");
-    }
-
-    @Test(description = "Convert a complex json object with attributes and custom attribute prefix",
-            groups = "brokenOnLangLibChange")
-    public void testToXMLComplexAttributesCustomPrefix() {
-        BValue[] args = {JsonParser.parse(jsonToXML14)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithOptions", args);
-
-        Assert.assertTrue(returns[0] instanceof BXML);
-        OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<bookStore storeName=\"foo\"><postalCode>94</postalCode>"
-                + "<isOpen>true</isOpen><address city=\"Colombo\"><street>PalmGrove</street><country>SriLanka</country>"
-                + "</address><codes><wrapper>4</wrapper><wrapper>8</wrapper><wrapper>9</wrapper></codes></bookStore>");
-    }
-
     private String getJsonAsString(BValue bValue) {
         return bValue.stringValue().replace("\\r|\\n|\\t| ", "");
     }
@@ -435,18 +161,6 @@ public class JSONTest {
         Assert.assertEquals(keys.getString(0), "fname");
         Assert.assertEquals(keys.getString(1), "lname");
         Assert.assertEquals(keys.getString(2), "age");
-    }
-
-    @Test(description = "Convert a complex json object to xml, with an unsupported tag name",
-            groups = "brokenOnLangLibChange")
-    public void testJSONToXMLWithUnsupportedChar() {
-        BValue[] args = {JsonParser.parse(jsonToXML13)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithOptions", args);
-
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg,
-                "Failed to convert json to xml: invalid xml qualified name: unsupported characters in '@storeName'");
     }
 
     @Test(description = "Convert a string to json")

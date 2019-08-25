@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.repository.CompilerOutputEntry;
@@ -35,16 +34,13 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
-import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ServiceLoader;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
@@ -152,46 +148,24 @@ public class BinaryFileWriter {
     }
 
     private void writeExecutableBinary(BLangPackage packageNode, String fileName) {
+
         if (this.compilerPhase == CompilerPhase.BIR_GEN && packageNode.jarBinaryContent != null) {
             String jarFilename = cleanupExecFileName(fileName, BLANG_COMPILED_JAR_EXT);
             this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(packageNode.jarBinaryContent),
                     jarFilename);
             return;
         }
-
-        // TODO: Remove once install command runs in jvm target
-        if (this.compilerPhase == CompilerPhase.BIR_GEN && packageNode.symbol.birPackageFile != null) {
-            String birFilename = cleanupExecFileName(fileName, BLANG_COMPILED_PKG_EXT);
-            Path destDirPath = createAndGetTempDir(packageNode); // bir will be written to a temp directory.
-            try {
-                addFileBirContent(cleanupExecFileName(fileName, BLANG_COMPILED_PKG_BIR_EXT),
-                        packageNode.symbol.birPackageFile, packageNode.symbol.compiledPackage);
-                this.sourceDirectory.saveCompiledPackage(packageNode.symbol.compiledPackage, destDirPath, birFilename);
-            } catch (IOException e) {
-                String msg = "error writing the compiled module(bir) of '" +
-                        packageNode.packageID + "' to '" + destDirPath + "': " + e.getMessage();
-                throw new BLangCompilerException(msg, e);
-            }
-            return;
-        }
-
-        String execFileName = cleanupExecFileName(fileName, BLANG_COMPILED_PROG_EXT);
-
-        // Generate code for the given executable
-        ProgramFile programFile = this.codeGenerator.generateBALX(packageNode);
-        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
+        String birFilename = cleanupExecFileName(fileName, BLANG_COMPILED_PKG_EXT);
+        Path destDirPath = createAndGetTempDir(packageNode); // bir will be written to a temp directory.
         try {
-            ProgramFileWriter.writeProgram(programFile, byteArrayOS);
+            addFileBirContent(cleanupExecFileName(fileName, BLANG_COMPILED_PKG_BIR_EXT),
+                    packageNode.symbol.birPackageFile, packageNode.symbol.compiledPackage);
+            this.sourceDirectory.saveCompiledPackage(packageNode.symbol.compiledPackage, destDirPath, birFilename);
         } catch (IOException e) {
-            throw new BLangCompilerException("error writing program file '" + execFileName + "'", e);
+            String msg = "error writing the compiled module(bir) of '" +
+                    packageNode.packageID + "' to '" + destDirPath + "': " + e.getMessage();
+            throw new BLangCompilerException(msg, e);
         }
-
-        final Path execFilePath = this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS
-                .toByteArray()), execFileName);
-        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-        processorServiceLoader.forEach(plugin -> {
-            plugin.codeGenerated(packageNode.packageID, execFilePath);
-        });
     }
 
     private void writeLibraryPackage(BLangPackage packageNode) {

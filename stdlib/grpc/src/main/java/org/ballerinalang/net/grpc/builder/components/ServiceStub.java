@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.grpc.builder.components;
 
-import org.ballerinalang.net.grpc.exception.BalGenerationException;
+import org.ballerinalang.net.grpc.exception.CodeBuilderException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,7 +87,7 @@ public class ServiceStub {
             return this;
         }
 
-        public ServiceStub build() {
+        public ServiceStub build() throws CodeBuilderException {
             ServiceStub serviceStub = new ServiceStub(serviceName, stubType.getType());
             for (Method method : methodList) {
                 switch (method.getMethodType()) {
@@ -106,7 +106,7 @@ public class ServiceStub {
                         serviceStub.streamingFunctions.add(method);
                         break;
                     default:
-                        throw new BalGenerationException("Method type is unknown or not supported.");
+                        throw new CodeBuilderException("Method type is unknown or not supported.");
                 }
             }
             return serviceStub;

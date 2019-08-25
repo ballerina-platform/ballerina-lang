@@ -19,19 +19,13 @@
 
 package org.ballerinalang.net.websub;
 
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERIC_SUBSCRIBER_SERVICE_TYPE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
@@ -89,42 +83,6 @@ public class WebSubSubscriberServiceValidator {
         }
     }
 
-    private static void validateCustomNotificationResource(HttpResource resource, String packageName,
-                                                           String structName) {
-        List<BType> paramTypes = resource.getParamTypes();
-        validateCustomParamNumber(paramTypes, resource.getName());
-        validateStructType(resource.getName(), paramTypes.get(0), WEBSUB_PACKAGE, WEBSUB_NOTIFICATION_REQUEST);
-        validateStructType(resource.getName(), paramTypes.get(1), packageName, structName);
-    }
-
-    static void validateCustomResources(List<HttpResource> resources, WebSubServicesRegistry serviceRegistry) {
-        List<String> invalidResourceNames = retrieveInvalidResourceNames(resources,
-                                                                         serviceRegistry.getResourceDetails());
-
-        if (!invalidResourceNames.isEmpty()) {
-            throw new BallerinaException("Resource name(s) not included in the topic-resource mapping found: "
-                                                 + invalidResourceNames);
-        }
-    }
-
-    private static List<String> retrieveInvalidResourceNames(List<HttpResource> resources,
-                                                             HashMap<String, String[]> resourceDetails) {
-        Set<String> resourceNames = resourceDetails.keySet();
-        List<String> invalidResourceNames = new ArrayList<>();
-
-        for (HttpResource resource : resources) {
-            String resourceName = resource.getName();
-            if (!resourceNames.contains(resourceName)) {
-                invalidResourceNames.add(resourceName);
-            } else {
-                String[] resourceParamDetails = resourceDetails.get(resourceName);
-                validateCustomNotificationResource(resource, resourceParamDetails[0],
-                                                   resourceParamDetails[1]);
-            }
-        }
-        return invalidResourceNames;
-    }
-
     private static boolean isValidParamNumber(BLangFunction resource, List<BLangSimpleVariable> paramDetails,
                                               int expectedSize, String resourceName, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() != expectedSize) {
@@ -136,28 +94,12 @@ public class WebSubSubscriberServiceValidator {
         return true;
     }
 
-    private static void validateCustomParamNumber(List<BType> paramTypes, String resourceName) {
-        if (paramTypes == null || paramTypes.size() < CUSTOM_RESOURCE_PARAM_COUNT) {
-            throw new BallerinaException(String.format("Invalid param count for WebSub Resource \"%s\"",
-                                                       resourceName));
-        }
-    }
-
     private static void validateStructType(String resourceName, BLangSimpleVariable paramDetail, String packageName,
                                            String structuralTypeName, String paramPosition, DiagnosticLog dlog) {
         if (!(packageName.concat(":").concat(structuralTypeName)).equals((paramDetail.type).toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, paramDetail.pos, "invalid resource signature for '" + resourceName
                     + "', expected '" + packageName.concat(":").concat(structuralTypeName) + "' as " + paramPosition
                     + " parameter");
-        }
-    }
-
-    private static void validateStructType(String resourceName, BType paramVarType, String packageName,
-                                           String structName) {
-        if (!(packageName.concat(":").concat(structName)).equals((paramVarType.getQualifiedName()))) {
-            throw new BallerinaException(
-                    String.format("Invalid parameter type %s in resource %s. Requires %s:%s",
-                                  paramVarType.getQualifiedName(), resourceName, packageName, structName));
         }
     }
 

@@ -18,8 +18,6 @@
 package org.ballerinalang.stdlib.ldap.util;
 
 import org.ballerinalang.stdlib.ldap.LdapConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,18 +42,16 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class SslUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SslUtils.class.getSimpleName());
-
     /**
      * Creates an SSLContext based on provided trust certificate chain file path.
      *
      * @param filePath Path to the certificate file.
      * @return SSLContext created from the given certificate file.
      * @throws NoSuchAlgorithmException When the particular cryptographic algorithm is not available in the environment.
-     * @throws KeyStoreException When an exception occurs during the keystore creation process.
-     * @throws KeyManagementException  When an exception occurs dealing with key management.
-     * @throws IOException To signal that an I/O exception of some sort has occurred.
-     * @throws CertificateException To indicate one of a variety of certificate problems.
+     * @throws KeyStoreException        When an exception occurs during the keystore creation process.
+     * @throws KeyManagementException   When an exception occurs dealing with key management.
+     * @throws IOException              To signal that an I/O exception of some sort has occurred.
+     * @throws CertificateException     To indicate one of a variety of certificate problems.
      */
     public static SSLContext getSslContextForCertificateFile(String filePath) throws NoSuchAlgorithmException,
             KeyStoreException, KeyManagementException, IOException, CertificateException {
@@ -75,9 +71,9 @@ public class SslUtils {
      * @param trustStorePassword Trust store password.
      * @return SSLContext created from the given trust store and password.
      * @throws NoSuchAlgorithmException When the particular cryptographic algorithm is not available in the environment.
-     * @throws KeyStoreException When an exception occurs during the keystore creation process.
-     * @throws KeyManagementException  When an exception occurs dealing with key management.
-     * @throws IOException To signal that an I/O exception of some sort has occurred.
+     * @throws KeyStoreException        When an exception occurs during the keystore creation process.
+     * @throws KeyManagementException   When an exception occurs dealing with key management.
+     * @throws IOException              To signal that an I/O exception of some sort has occurred.
      */
     public static SSLContext createClientSslContext(String trustStoreFilePath, String trustStorePassword) throws
             NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
@@ -96,18 +92,12 @@ public class SslUtils {
     private static KeyStore getKeyStore(String fileName) throws IOException, CertificateException,
             KeyStoreException, NoSuchAlgorithmException {
         KeyStore keyStore;
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(LdapUtils.substituteVariables(fileName));
+        try (InputStream inputStream = new FileInputStream(LdapUtils.substituteVariables(fileName))) {
             CertificateFactory cf = CertificateFactory.getInstance(LdapConstants.X_509);
             Certificate ca = cf.generateCertificate(inputStream);
             keyStore = KeyStore.getInstance(LdapConstants.PKCS_STORE_TYPE);
             keyStore.load(null, null);
             keyStore.setCertificateEntry(LdapConstants.CERTIFICATE_ALIAS, ca);
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
         }
         return keyStore;
     }

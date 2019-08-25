@@ -19,8 +19,8 @@ service hello on new http:Listener(9234) {
         // Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
         //Start a new child span for the span `MyRootParentSpan`.
-        int childSpanId = check observe:startSpan("MyRootChildSpan",
-                                        parentSpanId = rootParentSpanId);
+        int childSpanId = check observe:startSpan("MyRootChildSpan", (),
+                                                            rootParentSpanId);
         // Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
         //Finish `MyRootChildSpan` span.

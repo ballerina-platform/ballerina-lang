@@ -4,7 +4,7 @@ import ballerina/runtime;
 
 int count = 0;
 
-http:Client clientEndpoint = new("https://postman-echo.com", config = {});
+http:Client clientEndpoint = new("https://postman-echo.com");
 
 public function main() {
     // Asynchronously calls the function named `sum()`.
@@ -19,30 +19,23 @@ public function main() {
     // Calls the `countInfinity()` function, which runs forever 
     // in asynchronous mode.
     future<()> f2 = start countInfinity();
-    // Checks if the function call is done.
-    io:println(f2.isDone());
-    // Checks if the asynchronous execution was cancelled.
-    io:println(f2.isCancelled());
+
     // Cancels the asynchronous execution.
-    boolean cancelled = f2.cancel();
-    io:println(cancelled);
+    f2.cancel();
     io:println("Counting done in one second: ", count);
 
     // Asynchronously invokes the action call `get()`.
     future<http:Response|error> f3 = start clientEndpoint->get("/get?test=123");
-    // Checks if the action call is done.
-    io:println(f3.isDone());
+
     // Waits for action call `f3` to finish.
     http:Response|error response = wait f3;
     // Prints the response payload of the action call if successful or prints the
     // reason for the failure.
     if (response is http:Response) {
-        io:println(untaint response.getJsonPayload());
+        io:println(response.getJsonPayload());
     } else {
         io:println(response.reason());
     }
-    // Checks if the action call is done after waiting for it to complete.
-    io:println(f3.isDone());
 
     // Asynchronously invokes the functions named `square()` and `greet()`.
     future<int> f4 = start square(20);
@@ -76,9 +69,9 @@ public function main() {
     // not provided).
     record { int first_field; int second_field; string third_field; } rec =
                     wait {first_field: f6, second_field: f7, third_field: f8};
-    io:println("first field of record --> " + rec.first_field);
-    io:println("second field of record --> " + rec.second_field);
-    io:println("third field of record --> " + rec.third_field);
+    io:println("first field of record --> ", rec.first_field);
+    io:println("second field of record --> ", rec.second_field);
+    io:println("third field of record --> ", rec.third_field);
 }
 
 function sum(int a, int b) returns int {

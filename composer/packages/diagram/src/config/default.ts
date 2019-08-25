@@ -100,6 +100,23 @@ export class DiagramConfig {
         width: 120,
     };
 
+    public clientLine = {
+        footer: {
+            height: 30,
+        },
+        gutter: {
+            h: 50,
+        },
+        header: {
+            height: 30,
+        },
+        leftMargin: 120 / 2,
+        line: {
+            height: 135,
+        },
+        width: 120,
+    };
+
     public condition = {
         caseLabel: {
             height: 19,

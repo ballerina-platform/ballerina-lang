@@ -60,7 +60,8 @@ public class Close {
                 SelectorManager.getInstance().unRegisterChannel(socketChannel);
             }
             // This need to handle to support multiple client close.
-            if (Boolean.parseBoolean(client.getNativeData(IS_CLIENT).toString())) {
+            Object isClient = client.getNativeData(IS_CLIENT);
+            if (isClient != null && Boolean.parseBoolean(isClient.toString())) {
                 SelectorManager.getInstance().stop();
             }
         } catch (IOException e) {

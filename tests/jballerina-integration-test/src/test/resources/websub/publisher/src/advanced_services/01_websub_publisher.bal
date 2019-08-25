@@ -16,7 +16,6 @@
 
 import ballerina/auth;
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/websub;
@@ -25,7 +24,7 @@ const string WEBSUB_PERSISTENCE_TOPIC_ONE = "http://one.persistence.topic.com";
 const string WEBSUB_PERSISTENCE_TOPIC_TWO = "http://two.persistence.topic.com";
 const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 
-auth:InboundBasicAuthProvider basicAuthProvider = new(());
+auth:InboundBasicAuthProvider basicAuthProvider = new;
 http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();

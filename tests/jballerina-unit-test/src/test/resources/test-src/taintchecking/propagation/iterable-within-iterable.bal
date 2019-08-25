@@ -19,14 +19,14 @@ string[] types1 = [ "postal_code_suffix" ];
 map<record{}[]> data = {
     "address_components": [
         {
-            long_name: "1823",
-            short_name: "1823",
-            types: types0
+            "long_name": "1823",
+            "short_name": "1823",
+            "types": types0
         },
         {
-            long_name: "CMW",
-            short_name: "CMW",
-            types: types1
+            "long_name": "CMW",
+            "short_name": "CMW",
+            "types": types1
         }
     ]
 };

@@ -863,6 +863,8 @@ type MyError error<string, MyErrorDetail>;
 type MyErrorDetail record {|
     error e1;
     error e2;
+    string message?;
+    error cause?;
 |};
 
 error e1 = error("err reason");
@@ -920,8 +922,8 @@ type MyRecordTwo record {|
 |};
 
 function testRecordsWithErrorsAsAnydata() returns boolean {
-    MyRecord m1 = { name: "Anne", err: e1 };
-    MyRecordTwo m2 = { id: 100, err: e3 };
+    MyRecord m1 = { name: "Anne", "err": e1 };
+    MyRecordTwo m2 = { id: 100, "err": e3 };
 
     anydata a1 = m1;
     anydata a2 = <anydata> m2;

@@ -18,50 +18,31 @@
 
 package org.ballerinalang.test.filter;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Test cases for verifying single http filter for a service.
  */
 @Test(groups = "filter-test")
 public class SingleFilterTestCase extends FilterTestCommons {
-    private Map<String, String> headers = new HashMap<>();
-
-    @BeforeClass
-    public void init() {
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-    }
 
     @Test(description = "Single filter execution success case")
     public void testSingleFilterSuccess() throws Exception {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9095, "echo/test"),
-                headers);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        HttpResponse response = getHttpResponse(9095, "echo/test");
+        Assert.assertEquals(response.getResponseCode(), 200, RESPONSE_CODE_MISMATCHED);
     }
 
     @Test(description = "Single request filter execution failure case")
     public void testSingleRequestFilterFailure() throws Exception {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9096, "echo/test"),
-                headers);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        HttpResponse response = getHttpResponse(9096, "echo/test");
+        Assert.assertEquals(response.getResponseCode(), 401, RESPONSE_CODE_MISMATCHED);
     }
 
     @Test(description = "Single response filter execution failure case")
     public void testSingleResponseFilterFailure() throws Exception {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9097, "echo/test"),
-                headers);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        HttpResponse response = getHttpResponse(9097, "echo/test");
+        Assert.assertEquals(response.getResponseCode(), 500, RESPONSE_CODE_MISMATCHED);
     }
 }

@@ -46,11 +46,11 @@ public class ByteArrayTestCase extends GrpcBaseTest {
 
     @Test
     public void testbyteArray() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "11_grpc_byte_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients", "11_grpc_byte_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "byte array works";
 
-        BValue[] responses = BRunUtil.invoke(result, "testByteArray", new BValue[]{});
+        BValue[] responses = BRunUtil.invoke(result, "testByteArray", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         BString responseValues = (BString) responses[0];
@@ -59,13 +59,13 @@ public class ByteArrayTestCase extends GrpcBaseTest {
 
     @Test(description = "Test transmitting 30KB content in data frame.")
     public void testLargeByteArray() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "11_grpc_byte_client.bal");
-        Path sampleDataFile = Paths.get("src", "test", "resources", "grpc", "clients", "sample_bytes.txt");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients", "11_grpc_byte_client.bal");
+        Path sampleDataFile = Paths.get("src", "test", "resources", "grpc", "src", "clients", "sample_bytes.txt");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "30KB file content transmitted successfully";
 
         BValue[] responses = BRunUtil.invoke(result, "testLargeByteArray",
-                new BValue[]{new BString(sampleDataFile.toAbsolutePath().toString())});
+                new Object[]{sampleDataFile.toAbsolutePath().toString()});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         BString responseValues = (BString) responses[0];

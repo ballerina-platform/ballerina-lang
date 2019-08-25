@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
     public List<BLangType> memberTypeNodes = new ArrayList<>();
+    public BLangType restParamType;
 
     @Override
     public List<BLangType> getMemberTypeNodes() {
@@ -53,6 +54,7 @@ public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
     @Override
     public String toString() {
-        return "[" + memberTypeNodes.stream().map(BLangType::toString).collect(Collectors.joining(",")) + "]";
+        return "[" + memberTypeNodes.stream().map(BLangType::toString).collect(Collectors.joining(","))
+                + ((restParamType != null) ? "," + restParamType.toString() + "...]" : "]");
     }
 }

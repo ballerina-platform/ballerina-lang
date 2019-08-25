@@ -14,10 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/time;
 import ballerina/task;
-import ballerina/io;
 
 # The `Scheduler` object is responsible for generating streams:TIMER events at the given timestamp. Once the event is
 # generated, the timer event is passed to the provided `processFunc` function pointer. The function pointer is the
@@ -32,7 +30,7 @@ public type Scheduler object {
     public function __init(function (StreamEvent?[] streamEvents) processFunc) {
         self.toNotifyQueue = new;
         self.running = false;
-        self.timer = new({ interval: 1 });
+        self.timer = new({ intervalInMillis: 1 });
         self.processFunc = processFunc;
     }
 
@@ -53,7 +51,7 @@ public type Scheduler object {
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
                     checkpanic self.timer.stop();
-                    self.timer = new({ interval: timeDiff, initialDelay: timeDelay, noOfRecurrences: 1 });
+                    self.timer = new({ intervalInMillis: timeDiff, initialDelayInMillis: timeDelay, noOfRecurrences: 1 });
                     checkpanic self.timer.attach(schedulerService, self);
                     checkpanic self.timer.start();
                 }
@@ -91,7 +89,7 @@ public type Scheduler object {
             if (<int>first - currentTime <= 0) {
                 _ = self.wrapperFunc();
             } else {
-                self.timer = new({ interval: <int>first - currentTime, noOfRecurrences: 1 });
+                self.timer = new({ intervalInMillis: <int>first - currentTime, noOfRecurrences: 1 });
                 checkpanic self.timer.attach(schedulerService, self);
                 checkpanic self.timer.start();
             }
@@ -100,7 +98,7 @@ public type Scheduler object {
                 self.running = false;
                 if (!(self.toNotifyQueue.getFirst() is LinkedList)) {
                     self.running = true;
-                    self.timer = new({ interval: 1, initialDelay: 0, noOfRecurrences: 1 });
+                    self.timer = new({ intervalInMillis: 1, initialDelayInMillis: 0, noOfRecurrences: 1 });
                     checkpanic self.timer.attach(schedulerService, self);
                     checkpanic self.timer.start();
                 }

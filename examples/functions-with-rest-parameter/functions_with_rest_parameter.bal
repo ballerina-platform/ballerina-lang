@@ -3,52 +3,53 @@ import ballerina/io;
 // This function takes one required parameter, one defaultable parameter, and
 // one rest parameter of the type `string`. A function can have only one rest
 // parameter. The rest parameter can take any number of values and is
-// equivalent to an array of the same type.
-function printFruits(string separator,
-                     string title = "Fruits: ",
-                     string... concatStrings) {
+// equivalent to a list of the same type.
+function printDetails(string name,
+                      int age = 18,
+                      string... modules) {
+    string detailString = "Name: " + name + ", Age: " + age.toString();
 
-    string finalStr = "";
+    if (modules.length() == 0) {
+        io:println(detailString);
+        return;
+    }
+
     int index = 0;
-    foreach var str in concatStrings {
+    string moduleString = "Module(s): ";
+
+    foreach string module in modules {
         if (index == 0) {
-            finalStr = str;
+            moduleString += module;
         } else {
-            finalStr = finalStr + separator + str;
+            moduleString += ", " + module;
         }
         index += 1;
     }
 
-    io:println(title + finalStr);
+    io:println(detailString, ", ", moduleString);
 }
 
 public function main() {
-    // Calls the function by passing only the required parameter.
-    printFruits(",");
+    // Call the function by passing only the required parameter.
+    printDetails("Alice");
 
-    // Calls the function by passing the required parameter and
-    // one value for the rest parameter.
-    printFruits(",", "Apples");
+    // Call the function by passing the required parameter and
+    // the defaultable parameter. Named arguments can also be used
+    // since values are not passed for the rest parameter.
+    printDetails("Bob", 20);
 
-    // Calls the function by passing the required parameter, defaultable 
+    // Call the function by passing the required parameter, the defaultable
     // parameter, and one value for the rest parameter.
-    printFruits(",", title = "Available Fruits: ", "Apples");
-
-    // Calls the function by passing the required parameter and multiple values
+    // Arguments cannot be passed as named arguments since values are specified
     // for the rest parameter.
-    printFruits(",", "Apples", "Oranges");
+    printDetails("Corey", 19, "Math");
 
-    // Calls the function by passing all three parameters.
-    printFruits(",", title = "Available Fruits: ", "Apples", "Oranges",
-                "Grapes");
+    // Call the function by passing the required parameter, defaultable parameter,
+    // and multiple values for the rest parameter.
+    printDetails("Diana", 20, "Math", "Physics");
 
-    // The placement of the defaultable parameters can be mixed with the rest
-    // parameters when invoking the function.
-    printFruits(",", "Apples", "Oranges", title = "Available Fruits: ",
-                "Grapes");
-
-    // Passes an array as the rest parameter instead of calling the 
+    // Pass an array as the rest parameter instead of calling the
     // function by passing each value separately. 
-    string[] fruits = ["Apples", "Oranges", "Grapes"];
-    printFruits(",", title = "Available Fruits: ", ...fruits);
+    string[] modules = ["Math", "Physics"];
+    printDetails("Diana", 20, ...modules);
 }

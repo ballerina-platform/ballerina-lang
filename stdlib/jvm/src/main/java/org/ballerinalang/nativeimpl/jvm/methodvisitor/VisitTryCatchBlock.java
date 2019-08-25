@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
@@ -29,7 +27,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
-import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.ballerinalang.model.types.TypeKind.UNION;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.LABEL;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
@@ -48,23 +46,17 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
                 @Argument(name = "startLabel", type = OBJECT, structType = LABEL),
                 @Argument(name = "endLabel", type = OBJECT, structType = LABEL),
                 @Argument(name = "handlerLabel", type = OBJECT, structType = LABEL),
-                @Argument(name = "exceptionType", type = STRING)
+                @Argument(name = "exceptionType", type = UNION)
         }
 )
-public class VisitTryCatchBlock extends BlockingNativeCallableUnit {
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM Unsupported");
-    }
+public class VisitTryCatchBlock {
 
     public static void visitTryCatchBlock(Strand strand, ObjectValue oMv, ObjectValue oStartLabel,
-                                          ObjectValue oEndLabel, ObjectValue oHandlerLabel, String exceptionType) {
+                                          ObjectValue oEndLabel, ObjectValue oHandlerLabel, Object exceptionType) {
         MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
         Label startLabel = ASMUtil.getRefArgumentNativeData(oStartLabel);
         Label endLabel = ASMUtil.getRefArgumentNativeData(oEndLabel);
         Label handlerLabel = ASMUtil.getRefArgumentNativeData(oHandlerLabel);
-        mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, exceptionType);
+        mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, (String) exceptionType);
     }
 }

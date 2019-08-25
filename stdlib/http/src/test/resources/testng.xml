@@ -46,8 +46,8 @@ under the License.
             <package name="org.ballerinalang.stdlib.multipart.*"/>
             <package name="org.ballerinalang.stdlib.services.configuration.*"/>
             <package name="org.ballerinalang.stdlib.services.cors.*"/>
-            <!--<package name="org.ballerinalang.stdlib.services.dispatching.*"/>-->
-            <!--<package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>-->
+            <package name="org.ballerinalang.stdlib.services.dispatching.*"/>
+            <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>
             <package name="org.ballerinalang.stdlib.websocket.*"/>
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
             <package name="org.ballerinalang.stdlib.connectionpool.*"/>
@@ -62,28 +62,6 @@ under the License.
                     <exclude name="testGetString"></exclude>
                 </methods>
             </class>
-            <class name="org.ballerinalang.stdlib.services.dispatching.DataBindingTest"/>
-            <class name="org.ballerinalang.stdlib.services.dispatching.ProducesConsumesAnnotationTest"/>
-            <class name="org.ballerinalang.stdlib.services.dispatching.UriMatrixParametersMatchTest"/>
-            <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateBestMatchTest"/>
-            <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateDefaultDispatcherTest"/>
-            <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateDispatcherNegativeTest"/>
-            <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateDispatcherTest"/>
-            <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>
-            <class name="org.ballerinalang.stdlib.services.dispatching.VersioningNegativeTest"/>
-            <class name="org.ballerinalang.stdlib.services.dispatching.VirtualHostDispatchingTest"/>
-            <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderSuccessTest"/>
-            <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderNegativeTest"/>
-            <class name="org.ballerinalang.stdlib.services.nativeimpl.connection.ConnectionNativeFunctionTest"/>
-            <class name="org.ballerinalang.stdlib.services.nativeimpl.endpoint.ServiceEndpointTest"/>
-            <!--            
-            TODO: enable after maryam's jvm value fix
-            <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionNegativeTest"/>
-            <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionSuccessTest"/>
-            <class name="org.ballerinalang.stdlib.services.nativeimpl.promise.PushPromiseNativeFunctionTest"/>
-            <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionNegativeTest"/>
-            <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionSuccessTest"/>
-            -->
         </classes>
     </test>
 </suite>

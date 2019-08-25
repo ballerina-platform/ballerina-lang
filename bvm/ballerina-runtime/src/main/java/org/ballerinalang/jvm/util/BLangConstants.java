@@ -39,6 +39,11 @@ public class BLangConstants {
     public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
     public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>"; 
     public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String BALLERINA_CONFIG_PREFIX = "--b7a.";
+    public static final String BALLERINA_ARGS_INIT_PREFIX = "--";
+    public static final int BALLERINA_ARGS_INIT_PREFIX_LENGTH = BALLERINA_ARGS_INIT_PREFIX.length();
+    public static final String CONFIG_SEPARATOR = "=";
+    public static final String INVALID_OPTION_ERROR_MESSAGE = "ballerina: unknown option: ";
 
     public static final String EMPTY = "";
     public static final String ANON_ORG = "$anon";
@@ -80,6 +85,8 @@ public class BLangConstants {
     public static final String BALLERINA_PACKAGE_PREFIX = "ballerina" + ORG_NAME_SEPARATOR;
     public static final String BALLERINA_BUILTIN_PKG = BALLERINA_PACKAGE_PREFIX + "builtin";
     public static final String BALLERINA_RUNTIME_PKG = BALLERINA_PACKAGE_PREFIX + "runtime";
+    public static final String BALLERINA_LANG_ERROR_PKG = BALLERINA_PACKAGE_PREFIX + "lang_error";
+    public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
 
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
@@ -99,4 +106,23 @@ public class BLangConstants {
     public static final String COLON = ":";
 
     public static final String DEFAULT_WORKER_NAME = "default";
+
+    // ballerina environment properties.
+    public static final String UTIL_LOGGING_CONFIG_CLASS_PROPERTY = "java.util.logging.config.class";
+    public static final String UTIL_LOGGING_MANAGER_CLASS_PROPERTY = "java.util.logging.manager";
+    public static final String UTIL_LOGGING_CONFIG_CLASS_VALUE = "org.ballerinalang.logging.util.LogConfigReader";
+    public static final String UTIL_LOGGING_MANAGER_CLASS_VALUE = "org.ballerinalang.logging.BLogManager";
+
+
+    // runtime related error message constant values
+    public static final String INTERNAL_ERROR_MESSAGE =
+            "ballerina: Oh no, something really went wrong. Bad. Sad.\n" +
+            "\n" +
+            "There should be a file named \"ballerina-internal.log\" in the current directory.\n" +
+            "If you are able to share with us the code that broke Ballerina then\n" +
+            "we would REALLY appreciate if you would report this to us:\n" +
+            "go to https://github.com/ballerina-platform/ballerina-lang/issues and\n" +
+            "create a bug report with both this log file and the sample code.\n" +
+            "\n" +
+            "We thank you for helping make us better dancers.";
 }

@@ -86,12 +86,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-jms</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-activemq-artemis</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>

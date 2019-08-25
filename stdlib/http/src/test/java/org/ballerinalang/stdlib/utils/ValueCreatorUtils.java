@@ -54,7 +54,7 @@ public class ValueCreatorUtils {
     }
 
     public static ObjectValue createPushPromiseObject() {
-        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, PUSH_PROMISE);
+        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, PUSH_PROMISE, "/", "GET");
     }
 
     public static ObjectValue createRequestCacheControlObject() {

@@ -322,3 +322,32 @@ function nonSingletonXmlAttributeAccess() returns boolean {
     }
     return false;
 }
+
+function testAttributeAccess() returns string? {
+    // Creates an XML element, which has attributes that are bound to a namespace as well as ones that are not.
+    xml x1 = xml `<ns0:book ns0:status="available" count="5"/>`;
+
+    // An attribute can also be accessed using the string representation of the qualified name.
+    var s = <string?> x1@["{http://sample.com/wso2/a1}status"];
+    string y = "";
+    if (s is string) {
+        justFunc(s);
+        y = s;
+    }
+    return y;
+}
+
+function justFunc(string s) {
+
+}
+
+function testAttribMapUpdate() returns [xml, map<string>, xml, map<string>] {
+    xml x1 = xml `<Person name="Foo" />`;
+    map<string> attr = <map<string>> x1@;
+
+    xml originalXml = x1.clone();
+    map<string> originalAttr = attr.clone();
+
+    x1@["name"] = "Bar";
+    return [originalXml, originalAttr, x1, attr];
+}

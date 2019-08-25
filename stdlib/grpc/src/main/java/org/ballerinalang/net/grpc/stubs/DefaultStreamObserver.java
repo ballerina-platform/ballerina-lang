@@ -26,10 +26,11 @@ import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServiceResource;
+import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.callback.ClientCallableUnitCallBack;
-import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +66,8 @@ public class DefaultStreamObserver implements StreamObserver {
         if (resource == null) {
             String message = "Error in listener service definition. onNext resource does not exists";
             LOG.error(message);
-            throw new ClientRuntimeException(message);
+            throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
         }
         List<BType> signatureParams = resource.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
@@ -95,7 +97,8 @@ public class DefaultStreamObserver implements StreamObserver {
         if (onError == null) {
             String message = "Error in listener service definition. onError resource does not exists";
             LOG.error(message);
-            throw new ClientRuntimeException(message);
+            throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
         }
         List<BType> signatureParams = onError.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
@@ -124,19 +127,11 @@ public class DefaultStreamObserver implements StreamObserver {
         if (onCompleted == null) {
             String message = "Error in listener service definition. onCompleted resource does not exists";
             LOG.error(message);
-            throw new ClientRuntimeException(message);
+            throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
         }
         List<BType> signatureParams = onCompleted.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
-        ObjectValue headerObject = null;
-        if (onCompleted.isHeaderRequired()) {
-            headerObject = getHeaderObject();
-            //TODO: check whether this is required. remove if not.
-        }
-        if (headerObject != null && signatureParams.size() == 1) {
-            paramValues[0] = headerObject;
-            paramValues[1] = true;
-        }
         CallableUnitCallback callback = new ClientCallableUnitCallBack();
         Executor.submit(onCompleted.getScheduler(), onCompleted.getService(), onCompleted.getFunctionName(), callback,
                 null, paramValues);

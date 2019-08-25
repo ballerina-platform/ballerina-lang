@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "rabbitmq"
+    version = "@project.version@"
+    path = "./lib/ballerina-rabbitmq-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["rabbitmq"]

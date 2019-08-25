@@ -105,7 +105,7 @@ function testInvalidComplexRecordFreeze() {
     PersonObj p = new;
     PersonObj p1 = new;
     PersonObj p2 = new;
-    FreezeAllowedDepartment2 fd = { head: p, e1: p1, e2: 10 };
+    FreezeAllowedDepartment2 fd = { head: p, "e1": p1, "e2": 10 };
     FreezeAllowedDepartment2|error res = fd.cloneReadOnly();
 }
 

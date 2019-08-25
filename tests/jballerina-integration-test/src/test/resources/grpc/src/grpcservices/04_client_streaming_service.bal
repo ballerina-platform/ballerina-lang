@@ -41,8 +41,8 @@ service HelloWorld7 on ep4 {
 
     resource function onComplete(grpc:Caller caller) {
         io:println("Server Response");
-        error? err = caller->send("Ack");
-        if (err is error) {
+        grpc:Error? err = caller->send("Ack");
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println("Server send response : Ack");

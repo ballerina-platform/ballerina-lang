@@ -332,13 +332,6 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "'string' value 'hello' cannot be converted to 'float'");
     }
 
-    @Test (groups = "brokenOnLangLibChange")
-    public void testIncompatibleJsonToBoolean() {
-        BValue[] returns = BRunUtil.invoke(result, "testIncompatibleJsonToBoolean");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(!((BBoolean) returns[0]).booleanValue());
-    }
-
     public void testBooleanInJsonToInt() {
         BValue[] returns = BRunUtil.invoke(result, "testBooleanInJsonToInt");
         Assert.assertTrue(returns[0] instanceof BError);
@@ -535,10 +528,10 @@ public class TypeCastExprTest {
         Assert.assertEquals(map.get("name").stringValue(), "supun");
     }
 
-    @Test(description = "Test casting a struct to another struct in a different package",
-            groups = "brokenOnLangLibChange")
+    @Test(description = "Test casting a struct to another struct in a different package")
     public void testCastToStructInDifferentPkg() {
-        CompileResult res = BCompileUtil.compile(this, "test-src", "expressions.typecast.foo");
+        CompileResult res = BCompileUtil.compile(this, "test-src/expressions.typecast.foo",
+                "expressions.typecast.foo");
         BRunUtil.invoke(res, "testCastToStructInDifferentPkg");
     }
 

@@ -250,6 +250,14 @@ public class SymbolEnv {
     }
 
     public static SymbolEnv createStreamingQueryEnv(BLangStreamingQueryStatement node, SymbolEnv env) {
+        return createEnv(node, env);
+    }
+
+    public static SymbolEnv createStreamingInputEnv(BLangNode node, SymbolEnv env) {
+        return createEnv(node, env);
+    }
+
+    private static SymbolEnv createEnv(BLangNode node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
         symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
@@ -269,6 +277,19 @@ public class SymbolEnv {
         symbolEnv.enclEnv = this.enclEnv != null ? this.enclEnv.createClone() : null;
         symbolEnv.enclPkg = this.enclPkg;
         symbolEnv.envCount = this.envCount;
+        return symbolEnv;
+    }
+
+    public SymbolEnv shallowClone() {
+        Scope scope = new Scope(this.scope.owner);
+        this.scope.entries.entrySet().stream()
+                // skip the type narrowed symbols when taking the snapshot for closures.
+                .filter(entry -> (entry.getValue().symbol.tag & SymTag.VARIABLE) != SymTag.VARIABLE ||
+                        ((BVarSymbol) entry.getValue().symbol).originalSymbol == null)
+                .forEach(entry -> scope.entries.put(entry.getKey(), entry.getValue()));
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        this.copyTo(symbolEnv);
+        symbolEnv.enclEnv = this.enclEnv;
         return symbolEnv;
     }
 

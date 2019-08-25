@@ -44,6 +44,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -51,7 +52,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil.generateJSON;
@@ -310,7 +310,6 @@ public class FormatUtil {
         options.put(TEST_ENABLED, "true");
         options.put(LOCK_ENABLED, Boolean.toString(false));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
-        options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(true));
         options.put(PRESERVE_WHITESPACE, Boolean.toString(true));
 
         return context;
@@ -399,7 +398,8 @@ public class FormatUtil {
     }
 
     private static String getModuleName(String moduleName) {
-        String[] splitedTokens = moduleName.split("" + File.separator);
+        String pattern = Pattern.quote(File.separator);
+        String[] splitedTokens = moduleName.split(pattern);
         return splitedTokens[splitedTokens.length - 1];
     }
 }

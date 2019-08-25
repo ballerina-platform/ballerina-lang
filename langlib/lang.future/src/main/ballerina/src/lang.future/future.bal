@@ -16,5 +16,5 @@
 
 # Cancels the given future.
 #
-# f - The future to test
+# + f - The future to test
 public function cancel(future<any> f) = external;

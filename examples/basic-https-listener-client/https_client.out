@@ -1,0 +1,4 @@
+# To start the service and run the main function, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
+$ ballerina run https_client.bal
+INFO  [] - Hello World!

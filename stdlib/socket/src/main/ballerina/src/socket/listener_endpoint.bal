@@ -33,12 +33,19 @@ public type Listener object {
         return self.start();
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
+    }
+
+    public function __detach(service s) returns error? {
     }
 
     function initServer(int port, ListenerConfig config) returns error? = external;
@@ -53,8 +60,8 @@ public type Listener object {
 # Represents the socket server configuration.
 #
 # + interface - the interface that server with to bind
-# + readTimeoutInMilliseconds - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
+# + readTimeoutInMillis - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
 public type ListenerConfig record {|
     string? interface = ();
-    int readTimeoutInMilliseconds = 300000;
+    int readTimeoutInMillis = 300000;
 |};

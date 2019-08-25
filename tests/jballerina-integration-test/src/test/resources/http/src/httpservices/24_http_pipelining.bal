@@ -17,7 +17,6 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
-import ballerina/io;
 
 service pipeliningTest on new http:Listener(9220) {
 
@@ -52,7 +51,7 @@ service pipeliningTest on new http:Listener(9220) {
     }
 }
 
-service pipelining on new http:Listener(9221, { timeoutMillis: 1000 }) {
+service pipelining on new http:Listener(9221, { timeoutInMillis: 1000 }) {
 
     resource function testTimeout(http:Caller caller, http:Request req) {
         http:Response response = new;
@@ -84,8 +83,7 @@ service pipelining on new http:Listener(9221, { timeoutMillis: 1000 }) {
     }
 }
 
-service pipeliningLimit on new http:Listener(9222, { maxPipelinedRequests: 2 }) {
-
+service pipeliningLimit on new http:Listener(9222, { http1Settings: { maxPipelinedRequests: 2 } }) {
     resource function testMaxRequestLimit(http:Caller caller, http:Request req) {
         http:Response response = new;
         //Let the thread sleep for sometime so the requests have enough time to queue up

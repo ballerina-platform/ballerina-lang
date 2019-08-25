@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
 import ballerina/http;
 
 final string CUSTOM_HEADER = "X-some-header";
@@ -23,7 +22,7 @@ service simpleProxy3 = @http:WebSocketServiceConfig {} service {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         if (text == "custom-headers") {
-            var returnVal = wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]);
+            var returnVal = wsEp->pushText(<string>wsEp.getAttribute(CUSTOM_HEADER));
             if (returnVal is http:WebSocketError) {
                 panic <error> returnVal;
             }
@@ -42,7 +41,7 @@ service simple3 on new http:Listener(21012) {
     resource function websocketProxy(http:Caller httpEp, http:Request req) {
         http:WebSocketCaller wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
-        wsServiceEp.attributes[CUSTOM_HEADER] = req.getHeader(CUSTOM_HEADER);
+        wsServiceEp.setAttribute(CUSTOM_HEADER, req.getHeader(CUSTOM_HEADER));
     }
 }
 

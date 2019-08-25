@@ -30,7 +30,6 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-http')
@@ -39,10 +38,8 @@ dependencies {
     implementation project(':ballerina-jdbc')
     implementation project(':ballerina-transactions')
     // implementation project(':ballerina-websub')
-    implementation project(':ballerina-jms')
     // implementation project(':ballerina-grpc')
     implementation project(':ballerina-filepath')
-    implementation project(':ballerina-activemq-artemis')
     implementation project(':ballerina-rabbitmq')
     implementation project(':ballerina-nats')
     testCompile 'org.testng:testng'

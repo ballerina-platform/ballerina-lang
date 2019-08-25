@@ -18,7 +18,7 @@ public function main() {
                                             "http://websubpubtopic.com");
     if (registrationResponse is error) {
         io:println("Error occurred registering topic: " +
-                                <string>registrationResponse.detail().message);
+                                <string>registrationResponse.detail()?.message);
     } else {
         io:println("Topic registration successful!");
     }
@@ -33,7 +33,7 @@ public function main() {
 
     if (publishResponse is error) {
         io:println("Error notifying hub: " +
-                                <string>publishResponse.detail().message);
+                                <string>publishResponse.detail()?.message);
     } else {
         io:println("Update notification successful!");
     }

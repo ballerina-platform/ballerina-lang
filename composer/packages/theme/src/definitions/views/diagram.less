@@ -210,34 +210,6 @@
                     }
                 }
             }
-            .tooltip {
-                position: relative;
-                display: inline-block;
-            }
-    
-            .tooltip .tooltiptext {
-                visibility: hidden;
-                width: auto;
-                display: block;
-                background-color: #333;
-                color: #f1f1f1;
-                text-align: center;
-                border-radius: 2px;
-                position: absolute;
-                z-index: 1;
-                font-size: 12px;
-                top: -36px;
-                right: -14px;
-                height: 30px;
-                padding: 5px 10px;
-                cursor: pointer;
-                font-family: @diagram-font;
-                white-space: nowrap;
-            }
-            
-            .tooltip:hover .tooltiptext {
-                visibility: visible;
-            }
         }
     }
     
@@ -319,6 +291,11 @@
                 }
                 .panel-body {
                     fill: ~"@{@{color}-diagram-panel-body-background-color}";
+
+                    .client-line {
+                        stroke: ~"@{@{color}-diagram-client-line-stroke-color}";
+                        stroke-width: @diagram-client-line-stroke-width;
+                    }
                     
                     .life-line {
                         stroke: ~"@{@{color}-diagram-life-line-stroke-color}";
@@ -386,6 +363,15 @@
                             stroke-width: 1px;
                         }
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
+                        .invoke-line {
+                            stroke:#aaa;
+                            stroke-width: 0.5;
+                        }
+                        .invoke-arrowhead {
+                            stroke:#aaa;
+                            fill: #aaa;
+                            stroke-width: 0;
+                        }
                     }
                     .start-invocation {
                         line {
@@ -432,9 +418,9 @@
                             font-weight: bold;
                         }
                         .collapser {
-                            stroke: ~"@{@{color}-diagram-collapse-func-color}";
                             cursor: pointer;
                             fill: ~"@{@{color}-diagram-collapse-func-color}";
+                            font-size: 10px;
                         }
                         .life-line {
                             stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";

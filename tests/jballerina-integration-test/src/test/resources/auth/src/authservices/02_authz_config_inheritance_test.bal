@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:InboundBasicAuthProvider basicAuthProvider02 = new(());
+auth:InboundBasicAuthProvider basicAuthProvider02 = new;
 http:BasicAuthHandler basicAuthHandler02 = new(basicAuthProvider02);
 
 // Listener with valid scope
@@ -80,7 +80,7 @@ service echo02_1 on listener02_1, listener02_2, listener02_3 {
         }
     }
     resource function test1(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     // Resource with invalid scope
@@ -92,7 +92,7 @@ service echo02_1 on listener02_1, listener02_2, listener02_3 {
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     // Resource with scope not given
@@ -103,7 +103,7 @@ service echo02_1 on listener02_1, listener02_2, listener02_3 {
         }
     }
     resource function test3(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }
 
@@ -126,7 +126,7 @@ service echo02_2 on listener02_1, listener02_2, listener02_3 {
         }
     }
     resource function test1(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     // Resource with invalid scope
@@ -138,7 +138,7 @@ service echo02_2 on listener02_1, listener02_2, listener02_3 {
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     // Resource with scope not given
@@ -149,7 +149,7 @@ service echo02_2 on listener02_1, listener02_2, listener02_3 {
         }
     }
     resource function test3(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }
 
@@ -171,7 +171,7 @@ service echo02_3 on listener02_1, listener02_2, listener02_3 {
         }
     }
     resource function test1(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     // Resource with invalid scope
@@ -183,7 +183,7 @@ service echo02_3 on listener02_1, listener02_2, listener02_3 {
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     // Resource with scope not given
@@ -194,6 +194,6 @@ service echo02_3 on listener02_1, listener02_2, listener02_3 {
         }
     }
     resource function test3(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }

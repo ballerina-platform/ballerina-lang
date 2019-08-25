@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.runtime;
 
-import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -41,57 +41,24 @@ public class InvocationContextTest {
     }
 
     @Test(description = "Test case for accessing invocationId from invocation context")
-    public void testInvocationId() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testInvocationId");
+    public void testInvocationContextId() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInvocationContextId");
         Assert.assertTrue(returns[0] instanceof BString);
     }
 
-    @Test(description = "Test case for processing userId in authentication context")
-    public void testUserId() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUserId");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    @Test(description = "Test case for accessing attributes from invocation context")
+    public void testInvocationContextAttributes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInvocationContextAttributes");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].size(), 0);
     }
 
-    @Test(description = "Test case for processing username in authentication context")
-    public void testUsername() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUsername");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for processing user claims in authentication context")
-    public void testUserClaims() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUserClaims");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for processing allowedScopes in authentication context")
-    public void testAllowedScopes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAllowedScopes");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for processing authType in authentication context")
-    public void testAuthType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthType");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for processing authToken in authentication context")
-    public void testAuthToken() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthToken");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for custom attributes in Invocation Context")
-    public void testCustomAttributes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAttributes");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    @Test(description = "Test case for accessing principal record from invocation context")
+    public void testInvocationContextPrincipal() {
+        String userId = "ballerinaUser";
+        BValue[] args = {new BString(userId)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInvocationContextPrincipal", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].toString(), userId);
     }
 }

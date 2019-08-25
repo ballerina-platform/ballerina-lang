@@ -104,53 +104,53 @@ public class SealedArraysOfArraysTest {
         Assert.assertEquals((returnValues[2]).stringValue(), "val1", "Value didn't match");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testNegativeSealedArraysOfArrays() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 24);
+        int i = 0;
         BAssertUtil.validateError(
-                resultNegative, 0, "size mismatch in sealed array. expected '2', but found '3'", 19, 23);
+                resultNegative, i++, "size mismatch in sealed array. expected '2', but found '3'", 19, 23);
         BAssertUtil.validateError(
-                resultNegative, 1, "size mismatch in sealed array. expected '2', but found '3'", 20, 36);
+                resultNegative, i++, "size mismatch in sealed array. expected '2', but found '3'", 20, 36);
         BAssertUtil.validateError(
-                resultNegative, 2, "size mismatch in sealed array. expected '2', but found '3'", 21, 24);
-        BAssertUtil.validateError(resultNegative, 3, "array index out of range: index: '2', size: '2'", 27, 21);
-        BAssertUtil.validateError(resultNegative, 4, "array index out of range: index: '3', size: '3'", 37, 8);
-        BAssertUtil.validateError(resultNegative, 5, "array index out of range: index: '3', size: '2'", 38, 11);
-        BAssertUtil.validateError(resultNegative, 6, "array index out of range: index: '3', size: '3'", 39, 14);
+                resultNegative, i++, "size mismatch in sealed array. expected '2', but found '3'", 21, 24);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '2'", 27, 21);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 37, 8);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 38, 11);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 39, 14);
         BAssertUtil.validateError(
-                resultNegative, 7, "size mismatch in sealed array. expected '3', but found '4'", 40, 16);
+                resultNegative, i++, "size mismatch in sealed array. expected '3', but found '4'", 40, 16);
         BAssertUtil.validateError(
-                resultNegative, 8, "incompatible types: expected 'int[3]', found 'int'", 41, 14);
+                resultNegative, i++, "incompatible types: expected 'int[3]', found 'int'", 41, 14);
         BAssertUtil.validateError(
-                resultNegative, 9, "incompatible types: expected 'int[3]', found 'int'", 41, 17);
+                resultNegative, i++, "incompatible types: expected 'int[3]', found 'int'", 41, 17);
         BAssertUtil.validateError(
-                resultNegative, 10, "size mismatch in sealed array. expected '3', but found '4'", 42, 25);
+                resultNegative, i++, "size mismatch in sealed array. expected '3', but found '4'", 42, 25);
         BAssertUtil.validateError(
-                resultNegative, 11, "incompatible types: expected 'int[3]', found 'int[]'", 47, 21);
+                resultNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'", 47, 21);
         BAssertUtil.validateError(
-                resultNegative, 12, "incompatible types: expected 'int[3]', found 'int[]'", 47, 25);
+                resultNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'", 47, 25);
         BAssertUtil.validateError(
-                resultNegative, 13, "array index out of range: index: '4', size: '3'", 52, 11);
+                resultNegative, i++, "list index out of range: index: '4'", 52, 11);
         BAssertUtil.validateError(
-                resultNegative, 14, "incompatible types: expected 'json[2]', found 'json[]'", 60, 12);
+                resultNegative, i++, "incompatible types: expected 'json[2]', found 'json[]'", 60, 12);
         BAssertUtil.validateError(
-                resultNegative, 15, "incompatible types: expected 'json[3][3]', found 'boolean'", 63, 13);
+                resultNegative, i++, "list index out of range: index: '2'", 63, 8);
         BAssertUtil.validateError(
-                resultNegative, 16, "array index out of range: index: '2', size: '2'", 63, 8);
+                resultNegative, i++, "list index out of range: index: '4'", 64, 14);
         BAssertUtil.validateError(
-                resultNegative, 17, "array index out of range: index: '4', size: '3'", 64, 14);
+                resultNegative, i++, "list index out of range: index: '4'", 68, 14);
         BAssertUtil.validateError(
-                resultNegative, 18, "array index out of range: index: '4', size: '3'", 68, 14);
+                resultNegative, i++, "size mismatch in sealed array. expected '3', but found '5'", 73, 46);
         BAssertUtil.validateError(
-                resultNegative, 19, "size mismatch in sealed array. expected '3', but found '5'", 73, 46);
+                resultNegative, i++, "size mismatch in sealed array. expected '3', but found '4'", 73, 66);
         BAssertUtil.validateError(
-                resultNegative, 20, "size mismatch in sealed array. expected '3', but found '4'", 73, 66);
+                resultNegative, i++, "invalid usage of sealed type: can not infer array size", 75, 22);
         BAssertUtil.validateError(
-                resultNegative, 21, "invalid usage of sealed type: can not infer array size", 75, 22);
+                resultNegative, i++, "invalid usage of sealed type: can not infer array size", 75, 26);
         BAssertUtil.validateError(
-                resultNegative, 22, "invalid usage of sealed type: can not infer array size", 75, 26);
+                resultNegative, i++, "invalid usage of sealed type: array not initialized", 76, 5);
         BAssertUtil.validateError(
-                resultNegative, 23, "invalid usage of sealed type: array not initialized", 76, 5);
-        BAssertUtil.validateError(
-                resultNegative, 24, "array index out of range: index: '4', size: '3'", 83, 11);
+                resultNegative, i, "list index out of range: index: '4'", 83, 11);
     }
 }

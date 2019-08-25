@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/records version v1;
+import testorg/records;
 
 // TESTS FOR RECORDS WHERE THE REFERENCED TYPE ONLY HAS VALUE TYPE FIELDS
 

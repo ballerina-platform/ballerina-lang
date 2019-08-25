@@ -27,7 +27,7 @@ function testSuccessScenario () returns @tainted http:Response | error {
         targets: [
                  {url: "http://invalidEP"},
                  {url: "http://localhost:8080"}],
-        timeoutMillis:5000
+        timeoutInMillis:5000
     });
 
     http:Response clientResponse = new;
@@ -54,7 +54,7 @@ function testFailureScenario () returns @tainted http:Response | error {
         targets: [
                  {url: "http://invalidEP"},
                  {url: "http://localhost:50000000"}],
-        timeoutMillis:5000
+        timeoutInMillis:5000
     });
 
     http:Response response = new;
@@ -133,7 +133,7 @@ public type MockClient client object {
         } else {
             error err = result;
             string errMessage = err.reason();
-            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             response.setTextPayload(errMessage);
         }
         return response;
@@ -181,7 +181,7 @@ function handleFailoverScenario (int count) returns (http:Response | http:Client
         return err;
     } else {
         http:Response inResponse = new;
-        inResponse.statusCode = http:OK_200;
+        inResponse.statusCode = http:STATUS_OK;
         return inResponse;
     }
 }

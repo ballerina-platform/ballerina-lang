@@ -43,15 +43,21 @@ public class BallerinaRecordRefBindingPatternImpl extends ASTWrapperPsiElement i
   }
 
   @Override
-  @Nullable
-  public BallerinaClosedRecordRefBindingPattern getClosedRecordRefBindingPattern() {
-    return findChildByClass(BallerinaClosedRecordRefBindingPattern.class);
+  @NotNull
+  public BallerinaEntryRefBindingPattern getEntryRefBindingPattern() {
+    return findNotNullChildByClass(BallerinaEntryRefBindingPattern.class);
   }
 
   @Override
-  @Nullable
-  public BallerinaOpenRecordRefBindingPattern getOpenRecordRefBindingPattern() {
-    return findChildByClass(BallerinaOpenRecordRefBindingPattern.class);
+  @NotNull
+  public PsiElement getLeftBrace() {
+    return findNotNullChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRightBrace() {
+    return findNotNullChildByType(RIGHT_BRACE);
   }
 
 }

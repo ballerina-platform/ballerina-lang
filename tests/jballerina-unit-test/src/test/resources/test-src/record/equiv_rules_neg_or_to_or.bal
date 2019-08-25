@@ -60,3 +60,15 @@ function testMismatchingRestField2() {
     Person4 p = {name:"John", age:25};
     AnotherPerson ap = p;
 }
+
+type AnotherPerson2 record {
+    string name;
+    int age;
+    float weight?;
+};
+
+function testMissingOptFieldInRHS() returns AnotherPerson2 {
+    Person1 p = {name:"John Doe"};
+    AnotherPerson2 ap = p;
+    return ap;
+}

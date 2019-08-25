@@ -20,7 +20,10 @@ package org.ballerinalang.langlib.test;
 
 
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -56,5 +59,31 @@ public class LangLibErrorTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPassingErrorUnionToFunction");
         assertEquals(returns[0].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(returns[0].stringValue(), "{message:\"Test passing error union to a function\"}");
+    }
+
+    @Test
+    public void testGetErrorStackTrace() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getErrorStackTrace");
+        assertEquals(returns[0].getType().getTag(), TypeTags.OBJECT_TYPE_TAG);
+        BRefType<?>[] callStacks = ((BValueArray) ((BMap) returns[0]).get("callStack")).getValues();
+        assertEquals(callStacks[0].stringValue(), "{callableName:\"getError\", moduleName:\"errorlib_test\", " +
+                "fileName:\"errorlib_test.bal\", lineNumber:43}");
+        assertEquals(callStacks[1].stringValue(), "{callableName:\"stack2\", moduleName:\"errorlib_test\", " +
+                "fileName:\"errorlib_test.bal\", lineNumber:86}");
+        assertEquals(callStacks[2].stringValue(), "{callableName:\"stack1\", moduleName:\"errorlib_test\", " +
+                "fileName:\"errorlib_test.bal\", lineNumber:82}");
+        assertEquals(callStacks[3].stringValue(), "{callableName:\"stack0\", moduleName:\"errorlib_test\", " +
+                "fileName:\"errorlib_test.bal\", lineNumber:78}");
+        assertEquals(callStacks[4].stringValue(), "{callableName:\"getErrorStackTrace\", " +
+                "moduleName:\"errorlib_test\", fileName:\"errorlib_test.bal\", lineNumber:90}");
+    }
+
+    @Test
+    public void testErrorStackTrace() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorStackTrace");
+        assertEquals(returns[0].stringValue(), "5");
+        assertEquals(returns[1].stringValue(),
+                "getError:errorlib_test.bal stack2:errorlib_test.bal stack1:errorlib_test.bal " +
+                        "stack0:errorlib_test.bal testErrorStackTrace:errorlib_test.bal");
     }
 }

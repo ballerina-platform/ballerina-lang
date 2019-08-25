@@ -18,11 +18,9 @@
 
 package org.ballerinalang.test.expressions.builtinoperations;
 
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -333,11 +331,11 @@ public class CloneOperationTest {
 
     @Test
     public void testCloneNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         BAssertUtil.validateError(negativeResult, 0, "too many arguments in call to 'clone()'", 19, 13);
-        BAssertUtil.validateError(negativeResult, 1, "function invocation on type 'typedesc' is not supported", 24, 18);
-        BAssertUtil.validateError(negativeResult, 2, "function invocation on type '()' is not supported", 29, 12);
-        BAssertUtil.validateError(negativeResult, 3, "function invocation on type 'error' is not supported", 35, 15);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'anydata', found 'typedesc<int>'",
+                                  24, 23);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'anydata', found 'error'", 29, 15);
 
         Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
         BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to untainted parameter 'intArg'", 12, 22);
@@ -513,34 +511,7 @@ public class CloneOperationTest {
     public void testCloneFrozenAnydata() {
         BValue[] results = BRunUtil.invoke(result, "cloneFrozenAnydata");
         Assert.assertNotNull(results);
-        Assert.assertSame(results[0], results[1]);
-        Assert.assertSame(results[0].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-    }
-
-    @Test
-    public void testCloneNonAnydata() {
-        BValue[] results = BRunUtil.invoke(result, "cloneNonAnydata");
-        Assert.assertNotNull(results);
-        Assert.assertNotSame(results[0], results[1]);
-        Assert.assertSame(results[1].getType().getTag(), TypeTags.ERROR_TAG);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[1]).getDetails()).get("message").stringValue(),
-                "'clone()' not allowed on '[Employee,any]'");
-    }
-
-    @Test
-    public void testCloneLikeAnydata() {
-        BValue[] results = BRunUtil.invoke(result, "cloneLikeAnydata");
-        Assert.assertNotNull(results);
-        Assert.assertNotSame(results[0], results[1]);
-        BValueArray result1 = (BValueArray) results[0];
-        BMap person1 = (BMap) result1.getRefValue(0);
-        BValueArray arr1 = (BValueArray) result1.getRefValue(1);
-
-        BValueArray result2 = (BValueArray) results[1];
-        BMap person2 = (BMap) result2.getRefValue(0);
-        BValueArray arr2 = (BValueArray) result2.getRefValue(1);
-        Assert.assertEquals(person1.getMap().entrySet(), person2.getMap().entrySet());
-        Assert.assertEquals(arr1.stringValue(), arr2.stringValue());
+        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
     }
 
     @Test

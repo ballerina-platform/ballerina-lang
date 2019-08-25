@@ -18,12 +18,10 @@
  */
 package org.ballerinalang.compiler.backend.jvm;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -50,44 +48,45 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
                 @Argument(name = "targetPath", type = STRING),
         }
 )
-public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
+@SuppressWarnings("unchecked")
+public class WriteExecutableJarFile {
 
     private static final String PKG_ENTRIES = "pkgEntries";
     private static final String MANIFEST_ENTRIES = "manifestEntries";
 
-    @Override
-    public void execute(Context context) {
-        BValue jarFile = context.getRefArgument(0);
-        String targetPath = context.getStringArgument(0);
-
-        Map<String, BValue> jarEntries = ((BMap<String, BValue>) jarFile).getMap();
+    public static void writeExecutableJarToFile(Strand strand, MapValue oJarFile, String targetPath) {
         try {
-            getJarContent(jarEntries, new FileOutputStream(targetPath));
+            writeJarContent(oJarFile, new FileOutputStream(targetPath));
+
+            // TODO: enable the verification once the uber-jar generation is complete.
+            // Optional<ErrorValue> result =
+            // ClassVerifier.verify((Map<String, ArrayValue>) oJarFile.get(PKG_ENTRIES), targetPath);
+            // if (result.isPresent()) {
+            // throw result.get();
+            // }
         } catch (IOException e) {
             throw new BLangCompilerException("jar file generation failed: " + e.getMessage(), e);
         }
     }
 
-    private static void getJarContent(Map<String, BValue> entries, OutputStream out) throws IOException {
+    private static void writeJarContent(MapValue<String, MapValue> entries, OutputStream out) throws IOException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
         if (entries.containsKey(MANIFEST_ENTRIES)) {
-            Map<String, BValue> manifestEntries = ((BMap<String, BValue>) entries.get(MANIFEST_ENTRIES)).
-                    getMap();
-            manifestEntries.forEach((k, v) -> manifest.getMainAttributes().
-                    put(new Attributes.Name(k), v.stringValue()));
+            MapValue<String, String> manifestEntries = entries.get(MANIFEST_ENTRIES);
+            manifestEntries.forEach((k, v) -> manifest.getMainAttributes().put(new Attributes.Name(k), v));
         }
 
         try (JarOutputStream target = new JarOutputStream(out, manifest)) {
-
             if (!entries.containsKey(PKG_ENTRIES)) {
                 throw new BLangCompilerException("no class file entries found in the record");
             }
-            Map<String, BValue> jarEntries = ((BMap<String, BValue>) entries.get(PKG_ENTRIES)).getMap();
-            for (String entryName : jarEntries.keySet()) {
-                byte[] entryContent = ((BValueArray) jarEntries.get(entryName)).getBytes();
-                JarEntry entry = new JarEntry(entryName);
+
+            Map<String, ArrayValue> jarEntries = entries.get(PKG_ENTRIES);
+            for (Map.Entry<String, ArrayValue> keyVal : jarEntries.entrySet()) {
+                byte[] entryContent = keyVal.getValue().getBytes();
+                JarEntry entry = new JarEntry(keyVal.getKey());
                 target.putNextEntry(entry);
                 target.write(entryContent);
                 target.closeEntry();

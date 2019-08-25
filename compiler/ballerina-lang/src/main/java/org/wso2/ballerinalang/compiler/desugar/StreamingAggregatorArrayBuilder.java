@@ -96,6 +96,7 @@ public class StreamingAggregatorArrayBuilder extends BLangNodeVisitor {
                 BLangInvocation aggregatorInvocation = ASTBuilderUtil.
                         createInvocationExprForMethod(invocation.pos, aggregatorInvokableSymbol,
                                                       Collections.emptyList(), symResolver);
+                aggregatorInvocation.type = aggregatorInvokableSymbol.retType;
                 exprs.add(aggregatorInvocation);
             }
         }

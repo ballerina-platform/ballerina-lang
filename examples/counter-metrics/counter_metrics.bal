@@ -24,7 +24,7 @@ service onlineStoreService on new http:Listener(9090) {
         observe:Counter localCounter = new("local_operations");
         localCounter.increment();
         //Increment the value of the counter by 20.
-        localCounter.increment(amount = 20);
+        localCounter.increment(20);
 
         //Create a counter with optional fields description, and tags.
         observe:Counter registeredCounter = new("total_product_order_quantity",
@@ -43,13 +43,13 @@ service onlineStoreService on new http:Listener(9090) {
         }
 
         //Increase the amount of the registered counter instance by amount 10.
-        registeredCounter.increment(amount = 10);
+        registeredCounter.increment(10);
 
         //Get the value of the counter instances.
         io:println("------------------------------------------");
-        io:println("Global Counter = "+ globalCounter.getValue());
-        io:println("Local Counter = "+ localCounter.getValue());
-        io:println("Registered Counter = "+ registeredCounter.getValue());
+        io:println("Global Counter = ", globalCounter.getValue());
+        io:println("Local Counter = ", localCounter.getValue());
+        io:println("Registered Counter = ", registeredCounter.getValue());
         io:println("------------------------------------------");
 
         //Send reponse to the client.

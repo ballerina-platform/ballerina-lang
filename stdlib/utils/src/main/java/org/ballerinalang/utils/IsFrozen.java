@@ -18,13 +18,9 @@
 
 package org.ballerinalang.utils;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,14 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "isFrozen",
         args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)})
-public class IsFrozen extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context ctx) {
-        BValue value = ctx.getNullableRefArgument(0);
-        boolean frozen = value == null || value.isFrozen();
-        ctx.setReturnValues(new BBoolean(frozen));
-    }
+public class IsFrozen {
 
     public static boolean isFrozen(Strand strand, Object value) {
         return !(value instanceof RefValue) || ((RefValue) value).isFrozen();

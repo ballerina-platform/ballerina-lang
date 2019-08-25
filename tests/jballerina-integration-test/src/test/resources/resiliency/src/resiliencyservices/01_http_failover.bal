@@ -28,9 +28,9 @@ listener http:Listener backendEP00 = new(8080);
 
 // Define the failover client end point to call the backend services.
 http:FailoverClient foBackendEP00 = new({
-    timeoutMillis: 5000,
+    timeoutInMillis: 5000,
     failoverCodes: [501, 502, 503],
-    intervalMillis: 5000,
+    intervalInMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
         { url: "http://localhost:3467/inavalidEP" },
@@ -41,9 +41,9 @@ http:FailoverClient foBackendEP00 = new({
 });
 
 http:FailoverClient foBackendFailureEP00 = new({
-    timeoutMillis: 5000,
+    timeoutInMillis: 5000,
     failoverCodes: [501, 502, 503],
-    intervalMillis: 5000,
+    intervalInMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
         { url: "http://localhost:3467/inavalidEP" },
@@ -53,9 +53,9 @@ http:FailoverClient foBackendFailureEP00 = new({
 });
 
 http:FailoverClient foStatusCodesEP00 = new({
-    timeoutMillis: 5000,
+    timeoutInMillis: 5000,
     failoverCodes: [501, 502, 503],
-    intervalMillis: 5000,
+    intervalInMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
         { url: "http://localhost:8080/statuscodes" },
@@ -73,7 +73,7 @@ service failoverDemoService00 on failoverEP00 {
         path: "/typical"
     }
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
-        var backendRes = foBackendEP00->forward("/", request);
+        var backendRes = foBackendEP00->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
@@ -96,7 +96,7 @@ service failoverDemoService00 on failoverEP00 {
         path: "/failures"
     }
     resource function invokeAllFailureEndpoint(http:Caller caller, http:Request request) {
-        var backendRes = foBackendFailureEP00->forward("/", request);
+        var backendRes = foBackendFailureEP00->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
@@ -119,7 +119,7 @@ service failoverDemoService00 on failoverEP00 {
         path: "/failurecodes"
     }
     resource function invokeAllFailureStatusCodesEndpoint(http:Caller caller, http:Request request) {
-        var backendRes = foStatusCodesEP00->forward("/", request);
+        var backendRes = foStatusCodesEP00->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
@@ -143,7 +143,7 @@ service failoverDemoService00 on failoverEP00 {
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
         string startIndex = foBackendEP00.succeededEndpointIndex.toString();
-        var backendRes = foBackendEP00->forward("/", request);
+        var backendRes = foBackendEP00->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;
             var responseToCaller = caller->respond(responseMessage);

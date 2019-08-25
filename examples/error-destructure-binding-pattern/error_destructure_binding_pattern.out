@@ -2,8 +2,8 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run error_destructure_binding_pattern.bal
 Reason String: Sample Error
-Detail Mapping: {"detail":"Detail Msg", "fatal":true}
+Info: Detail Info
+Fatal: true
 Reason String: Sample Error
-Detail Mapping Field One: Detail Msg
-Detail Mapping Field Two: true
-Detail Mapping: {detailMsg:"Failed Message", isFatal:true}
+Detail Map: info=Detail Info fatal=true
+Detail Message: Failed Message

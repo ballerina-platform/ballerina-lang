@@ -726,10 +726,10 @@ function testIntersectingUnionTrue() returns [boolean, boolean] {
     return [x is int|boolean, x is json];
 }
 
-//function testIntersectingUnionFalse() returns [boolean, boolean] {
-//    string|int|typedesc<any> x = int;
-//    return [x is int|boolean, x is anydata];
-//}
+function testIntersectingUnionFalse() returns [boolean, boolean] {
+    string|int|typedesc<any> x = int;
+    return [x is int|boolean, x is anydata];
+}
 
 function testValueTypeAsFiniteTypeTrue() returns [boolean, boolean] {
     string s = "orange";
@@ -748,6 +748,7 @@ const ERR_REASON_TWO = "error reason two";
 
 type Details record {
     string message;
+    error cause?;
 };
 
 type MyError error<ERR_REASON, Details>;
@@ -808,4 +809,26 @@ function testFunctions2() returns [boolean, boolean, boolean, boolean] {
     boolean b3 = a is function() returns string;
     boolean b4 = a is function() returns float;
     return [b1, b2, b3, b4];
+}
+
+function testFutureTrue() returns boolean {
+    any a = start name();
+    if (a is future<string>) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function testFutureFalse() returns boolean {
+    any a = start name();
+    if (a is future<int>) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function name() returns string {
+    return "em";
 }

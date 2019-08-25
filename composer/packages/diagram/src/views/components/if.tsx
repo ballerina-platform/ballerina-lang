@@ -83,7 +83,7 @@ export const If: React.StatelessComponent<{
                     />
                     <ArrowHead direction={"left"} className="condition-arrow-head" {...r4} />
                     <Condition {...conditionProps} astModel={model} />
-                    {model.body && <Block model={model.body} visibleEndpoints={model.VisibleEndpoints} />}
+                    {model.body && <Block model={model.body} />}
                     {children}
                 </g>
             </g>);

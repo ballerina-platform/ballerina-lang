@@ -11,7 +11,8 @@ public function main() {
 
         // Sends messages asynchronously to the worker `w2`. This message contains a
         // tuple value with the member types `int` and `float`.
-        (i, k) -> w2;
+        [int, float] t1 = [i, k];
+        t1 -> w2;
         io:println("[w1 -> w2] i: ", i, " k: ", k);
 
         // Receives a message from the worker `w2`. This message contains `
@@ -49,10 +50,10 @@ public function main() {
         // Receives a message from the worker `w1`.
         int iw;
         float kw;
-        (int, float) vW1 = (0, 1.0);
+        [int, float] vW1 = [0, 1.0];
         vW1 = <- w1;
-        (iw, kw) = vW1;
-        io:println("[w2 <- w1] iw: " + iw + " kw: " + kw);
+        [iw, kw] = vW1;
+        io:println("[w2 <- w1] iw: ", iw, " kw: ", kw);
 
         // Sends a message asynchronously to the worker `w1`.
         json jw = { "name": "Ballerina" };
@@ -63,7 +64,7 @@ public function main() {
         int lw;
         runtime:sleep(5);
         lw = <- w1;
-        io:println("[w2 <- w1] lw: " + lw);
+        io:println("[w2 <- w1] lw: ", lw);
     }
 
     worker w3 {

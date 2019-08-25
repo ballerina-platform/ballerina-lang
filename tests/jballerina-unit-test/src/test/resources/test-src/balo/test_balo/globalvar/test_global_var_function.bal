@@ -1,4 +1,4 @@
-import testorg/foo version v1;
+import testorg/foo;
 
 function getGlobalVars() returns [int, string, float, any] {
     return [foo:getGlbVarInt(), foo:getGlbVarString(), foo:getGlbVarFloat(), foo:getGlbVarAny()];

@@ -62,9 +62,7 @@ function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int|err
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
     map<any> tempMap = {"length": arr.length()};
-    int length;
-    length =check int.convert(tempMap.length);
-    return length;
+    return <int> tempMap["length"];
 }
 
 function arrayLengthAccessTestReturnStatementCase (int x, int y) returns (int) {
@@ -149,7 +147,7 @@ type Employee record {
 type Empty record {};
 
 function arrayLengthAccessTestJSONArrayCase (int x, int y) returns (int) {
-    json arr = [x,y,5,5,6,6];
+    json[] arr = [x,y,5,5,6,6];
     int length;
     length = arr.length();
     return length;
@@ -230,12 +228,6 @@ function accessLengthOfNullArray() returns (int) {
 function accessLengthOfNullMap() returns (int) {
     map<any> m = {};
     int length = m.length();
-    return length;
-}
-
-function accessLengthOfNullJson() returns (int) {
-    json j = null;
-    int length = j.length();
     return length;
 }
 

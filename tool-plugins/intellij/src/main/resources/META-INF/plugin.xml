@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>0.992.0</version>
+    <version>1.0.0-alpha-2</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -10,16 +10,16 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Added ballerina sequence diagram view and editing support. </li>
-        <li>Added language server based in-place renaming support. </li>
-        <li>Added language server based signature-help. </li>
-        <li>Added Debugger Adaptor Protocol Support. </li>
+        <li>Fixed plugin compatibility issues with IDEA 2019.2 (diagnostics, code actions and renaming support.) </li>
+        <li>Fixed syntax highlighting issue with XML related syntax. </li>
+        <li>Added ballerina module creation action. </li>
+        <li>Added plugin setting to enable ballerina experimental features. </li>
+        <li>Fixed minor code completion related issues. </li>
       </ul>
     ]]>
     </change-notes>
-
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="183"/>
+    <idea-version since-build="182"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
@@ -27,8 +27,9 @@
     <depends optional="true" config-file="java-deps.xml">com.intellij.modules.java</depends>
 
     <extensionPoints>
-        <extensionPoint qualifiedName="io.ballerina.html.panel.provider"
-                        interface="io.ballerina.plugins.idea.webview.diagram.preview.HtmlPanelProvider"/>
+        <extensionPoint
+                interface="io.ballerina.plugins.idea.webview.diagram.preview.HtmlPanelProvider"
+                name="html.panel.provider"/>
     </extensionPoints>
 
     <module-components>
@@ -45,8 +46,8 @@
         <completion.contributor implementationClass="org.wso2.lsp4intellij.contributors.LSPCompletionContributor"
                                 id="LSPCompletionContributor" language="Ballerina"/>
 
-        <localInspection displayName="LSP" shortName="LSP" enabledByDefault="true"
-                         implementationClass="org.wso2.lsp4intellij.contributors.inspection.DummyLSPInspection"/>
+        <externalAnnotator implementationClass="org.wso2.lsp4intellij.contributors.annotator.LSPAnnotator"
+                           id="BallerinaLSPAnnotator" language="Ballerina"/>
 
         <renameHandler implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameHandler"
                        id="LSPRenameHandler" order="first"/>
@@ -54,6 +55,8 @@
         <renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"
                                    id="LSPRenameProcessor" order="first"/>
 
+        <typedHandler implementation="org.wso2.lsp4intellij.editor.listeners.LSPTypedHandler"
+                      id="BallerinaLspTypedHandler"/>
 
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
@@ -175,8 +178,11 @@
                 implementation="io.ballerina.plugins.idea.project.BallerinaProjectStructureDetector"/>
         <directoryProjectGenerator
                 implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
-
         <applicationService
+                serviceImplementation="io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings"/>
+        <applicationService
+                serviceImplementation="io.ballerina.plugins.idea.settings.debuglogs.LangServerDebugLogsSettings"/>
+        <projectService
                 serviceImplementation="io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
@@ -211,11 +217,14 @@
                     icon="BallerinaIcons.Layout.PREVIEW_ONLY">
             </action>
         </group>
-        <action id="Ballerina.NewBallerinaFile" class="io.ballerina.plugins.idea.actions.BallerinaCreateFileAction"
+        <action id="NewBallerinaFile" class="io.ballerina.plugins.idea.actions.BallerinaCreateFileAction"
                 text="Ballerina File" description="Create new Ballerina file">
-            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+            <add-to-group group-id="NewGroup" anchor="first"/>
         </action>
-
+        <action id="NewBallerinaModule" class="io.ballerina.plugins.idea.actions.BallerinaCreateModuleAction"
+                text="Ballerina Module" description="Create new Ballerina module">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewBallerinaFile"/>
+        </action>
         <action class="org.wso2.lsp4intellij.actions.LSPReformatAction" id="ReformatCode"
                 use-shortcut-of="ReformatCode"
                 overrides="true" text="Reformat Code"/>

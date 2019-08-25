@@ -17,8 +17,8 @@
 import ballerina/task;
 
 task:TimerConfiguration configuration = {
-    interval: 2000,
-    initialDelay: 1000
+    intervalInMillis: 2000,
+    initialDelayInMillis: 1000
 };
 
 int count = 0;

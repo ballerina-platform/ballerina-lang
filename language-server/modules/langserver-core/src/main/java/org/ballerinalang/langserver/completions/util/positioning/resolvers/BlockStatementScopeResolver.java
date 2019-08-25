@@ -67,7 +67,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         boolean isWithinScopeAfterLastChild = this.isWithinScopeAfterLastChildNode(treeVisitor, isLastStatement,
                 nodeELine, nodeECol, line, col);
         if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol) || isWithinScopeAfterLastChild) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
             treeVisitor.forceTerminateVisitor();

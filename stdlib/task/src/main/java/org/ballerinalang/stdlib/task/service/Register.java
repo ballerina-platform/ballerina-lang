@@ -18,12 +18,12 @@
 package org.ballerinalang.stdlib.task.service;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 import org.ballerinalang.stdlib.task.objects.Task;
 import org.ballerinalang.stdlib.task.utils.Utils;
@@ -65,12 +65,12 @@ public class Register {
             serviceInformation = new ServiceInformation(strand, service);
         }
 
-        /* 
+        /*
          * TODO: After #14148 fixed, use compiler plugin to validate the service
          */
         try {
             validateService(serviceInformation);
-        } catch (BLangRuntimeException e) {
+        } catch (SchedulingException e) {
             return Utils.createTaskError(e.getMessage());
         }
 

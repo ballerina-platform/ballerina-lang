@@ -18,7 +18,7 @@ public function main() {
         message = io:readln("Message : ");
         if (message != ESCAPE) {
             // Produces a message to the specified subject.
-            var result = publisher->publish(subject, message);
+            var result = publisher->publish(subject, <@untainted> message);
             if (result is nats:Error) {
                 error e = result;
                 log:printError("Error occurred while closing the connection", err = e);

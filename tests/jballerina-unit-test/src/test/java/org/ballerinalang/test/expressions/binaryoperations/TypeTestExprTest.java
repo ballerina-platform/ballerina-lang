@@ -571,7 +571,7 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
-    @Test (groups = "brokenOnLangLibChange")
+    @Test
     public void testIntersectingUnionFalse() {
         BValue[] returns = BRunUtil.invoke(result, "testIntersectingUnionFalse");
         Assert.assertEquals(returns.length, 2);
@@ -649,5 +649,13 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+    }
+
+    @Test
+    public void testFuture() {
+        BValue[] returns = BRunUtil.invoke(result, "testFutureTrue");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        returns = BRunUtil.invoke(result, "testFutureFalse");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 }

@@ -35,7 +35,6 @@ import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
 import org.ballerinalang.net.grpc.callback.UnaryCallableUnitCallBack;
-import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 
 import java.util.List;
 
@@ -158,9 +157,6 @@ public abstract class ServerCallHandler {
     }
 
     void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error) {
-        if (resource == null) {
-            throw new ServerRuntimeException("Error in listener service definition. onError resource does not exists");
-        }
         List<BType> signatureParams = resource.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
         paramValues[0] = getConnectionParameter(responseObserver);
@@ -193,9 +189,6 @@ public abstract class ServerCallHandler {
     }
 
     Object[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {
-        if (resource == null) {
-            throw new ServerRuntimeException("Error when dispatching request. Incorrect service resource definition");
-        }
         List<BType> signatureParams = resource.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
         paramValues[0] = getConnectionParameter(responseObserver);

@@ -23,8 +23,10 @@ function testCreateJwtAuthProvider(string trustStorePath) returns jwt:InboundJwt
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",
         audience: "ballerina",
-        certificateAlias: "ballerina",
-        trustStore: trustStore
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
     jwt:InboundJwtAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider;
@@ -36,8 +38,10 @@ function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustS
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",
         audience: "ballerina",
-        certificateAlias: "ballerina",
-        trustStore: trustStore
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
     jwt:InboundJwtAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider.authenticate(jwtToken);
@@ -55,22 +59,24 @@ function generateJwt(string keyStorePath) returns string|jwt:Error {
         exp: 32475251189000
     };
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JwtIssuerConfig issuerConfig = {
+    jwt:JwtKeyStoreConfig keyStoreConfig = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
     };
-    return jwt:issueJwt(header, payload, issuerConfig);
+    return jwt:issueJwt(header, payload, keyStoreConfig);
 }
 
 function verifyJwt(string jwt, string trustStorePath) returns @tainted (jwt:JwtPayload|jwt:Error) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig validatorConfig = {
         issuer: "wso2",
-        certificateAlias: "ballerina",
         audience: "ballerina",
-        clockSkew: 0,
-        trustStore: trustStore
+        clockSkewInSeconds: 0,
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
     return jwt:validateJwt(jwt, validatorConfig);
 }

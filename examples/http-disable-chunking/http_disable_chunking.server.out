@@ -2,5 +2,5 @@
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run http_disable_chunking.bal
 # Service deployment
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9092
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9090
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9092

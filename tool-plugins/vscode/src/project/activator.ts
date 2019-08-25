@@ -1,7 +1,11 @@
-import { BallerinaExtension, ExtendedLangClient, BALLERINA_LANG_ID } from "../core";
+import { BallerinaExtension, ExtendedLangClient, BALLERINA_LANG_ID, ballerinaExtInstance } from "../core";
 import { workspace, window, Uri } from "vscode";
+import { TM_EVENT_OPEN_DETECTED_PROJECT_ROOT_VIA_PROMPT, CMP_PROJECT_SUPPORT } from "../telemetry";
+import { activateTestRunner } from "./cli-cmds/test";
+import { activateBuildCommand } from "./cli-cmds/build";
 
 function promptOpenFolder(path: string) {
+    const reporter = ballerinaExtInstance.telemetryReporter;
     if (workspace.workspaceFolders) {
         const folder = workspace.workspaceFolders.find((folder) => {
             return folder.uri.fsPath === path;
@@ -15,6 +19,7 @@ function promptOpenFolder(path: string) {
         path, action)
         .then((selection) => {
             if (selection === action) {
+                reporter.sendTelemetryEvent(TM_EVENT_OPEN_DETECTED_PROJECT_ROOT_VIA_PROMPT, { component: CMP_PROJECT_SUPPORT });
                 workspace.updateWorkspaceFolders(0, 0, { uri: Uri.file(path)});
             }
         });
@@ -37,4 +42,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             });
         }
     });
+    // activate ballerina test command
+    activateTestRunner();
+
+    // activate ballerina build command
+    activateBuildCommand();
 }

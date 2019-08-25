@@ -97,7 +97,7 @@ function testRecordStaticMatch() returns string[] {
 
     Foo f1 = {x: 12, y: "Ballerina"};
     map<any> m1 = {x: 10, y: "B"};
-    Foo f2 = {x: 12, y: "Ballerina", z: true};
+    Foo f2 = { x: 12, y: "Ballerina", "z": true };
     map<any> m2 = {x: 10, z: "Ballerina"};
 
     string[] result = [tar1(f1), tar1(m1), tar1(15), tar1(f2), tar1(m2)];
@@ -154,8 +154,8 @@ type Bar record {
 
 function testRecordAndTupleComplexStaticMatch() returns string[] {
     [boolean, float] t1 = [true, 12.1];
-    Foo f1 = {x: 12, y: "Ballerina", z: t1};
-    Bar b1 = {x: 15, y: ["John", f1, "Snow"], z: 15.1};
+    Foo f1 = {x: 12, y: "Ballerina", "z": t1};
+    Bar b1 = {x: 15, y: ["John", f1, "Snow"], "z": 15.1};
 
     string[] result = [tar3(b1)];
 
@@ -302,12 +302,12 @@ function testStaticMatchOrPatterns3() returns string[] {
 
     Foo f1 = {x: 12, y: "Ballerina"};
     map<any> m1 = {x: 10, y: "B"};
-    Foo f2 = {x: 12, y: "Ballerina", z: true};
+    Foo f2 = {x: 12, y: "Ballerina", "z": true};
     map<any> m2 = { x: 10, z: "Ballerina" };
-    AnotherFoo af1 = { x: 15, y: ["John", { x: 12, y: "Ballerina" }, "Snow"], z: 15.1 };
-    AnotherFoo af2 = { x: 15, y: ["Stark", f1, "Sansa"], z: 15.1 };
-    AnotherFoo af3 = { x: 15, y: ["Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"], z: 15.1 };
-    AnotherFoo af4 = { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], z: 56.9 };
+    AnotherFoo af1 = { x: 15, y: ["John", { x: 12, y: "Ballerina" }, "Snow"], "z": 15.1 };
+    AnotherFoo af2 = { x: 15, y: ["Stark", f1, "Sansa"], "z": 15.1 };
+    AnotherFoo af3 = { x: 15, y: ["Stark", { x: 12, y: "Ballerina", "z": true }, "Sansa"], "z": 15.1 };
+    AnotherFoo af4 = { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], "z": 56.9 };
     int i1 = 16;
     int i2 = 12;
 
@@ -335,12 +335,12 @@ function testStaticMatchOrPatterns4() returns string[] {
 
     Foo f1 = {x: 12, y: "Ballerina"};
     map<any> m1 = { x: 10, y: "B" };
-    Foo f2 = { x: 12, y: "Ballerina", z: true };
+    Foo f2 = { x: 12, y: "Ballerina", "z": true };
     map<any> m2 = { x: 10, z: "Ballerina" };
-    AnotherFoo af1 = { x: 15, y: ["John", { x: 12, y: "Ballerina" }, "Snow"], z: 15.1 };
-    AnotherFoo af2 = { x: 15, y: ["Stark", f1, "Sansa"], z: 15.1 };
-    AnotherFoo af3 = { x: 15, y: ["Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"], z: 15.1 };
-    AnotherFoo af4 = { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], z: 56.9 };
+    AnotherFoo af1 = { x: 15, y: ["John", { x: 12, y: "Ballerina" }, "Snow"], "z": 15.1 };
+    AnotherFoo af2 = { x: 15, y: ["Stark", f1, "Sansa"], "z": 15.1 };
+    AnotherFoo af3 = { x: 15, y: ["Stark", { x: 12, y: "Ballerina", "z": true }, "Sansa"], "z": 15.1 };
+    AnotherFoo af4 = { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], "z": 56.9 };
     int i1 = 16;
     int i2 = 12;
     float f = 7.8;
@@ -431,3 +431,64 @@ function caz5(CONST_1|CONST_2|CONST_3|CONST_4 a) returns string {
 
     return results;
 }
+
+function testStructuredMatchPatternWithEmptyTuple() returns string[] {
+    int[] arr = [];
+    string[] result = [];
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 1;
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 2;
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 3;
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 4;
+    result[result.length()] = foo8(arr);
+
+    return result;
+}
+
+function foo8(any x) returns string {
+    match x {
+        [] => {return "Matched with empty array";}
+        [1] => {return "Matched with i: 1";}
+        [1, 2] => {return "Matched with i: 1, j: 2";}
+        [1, 2, 3] => {return "Matched with i: 1, j: 2, k: 3";}
+        _ => {return "Matched with default";}
+    }
+}
+
+function testStructuredMatchPatternWithEmptyRecord() returns string[] {
+    record {} rec = {};
+    string[] result = [];
+    result[result.length()] = foo9(rec);
+
+    rec["a"] = 1;
+    result[result.length()] = foo9(rec);
+
+    rec["b"] = 2;
+    result[result.length()] = foo9(rec);
+
+    rec["c"] = 3;
+    result[result.length()] = foo9(rec);
+
+    rec["d"] = 4;
+    result[result.length()] = foo9(rec);
+
+    return result;
+}
+
+function foo9(any x) returns string {
+    match x {
+        {a:1, b:2, c:3} => {return "Matched with a: 1, b: 2, c: 3";}
+        {a:1, b:2} => {return "Matched with a: 1, b: 2";}
+        {a:1} => {return "Matched with a: 1";}
+        {} => {return "Matched with empty record";}
+        _ => {return "Matched with default";}
+    }
+}
+

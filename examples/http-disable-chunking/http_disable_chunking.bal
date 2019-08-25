@@ -6,7 +6,7 @@ import ballerina/log;
 //in the request. When chunking is set to auto, chunking is done as specified in the request.
 
 http:Client clientEndpoint = new("http://localhost:9090",
-                                 config = { http1Settings : { chunking: http:CHUNKING_NEVER }});
+                                 { http1Settings : { chunking: http:CHUNKING_NEVER }});
 
 service chunkingSample on new http:Listener(9092) {
 
@@ -50,14 +50,7 @@ service echo on new http:Listener(9090) {
         //Set the response according to the request headers.
         if (req.hasHeader("content-length")) {
             value = req.getHeader("content-length");
-            //Perform data validation for content-length.
-            if (isValid(value.matches("\\d+"))) {
-                value = "Length-" + value;
-            } else {
-                res.statusCode = 400;
-                res.setPayload("Content-Length contains invalid data");
-                validationErrorFound = true;
-            }
+            value = "Length-" + value;
         } else if (req.hasHeader("Transfer-Encoding")) {
             value = req.getHeader("Transfer-Encoding");
             //Perform data validation for transfer-encoding.
@@ -74,7 +67,7 @@ service echo on new http:Listener(9090) {
 
         if (!validationErrorFound) {
             // Since there is no validation error, mark the `value` as trusted data and set to the response.
-            res.setPayload({ "Outbound request content": untaint value });
+            res.setPayload({ "Outbound request content": <@untainted> value });
         }
         var result = caller->respond(res);
         if (result is error) {

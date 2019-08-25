@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 
 // Creates an HTTP client to interact with a remote endpoint.
-http:Client clientEndpoint = new("http://localhost:9090", config = {
+http:Client clientEndpoint = new("http://localhost:9090", {
         followRedirects: { enabled: true, maxCount: 5 }
     });
 

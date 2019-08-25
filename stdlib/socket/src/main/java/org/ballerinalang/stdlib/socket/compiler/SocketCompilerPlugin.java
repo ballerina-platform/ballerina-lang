@@ -19,9 +19,9 @@
 package org.ballerinalang.stdlib.socket.compiler;
 
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;

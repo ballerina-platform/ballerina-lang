@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/io;
 import ballerina/internal;
+import ballerina/time;
 
 ////////////////////////////////
 ///// HTTP Client Endpoint /////
@@ -70,7 +70,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function head(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->head(path, message = req);
     }
@@ -112,10 +112,10 @@ public type Client client object {
     # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
     #
     # + path - Resource path
-    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function delete(@untainted string path, RequestMessage message) returns Response|ClientError {
+    public remote function delete(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->delete(path, req);
     }
@@ -126,7 +126,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function get(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->get(path, message = req);
     }
@@ -137,7 +137,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function options(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->options(path, message = req);
     }
@@ -212,7 +212,7 @@ public type Client client object {
 # + secureSocket - Configurations for secure communication with the remote HTTP endpoint
 public type TargetService record {|
     string url = "";
-    SecureSocket? secureSocket = ();
+    ClientSecureSocket? secureSocket = ();
 |};
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
@@ -220,11 +220,10 @@ public type TargetService record {|
 # + httpVersion - The HTTP version understood by the client
 # + http1Settings - Configurations related to HTTP/1.x protocol
 # + http2Settings - Configurations related to HTTP/2 protocol
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
+# + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + followRedirects - Configurations associated with Redirection
 # + poolConfig - Configurations associated with request pooling
-# + proxy - Proxy server related options
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
@@ -233,14 +232,13 @@ public type TargetService record {|
 # + retryConfig - Configurations associated with Retry
 public type ClientEndpointConfig record {|
     string httpVersion = HTTP_1_1;
-    Http1Settings http1Settings = {};
-    Http2Settings http2Settings = {};
-    int timeoutMillis = 60000;
+    ClientHttp1Settings http1Settings = {};
+    ClientHttp2Settings http2Settings = {};
+    int timeoutInMillis = 60000;
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();
-    ProxyConfig? proxy = ();
     PoolConfiguration? poolConfig = ();
-    SecureSocket? secureSocket = ();
+    ClientSecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     OutboundAuthConfig? auth = ();
@@ -252,9 +250,11 @@ public type ClientEndpointConfig record {|
 #
 # + keepAlive - Specifies whether to reuse a connection for multiple requests
 # + chunking - The chunking behaviour of the request
-public type Http1Settings record {|
+# + proxy - Proxy server related options
+public type ClientHttp1Settings record {|
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     Chunking chunking = CHUNKING_AUTO;
+    ProxyConfig? proxy = ();
 |};
 
 function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig) = external;
@@ -262,27 +262,28 @@ function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolC
 # Provides settings related to HTTP/2 protocol.
 #
 # + http2PriorKnowledge - Configuration to enable HTTP/2 prior knowledge
-public type Http2Settings record {|
+public type ClientHttp2Settings record {|
     boolean http2PriorKnowledge = false;
 |};
 
 # Provides configurations for controlling the retrying behavior in failure scenarios.
 #
 # + count - Number of retry attempts before giving up
-# + interval - Retry interval in milliseconds
+# + intervalInMillis - Retry interval in milliseconds
 # + backOffFactor - Multiplier, which increases the retry interval exponentially.
-# + maxWaitInterval - Maximum time of the retry interval in milliseconds
+# + maxWaitIntervalInMillis - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
 public type RetryConfig record {|
     int count = 0;
-    int interval = 0;
+    int intervalInMillis = 0;
     float backOffFactor = 0.0;
-    int maxWaitInterval = 0;
+    int maxWaitIntervalInMillis = 0;
     int[] statusCodes = [];
 |};
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
 #
+# + disable - Disable ssl validation.
 # + trustStore - Configurations associated with TrustStore
 # + keyStore - Configurations associated with KeyStore
 # + certFile - A file containing the certificate of the client
@@ -296,9 +297,10 @@ public type RetryConfig record {|
 # + verifyHostname - Enable/disable host name verification
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
-# + handshakeTimeout - SSL handshake time out
-# + sessionTimeout - SSL session time out
-public type SecureSocket record {|
+# + handshakeTimeoutInSeconds - SSL handshake time out
+# + sessionTimeoutInSeconds - SSL session time out
+public type ClientSecureSocket record {|
+    boolean disable = false;
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();
     string certFile = "";
@@ -311,8 +313,8 @@ public type SecureSocket record {|
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
-    int handshakeTimeout?;
-    int sessionTimeout?;
+    int handshakeTimeoutInSeconds?;
+    int sessionTimeoutInSeconds?;
 |};
 
 # Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.
@@ -427,7 +429,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
         }
 
         time:Time circuitStartTime = time:currentTime();
-        int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis / cbConfig.rollingWindow.bucketSizeMillis);
+        int numberOfBuckets = (cbConfig.rollingWindow.timeWindowInMillis / cbConfig.rollingWindow.bucketSizeInMillis);
         Bucket?[] bucketArray = [];
         int bucketIndex = 0;
         while (bucketIndex < numberOfBuckets) {
@@ -437,7 +439,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
 
         CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
             failureThreshold: cbConfig.failureThreshold,
-            resetTimeMillis: cbConfig.resetTimeMillis,
+            resetTimeInMillis: cbConfig.resetTimeInMillis,
             statusCodes: statusCodes,
             noOfBuckets: numberOfBuckets,
             rollingWindow: cbConfig.rollingWindow
@@ -466,9 +468,9 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
         boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
         RetryInferredConfig retryInferredConfig = {
             count: retryConfig.count,
-            interval: retryConfig.interval,
+            intervalInMillis: retryConfig.intervalInMillis,
             backOffFactor: retryConfig.backOffFactor,
-            maxWaitInterval: retryConfig.maxWaitInterval,
+            maxWaitIntervalInMillis: retryConfig.maxWaitIntervalInMillis,
             statusCodes: statusCodes
         };
         if (configuration.cache.enabled) {

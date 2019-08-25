@@ -124,7 +124,7 @@ public class Timer extends AbstractTask {
      * @param jobData Map containing the details of the job.
      * @throws SchedulerException if scheduling is failed.
      */
-    private void scheduleTimer(JobDataMap jobData) throws SchedulerException {
+    private void scheduleTimer(JobDataMap jobData) throws SchedulerException, SchedulingException {
         SimpleScheduleBuilder schedule = createSchedulerBuilder(this.getInterval(), this.getMaxRuns());
         String triggerId = this.getId();
         JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(triggerId).build();
@@ -147,13 +147,13 @@ public class Timer extends AbstractTask {
                     .build();
         }
 
-        scheduler.scheduleJob(job, trigger);
+        TaskManager.getInstance().getScheduler().scheduleJob(job, trigger);
         quartzJobs.put(triggerId, job.getKey());
     }
 
     private static SimpleScheduleBuilder createSchedulerBuilder(long interval, long maxRuns) {
         SimpleScheduleBuilder simpleScheduleBuilder = simpleSchedule()
-                .withMisfireHandlingInstructionNextWithExistingCount()
+                .withMisfireHandlingInstructionNextWithRemainingCount()
                 .withIntervalInMilliseconds(interval);
         if (maxRuns > 0) {
             // Quartz uses number of repeats, but we count total number of runs.

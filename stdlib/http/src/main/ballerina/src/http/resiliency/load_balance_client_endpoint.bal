@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/mime;
+
 # LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
 #
 # + loadBalanceClientConfig - The configurations for the load balance client endpoint
@@ -65,7 +67,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function head(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_HEAD);
     }
@@ -98,7 +100,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
     }
@@ -131,7 +133,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function delete(string path, RequestMessage message) returns Response|ClientError {
+    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_DELETE);
     }
@@ -142,7 +144,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function get(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_GET);
     }
@@ -207,13 +209,15 @@ public type LoadBalanceClient client object {
 
 # Represents an error occurred in an remote function of the Load Balance connector.
 #
-# + message - An error message explaining about the error
-# + statusCode - HTTP status code of the LoadBalanceActionError
+# + statusCode - HTTP status code of the `LoadBalanceActionError`
 # + httpActionErr - Array of errors occurred at each endpoint
+# + message - An explanation of the error
+# + cause - The original error which resulted in a `LoadBalanceActionError`
 public type LoadBalanceActionErrorData record {|
-    string message = "";
     int statusCode = 0;
     error?[] httpActionErr = [];
+    string message?;
+    error cause?;
 |};
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
@@ -295,7 +299,7 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
     string message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
     AllLoadBalanceEndpointsFailedError err = error(ALL_LOAD_BALANCE_ENDPOINTS_FAILED,
                                                     message = message,
-                                                    statusCode = INTERNAL_SERVER_ERROR_500,
+                                                    statusCode = STATUS_INTERNAL_SERVER_ERROR,
                                                     httpActionError = loadBalanceActionErrorData.httpActionErr);
     return err;
 }
@@ -306,7 +310,7 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # + httpVersion - The HTTP version to be used to communicate with the endpoint
 # + http1Settings - Configurations related to HTTP/1.x protocol
 # + http2Settings - Configurations related to HTTP/2 protocol
-# + timeoutMillis - The maximum time to wait (in milli seconds) for a response before closing the connection
+# + timeoutInMillis - The maximum time to wait (in milli seconds) for a response before closing the connection
 # + forwarded - The choice of setting forwarded/x-forwarded header
 # + followRedirects - Redirect related options
 # + poolConfig - Configurations associated with request pooling
@@ -321,9 +325,9 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {|
     string httpVersion = HTTP_1_1;
-    Http1Settings http1Settings = {};
-    Http2Settings http2Settings = {};
-    int timeoutMillis = 60000;
+    ClientHttp1Settings http1Settings = {};
+    ClientHttp2Settings http2Settings = {};
+    int timeoutInMillis = 60000;
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();
     ProxyConfig? proxy = ();
@@ -344,12 +348,11 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
         http1Settings: lbConfig.http1Settings,
         http2Settings: lbConfig.http2Settings,
         circuitBreaker:lbConfig.circuitBreaker,
-        timeoutMillis:lbConfig.timeoutMillis,
+        timeoutInMillis:lbConfig.timeoutInMillis,
         httpVersion:lbConfig.httpVersion,
         forwarded:lbConfig.forwarded,
         followRedirects:lbConfig.followRedirects,
         retryConfig:lbConfig.retryConfig,
-        proxy:lbConfig.proxy,
         poolConfig:lbConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:lbConfig.cache,

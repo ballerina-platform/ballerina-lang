@@ -18,6 +18,7 @@
 package org.ballerinalang.test.javainterop;
 
 import org.ballerinalang.model.values.BHandleValue;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -36,7 +37,9 @@ public class MiscTests {
     public void testInteropWithJavaArrayList() {
         CompileResult result = BCompileUtil.compile("test-src/javainterop/java_array_list_interop_tests.bal");
         BValue[] returns = BRunUtil.invoke(result, "interopWithJavaArrayList");
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(((BHandleValue) returns[0]).getValue(), "[Ballerina, Language, Specification]");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+        Assert.assertEquals(returns[2].stringValue(), "Specification");
     }
 }

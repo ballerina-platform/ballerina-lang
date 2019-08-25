@@ -4,4 +4,4 @@ $ ballerina run union_type.bal
 This is a string
 101
 this is a value
-key '' not found {}
+error key '' not found

@@ -141,3 +141,23 @@ function testUnreachableUnionStaticPatterns() returns string {
 
     return "4";
 }
+
+function invalidEmptyListPatterns(any x) returns string {
+    match x {
+        [] => {return "Matched with empty array literal";}
+        var [] => {return "Matched with empty array variable";} // unreachable
+        {} => {return "Matched with empty record literal";}
+        var {} => {return "Matched with empty record variable";} // unreachable
+        var s => {return "Matched with default";}
+    }
+}
+
+function invalidEmptyRecordPatterns(any x) returns string {
+    match x {
+        var {} => {return "Matched with empty record";}
+        var {a} => {return "Matched with {a}";} // unreachable
+        var {a, b} => {return "Matched with {a, b}";} // unreachable
+        var {a, b, c} => {return "Matched with {a, b, c}";} // unreachable
+        var s => {return "Matched with default";}
+    }
+}

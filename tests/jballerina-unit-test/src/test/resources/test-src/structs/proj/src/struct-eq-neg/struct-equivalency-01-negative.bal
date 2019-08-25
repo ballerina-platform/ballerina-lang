@@ -2,7 +2,7 @@
 public type person01 record {
     int age = 0;
     string name = "";
-    string address = "";
+    string address;
 };
 
 public type employee01 record {
@@ -40,7 +40,7 @@ function testEqOfStructsInSamePackage02() returns (string) {
 public type person03 record {
     int age = 0;
     string name = "";
-    string address = "";
+    string address;
 };
 
 public type employee03 record {

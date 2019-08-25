@@ -154,12 +154,9 @@ public function main() {
 }
 
 function printTable(string stmt, string tableName, table<anydata> returnedTable) {
-    var retData = json.convert(returnedTable);
     io:println(stmt);
-    io:print(tableName);
-    if (retData is json) {
-        io:println(io:sprintf("%s", retData));
-    } else {
-        io:println("Error in table to json conversion");
+    io:println(tableName);
+    foreach var row in returnedTable {
+       io:println(io:sprintf("%s", row));
     }
 }

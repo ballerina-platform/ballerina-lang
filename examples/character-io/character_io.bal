@@ -33,11 +33,13 @@ function closeWc(io:WritableCharacterChannel ch) {
 }
 
 
-public function main() {
+public function main() returns error? {
+    io:ReadableByteChannel readableFieldResult = check io:openReadableFile("./files/sample.txt");
     io:ReadableCharacterChannel sourceChannel =
-            new(io:openReadableFile("./files/sample.txt"), "UTF-8");
+            new(readableFieldResult, "UTF-8");
+    io:WritableByteChannel writableFileResult = check io:openWritableFile("./files/sampleResponse.txt");
     io:WritableCharacterChannel destinationChannel =
-            new(io:openWritableFile("./files/sampleResponse.txt"), "UTF-8");
+            new(writableFileResult, "UTF-8");
     io:println("Started to process the file.");
     // Processes the given `string`.
     var result = process(sourceChannel, destinationChannel);

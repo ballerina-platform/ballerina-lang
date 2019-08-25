@@ -31,7 +31,6 @@ configurations {
 
 dependencies {
     implementation project(':ballerina-integration-test-utils')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
@@ -46,15 +45,12 @@ dependencies {
     implementation project(':ballerina-transactions')
     implementation project(':protobuf-ballerina')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-activemq-artemis')
     // implementation project(':ballerina-websub')
-    implementation project(':ballerina-jms')
     implementation project(':ballerina-socket')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')
     implementation project(':ballerina-filepath')
     implementation project(':ballerina-observability')
-    implementation project(':ballerina-activemq-artemis')
     implementation project(':ballerina-jwt')
     implementation project(':ballerina-ldap')
     implementation project(':ballerina-oauth2')

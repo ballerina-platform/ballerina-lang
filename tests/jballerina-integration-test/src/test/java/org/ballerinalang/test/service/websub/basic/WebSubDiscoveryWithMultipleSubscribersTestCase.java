@@ -72,8 +72,8 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
 
-        String[] subscriberArgs = {"-e", "test.hub.url=" + "https://localhost:23191/websub/hub"};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{23383});
+        String[] subscriberArgs = {"--test.hub.url=" + "https://localhost:23191/websub/hub"};
+        webSubSubscriber.startServer(subscriberBal, new String[0], subscriberArgs, new int[]{23383});
     }
 
     @Test

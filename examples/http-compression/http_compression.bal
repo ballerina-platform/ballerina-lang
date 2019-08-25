@@ -61,7 +61,7 @@ service alwaysCompress on listenerEndpoint {
 // `Accept-Encoding` header, the client specifies it with "deflate, gzip". Alternatively, the existing header is sent.
 // When compression is specified as `COMPRESSION_AUTO`, only the user specified `Accept-Encoding` header is sent.
 // If the behaviour is set as `COMPRESSION_NEVER`, the client makes sure not to send the `Accept-Encoding` header.
-http:Client clientEndpoint = new("http://localhost:9090", config = {
+http:Client clientEndpoint = new("http://localhost:9090", {
         compression: http:COMPRESSION_ALWAYS
     });
 
@@ -70,7 +70,7 @@ service passthrough on new http:Listener(9092) {
         path: "/"
     }
     resource function getCompressed(http:Caller caller, http:Request req) {
-        var response = clientEndpoint->post("/backend/echo", untaint req);
+        var response = clientEndpoint->post("/backend/echo", <@untainted> req);
         if (response is http:Response) {
             var result = caller->respond(response);
             if (result is error) {
@@ -93,7 +93,7 @@ service backend on listenerEndpoint {
         http:Response res = new;
         if (req.hasHeader("accept-encoding")) {
             string value = req.getHeader("accept-encoding");
-            res.setPayload("Backend response was encoded : " + untaint value);
+            res.setPayload("Backend response was encoded : " + <@untainted> value);
         } else {
             res.setPayload("Accept-Encoding header is not present");
         }

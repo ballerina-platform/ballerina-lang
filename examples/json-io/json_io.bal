@@ -20,9 +20,9 @@ function closeWc(io:WritableCharacterChannel wc) {
 }
 
 // Writes the provided `json` to the specified path.
-function write(json content, string path) returns error? {
+function write(json content, string path) returns @tainted error? {
     // Creates a writable byte channel from the given path.
-    io:WritableByteChannel wbc = io:openWritableFile(path);
+    io:WritableByteChannel wbc = check io:openWritableFile(path);
     // Derives the character channel from the byte channel.
     io:WritableCharacterChannel wch = new(wbc, "UTF8");
     var result = wch.writeJson(content);
@@ -31,9 +31,9 @@ function write(json content, string path) returns error? {
 }
 
 // Reads a `json` value from the specified path.
-function read(string path) returns json | error {
+function read(string path) returns @tainted json | error {
     // Creates a readable byte channel from the given path.
-    io:ReadableByteChannel rbc = io:openReadableFile(path);
+    io:ReadableByteChannel rbc = check io:openReadableFile(path);
     // Derives the character channel from the byte channel.
     io:ReadableCharacterChannel rch = new(rbc, "UTF8");
     var result = rch.readJson();

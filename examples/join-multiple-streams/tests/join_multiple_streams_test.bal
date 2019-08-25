@@ -52,7 +52,7 @@ function testFunc() {
 
     runtime:sleep(10000);
 
-    string out = "ALERT!! : Material usage is higher than the expected limit for material : Teak , usage difference (%) : 50.0";
+    string out = "ALERT!! : Material usage is higher than the expected limit for material : Teak, usage difference (%) : 50.0";
     test:assertEquals(outputs.length(), 1);
     test:assertEquals(outputs[0], out);
 }

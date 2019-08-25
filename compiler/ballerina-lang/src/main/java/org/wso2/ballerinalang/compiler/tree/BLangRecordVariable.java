@@ -47,7 +47,6 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
 
     public List<BLangRecordVariableKeyValue> variableList;
     public VariableNode restParam;
-    public boolean isClosed;
 
     public BLangRecordVariable() {
         this.annAttachments = new ArrayList<>();
@@ -66,8 +65,8 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
     }
 
     @Override
-    public boolean isClosed() {
-        return isClosed;
+    public boolean hasRestParam() {
+        return this.restParam != null;
     }
 
     @Override

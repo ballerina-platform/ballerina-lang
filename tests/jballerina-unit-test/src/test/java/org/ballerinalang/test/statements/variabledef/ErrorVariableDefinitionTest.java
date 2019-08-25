@@ -36,14 +36,12 @@ import org.testng.annotations.Test;
  * @since 0.990.4
  */
 public class ErrorVariableDefinitionTest {
-    private CompileResult result, resultNegative;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.
                 compile("test-src/statements/variabledef/error_variable_definition_stmt.bal");
-        resultNegative = BCompileUtil.
-                compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");
     }
 
     @Test(description = "Test simple error var def with string and map")
@@ -211,8 +209,18 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[10].stringValue(), "Something Wrong");
     }
 
+    @Test(description = "Test named error variable def")
+    public void testIndirectErrorDestructuring() {
+        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorDestructuring");
+        Assert.assertEquals(returns[0].stringValue(), "Msg");
+        Assert.assertEquals(returns[1].stringValue(), "false");
+        Assert.assertEquals(returns[2].stringValue(), "{\"other\":\"k\"}");
+    }
+
     @Test
     public void testNegativeErrorVariables() {
+        CompileResult resultNegative = BCompileUtil.
+                compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 14);
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);

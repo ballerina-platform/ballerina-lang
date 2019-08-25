@@ -46,23 +46,23 @@ service Participant2pcService on coordinatorListener {
 
         var participatedTxn = participatedTransactions[participatedTxnId];
         if (participatedTxn is ()) {
-            res.statusCode = http:NOT_FOUND_404;
+            res.statusCode = http:STATUS_NOT_FOUND;
             prepareRes.message = TRANSACTION_UNKNOWN;
         } else {
             if (participatedTxn.state == TXN_STATE_ABORTED) {
-                res.statusCode = http:OK_200;
+                res.statusCode = http:STATUS_OK;
                 prepareRes.message = PREPARE_RESULT_ABORTED_STR;
                 removeParticipatedTransaction(participatedTxnId);
             } else {
                 // Call prepare on the local resource manager
                 boolean prepareSuccessful = prepareResourceManagers(transactionId, transactionBlockId);
                 if (prepareSuccessful) {
-                    res.statusCode = http:OK_200;
+                    res.statusCode = http:STATUS_OK;
                     participatedTxn.state = TXN_STATE_PREPARED;
                     prepareRes.message = PREPARE_RESULT_PREPARED_STR;
                     log:printInfo("Prepared transaction: " + transactionId);
                 } else {
-                    res.statusCode = http:OK_200;
+                    res.statusCode = http:STATUS_OK;
                     prepareRes.message = PREPARE_RESULT_ABORTED_STR;
                     participatedTxn.state = TXN_STATE_ABORTED;
                     removeParticipatedTransaction(participatedTxnId);
@@ -107,22 +107,22 @@ service Participant2pcService on coordinatorListener {
         NotifyResponse notifyRes = {};
         var txn = participatedTransactions[participatedTxnId];
         if (txn is ()) {
-            res.statusCode = http:NOT_FOUND_404;
+            res.statusCode = http:STATUS_NOT_FOUND;
             notifyRes.message = TRANSACTION_UNKNOWN;
         } else {
             if (notifyReq.message == COMMAND_COMMIT) {
                 if (txn.state != TXN_STATE_PREPARED) {
-                    res.statusCode = http:BAD_REQUEST_400;
+                    res.statusCode = http:STATUS_BAD_REQUEST;
                     notifyRes.message = NOTIFY_RESULT_NOT_PREPARED_STR;
                 } else {
                     // Notify commit to the resource manager
                     boolean commitSuccessful = commitResourceManagers(transactionId, transactionBlockId);
                     if (commitSuccessful) {
-                        res.statusCode = http:OK_200;
+                        res.statusCode = http:STATUS_OK;
                         notifyRes.message = PREPARE_RESULT_COMMITTED_STR;
                         txn.state = TXN_STATE_COMMITTED;
                     } else {
-                        res.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                        res.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                         log:printError("Committing resource managers failed. Transaction:" + participatedTxnId);
                         notifyRes.message = PREPARE_RESULT_FAILED_STR;
                     }
@@ -131,11 +131,11 @@ service Participant2pcService on coordinatorListener {
                 // Notify abort to the resource manager
                 boolean abortSuccessful = abortResourceManagers(transactionId, transactionBlockId);
                 if (abortSuccessful) {
-                    res.statusCode = http:OK_200;
+                    res.statusCode = http:STATUS_OK;
                     notifyRes.message = PREPARE_RESULT_ABORTED_STR;
                     txn.state = TXN_STATE_ABORTED;
                 } else {
-                    res.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                    res.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                     log:printError("Aborting resource managers failed. Transaction:" + participatedTxnId);
                     notifyRes.message = PREPARE_RESULT_FAILED_STR;
                 }

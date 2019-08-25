@@ -17,15 +17,13 @@
  */
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.AsyncTimer;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Extern function ballerina/runtime:sleep.
@@ -35,23 +33,38 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "runtime",
         functionName = "sleep",
-        args = {@Argument(name = "millis", type = TypeKind.INT)},
         isPublic = true
 )
-public class Sleep implements NativeCallableUnit {
+public class Sleep {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        long delayMillis = context.getIntArgument(0);
-        AsyncTimer.schedule(callback::notifySuccess, delayMillis);
-    }
+    private static final int CORE_THREAD_POOL_SIZE = 1;
+
+    private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
 
     public static void sleep(Strand strand, long delayMillis) {
-        AsyncTimer.schedule(new NonBlockingCallback(strand)::notifySuccess, delayMillis);
+        schedule(new NonBlockingCallback(strand)::notifySuccess, delayMillis);
     }
 
-    @Override
-    public boolean isBlocking() {
-        return false;
+    /**
+     * This can be used to register a callback to be triggered after the given delay. The callback
+     * must not block the execution in any way, and should return as soon as possible. The duration to
+     * execute the callback will affect other awaiting callbacks.
+     * @param callback the callback to be invoked after the given delay
+     * @param delayMillis the trigger delay in milliseconds
+     */
+    public static void schedule(TimerCallback callback, long delayMillis) {
+        executor.schedule(callback::execute, delayMillis, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Represents the timer callback.
+     */
+    public interface TimerCallback {
+
+        /**
+         * This is executed when the timer is triggered.
+         */
+        void execute();
+
     }
 }

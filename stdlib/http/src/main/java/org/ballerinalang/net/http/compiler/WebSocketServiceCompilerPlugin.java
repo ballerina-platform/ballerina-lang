@@ -19,6 +19,7 @@ package org.ballerinalang.net.http.compiler;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -39,7 +40,7 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
 @SupportedResourceParamTypes(
         expectedListenerType = @SupportedResourceParamTypes.Type(
                 packageName = WebSocketConstants.PACKAGE_HTTP,
-                name = WebSocketConstants.WEBSOCKET_LISTENER
+                name = WebSocketConstants.LISTENER
         ),
         paramTypes = {
                 @SupportedResourceParamTypes.Type(
@@ -59,6 +60,14 @@ public class WebSocketServiceCompilerPlugin extends AbstractTransportCompilerPlu
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+        @SuppressWarnings(WebSocketConstants.UNCHECKED)
+        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
+        // If first resource's first parameter is HttpCaller, do not process in this plugin.
+        // This is done on the assumption of resources does not mix each other (HTTP and WebSocket)
+        if (resources.size() > 0 && resources.get(0).getParameters().size() > 0
+                && HttpConstants.HTTP_CALLER_NAME.equals(resources.get(0).getParameters().get(0).type.toString())) {
+            return;
+        }
         if (annotations.size() > 1) {
             int count = 0;
             for (AnnotationAttachmentNode annotation : annotations) {
@@ -71,11 +80,7 @@ public class WebSocketServiceCompilerPlugin extends AbstractTransportCompilerPlu
                                    "There cannot be more than one " + WEBSOCKET_SERVICE + " annotations");
             }
         }
-        @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         resources.forEach(
                 res -> WebSocketResourceValidator.validate(res, dlog, isResourceReturnsErrorOrNil(res), false));
     }
 }
-
-

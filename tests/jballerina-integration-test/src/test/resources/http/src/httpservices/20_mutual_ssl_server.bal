@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-http:ServiceEndpointConfiguration mutualSslServiceConf = {
+http:ListenerConfiguration mutualSslServiceConf = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -39,8 +39,8 @@ http:ServiceEndpointConfiguration mutualSslServiceConf = {
         ocspStapling: {
             enable: false
         },
-        handshakeTimeout: 20,
-        sessionTimeout: 30
+        handshakeTimeoutInSeconds: 20,
+        sessionTimeoutInSeconds: 30
     }
 };
 

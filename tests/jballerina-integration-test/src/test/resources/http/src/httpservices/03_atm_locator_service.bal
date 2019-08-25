@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
 
 listener http:Listener serviceEnpoint = new(9092);

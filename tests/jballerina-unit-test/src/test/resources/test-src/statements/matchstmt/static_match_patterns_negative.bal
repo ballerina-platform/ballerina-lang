@@ -214,7 +214,7 @@ type Foo record {|
 |};
 
 function recordRestParamAndOptionalFields() returns string {
-    Foo f = {x: 1, a: "a"};
+    Foo f = {x: 1, "a": "a"};
     match f {
         {a: "b"} => return "f";
         {x: 1, b: "b"} => return "f";

@@ -37,7 +37,7 @@ function testComplexMapInit() returns (map<any>) {
 
 function mapInitWithIdentifiersTest() returns (map<any>) {
     string a = "key1";
-    map<any> animals = {a:"Lion", (a):"Cat", getKey():"Dog"};
+    map<any> animals = { a: "Lion", [a]: "Cat", [getKey()]: "Dog" };
     return animals;
 }
 
@@ -53,4 +53,20 @@ function testEmptyMap() returns (map<any>) {
 
 function mapFunction(map<any> m) {
 
+}
+
+string iValue = "i";
+
+function testExpressionAsKeys() returns boolean {
+    map<anydata> b = { s: "hello", [iValue]: 1, [getChar("f")]: 2.0, [getChar("b")]: true };
+    return b["s"] == "hello" && b["i"] == 1 && b["f"] == 2.0 && b["b"] == true;
+}
+
+function testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames() returns boolean {
+    map<string|float> b = { s: "hello", [getChar("s")]: "world", [getChar("f")]: 2.0, f: 4.0 };
+    return b["s"] == "world" && b["f"] == 4.0;
+}
+
+function getChar(string st) returns string {
+    return st;
 }

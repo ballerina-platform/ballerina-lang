@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "math",
-        functionName = "iEEEremainder",
+        functionName = "remainder",
         args = {@Argument(name = "a", type = TypeKind.FLOAT),
                 @Argument(name = "b", type = TypeKind.FLOAT)},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class IEEERemainder {
 
-    public static double iEEEremainder(Strand strand, double a, double b) {
+    public static double remainder(Strand strand, double a, double b) {
         return Math.IEEEremainder(a, b);
     }
 }

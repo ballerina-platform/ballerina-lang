@@ -39,6 +39,7 @@ public class DocerinaGen {
     public static void main(String[] args) {
         String sourceRoot = args[0];
         String outputDir = args[1];
+        String moduleFilter = args[2];
 
         System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
 
@@ -49,7 +50,8 @@ public class DocerinaGen {
         sources = srcDirectory.getSourcePackageNames();
 
         try {
-            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir, null, false, false,
+            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir,
+                    moduleFilter, false, false,
                     sources.toArray(new String[sources.size()]));
         } catch (Throwable e) {
             out.println(e.getMessage());

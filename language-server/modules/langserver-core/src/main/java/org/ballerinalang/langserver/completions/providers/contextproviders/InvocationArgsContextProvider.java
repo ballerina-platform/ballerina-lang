@@ -58,9 +58,9 @@ public class InvocationArgsContextProvider extends LSCompletionProvider {
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
             return this.getCompletionItemList(filtered, context);
         }
-        List<SymbolInfo> filteredList = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
-        filteredList.removeIf(symbolInfo -> {
+        visibleSymbols.removeIf(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             return (bSymbol instanceof BInvokableSymbol
                     && ((BInvokableSymbol) bSymbol).receiverSymbol != null
@@ -68,7 +68,7 @@ public class InvocationArgsContextProvider extends LSCompletionProvider {
                     || (FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
                     || (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
         });
-        completionItems.addAll(getCompletionItemList(filteredList, context));
+        completionItems.addAll(getCompletionItemList(visibleSymbols, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         // Add the untaint keyword
         CompletionItem untaintKeyword = Snippet.KW_UNTAINT.get().build(context);

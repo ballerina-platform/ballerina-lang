@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# A type parameter that is a subtype of `anydata`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 type AnydataType anydata;
 

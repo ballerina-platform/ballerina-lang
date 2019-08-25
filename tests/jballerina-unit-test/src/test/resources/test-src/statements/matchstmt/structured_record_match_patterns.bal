@@ -153,9 +153,9 @@ function complexMatch(ClosedBar1|ClosedBar2|string a) returns string {
 
 function testRuntimeCheck() returns string[] {
     [int, boolean] tuple = [50, true];
-    Foo foo1 = {s: "S", i: 23, f: 5.6, t: tuple};
+    Foo foo1 = {s: "S", i: 23, f: 5.6, "t": tuple};
     Foo foo2 = {s: "S", i: 23, f: 5.6};
-    Foo foo3 = {s: "S", i: 23, f: 5.6, t: 12};
+    Foo foo3 = {s: "S", i: 23, f: 5.6, "t": 12};
 
     string[] values = [matchRuntimeCheck(foo1), matchRuntimeCheck(foo2), matchRuntimeCheck(foo3),
                             matchRuntimeCheckWithAny(foo1), matchRuntimeCheckWithAny(foo2), matchRuntimeCheckWithAny(foo3)];
@@ -273,8 +273,8 @@ type ClosedRec record {|
 
 function testStructuredMatchPatternWithTypeGuard4() returns string[] {
     RestParam foo1 = {var1: 500};
-    RestParam foo2 = {var1: 500, var2: true};
-    RestParam foo3 = {var1: 500, var2: true, var3: true};
+    RestParam foo2 = {var1: 500, "var2": true};
+    RestParam foo3 = {var1: 500, "var2": true, "var3": true};
     ClosedRec bar1 = {var1: "Bal"};
 
     string[] result = [typeGuard4(foo1), typeGuard4(foo2), typeGuard4(foo3), typeGuard4(bar1)];
@@ -291,8 +291,8 @@ function typeGuard4(RestParam|ClosedRec matchExpr) returns string {
 }
 
 function testClosedRecord() returns string[] {
-    RestParam rec = {var1: 500};
-    RestParam rec2 = {var1: 500, var2: true};
+    RestParam rec = { var1: 500 };
+    RestParam rec2 = { var1: 500, "var2": true };
 
     string[] results = [matchClosedRecordPattern(rec), matchClosedRecordPattern(rec2)];
 
@@ -301,9 +301,39 @@ function testClosedRecord() returns string[] {
 
 function matchClosedRecordPattern(any matchExpr) returns string {
     match matchExpr {
-        var {| var1 |} => return "Matched with closed pattern";
-        var {var1} => return "Matched with opened pattern";
+        var {var1, var2, ...rest} => return "Matched with opened pattern";
+        var {var1} => return "Matched with closed pattern";
     }
 
     return "Default";
+}
+
+function testStructuredMatchPatternWithEmptyRecord() returns string[] {
+    record {} rec = {};
+    string[] result = [];
+    result[result.length()] = foo8(rec);
+
+    rec["a"] = 1;
+    result[result.length()] = foo8(rec);
+
+    rec["b"] = 2;
+    result[result.length()] = foo8(rec);
+
+    rec["c"] = 3;
+    result[result.length()] = foo8(rec);
+
+    rec["d"] = 4;
+    result[result.length()] = foo8(rec);
+
+    return result;
+}
+
+function foo8(any x) returns string {
+    match x {
+        var {a, b, c} => {return io:sprintf("Matched with a: %s, b: %s, c: %s", a, b, c);}
+        var {a, b} => {return io:sprintf("Matched with a: %s, b: %s", a, b);}
+        var {a} => {return io:sprintf("Matched with a: %s", a);}
+        var {} => {return "Matched with empty record";}
+        var s => {return "Matched with default";}
+    }
 }

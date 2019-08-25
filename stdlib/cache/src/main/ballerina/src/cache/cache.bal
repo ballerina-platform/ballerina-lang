@@ -27,6 +27,15 @@ const int CACHE_CLEANUP_INTERVAL = 5000;
 # Map which stores all of the caches.
 map<Cache> cacheMap = {};
 
+task:TimerConfiguration cacheCleanupTimerConfiguration = {
+    intervalInMillis: CACHE_CLEANUP_INTERVAL,
+    initialDelayInMillis: CACHE_CLEANUP_START_DELAY
+};
+
+task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
+
+boolean timerStarted = false;
+
 # Represents a cache entry.
 #
 # + value - cache value
@@ -41,14 +50,14 @@ public type Cache object {
 
     private int capacity;
     map<CacheEntry> entries = {};
-    int expiryTimeMillis;
+    int expiryTimeInMillis;
     private float evictionFactor;
     private string uuid;
 
-    public function __init(int expiryTimeMillis = 900000, int capacity = 100, float evictionFactor = 0.25) {
+    public function __init(public int expiryTimeInMillis = 900000, public int capacity = 100, public float evictionFactor = 0.25) {
 
         // Cache expiry time must be a positive value.
-        if (expiryTimeMillis <= 0) {
+        if (expiryTimeInMillis <= 0) {
             Error e = error(CACHE_ERROR, message = "Expiry time must be greater than 0.");
             panic e;
         }
@@ -67,15 +76,9 @@ public type Cache object {
         // track of the UUID.
         self.uuid = system:uuid();
         cacheMap[self.uuid] = self;
-        self.expiryTimeMillis = expiryTimeMillis;
+        self.expiryTimeInMillis = expiryTimeInMillis;
         self.capacity = capacity;
         self.evictionFactor = evictionFactor;
-
-        task:TimerConfiguration cacheCleanupTimerConfiguration = {
-            interval: CACHE_CLEANUP_INTERVAL,
-            initialDelay: CACHE_CLEANUP_START_DELAY
-        };
-        task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
 
         var attachCacheCleanerResult = cacheCleanupTimer.attach(cacheCleanupService);
         if (attachCacheCleanerResult is error) {
@@ -83,11 +86,19 @@ public type Cache object {
             Error e = error(CACHE_ERROR, message = "Failed to create the cache cleanup task: " +  <string> detail["message"]);
             panic e;
         }
-        var timerStartResult = cacheCleanupTimer.start();
-        if (timerStartResult is error) {
-            record {| string message?; anydata|error...; |} detail = timerStartResult.detail();
-            Error e = error(CACHE_ERROR, message = "Failed to start the cache cleanup task: " +  <string> detail["message"]);
-            panic e;
+
+        if (!timerStarted && !cacheCleanupTimer.isStarted()) {
+            lock {
+                if(!cacheCleanupTimer.isStarted()) {
+                    var timerStartResult = cacheCleanupTimer.start();
+                    if (timerStartResult is error) {
+                        record {| string message?; anydata|error...; |} detail = timerStartResult.detail();
+                        Error e = error(CACHE_ERROR, message = "Failed to start the cache cleanup task: " +  <string> detail["message"]);
+                        panic e;
+                    }
+                    timerStarted = true;
+                }
+            }
         }
     }
 
@@ -110,7 +121,7 @@ public type Cache object {
     # + key - value which should be used as the key
     # + value - value to be cached
     public function put(string key, any value) {
-        // We need to synchronize this process otherwise concurrecy might cause issues.
+        // We need to synchronize this process otherwise concurrency might cause issues.
          lock {
             int cacheCapacity = self.capacity;
             int cacheSize = self.entries.length();
@@ -164,7 +175,7 @@ public type Cache object {
             // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
             // gurentees that the expired cache entries will not be returened.
             int currentSystemTime = time:currentTime().time;
-            if (currentSystemTime >= cacheEntry.lastAccessedTime + self.expiryTimeMillis) {
+            if (currentSystemTime >= cacheEntry.lastAccessedTime + self.expiryTimeInMillis) {
                 // If it is expired, remove the cache and return nil.
                 self.remove(key);
                 return ();
@@ -238,7 +249,7 @@ function runCacheExpiry() {
             continue;
         } else {
             // Get the expiry time of the current cache
-            int currentCacheExpiryTime = currentCache.expiryTimeMillis;
+            int currentCacheExpiryTime = currentCache.expiryTimeInMillis;
 
             // Create a new array to store keys of cache entries which needs to be removed.
             string[] cachesToBeRemoved = [];

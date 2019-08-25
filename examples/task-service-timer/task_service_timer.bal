@@ -3,8 +3,8 @@ import ballerina/task;
 
 // The Task Timer configuration record to configure the Task Listener.
 task:TimerConfiguration timerConfiguration = {
-    interval: 1000,
-    initialDelay: 3000,
+    intervalInMillis: 1000,
+    initialDelayInMillis: 3000,
     // Number of recurrences will limit the number of times the timer runs.
     noOfRecurrences: 10
 };
@@ -20,6 +20,6 @@ service timerService on timer {
     resource function onTrigger() {
         count = count + 1;
         log:printInfo("Cleaning up...");
-        log:printInfo(string.convert(count));
+        log:printInfo(count.toString());
     }
 }

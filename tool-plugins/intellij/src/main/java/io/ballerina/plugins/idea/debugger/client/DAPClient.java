@@ -29,6 +29,7 @@ import org.eclipse.lsp4j.debug.ThreadEventArguments;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
 import static org.eclipse.lsp4j.debug.StoppedEventArgumentsReason.BREAKPOINT;
+import static org.eclipse.lsp4j.debug.StoppedEventArgumentsReason.STEP;
 
 /**
  * IDebugProtocolClient implementation.
@@ -43,7 +44,7 @@ public class DAPClient implements IDebugProtocolClient {
 
     @Override
     public void stopped(StoppedEventArguments args) {
-        if (args.getReason().equals(BREAKPOINT)) {
+        if (args.getReason().equals(BREAKPOINT) || args.getReason().equals(STEP)) {
             requestManager.getClientConnector().getContext().handleDebugHit(args);
         }
     }

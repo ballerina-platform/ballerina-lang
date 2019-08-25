@@ -23,6 +23,6 @@ service appointmentService on appointment {
     resource function onTrigger() {
         count = count + 1;
         log:printInfo("Cleaning up...");
-        log:printInfo(string.convert(count));
+        log:printInfo(count.toString());
     }
 }

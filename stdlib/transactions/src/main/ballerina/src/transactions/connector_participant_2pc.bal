@@ -18,10 +18,10 @@ import ballerina/http;
 
 public type Participant2pcClientConfig record {
     string participantURL = "";
-    int timeoutMillis = 0;
+    int timeoutInMillis = 0;
     record {
         int count = 0;
-        int interval = 0;
+        int intervalInMillis = 0;
     } retryConfig = {};
 };
 
@@ -32,9 +32,9 @@ public type Participant2pcClientEP client object {
 
     public function __init(Participant2pcClientConfig c) {
         http:Client httpEP = new(c.participantURL, {
-            timeoutMillis: c.timeoutMillis,
+            timeoutInMillis: c.timeoutInMillis,
             retryConfig:{
-                count: c.retryConfig.count, interval: c.retryConfig.interval
+                count: c.retryConfig.count, intervalInMillis: c.retryConfig.intervalInMillis
             }
         });
         self.httpClient = httpEP;
@@ -50,10 +50,10 @@ public type Participant2pcClientEP client object {
         var result = httpClient->post("/prepare", req);
         http:Response res = check result;
         int statusCode = res.statusCode;
-        if (statusCode == http:NOT_FOUND_404) {
+        if (statusCode == http:STATUS_NOT_FOUND) {
             error err = error(TRANSACTION_UNKNOWN);
             return err;
-        } else if (statusCode == http:OK_200) {
+        } else if (statusCode == http:STATUS_OK) {
             json payload = check res.getJsonPayload();
             PrepareResponse prepareRes = check typedesc<PrepareResponse>.constructFrom(payload);
             return <@untainted> prepareRes.message;
@@ -76,11 +76,11 @@ public type Participant2pcClientEP client object {
         NotifyResponse notifyRes = check typedesc<NotifyResponse>.constructFrom(payload);
         string msg = notifyRes.message;
         int statusCode = res.statusCode;
-        if (statusCode == http:OK_200) {
+        if (statusCode == http:STATUS_OK) {
             return <@untainted string> msg;
-        } else if ((statusCode == http:BAD_REQUEST_400 && msg == NOTIFY_RESULT_NOT_PREPARED_STR) ||
-            (statusCode == http:NOT_FOUND_404 && msg == TRANSACTION_UNKNOWN) ||
-            (statusCode == http:INTERNAL_SERVER_ERROR_500 && msg == NOTIFY_RESULT_FAILED_EOT_STR)) {
+        } else if ((statusCode == http:STATUS_BAD_REQUEST && msg == NOTIFY_RESULT_NOT_PREPARED_STR) ||
+            (statusCode == http:STATUS_NOT_FOUND && msg == TRANSACTION_UNKNOWN) ||
+            (statusCode == http:STATUS_INTERNAL_SERVER_ERROR && msg == NOTIFY_RESULT_FAILED_EOT_STR)) {
             error participantErr = error(msg);
             return <@untainted error> participantErr;
         } else { // Some other error state
