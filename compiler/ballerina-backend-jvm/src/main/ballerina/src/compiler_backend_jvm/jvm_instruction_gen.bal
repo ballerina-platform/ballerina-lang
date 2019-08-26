@@ -474,13 +474,20 @@ type InstructionGenerator object {
     }
 
     function generateBitwiseAndIns(bir:BinaryOp binaryIns) {
-        self.loadVar(binaryIns.rhsOp1.variableDcl);
-        self.loadVar(binaryIns.rhsOp2.variableDcl);
-
-        bir:BType opType = binaryIns.rhsOp1.typeValue;
-        if (opType is bir:BTypeInt) {
+        bir:BType opType1 = binaryIns.rhsOp1.typeValue;
+        bir:BType opType2 = binaryIns.rhsOp2.typeValue;
+        
+        if (opType1 is bir:BTypeInt && opType2 is bir:BTypeInt) {
+            self.loadVar(binaryIns.rhsOp1.variableDcl);
+            self.loadVar(binaryIns.rhsOp2.variableDcl);
             self.mv.visitInsn(LAND);
         } else {
+            self.loadVar(binaryIns.rhsOp1.variableDcl);
+            generateCheckCastToByte(self.mv, opType1);
+            
+            self.loadVar(binaryIns.rhsOp2.variableDcl);
+            generateCheckCastToByte(self.mv, opType2);
+            
             self.mv.visitInsn(IAND);
         }
         self.storeToVar(binaryIns.lhsOp.variableDcl);

@@ -17,6 +17,8 @@
 package org.ballerinalang.test.expressions.binaryoperations;
 
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -133,5 +135,20 @@ public class BinaryExprTest {
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();
 
         Assert.assertEquals(actualResult, expectedResult);
+    }
+
+    @Test(description = "Test bitwise and")
+    public void bitwiseAndTest() {
+        int a = 5;
+        int b = 6;
+        byte c = 7;
+        byte d = 8;
+        BValue[] args = {new BInteger(a), new BInteger(b), new BByte(c), new BByte(d)};
+        BValue[] returns = BRunUtil.invoke(result, "bitwiseAnd", args);
+
+        Assert.assertEquals(((BInteger)returns[0]).intValue(), a & b);
+        Assert.assertEquals(((BByte)returns[1]).byteValue(), a & c);
+        Assert.assertEquals(((BByte)returns[2]).byteValue(), c & d);
+        Assert.assertEquals(((BByte)returns[3]).byteValue(), b & d);
     }
 }
