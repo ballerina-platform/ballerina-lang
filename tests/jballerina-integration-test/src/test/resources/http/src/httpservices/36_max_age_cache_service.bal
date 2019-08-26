@@ -50,22 +50,19 @@ service maxAgeBackend on new http:Listener(9244) {
     @http:ResourceConfig { path: "/" }
     resource function sayHello(http:Caller caller, http:Request req) {
         if (maxAgehitcount < 1) {
-            maxAgePayload = { "message": "1st request" };
+            maxAgePayload = { "message": "before cache expiration" };
         } else {
-            maxAgePayload = { "message": "2nd request" };
+            maxAgePayload = { "message": "after cache expiration" };
         }
         http:Response res = new;
         http:ResponseCacheControl resCC = new;
         resCC.maxAge = 5;
-        resCC.isPrivate = false;
 
         res.cacheControl = resCC;
         res.setETag(maxAgePayload);
         res.setLastModified();
 
         maxAgehitcount += 1;
-
-        res.setHeader("x-service-hit-count", maxAgehitcount.toString());
         res.setPayload(maxAgePayload);
 
         checkpanic caller->respond(res);

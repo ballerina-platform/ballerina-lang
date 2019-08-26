@@ -57,7 +57,6 @@ service nocacheBackend on new http:Listener(9241) {
         http:Response res = new;
         http:ResponseCacheControl resCC = new;
         resCC.maxAge = 60;
-        resCC.isPrivate = false;
         resCC.noCache = true;
 
         res.cacheControl = resCC;
@@ -65,8 +64,6 @@ service nocacheBackend on new http:Listener(9241) {
         res.setLastModified();
 
         nocachehitcount += 1;
-
-        res.setHeader("x-service-hit-count", nocachehitcount.toString());
         res.setPayload(nocachePayload);
 
         checkpanic caller->respond(res);
