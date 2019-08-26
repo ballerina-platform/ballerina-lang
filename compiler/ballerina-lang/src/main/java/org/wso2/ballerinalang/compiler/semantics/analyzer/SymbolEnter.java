@@ -1607,14 +1607,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) funcNode.receiver.type.tsymbol;
-        BSymbol symbol = symResolver.lookupMemberSymbol(funcNode.receiver.pos, objectSymbol.scope, invokableEnv,
-                names.fromIdNode(funcNode.name), SymTag.VARIABLE);
-        if (symbol != symTable.notFoundSymbol) {
-            dlog.error(funcNode.pos, DiagnosticCode.OBJECT_FIELD_AND_FUNC_WITH_SAME_NAME,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-            return;
-        }
-
         BAttachedFunction attachedFunc = new BAttachedFunction(
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
 
