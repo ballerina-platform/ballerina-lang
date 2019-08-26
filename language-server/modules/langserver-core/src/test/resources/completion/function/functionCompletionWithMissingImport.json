@@ -6,13 +6,13 @@
   "source": "function/source/functionCompletionWithMissingImport.bal",
   "items": [
     {
-      "label": "openReadableFile(string path)((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError))",
+      "label": "openReadableFile(string path)((io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n**Params**  \n- `string` path: Relative/absolute path string to locate the file  \n  \n**Returns** `(io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError)`   \n- ByteChannel representation of the file resource or `Error` if any error occurred  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n**Params**  \n- `string` path: Relative/absolute path string to locate the file  \n  \n**Returns** `(io:ReadableByteChannel|error)`   \n- ByteChannel representation of the file resource or `Error` if any error occurred  \n  \n"
         }
       },
       "sortText": "130",
@@ -39,13 +39,13 @@
       }
     },
     {
-      "label": "openWritableFile(string path, boolean append)((io:WritableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError))",
+      "label": "openWritableFile(string path, boolean append)((io:WritableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n**Params**  \n- `string` path: Relative/absolute path string to locate the file  \n- `boolean` append: Append to end of file.(Defaultable)  \n- `boolean` append: Append to end of file.  \n  \n**Returns** `(io:WritableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError)`   \n- ByteChannel representation of the file resource or `Error` if any error occurred  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n**Params**  \n- `string` path: Relative/absolute path string to locate the file  \n- `boolean` append: Append to end of file.(Defaultable)  \n- `boolean` append: Append to end of file.  \n  \n**Returns** `(io:WritableByteChannel|error)`   \n- ByteChannel representation of the file resource or `Error` if any error occurred  \n  \n"
         }
       },
       "sortText": "130",
@@ -72,13 +72,13 @@
       }
     },
     {
-      "label": "createReadableChannel(byte[] content)((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError))",
+      "label": "createReadableChannel(byte[] content)((io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n**Params**  \n- `byte[]` content: Content which should be exposed as channel  \n  \n**Returns** `(io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError)`   \n- ByteChannel representation to read the memory content or `Error` if any error occurred  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n**Params**  \n- `byte[]` content: Content which should be exposed as channel  \n  \n**Returns** `(io:ReadableByteChannel|error)`   \n- ByteChannel representation to read the memory content or `Error` if any error occurred  \n  \n"
         }
       },
       "sortText": "130",
@@ -105,13 +105,13 @@
       }
     },
     {
-      "label": "openReadableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:ReadableCSVChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError))",
+      "label": "openReadableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:ReadableCSVChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n**Params**  \n- `string` path: File path which describes the location of the CSV  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)(Defaultable)  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)  \n- `string` charset: Encoding characters in the file represents(Defaultable)  \n- `string` charset: Encoding characters in the file represents  \n- `int` skipHeaders: Number of headers which should be skipped(Defaultable)  \n- `int` skipHeaders: Number of headers which should be skipped  \n  \n**Returns** `(io:ReadableCSVChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError)`   \n- ReadableCSVChannel which could be used to iterate through the CSV records  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n**Params**  \n- `string` path: File path which describes the location of the CSV  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)(Defaultable)  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)  \n- `string` charset: Encoding characters in the file represents(Defaultable)  \n- `string` charset: Encoding characters in the file represents  \n- `int` skipHeaders: Number of headers which should be skipped(Defaultable)  \n- `int` skipHeaders: Number of headers which should be skipped  \n  \n**Returns** `(io:ReadableCSVChannel|error)`   \n- ReadableCSVChannel which could be used to iterate through the CSV records  \n  \n"
         }
       },
       "sortText": "130",
@@ -138,13 +138,13 @@
       }
     },
     {
-      "label": "openWritableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:WritableCSVChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError))",
+      "label": "openWritableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:WritableCSVChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n**Params**  \n- `string` path: File path which describes the location of the CSV  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)(Defaultable)  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)  \n- `string` charset: Encoding characters in the file represents(Defaultable)  \n- `string` charset: Encoding characters in the file represents  \n- `int` skipHeaders: Number of headers which should be skipped(Defaultable)  \n- `int` skipHeaders: Number of headers which should be skipped  \n  \n**Returns** `(io:WritableCSVChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError)`   \n- WritableCSVChannel which could be used to write CSV records or `Error` if any error occurred  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n**Params**  \n- `string` path: File path which describes the location of the CSV  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)(Defaultable)  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)  \n- `string` charset: Encoding characters in the file represents(Defaultable)  \n- `string` charset: Encoding characters in the file represents  \n- `int` skipHeaders: Number of headers which should be skipped(Defaultable)  \n- `int` skipHeaders: Number of headers which should be skipped  \n  \n**Returns** `(io:WritableCSVChannel|error)`   \n- WritableCSVChannel which could be used to write CSV records or `Error` if any error occurred  \n  \n"
         }
       },
       "sortText": "130",
