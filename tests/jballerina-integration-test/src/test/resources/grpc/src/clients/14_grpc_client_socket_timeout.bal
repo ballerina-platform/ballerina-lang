@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/grpc;
-import ballerina/io;
 
 // Enable when you need to test locally.
 //public function main() {

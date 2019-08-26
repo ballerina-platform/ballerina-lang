@@ -55,7 +55,7 @@ import static org.ballerinalang.debugadapter.PackageUtils.findProjectRoot;
 public class EventBus {
     private final Context context;
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    private Breakpoint[] breakpointsList = new Breakpoint[0];
+    private Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
     AtomicInteger nextVariableReference = new AtomicInteger();
 
@@ -65,21 +65,33 @@ public class EventBus {
         this.context = context;
     }
 
-    public void setBreakpointsList(Breakpoint[] breakpointsList) {
-        this.breakpointsList = breakpointsList.clone();
-        if (this.breakpointsList.length > 0) {
-            Breakpoint breakpoint = this.breakpointsList[0];
-            projectRoot = findProjectRoot(Paths.get(breakpoint.getSource().getPath()));
-            if (projectRoot == null) {
-                // calculate projectRoot for single file
-                File file = new File(breakpoint.getSource().getPath());
-                File parentDir = file.getParentFile();
-                projectRoot = parentDir.toPath();
-            }
+    public void setBreakpointsList(String path, Breakpoint[] breakpointsList) {
+        Breakpoint[] breakpoints = breakpointsList.clone();
+        this.breakpointsList.put(path, breakpoints);
+
+        if (this.context.getDebuggee() != null) {
+            // Setting breakpoints to a already running debug session.
+            context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
+            Arrays.stream(breakpointsList).forEach(breakpoint -> {
+                this.context.getDebuggee().allClasses().forEach(referenceType -> {
+                    this.addBreakpoint(referenceType, breakpoint);
+                });
+            });
+        }
+
+        projectRoot = findProjectRoot(Paths.get(path));
+        if (projectRoot == null) {
+            // calculate projectRoot for single file
+            File file = new File(path);
+            File parentDir = file.getParentFile();
+            projectRoot = parentDir.toPath();
         }
     }
 
     public Map<Long, ThreadReference> getThreadsMap() {
+        if (context.getDebuggee() == null) {
+            return null;
+        }
         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
@@ -111,9 +123,8 @@ public class EventBus {
                         if (event instanceof ClassPrepareEvent) {
                             ClassPrepareEvent evt = (ClassPrepareEvent) event;
 
-                            Arrays.stream(this.breakpointsList).forEach(breakpoint -> {
-                                addBreakpoint(evt.referenceType(), breakpoint);
-                            });
+                            this.breakpointsList.forEach((path, breakpoints) -> Arrays.stream(breakpoints)
+                                    .forEach(breakpoint -> addBreakpoint(evt.referenceType(), breakpoint)));
                         }
 
                         /*

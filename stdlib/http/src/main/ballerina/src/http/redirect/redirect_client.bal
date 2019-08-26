@@ -14,12 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/runtime;
-import ballerina/mime;
 import ballerina/log;
-import ballerina/math;
-import ballerina/config;
 import ballerina/internal;
 
 # Provides redirect functionality for HTTP client remote functions.

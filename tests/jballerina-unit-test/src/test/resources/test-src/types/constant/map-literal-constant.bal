@@ -1,5 +1,3 @@
-import ballerina/reflect;
-
 const map<map<boolean>> bm3 = { "key5": bm1, "key6": bm2, "key7": { "key8": true, "key9": false }};
 const map<boolean> bm1 = { "key1": true, "key2": false };
 const map<boolean> bm2 = { "key3": false, "key4": true };

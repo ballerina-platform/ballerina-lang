@@ -30,7 +30,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.wso2.ballerinalang.util.Lists;
+
+import java.util.Arrays;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
@@ -53,7 +54,7 @@ public class Entries {
 
     public static MapValue<?, ?> entries(Strand strand, MapValue<?, ?> m) {
         BType newFieldType = getFieldType(m.getType(), "entries()");
-        BTupleType entryType = new BTupleType(Lists.of(BTypes.typeString, newFieldType));
+        BTupleType entryType = new BTupleType(Arrays.asList(BTypes.typeString, newFieldType));
         BMapType entryMapConstraint = new BMapType(entryType);
         MapValue<Object, ArrayValue> entries = new MapValueImpl<>(entryMapConstraint);
 

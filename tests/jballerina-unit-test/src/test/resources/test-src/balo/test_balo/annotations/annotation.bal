@@ -1,4 +1,4 @@
-import testorg/foo version v1;
+import testorg/foo;
 import ballerina/reflect;
 import ballerina/http;
 
@@ -13,8 +13,9 @@ function someFunction(string arg) returns int {
     return 10;
 }
 
-function testNonBallerinaAnnotations() returns reflect:annotationData[] {
-    return reflect:getFunctionAnnotations(someFunction);
+function testNonBallerinaAnnotations() returns foo:SomeConfiguration? {
+    var tDesc = typeof someFunction;
+    return tDesc.@foo:ConfigAnnotation;
 }
 
 @http:ServiceConfig {
@@ -30,10 +31,14 @@ service MyService on new http:MockListener(9090) {
     }
 }
 
-function testBallerinaServiceAnnotations() returns reflect:annotationData[] {
-    return reflect:getServiceAnnotations(MyService);
+function testBallerinaServiceAnnotations() returns any {
+    var a = reflect:getServiceAnnotations(MyService, "ServiceConfig");
+    if (a is ()) {
+        return "1";
+    }
+    return reflect:getServiceAnnotations(MyService, "ServiceConfig");
 }
 
-function testBallerinaResourceAnnotations() returns reflect:annotationData[] {
-    return reflect:getResourceAnnotations(MyService, "foo");
+function testBallerinaResourceAnnotations() returns any {
+    return reflect:getResourceAnnotations(MyService, "foo", "ResourceConfig");
 }

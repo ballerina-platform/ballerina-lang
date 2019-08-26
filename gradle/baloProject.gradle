@@ -10,7 +10,7 @@ configurations {
     nativeMap { transitive false }
 }
 
-project.ext.moduleName = files(file('src/main/ballerina').listFiles()).filter { File f ->
+project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
     f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
 }.singleFile.name
 
@@ -36,6 +36,7 @@ task copyExternalMappingNextToBir(type: Copy) {
     from "$buildDir/classes/java/main/META-INF/this.map.json"
     into "$buildDir/generated-bir-jar"
     rename { project.ext.moduleName + ".map.json" }
+    inputs.file "$buildDir/classes/java/main/META-INF/this.map.json"
 }
 
 task convertDuplicateSrcToProject() {
@@ -65,7 +66,7 @@ task createOldBirJar(type: Exec) {
     dependsOn configurations.balo
     dependsOn convertDuplicateSrcToProject
     workingDir "$buildDir/duplicate-src"
-    dependsOn compileJava
+    dependsOn jar
 
 //    environment 'BALLERINA_REPO_LOOKUP_VERBOSE': 'true'
 //    environment 'BAL_JAVA_DEBUG': '5005'
@@ -76,9 +77,9 @@ task createOldBirJar(type: Exec) {
         }
         configurations.balo.each {
             if (OperatingSystem.current().isWindows()) {
-                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--skiptests', project.ext.moduleName
+                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '-c', '--skip-tests', project.ext.moduleName
             } else {
-                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '--skiptests', project.ext.moduleName
+                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '-c', '--skip-tests', project.ext.moduleName
             }
             println commandLine
         }
@@ -100,11 +101,12 @@ task createOldBirJar(type: Exec) {
 }
 
 task copyBirJar(type: Copy){
-    from "$buildDir/duplicate-src/target"
+    from "$buildDir/duplicate-src/target/caches"
     into "$buildDir/generated-bir-jar"
     dependsOn createOldBirJar
+    includeEmptyDirs = false
     eachFile {file ->
-        file.path = file.path.replaceAll(/^.*\//, '')
+        file.path = file.path.replaceAll(/^.*\//, '').replaceAll(/ballerina-/, '').replaceAll(/-.jar/, '.jar')
     }
 }
 

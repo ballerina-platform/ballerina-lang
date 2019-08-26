@@ -1,6 +1,5 @@
 import ballerina/encoding;
 import ballerina/http;
-import ballerina/io;
 import ballerina/mime;
 import ballerina/internal;
 

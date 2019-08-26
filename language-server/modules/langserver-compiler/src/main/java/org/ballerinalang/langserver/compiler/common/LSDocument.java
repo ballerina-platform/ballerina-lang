@@ -142,7 +142,7 @@ public class LSDocument {
 
     /**
      * Get the project modules list.
-     * 
+     *
      * @return {@link List} list of project modules
      */
     public List<String> getProjectModules() {
@@ -165,12 +165,12 @@ public class LSDocument {
     public String toString() {
         return "{" + "projectRoot:" + this.projectRoot + ", uri:" + this.uri + "}";
     }
-    
+
     /**
      * Get the package name for given file.
      *
      * @param projectRoot project root
-     * @param filePath full path of the file
+     * @param filePath    full path of the file
      * @return {@link String} package name
      */
     private String getModuleNameForDocument(String projectRoot, String filePath) {
