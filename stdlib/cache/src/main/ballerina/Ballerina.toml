@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "commons-logging"
+    artifactId = "commons-logging"
     version = "1.1.1"
     path = "./lib/commons-logging-1.1.1.jar"
     groupId = "commons-logging"
