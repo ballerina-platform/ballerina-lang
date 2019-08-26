@@ -31,6 +31,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -128,6 +129,14 @@ public class StringTest {
         BValue[] returns = BRunUtil.invoke(result, "substring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "testValue");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StringOperationError message=String index out of "
+                  + "range. Actual:4 requested: 5 to 9.*")
+    public void testSubStringIndexOut() {
+        BValue[] args = { new BString("test"), new BInteger(5), new BInteger(9) };
+        BRunUtil.invoke(result, "substring", args);
     }
 
     @Test
