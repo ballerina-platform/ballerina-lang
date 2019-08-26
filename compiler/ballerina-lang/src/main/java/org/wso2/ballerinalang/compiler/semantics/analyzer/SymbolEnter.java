@@ -1583,9 +1583,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Check whether there exists a struct field with the same name as the function name.
         if (isValidAttachedFunc) {
             if (typeSymbol.tag == SymTag.OBJECT) {
-                validateFunctionsAttachedToObject(funcNode, funcSymbol, invokableEnv);
+                validateFunctionsAttachedToObject(funcNode, funcSymbol);
             } else if (typeSymbol.tag == SymTag.RECORD) {
-                validateFunctionsAttachedToRecords(funcNode, funcSymbol, invokableEnv);
+                validateFunctionsAttachedToRecords(funcNode, funcSymbol);
             }
         }
 
@@ -1593,8 +1593,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         funcSymbol.receiverSymbol = funcNode.receiver.symbol;
     }
 
-    private void validateFunctionsAttachedToRecords(BLangFunction funcNode, BInvokableSymbol funcSymbol,
-                                                    SymbolEnv invokableEnv) {
+    private void validateFunctionsAttachedToRecords(BLangFunction funcNode, BInvokableSymbol funcSymbol) {
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) funcNode.receiver.type.tsymbol;
 
@@ -1602,14 +1601,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
     }
 
-    private void validateFunctionsAttachedToObject(BLangFunction funcNode, BInvokableSymbol funcSymbol,
-                                                   SymbolEnv invokableEnv) {
+    private void validateFunctionsAttachedToObject(BLangFunction funcNode, BInvokableSymbol funcSymbol) {
 
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) funcNode.receiver.type.tsymbol;
-        symResolver.lookupMemberSymbol(funcNode.receiver.pos, objectSymbol.scope, invokableEnv,
-                names.fromIdNode(funcNode.name), SymTag.VARIABLE);
-
         BAttachedFunction attachedFunc = new BAttachedFunction(
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
 
