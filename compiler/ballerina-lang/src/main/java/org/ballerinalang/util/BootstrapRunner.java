@@ -43,18 +43,29 @@ import java.util.Optional;
  */
 public class BootstrapRunner {
 
-    public static void generateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
-                                         String... birCachePaths) {
-        List<String> commands = new ArrayList<>();
-        commands.add(entryBir);
-        commands.add(getMapPath());
-        commands.add(jarOutputPath);
-        commands.add(dumpBir ? "true" : "false"); // dump bir
-        commands.addAll(Arrays.asList(birCachePaths));
+    public static void loadTargetAndGenerateJarBinary(Path tmpDir, String entryBir, String jarOutputPath,
+                                                      boolean dumpBir, String... birCachePaths) {
+
+        //Load all Jars from target/tmp
+        if (Files.exists(tmpDir)) {
+            File file = new File(tmpDir.toString());
+            try {
+                loadAllJarsInTarget(file);
+            } catch (MalformedURLException | NoSuchMethodException |
+                    InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException("could not load pre-compiled jars for invoking the compiler backend", e);
+            }
+        }
+
+        generateJarBinary(entryBir, jarOutputPath, dumpBir, birCachePaths);
+    }
+
+    private static void generateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
+                                          String... birCachePaths) {
         try {
             Class<?> backendMain = Class.forName("ballerina.compiler_backend_jvm.___init");
             Method backendMainMethod = backendMain.getMethod("main", String[].class);
-            Object[] params = new Object[]{commands.toArray(new String[0])};
+            String[] params = createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, birCachePaths);
             backendMainMethod.invoke(null, params);
         } catch (InvocationTargetException e) {
             throw new BLangCompilerException(e.getTargetException().getMessage(), e);
@@ -63,32 +74,15 @@ public class BootstrapRunner {
         }
     }
 
-    public static void generateJarBinaryViaCompiledBackend(Path tmpDir, String entryBir, String jarOutputPath,
-                                                           boolean dumpBir, String... birCachePaths) {
+    private static String[] createArgsForCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
+                                                         String[] birCachePaths) {
         List<String> commands = new ArrayList<>();
         commands.add(entryBir);
         commands.add(getMapPath());
         commands.add(jarOutputPath);
         commands.add(dumpBir ? "true" : "false"); // dump bir
         commands.addAll(Arrays.asList(birCachePaths));
-        try {
-
-             //Load all Jars from target/tmp
-            if (Files.exists(tmpDir)) {
-                File file = new File(tmpDir.toString());
-                loadAllJarsInTarget(file);
-            }
-
-            Class<?> backendMain = Class.forName("ballerina.compiler_backend_jvm.___init");
-            Method backendMainMethod = backendMain.getMethod("main", String[].class);
-            Object[] params = new Object[]{commands.toArray(new String[0])};
-            backendMainMethod.invoke(null, params);
-        } catch (InvocationTargetException e) {
-            Throwable target = e.getTargetException();
-            throw new RuntimeException(target.getMessage(), target);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | MalformedURLException e) {
-            throw new RuntimeException("could not invoke compiler backend", e);
-        }
+        return commands.toArray(new String[0]);
     }
 
     private static void loadAllJarsInTarget(final File targetFolder) throws MalformedURLException,
