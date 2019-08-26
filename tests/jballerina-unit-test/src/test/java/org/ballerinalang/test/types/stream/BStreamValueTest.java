@@ -16,6 +16,8 @@
  */
 package org.ballerinalang.test.types.stream;
 
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -27,6 +29,8 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.ArrayList;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
@@ -187,8 +191,8 @@ public class BStreamValueTest {
                 + "match the number published: Received" + receivedEvents.stringValue() + ", but Expected"
                 + publishedEvents.stringValue() + ", ");
         for (int i = 0; i < publishedEvents.size(); i++) {
-            Assert.assertEquals(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
-                                "Received event does not match the published event");
+            Assert.assertTrue(BVM.isEqual(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
+                    new ArrayList<>()), "Received event does not match the published event");
         }
     }
 
@@ -240,8 +244,8 @@ public class BStreamValueTest {
         Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
                 + "match the number published");
         for (int i = 0; i < publishedEvents.size() - 1; i++) {
-            Assert.assertEquals(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
-                                "Received event does not match the published event");
+            Assert.assertTrue(BVM.isEqual(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
+                    new ArrayList<>()), "Received event does not match the published event");
         }
         Assert.assertEquals(receivedEvents.getRefValue(receivedEvents.size() - 1).value(), intVal,
                             "Received event does not match the expected casted value");
@@ -262,8 +266,8 @@ public class BStreamValueTest {
         Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
                 + "match the number published");
         for (int i = 0; i < publishedEvents.size(); i++) {
-            Assert.assertEquals(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
-                                "Received event does not match the published event");
+            Assert.assertTrue(BVM.isEqual(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
+                    new ArrayList<>()), "Received event does not match the published event");
         }
     }
 }

@@ -5106,7 +5106,7 @@ public class BVM {
      * @param checkedValues     Structured value pairs already compared or being compared
      * @return True if values are equal, else false.
      */
-    private static boolean isEqual(BValue lhsValue, BValue rhsValue, List<ValuePair> checkedValues) {
+    public static boolean isEqual(BValue lhsValue, BValue rhsValue, List<ValuePair> checkedValues) {
         if (lhsValue == rhsValue) {
             return true;
         }
