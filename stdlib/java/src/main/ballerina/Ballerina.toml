@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "java"
+    artifactId = "java"
     version = "@project.version@"
     path = "./lib/ballerina-java-@project.version@.jar"
     groupId = "ballerina"

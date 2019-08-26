@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "runtime-api"
+    artifactId = "runtime-api"
     version = "@project.version@"
     path = "./lib/ballerina-runtime-api-@project.version@.jar"
     groupId = "ballerina"
