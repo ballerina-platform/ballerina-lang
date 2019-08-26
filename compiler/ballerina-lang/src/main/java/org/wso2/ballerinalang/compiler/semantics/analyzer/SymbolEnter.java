@@ -1646,7 +1646,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        dlog.error(objectInitFn.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR, objectInitFn.receiver.type.toString(),
+        dlog.error(objectInitFn.returnTypeNode.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR,
                    objectInitFn.returnTypeNode.type.toString());
     }
 
