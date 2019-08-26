@@ -26,10 +26,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConnectionContext;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
-import org.ballerinalang.stdlib.ldap.UserStoreException;
 import org.ballerinalang.stdlib.ldap.util.LdapUtils;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
@@ -50,17 +49,17 @@ public class Authenticate {
 
     public static Object doAuthenticate(Strand strand, MapValue<?, ?> ldapConnection, String userName,
                                         String password) {
-        byte[] credential = password.getBytes(Charset.forName(LdapConstants.UTF_8_CHARSET));
+        if (userName == null || userName.isEmpty()) {
+            return LdapUtils.createError("Username is null or empty.");
+        }
+
+        byte[] credential = password.getBytes(StandardCharsets.UTF_8);
         connectionSource = (LdapConnectionContext) ldapConnection.getNativeData(LdapConstants.LDAP_CONNECTION_SOURCE);
         DirContext ldapConnectionContext = (DirContext) ldapConnection.getNativeData(
                 LdapConstants.LDAP_CONNECTION_CONTEXT);
         CommonLdapConfiguration ldapConfiguration = (CommonLdapConfiguration) ldapConnection.getNativeData(
                 LdapConstants.LDAP_CONFIGURATION);
         LdapUtils.setServiceName((String) ldapConnection.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
-
-        if (LdapUtils.isNullOrEmptyAfterTrim(userName)) {
-            return LdapUtils.createError("Username or credential value is empty or null.");
-        }
 
         try {
             if (LOG.isDebugEnabled()) {
@@ -77,9 +76,6 @@ public class Authenticate {
             return false;
         } catch (NamingException e) {
             LOG.error("Cannot bind user: " + userName, e);
-            return LdapUtils.createError(e.getMessage());
-        } catch (UserStoreException e) {
-            LOG.error(e.getMessage(), e);
             return LdapUtils.createError(e.getMessage());
         } finally {
             LdapUtils.removeServiceName();

@@ -41,6 +41,7 @@ public enum DiagnosticCode {
     INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
     INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
     ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
+    DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED("missing.error.reason"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
     TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
     FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
@@ -81,6 +82,7 @@ public enum DiagnosticCode {
     OBJECT_OUTSIDE_METHODS_NOT_ALLOWED("object.outside.methods.not.allowed"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
     CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
+    INVALID_PACKAGE_NAME_QUALIFER("invalid.package.name.qualifier"),
 
     REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM("required.param.not.allowed.after.defaultable.param"),
     POSITIONAL_ARG_DEFINED_AFTER_NAMED_ARG("positional.arg.defined.after.named.arg"),
@@ -158,6 +160,7 @@ public enum DiagnosticCode {
 
     REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT("remote.function.in.non.client.object"),
     RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT("resource.function.in.non.service.object"),
+    RESOURCE_FUNCTION_WITH_VISIBILITY_QUALIFIER("resource.function.with.visibility.qualifier"),
     REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
     REMOTE_ON_NON_REMOTE_FUNCTION("remote.on.non.remote.function"),
     REMOTE_REQUIRED_ON_REMOTE_FUNCTION("remote.required.on.remote.function"),
@@ -172,6 +175,7 @@ public enum DiagnosticCode {
 
     TYPE_CAST_NOT_YET_SUPPORTED("type.cast.not.yet.supported.for.type"),
     EQUALITY_NOT_YET_SUPPORTED("equality.not.yet.supported.for.type"),
+    BINDING_PATTERN_NOT_YET_SUPPORTED("binding.pattern.not.yet.supported.for.type"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -457,6 +461,10 @@ public enum DiagnosticCode {
 
     // Type Param related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("type.param.outside.lang.module"),
+
+    VERSIONED_IMPORT_NOT_SUPPORTED("versioned.import.not.supported"),
+    INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
+    INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment")
 
     ;
     private String value;

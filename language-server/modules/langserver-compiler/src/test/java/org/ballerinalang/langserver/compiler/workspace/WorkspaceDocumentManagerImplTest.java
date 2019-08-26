@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,7 +44,6 @@ public class WorkspaceDocumentManagerImplTest {
     private Path docUpdatePath1;
     private Path docUpdatePath2;
     private Path docUpdatePath3;
-    private static final String LINE_SEPARATOR = System.lineSeparator();
 
     public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
@@ -114,36 +111,6 @@ public class WorkspaceDocumentManagerImplTest {
         // Test is file open returns true
         documentManager.openFile(filePath, readAll(filePath.toFile()));
         Assert.assertTrue(documentManager.isFileOpen(filePath));
-    }
-
-    @Test(description = "Test the document range updating", dependsOnMethods = "testOpenFile")
-    public void testDocumentRangeUpdate() throws IOException, WorkspaceDocumentException {
-        Path expected1Path = RES_DIR.resolve("expected").resolve("expected1.bal");
-        Path expected2Path = RES_DIR.resolve("expected").resolve("expected2.bal");
-        Path expected3Path = RES_DIR.resolve("expected").resolve("expected3.bal");
-        Path update1Path = RES_DIR.resolve("updatecontent").resolve("updateContent1.txt");
-        Path update2Path = RES_DIR.resolve("updatecontent").resolve("updateContent2.txt");
-        Path update3Path = RES_DIR.resolve("updatecontent").resolve("updateContent3.txt");
-
-        Range range1 = new Range(new Position(19, 0), new Position(19, 0));
-        Range range2 = new Range(new Position(6, 0), new Position(11, 1));
-        Range range3 = new Range(new Position(6, 0), new Position(6, 0));
-        String expected1 = new String(Files.readAllBytes(expected1Path)).replaceAll("\r?\n", LINE_SEPARATOR);
-        String expected2 = new String(Files.readAllBytes(expected2Path)).replaceAll("\r?\n", LINE_SEPARATOR);
-        String expected3 = new String(Files.readAllBytes(expected3Path)).replaceAll("\r?\n", LINE_SEPARATOR);
-        String update1 = new String(Files.readAllBytes(update1Path)).replaceAll("\r?\n", LINE_SEPARATOR);
-        String update2 = new String(Files.readAllBytes(update2Path)).replaceAll("\r?\n", LINE_SEPARATOR);
-        String update3 = new String(Files.readAllBytes(update3Path)).replaceAll("\r?\n", LINE_SEPARATOR);
-        documentManager.updateFileRange(docUpdatePath1, range1, update1);
-        documentManager.updateFileRange(docUpdatePath2, range2, update2);
-        documentManager.updateFileRange(docUpdatePath3, range3, update3);
-
-        Assert.assertEquals(expected1, documentManager.getFileContent(docUpdatePath1),
-                "Test Failed for: " + "docUpdateSource1");
-        Assert.assertEquals(expected2, documentManager.getFileContent(docUpdatePath2),
-                "Test Failed for: " + "docUpdateSource2");
-        Assert.assertEquals(expected3, documentManager.getFileContent(docUpdatePath3),
-                "Test Failed for: " + "docUpdateSource3");
     }
 
     @Test(dependsOnMethods = "testGetAllFilePaths")

@@ -19,7 +19,7 @@ type OutOfStockAlert record {|
 stream<Order> orderStream = new;
 
 table<Item> itemStockTable = table {
-    { name, price, stockAmount},
+    {name, price, stockAmount},
     [
         {"Book", 100.0, 10},
         {"Pen", 20.0, 4}
@@ -58,7 +58,7 @@ function initOutOfStockAlert2() {
 public function queryItemTable(string itemName, int orderingAmount)
 returns table<Item> {
     table<Item> result = table {
-        { name, price, stockAmount},
+        {name, price, stockAmount},
         []
     };
     foreach var item in itemStockTable {

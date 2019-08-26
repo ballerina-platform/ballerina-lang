@@ -65,7 +65,7 @@ public class WebSocketCompilationTest {
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0, "Invalid resource signature for onText resource in service " +
-                ": Unexpected parameter count", 27, 5);
+                ": Unexpected parameter count", 26, 5);
     }
 
     @Test(description = "Invalid signature for onText resource with int")
@@ -121,7 +121,7 @@ public class WebSocketCompilationTest {
         BAssertUtil.validateError(compileResult, 0,
                 "Invalid resource signature for onClose resource in service : The third parameter " +
                         "should be a string",
-                27, 5);
+                26, 5);
     }
 
     @Test(description = "Invalid signature for onError resources")

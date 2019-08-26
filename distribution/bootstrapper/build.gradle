@@ -40,9 +40,6 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     pack0 group: 'org.ballerinalang', name: 'jballerina-tools', version: project.bootstrappedOn, ext: 'zip'
 
-    pack1 group: 'org.ballerinalang', name: 'ballerina-packerina', version: project.bootstrappedOn
-    pack1 'org.ow2.asm:asm:6.2.1'
-
     pack2bir project(path: ':ballerina-bir-old', configuration: 'oldBir')
     pack2bir project(path: ':ballerina-bir-old', configuration: 'nativeMap')
     pack2bir project(path: ':ballerina-jvm-old', configuration: 'oldBir')

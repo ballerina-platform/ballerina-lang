@@ -60,3 +60,8 @@ service testService on new http:Listener(8080) {
               boolean hasHeader = request.hasHeader(http:EXPECT);
        }
 }
+
+function testAsyncSend() {
+    http:Client remoteEndpoint = new("http://localhost:9090");
+    future<http:Response|error> f = start remoteEndpoint->post("/abc", "request");
+}

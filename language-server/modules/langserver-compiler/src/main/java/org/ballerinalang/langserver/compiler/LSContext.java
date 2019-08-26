@@ -40,6 +40,13 @@ public interface LSContext {
     <V> V get(Key<V> key);
 
     /**
+     * Returns operation name.
+     *
+     * @return  operation name
+     */
+    LSOperation getOperation();
+
+    /**
      * @param <K> Property Key
      * @since 0.95.5
      */

@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/math;
-import ballerina/mime;
 import ballerina/runtime;
 
 # Derived set of configurations from the `RetryConfig`.

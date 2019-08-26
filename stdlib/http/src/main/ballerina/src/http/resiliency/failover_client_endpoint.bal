@@ -16,7 +16,6 @@
 
 import ballerina/mime;
 import ballerina/runtime;
-import ballerina/io;
 
 # Provides a set of configurations for controlling the failover behaviour of the endpoint.
 #
@@ -484,7 +483,6 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         forwarded:foConfig.forwarded,
         followRedirects:foConfig.followRedirects,
         retryConfig:foConfig.retryConfig,
-        proxy:foConfig.proxy,
         poolConfig:foConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:foConfig.cache,

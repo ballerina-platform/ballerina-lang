@@ -35,7 +35,6 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -54,9 +53,8 @@ public class KafkaProducerTransactionsTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(3).startup();
+                .deleteDataUponShutdown(true).addBrokers(3).startup();
     }
 
     @Test(description = "Test Kafka producer send function within transaction")

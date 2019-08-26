@@ -19,3 +19,7 @@ function basicTupleAssignmentNegative() returns string {
     [boolean...] t1 = [1, true, 2, "s", true];
     return t.toString();
 }
+
+function testTupleInUnionReturn() returns [string, int, boolean]|string {
+    return ["", 5, true, false]; // this should fail
+}

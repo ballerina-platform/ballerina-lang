@@ -42,6 +42,8 @@ public class Module {
     public String implementation_name = "jBallerina";
     public String implementation_version = "1.0.0";
     public String implementation_vendor = "WSO2";
+    public String template = "false";
+    public String template_version = "1.0.0";
     
     public String getManifest_version() {
         return manifest_version;
@@ -153,5 +155,21 @@ public class Module {
     
     public String getPlatform() {
         return platform;
+    }
+
+    public String getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(String template) {
+        this.template = template;
+    }
+
+    public String getTemplate_version() {
+        return template_version;
+    }
+
+    public void setTemplate_version(String template_version) {
+        this.template_version = template_version;
     }
 }

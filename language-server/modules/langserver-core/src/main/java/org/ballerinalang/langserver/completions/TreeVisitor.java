@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;
 import org.ballerinalang.langserver.completions.util.CursorPositionResolvers;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.CursorPositionResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.ForkJoinStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.InvocationParameterScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchExpressionScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
@@ -86,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -137,6 +139,8 @@ public class TreeVisitor extends LSNodeVisitor {
 
     private Deque<Boolean> isCurrentNodeTransactionStack;
 
+    private Deque<BLangForkJoin> forkJoinStack;
+
     private Class cursorPositionResolver;
 
     private LSContext lsContext;
@@ -152,6 +156,7 @@ public class TreeVisitor extends LSNodeVisitor {
         blockOwnerStack = new ArrayDeque<>();
         blockStmtStack = new ArrayDeque<>();
         isCurrentNodeTransactionStack = new ArrayDeque<>();
+        forkJoinStack = new ArrayDeque<>();
         symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
     }
@@ -168,13 +173,6 @@ public class TreeVisitor extends LSNodeVisitor {
         this.symbolEnv = pkgEnv;
 
         List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(evalPkg, lsContext);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(lsContext);
-        
-        imports.forEach(bLangImportPackage -> {
-            cursorPositionResolver = TopLevelNodeScopeResolver.class;
-            this.blockOwnerStack.push(evalPkg);
-            acceptNode(bLangImportPackage, pkgEnv);
-        });
 
         List<TopLevelNode> filteredTopLevelNodes = topLevelNodes.stream()
                 .filter(CommonUtil.checkInvalidTypesDefs())
@@ -563,8 +561,23 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
+        if (CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
+                .isCursorBeforeNode(forkJoin.pos, this, this.lsContext, forkJoin, null)) {
+            return;
+        }
         SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.symbolEnv);
-        forkJoin.workers.forEach(e -> this.acceptNode(e, folkJoinEnv));
+        if (forkJoin.workers.isEmpty()
+                && CompletionVisitorUtil.isCursorWithinBlock(forkJoin.pos, folkJoinEnv, this.lsContext, this)) {
+            return;
+        }
+        Class backupResolver = this.cursorPositionResolver;
+        this.forkJoinStack.push(forkJoin);
+        forkJoin.workers.forEach(e -> {
+            this.cursorPositionResolver = ForkJoinStatementScopeResolver.class;
+            this.acceptNode(e, folkJoinEnv);
+        });
+        this.forkJoinStack.pop();
+        this.cursorPositionResolver = backupResolver;
     }
 
     @Override
@@ -815,6 +828,12 @@ public class TreeVisitor extends LSNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangForever foreverStatement) {
+        CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
+                .isCursorBeforeNode(foreverStatement.pos, this, this.lsContext, foreverStatement, null);
+    }
+
     ///////////////////////////////////
     /////   Other Public Methods  /////
     ///////////////////////////////////
@@ -852,6 +871,10 @@ public class TreeVisitor extends LSNodeVisitor {
 
     public Deque<BLangBlockStmt> getBlockStmtStack() {
         return blockStmtStack;
+    }
+
+    public Deque<BLangForkJoin> getForkJoinStack() {
+        return forkJoinStack;
     }
 
     public SymbolEnv getSymbolEnv() {

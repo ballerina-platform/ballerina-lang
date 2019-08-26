@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/crypto;
 import ballerina/http;
 
 function testCanProcessHttpBearerAuthWithoutHeader() returns @tainted boolean {

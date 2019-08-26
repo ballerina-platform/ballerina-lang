@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/kafka;
-import ballerina/transactions;
+
 
 string topic = "abort-transaction-topic";
 

@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.extensions.ballerina.project;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -58,21 +59,22 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
 
     @Override
     public CompletableFuture<ModulesResponse> modules (ModulesRequest request) {
-
-        ModulesResponse reply = new ModulesResponse();
-        String sourceRoot = request.getSourceRoot();
-        try {
-            LSContext astContext = new LSServiceOperationContext();
-            astContext.put(DocumentServiceKeys.SOURCE_ROOT_KEY, sourceRoot);
-            List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager, true,
-                    LSCustomErrorStrategy.class);
-            JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
-            reply.setModules(jsonModulesInfo);
-            reply.setParseSuccess(true);
-        } catch (CompilationFailedException | JSONGenerationException | URISyntaxException e) {
-            reply.setParseSuccess(false);
-        }
-        return CompletableFuture.supplyAsync(() -> reply);
+        return CompletableFuture.supplyAsync(() -> {
+            ModulesResponse reply = new ModulesResponse();
+            String sourceRoot = request.getSourceRoot();
+            try {
+                LSContext astContext = new LSServiceOperationContext(LSContextOperation.PROJ_MODULES);
+                astContext.put(DocumentServiceKeys.SOURCE_ROOT_KEY, sourceRoot);
+                List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager,
+                                                                              LSCustomErrorStrategy.class);
+                JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
+                reply.setModules(jsonModulesInfo);
+                reply.setParseSuccess(true);
+            } catch (CompilationFailedException | JSONGenerationException | URISyntaxException e) {
+                reply.setParseSuccess(false);
+            }
+            return reply;
+        });
     }
 
     private JsonObject getJsonReply(LSContext astContext, List<BLangPackage> modules)

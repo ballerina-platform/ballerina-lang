@@ -1,0 +1,15 @@
+NAME
+    Ballerina OpenApi - Gen Contract is a tool which will generate an OpenApi contract for a given Ballerina service.
+
+    Note: This is an Experimental tool ship under ballerina hence this will only support limited set of functionality.
+SYNOPSIS
+    ballerina openapi gen-contract [<module>:]<service-name> [-i <ballerina-file>] [-o <contract-file>] [-s|--skip-bind]
+DEFAULT BEHAVIOR
+    If no options or sub commands are given on execution, Ballerina openapi command will show
+    the help file for the command.
+EXAMPLES
+    Get help for Ballerina Gen Contract command
+    $ ballerina openapi gen-contract -h
+
+    Generate an OpenApi contract for a service named hello
+    $ ballerina openapi gen-contact hello -i hello_service.bal

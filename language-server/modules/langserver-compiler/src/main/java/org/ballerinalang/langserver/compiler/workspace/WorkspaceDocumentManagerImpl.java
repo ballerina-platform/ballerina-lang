@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.Range;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -89,18 +88,6 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     public void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
             documentList.get(filePath).getDocument().ifPresent(document -> document.setContent(updatedContent));
-        } else {
-            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateFileRange(Path filePath, Range range, String updatedContent) throws WorkspaceDocumentException {
-        if (isFileOpen(filePath)) {
-            documentList.get(filePath).getDocument().ifPresent(document -> document.setContent(range, updatedContent));
         } else {
             throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
         }
