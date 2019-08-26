@@ -1055,6 +1055,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        if (constant.symbol.name == Names.IGNORE) {
+            // Avoid symbol definition for constants with name '_'
+            return;
+        }
         // Add the symbol to the enclosing scope.
         env.scope.define(constantSymbol.name, constantSymbol);
     }
