@@ -76,7 +76,7 @@ function readAllCharacters(io:ReadableCharacterChannel rch) returns @tainted str
         if (readResult is string) {
             result = result + readResult;
         } else {
-            if (<string>readResult.detail()["message"] == "io.EOF") {
+            if (readResult is io:EoFError) {
                 isDone = true;
             } else {
                 return readResult;

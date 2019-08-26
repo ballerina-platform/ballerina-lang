@@ -10,8 +10,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "DEFAULT",
       "insertTextFormat": "Snippet"
     },
@@ -20,8 +24,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "CSV",
       "insertTextFormat": "Snippet"
     },
@@ -30,8 +38,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "TDF",
       "insertTextFormat": "Snippet"
     },
@@ -40,8 +52,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "COMMA",
       "insertTextFormat": "Snippet"
     },
@@ -50,8 +66,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "TAB",
       "insertTextFormat": "Snippet"
     },
@@ -60,8 +80,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "COLON",
       "insertTextFormat": "Snippet"
     },
@@ -70,8 +94,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "CONNECTION_TIMED_OUT",
       "insertTextFormat": "Snippet"
     },
@@ -80,9 +108,55 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "GENERIC_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ACCESS_DENIED_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "120",
+      "insertText": "ACCESS_DENIED_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FILE_NOT_FOUND_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "120",
+      "insertText": "FILE_NOT_FOUND_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "END_OF_FILE_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "120",
+      "insertText": "END_OF_FILE_ERROR",
       "insertTextFormat": "Snippet"
     },
     {
@@ -90,8 +164,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "READ",
       "insertTextFormat": "Snippet"
     },
@@ -100,8 +178,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "WRITE",
       "insertTextFormat": "Snippet"
     },
@@ -110,8 +192,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "RW",
       "insertTextFormat": "Snippet"
     },
@@ -120,8 +206,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "APPEND",
       "insertTextFormat": "Snippet"
     },
@@ -130,8 +220,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents record separator of the CSV file."
+        }
       },
+      "sortText": "120",
       "insertText": "CSV_RECORD_SEPARATOR",
       "insertTextFormat": "Snippet"
     },
@@ -140,8 +234,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents colon separator which should be used to identify colon separated files."
+        }
       },
+      "sortText": "120",
       "insertText": "FS_COLON",
       "insertTextFormat": "Snippet"
     },
@@ -150,8 +248,12 @@
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents minimum number of headers which will be included in CSV."
+        }
       },
+      "sortText": "120",
       "insertText": "MINIMUM_HEADER_COUNT",
       "insertTextFormat": "Snippet"
     },
@@ -160,8 +262,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "BIG_ENDIAN",
       "insertTextFormat": "Snippet"
     },
@@ -170,8 +276,12 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
+      "sortText": "120",
       "insertText": "LITTLE_ENDIAN",
       "insertTextFormat": "Snippet"
     },
@@ -182,6 +292,7 @@
       "documentation": {
         "left": "Format which will be used to represent the CSV.\n\nDEFAULT - Would default to the format specified by CSVChannel. Precedence will be given to field\n          separator and record separator.\n\nCSV - Field separator would be \",\" and the record separator would be new line.\n\nTDF - Field separator will be tab and record separator will be new line."
       },
+      "sortText": "120",
       "insertText": "Format",
       "insertTextFormat": "Snippet"
     },
@@ -192,6 +303,7 @@
       "documentation": {
         "left": "Field separators which are supported by DelimitedTextRecordChannel."
       },
+      "sortText": "120",
       "insertText": "Separator",
       "insertTextFormat": "Snippet"
     },
@@ -199,6 +311,7 @@
       "label": "ConnectionTimedOutError",
       "kind": "Keyword",
       "detail": "Error",
+      "sortText": "120",
       "insertText": "ConnectionTimedOutError",
       "insertTextFormat": "Snippet"
     },
@@ -206,13 +319,39 @@
       "label": "GenericError",
       "kind": "Keyword",
       "detail": "Error",
+      "sortText": "120",
       "insertText": "GenericError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AccessDeniedError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "sortText": "120",
+      "insertText": "AccessDeniedError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FileNotFoundError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "sortText": "120",
+      "insertText": "FileNotFoundError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "EoFError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "sortText": "120",
+      "insertText": "EoFError",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Error",
       "kind": "Enum",
       "detail": "Union",
+      "sortText": "120",
       "insertText": "Error",
       "insertTextFormat": "Snippet"
     },
@@ -220,6 +359,7 @@
       "label": "Mode",
       "kind": "Enum",
       "detail": "Union",
+      "sortText": "120",
       "insertText": "Mode",
       "insertTextFormat": "Snippet"
     },
@@ -230,6 +370,7 @@
       "documentation": {
         "left": "ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes."
       },
+      "sortText": "120",
       "insertText": "ReadableByteChannel",
       "insertTextFormat": "Snippet"
     },
@@ -240,6 +381,7 @@
       "documentation": {
         "left": "Represents a channel which could be used to read characters through a given ReadableByteChannel."
       },
+      "sortText": "120",
       "insertText": "ReadableCharacterChannel",
       "insertTextFormat": "Snippet"
     },
@@ -250,6 +392,7 @@
       "documentation": {
         "left": "Represents a ReadableCSVChannel which could be used to read records from CSV file."
       },
+      "sortText": "120",
       "insertText": "ReadableCSVChannel",
       "insertTextFormat": "Snippet"
     },
@@ -260,6 +403,7 @@
       "documentation": {
         "left": "Represents a data channel for reading data."
       },
+      "sortText": "120",
       "insertText": "ReadableDataChannel",
       "insertTextFormat": "Snippet"
     },
@@ -270,6 +414,7 @@
       "documentation": {
         "left": "Represents a channel which will allow to read"
       },
+      "sortText": "120",
       "insertText": "ReadableTextRecordChannel",
       "insertTextFormat": "Snippet"
     },
@@ -280,6 +425,7 @@
       "documentation": {
         "left": "Represents a reader which will wrap string content as a channel."
       },
+      "sortText": "120",
       "insertText": "StringReader",
       "insertTextFormat": "Snippet"
     },
@@ -290,6 +436,7 @@
       "documentation": {
         "left": "WritableByteChannel represents an output resource (i.e file, socket). which could be used to sink bytes."
       },
+      "sortText": "120",
       "insertText": "WritableByteChannel",
       "insertTextFormat": "Snippet"
     },
@@ -300,6 +447,7 @@
       "documentation": {
         "left": "Represents a channel which could be used to write characters through a given WritableCharacterChannel."
       },
+      "sortText": "120",
       "insertText": "WritableCharacterChannel",
       "insertTextFormat": "Snippet"
     },
@@ -310,6 +458,7 @@
       "documentation": {
         "left": "Represents a WritableCSVChannel which could be used to write records from CSV file."
       },
+      "sortText": "120",
       "insertText": "WritableCSVChannel",
       "insertTextFormat": "Snippet"
     },
@@ -320,6 +469,7 @@
       "documentation": {
         "left": "Represents network byte order.\n\nBIG_ENDIAN - specifies the bytes to be in the order of most significant byte first\n\nLITTLE_ENDIAN - specifies the byte order to be the least significant byte first"
       },
+      "sortText": "120",
       "insertText": "ByteOrder",
       "insertTextFormat": "Snippet"
     },
@@ -330,6 +480,7 @@
       "documentation": {
         "left": "Represents a WritableDataChannel for writing data."
       },
+      "sortText": "120",
       "insertText": "WritableDataChannel",
       "insertTextFormat": "Snippet"
     },
@@ -340,19 +491,21 @@
       "documentation": {
         "left": "Represents a channel which will allow to write records through a given WritableCharacterChannel."
       },
+      "sortText": "120",
       "insertText": "WritableTextRecordChannel",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "openReadableFile(string path)((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
+      "label": "openReadableFile(string path)((io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n**Params**  \n- `string` path: Relative/absolute path string to locate the file  \n  \n**Returns** `(io:ReadableByteChannel|error)`   \n- ByteChannel representation of the file resource or `Error` if any error occurred  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "openReadableFile(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -361,15 +514,16 @@
       }
     },
     {
-      "label": "openWritableFile(string path, boolean append)((io:WritableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
+      "label": "openWritableFile(string path, boolean append)((io:WritableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n- _append_  \n    Append to end of file.  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/io:WritableByteChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n**Params**  \n- `string` path: Relative/absolute path string to locate the file  \n- `boolean` append: Append to end of file.(Defaultable)  \n- `boolean` append: Append to end of file.  \n  \n**Returns** `(io:WritableByteChannel|error)`   \n- ByteChannel representation of the file resource or `Error` if any error occurred  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "openWritableFile(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -378,15 +532,16 @@
       }
     },
     {
-      "label": "createReadableChannel(byte[] content)((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
+      "label": "createReadableChannel(byte[] content)((io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n  \n---    \n**Parameters**  \n- _content_  \n    Content which should be exposed as channel  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
+          "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n**Params**  \n- `byte[]` content: Content which should be exposed as channel  \n  \n**Returns** `(io:ReadableByteChannel|error)`   \n- ByteChannel representation to read the memory content or `Error` if any error occurred  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "createReadableChannel(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -395,15 +550,16 @@
       }
     },
     {
-      "label": "openReadableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:ReadableCSVChannel|io:GenericError|io:ConnectionTimedOutError))",
+      "label": "openReadableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:ReadableCSVChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \n(Default Parameter)  \n- _charset_  \n    Encoding characters in the file represents  \n(Default Parameter)  \n- _skipHeaders_  \n    Number of headers which should be skipped  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/io:ReadableCSVChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n**Params**  \n- `string` path: File path which describes the location of the CSV  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)(Defaultable)  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)  \n- `string` charset: Encoding characters in the file represents(Defaultable)  \n- `string` charset: Encoding characters in the file represents  \n- `int` skipHeaders: Number of headers which should be skipped(Defaultable)  \n- `int` skipHeaders: Number of headers which should be skipped  \n  \n**Returns** `(io:ReadableCSVChannel|error)`   \n- ReadableCSVChannel which could be used to iterate through the CSV records  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "openReadableCsvFile(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -412,15 +568,16 @@
       }
     },
     {
-      "label": "openWritableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:WritableCSVChannel|io:GenericError|io:ConnectionTimedOutError))",
+      "label": "openWritableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:WritableCSVChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \n(Default Parameter)  \n- _charset_  \n    Encoding characters in the file represents  \n(Default Parameter)  \n- _skipHeaders_  \n    Number of headers which should be skipped  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/io:WritableCSVChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n**Params**  \n- `string` path: File path which describes the location of the CSV  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)(Defaultable)  \n- `(,|\t|:)` fieldSeparator: CSV record separator (i.e comma or tab)  \n- `string` charset: Encoding characters in the file represents(Defaultable)  \n- `string` charset: Encoding characters in the file represents  \n- `int` skipHeaders: Number of headers which should be skipped(Defaultable)  \n- `int` skipHeaders: Number of headers which should be skipped  \n  \n**Returns** `(io:WritableCSVChannel|error)`   \n- WritableCSVChannel which could be used to write CSV records or `Error` if any error occurred  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "openWritableCsvFile(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -435,9 +592,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n  \n---    \n**Parameters**  \n- _values_  \n    The value(s) to be printed.  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n**Params**  \n- values: The value(s) to be printed."
         }
       },
+      "sortText": "130",
       "insertText": "print(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -452,9 +610,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n  \n---    \n**Parameters**  \n- _values_  \n    The value(s) to be printed.  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n**Params**  \n- values: The value(s) to be printed."
         }
       },
+      "sortText": "130",
       "insertText": "println(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -469,9 +628,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n  \n  \n---    \n**Parameters**  \n- _format_  \n    A format string  \n  \n- _args_  \n    Arguments referenced by the format specifiers in the format string.  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n  \n**Params**  \n- `string` format: A format string  \n- args: Arguments referenced by the format specifiers in the format string.  \n  \n**Returns** `string`   \n- Formatted string  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "sprintf(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -486,9 +646,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nReturns the input read from STDIN.\n  \n  \n---    \n**Parameters**  \n- _a_  \n    Any value to be printed  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/io_  \n  \nReturns the input read from STDIN.\n  \n**Params**  \n- `any` a: Any value to be printed  \n  \n**Returns** `string`   \n- Input read from STDIN  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "readln(${1})",
       "insertTextFormat": "Snippet",
       "command": {
