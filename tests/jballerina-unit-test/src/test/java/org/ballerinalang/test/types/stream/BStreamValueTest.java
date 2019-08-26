@@ -247,6 +247,15 @@ public class BStreamValueTest {
                             "Received event does not match the expected casted value");
     }
 
+    @Test(description = "Test if the published value is cloned or not")
+    public void testStreamEventClone() {
+        BValue[] returns = BRunUtil.invoke(result, "testStreamEventClone");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNotEquals(returns[0], returns[1]);
+        Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Gima");
+        Assert.assertEquals(((BMap) returns[1]).get("name").stringValue(), "CloneOfGima");
+    }
+
     private void assertEventEquality(BValueArray publishedEvents, BValueArray receivedEvents) {
         Assert.assertNotNull(publishedEvents);
         Assert.assertNotNull(receivedEvents);

@@ -27,6 +27,11 @@ import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 
 import java.util.HashMap;
 
+/**
+ * This class contains the functions related to cloning Ballerina values.
+ *
+ * @since 1.0.0
+ */
 public class CloneUtils {
 
     /**

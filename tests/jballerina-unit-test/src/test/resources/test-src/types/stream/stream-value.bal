@@ -300,6 +300,31 @@ function testStreamPublishingInitStreamViaFuncArgs() returns [any[], any[]] {
     return testStreamViaFuncArg(new);
 }
 
+function testStreamEventClone() returns Employee[] {
+    arrayIndex = 0;
+    stream<Employee> s1 = new;
+    Employee[] arr = [];
+
+    s1.subscribe(function(Employee e) {
+        e.name = "CloneOfGima";
+        arr[arr.length()] = e;
+    });
+
+    Employee e1 = { id:1234, name:"Gima" };
+    arr[0] = e1;
+
+    s1.publish(e1);
+
+    int startTime = time:currentTime().time;
+
+    //allow for value update
+    while (globalEmployeeArray.length() < 1 && time:currentTime().time - startTime < 5000) {
+        runtime:sleep(100);
+    }
+
+    return arr;
+}
+
 function printJobDescription(Job j) {
     log:printInfo(j.description);
 }
