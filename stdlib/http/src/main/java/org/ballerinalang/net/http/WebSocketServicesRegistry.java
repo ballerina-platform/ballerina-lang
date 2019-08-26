@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.net.http.exception.WebSocketException;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
@@ -29,6 +28,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * Store all the WebSocket serviceEndpointsTemplate here.
@@ -45,7 +46,7 @@ public class WebSocketServicesRegistry {
         try {
             getUriTemplate().parse(basePath, service, new WebSocketDataElementFactory());
         } catch (URITemplateException | UnsupportedEncodingException e) {
-            throw new WebSocketException(e.getMessage());
+            throw createWebSocketError(e.getMessage());
         }
         logger.info("WebSocketService deployed : {} with context {}", service.getName(), basePath);
 
@@ -62,7 +63,7 @@ public class WebSocketServicesRegistry {
         try {
             basePath = URLDecoder.decode(basePath, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            throw new WebSocketException(e.getMessage());
+            throw createWebSocketError(e.getMessage());
         }
         return basePath;
     }

@@ -36,7 +36,6 @@ import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.mime.util.MimeConstants;
-import org.ballerinalang.net.http.exception.WebSocketException;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +53,7 @@ import java.nio.charset.Charset;
 
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
@@ -155,7 +155,7 @@ public class WebSocketDispatcher {
                 case TypeTags.XML_TAG:
                     XMLValue bxml = XMLFactory.parse(aggregateString);
                     if (bxml.getNodeType() != XMLNodeType.ELEMENT) {
-                        throw new WebSocketException("Invalid XML data");
+                        throw createWebSocketError("Invalid XML data");
                     }
                     return bxml;
                 case TypeTags.RECORD_TYPE_TAG:
@@ -170,7 +170,7 @@ public class WebSocketDispatcher {
                 default:
                     //Throw an exception because a different type is invalid.
                     //Cannot reach here because of compiler plugin validation.
-                    throw new BallerinaConnectorException("Invalid resource signature.");
+                    throw createWebSocketError("Invalid resource signature.");
             }
         } catch (Exception ex) {
             webSocketConnection.terminateConnection(1003, ex.getMessage());
@@ -327,7 +327,7 @@ public class WebSocketDispatcher {
         if (errMsg == null) {
             errMsg = "Unexpected internal error";
         }
-        bValues[2] = WebSocketUtil.createWebSocketError(errMsg);
+        bValues[2] = createWebSocketError(errMsg);
         bValues[3] = true;
         //TODO Uncomment following once service.start() API is available
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {

@@ -32,7 +32,6 @@ import org.ballerinalang.net.http.WebSocketClientHandshakeListener;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
-import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
@@ -42,6 +41,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * Initialize the WebSocket Client.
@@ -73,7 +74,7 @@ public class InitEndpoint {
             BType param = ((ObjectValue) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
             if (param == null || !WebSocketConstants.WEBSOCKET_CLIENT_NAME.equals(
                     param.toString())) {
-                throw new WebSocketException("The callback service should be a WebSocket Client Service");
+                throw createWebSocketError("The callback service should be a WebSocket Client Service");
             }
             wsService = new WebSocketService((ObjectValue) clientService, strand.scheduler);
         } else {
@@ -95,11 +96,11 @@ public class InitEndpoint {
                         readyOnConnect, countDownLatch));
         try {
             if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
-                throw new WebSocketException("Waiting for WebSocket handshake has not been successful");
+                throw createWebSocketError("Waiting for WebSocket handshake has not been successful");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new WebSocketException("Error occurred: " + e.getMessage());
+            throw createWebSocketError("Error occurred: " + e.getMessage());
 
         }
     }

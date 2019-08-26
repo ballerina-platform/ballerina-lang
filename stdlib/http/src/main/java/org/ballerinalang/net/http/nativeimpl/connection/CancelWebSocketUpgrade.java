@@ -26,10 +26,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionClosureError;
 import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
@@ -55,13 +54,14 @@ public class CancelWebSocketUpgrade {
         WebSocketHandshaker webSocketHandshaker =
                 (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         if (webSocketHandshaker == null) {
-            throw new WebSocketException("Not a WebSocket upgrade request. Cannot cancel the request");
+            throw createWebSocketError(WsConnectionClosureError, "Not a WebSocket upgrade request. " +
+                    "Cannot cancel the request");
         }
         ChannelFuture future = webSocketHandshaker.cancelHandshake((int) statusCode, reason);
         future.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                callback.setReturnValues(createWebSocketError(WsInvalidHandshakeError, cause.getMessage()));
+                callback.setReturnValues(createWebSocketError(WsConnectionClosureError, cause.getMessage()));
             } else {
                 callback.setReturnValues(null);
             }

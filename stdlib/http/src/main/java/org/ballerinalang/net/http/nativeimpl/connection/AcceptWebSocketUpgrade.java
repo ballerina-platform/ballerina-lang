@@ -29,8 +29,10 @@ import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
-import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
+
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code AcceptWebSocketUpgrade} is the AcceptWebSocketUpgrade action implementation of the HTTP Connector.
@@ -54,11 +56,12 @@ public class AcceptWebSocketUpgrade {
         WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) connectionObj
                 .getNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER);
         if (webSocketHandshaker == null) {
-            throw new WebSocketException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
+            throw createWebSocketError(WsInvalidHandshakeError, "Not a WebSocket upgrade request." +
+                    "Cannot upgrade from HTTP to WS");
         }
         if (connectionManager == null) {
-            throw new WebSocketException("Cannot accept a WebSocket upgrade without WebSocket " +
-                    "connection manager");
+            throw createWebSocketError(WsInvalidHandshakeError, "Cannot accept a WebSocket upgrade " +
+                    "without WebSocket connection manager");
         }
 
         WebSocketService webSocketService = (WebSocketService) connectionObj.getNativeData(

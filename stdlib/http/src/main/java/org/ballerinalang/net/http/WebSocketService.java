@@ -23,10 +23,11 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.net.http.exception.WebSocketException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * WebSocket service for service dispatching.
@@ -77,7 +78,8 @@ public class WebSocketService {
         MapValue resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(
                 upgradeResource.getBalResource());
         if (resourceConfigAnnotation == null) {
-            throw new WebSocketException("Cannot find a resource config for resource " + upgradeResource.getName());
+            throw createWebSocketError("Cannot find a resource config for resource "
+                    + upgradeResource.getName());
         }
         MapValue webSocketConfig =
                 resourceConfigAnnotation.getMapValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
