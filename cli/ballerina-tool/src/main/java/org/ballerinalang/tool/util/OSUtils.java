@@ -65,10 +65,6 @@ public class OSUtils {
                 + BALLERINA_HOME_DIR + File.separator + BALLERINA_CONFIG;
     }
 
-    public static String getDistributionsPath() {
-        return getInstalltionPath() + File.separator + "distributions";
-    }
-
     public static String getUserAgent(String ballerinaVersion, String toolVersion, String distributionType) {
         String os = "none";
         if (OSUtils.isWindows()) {

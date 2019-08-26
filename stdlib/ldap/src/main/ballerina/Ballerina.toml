@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "ldap"
+    artifactId = "ldap"
     version = "@project.version@"
     path = "./lib/ballerina-ldap-@project.version@.jar"
     groupId = "ballerina"
