@@ -654,14 +654,14 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "AuthCacheConfig",
+            "label": "AuthzCacheConfig",
             "kind": "Class",
             "detail": "Record",
             "documentation": {
                 "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
             },
             "sortText": "221",
-            "insertText": "AuthCacheConfig",
+            "insertText": "AuthzCacheConfig",
             "insertTextFormat": "Snippet"
         },
         {

@@ -1,4 +1,4 @@
-import finiteTypeTest/foo version v1;
+import finiteTypeTest/foo;
 
 function finiteAssignmentStateType() returns foo:State {
     foo:State p = "on";
@@ -204,7 +204,7 @@ function testTypeDefWithFunctions() returns int {
     foo:BFuncType fn = function (string s) returns int {
         return s.length();
     };
-    return fn.call("Hello");
+    return fn("Hello");
 }
 
 function testTypeDefWithFunctions2() returns int {
@@ -213,7 +213,7 @@ function testTypeDefWithFunctions2() returns int {
     };
 
     if (fn is function (string) returns int) {
-        return fn.call("Hello");
+        return fn("Hello");
     }
 
     return -1;

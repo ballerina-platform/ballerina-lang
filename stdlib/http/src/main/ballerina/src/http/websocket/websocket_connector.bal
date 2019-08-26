@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/encoding;
-import ballerina/'lang\.int as langint;
 
 # Represents a WebSocket connection in Ballerina. This includes all connection-oriented operations.
 type WebSocketConnector object {
@@ -73,7 +72,7 @@ type WebSocketConnector object {
         if (statusCode is int) {
             if (statusCode <= 999 || statusCode >= 1004 && statusCode <= 1006 || statusCode >= 1012 &&
                 statusCode <= 2999 || statusCode > 4999) {
-                WsConnectionClosureError err = error(message = "Failed to execute close. Invalid status code: " +
+                WsConnectionClosureError err = WsConnectionClosureError(message = "Failed to execute close. Invalid status code: " +
                 statusCode.toString());
                 return err;
             }

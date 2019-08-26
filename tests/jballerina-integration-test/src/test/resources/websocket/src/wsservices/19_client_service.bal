@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 final string REMOTE_BACKEND_URL200 = "ws://localhost:15000/websocket";
 

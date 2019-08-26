@@ -12,6 +12,7 @@
       "documentation": {
         "left": "Mock server endpoint which does not open a listening port."
       },
+      "sortText": "120",
       "insertText": "MockListener",
       "insertTextFormat": "Snippet"
     },
@@ -22,17 +23,8 @@
       "documentation": {
         "left": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
       },
+      "sortText": "120",
       "insertText": "Listener",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WebSocketListener",
-      "kind": "Class",
-      "detail": "Object",
-      "documentation": {
-        "left": "Represents a WebSocket service endpoint."
-      },
-      "insertText": "WebSocketListener",
       "insertTextFormat": "Snippet"
     }
   ]

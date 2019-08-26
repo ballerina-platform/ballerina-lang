@@ -132,5 +132,15 @@ function testIndirectErrorRefMandatoryFields() {
     string reason2;
     string messageX;
     map<any> rest2;
-    error(reason=reason2, message=messageX, ...rest2) = e;
+    error(message=messageX, ...rest2) = e;
+}
+
+public function testOptionalDetailFields() {
+    error e = error("reasonPhrase", other = "other value");
+
+    string reason;
+    string message; // this should be `string?`
+    anydata|error other;
+
+    error(reason, message = message, other = other) = e;
 }

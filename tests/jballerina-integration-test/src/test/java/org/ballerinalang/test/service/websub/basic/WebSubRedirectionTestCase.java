@@ -56,15 +56,11 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
         String subscribersBal = new File("src" + File.separator + "test" + File.separator + "resources" +
                                                  File.separator + "websub" + File.separator + "subscriber" +
                                                  File.separator + "test_redirected_subscribers.bal").getAbsolutePath();
-    
-        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources" +
-                                         File.separator + "websub" + File.separator + "subscriber").getAbsolutePath();
-        
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
 
         String[] subscriberArgs = {};
-        webSubSubscriber.startServer(sourceRoot, subscribersBal, subscriberArgs, new int[]{23484});
+        webSubSubscriber.startServer(subscribersBal, new String[0], subscriberArgs, new int[]{23484});
     }
 
     @Test

@@ -16,7 +16,6 @@
 
 import ballerina/auth;
 import ballerina/crypto;
-import ballerina/runtime;
 
 # Represents Ballerina configuration for LDAP based auth provider.
 #

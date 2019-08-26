@@ -16,7 +16,6 @@
 
 import ballerina/http;
 import ballerina/log;
-import ballerina/mime;
 
 http:Client eP1 = new("http://localhost:9101", { httpVersion: "2.0" });
 

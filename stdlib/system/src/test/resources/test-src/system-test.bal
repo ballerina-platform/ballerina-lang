@@ -25,10 +25,6 @@ function testEmptyEnv() returns string {
     return system:getEnv("JAVA_XXXX");
 }
 
-function testGetCurrentDirectory() returns string {
-    return system:getCurrentDirectory();
-}
-
 function testGetUserHome() returns string {
     return system:getUserHome();
 }

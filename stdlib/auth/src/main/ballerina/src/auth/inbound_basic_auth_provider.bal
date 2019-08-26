@@ -18,7 +18,6 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/internal;
-import ballerina/runtime;
 
 # Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
 #
@@ -45,7 +44,7 @@ public type InboundBasicAuthProvider object {
     # + credential - Credential
     # + return - `true` if authentication is successful, otherwise `false` or `Error` occurred while extracting credentials
     public function authenticate(string credential) returns boolean|Error {
-        if (credential == EMPTY_STRING) {
+        if (credential == "") {
             return false;
         }
         string username;

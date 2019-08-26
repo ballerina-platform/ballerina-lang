@@ -46,7 +46,8 @@ public class ParameterContextHolder {
             String userDefType = "";
             BLangUserDefinedType bLangUserDefinedType = (BLangUserDefinedType) parameter.getTypeNode();
             if (bLangUserDefinedType.getPackageAlias() != null
-                    && bLangUserDefinedType.getPackageAlias().getValue() != null) {
+                    && bLangUserDefinedType.getPackageAlias().getValue() != null
+                    && !bLangUserDefinedType.getPackageAlias().getValue().equals("")) {
                 userDefType += bLangUserDefinedType.getPackageAlias().getValue() + ":";
             }
             userDefType += bLangUserDefinedType.getTypeName().getValue();

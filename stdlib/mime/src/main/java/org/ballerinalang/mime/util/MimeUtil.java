@@ -40,7 +40,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
-import java.util.Locale;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
@@ -59,8 +58,6 @@ import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_SUB_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.MimeConstants.FORM_DATA_PARAM;
-import static org.ballerinalang.mime.util.MimeConstants.JSON_SUFFIX;
-import static org.ballerinalang.mime.util.MimeConstants.JSON_TYPE_IDENTIFIER;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
@@ -458,20 +455,6 @@ public class MimeUtil {
         return BallerinaErrors.createError(reason, populateMimeErrorRecord(errMsg));
     }
 
-    public static boolean isJSONContentType(ObjectValue entityStruct) {
-        String baseType;
-        try {
-            baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType == null) {
-                return false;
-            }
-            return baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_TYPE_IDENTIFIER) ||
-                    baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_SUFFIX);
-        } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
-        }
-    }
-
     public static boolean isJSONCompatible(org.ballerinalang.jvm.types.BType type) {
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
@@ -506,17 +489,28 @@ public class MimeUtil {
      * Check whether a given value should be serialized specifically as a JSON.
      *
      * @param value        Value to serialize
-     * @param entityRecord Entity record
+     * @param entity Entity record
      * @return flag indicating whether the given value should be serialized specifically as a JSON
      */
-    public static boolean generateAsJSON(Object value, ObjectValue entityRecord) {
+    public static boolean generateAsJSON(Object value, ObjectValue entity) {
         if (value instanceof StreamingJsonValue) {
-            // Streaming JSON should be serialized using the serialize() method.
-            // Hence returning false.
+            /* Streaming JSON should be serialized using the serialize() method. This is because there are two types
+            of JSON in Ballerina namely internally built and custom built. The custom built needs to be parsed
+            differently than the internally built. StreamingJsonValue being the custom built type it is parsed in the
+             serialize method.
+            Hence returning false.*/
             return false;
         }
 
-        return isJSONContentType(entityRecord) && isJSONCompatible(TypeChecker.getType(value));
+        return parseAsJson(entity) && isJSONCompatible(
+                TypeChecker.getType(value));
+    }
+
+    private static boolean parseAsJson(ObjectValue entity) {
+        Object parseAsJson = entity.getNativeData(MimeConstants.PARSE_AS_JSON);
+        // A data source might not exist for multipart and byteChannel. Hence the null check. If PARSE_AS_JSON is
+        // true then it indicates that the data source need to be parsed as JSON.
+        return parseAsJson != null && (boolean) entity.getNativeData(MimeConstants.PARSE_AS_JSON);
     }
 
     /**

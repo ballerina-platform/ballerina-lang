@@ -39,6 +39,11 @@ public class BLangConstants {
     public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
     public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>"; 
     public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String BALLERINA_CONFIG_PREFIX = "--b7a.";
+    public static final String BALLERINA_ARGS_INIT_PREFIX = "--";
+    public static final int BALLERINA_ARGS_INIT_PREFIX_LENGTH = BALLERINA_ARGS_INIT_PREFIX.length();
+    public static final String CONFIG_SEPARATOR = "=";
+    public static final String INVALID_OPTION_ERROR_MESSAGE = "ballerina: unknown option: ";
 
     public static final String EMPTY = "";
     public static final String ANON_ORG = "$anon";

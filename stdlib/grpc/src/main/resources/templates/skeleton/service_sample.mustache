@@ -1,0 +1,40 @@
+import ballerina/grpc;
+
+listener grpc:Listener ep = new (9090);
+{{#if bidiStreaming}}
+@grpc:ServiceConfig { {{#streamingFunction}}
+    name: "{{methodName}}",{{/streamingFunction}}
+    clientStreaming: true,
+    serverStreaming: true
+}{{/if}}{{#if clientStreaming}}
+@grpc:ServiceConfig { {{#streamingFunction}}
+    name: "{{methodName}}",{{/streamingFunction}}
+    clientStreaming: true
+}
+{{/if}}
+service {{serviceName}} on ep {
+{{#streamingFunction}}
+    resource function onOpen(grpc:Caller caller) {
+        // Implementation goes here.
+    }
+
+    resource function onMessage(grpc:Caller caller, {{inputType}} value) {
+        // Implementation goes here.
+    }
+
+    resource function onError(grpc:Caller caller, error err) {
+        // Implementation goes here.
+    }
+
+    resource function onComplete(grpc:Caller caller) {
+            // Implementation goes here.
+            // You should return a {{outputType}}
+    }
+{{/streamingFunction}}{{#unaryFunctions}}{{#equals methodType "SERVER_STREAMING"}}
+    @grpc:ResourceConfig { streaming: true } {{/equals}}
+    resource function {{methodName}}(grpc:Caller caller, {{inputType}} value) {
+        // Implementation goes here.
+
+        // You should return a {{outputType}}
+    }{{/unaryFunctions}}
+}

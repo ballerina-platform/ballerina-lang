@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -76,6 +77,10 @@ public class StaticMethods {
         mapValue.put("f", f);
         mapValue.put("g", g);
         return mapValue;
+    }
+
+    public static boolean acceptServiceObjectAndReturnBoolean(ObjectValue serviceObject) {
+        return TypeTags.SERVICE_TAG == serviceObject.getType().getTag();
     }
 
     public static ErrorValue acceptStringErrorReturn(String msg) {

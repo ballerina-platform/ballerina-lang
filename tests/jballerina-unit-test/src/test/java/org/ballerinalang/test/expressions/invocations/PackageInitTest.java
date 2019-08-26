@@ -48,7 +48,7 @@ public class PackageInitTest {
     public void testPackageInitsInDependantPackages() throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
-            CompileResult result = BCompileUtil.compile("test-src/packagetest", "c");
+            CompileResult result = BCompileUtil.compile("test-src/packagetest/initOrder", "c");
             BRunUtil.invoke(result, "getA1", new BValueType[0]);
             int count = countOccurences(outputStream.toString().replace("\r", ""), "PackageA");
             Assert.assertEquals(count, 1);
