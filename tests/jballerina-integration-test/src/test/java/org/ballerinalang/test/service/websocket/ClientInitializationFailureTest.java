@@ -19,6 +19,8 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -37,23 +39,30 @@ public class ClientInitializationFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:21010/client/failure";
+    private LogLeecher logLeecher;
 
-    @BeforeClass(description = "Initializes the Ballerina server with the client_failure.bal file")
-    public void setup() throws URISyntaxException {
+    @BeforeClass(description = "Initializes the Ballerina server with the 09_client_failure.bal file")
+    public void setup() throws InterruptedException, URISyntaxException {
+        String expectingErrorLog = "The WebSocket connection has not been made";
+        logLeecher = new LogLeecher(expectingErrorLog);
+        serverInstance.addLogLeecher(logLeecher);
+
         client = new WebSocketTestClient(URL);
     }
 
     @Test(description = "Tests the client initialization failing in a resource")
-    public void testClientEndpointFailureInResource() throws InterruptedException {
+    public void testClientEndpointFailureInResource() throws InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.handshake();
+        logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
         countDownLatch.await(10, TimeUnit.SECONDS);
         CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
 
         Assert.assertNotNull(closeWebSocketFrame);
         Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
-        Assert.assertTrue(closeWebSocketFrame.reasonText().contains("Connection refused:"));
+        Assert.assertTrue(
+                closeWebSocketFrame.reasonText().contains("Invalid handshake response getStatus: 404 Not Found"));
 
         closeWebSocketFrame.release();
     }
