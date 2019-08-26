@@ -170,9 +170,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     startDebugSession();
                     break;
                 }
-                if (isRemoteDebugMode) {
-                    break;
-                }
             }
             if (!dapClientConnector.isConnected()) {
                 getSession().getConsoleView().print("Connection to debug server at " +
@@ -256,24 +253,26 @@ public class BallerinaDebugProcess extends XDebugProcess {
     @Override
     public void stop() {
         // If we don't call this using the executeOnPooledThread(), the UI will hang until the debug server is stopped.
-        if (isConnected) {
-            ApplicationManager.getApplication().executeOnPooledThread(() -> {
-                try {
-                    dapClientConnector.disconnectFromServer();
-                    getSession().getConsoleView().print("Disconnected Successfully from the debug server.\n",
-                            ConsoleViewContentType.SYSTEM_OUTPUT);
-                } catch (Exception e) {
-                    getSession().getConsoleView().print("Disconnected Exceptionally from the debug server.\n",
-                            ConsoleViewContentType.SYSTEM_OUTPUT);
-                } finally {
-                    XDebugSession session = getSession();
-                    if (session != null) {
-                        session.stop();
-                    }
-                    isConnected = false;
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (!isConnected) {
+                return;
+            }
+            try {
+                dapClientConnector.disconnectFromServer();
+                getSession().getConsoleView().print("Disconnected Successfully from the debug server.\n",
+                        ConsoleViewContentType.SYSTEM_OUTPUT);
+            } catch (Exception e) {
+                getSession().getConsoleView().print("Disconnected Exceptionally from the debug server.\n",
+                        ConsoleViewContentType.SYSTEM_OUTPUT);
+            } finally {
+                XDebugSession session = getSession();
+                if (session != null) {
+                    session.stop();
                 }
-            });
-        }
+                isConnected = false;
+            }
+        });
+
     }
 
     @Nullable
