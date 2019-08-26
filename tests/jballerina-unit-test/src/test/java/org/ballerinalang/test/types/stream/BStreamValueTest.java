@@ -17,7 +17,6 @@
 package org.ballerinalang.test.types.stream;
 
 import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
