@@ -64,6 +64,9 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
     const bodyCss = "network-logs";
 
     const styles = `
+        body.network-logs{
+            overflow: auto!important;
+        }
         body.vscode-dark, body.vscode-light {
             background-color: #1e1e1e;
             color: white;
@@ -150,6 +153,9 @@ export function renderDetailView (context: ExtensionContext, langClient: Extende
     const traceString = encodeURIComponent(JSON.stringify(trace));
 
     const styles = `
+        body.network-logs{
+            overflow: auto!important;
+        }
         body.vscode-dark, body.vscode-light {
             background-color: #1e1e1e;
             color: white;
