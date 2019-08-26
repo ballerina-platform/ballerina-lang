@@ -290,4 +290,11 @@ public class BDecimalValueTest {
         Assert.assertEquals(returns[3], new BDecimal("2.0", DecimalValueKind.OTHER));
         Assert.assertEquals(returns[4], new BDecimal("10000.5051", DecimalValueKind.OTHER));
     }
+
+    @Test(description = "Test decimal inference on binary literals")
+    public void testDecimalArrayValueLoading() {
+        BValue[] returns = BRunUtil.invoke(result, "decimalArrayLoad");
+        Assert.assertEquals(returns[0], new BDecimal("2.0", DecimalValueKind.OTHER));
+
+    }
 }

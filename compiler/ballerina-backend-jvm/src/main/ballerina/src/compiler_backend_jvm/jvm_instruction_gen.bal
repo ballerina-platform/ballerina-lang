@@ -793,6 +793,8 @@ type InstructionGenerator object {
             string? targetTypeClass = getTargetClass(varRefType, bType);
             if (targetTypeClass is string) {
                 self.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+            } else {
+                addUnboxInsn(self.mv, bType);
             }
         }
         self.storeToVar(inst.lhsOp.variableDcl);
