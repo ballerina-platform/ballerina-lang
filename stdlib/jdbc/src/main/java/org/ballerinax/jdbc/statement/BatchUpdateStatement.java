@@ -83,7 +83,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         boolean isInTransaction = strand.isInTransaction();
         String errorMessagePrefix = "Failed to execute batch update";
         try {
-            conn = getDatabaseConnection(strand, client, datasource, false);
+            conn = getDatabaseConnection(strand, client, datasource);
             stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
             conn.setAutoCommit(false);
             if (paramArrayCount == 0) {
