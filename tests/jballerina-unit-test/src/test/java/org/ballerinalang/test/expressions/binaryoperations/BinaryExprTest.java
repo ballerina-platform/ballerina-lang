@@ -146,9 +146,9 @@ public class BinaryExprTest {
         BValue[] args = {new BInteger(a), new BInteger(b), new BByte(c), new BByte(d)};
         BValue[] returns = BRunUtil.invoke(result, "bitwiseAnd", args);
 
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), a & b);
-        Assert.assertEquals(((BByte)returns[1]).byteValue(), a & c);
-        Assert.assertEquals(((BByte)returns[2]).byteValue(), c & d);
-        Assert.assertEquals(((BByte)returns[3]).byteValue(), b & d);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), a & b);
+        Assert.assertEquals(((BByte) returns[1]).byteValue(), a & c);
+        Assert.assertEquals(((BByte) returns[2]).byteValue(), c & d);
+        Assert.assertEquals(((BByte) returns[3]).byteValue(), b & d);
     }
 }
