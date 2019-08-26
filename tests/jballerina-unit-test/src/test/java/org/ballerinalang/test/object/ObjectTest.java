@@ -712,9 +712,22 @@ public class ObjectTest {
 
     @Test(description = "Test field name and method name in different namespaces")
     public void testFieldWithSameNameAsMethod() {
-        CompileResult objectTypeUnion = BCompileUtil.compile(
+        CompileResult compileResult = BCompileUtil.compile(
                 "test-src/object/object_field_with_same_name_as_method.bal");
-        BValue[] result = BRunUtil.invoke(objectTypeUnion, "testFieldWithSameNameAsMethod");
+        BValue[] result = BRunUtil.invoke(compileResult, "testFieldWithSameNameAsMethod");
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
+        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
+        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
+        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
+        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
+        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
+        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
+    }
+
+    @Test(description = "Test field name and method name in different namespaces from balo")
+    public void testFieldWithSameNameAsMethodFromBalo() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        BValue[] result = BRunUtil.invoke(compileResult, "testBaloWithFieldWithSameNameAsMethod");
         Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
         Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
         Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
