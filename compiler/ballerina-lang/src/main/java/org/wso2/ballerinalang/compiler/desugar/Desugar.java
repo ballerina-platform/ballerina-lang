@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.Transactions;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -2974,6 +2975,11 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        if (varRefExpr.symbol == null) {
+            result = varRefExpr;
+            return;
+        }
+
         // Restore the original symbol
         if ((varRefExpr.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
             BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
@@ -5516,7 +5522,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangBinaryExpr createBinaryExpression(DiagnosticPos pos, BLangSimpleVarRef varRef,
+    private BLangExpression createBinaryExpression(DiagnosticPos pos, BLangSimpleVarRef varRef,
             BLangExpression expression) {
 
         BLangBinaryExpr binaryExpr;
@@ -5532,6 +5538,12 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, lhsExpr, rhsExpr, symTable.booleanType, OperatorKind.OR,
                     (BOperatorSymbol) symResolver
                             .resolveBinaryOperator(OperatorKind.OR, symTable.booleanType, symTable.booleanType));
+        } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                && ((BLangSimpleVarRef) expression).variableName.value.equals(IGNORE.value)) {
+            BLangValueType anyType = (BLangValueType) TreeBuilder.createValueTypeNode();
+            anyType.type = symTable.anyType;
+            anyType.typeKind = TypeKind.ANY;
+            return ASTBuilderUtil.createTypeTestExpr(pos, varRef, anyType);
         } else {
             binaryExpr = ASTBuilderUtil
                     .createBinaryExpr(pos, varRef, expression, symTable.booleanType, OperatorKind.EQUAL, null);

@@ -641,7 +641,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean analyzeStaticPatterns(List<BLangMatchStaticBindingPatternClause> matchedPatterns) {
         BLangMatchStaticBindingPatternClause finalPattern = matchedPatterns.get(matchedPatterns.size() - 1);
-        if (finalPattern.literal.type.tag == TypeTags.NONE) {
+        if (finalPattern.literal.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                && ((BLangSimpleVarRef) finalPattern.literal).variableName.value.equals(Names.IGNORE.value)) {
             finalPattern.isLastPattern = true;
         }
 
@@ -761,7 +762,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     BConstantSymbol precedingPatternSym =
                             (BConstantSymbol) ((BLangSimpleVarRef) precedingPattern).symbol;
                     if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                        if (pattern.type.tag != TypeTags.NONE) {
+                        if (!((BLangSimpleVarRef) pattern).variableName.value.equals(Names.IGNORE.value)) {
                             // pattern is a constant reference.
                             BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
                             return precedingPatternSym.value.equals(patternSym.value);

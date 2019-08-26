@@ -1980,7 +1980,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 // only support "_" in static match
                 Name varName = names.fromIdNode(((BLangSimpleVarRef) expression).variableName);
                 if (varName == Names.IGNORE) {
-                    expression.type = symTable.noType;
+                    expression.type = symTable.anyType;
                     return expression.type;
                 }
                 BType exprType = typeChecker.checkExpr(expression, env);

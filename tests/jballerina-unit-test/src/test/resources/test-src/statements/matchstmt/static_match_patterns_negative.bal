@@ -269,6 +269,7 @@ function singleMatchStmt() returns string {
     match k {
         _ => return "A"; // pattern will always be matched
     }
+    return "After match";
 }
 
 function invalidSimpleVariable() returns string {

@@ -372,6 +372,7 @@ function testBracedUnionType() returns string {
         11 | 12 => return "11|12";
         _ => return "Default";
     }
+    return "NoMatch";
 }
 
 const CONST1 = "Ballerina";
@@ -400,6 +401,7 @@ function caz4(any a) returns string {
         CONST1 => return "Ballerina";
         _ => return "Default";
     }
+    return "NoMatch";
 }
 
 const CONST_1 = "A";
@@ -460,6 +462,7 @@ function foo8(any x) returns string {
         [1, 2, 3] => {return "Matched with i: 1, j: 2, k: 3";}
         _ => {return "Matched with default";}
     }
+    return "No match found";
 }
 
 function testStructuredMatchPatternWithEmptyRecord() returns string[] {
@@ -490,5 +493,6 @@ function foo9(any x) returns string {
         {} => {return "Matched with empty record";}
         _ => {return "Matched with default";}
     }
+    return "No match found";
 }
 
