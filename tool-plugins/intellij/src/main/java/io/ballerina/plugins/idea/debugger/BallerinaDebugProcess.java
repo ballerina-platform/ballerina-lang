@@ -133,10 +133,10 @@ public class BallerinaDebugProcess extends XDebugProcess {
     public void sessionInitialized() {
         final int[] retryAttempt = {0};
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
-
+            getSession().getConsoleView().print("Connecting to the debug server...\n",
+                    ConsoleViewContentType.SYSTEM_OUTPUT);
             // If already connected with the debug server, tries to set breakpoints and attach with the remote jvm.
             if (dapClientConnector.isConnected()) {
-
                 LOGGER.debug("Connection is already created.");
                 isConnected = true;
                 startDebugSession();
@@ -505,6 +505,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     // Sends attach request to the debug server.
                     LOGGER.debug("Sending Attach command.");
                     dapClientConnector.attachToServer();
+                    getSession().getConsoleView().print("Compiling...\n", ConsoleViewContentType.SYSTEM_OUTPUT);
                 }
             });
         }
