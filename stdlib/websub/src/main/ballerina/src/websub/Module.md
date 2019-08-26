@@ -472,7 +472,7 @@ public type WebhookListener object {
         };
         
         // Set the extension config in the generic `websub:Listener` config.
-        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+        websub:SubscriberListenerConfiguration sseConfig = {
             extensionConfig: extensionConfig
         };
             

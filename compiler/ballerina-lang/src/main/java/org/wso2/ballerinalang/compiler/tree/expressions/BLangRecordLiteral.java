@@ -226,12 +226,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangStreamLiteral extends BLangRecordLiteral {
 
-        public String streamName;
-
-        public BLangStreamLiteral(DiagnosticPos pos, BType streamType, String streamName) {
+        public BLangStreamLiteral(DiagnosticPos pos, BType streamType) {
             super(pos);
             this.type = streamType;
-            this.streamName = streamName;
         }
 
         @Override

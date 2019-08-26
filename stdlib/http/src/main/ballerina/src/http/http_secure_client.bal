@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/log;
-import ballerina/mime;
 
 # Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication
 # schemes configured in the HTTP client endpoint to secure the HTTP requests.

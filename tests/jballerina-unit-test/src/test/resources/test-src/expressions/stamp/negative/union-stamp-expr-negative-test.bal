@@ -29,9 +29,9 @@ function stampUnionToXML() returns Employee|error {
     return employeeValue;
 }
 
-function stampUnionToConstraintMapToUnionNegative() returns int|float|[string, int]|error  {
+function stampUnionToConstraintMapToUnionNegative() returns int|float|decimal|[string, int]|error  {
     int|float|[string, string] unionVar = 2;
-    float|[string, int]|error  tupleValue = float|[string, int].constructFrom(unionVar);
+    float|decimal|[string, int]|error  tupleValue = float|decimal|[string, int].constructFrom(unionVar);
 
     return tupleValue;
 }

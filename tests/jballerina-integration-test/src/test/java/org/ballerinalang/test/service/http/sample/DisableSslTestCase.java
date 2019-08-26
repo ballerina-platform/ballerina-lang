@@ -36,14 +36,11 @@ public class DisableSslTestCase extends HttpBaseTest {
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "mutualSSL" + File.separator + "disable_ssl_client.bal").getAbsolutePath();
-    
-        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources"
-                                  + File.separator + "mutualSSL").getAbsolutePath();
-
+        
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
         ballerinaClient.runMain(balFile, new String[]{}, new String[]{}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, sourceRoot);
+                new LogLeecher[]{clientLeecher});
         clientLeecher.waitForText(20000);
     }
 }

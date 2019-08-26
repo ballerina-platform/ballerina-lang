@@ -17,6 +17,13 @@
 const string XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
 const string XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
 
+public const XML_ELEMENT = "element"; 
+public const XML_SEQUENCE = "sequence"; 
+public const XML_TEXT = "text"; 
+public const XML_COMMENT = "comment"; 
+public const XML_PI = "pi"; 
+public type XMLType XML_ELEMENT | XML_SEQUENCE | XML_TEXT | XML_COMMENT | XML_PI;
+
 type XMLIterator object {
 
     private xml m;
@@ -48,6 +55,7 @@ public function iterator(xml x) returns abstract object {
     XMLIterator xmlIterator = new(x);
     return xmlIterator;
 }
+
 # Check whether the XML sequence contains only a single element.
 #
 # + x - The xml source
@@ -78,7 +86,7 @@ public function select(xml x, string qname) returns xml = external;
 #
 # + x - The xml source
 # + return - Type of the XML as a string
-public function getItemType(xml x) returns string = external;
+public function getItemType(xml x) returns XMLType = external;
 
 # Get the fully qualified name of the element as a string. Returns an empty string if the XML is not a singleton.
 #

@@ -51,8 +51,7 @@ service PrometheusReporter on prometheusListener {
         string payload = EMPTY_STRING;
         foreach var m in metrics {
             observe:Metric metric = <observe:Metric> m;
-            string s1 = internal:replaceAll(metric.name, "/", "_");
-            string qualifiedMetricName = internal:replaceAll(s1, "/", "_");
+            string qualifiedMetricName = getQualifiedMetricName(metric.name);
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
@@ -145,6 +144,14 @@ function getLabelsString(map<string> labels) returns string {
     } else {
         return "";
     }
+}
+
+function getQualifiedMetricName(string metricName) returns string {
+    string s1 = internal:replaceAll(metricName, "/", "_");
+    string s2 = internal:replaceAll(s1, "\\.", "_");
+    string s3 = internal:replaceAll(s2, "\\$", "_");
+    string s4 = internal:replaceAll(s3, "\\\"", "_");
+    return s4;
 }
 
 function getMetricName(string name, string summaryType) returns string {

@@ -20,6 +20,7 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -28,7 +29,6 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.util.BootstrapRunner;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
@@ -50,8 +50,8 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.logging.LogManager;
 
+import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
-import static org.ballerinalang.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAVA_MAIN;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MAIN_CLASS_MANIFEST_ENTRY;
@@ -103,6 +103,14 @@ public class RunExecutableTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+    
+        // load configurations from config file
+        loadConfigurations(sourceRootPath, this.runtimeParams, this.configFilePath, this.observeFlag);
+        
+        if (!this.isGeneratedExecutable) {
+            this.runExecutable();
+            return;
+        }
 
         BLangPackage executableModule = null;
         // set executable path from an executable built on the go
@@ -120,14 +128,14 @@ public class RunExecutableTask implements Task {
                 switch (buildContext.getSourceType()) {
                     case SINGLE_BAL_FILE:
                         SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw new BLangCompilerException("no entry points found in '" +
-                                                         singleFileContext.getBalFile() + "'");
+                        throw createLauncherException("no entry points found in '" + singleFileContext.getBalFile() +
+                                                      "'.");
                     case SINGLE_MODULE:
                         SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw new BLangCompilerException("no entry points found in '" +
-                                                         singleModuleContext.getModuleName() + "'");
+                        throw createLauncherException("no entry points found in '" +
+                                                         singleModuleContext.getModuleName() + "'.");
                     default:
-                        throw new BLangCompilerException("cannot run given source.");
+                        throw createLauncherException("unknown source type found when running executable.");
                 }
             }
         }
@@ -141,29 +149,22 @@ public class RunExecutableTask implements Task {
         
         // if the executable does not exist
         if (Files.notExists(this.executablePath)) {
-            throw new BLangCompilerException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
+            throw createLauncherException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
                                              "' as it does not exist.");
         }
     
         // if the executable is not a file and not an extension with .jar
         if (!(Files.isRegularFile(this.executablePath) &&
             this.executablePath.toString().endsWith(BLANG_COMPILED_JAR_EXT))) {
-            
-            throw new BLangCompilerException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
+    
+            throw createLauncherException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
                                              "' as it is not an executable with .jar extension.");
         }
     
         // set the source root path relative to the source path i.e. set the parent directory of the source path
         System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
         
-        // load configurations from config file
-        loadConfigurations(sourceRootPath, this.runtimeParams, this.configFilePath, this.observeFlag);
-        
-        if (this.isGeneratedExecutable) {
-            this.runGeneratedExecutable(executableModule);
-        } else {
-            this.runExecutable();
-        }
+        this.runGeneratedExecutable(executableModule);
     }
     
     /**
@@ -200,7 +201,7 @@ public class RunExecutableTask implements Task {
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
         } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getCause());
+            throw createLauncherException("invoking main method failed due to ", e.getCause());
         }
         
     }
@@ -230,7 +231,7 @@ public class RunExecutableTask implements Task {
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
         } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getCause());
+            throw createLauncherException("invoking main method failed due to ", e.getCause());
         }
     }
     

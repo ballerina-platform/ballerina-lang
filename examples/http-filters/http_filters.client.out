@@ -9,11 +9,12 @@ $ curl -v http://localhost:9090/hello/sayHello
 > Accept: */*
 >
 < HTTP/1.1 200 OK
-< X-filterName: RequestFilter-1
+< X-requestHeader: RequestFilter
 < content-type: text/plain
+< X-responseHeader: ResponseFilter
 < content-length: 13
-< server: ballerina/0.983.1-SNAPSHOT
-< date: Tue, 4 Dec 2018 16:18:03 +0530
-<
+< server: ballerina/1.0.0-beta
+< date: Wed, 21 Aug 2019 13:28:12 +0530
+< 
 * Connection #0 to host localhost left intact
 Hello, World!

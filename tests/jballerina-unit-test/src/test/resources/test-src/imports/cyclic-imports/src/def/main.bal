@@ -1,6 +1,6 @@
 import ballerina/io;
-import ghi;
-import ballerina/runtime;
+import ghi as _;
+import ballerina/runtime as _;
 
 function test() {
     io:println("Hello world !!!");

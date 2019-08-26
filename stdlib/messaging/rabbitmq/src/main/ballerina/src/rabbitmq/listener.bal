@@ -50,10 +50,14 @@ public type Listener object {
         return self.start();
     }
 
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
     # Stops consuming messages through ChannelListener endpoint.
     #
     # + return - Nil or error upon failure to close ChannelListener.
-    public function __stop() returns error? {
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 
@@ -64,6 +68,9 @@ public type Listener object {
     # + return - () or error upon failure to register listener.
     public function __attach(service s, string? name = ()) returns error? {
        return self.registerListener(s);
+    }
+
+    public function __detach(service s) returns error? {
     }
 
     # Retrieve the Channel which initializes this listener.

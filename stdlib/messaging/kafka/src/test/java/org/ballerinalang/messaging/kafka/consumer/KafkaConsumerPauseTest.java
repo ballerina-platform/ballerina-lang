@@ -36,7 +36,6 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -56,9 +55,8 @@ public class KafkaConsumerPauseTest {
     @BeforeClass
     public void setup() throws IOException {
         result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_pause.bal")));
-        Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true).deleteDataUponShutdown(true)
-                .withKafkaConfiguration(prop).addBrokers(1).startup();
+                .addBrokers(1).startup();
         kafkaCluster.createTopic("test", 1, 1);
     }
 
@@ -129,7 +127,7 @@ public class KafkaConsumerPauseTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-pause-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2183, 9096);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14003, 14103);
         return kafkaCluster;
     }
 }

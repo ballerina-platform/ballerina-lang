@@ -17,7 +17,7 @@
 import ballerina/kafka;
 
 kafka:ConsumerConfig consumerConfigs = {
-    bootstrapServers: "localhost:9099",
+    bootstrapServers: "localhost:14106",
     groupId: "test-group",
     clientId: "subscribe-to-pattern-consumer",
     metadataMaxAgeInMillis: 100,

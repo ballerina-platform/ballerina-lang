@@ -645,7 +645,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                 // Action invocation or lambda invocation. . token is added to the invocationExpr ws list
                 sCol += this.getCharLengthBeforeToken(".", new ArrayList<>(invocationExpr.expr.getWS())) + 1;
                 // Remove the first element which is . if the expr is not null
-                wsList.remove(0);
+                if (wsList.get(0).getPrevious().equals(".")) {
+                    wsList.remove(0);
+                }
             }
             sCol += this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
@@ -707,8 +709,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTypeInit connectorInitExpr) {
-        connectorInitExpr.argsExpr.forEach(this::acceptNode);
+    public void visit(BLangTypeInit typeInit) {
+        if (typeInit.initInvocation != null && typeInit.initInvocation.name.value.equals(this.tokenName)) {
+            this.addSymbol(typeInit.initInvocation, typeInit.initInvocation.symbol, false, typeInit.initInvocation.pos);
+        } else if (typeInit.userDefinedType != null) {
+            this.acceptNode(typeInit.userDefinedType);
+        }
+        typeInit.argsExpr.forEach(this::acceptNode);
     }
 
     @Override
@@ -814,6 +821,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
         if (!this.currentCUnitMode && symbolAtCursor.isPresent() && (symbolAtCursor.get().getSymbol() != bSymbol
+                || bSymbol == null
                /* && symbolAtCursor.get().getSymbol() != bSymbol.type.tsymbol
                 && symbolAtCursor.get().getSymbol().type.tsymbol != bSymbol.type.tsymbol*/)) {
             return;

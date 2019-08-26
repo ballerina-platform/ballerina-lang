@@ -340,3 +340,14 @@ function testAttributeAccess() returns string? {
 function justFunc(string s) {
 
 }
+
+function testAttribMapUpdate() returns [xml, map<string>, xml, map<string>] {
+    xml x1 = xml `<Person name="Foo" />`;
+    map<string> attr = <map<string>> x1@;
+
+    xml originalXml = x1.clone();
+    map<string> originalAttr = attr.clone();
+
+    x1@["name"] = "Bar";
+    return [originalXml, originalAttr, x1, attr];
+}

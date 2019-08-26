@@ -69,7 +69,6 @@ function startAggregationWithoutGroupByQuery() returns TeacherOutput[] {
 //  ------------- Query to be implemented -------------------------------------------------------
 //  from inputStream where inputStream.age > 25
 //  select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
-//  group by inputStream.name
 //      => (TeacherOutput [] o) {
 //            outputStream.publish(o);
 //      }

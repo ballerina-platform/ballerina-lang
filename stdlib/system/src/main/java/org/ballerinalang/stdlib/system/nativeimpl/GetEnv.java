@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,11 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         orgName = "ballerina", packageName = "system",
         functionName = "getEnv", isPublic = true
 )
-public class GetEnv extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class GetEnv {
 
     public static String getEnv(Strand strand, String name) {
         String value = System.getenv(name);

@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.elements.PackageID;
@@ -40,6 +41,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -58,9 +60,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -162,9 +166,9 @@ public class BCompileUtil {
                                                                bLangPackage.packageID.name.value,
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
-        final Scheduler scheduler = new Scheduler(4, false);
-        runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
-        runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
+        final Scheduler scheduler = new Scheduler(false);
+        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
+        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
         if (temp) {
             scheduler.immortal = true;
             new Thread(scheduler::start).start();
@@ -185,7 +189,8 @@ public class BCompileUtil {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
+                    BTypes.typeAny);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -411,7 +416,6 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.SIDDHI_RUNTIME_ENABLED, Boolean.toString(isSiddhiRuntimeEnabled));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         return compile(context, packageName, compilerPhase, false);
@@ -705,24 +709,43 @@ public class BCompileUtil {
         }
     }
 
-    public static void runMain(CompileResult compileResult, String[] args) throws Throwable {
-        String initClassName = BFileUtil.getQualifiedClassName(((BLangPackage)
-                compileResult.getAST()).packageID.orgName.value,
-                ((BLangPackage) compileResult.getAST()).packageID.name.value, MODULE_INIT_CLASS_NAME);
-        Class<?> initClazz = compileResult.classLoader.loadClass(initClassName);
-        Method mainMethod;
+    public static String runMain(CompileResult compileResult, String[] args) {
+        BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());
+        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID.orgName.value,
+                compiledPkg.packageID.name.value, MODULE_INIT_CLASS_NAME);
+        JBallerinaInMemoryClassLoader classLoader = compileResult.classLoader;
+        Class<?> initClazz = classLoader.loadClass(initClassName);
+
         try {
-            mainMethod = initClazz.getDeclaredMethod("main", String[].class);
-            mainMethod.invoke(null, (Object) args);
-        } catch (InvocationTargetException e) {
-            if (e.getTargetException() instanceof ErrorValue) {
-                throw e.getTargetException();
+            final List<String> actualArgs = new ArrayList<>();
+            actualArgs.add(0, "java");
+            actualArgs.add(1, "-cp");
+            String classPath = System.getProperty("java.class.path") + ":" + classLoader.getCompiledJarPath() + ":" +
+                    classLoader.getImportsCachePath();
+            actualArgs.add(2, classPath);
+            actualArgs.add(3, initClazz.getCanonicalName());
+            actualArgs.addAll(Arrays.asList(args));
+
+            final Runtime runtime = Runtime.getRuntime();
+            final Process process = runtime.exec(actualArgs.toArray(new String[0]));
+            String consoleInput = getConsoleOutput(process.getInputStream());
+            String consoleError = getConsoleOutput(process.getErrorStream());
+            process.waitFor();
+            int exitValue = process.exitValue();
+            if (exitValue != 0) {
+                throw new RuntimeException(consoleError);
             }
-            throw new RuntimeException("Main method invocation failed", e);
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+            return consoleInput;
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
+    }
 
+    private static String getConsoleOutput(InputStream inputStream) {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+        reader.lines().iterator().forEachRemaining(sj::add);
+        return sj.toString();
     }
 
     private static CompileResult compileOnJBallerina(String sourceFilePath, boolean temp, boolean init) {

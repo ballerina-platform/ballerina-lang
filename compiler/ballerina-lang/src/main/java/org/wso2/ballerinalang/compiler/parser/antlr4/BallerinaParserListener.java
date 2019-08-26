@@ -88,16 +88,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitServiceBody(BallerinaParser.ServiceBodyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#serviceBodyMember}.
-	 * @param ctx the parse tree
-	 */
-	void enterServiceBodyMember(BallerinaParser.ServiceBodyMemberContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#serviceBodyMember}.
-	 * @param ctx the parse tree
-	 */
-	void exitServiceBodyMember(BallerinaParser.ServiceBodyMemberContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#callableUnitBody}.
 	 * @param ctx the parse tree
 	 */
@@ -985,6 +975,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorFieldBindingPatterns}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorFieldBindingPatterns(BallerinaParser.ErrorFieldBindingPatternsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorFieldBindingPatterns}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorFieldBindingPatterns(BallerinaParser.ErrorFieldBindingPatternsContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#errorMatchPattern}.
 	 * @param ctx the parse tree

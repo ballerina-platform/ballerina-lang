@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/encoding;
 
 function testBase64EncodeByteChannel(io:ReadableByteChannel contentToBeEncoded) returns io:ReadableByteChannel|error {
     return contentToBeEncoded.base64Encode();

@@ -9,7 +9,7 @@
       "label": "ballerinax/java.jdbc",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerinax/java.jdbc",
       "insertTextFormat": "Snippet"
     },
@@ -17,23 +17,15 @@
       "label": "ballerinax",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "110",
+      "sortText": "140",
       "insertText": "ballerinax/",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerinax/java.jms",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerinax/java.jms",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027object;",
       "insertTextFormat": "Snippet"
     },
@@ -41,23 +33,15 @@
       "label": "ballerina",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "110",
+      "sortText": "140",
       "insertText": "ballerina/",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/streams.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/streams.balx",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/jwt",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/jwt",
       "insertTextFormat": "Snippet"
     },
@@ -65,7 +49,7 @@
       "label": "ballerina/lang.xml",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027xml;",
       "insertTextFormat": "Snippet"
     },
@@ -73,7 +57,7 @@
       "label": "ballerina/crypto",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/crypto",
       "insertTextFormat": "Snippet"
     },
@@ -81,7 +65,7 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027array;",
       "insertTextFormat": "Snippet"
     },
@@ -89,7 +73,7 @@
       "label": "ballerina/cache",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/cache",
       "insertTextFormat": "Snippet"
     },
@@ -97,7 +81,7 @@
       "label": "ballerina/test",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/test",
       "insertTextFormat": "Snippet"
     },
@@ -105,7 +89,7 @@
       "label": "ballerina/file",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/file",
       "insertTextFormat": "Snippet"
     },
@@ -113,7 +97,7 @@
       "label": "ballerina/grpc",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/grpc",
       "insertTextFormat": "Snippet"
     },
@@ -121,7 +105,7 @@
       "label": "ballerina/config",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/config",
       "insertTextFormat": "Snippet"
     },
@@ -129,7 +113,7 @@
       "label": "ballerina/auth",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/auth",
       "insertTextFormat": "Snippet"
     },
@@ -137,7 +121,7 @@
       "label": "ballerina/filepath",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/filepath",
       "insertTextFormat": "Snippet"
     },
@@ -145,7 +129,7 @@
       "label": "ballerina/ldap",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/ldap",
       "insertTextFormat": "Snippet"
     },
@@ -153,23 +137,15 @@
       "label": "ballerina/streams",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/streams",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/artemis",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/artemis",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/reflect",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/reflect",
       "insertTextFormat": "Snippet"
     },
@@ -177,7 +153,7 @@
       "label": "ballerina/lang.string",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027string;",
       "insertTextFormat": "Snippet"
     },
@@ -185,7 +161,7 @@
       "label": "ballerina/io",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/io",
       "insertTextFormat": "Snippet"
     },
@@ -193,7 +169,7 @@
       "label": "ballerina/runtime",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/runtime",
       "insertTextFormat": "Snippet"
     },
@@ -201,7 +177,7 @@
       "label": "ballerina/oauth2",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/oauth2",
       "insertTextFormat": "Snippet"
     },
@@ -209,7 +185,7 @@
       "label": "ballerina/internal",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/internal",
       "insertTextFormat": "Snippet"
     },
@@ -217,7 +193,7 @@
       "label": "ballerina/jvm",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/jvm",
       "insertTextFormat": "Snippet"
     },
@@ -225,7 +201,7 @@
       "label": "ballerina/encoding",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/encoding",
       "insertTextFormat": "Snippet"
     },
@@ -233,7 +209,7 @@
       "label": "ballerina/utils",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/utils",
       "insertTextFormat": "Snippet"
     },
@@ -241,7 +217,7 @@
       "label": "ballerina/rabbitmq",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/rabbitmq",
       "insertTextFormat": "Snippet"
     },
@@ -249,7 +225,7 @@
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027future;",
       "insertTextFormat": "Snippet"
     },
@@ -257,7 +233,7 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027value;",
       "insertTextFormat": "Snippet"
     },
@@ -265,7 +241,7 @@
       "label": "ballerina/openapi",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/openapi",
       "insertTextFormat": "Snippet"
     },
@@ -273,7 +249,7 @@
       "label": "ballerina/math",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/math",
       "insertTextFormat": "Snippet"
     },
@@ -281,7 +257,7 @@
       "label": "ballerina/time",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/time",
       "insertTextFormat": "Snippet"
     },
@@ -289,7 +265,7 @@
       "label": "ballerina/observe",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/observe",
       "insertTextFormat": "Snippet"
     },
@@ -297,7 +273,7 @@
       "label": "ballerina/system",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/system",
       "insertTextFormat": "Snippet"
     },
@@ -305,7 +281,7 @@
       "label": "ballerina/lang.float",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027float;",
       "insertTextFormat": "Snippet"
     },
@@ -313,7 +289,7 @@
       "label": "ballerina/transactions",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/transactions",
       "insertTextFormat": "Snippet"
     },
@@ -321,23 +297,15 @@
       "label": "ballerina/nats",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/nats",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/transactions.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/transactions.balx",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/lang.decimal",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027decimal;",
       "insertTextFormat": "Snippet"
     },
@@ -345,7 +313,7 @@
       "label": "ballerina/http",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/http",
       "insertTextFormat": "Snippet"
     },
@@ -353,39 +321,23 @@
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/task",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/cache.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/cache.balx",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/lang.table",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027table;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.annotations",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/lang.\u0027annotations;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/log",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/log",
       "insertTextFormat": "Snippet"
     },
@@ -393,7 +345,7 @@
       "label": "ballerina/mime",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/mime",
       "insertTextFormat": "Snippet"
     },
@@ -401,7 +353,7 @@
       "label": "ballerina/lang.stream",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027stream;",
       "insertTextFormat": "Snippet"
     },
@@ -409,7 +361,7 @@
       "label": "ballerina/lang.error",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027error;",
       "insertTextFormat": "Snippet"
     },
@@ -417,7 +369,7 @@
       "label": "ballerina/lang.typedesc",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027typedesc;",
       "insertTextFormat": "Snippet"
     },
@@ -425,7 +377,7 @@
       "label": "ballerina/lang.map",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027map;",
       "insertTextFormat": "Snippet"
     },
@@ -433,7 +385,7 @@
       "label": "ballerina/lang.int",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/lang.\u0027int;",
       "insertTextFormat": "Snippet"
     },
@@ -441,7 +393,7 @@
       "label": "ballerina/socket",
       "kind": "Module",
       "detail": "Package",
-      "sortText": "120",
+      "sortText": "140",
       "insertText": "ballerina/socket",
       "insertTextFormat": "Snippet"
     }

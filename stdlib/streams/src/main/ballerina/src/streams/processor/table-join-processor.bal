@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/time;
+
 # The `TableJoinProcessor` object handles joining streams with in-memory tables in ballerina.
 # `nextProcessor` is the `process` function of the next processor, which can be a `Select` processor, `Aggregator`
 # processor, `Having` processor.. etc. The `streamName` is the stream of the join and its attached
@@ -60,7 +62,8 @@ public type TableJoinProcessor object {
                 int i = 0;
                 function (StreamEvent s) returns map<anydata>[] tQuery = self.tableQuery;
                 foreach var m in tQuery(event) {
-                    StreamEvent resultEvent = new([self.tableName, m], "CURRENT", time:currentTime().time);
+                    string tableName = self.tableName;
+                    StreamEvent resultEvent = new([tableName, m], "CURRENT", time:currentTime().time);
                     candidateEvents[i] = [event, resultEvent];
                     i += 1;
                 }

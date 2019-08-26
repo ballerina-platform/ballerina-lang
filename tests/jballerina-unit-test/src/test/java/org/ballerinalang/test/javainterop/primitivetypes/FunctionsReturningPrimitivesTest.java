@@ -65,50 +65,22 @@ public class FunctionsReturningPrimitivesTest {
         Assert.assertEquals(((BByte) returns[0]).byteValue(), receiver.byteValue());
     }
 
-    @Test(description = "Test functions that return a Ballerina int values")
+    @Test(description = "Test a function that returns a Ballerina int value")
     public void testFuncReturningJavaInt() {
         Long receiver = 10L;
         BValue[] args = new BValue[1];
         args[0] = new BHandleValue(receiver);
-        BValue[] returns = BRunUtil.invoke(result, "testReturningBIntJByte", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals((byte) (((BInteger) returns[0]).intValue()), receiver.byteValue());
-
-        returns = BRunUtil.invoke(result, "testReturningBIntJShort", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals((short) (((BInteger) returns[0]).intValue()), receiver.shortValue());
-
-        returns = BRunUtil.invoke(result, "testReturningBIntJInt", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals((int) (((BInteger) returns[0]).intValue()), receiver.intValue());
-
-        returns = BRunUtil.invoke(result, "testReturningBIntJLong", args);
+        BValue[] returns = BRunUtil.invoke(result, "testReturningBIntJLong", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), receiver.longValue());
     }
 
-    @Test(description = "Test functions that return Ballerina float values")
+    @Test(description = "Test a function that returns a Ballerina float value")
     public void testFuncsReturningJavaFloatDouble() {
         Double receiver = 4d;
         BValue[] args = new BValue[1];
         args[0] = new BHandleValue(receiver);
-        BValue[] returns = BRunUtil.invoke(result, "testReturningBFloatJByte", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((byte) ((BFloat) returns[0]).floatValue()), receiver.byteValue());
-
-        returns = BRunUtil.invoke(result, "testReturningBFloatJShort", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((short) ((BFloat) returns[0]).floatValue()), receiver.shortValue());
-
-        returns = BRunUtil.invoke(result, "testReturningBFloatJInt", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((int) ((BFloat) returns[0]).floatValue()), receiver.intValue());
-
-        returns = BRunUtil.invoke(result, "testReturningBFloatJFloat", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((float) ((BFloat) returns[0]).floatValue()), receiver.floatValue());
-
-        returns = BRunUtil.invoke(result, "testReturningBFloatJDouble", args);
+        BValue[] returns = BRunUtil.invoke(result, "testReturningBFloatJDouble", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), receiver);
     }

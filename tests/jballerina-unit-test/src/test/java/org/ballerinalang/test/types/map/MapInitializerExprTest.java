@@ -122,9 +122,9 @@ public class MapInitializerExprTest {
         Assert.assertEquals(((BMap) address).get("city").stringValue(), "Galle");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testMapInitWithPackageVars() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/types/map/", "a.b");
+        CompileResult result = BCompileUtil.compile(this, "test-src/types/map/pkgvars", "a.b");
         BValue[] returns = BRunUtil.invoke(result, "testMapInitWithPackageVars");
 
         Assert.assertEquals(returns.length, 1);

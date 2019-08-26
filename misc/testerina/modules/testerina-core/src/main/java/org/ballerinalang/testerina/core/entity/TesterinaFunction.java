@@ -17,11 +17,12 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -32,86 +33,55 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+
 /**
  * TesterinaFunction entity class.
  */
 public class TesterinaFunction {
 
     private String name;
-    private Type type;
+    public Scheduler scheduler;
 
     public BLangFunction getbFunction() {
         return bFunction;
     }
 
-    private BLangFunction bFunction;
+    public BLangFunction bFunction;
     private Class<?> programFile;
     private boolean runTest = true;
 
     // Annotation info
     private List<String> groups = new ArrayList<>();
 
-    static final String PREFIX_TEST = "TEST";
-    static final String PREFIX_UTIL = "UTIL";
-    static final String PREFIX_BEFORETEST = "BEFORETEST";
-    static final String PREFIX_AFTERTEST = "AFTERTEST";
-    static final String PREFIX_MOCK = "MOCK";
-    static final String INIT_SUFFIX = ".<INIT>";
-    static final String TEST_INIT_SUFFIX = ".<TESTINIT>";
-
-    /**
-     * Prefixes for the test function names.
-     */
-    public enum Type {
-        TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST), MOCK(PREFIX_MOCK), INIT
-                (INIT_SUFFIX), UTIL(PREFIX_UTIL), TEST_INIT(TEST_INIT_SUFFIX);
-
-        String prefix;
-
-        Type(String prefix) {
-            this.prefix = prefix;
-        }
-
-        @Override
-        public String toString() {
-            return prefix;
-        }
-    }
-
-    public TesterinaFunction(Class<?> programFile, BLangFunction bFunction, Type type) {
+    public TesterinaFunction(Class<?> programFile, BLangFunction bFunction) {
         this.name = bFunction.getName().getValue();
-        this.type = type;
         this.bFunction = bFunction;
         this.programFile = programFile;
     }
 
-    public BValue[] invoke() throws BallerinaException {
-        final Scheduler scheduler = new Scheduler(4, false);
-        runOnSchedule(programFile, bFunction.name, scheduler);
-        return new BValue[0];
+    public Object invoke() throws BallerinaException {
+        if (scheduler == null) {
+            throw new AssertionError("Scheduler is not initialized in " + bFunction.name);
+        }
+        return runOnSchedule(programFile, bFunction.name, scheduler, new Class[]{Strand.class}, new Object[1]);
+    }
+
+    public Object invoke(Class[] types, Object[] args) {
+        if (scheduler == null) {
+            throw new AssertionError("Scheduler is not initialized in " + bFunction.name);
+        }
+        return runOnSchedule(programFile, bFunction.name, scheduler, types, args);
     }
 
     /**
-     * Invoke package stop functions.
+     * Invoke a function without running through a strand.
      *
-     * @throws BallerinaException exception is thrown
+     * @param types of the function parameters
+     * @return output
      */
-    public void invokeStopFunctions() throws BallerinaException {
-        /*for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            BVMExecutor.executeFunction(programFile, info.getStopFunctionInfo());
-        }
-
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getTestStopFunctionInfo() != null) {
-                BVMExecutor.executeFunction(programFile, info.getTestStopFunctionInfo());
-            }
-        }*/
+    public Object directInvoke(Class[] types) {
+        return run(programFile, bFunction.name, scheduler, types);
     }
-
-    /*public BValue[] invoke(BValue[] args) {
-        // return BVMExecutor.executeFunction(programFile, bFunction, args);
-        return new BValue[0];
-    }*/
 
     public String getName() {
         return name;
@@ -119,14 +89,6 @@ public class TesterinaFunction {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
     }
 
     public List<String> getGroups() {
@@ -145,25 +107,35 @@ public class TesterinaFunction {
         this.runTest = false;
     }
 
-
-    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler1) {
+    private static Object run(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler,
+                              Class[] paramTypes) {
         String funcName = cleanupFunctionName(name);
         try {
-            final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
-            Scheduler scheduler = scheduler1;
+
+            final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
+            return method.invoke(null, new Object[]{});
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new BLangCompilerException("Error while invoking function '" + funcName + "" + e.getMessage());
+        }
+    }
+
+    private static Object runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler,
+                                        Class[] paramTypes, Object[] params) {
+        String funcName = cleanupFunctionName(name);
+        try {
+            final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
                 try {
-                    return method.invoke(null, objects[0]);
+                    return method.invoke(null, objects);
                 } catch (InvocationTargetException e) {
                     //throw new BallerinaException(e);
-
                     return e.getTargetException();
                 } catch (IllegalAccessException e) {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            final FutureValue out = scheduler.schedule(params, func, null, null, null, BTypes.typeAny);
             scheduler.start();
             final Throwable t = out.panic;
             final Object result = out.result;
@@ -171,20 +143,13 @@ public class TesterinaFunction {
                 throw new BallerinaException((ErrorValue) result);
             }
             if (t != null) {
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
-                }
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
-                }
-                if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace());
-                }
-                throw (RuntimeException) t;
+                throw new BallerinaException("Error while invoking function '" + funcName + "'", t.getMessage());
             }
+            return out.result;
         } catch (NoSuchMethodException e) {
-            throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
+            throw new BLangCompilerException("Error while invoking function '" + funcName + "'\n" +
+                    "If you are using data providers please check if types return from data provider " +
+                    "match test function parameter types.", e);
         }
     }
 

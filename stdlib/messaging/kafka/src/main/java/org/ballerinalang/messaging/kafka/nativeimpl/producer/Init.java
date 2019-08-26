@@ -18,7 +18,6 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -34,13 +33,12 @@ import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRANSACTION_CONTEXT;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaProducer;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.processKafkaProducerConfig;
 import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.createKafkaTransactionContext;
 
@@ -64,13 +62,16 @@ public class Init {
         Properties producerProperties = processKafkaProducerConfig(configs);
 
         try {
-            KafkaProducer<byte[], byte[]> kafkaProducer = new KafkaProducer<>(producerProperties);
-            producerObject.addNativeData(NATIVE_PRODUCER, kafkaProducer);
-            producerObject.addNativeData(NATIVE_PRODUCER_CONFIG, producerProperties);
-
             if (Objects.nonNull(producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {
+                if (!((boolean) producerProperties.get(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG))) {
+                    throw new IllegalStateException("configuration enableIdempotence must be set to true to enable " +
+                            "transactional producer");
+                }
+                createKafkaProducer(producerProperties, producerObject);
                 KafkaTransactionContext transactionContext = createKafkaTransactionContext(producerObject);
                 producerObject.addNativeData(TRANSACTION_CONTEXT, transactionContext);
+            } else {
+                createKafkaProducer(producerProperties, producerObject);
             }
         } catch (IllegalStateException | KafkaException e) {
             return createKafkaError("Failed to initialize the producer: " + e.getMessage(), PRODUCER_ERROR);

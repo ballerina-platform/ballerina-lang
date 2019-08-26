@@ -22,7 +22,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.LockFileWriter;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
@@ -32,11 +31,9 @@ public class CreateLockFileTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         CompilerContext compilerContext = buildContext.get(BuildContextField.COMPILER_CONTEXT);
-        LockFileWriter lockFileWriter = LockFileWriter.getInstance(compilerContext);
-        lockFileWriter.writeLockFile(ManifestProcessor.getInstance(compilerContext).getManifest());
+        LockFileWriter lockFileWriter = LockFileWriter.getInstance(compilerContext,
+                ManifestProcessor.getInstance(compilerContext).getManifest());
+        lockFileWriter.writeLockFile(buildContext.getModules(), buildContext.getLockFilePath());
     
-        for (BLangPackage module : buildContext.getModules()) {
-            lockFileWriter.addEntryPkg(module.symbol);
-        }
     }
 }

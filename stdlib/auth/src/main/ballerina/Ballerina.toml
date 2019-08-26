@@ -6,22 +6,15 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "commons-lang3"
-    version = "3.8.1"
-    path = "./lib/commons-lang3-3.8.1.jar"
-    groupId = "org.apache.commons"
+    artifactId = "auth"
+    version = "@project.version@"
+    path = "./lib/ballerina-auth-@project.version@.jar"
+    groupId = "ballerina"
     modules = ["auth"]
 
     [[platform.libraries]]
-    artafactId = "commons-logging"
+    artifactId = "commons-logging"
     version = "1.1.1"
     path = "./lib/commons-logging-1.1.1.jar"
     groupId = "commons-logging"
-    modules = ["auth"]
-
-    [[platform.libraries]]
-    artafactId = "slf4j-api"
-    version = "1.7.26"
-    path = "./lib/slf4j-api-1.7.26.jar"
-    groupId = "org.slf4j"
     modules = ["auth"]

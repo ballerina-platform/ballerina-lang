@@ -46,15 +46,12 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for Hover functionality of language server.
@@ -405,8 +402,7 @@ public class HoverUtil {
     }
 
     private static String getReturnValueDescription(String returnVal) {
-        BufferedReader reader = new BufferedReader(new StringReader(returnVal));
-        return "- " + reader.lines().map(String::trim).collect(Collectors.joining(CommonUtil.MD_LINE_SEPARATOR)) +
+        return "- " + CommonUtil.MD_NEW_LINE_PATTERN.matcher(returnVal).replaceAll(CommonUtil.MD_LINE_SEPARATOR) +
                 CommonUtil.MD_LINE_SEPARATOR;
     }
 
@@ -421,6 +417,8 @@ public class HoverUtil {
     }
 
     private static String getFormattedHoverDocContent(String header, String subHeader, String content) {
-        return "**" + header + "**" + subHeader + CommonUtil.MD_LINE_SEPARATOR + content + CommonUtil.MD_LINE_SEPARATOR;
+        return "**" + header + "**" + subHeader + CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_NEW_LINE_PATTERN.matcher(
+                content)
+                .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
     }
 }

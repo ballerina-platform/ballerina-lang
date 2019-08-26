@@ -15,10 +15,9 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 
 byte[] content = [];
-service onBinaryContinuation on new http:WebSocketListener(21007) {
+service onBinaryContinuation on new http:Listener(21007) {
     resource function onBinary(http:WebSocketCaller caller, byte[] data, boolean finalFrame) {
         if (finalFrame) {
             appendToArray(<@untainted> data, content);

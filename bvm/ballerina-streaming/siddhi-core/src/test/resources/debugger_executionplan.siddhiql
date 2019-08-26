@@ -1,8 +1,0 @@
-@app:name('TestSiddhiApp')
-
-define stream sensorStream (sensorId string, temperature double);
-
-@info(name = 'query1')
-from sensorStream#window.length(5)
-select sensorId, avg(temperature) as avgTemp
-insert into outputStream;

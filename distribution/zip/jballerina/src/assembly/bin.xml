@@ -218,13 +218,6 @@
                 <include>org.hdrhistogram:HdrHistogram</include>
                 <include>org.ballerinalang:ballerina-prometheus-extension:jar</include>
 
-                <!-- Siddhi Dependencies -->
-                <include>org.ballerinalang:siddhi-core:jar</include>
-                <include>org.ballerinalang:siddhi-query-api:jar</include>
-                <include>org.ballerinalang:siddhi-query-compiler:jar</include>
-                <include>org.ballerinalang:siddhi-annotations:jar</include>
-
-                <include>org.wso2.orbit.com.lmax:disruptor:jar</include>
                 <include>io.dropwizard.metrics:metrics-core:jar</include>
                 <include>org.wso2.transport.file:org.wso2.transport.local-file-system</include>
 

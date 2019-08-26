@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
@@ -48,11 +46,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
-public class StartUpHubService extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class StartUpHubService {
 
     public static Object startUpHubService(Strand strand, boolean topicRegistrationRequired, String publicUrl,
                                            ObjectValue hubListener) {

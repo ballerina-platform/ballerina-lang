@@ -16,9 +16,7 @@
 //
 
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
-import ballerina/mime;
 import ballerina/runtime;
 
 listener http:Listener failoverEP05 = new(9305);
@@ -49,7 +47,7 @@ service failoverDemoService05 on failoverEP05 {
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
         string startIndex = foBackendEP05.succeededEndpointIndex.toString();
-        var backendRes = foBackendEP05->forward("/", request);
+        var backendRes = foBackendEP05->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;
             var responseToCaller = caller->respond(responseMessage);

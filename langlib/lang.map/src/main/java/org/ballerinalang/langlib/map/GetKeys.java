@@ -18,15 +18,10 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -42,13 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class GetKeys extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        BMap<String, BValue> map = (BMap<String, BValue>) ctx.getRefArgument(0);
-        BValueArray keyArray = new BValueArray(map.keys());
-        ctx.setReturnValues(keyArray);
-    }
+public class GetKeys {
 
     public static ArrayValue keys(Strand strand, MapValue<?, ?> m) {
         return new ArrayValue((String[]) m.getKeys());

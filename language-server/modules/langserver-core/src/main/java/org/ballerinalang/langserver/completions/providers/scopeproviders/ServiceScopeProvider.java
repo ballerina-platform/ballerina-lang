@@ -17,16 +17,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
-import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -39,7 +34,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * ServiceContextResolver.
@@ -58,22 +52,10 @@ public class ServiceScopeProvider extends LSCompletionProvider {
             // suggest all the visible, defined listeners
             return this.getCompletionItemsAfterOnKeyword(ctx);
         }
-        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
         if (this.isAnnotationAttachmentContext(ctx)) {
             return this.getProvider(AnnotationAttachmentContextProvider.class).getCompletions(ctx);
         }
 
-        Optional<String> subRule = this.getSubRule(lhsTokens);
-        subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinServiceDefinition(rule, ctx));
-        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-
-        if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
-            return this.getProvider(parserRuleContext.getClass()).getCompletions(ctx);
-        }
-
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        completionItems.addAll(this.getBasicTypes(visibleSymbols));
-        completionItems.addAll(this.getPackagesCompletionItems(ctx));
         completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
         completionItems.addAll(this.getResourceSnippets(ctx));
         completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));

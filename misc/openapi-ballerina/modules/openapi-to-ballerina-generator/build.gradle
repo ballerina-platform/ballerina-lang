@@ -18,10 +18,8 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 
-configurations {
-    distBal {
-        transitive false
-    }
+configurations.all {
+    resolutionStrategy.preferProjectModules()
 }
 
 dependencies {
@@ -36,42 +34,18 @@ dependencies {
     implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
     implementation 'io.swagger.parser.v3:swagger-parser-v3'
     implementation 'com.github.jknack:handlebars:4.0.6'
-    implementation 'info.picocli:picocli:3.9.0'
+    implementation 'info.picocli:picocli:4.0.1'
     implementation 'javax.ws.rs:javax.ws.rs-api:2.0'
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
     implementation project(':language-server:language-server-compiler')
     implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
-    implementation project(':language-server:language-server-compiler')
     testCompile 'org.testng:testng:6.13.1'
 }
 
-jar {
-    enabled = false
-    dependsOn(shadowJar { classifier = null })
-    manifest { }
-}
-
-shadowJar {
-    configurations = [project.configurations.runtimeClasspath]
-    dependencies {
-        include(dependency('com.github.jknack:handlebars'))
-        include(dependency('commons-io:commons-io'))
-        include(dependency('io.swagger:swagger-core'))
-        include(dependency('io.swagger:swagger-models'))
-        include(dependency('io.swagger:swagger-parser'))
-        include(dependency('io.swagger.core.v3:swagger-core'))
-        include(dependency('io.swagger.core.v3:swagger-models'))
-        include(dependency('io.swagger.parser.v3:swagger-parser'))
-        include(dependency('io.swagger.parser.v3:swagger-parser-core'))
-        include(dependency('io.swagger.parser.v3:swagger-parser-v2-converter'))
-        include(dependency('io.swagger.parser.v3:swagger-parser-v3'))
-        include(dependency('javax.validation:validation-api'))
-        include(dependency('com.google.code.gson:gson'))
-        include(dependency('org.ballerinalang:ballerina-to-openapi-generator'))
-        exclude('META-INF/*.SF')
-        exclude('META-INF/*.DSA')
-        exclude('META-INF/*.RSA')
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
     }
 }
 

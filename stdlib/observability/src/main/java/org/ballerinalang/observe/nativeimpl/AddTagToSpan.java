@@ -19,8 +19,6 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
@@ -43,20 +41,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = @ReturnType(type = TypeKind.BOOLEAN),
         isPublic = true
 )
-public class AddTagToSpan extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-//        int spanId = (int) context.getIntArgument(0);
-//        String tagKey = context.getStringArgument(0);
-//        String tagValue = context.getStringArgument(1);
-//
-//        boolean tagAdded = OpenTracerBallerinaWrapper.getInstance().addTag(tagKey, tagValue, spanId, context);
-//
-//        if (!tagAdded) {
-//            context.setReturnValues(Utils.createError(context,
-//                    "Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}"));
-//        }
-    }
+public class AddTagToSpan {
 
     public static Object addTagToSpan(Strand strand, String tagKey, String tagValue, long spanId) {
         boolean tagAdded = OpenTracerBallerinaWrapper.getInstance().addTag(tagKey, tagValue, spanId, strand);

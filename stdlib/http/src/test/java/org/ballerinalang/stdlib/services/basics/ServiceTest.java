@@ -59,6 +59,10 @@ public class ServiceTest {
     public void setup() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/echo-service.bal");
         negativeResult = BCompileUtil.compile("test-src/services/service-negative.bal");
+
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException(compileResult.toString());
+        }
     }
 
     @Test
@@ -136,19 +140,6 @@ public class ServiceTest {
         Assert.assertNotNull(responseMsgPayload);
         Assert.assertEquals(responseMsgPayload, "hello");
     }
-
-//    @Test(description = "Test accessing service level variable in resource")
-//    public void testGetServiceLevelString() {
-//        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
-//        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
-//        Assert.assertNotNull(responseMsg);
-//
-//        String responseMsgPayload = StringUtils
-//                .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
-//        StringDataSource stringDataSource = new StringDataSource(responseMsgPayload);
-//        Assert.assertNotNull(stringDataSource);
-//        Assert.assertEquals(stringDataSource.getValue(), "sample value");
-//    }
 
     @Test(description = "Test using constant as annotation attribute value")
     public void testConstantValueAsAnnAttributeVal() {

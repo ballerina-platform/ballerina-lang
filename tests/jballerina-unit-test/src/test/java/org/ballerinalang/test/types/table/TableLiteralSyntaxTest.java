@@ -474,7 +474,7 @@ public class TableLiteralSyntaxTest {
 
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 18);
+        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 39, 11);
         BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 46, 42);
         BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in record 'Person'", 47, 10);
@@ -506,6 +506,8 @@ public class TableLiteralSyntaxTest {
                                   "field 'xArr' of type 'xml[]' is not allowed as a table column", 212, 29);
         BAssertUtil.validateError(resultNegative, 17,
                                   "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
+        BAssertUtil.validateError(resultNegative, 18,
+                                  "cannot infer table type", 223, 14);
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")

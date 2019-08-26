@@ -123,6 +123,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String ORDERING_FUNC_ARRAY_REFERENCE = "$lambda$streaming$orderby$funcarray$variable";
     private static final String ORDERING_FUNC_VAR_ARG = "$lambda$streaming$orderby$func$var$arg";
     private static final String FILTER_FUNC_REFERENCE = "$lambda$streaming$filter";
+    private static final String HAVING_FUNC_REFERENCE = "$lambda$streaming$having";
     private static final String SELECT_WITH_GROUP_BY_FUNC_REFERENCE = "$lambda$streaming$groupby$select";
     private static final String JOIN_PROCESS_FUNC_REFERENCE = "$lambda$streaming$join$process";
     private static final String TABLE_JOIN_PROCESS_FUNC_REFERENCE = "$lambda$streaming$table$join$process";
@@ -878,7 +879,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangExpression mapAccessExpr;
 
         mapAccessExpr = (BLangExpression) preSelectDesuagr.rewrite(expr, null, streamAliasMap, rhsStream,
-                outputEventType, null, null, varStreamEvent.symbol);
+                null, null, varStreamEvent.symbol);
 
         // return <anydata>e.data[<fieldName in string>];
         BLangExpression conversionExpr = desugar.addConversionExprIfRequired(mapAccessExpr, symTable.anydataType);
@@ -911,7 +912,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BType lhsType = onExpr.lhsExpr.type;
             BType rhsType = onExpr.rhsExpr.type;
             BLangBinaryExpr refactoredOnExpr = (BLangBinaryExpr) preSelectDesuagr.rewrite(onExpr,
-                    new BSymbol[]{lhsDataMap.symbol, rhsDataMap.symbol}, streamAliasMap, rhsStream, outputEventType);
+                    new BSymbol[]{lhsDataMap.symbol, rhsDataMap.symbol}, streamAliasMap, rhsStream);
 
             refactoredOnExpr.lhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.lhsExpr, lhsType);
             refactoredOnExpr.rhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.rhsExpr, rhsType);
@@ -993,11 +994,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         // table<Stock> stocks = queryStocksTable(<string> s.data["twitterStream.company"], 1);
         onConditionExpr = (BLangExpression) preSelectDesuagr.rewrite(onConditionExpr, null, streamAliasMap,
-                rhsStream, outputEventType, null, null, streamEventVarArg.symbol);
+                rhsStream, null, null, streamEventVarArg.symbol);
         BTableType tableType = (BTableType) onConditionExpr.type;
 
-        BLangSimpleVariable resultTableVariable =
-                ASTBuilderUtil.createVariable(onConditionExpr.pos, VAR_RESULTS_TABLE, tableType, onConditionExpr, null);
+        BLangSimpleVariable resultTableVariable = ASTBuilderUtil.createVariable(onConditionExpr.pos, VAR_RESULTS_TABLE,
+                tableType, onConditionExpr, null);
         defineVariable(resultTableVariable, env.scope.owner.pkgID, env.scope.owner);
         BLangSimpleVariableDef resultTableDef =
                 ASTBuilderUtil.createVariableDef(onConditionExpr.pos, resultTableVariable);
@@ -1484,8 +1485,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         //always the condition lambda has one required param
         BSymbol varSymbol = lambda.function.requiredParams.get(0).symbol;
         BLangExpression conditionExpr = (BLangExpression) preSelectDesuagr.rewrite((BLangNode) where.getExpression(),
-                new BSymbol[]{varSymbol}, streamAliasMap, rhsStream, outputEventType);
-        visitFilter(where.pos, conditionExpr, lambda);
+                new BSymbol[]{varSymbol}, streamAliasMap, rhsStream);
+        visitFilter(where.pos, conditionExpr, lambda, FILTER_FUNC_REFERENCE);
     }
 
     //
@@ -1508,11 +1509,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BSymbol varSymbol = lambda.function.requiredParams.get(0).symbol;
         BLangExpression conditionExpr = (BLangExpression) postSelectDesugar.rewrite((BLangNode) having.getExpression(),
                 varSymbol, outputEventType);
-        visitFilter(having.pos, conditionExpr, lambda);
+        visitFilter(having.pos, conditionExpr, lambda, HAVING_FUNC_REFERENCE);
     }
 
     //------------------------------------- Methods required for filter / having -----------------------------------
-    private void visitFilter(DiagnosticPos pos, BLangExpression expr, BLangLambdaFunction lambda) {
+    private void visitFilter(DiagnosticPos pos, BLangExpression expr, BLangLambdaFunction lambda,
+            String filterVarName) {
         BLangBlockStmt lambdaBody = lambda.function.body;
         // Return statement with having condition
         BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
@@ -1529,7 +1531,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 scope.lookup(new Name(CREATE_FILTER_METHOD_NAME)).symbol;
         BType havingInvokableType = havingInvokableSymbol.type.getReturnType();
         BVarSymbol havingInvokableTypeVarSymbol = new BVarSymbol(0,
-                new Name(getVariableName(FILTER_FUNC_REFERENCE)), havingInvokableSymbol.pkgID,
+                new Name(getVariableName(filterVarName)), havingInvokableSymbol.pkgID,
                 havingInvokableType, env.scope.owner);
         nextProcessVarSymbolStack.push(havingInvokableTypeVarSymbol);
 
@@ -1542,7 +1544,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         havingMethodInvocation.argExprs = args;
 
         BLangSimpleVariableDef filterDef = createVariableDef(havingMethodInvocation, havingInvokableType,
-                havingInvokableTypeVarSymbol, pos, FILTER_FUNC_REFERENCE, FILTER_OBJECT_NAME);
+                havingInvokableTypeVarSymbol, pos, filterVarName, FILTER_OBJECT_NAME);
         stmts.add(filterDef);
     }
 
@@ -1664,8 +1666,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
                 BLangExpression expr = (BLangExpression) selectExpression.getExpression();
                 BLangExpression refactoredExpr = (BLangExpression) preSelectDesuagr.rewrite(expr, null,
-                        streamAliasMap, rhsStream, outputEventType, aggregatorArraySymbol, aggregatorIndex,
-                        streamEventSymbol);
+                        streamAliasMap, rhsStream, aggregatorArraySymbol, aggregatorIndex, streamEventSymbol);
                 recordKeyValue.valueExpr = desugar.addConversionExprIfRequired(refactoredExpr, symTable.anydataType);
 
             recordKeyValueList.add(recordKeyValue);

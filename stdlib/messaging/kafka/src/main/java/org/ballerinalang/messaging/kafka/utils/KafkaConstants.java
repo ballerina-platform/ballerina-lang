@@ -139,7 +139,7 @@ public class KafkaConstants {
     public static final String PRODUCER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String PRODUCER_TRANSACTIONAL_ID_CONFIG = "transactionalId";
     public static final String PRODUCER_BUFFER_MEMORY_CONFIG = "bufferMemory";
-    public static final String PRODUCER_RETRIES_CONFIG = "noRetries";
+    public static final String PRODUCER_RETRIES_CONFIG = "retryCount";
     public static final String PRODUCER_BATCH_SIZE_CONFIG = "batchSize";
     public static final String PRODUCER_LINGER_MS_CONFIG = "linger";
     public static final String PRODUCER_SEND_BUFFER_CONFIG = "sendBuffer";

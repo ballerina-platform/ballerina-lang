@@ -17,13 +17,16 @@
  */
 package org.ballerinalang.toml.model;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Defines dependency object fields. The same object will be used to define patches.
  *
  * @since 0.964
  */
 public class DependencyMetadata {
-    private String version = "*";
+    private String version;
     private String path;
 
     /**
@@ -49,8 +52,8 @@ public class DependencyMetadata {
      *
      * @return location of the dependency
      */
-    public String getPath() {
-        return path;
+    public Path getPath() {
+        return null == this.path ? null : Paths.get(this.path);
     }
 
     /**

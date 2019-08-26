@@ -27,9 +27,9 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.CLASS_NOT_FOUND_REASON;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.UNSUPPORTED_PRIMITIVE_TYPE_REASON;
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * This class contains a set of utility methods and constants used in this implementation.

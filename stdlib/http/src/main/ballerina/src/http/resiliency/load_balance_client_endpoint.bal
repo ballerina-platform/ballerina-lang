@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/mime;
+
 # LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
 #
 # + loadBalanceClientConfig - The configurations for the load balance client endpoint
@@ -323,8 +325,8 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {|
     string httpVersion = HTTP_1_1;
-    Http1Settings http1Settings = {};
-    Http2Settings http2Settings = {};
+    ClientHttp1Settings http1Settings = {};
+    ClientHttp2Settings http2Settings = {};
     int timeoutInMillis = 60000;
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();
@@ -351,7 +353,6 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
         forwarded:lbConfig.forwarded,
         followRedirects:lbConfig.followRedirects,
         retryConfig:lbConfig.retryConfig,
-        proxy:lbConfig.proxy,
         poolConfig:lbConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:lbConfig.cache,

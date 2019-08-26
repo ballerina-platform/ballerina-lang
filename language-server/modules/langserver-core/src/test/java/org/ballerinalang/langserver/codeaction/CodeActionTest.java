@@ -153,7 +153,7 @@ public class CodeActionTest {
         Assert.assertTrue(codeActionFound, "Cannot find expected Code Action for: " + title);
     }
 
-    @Test(dataProvider = "codeaction-testgen-data-provider")
+    @Test(dataProvider = "codeaction-testgen-data-provider", enabled = false)
     public void testCodeActionWithTestGen(String config, Path source) throws IOException, CompilationFailedException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);

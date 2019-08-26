@@ -30,39 +30,27 @@ public class RecordFieldsAccessNegativeTest {
 
     @Test(description = "Test private fields access in record 01")
     public void testRecordPrivateFieldsAccess1() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/record/record-project", "access-neg-1");
+        CompileResult result = BCompileUtil.compile("test-src/record/record-project", "access-neg-1");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 12);
-        String expectedErrMsg1 = "attempt to expose non-public symbol ";
-        String expectedErrMsg2 = "attempt to refer to non-accessible symbol ";
-
-        BAssertUtil.validateError(compileResult, 0, expectedErrMsg1 + "'ChildFoo'", 4, 5);
-        BAssertUtil.validateError(compileResult, 1, expectedErrMsg1 + "'PrivatePerson'", 16, 44);
-        BAssertUtil.validateError(compileResult, 2, expectedErrMsg1 + "'PrivatePerson'", 24, 72);
-        BAssertUtil.validateError(compileResult, 3, expectedErrMsg1 + "'FooFamily'", 12, 5);
-        BAssertUtil.validateError(compileResult, 4, expectedErrMsg2 + "'ChildFoo'", 4, 33);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg2 + "'PrivatePerson'", 8, 13);
-        BAssertUtil.validateError(compileResult, 6, expectedErrMsg2 + "'PrivatePerson'", 12, 43);
-        BAssertUtil.validateError(compileResult, 7, expectedErrMsg2 + "'PrivatePerson'", 16, 47);
-        BAssertUtil.validateError(compileResult, 8, expectedErrMsg2 + "'PrivatePerson'", 16, 13);
-        BAssertUtil.validateError(compileResult, 9, expectedErrMsg2 + "'PrivatePerson'", 20, 5);
-        BAssertUtil.validateError(compileResult, 10, "unknown type 'PrivatePerson'", 20, 5);
-        BAssertUtil.validateError(compileResult, 11, "invalid literal for type 'other'", 20, 27);
+        Assert.assertEquals(result.getErrorCount(), 8);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'ChildFoo'", 4, 33);
+        BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 8, 13);
+        BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 12, 43);
+        BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 16, 47);
+        BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 16, 13);
+        BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 20, 5);
+        BAssertUtil.validateError(result, i++, "unknown type 'PrivatePerson'", 20, 5);
+        BAssertUtil.validateError(result, i++, "invalid literal for type 'other'", 20, 27);
     }
 
     @Test(description = "Test private fields access in record 02")
     public void testRecordPrivateFieldsAccess2() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record-project", "access-neg-2");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 6);
-        String expectedErrMsg1 = "attempt to expose non-public symbol ";
-        String expectedErrMsg2 = "attempt to refer to non-accessible symbol ";
+        Assert.assertEquals(compileResult.getErrorCount(), 2);
 
-        BAssertUtil.validateError(compileResult, 0, expectedErrMsg1 + "'ChildFoo'", 4, 5);
-        BAssertUtil.validateError(compileResult, 1, expectedErrMsg1 + "'PrivatePerson'", 16, 44);
-        BAssertUtil.validateError(compileResult, 2, expectedErrMsg1 + "'PrivatePerson'", 24, 72);
-        BAssertUtil.validateError(compileResult, 3, expectedErrMsg1 + "'FooFamily'", 12, 5);
-        BAssertUtil.validateError(compileResult, 4, expectedErrMsg2 + "'FooFamily'", 5, 13);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg2 + "'FooFamily'", 10, 13);
+        BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'FooFamily'", 5, 13);
+        BAssertUtil.validateError(compileResult, 1, "attempt to refer to non-accessible symbol 'FooFamily'", 10, 13);
     }
 }

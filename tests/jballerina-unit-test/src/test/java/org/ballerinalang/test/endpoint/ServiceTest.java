@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
 public class ServiceTest {
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error: startError.*")
+          expectedExceptionsMessageRegExp = ".*error: startError.*", enabled = false)
     public void testServiceInitNegativeTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_negative.bal");
         BRunUtil.invoke(compileResult, "test1");
@@ -63,14 +63,17 @@ public class ServiceTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_basic_negative.bal");
         int errIdx = 0;
         BAssertUtil
-                .validateError(compileResult, errIdx++, "resource function can not be invoked with in a service", 7, 9);
-        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'name1'", 17, 9);
+                .validateError(compileResult, errIdx++, "resource function can not be invoked with in a service", 9, 9);
+        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'name1'", 19, 9);
         BAssertUtil.validateError(compileResult, errIdx++,
-                "incompatible types: expected 'AbstractListener', found 'string'", 17, 18);
-        BAssertUtil.validateError(compileResult, errIdx++, "invalid listener attachment", 17, 18);
-        BAssertUtil.validateError(compileResult, errIdx++, "uninitialized field 'id'", 18, 5);
-        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'MyService$$service$2.foo'", 29, 14);
-        BAssertUtil.validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 50, 12);
+                "incompatible types: expected 'AbstractListener', found 'string'", 19, 18);
+        BAssertUtil.validateError(compileResult, errIdx++, "invalid listener attachment", 19, 18);
+        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'MyService$$service$2.foo'", 30, 14);
+        BAssertUtil.validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 58, 12);
+        BAssertUtil.validateError(compileResult, errIdx++,
+                                  "a resource function cannot have an explicit visibility qualifier", 64, 5);
+        BAssertUtil.validateError(compileResult, errIdx++,
+                                  "a resource function cannot have an explicit visibility qualifier", 68, 5);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }
 

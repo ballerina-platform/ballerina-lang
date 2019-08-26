@@ -210,10 +210,11 @@ public class WorkerTest {
         Assert.assertEquals("error: err from panic", ((BError) returns[0]).getReason());
     }
 
-    @Test(enabled = false) // Issue with trap
+    @Test()
     public void receiveWithTrapForDefault() {
         BValue[] returns = BRunUtil.invoke(result, "receiveWithTrapForDefault");
         Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals("error: err from panic", ((BError) returns[0]).getReason());
     }
 
     @Test
@@ -230,7 +231,7 @@ public class WorkerTest {
         Assert.assertEquals("error: err from panic", ((BError) returns[0]).getReason());
     }
 
-    @Test
+    @Test(groups = "brokenOnJBallerina")
     public void sameStrandMultipleInvocation() {
         for (int i = 0; i < 20; i++) {
             sameStrandMultipleInvocationTest();

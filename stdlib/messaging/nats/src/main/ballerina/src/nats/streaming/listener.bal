@@ -50,6 +50,9 @@ public type StreamingListener object {
 
     function attach(service serviceType, Connection? conn) = external;
 
+    public function __detach(service s) returns error? {
+    }
+
     public function __start() returns error? {
          createStreamingConnection(self, self.connection, self.clusterId, self.clientId, self.streamingConfig);
          self.subscribe();
@@ -57,7 +60,11 @@ public type StreamingListener object {
 
     function subscribe() = external;
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         return self.close();
     }
 

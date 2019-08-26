@@ -431,3 +431,64 @@ function caz5(CONST_1|CONST_2|CONST_3|CONST_4 a) returns string {
 
     return results;
 }
+
+function testStructuredMatchPatternWithEmptyTuple() returns string[] {
+    int[] arr = [];
+    string[] result = [];
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 1;
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 2;
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 3;
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 4;
+    result[result.length()] = foo8(arr);
+
+    return result;
+}
+
+function foo8(any x) returns string {
+    match x {
+        [] => {return "Matched with empty array";}
+        [1] => {return "Matched with i: 1";}
+        [1, 2] => {return "Matched with i: 1, j: 2";}
+        [1, 2, 3] => {return "Matched with i: 1, j: 2, k: 3";}
+        _ => {return "Matched with default";}
+    }
+}
+
+function testStructuredMatchPatternWithEmptyRecord() returns string[] {
+    record {} rec = {};
+    string[] result = [];
+    result[result.length()] = foo9(rec);
+
+    rec["a"] = 1;
+    result[result.length()] = foo9(rec);
+
+    rec["b"] = 2;
+    result[result.length()] = foo9(rec);
+
+    rec["c"] = 3;
+    result[result.length()] = foo9(rec);
+
+    rec["d"] = 4;
+    result[result.length()] = foo9(rec);
+
+    return result;
+}
+
+function foo9(any x) returns string {
+    match x {
+        {a:1, b:2, c:3} => {return "Matched with a: 1, b: 2, c: 3";}
+        {a:1, b:2} => {return "Matched with a: 1, b: 2";}
+        {a:1} => {return "Matched with a: 1";}
+        {} => {return "Matched with empty record";}
+        _ => {return "Matched with default";}
+    }
+}
+

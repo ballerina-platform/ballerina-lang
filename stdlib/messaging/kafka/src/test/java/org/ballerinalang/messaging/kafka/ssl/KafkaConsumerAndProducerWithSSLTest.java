@@ -131,7 +131,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-ssl-test");
         kafkaCluster = new KafkaCluster().usingDirectory(dataDir)
-                .withPorts(2191, 9104)
+                .withPorts(14011, 14111)
                 .withKafkaConfiguration(prop);
         return kafkaCluster;
     }
@@ -170,7 +170,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
 
     private static Properties getKafkaBrokerProperties() {
         Properties prop = new Properties();
-        prop.put("listeners", "SSL://localhost:9104");
+        prop.put("listeners", "SSL://localhost:14111");
         prop.put("security.inter.broker.protocol", "SSL");
         prop.put("ssl.client.auth", "required");
         prop.put("ssl.keystore.location", resourceDir + File.separator + keystoresAndTruststores + File.separator +

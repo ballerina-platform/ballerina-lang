@@ -35,8 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,9 +153,8 @@ public final class BFunctionCompletionItemBuilder {
                 && bInvokableSymbol.retType.tsymbol != null) {
             String desc = "";
             if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
-                BufferedReader reader = new BufferedReader(new StringReader(docAttachment.returnValueDescription));
-                desc = "- " + reader.lines().map(String::trim)
-                        .collect(Collectors.joining(CommonUtil.MD_LINE_SEPARATOR)) + CommonUtil.MD_LINE_SEPARATOR;
+                desc = "- " + CommonUtil.MD_NEW_LINE_PATTERN.matcher(docAttachment.returnValueDescription).replaceAll(
+                        CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
             documentation += CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
                     + " `" + CommonUtil.getBTypeName(bInvokableSymbol.retType, ctx) + "` " +

@@ -64,9 +64,9 @@ public class WebSubHttpService extends HttpService {
         WebSubHttpService websubHttpService = new WebSubHttpService(service);
         MapValue serviceConfigAnnotation = getWebSubSubscriberServiceConfigAnnotation(service);
 
-        if (serviceConfigAnnotation == null) {
-            logger.debug("ServiceConfig not specified in the Service instance, using default base path");
-            //service name cannot start with / hence concat
+        if (!serviceConfigAnnotation.containsKey(PATH_FIELD)) {
+            logger.debug("'path' not specified in the service config annotation, using the default base path");
+            // Service name cannot start with /, hence concat.
             websubHttpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(websubHttpService.getName()));
         } else {
             websubHttpService.setBasePath(serviceConfigAnnotation.getStringValue(PATH_FIELD));

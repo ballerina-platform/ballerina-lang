@@ -1095,6 +1095,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "wait",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -1103,11 +1111,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "untaint",
+      "label": "untainted",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "210",
-      "insertText": "untiant ",
+      "insertText": "untainted ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1132,11 +1140,15 @@
       "detail": "Function",
       "sortText": "130",
       "insertText": "new();",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener2()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "130",
+      "insertText": "Listener2();",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

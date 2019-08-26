@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.sourceprune;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -105,7 +106,7 @@ public class SourcePruneTest {
     }
     
     private LSContext getLSContext(String source, Position position) {
-        LSContext lsContext = new LSServiceOperationContext();
+        LSContext lsContext = new LSServiceOperationContext(LSContextOperation.SOURCE_PRUNER);
         URI fileUri = sourceRoot.resolve(source).toUri();
         TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
         positionParams.setPosition(position);
@@ -225,6 +226,8 @@ public class SourcePruneTest {
                 {"src_prune_config76.json"},
                 // Iterable Operators
                 {"src_prune_config77.json"},
+                // Type Descriptor
+                {"src_prune_config82.json"},
         };
     }
 }
