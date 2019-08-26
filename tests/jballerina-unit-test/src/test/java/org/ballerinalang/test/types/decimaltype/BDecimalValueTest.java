@@ -295,6 +295,5 @@ public class BDecimalValueTest {
     public void testDecimalArrayValueLoading() {
         BValue[] returns = BRunUtil.invoke(result, "decimalArrayLoad");
         Assert.assertEquals(returns[0], new BDecimal("2.0", DecimalValueKind.OTHER));
-
     }
 }
