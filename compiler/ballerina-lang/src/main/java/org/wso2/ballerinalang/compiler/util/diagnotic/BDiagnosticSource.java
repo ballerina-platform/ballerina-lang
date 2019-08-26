@@ -49,4 +49,12 @@ public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
     public String getCompilationUnitName() {
         return cUnitName;
     }
+
+    @Override
+    public int compareTo(Diagnostic.DiagnosticSource diagnosticSource) {
+        String thisDiagnosticSourceString = getPackageName() + getPackageVersion() + getCompilationUnitName();
+        String otherDiagnosticSourceString = diagnosticSource.getPackageName() + diagnosticSource.getPackageVersion() +
+                diagnosticSource.getCompilationUnitName();
+        return thisDiagnosticSourceString.compareTo(otherDiagnosticSourceString);
+    }
 }

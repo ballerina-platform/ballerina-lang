@@ -79,10 +79,14 @@ public class BDiagnostic implements Diagnostic {
     public DiagnosticCode getCode() {
         return code;
     }
-    
+
+    @Override
+    public int compareTo(Diagnostic diagnostic) {
+        return this.pos.compareTo(diagnostic.getPosition());
+    }
+
     @Override
     public String toString() {
         return this.kind + ": " + this.pos + ": " + this.msg;
     }
-    
 }

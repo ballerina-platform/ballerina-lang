@@ -74,6 +74,40 @@ public class DiagnosticPos implements DiagnosticPosition {
     }
 
     @Override
+    public int compareTo(DiagnosticPosition diagnosticPosition) {
+        int value = this.getSource().compareTo(diagnosticPosition.getSource());
+        if (value != 0) {
+            return value;
+        }
+
+        if (sLine < diagnosticPosition.getStartLine()) {
+            return -1;
+        } else if (sLine > diagnosticPosition.getStartLine()) {
+            return 1;
+        }
+
+        if (sCol < diagnosticPosition.getStartColumn()) {
+            return -1;
+        } else if (sCol > diagnosticPosition.getStartColumn()) {
+            return 1;
+        }
+
+        if (eLine < diagnosticPosition.getEndLine()) {
+            return -1;
+        } else if (eLine > diagnosticPosition.getEndLine()) {
+            return 1;
+        }
+
+        if (eCol < diagnosticPosition.getEndColumn()) {
+            return -1;
+        } else if (eCol > diagnosticPosition.getEndColumn()) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    @Override
     public String toString() {
         boolean cUnitNameAvailable = src.cUnitName != null && !src.cUnitName.isEmpty();
         String strPos = "";
