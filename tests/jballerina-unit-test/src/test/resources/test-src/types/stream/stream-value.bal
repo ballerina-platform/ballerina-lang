@@ -318,7 +318,7 @@ function testStreamEventClone() returns Employee[] {
     int startTime = time:currentTime().time;
 
     //allow for value update
-    while (globalEmployeeArray.length() < 1 && time:currentTime().time - startTime < 5000) {
+    while (globalEmployeeArray.length() < 2 && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
 
