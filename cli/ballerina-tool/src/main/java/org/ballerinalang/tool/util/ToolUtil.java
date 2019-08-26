@@ -349,9 +349,9 @@ public class ToolUtil {
     }
 
     /**
-     * Provides path of the installed distributions
+     * Provides path of the installed distributions.
      * @return installed distributions path
-     * @throws IOException
+     * @throws IOException happens version file cannot be read
      */
     public static String getDistributionsPath() throws IOException {
         return OSUtils.getInstalltionPath() + File.separator
