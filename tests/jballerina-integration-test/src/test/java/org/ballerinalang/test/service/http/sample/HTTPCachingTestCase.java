@@ -69,4 +69,18 @@ public class HTTPCachingTestCase extends HttpBaseTest {
         response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9242, "nocache"));
         assertEquals(response.getData(), "{\"message\":\"2nd request\"}");
     }
+
+    @Test(description = "Test max-age cache control")
+    public void testMaxAgeCacheControl() throws IOException, InterruptedException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9243, "maxAge"));
+        assertEquals(response.getData(), "{\"message\":\"1st request\"}");
+
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9243, "maxAge"));
+        assertEquals(response.getData(), "{\"message\":\"1st request\"}");
+
+        Thread.sleep(5000);
+
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9243, "maxAge"));
+        assertEquals(response.getData(), "{\"message\":\"2nd request\"}");
+    }
 }
