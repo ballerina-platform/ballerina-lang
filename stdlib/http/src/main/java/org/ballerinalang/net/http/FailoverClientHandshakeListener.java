@@ -35,7 +35,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.WebSocketConstants.CONNECTED_TO;
 import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
-import static org.ballerinalang.net.http.WebSocketUtil.doAction;
+import static org.ballerinalang.net.http.WebSocketUtil.determineAction;
 import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
 import static org.ballerinalang.net.http.WebSocketUtil.setFailoverWebSocketEndpoint;
 
@@ -108,7 +108,7 @@ public class FailoverClientHandshakeListener extends WebSocketClientHandshakeLis
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         countDownLatch.countDown();
         if (throwable instanceof IOException) {
-            doAction(connectionInfo, throwable, null);
+            determineAction(connectionInfo, throwable, null);
         } else {
             logger.info("A connection has some issue that needs to fix.");
             WebSocketDispatcher.dispatchError(connectionInfo, throwable);

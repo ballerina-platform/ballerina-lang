@@ -49,6 +49,7 @@ public type WebSocketFailoverClient client object {
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - `WebSocketError` if an error occurs when sending the text message to the server.
+    #              Message will be lost, if an error occurs.
     public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data,
         public boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushText(data, finalFrame);
@@ -59,6 +60,7 @@ public type WebSocketFailoverClient client object {
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return - `WebSocketError` if an error occurs when sending the binary message to the server.
+    #             Message will be lost, if an error occurs.
     public remote function pushBinary(byte[] data, public boolean finalFrame = true) returns error? {
         return self.conn.pushBinary(data, finalFrame);
     }
@@ -67,6 +69,7 @@ public type WebSocketFailoverClient client object {
     #
     # + data - Binary data to be sent.
     # + return - `WebSocketError` if an error occurs when sending the ping frame to the server.
+    #             Frame will be lost, if an error occurs.
     public remote function ping(byte[] data) returns WebSocketError? {
         return self.conn.ping(data);
     }
@@ -75,6 +78,7 @@ public type WebSocketFailoverClient client object {
     #
     # + data - Binary data to be sent
     # + return - `WebSocketError` if an error occurs when sending the pong frame to the server.
+    #             Frame will be lost, if an error occurs.
     public remote function pong(byte[] data) returns WebSocketError? {
         return self.conn.pong(data);
     }

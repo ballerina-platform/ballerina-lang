@@ -73,6 +73,7 @@ import static org.ballerinalang.net.http.WebSocketConstants.RECONNECTING;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_FAILOVDER_RECONNECT;
 import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_FAILOVER;
+import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_RECONNECT;
 import static org.ballerinalang.net.http.WebSocketConstants.WAITING_TIME;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
 
@@ -522,6 +523,8 @@ public class WebSocketUtil {
             establishWebSocketConnection(clientConnector, webSocketClient, wsService);
             return true;
         }
+        logger.info(STATEMENT_FOR_RECONNECT +
+                webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
         return false;
     }
 
@@ -600,6 +603,7 @@ public class WebSocketUtil {
                     wsService);
             return true;
         }
+        logger.info(STATEMENT_FOR_FAILOVER + targets);
         return false;
     }
 
@@ -637,6 +641,7 @@ public class WebSocketUtil {
                     wsService);
             return true;
         }
+        logger.info(STATEMENT_FOR_FAILOVDER_RECONNECT + targets);
         return false;
     }
 
@@ -671,26 +676,22 @@ public class WebSocketUtil {
                 getMapValue(RETRY_CONFIG) != null;
     }
 
-    static void doAction(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable,
-                         WebSocketCloseMessage webSocketCloseMessage) {
+    static void determineAction(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable,
+                                WebSocketCloseMessage webSocketCloseMessage) {
         ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
-        FailoverContext failoverConfig = (FailoverContext) webSocketClient.
-                getNativeData(FAILOVER_CONFIG);
-        ArrayList<String> targets = failoverConfig.getTargetUrls();
         if (hasRetryConfig(webSocketClient)) {
             // When connection lost, do the failover for remaining server urls. If failover fails,
             // do the reconnection
-            if (!failoverAndRetry(connectionInfo)) {
-                logger.info(STATEMENT_FOR_FAILOVDER_RECONNECT + targets);
-                closeConnection(connectionInfo, throwable, webSocketCloseMessage);
+            if (failoverAndRetry(connectionInfo)) {
+                return;
             }
         } else {
             // When connection lost, do the failover for remaining server urls.
-            if (!doFailover(connectionInfo)) {
-                logger.info(STATEMENT_FOR_FAILOVER + targets);
-                closeConnection(connectionInfo, throwable, webSocketCloseMessage);
+            if (doFailover(connectionInfo)) {
+                return;
             }
         }
+        closeConnection(connectionInfo, throwable, webSocketCloseMessage);
     }
 
     static void setCloseMessage(WebSocketOpenConnectionInfo connectionInfo,

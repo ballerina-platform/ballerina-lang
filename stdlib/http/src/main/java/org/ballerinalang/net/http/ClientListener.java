@@ -31,7 +31,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.io.IOException;
 
-import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_RECONNECT;
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
 import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
 import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
@@ -86,41 +85,32 @@ public class ClientListener extends WebSocketClientConnectorListener {
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
         int statusCode = webSocketCloseMessage.getCloseCode();
-        if (hasRetryConfig(webSocketClient) && statusCode == STATUS_CODE_ABNORMAL_CLOSURE) {
-            if (!reconnect(connectionInfo)) {
-                logger.info(STATEMENT_FOR_RECONNECT +
-                        webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
-                setCloseMessage(connectionInfo, webSocketCloseMessage);
-            }
+        if (hasRetryConfig(webSocketClient) && statusCode == STATUS_CODE_ABNORMAL_CLOSURE &&
+                reconnect(connectionInfo)) {
+            return;
         } else {
             if (hasRetryConfig(webSocketClient) && statusCode != STATUS_CODE_ABNORMAL_CLOSURE) {
                 logger.info("Couldn't connect to the server because the given server: " +
                         webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG) +
                         "have sent the close request to the client.");
             }
-            setCloseMessage(connectionInfo, webSocketCloseMessage);
         }
+        setCloseMessage(connectionInfo, webSocketCloseMessage);
     }
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
-        if (throwable instanceof IOException) {
-            if (hasRetryConfig(webSocketClient)) {
-                if (!reconnect(connectionInfo)) {
-                    logger.info(STATEMENT_FOR_RECONNECT +
-                            webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
-                }
-            }
-            WebSocketDispatcher.dispatchError(connectionInfo, throwable);
-        } else {
-            if (hasRetryConfig(webSocketClient)) {
-                logger.info("Unable do the retry because the connection: " +
+        if (hasRetryConfig(webSocketClient)) {
+            if (throwable instanceof IOException && reconnect(connectionInfo)) {
+                return;
+            } else {
+                logger.info("Unable to do the retry because the connection: " +
                         webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG) +
                         "has some issue that needs to fix.");
             }
-            WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         }
+        WebSocketDispatcher.dispatchError(connectionInfo, throwable);
     }
 
     @Override

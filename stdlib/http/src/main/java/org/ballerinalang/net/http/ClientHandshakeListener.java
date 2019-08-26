@@ -33,7 +33,6 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.CONNECTED_TO;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
-import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_RECONNECT;
 import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
 import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
 import static org.ballerinalang.net.http.WebSocketUtil.setReconnectContexValue;
@@ -74,7 +73,7 @@ public class ClientHandshakeListener extends WebSocketClientHandshakeListener {
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         clientConnectorListener.setConnectionInfo(connectionInfo);
         webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
-        if (webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(RETRY_CONFIG) == null) {
+        if (hasRetryConfig(webSocketClient)) {
             if (readyOnConnect) {
                 webSocketConnection.readNextFrame();
             }
@@ -106,18 +105,12 @@ public class ClientHandshakeListener extends WebSocketClientHandshakeListener {
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         countDownLatch.countDown();
         if (throwable instanceof IOException) {
-            if (hasRetryConfig(webSocketClient)) {
-                if (!reconnect(connectionInfo)) {
-                    WebSocketDispatcher.dispatchError(connectionInfo, throwable);
-                    logger.info(STATEMENT_FOR_RECONNECT +
-                            webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
-                }
-            } else {
-                WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+            if (hasRetryConfig(webSocketClient) && reconnect(connectionInfo)) {
+                return;
             }
         } else {
             logger.info("A connection has some issue that needs to fix.");
-            WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         }
+        WebSocketDispatcher.dispatchError(connectionInfo, throwable);
     }
 }

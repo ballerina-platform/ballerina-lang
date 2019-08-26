@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import java.io.IOException;
 
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
-import static org.ballerinalang.net.http.WebSocketUtil.doAction;
+import static org.ballerinalang.net.http.WebSocketUtil.determineAction;
 import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
 import static org.ballerinalang.net.http.WebSocketUtil.setCloseMessage;
 
@@ -78,7 +78,7 @@ public class FailoverClientListener extends WebSocketClientConnectorListener {
         ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
         int statusCode = webSocketCloseMessage.getCloseCode();
         if (statusCode == STATUS_CODE_ABNORMAL_CLOSURE) {
-            doAction(connectionInfo, null, webSocketCloseMessage);
+            determineAction(connectionInfo, null, webSocketCloseMessage);
         } else {
             if (hasRetryConfig(webSocketClient)) {
                 logger.info("Couldn't connect to the server because the connected server " +
@@ -91,7 +91,7 @@ public class FailoverClientListener extends WebSocketClientConnectorListener {
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         if (throwable instanceof IOException) {
-            doAction(connectionInfo, throwable, null);
+            determineAction(connectionInfo, throwable, null);
         } else {
             logger.info("Unable do the retry because the connection has some issue that needs to fix.");
             WebSocketDispatcher.dispatchError(connectionInfo, throwable);
