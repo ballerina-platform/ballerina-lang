@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -37,11 +38,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates jars in file system using bootstrap pack and create class loader hierarchy for them.
  */
 public class BootstrapRunner {
+
+    private static final PrintStream out = System.out;
+    private static final PrintStream err = System.err;
 
     public static void loadTargetAndGenerateJarBinary(Path tmpDir, String entryBir, String jarOutputPath,
                                                       boolean dumpBir, String... birCachePaths) {
@@ -65,8 +71,8 @@ public class BootstrapRunner {
         try {
             Class<?> backendMain = Class.forName("ballerina.compiler_backend_jvm.___init");
             Method backendMainMethod = backendMain.getMethod("main", String[].class);
-            String[] params = createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, birCachePaths);
-            backendMainMethod.invoke(null, params);
+            List<String> params = createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, birCachePaths);
+            backendMainMethod.invoke(null, new Object[]{params.toArray(new String[0])});
         } catch (InvocationTargetException e) {
             throw new BLangCompilerException(e.getTargetException().getMessage(), e);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
@@ -74,15 +80,54 @@ public class BootstrapRunner {
         }
     }
 
-    private static String[] createArgsForCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
-                                                         String[] birCachePaths) {
+    private static void generateJarBinaryInProc(String entryBir, String jarOutputPath, boolean dumpBir,
+                                                String... birCachePaths) {
+        try {
+            List<String> commands = new ArrayList<>();
+            commands.add("java");
+            commands.add("-cp");
+            commands.add(System.getProperty("java.class.path"));
+            commands.add("ballerina.compiler_backend_jvm.___init");
+            commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, birCachePaths));
+
+            Process process = new ProcessBuilder(commands).start();
+            Scanner errorScanner = new Scanner(process.getErrorStream());
+            Scanner outputScanner = new Scanner(process.getInputStream());
+
+            new Thread(() -> {
+                while (outputScanner.hasNext()) {
+                    out.println(outputScanner.nextLine());
+                }
+            }).start();
+
+            new Thread(() -> {
+                while (errorScanner.hasNext()) {
+                    err.println(errorScanner.nextLine());
+                }
+            }).start();
+
+            boolean processEnded = process.waitFor(120, TimeUnit.SECONDS);
+
+            if (!processEnded) {
+                throw new BLangCompilerException("failed to generate jar file within 120s.");
+            }
+            if (process.exitValue() != 0) {
+                throw new BLangCompilerException("jvm code gen phase returned an error.");
+            }
+        } catch (InterruptedException | IOException e) {
+            throw new BLangCompilerException("failed running jvm code gen phase.");
+        }
+    }
+
+    private static List<String> createArgsForCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
+                                                             String[] birCachePaths) {
         List<String> commands = new ArrayList<>();
         commands.add(entryBir);
         commands.add(getMapPath());
         commands.add(jarOutputPath);
         commands.add(dumpBir ? "true" : "false"); // dump bir
         commands.addAll(Arrays.asList(birCachePaths));
-        return commands.toArray(new String[0]);
+        return commands;
     }
 
     private static void loadAllJarsInTarget(final File targetFolder) throws MalformedURLException,
@@ -134,7 +179,7 @@ public class BootstrapRunner {
                                                                    Path systemBirCache,
                                                                    Path buildRoot,
                                                                    Optional<Path> jarTargetRoot,
-                                                                   boolean dumpBir) throws IOException {
+                                                                   boolean dumpBir, boolean onProc) throws IOException {
         byte[] bytes = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
         String fileName = calcFileNameForJar(bLangPackage);
         Files.createDirectories(buildRoot);
@@ -148,8 +193,13 @@ public class BootstrapRunner {
         Files.createDirectories(importsTarget);
 
         writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir);
-        generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, systemBirCache.toString(),
-                          importsBirCache.toString());
+        if (onProc) {
+            generateJarBinaryInProc(entryBir.toString(), jarTarget.toString(), dumpBir, systemBirCache.toString(),
+                    importsBirCache.toString());
+        } else {
+            generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, systemBirCache.toString(),
+                    importsBirCache.toString());
+        }
 
         if (!Files.exists(jarTarget)) {
             throw new RuntimeException("Compiled binary jar is not found: " + jarTarget);
