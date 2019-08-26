@@ -121,6 +121,7 @@ public class SymbolTable {
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BType typeDesc;
+    public boolean operatorsDefined = false;
 
     public final BTypeSymbol semanticErrSymbol;
     public final BType semanticError;
@@ -268,6 +269,9 @@ public class SymbolTable {
     }
 
     public void defineOperators() {
+        if (operatorsDefined) {
+            return;
+        }
         // Binary arithmetic operators
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, InstructionCodes.XMLADD);
         defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType, InstructionCodes.XMLADD);
@@ -466,7 +470,7 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType, -1);
 
         defineConversionOperators();
-
+        this.operatorsDefined = true;
     }
 
     private void defineConversionOperators() {
