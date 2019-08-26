@@ -24,11 +24,13 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 /**
  * Test cases for reading annotations.
  */
+@Ignore
 public class AnnotationTests {
 
     CompileResult result;

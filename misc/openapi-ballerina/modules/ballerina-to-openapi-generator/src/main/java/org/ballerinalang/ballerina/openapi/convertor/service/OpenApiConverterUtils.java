@@ -503,6 +503,7 @@ public class OpenApiConverterUtils {
         Files.createFile(path);
         try (PrintWriter writer = new PrintWriter(path.toString(), "UTF-8")) {
             writer.print(content);
+            outStream.println("Successfully generated the ballerina contract at location \n" + path.toAbsolutePath());
         }
     }
 

@@ -1267,7 +1267,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
     // set system properties
-    setSystemProperties(mv);
+    initConfigurations(mv);
     // start all listeners
     startListeners(mv, serviceEPAvailable);
 
@@ -1384,14 +1384,21 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     // stop all listeners
     stopListeners(mv, serviceEPAvailable);
-
+    if (!serviceEPAvailable) {
+        mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", io:sprintf("()L%s;", JAVA_RUNTIME), false);
+        mv.visitInsn(ICONST_0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "exit", "(I)V", false);
+    }
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
 }
 
-function setSystemProperties(jvm:MethodVisitor mv) {
-    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "setSystemProperties", "()V", false);
+function initConfigurations(jvm:MethodVisitor mv) {
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, 
+                "initConfigurations", io:sprintf("([L%s;)[L%s;", STRING_VALUE, STRING_VALUE), false);
+    mv.visitVarInsn(ASTORE, 0);
 }
 
 function startListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {

@@ -6,105 +6,6 @@
   "source": "toplevel/source/topLevelPackageContentAccess.bal",
   "items": [
     {
-      "label": "authorizeFromCache(string authzCacheKey, (cache:Cache|()) positiveAuthzCache, (cache:Cache|()) negativeAuthzCache)((boolean|()))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nTries to retrieve authorization decision from the cached information, if any.\n  \n**Params**  \n- `string` authzCacheKey: Cache key  \n- `(cache:Cache|())` positiveAuthzCache: The cache for positive authorizations(Defaultable)  \n- `(cache:Cache|())` positiveAuthzCache: The cache for positive authorizations  \n- `(cache:Cache|())` negativeAuthzCache: The cache for negative authorizations(Defaultable)  \n- `(cache:Cache|())` negativeAuthzCache: The cache for negative authorizations  \n  \n**Returns** `(boolean|())`   \n- `true` or `false` in case of a cache hit, `()` in case of a cache miss  \n  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "authorizeFromCache(${1})",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ],
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "cacheAuthzResult(boolean authorized, string authzCacheKey, (cache:Cache|()) positiveAuthzCache, (cache:Cache|()) negativeAuthzCache)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCached the authorization result.\n  \n**Params**  \n- `boolean` authorized: boolean flag to indicate the authorization decision  \n- `string` authzCacheKey: Cache key  \n- `(cache:Cache|())` positiveAuthzCache: The cache for positive authorizations(Defaultable)  \n- `(cache:Cache|())` positiveAuthzCache: The cache for positive authorizations  \n- `(cache:Cache|())` negativeAuthzCache: The cache for negative authorizations(Defaultable)  \n- `(cache:Cache|())` negativeAuthzCache: The cache for negative authorizations"
-        }
-      },
-      "sortText": "130",
-      "insertText": "cacheAuthzResult(${1});",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ],
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "checkForScopeMatch((string[]|string[][]) resourceScopes, string[] userScopes)(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCheck whether the scopes of the user and scopes of resource matches.\n  \n**Params**  \n- `(string[]|string[][])` resourceScopes: Scopes of resource  \n- `string[]` userScopes: Scopes of user  \n  \n**Returns** `boolean`   \n- true if there is a match between resource and user scopes, else false  \n  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "checkForScopeMatch(${1})",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ],
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
       "kind": "Function",
       "detail": "Function",
@@ -518,32 +419,6 @@
       ]
     },
     {
-      "label": "AuthzCacheConfig",
-      "kind": "Class",
-      "detail": "Record",
-      "documentation": {
-        "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
-      },
-      "sortText": "120",
-      "insertText": "AuthzCacheConfig",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
       "label": "CacheConfig",
       "kind": "Class",
       "detail": "Record",
@@ -730,7 +605,7 @@
       "kind": "Class",
       "detail": "Record",
       "documentation": {
-        "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
+        "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
       },
       "sortText": "120",
       "insertText": "FollowRedirects",
@@ -1436,6 +1311,32 @@
       },
       "sortText": "120",
       "insertText": "ListenerSecureSocket",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "AuthzCacheConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
+      },
+      "sortText": "120",
+      "insertText": "AuthzCacheConfig",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

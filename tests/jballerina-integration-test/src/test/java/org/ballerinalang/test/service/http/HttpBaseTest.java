@@ -45,9 +45,9 @@ public class HttpBaseTest extends BaseTest {
                                                                    "private.key").toAbsolutePath().toString());
         String publicCert = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
                                                                    "public.crt").toAbsolutePath().toString());
-        String[] args = new String[] { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert };
+        String[] args = new String[] { "--certificate.key=" + privateKey, "--public.cert=" + publicCert};
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFile, "httpservices", args, requiredPorts);
+        serverInstance.startServer(balFile, "httpservices", null, args, requiredPorts);
     }
 
     @AfterGroups(value = "http-test", alwaysRun = true)

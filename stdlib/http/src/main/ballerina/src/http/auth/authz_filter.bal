@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
-
 # Representation of the Authorization filter
 #
 # + authzHandler - `AuthzHandler` instance for handling authorization

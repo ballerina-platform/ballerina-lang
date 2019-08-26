@@ -112,10 +112,9 @@ function dump(int arg1, int arg2) returns int {
 }
 
 
-function main(int arg) returns int {
+public function main(int arg) returns error? {
     int a = 10;
     boolean b = a > 100;
-    return a;
 }
 
 function genComplex(int arg1, int arg2) returns int {

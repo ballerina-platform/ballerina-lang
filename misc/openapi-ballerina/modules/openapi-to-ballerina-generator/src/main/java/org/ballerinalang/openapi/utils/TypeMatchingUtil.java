@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-
 /**
  * This Class will handle the type matching of a given OpenApi Object.
  */
@@ -55,7 +54,7 @@ public class TypeMatchingUtil {
                 OpenApiPathType path = new OpenApiPathType();
 
                 path.setPathName(next.getKey());
-                path.setOperations(traveseOperations(pathObj.readOperationsMap()));
+                path.setOperations(traveseOperations(pathObj.readOperationsMap(), next.getKey()));
 
                 pathList.add(path);
             }
@@ -214,7 +213,8 @@ public class TypeMatchingUtil {
     }
 
 
-    public static List<OpenApiOperationType> traveseOperations(Map<PathItem.HttpMethod, Operation> operations) {
+    public static List<OpenApiOperationType> traveseOperations(Map<PathItem.HttpMethod, Operation> operations,
+                                                               String path) {
         Iterator<Map.Entry<PathItem.HttpMethod, Operation>> operationIterator = operations.entrySet().iterator();
         List<OpenApiOperationType> operationTypes = new ArrayList<>();
 
@@ -225,7 +225,14 @@ public class TypeMatchingUtil {
 
             if (nextOp.getValue().getOperationId() != null) {
                 operation.setOperationName(nextOp.getValue().getOperationId()
-                        .replace(" ", "_").toLowerCase(Locale.ENGLISH));
+                        .replace(" ", "_"));
+            } else {
+                String resName = "resource_" + "_" + nextOp.getKey().toString().toLowerCase(Locale.ENGLISH)
+                        + path.replaceAll("/", "_")
+                        .replaceAll("[{}]", "");
+                operation.setOperationName(resName);
+                outStream.println("warning : `" + resName + "` is used as the resource name since the " +
+                        "operation id is missing for " + path + " " + nextOp.getKey());
             }
 
             if (nextOp.getValue().getParameters() != null && !nextOp.getValue().getParameters().isEmpty()) {
