@@ -1268,7 +1268,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordDestructure stmt) {
         List<BLangExpression> varRefs = stmt.varRef.recordRefFields.stream()
                 .map(e -> e.variableReference).collect(Collectors.toList());
-        varRefs.add((BLangVariableReference) stmt.varRef.restParam);
+        varRefs.add((BLangExpression) stmt.varRef.restParam);
         this.checkDuplicateVarRefs(varRefs);
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
@@ -1289,7 +1289,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleDestructure stmt) {
         List<BLangExpression> varRefs = new ArrayList<>(stmt.varRef.expressions);
-        varRefs.add((BLangVariableReference) stmt.varRef.restParam);
+        varRefs.add((BLangExpression) stmt.varRef.restParam);
         this.checkDuplicateVarRefs(varRefs);
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
@@ -1297,7 +1297,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkDuplicateVarRefs(List<BLangExpression> varRefs) {
-        Set<BSymbol> symbols = new HashSet<>();
+        checkDuplicateVarRefs(varRefs, new HashSet<>());
+    }
+
+    private void checkDuplicateVarRefs(List<BLangExpression> varRefs, Set<BSymbol> symbols) {
         for (BLangExpression varRef : varRefs) {
             if (varRef == null || (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF
                     && varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR
@@ -1312,6 +1315,30 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
                     && names.fromIdNode(((BLangSimpleVarRef) varRef).variableName) == Names.IGNORE) {
                 continue;
+            }
+
+            if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+                BLangTupleVarRef tupVarRef = (BLangTupleVarRef) varRef;
+                List<BLangExpression> refs = new ArrayList<>(tupVarRef.expressions);
+                refs.add((BLangExpression) tupVarRef.restParam);
+                checkDuplicateVarRefs(refs, symbols);
+            }
+
+            if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+                BLangRecordVarRef recVarRef = (BLangRecordVarRef) varRef;
+                List<BLangExpression> refs = recVarRef.recordRefFields.stream()
+                        .map(e -> e.variableReference).collect(Collectors.toList());
+                refs.add((BLangExpression) recVarRef.restParam);
+                checkDuplicateVarRefs(refs, symbols);
+            }
+
+            if (varRef.getKind() == NodeKind.ERROR_VARIABLE_REF) {
+                BLangErrorVarRef errVarRef = (BLangErrorVarRef) varRef;
+                List<BLangExpression> refs = new ArrayList<>();
+                refs.add(errVarRef.reason);
+                refs.addAll(errVarRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
+                refs.add(errVarRef.restVar);
+                checkDuplicateVarRefs(refs, symbols);
             }
 
             BLangVariableReference varRefExpr = (BLangVariableReference) varRef;

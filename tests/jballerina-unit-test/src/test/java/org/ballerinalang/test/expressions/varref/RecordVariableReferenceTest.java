@@ -218,7 +218,11 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<error>', found 'map'",
                                   164, 16);
         BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
-                "duplicate variable 'x'",  175, 16);
+                "duplicate variable 'x'",  180, 16);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'x'",  186, 21);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'x'",  186, 27);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

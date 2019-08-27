@@ -285,7 +285,7 @@ public class TupleVariableReferenceTest {
 
     @Test
     public void testNegativeTupleVariablesReferences() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 34);
+        Assert.assertEquals(resultNegative.getErrorCount(), 36);
         int i = -1;
         String errorMsg1 = "incompatible types: expected ";
 
@@ -329,5 +329,9 @@ public class TupleVariableReferenceTest {
                 errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 139, 84);
         BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
                 "duplicate variable 'a'", 146, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'a'", 153, 10);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'a'", 153, 13);
     }
 }
