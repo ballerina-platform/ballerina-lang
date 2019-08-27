@@ -56,12 +56,12 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
-        BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getName' of non-abstract object 'Manager2'", 96, 5);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 97, 6);
+        BAssertUtil.validateError(negativeResult, i++,
+                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 97, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 97, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 97, 6);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an abstract object", 101, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 110, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 110, 6);

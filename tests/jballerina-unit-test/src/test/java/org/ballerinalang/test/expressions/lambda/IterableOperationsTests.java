@@ -70,8 +70,8 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "invalid operation: type 'string' does not support field access",
                 49, 35);
         BAssertUtil.validateError(negative, index++, "too many arguments in call to 'length()'", 55, 9);
-        BAssertUtil.validateError(negative, index++, "not enough arguments in call to 'filter()'", 56, 5);
         BAssertUtil.validateError(negative, index++, "missing required parameter 'func' in call to 'filter'()", 56, 5);
+        BAssertUtil.validateError(negative, index++, "not enough arguments in call to 'filter()'", 56, 5);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 56, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
                 "returns ()', found 'int'", 58, 15);
@@ -81,10 +81,10 @@ public class IterableOperationsTests {
                 " returns ()', found 'function () returns ()'", 64, 15);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 65, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
-                        "(boolean)', found 'function (string) returns ([boolean,int])'", 65, 14);
+                "(boolean)', found 'function (string) returns ([boolean,int])'", 65, 14);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 66, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
-                        "(boolean)', found 'function (string) returns ()'", 66, 14);
+                "(boolean)', found 'function (string) returns ()'", 66, 14);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 67, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
                 "(boolean)', found 'function (other) returns ()'", 67, 14);
