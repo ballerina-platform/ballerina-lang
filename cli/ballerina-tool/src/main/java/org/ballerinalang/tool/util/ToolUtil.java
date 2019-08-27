@@ -117,6 +117,11 @@ public class ToolUtil {
         setVersion(OSUtils.getBallerinaVersionFilePath(), version);
     }
 
+    private static void clearCache(PrintStream outStream) throws IOException {
+        OSUtils.clearBirCacheLocation(outStream);
+        OSUtils.clearJarCacheLocation(outStream);
+    }
+
     /**
      * Provides used Ballerina tools version.
      * @return Used Ballerina tools version.
@@ -166,6 +171,7 @@ public class ToolUtil {
                     return true;
                 } else {
                     setCurrentBallerinaVersion(distribution);
+                    clearCache(printStream);
                     printStream.println("Using " + distribution);
                     return true;
                 }
