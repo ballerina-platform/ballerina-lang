@@ -59,8 +59,8 @@ public class WebSocketOpenConnectionInfo {
         return aggregateString;
     }
 
-    void appendAggregateString(String aggreageString) {
-        this.aggregateString += aggreageString;
+    void appendAggregateString(String aggregateString) {
+        this.aggregateString += aggregateString;
     }
 
     void resetAggregateString() {
