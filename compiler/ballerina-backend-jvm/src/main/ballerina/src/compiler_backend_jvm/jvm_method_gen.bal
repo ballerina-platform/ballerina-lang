@@ -2057,7 +2057,7 @@ function cleanupBalExt(string name) returns string {
 
 function cleanupPathSeperators(string name) returns string {
    //TODO: should use file_path:getPathSeparator();
-   return internal:replace(internal:replace(name, WINDOWS_PATH_SEPERATOR, "-"), UNIX_PATH_SEPERATOR, "-");
+   return internal:replace(name, WINDOWS_PATH_SEPERATOR, "/");
 }
 
 function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, boolean isPackage) {

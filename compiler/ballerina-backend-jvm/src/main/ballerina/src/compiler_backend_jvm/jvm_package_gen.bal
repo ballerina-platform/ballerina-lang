@@ -188,7 +188,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
                 string mainClass = "";
                 if (mainFunc is bir:Function) {
                     mainClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName,
-                                                        cleanupBalExt(mainFunc.pos.sourceFileName));
+                                       <@untainted> cleanupPathSeperators(cleanupBalExt(mainFunc.pos.sourceFileName)));
                 }
 
                 generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
@@ -337,7 +337,10 @@ function calculateBirCachePath(string birCacheDir, bir:ModuleID modId, string ex
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    string className = cleanupName(sourceFileName);
+    string className = cleanupSourceFileName(sourceFileName);
+    if (className.startsWith("/")) {
+        className = className.substring(1, className.length());
+    }
     if (moduleName != ".") {
         className = cleanupName(moduleName) + "/" + className;
     }
@@ -371,6 +374,10 @@ function splitPkgName(string key) returns [string, string] {
 
 function cleanupName(string name) returns string {
     return internal:replace(name, ".","_");
+}
+
+function cleanupSourceFileName(string name) returns string {
+    return internal:replace(name, ".","$$$");
 }
 
 function cleanupPackageName(string pkgName) returns string {
