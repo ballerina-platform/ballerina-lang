@@ -1088,7 +1088,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, null, false, false, false, false, true, false, true);
+        endFunctionDef(pos, null, false, false, false, false, true, true);
     }
 
     void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, PackageID pkgID) {
@@ -1721,8 +1721,7 @@ public class BLangPackageBuilder {
     }
 
     void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
-                        boolean nativeFunc, boolean privateFunc, boolean bodyExists, boolean isReceiverAttached,
-                        boolean isLambda) {
+                        boolean nativeFunc, boolean privateFunc, boolean bodyExists, boolean isLambda) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
         function.addWS(ws);
@@ -1747,19 +1746,6 @@ public class BLangPackageBuilder {
             function.body = null;
         } else {
             function.body.pos = function.pos;
-        }
-        if (isReceiverAttached) {
-            //Get type node for this attached function
-            TypeNode typeNode = this.typeNodeStack.pop();
-            //Create and add receiver to attached functions
-            BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-            receiver.pos = pos;
-
-            IdentifierNode name = createIdentifier(Names.SELF.getValue());
-            receiver.setName(name);
-            receiver.setTypeNode(typeNode);
-            function.receiver = receiver;
-            function.flagSet.add(Flag.ATTACHED);
         }
 
         this.compUnit.addTopLevelNode(function);
@@ -2216,55 +2202,6 @@ public class BLangPackageBuilder {
         }
 
         objectNode.addFunction(function);
-    }
-
-    void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc,
-                                   boolean privateFunc, boolean remoteFunc,
-                                   boolean nativeFunc, boolean bodyExists, String objectName) {
-        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
-        function.pos = pos;
-        function.addWS(ws);
-        function.addWS(invocationWsStack.pop());
-
-        if (publicFunc) {
-            function.flagSet.add(Flag.PUBLIC);
-        } else if (privateFunc) {
-            function.flagSet.add(Flag.PRIVATE);
-        }
-
-        if (remoteFunc) {
-            function.flagSet.add(Flag.REMOTE);
-        }
-
-        if (nativeFunc) {
-            function.flagSet.add(Flag.NATIVE);
-        }
-
-        if (!bodyExists) {
-            function.body = null;
-        } else {
-            function.body.pos = pos;
-        }
-
-        // Create an user defined type with object type
-        TypeNode objectType = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
-                (BLangIdentifier) createIdentifier(objectName));
-
-        //Create and add receiver to attached functions
-        BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        receiver.pos = pos;
-
-        IdentifierNode name = createIdentifier(Names.SELF.getValue());
-        receiver.setName(name);
-
-        receiver.setTypeNode(objectType);
-
-        function.receiver = receiver;
-        function.flagSet.add(Flag.ATTACHED);
-
-        function.attachedOuterFunction = true;
-
-        this.compUnit.addTopLevelNode(function);
     }
 
     void startAnnotationDef(DiagnosticPos pos) {

@@ -266,7 +266,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         funcNode.annAttachments.forEach(annotationAttachment -> {
             if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
-            } else if (funcNode.attachedOuterFunction || funcNode.attachedFunction) {
+            } else if (funcNode.attachedFunction) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
             }
             annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
@@ -2560,11 +2560,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param funcNode Function node
      */
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
-        if (funcNode.attachedOuterFunction) {
-            dlog.error(funcNode.pos, DiagnosticCode.OBJECT_OUTSIDE_METHODS_NOT_ALLOWED);
-            return;
-        }
-
         if (!funcNode.attachedFunction) {
             return;
         }

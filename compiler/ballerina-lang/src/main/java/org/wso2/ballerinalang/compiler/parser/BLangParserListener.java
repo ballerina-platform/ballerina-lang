@@ -315,16 +315,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean privateFunc = ctx.PRIVATE() != null;
 
-        if (ctx.Identifier() != null) {
-            this.pkgBuilder.endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, privateFunc,
-                                                      remoteFunc, nativeFunc, bodyExists, ctx.Identifier().getText());
-            return;
-        }
-
-        boolean isReceiverAttached = ctx.typeName() != null;
-
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc, privateFunc,
-                                       bodyExists, isReceiverAttached, false);
+                                       bodyExists, false);
     }
 
     @Override
