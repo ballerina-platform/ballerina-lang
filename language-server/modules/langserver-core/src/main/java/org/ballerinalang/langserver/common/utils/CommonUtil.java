@@ -1226,13 +1226,27 @@ public class CommonUtil {
      * @return random argument name
      */
     public static String generateVariableName(BLangNode bLangNode, Set<String> names) {
-        return generateVariableName(1, bLangNode, names);
+        String newName = generateName(1, names);
+        if (bLangNode instanceof BLangInvocation) {
+            return generateVariableName(1, ((BLangInvocation) bLangNode).name.value, names);
+        }
+        return newName;
     }
 
-    private static String generateVariableName(int value, BLangNode bLangNode, Set<String> names) {
+    /**
+     * Generates a variable name.
+     *
+     * @param bType {@link BType}
+     * @return random argument name
+     */
+    public static String generateVariableName(BType bType, Set<String> names) {
+        return generateVariableName(1, bType.name.getValue(), names);
+    }
+
+    private static String generateVariableName(int value, String name, Set<String> names) {
         String newName = generateName(value, names);
-        if (bLangNode instanceof BLangInvocation && value == 1) {
-            newName = ((BLangInvocation) bLangNode).name.value;
+        if (value == 1) {
+            newName = name;
             BiFunction<String, String, String> replacer = (search, text) ->
                     (text.startsWith(search)) ? text.replaceFirst(search, "") : text;
             // Replace common prefixes
@@ -1251,7 +1265,7 @@ public class CommonUtil {
             }
             // If empty, revert back to original name
             if (newName.isEmpty()) {
-                newName = ((BLangInvocation) bLangNode).name.value;
+                newName = name;
             }
             // Lower first letter
             newName = newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
@@ -1280,7 +1294,7 @@ public class CommonUtil {
             }
             // if still already available, try a random letter
             while (names.contains(newName)) {
-                newName = generateVariableName(++value, bLangNode, names);
+                newName = generateVariableName(++value, name, names);
             }
         }
         return newName;
