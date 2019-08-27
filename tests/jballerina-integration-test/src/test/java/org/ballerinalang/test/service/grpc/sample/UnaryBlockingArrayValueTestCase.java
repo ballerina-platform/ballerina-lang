@@ -40,13 +40,16 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
+import static org.ballerinalang.jvm.util.BLangConstants.DOT;
+
 /**
  * Test class for gRPC unary service with array input/output.
  */
 @Test(groups = "grpc-test")
 public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
 
-    private BPackage defaultPkg = new BPackage(".", "");
+    private BPackage defaultPkg = new BPackage(ANON_ORG, DOT);
 
     private CompileResult result;
 

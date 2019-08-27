@@ -44,6 +44,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
+import static org.ballerinalang.jvm.util.BLangConstants.DOT;
+
 /**
  * Test class for Proto message.
  *
@@ -53,7 +56,7 @@ public class ProtoMessageTestCase {
 
     private File compilerFile;
     private CompileResult result;
-    private BPackage defaultPkg = new BPackage(".", "");
+    private BPackage defaultPkg = new BPackage(ANON_ORG, DOT);
 
     @BeforeClass
     private void setup() throws Exception {
