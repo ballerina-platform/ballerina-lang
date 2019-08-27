@@ -19,7 +19,10 @@
 package org.ballerinalang.messaging.kafka.utils;
 
 import io.debezium.kafka.KafkaCluster;
+import io.debezium.util.Collect;
+import kafka.server.KafkaConfig;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
@@ -53,5 +56,15 @@ public class KafkaTestUtils {
         } catch (Exception ex) {
             //Ignore
         }
+    }
+
+    public static KafkaCluster createKafkaCluster(File dataDir, int zkPort, int brokerPort) {
+        String timeout = "20000";
+        return new KafkaCluster()
+                .usingDirectory(dataDir)
+                .deleteDataPriorToStartup(true)
+                .deleteDataUponShutdown(true)
+                .withKafkaConfiguration(Collect.propertiesOf(KafkaConfig.ZkSessionTimeoutMsProp(), timeout))
+                .withPorts(zkPort, brokerPort);
     }
 }

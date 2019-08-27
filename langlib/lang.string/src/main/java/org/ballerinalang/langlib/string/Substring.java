@@ -53,9 +53,12 @@ public class Substring {
         }
 
         if (startIndex < 0 || endIndex > value.length()) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                                              "String index out of range. Actual:" + value.length() + " requested: " +
-                                                      startIndex + " to " + endIndex);
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    RuntimeErrors.STRING_INDEX_OUT_OF_RANGE, value.length(), startIndex, endIndex);
+        }
+        if (endIndex < startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    RuntimeErrors.INVALID_SUBSTRING_RANGE, value.length(), startIndex, endIndex);
         }
         return value.substring((int) startIndex, (int) endIndex);
     }

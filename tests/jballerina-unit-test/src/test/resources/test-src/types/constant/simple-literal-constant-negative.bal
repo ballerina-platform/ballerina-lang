@@ -5,6 +5,10 @@ const float someFloat = true; // Invalid RHS value.
 const decimal someDeciaml = true; // Invalid RHS value.
 const string someString = 120; // Invalid RHS value.
 
+// Invalid identifier
+const string _ = "PUT";
+const _ = 11;
+
 // Assigning var ref.
 string s = "Ballerina";
 public const string name2 = "";

@@ -29,11 +29,10 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-time')
     implementation project(':ballerina-system')
-    implementation 'commons-codec:commons-codec'
-    implementation 'commons-logging:commons-logging'
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'commons-codec:commons-codec'
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')

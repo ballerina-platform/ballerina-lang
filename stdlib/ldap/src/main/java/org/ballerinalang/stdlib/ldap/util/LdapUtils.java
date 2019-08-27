@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.stdlib.ldap.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,7 +43,7 @@ import javax.naming.directory.SearchResult;
  */
 public class LdapUtils {
 
-    private static final Log LOG = LogFactory.getLog(LdapUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LdapUtils.class);
     private static final Pattern systemVariableIdentifierPattern = Pattern.compile("\\$\\{([^}]*)}");
     private static final ThreadLocal<String> socketFactoryName = new ThreadLocal<>();
 
