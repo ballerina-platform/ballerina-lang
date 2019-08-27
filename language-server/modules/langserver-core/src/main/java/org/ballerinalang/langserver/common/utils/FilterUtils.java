@@ -338,8 +338,12 @@ public class FilterUtils {
                 entries.putAll(filteredEntries);
             }
         }
-        return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BInvokableSymbol))
-                || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))
+        /*
+        Here we add the BTypeSymbol check to skip the anyData and similar types suggested from lang lib scope entries
+         */
+        return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BTypeSymbol))
+                && ((!(entry.getValue().symbol instanceof BInvokableSymbol))
+                || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE)))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
