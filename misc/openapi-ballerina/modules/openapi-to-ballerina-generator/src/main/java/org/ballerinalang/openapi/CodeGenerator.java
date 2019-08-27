@@ -84,7 +84,8 @@ public class CodeGenerator {
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    private void generate(GenType type, String executionPath, String definitionPath, String serviceName, String outPath)
+    private void generate(GenType type, String executionPath, String definitionPath,
+                          String reldefinitionPath , String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
 
         if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
@@ -118,7 +119,7 @@ public class CodeGenerator {
 
         }
 
-        List<GenSrcFile> genFiles = generateBalSource(type, definitionPath, serviceName);
+        List<GenSrcFile> genFiles = generateBalSource(type, definitionPath, reldefinitionPath, serviceName);
         writeGeneratedSources(genFiles, srcPath, implPath, type);
     }
 
@@ -137,7 +138,7 @@ public class CodeGenerator {
      */
     public void generateClient(String executionPath, String definitionPath, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(GenType.GEN_CLIENT, executionPath, definitionPath, null, outPath);
+        generate(GenType.GEN_CLIENT, executionPath, definitionPath, null, null, outPath);
     }
 
     /**
@@ -147,15 +148,17 @@ public class CodeGenerator {
      *
      * @param executionPath  Command execution path
      * @param definitionPath Input Open Api Definition file path
+     * @param reldefinitionPath Relative definition path to be used in the generated ballerina code
      * @param serviceName    service name for the generated service
      * @param outPath        Destination file path to save generated source files. If not provided
      *                       {@code definitionPath} will be used as the default destination path
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    public void generateService(String executionPath, String definitionPath, String serviceName, String outPath)
+    public void generateService(String executionPath, String definitionPath,
+                                String reldefinitionPath, String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(GenType.GEN_SERVICE, executionPath, definitionPath, serviceName, outPath);
+        generate(GenType.GEN_SERVICE, executionPath, definitionPath, reldefinitionPath , serviceName, outPath);
     }
 
     /**
@@ -170,11 +173,13 @@ public class CodeGenerator {
      *                       </ul>
      * @param serviceName    Out put service name
      * @param definitionPath Input Open Api Definition file path
+     * @param reldefinitionPath Relative OpenApi File
      * @return a list of generated source files wrapped as {@link GenSrcFile}
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when open api context building fail
      */
-    public List<GenSrcFile> generateBalSource(GenType type, String definitionPath, String serviceName)
+    public List<GenSrcFile> generateBalSource(GenType type, String definitionPath,
+                                              String reldefinitionPath, String serviceName)
             throws IOException, BallerinaOpenApiException {
         OpenAPI api = new OpenAPIV3Parser().read(definitionPath);
 
@@ -193,14 +198,20 @@ public class CodeGenerator {
         openApi.setModuleName(srcPackage);
         openApi.setServers(api);
         openApi.setTags(api.getTags());
-        openApi.setDefinitionPath(definitionPath.replaceAll(Pattern.quote("\\"),
-                Matcher.quoteReplacement("\\\\")));
+        
+        if (reldefinitionPath == null) {
+            openApi.setDefinitionPath(definitionPath.replaceAll(Pattern.quote("\\"),
+                    Matcher.quoteReplacement("\\\\")));
+        } else {
+            openApi.setDefinitionPath(reldefinitionPath.replaceAll(Pattern.quote("\\"),
+                    Matcher.quoteReplacement("\\\\")));
+        }
 
         // modelPackage is not in use at the moment. All models will be written into same package as other src files.
         // Therefore value set to modelPackage is ignored here
         BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
                 .modelPackage(srcPackage);
-        definitionContext.setDefinitionPath(definitionPath);
+        definitionContext.setDefinitionPath(reldefinitionPath);
         List<GenSrcFile> sourceFiles;
 
         switch (type) {
@@ -226,9 +237,9 @@ public class CodeGenerator {
      * @param outPath      Destination path for writing the resulting source file
      * @throws IOException when file operations fail
      * @deprecated This method is now deprecated.
-     * Use {@link #generateBalSource(GeneratorConstants.GenType, String, String) generate}
+     * Use {@link #generateBalSource(GeneratorConstants.GenType, String, String, String) generate}
      * and implement a file write functionality your self, if you need to customize file writing steps.
-     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String, String, String) generate}
+     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String, String, String, String) generate}
      * to directly write generated source to a ballerina module.
      */
     @Deprecated
@@ -330,7 +341,7 @@ public class CodeGenerator {
         } else if (type.equals(GEN_CLIENT)) {
             outStream.println("Client generated successfully.");
         }
-        outStream.println(" Following files were created. \n" +
+        outStream.println("Following files were created. \n" +
                 "src/ \n- " + srcPackage);
         Iterator<GenSrcFile> iterator = sources.iterator();
         while (iterator.hasNext()) {
@@ -351,7 +362,8 @@ public class CodeGenerator {
         }
 
         List<GenSrcFile> sourceFiles = new ArrayList<>();
-        String srcFile = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_") + ".bal";
+        String srcFile = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH)
+                .replaceAll(" ", "_") + ".bal";
 
         // Generate ballerina service and resources.
         String mainContent = getContent(context, GeneratorConstants.DEFAULT_CLIENT_DIR,
@@ -366,36 +378,6 @@ public class CodeGenerator {
 
         return sourceFiles;
     }
-
-    /*/**
-     * Generate code for mock ballerina service.
-     *
-     * @param context model context to be used by the templates
-     * @return generated source files as a list of {@link GenSrcFile}
-     * @throws IOException when code generation with specified templates fails
-     */
-    /*private List<GenSrcFile> generateService(BallerinaOpenApi context) throws IOException {
-        if (srcPackage == null || srcPackage.isEmpty()) {
-            srcPackage = GeneratorConstants.DEFAULT_MOCK_PKG;
-        }
-
-        List<GenSrcFile> sourceFiles = new ArrayList<>();
-        String concatTitle = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_");
-        String srcFile = concatTitle + ".bal";
-
-        // Generate ballerina service and resources with endpoints.
-        String mainContent = getContent(context, GeneratorConstants.DEFAULT_MOCK_DIR,
-                GeneratorConstants.MOCK_TEMPLATE_NAME);
-        sourceFiles.add(new GenSrcFile(GenFileType.GEN_SRC, srcPackage, srcFile, mainContent));
-
-        // Generate ballerina records for schemas.
-        String schemaContent = getContent(context, GeneratorConstants.DEFAULT_MODEL_DIR,
-                GeneratorConstants.SCHEMA_TEMPLATE_NAME);
-        sourceFiles.add(new GenSrcFile(GenFileType.MODEL_SRC, srcPackage, GeneratorConstants.SCHEMA_FILE_NAME,
-                schemaContent));
-
-        return sourceFiles;
-    }*/
 
     private List<GenSrcFile> generateBallerinaService(OpenApiType api) throws IOException {
         if (srcPackage == null || srcPackage.isEmpty()) {
