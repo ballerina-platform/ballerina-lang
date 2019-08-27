@@ -36,21 +36,6 @@ import java.util.Map.Entry;
 public class BallerinaValues {
 
     /**
-     * Method that creates a runtime record value using the given package name and record type name.
-     *
-     * @deprecated
-     * Use {@link BallerinaValues#createRecordValue(BPackage, String)} instead.
-     *
-     * @param pkgName the name of the package that the record type resides.
-     * @param recordTypeName name of the record type.
-     * @return value of the record.
-     */
-    @Deprecated
-    public static MapValue<String, Object> createRecordValue(String pkgName, String recordTypeName) {
-        throw new UnsupportedOperationException("This method is not supported now");
-    }
-
-    /**
      * Overloaded method that creates a runtime record value using the given package id and record type name.
      *
      * @param bPackage the package id that the record type resides.
@@ -60,24 +45,6 @@ public class BallerinaValues {
     public static MapValue<String, Object> createRecordValue(BPackage bPackage, String recordTypeName) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(bPackage.toString());
         return valueCreator.createRecordValue(recordTypeName);
-    }
-
-    /**
-     * Method that populates record fields using the given package name, record type name and a map of field names
-     * and associated values for fields.
-     *
-     * @deprecated
-     * Use {@link BallerinaValues#createRecordValue(BPackage, String, Map)} instead.
-     *
-     * @param pkgName the name of the package that the record type resides.
-     * @param recordTypeName name of the record type.
-     * @param valueMap values to be used for fields when creating the record.
-     * @return value of the populated record.
-     */
-    @Deprecated
-    public static MapValue<String, Object> createRecordValue(String pkgName, String recordTypeName,
-                                                             Map<String, Object> valueMap) {
-        throw new UnsupportedOperationException("This method is not supported now");
     }
 
     /**
@@ -97,22 +64,6 @@ public class BallerinaValues {
         }
 
         return record;
-    }
-
-    /**
-     * Method that creates a runtime object value using the given package name and object type name.
-     *
-     * @deprecated
-     * Use {@link BallerinaValues#createObjectValue(BPackage, String, Object...)} instead.
-     *
-     * @param pkgName the name of the package that the object type resides.
-     * @param objectTypeName name of the object type.
-     * @param fieldValues values to be used for fields when creating the object value instance.
-     * @return value of the object.
-     */
-    @Deprecated
-    public static ObjectValue createObjectValue(String pkgName, String objectTypeName, Object... fieldValues) {
-        throw new UnsupportedOperationException("This method is not supported now");
     }
 
     /**
