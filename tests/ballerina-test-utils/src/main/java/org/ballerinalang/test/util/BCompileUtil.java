@@ -726,6 +726,15 @@ public class BCompileUtil {
     }
 
     public static String runMain(CompileResult compileResult, String[] args) {
+        ExitDetails exitDetails = run(compileResult, args);
+
+        if (exitDetails.exitCode != 0) {
+            throw new RuntimeException(exitDetails.errorOutput);
+        }
+        return exitDetails.consoleOutput;
+    }
+
+    public static ExitDetails run(CompileResult compileResult, String[] args) {
         BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());
         String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID.orgName.value,
                 compiledPkg.packageID.name.value, MODULE_INIT_CLASS_NAME);
@@ -736,8 +745,7 @@ public class BCompileUtil {
             final List<String> actualArgs = new ArrayList<>();
             actualArgs.add(0, "java");
             actualArgs.add(1, "-cp");
-            String classPath = System.getProperty("java.class.path") + ":" + classLoader.getCompiledJarPath() + ":" +
-                    classLoader.getImportsCachePath();
+            String classPath = System.getProperty("java.class.path") + ":" + classLoader.getClassPath();
             actualArgs.add(2, classPath);
             actualArgs.add(3, initClazz.getCanonicalName());
             actualArgs.addAll(Arrays.asList(args));
@@ -748,10 +756,7 @@ public class BCompileUtil {
             String consoleError = getConsoleOutput(process.getErrorStream());
             process.waitFor();
             int exitValue = process.exitValue();
-            if (exitValue != 0) {
-                throw new RuntimeException(consoleError);
-            }
-            return consoleInput;
+            return new ExitDetails(exitValue, consoleInput, consoleError);
         } catch (InterruptedException | IOException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
@@ -769,5 +774,20 @@ public class BCompileUtil {
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return compileOnJBallerina(sourceRoot.toString(), packageName, temp, init);
+    }
+
+    /**
+     * Class to hold program execution outputs.
+     */
+    public static class ExitDetails {
+        public int exitCode;
+        public String consoleOutput;
+        public String errorOutput;
+
+        public ExitDetails(int exitCode, String consoleOutput, String errorOutput) {
+            this.exitCode = exitCode;
+            this.consoleOutput = consoleOutput;
+            this.errorOutput = errorOutput;
+        }
     }
 }
