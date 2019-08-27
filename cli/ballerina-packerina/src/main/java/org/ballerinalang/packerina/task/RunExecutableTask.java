@@ -180,7 +180,7 @@ public class RunExecutableTask implements Task {
             Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
             classLoader = BootstrapRunner.createClassLoaders(executableModule,
                     Paths.get(balHome).resolve("bir-cache"),
-                    targetDirectory,  Optional.empty(), false);
+                    targetDirectory, Optional.empty(), false, false);
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }

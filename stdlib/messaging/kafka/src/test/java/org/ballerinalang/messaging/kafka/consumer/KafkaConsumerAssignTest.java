@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
 /**
@@ -44,15 +45,15 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath
  */
 public class KafkaConsumerAssignTest {
     private CompileResult result;
-    private static File dataDir;
     private static KafkaCluster kafkaCluster;
+    private File dataDir;
 
     @BeforeClass
     public void setup() throws IOException {
+        dataDir =  Testing.Files.createTestingDirectory("kafka-consumer-assign-test");
         result = BCompileUtil.compile(
                 getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_assign.bal")));
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).addBrokers(1).startup();
+        kafkaCluster = createKafkaCluster(dataDir, 14001, 14101).addBrokers(1).startup();
         kafkaCluster.createTopic("test-1", 1, 1);
     }
 
@@ -89,14 +90,5 @@ public class KafkaConsumerAssignTest {
                 dataDir.deleteOnExit();
             }
         }
-    }
-
-    private static KafkaCluster kafkaCluster() {
-        if (kafkaCluster != null) {
-            throw new IllegalStateException();
-        }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-assign-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14001, 14101);
-        return kafkaCluster;
     }
 }
