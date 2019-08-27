@@ -1,7 +1,6 @@
 import ballerina/encoding;
 import ballerina/http;
 import ballerina/mime;
-import ballerina/internal;
 
 function setErrorResponse(http:Response response,  error err) {
     response.statusCode = 500;
