@@ -76,7 +76,7 @@ public class CreateCsvChannel {
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
             return textRecordChannel;
         } catch (BallerinaIOException e) {
-            String message = "Error occurred while converting character channel to textRecord channel:" + e
+            String message = "error occurred while converting character channel to textRecord channel:" + e
                     .getMessage();
             log.error(message, e);
             return IOUtils.createError(message);

@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -28,6 +27,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extern function ballerina/io#hasNextTextRecord.
@@ -45,6 +47,8 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 )
 public class HasNextTextRecord {
 
+    private static final Logger log = LoggerFactory.getLogger(HasNextTextRecord.class);
+
     public static boolean hasNext(Strand strand, ObjectValue channel) {
         if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
             DelimitedRecordChannel textRecordChannel =
@@ -53,8 +57,10 @@ public class HasNextTextRecord {
                 try {
                     return textRecordChannel.hasNext();
                 } catch (BallerinaIOException e) {
-                    throw new BallerinaException("Error occurred while checking hasNext on ReadableTextRecordChannel",
-                            e);
+                    String msg =
+                            "error occurred while checking hasNext on ReadableTextRecordChannel: " + e.getMessage();
+                    log.error(msg, e);
+                    throw IOUtils.createError(e);
                 }
             }
         }

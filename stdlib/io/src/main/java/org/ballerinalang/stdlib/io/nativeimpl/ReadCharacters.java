@@ -59,7 +59,7 @@ public class ReadCharacters {
             try {
                 return characterChannel.read((int) numberOfCharacters);
             } catch (BallerinaIOException e) {
-                log.error("Error occurred while reading characters.", e);
+                log.error("error occurred while reading characters.", e);
                 return IOUtils.createError(e.getMessage());
             }
         }

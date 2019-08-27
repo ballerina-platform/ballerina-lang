@@ -59,7 +59,7 @@ public class NextTextRecord {
             try {
                 return new ArrayValue(delimitedRecordChannel.read());
             } catch (BallerinaIOException e) {
-                log.error("Error occurred while reading next text record from ReadableTextRecordChannel", e);
+                log.error("error occurred while reading next text record from ReadableTextRecordChannel", e);
                 return IOUtils.createError(e.getMessage());
             }
         }

@@ -54,7 +54,7 @@ public class ReadInt16 {
         try {
             return channel.readLong(Representation.BIT_16).getValue();
         } catch (IOException e) {
-            log.error("Error occurred while reading Int16", e);
+            log.error("error occurred while reading Int16", e);
             return IOUtils.createError(e.getMessage());
         }
     }

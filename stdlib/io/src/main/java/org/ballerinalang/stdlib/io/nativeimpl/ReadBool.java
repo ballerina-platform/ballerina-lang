@@ -53,7 +53,7 @@ public class ReadBool {
         try {
             return channel.readBoolean();
         } catch (IOException e) {
-            log.error("Error while reading boolean", e);
+            log.error("error while reading boolean", e);
             return IOUtils.createError(e.getMessage());
         }
     }

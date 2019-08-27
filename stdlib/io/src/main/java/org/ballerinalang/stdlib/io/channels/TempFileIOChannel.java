@@ -45,8 +45,8 @@ public class TempFileIOChannel extends FileIOChannel {
             File tempFile = new File(tempFilePath);
             boolean isFileDeleted = tempFile.delete();
             if (!isFileDeleted) {
-                throw new BallerinaException("Temporary file deletion failure occurred while closing " +
-                        "TempFileIOChannel! ");
+                throw new BallerinaException(
+                        "temporary file deletion failure occurred while closing TempFileIOChannel! ");
             }
         }
     }

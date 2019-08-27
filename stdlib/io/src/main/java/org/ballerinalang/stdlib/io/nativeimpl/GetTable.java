@@ -81,7 +81,7 @@ public class GetTable {
             }
             return getTable(typedescValue, records);
         } catch (BallerinaIOException e) {
-            String msg = "Failed to process the delimited file: " + e.getMessage();
+            String msg = "failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
             return IOUtils.createError(e.getMessage());
         }
@@ -128,12 +128,12 @@ public class GetTable {
                             } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
                                 populateRecord(members.get(0).getTag(), struct, fieldName, value);
                             } else {
-                                throw new BallerinaException("Unsupported nillable field for value: " + value);
+                                throw new BallerinaException("unsupported nillable field for value: " + value);
                             }
                             break;
                         default:
                             throw new BallerinaException(
-                                    "Type casting support only for int, float, boolean and string. "
+                                    "type casting support only for int, float, boolean and string. "
                                             + "Invalid value for the struct field: " + value);
                     }
                 } else {
@@ -159,7 +159,7 @@ public class GetTable {
                 struct.put(fieldName, value == null ? null : (Boolean.parseBoolean(value)));
                 break;
             default:
-                throw new BallerinaException("Type casting support only for int, float, boolean and string. "
+                throw new BallerinaException("type casting support only for int, float, boolean and string. "
                         + "Invalid value for the struct field: " + value);
         }
     }

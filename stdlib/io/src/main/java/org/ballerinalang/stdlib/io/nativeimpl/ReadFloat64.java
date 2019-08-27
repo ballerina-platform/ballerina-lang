@@ -57,7 +57,7 @@ public class ReadFloat64 {
         try {
             return channel.readDouble(Representation.BIT_64);
         } catch (IOException e) {
-            log.error("Error occurred while reading Float64", e);
+            log.error("error occurred while reading Float64", e);
             return IOUtils.createError(e.getMessage());
         }
     }

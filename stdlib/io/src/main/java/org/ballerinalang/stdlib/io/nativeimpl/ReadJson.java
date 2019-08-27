@@ -29,6 +29,8 @@ import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extern function ballerina/io#readJson.
@@ -45,6 +47,8 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class ReadJson {
 
+    private static final Logger log = LoggerFactory.getLogger(ReadJson.class);
+
     public static Object readJson(Strand strand, ObjectValue channel) {
 
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
@@ -52,6 +56,7 @@ public class ReadJson {
         try {
             return JSONParser.parse(reader);
         } catch (BallerinaException e) {
+            log.error("unable to read json from character channel", e);
             return IOUtils.createError(e.getMessage());
         }
     }

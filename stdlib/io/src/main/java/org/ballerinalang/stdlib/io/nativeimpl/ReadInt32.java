@@ -54,7 +54,7 @@ public class ReadInt32 {
         try {
             return channel.readLong(Representation.BIT_32).getValue();
         } catch (IOException e) {
-            log.error("Error occurred while reading Int32", e);
+            log.error("error occurred while reading Int32", e);
             return IOUtils.createError(e.getMessage());
         }
     }

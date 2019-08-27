@@ -35,7 +35,6 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -74,12 +73,10 @@ public class ReadBytes {
                 contentTuple.add(0, new ArrayValue(getContentData(content)));
                 contentTuple.add(1, Integer.valueOf(numberOfBytesRead));
                 return contentTuple;
-            } catch (IOException e) {
-                log.error("Error occurred while reading bytes from the channel.", e);
-                return IOUtils.createError(e.getMessage());
             } catch (Exception e) {
-                log.error("Error occurred while reading bytes from the channel.", e);
-                return IOUtils.createError(e.getMessage());
+                String msg = "error occurred while reading bytes from the channel" + e.getMessage();
+                log.error(msg, e);
+                return IOUtils.createError(msg);
             }
         }
     }

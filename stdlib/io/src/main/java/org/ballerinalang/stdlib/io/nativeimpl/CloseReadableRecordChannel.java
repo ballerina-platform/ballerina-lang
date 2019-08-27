@@ -52,7 +52,7 @@ public class CloseReadableRecordChannel {
         try {
             recordChannel.close();
         } catch (ClosedChannelException e) {
-            return IOUtils.createError("Channel already closed.");
+            return IOUtils.createError("channel already closed.");
         } catch (IOException e) {
             return IOUtils.createError(e.getMessage());
         }

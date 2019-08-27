@@ -51,7 +51,7 @@ public class FileIOChannel extends Channel {
         try {
             channel.transferTo(position, count, dstChannel);
         } catch (IOException e) {
-            throw new BallerinaException("Error occurred while transferring file", e);
+            throw new BallerinaException("error occurred while transferring file", e);
         }
     }
 

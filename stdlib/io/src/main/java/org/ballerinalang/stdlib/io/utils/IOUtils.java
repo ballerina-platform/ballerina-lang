@@ -166,7 +166,7 @@ public class IOUtils {
                 throw new BallerinaIOException(message);
             }
         } catch (IOException e) {
-            throw new BallerinaIOException("Unable to write the content fully", e);
+            throw new BallerinaIOException("unable to write the content fully", e);
         }
     }
 

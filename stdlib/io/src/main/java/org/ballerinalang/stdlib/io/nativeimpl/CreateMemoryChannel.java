@@ -63,7 +63,7 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
             ReadableByteChannel readableByteChannel = Channels.newChannel(contentStream);
             return new BlobIOChannel(new BlobChannel(readableByteChannel));
         } catch (Throwable e) {
-            String message = "Error occurred while obtaining channel";
+            String message = "error occurred while obtaining channel";
             throw new BallerinaException(message, e);
         }
     }
