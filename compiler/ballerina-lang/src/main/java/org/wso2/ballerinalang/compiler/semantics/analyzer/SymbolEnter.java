@@ -998,6 +998,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (constant.typeNode != null) {
             staticType = symResolver.resolveTypeNode(constant.typeNode, env);
             if (staticType == symTable.noType) {
+                constant.symbol = getConstantSymbol(constant);
                 // This is to prevent concurrent modification exception.
                 if (!this.unresolvedTypes.contains(constant)) {
                     this.unresolvedTypes.add(constant);
@@ -1007,12 +1008,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             staticType = symTable.semanticError;
         }
-
-        // Create a new constant symbol.
-        Name name = names.fromIdNode(constant.name);
-        PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                symTable.semanticError, symTable.noType, env.scope.owner);
+        BConstantSymbol constantSymbol = getConstantSymbol(constant);
         constant.symbol = constantSymbol;
 
         NodeKind nodeKind = constant.expr.getKind();
@@ -1061,6 +1057,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         // Add the symbol to the enclosing scope.
         env.scope.define(constantSymbol.name, constantSymbol);
+    }
+
+    private BConstantSymbol getConstantSymbol(BLangConstant constant) {
+        // Create a new constant symbol.
+        Name name = names.fromIdNode(constant.name);
+        PackageID pkgID = env.enclPkg.symbol.pkgID;
+        return new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
+                symTable.semanticError, symTable.noType, env.scope.owner);
     }
 
     @Override
