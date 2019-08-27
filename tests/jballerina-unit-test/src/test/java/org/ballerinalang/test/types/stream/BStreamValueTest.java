@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.test.types.stream;
 
-import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -28,8 +28,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.ArrayList;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
@@ -175,24 +173,13 @@ public class BStreamValueTest {
     @Test(description = "Test receipt of stream constrained by union type with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForUnionTypeStream() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForUnionTypeStream");
-        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test receipt of stream constrained by tuple type with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForTupleTypeStream() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForTupleTypeStream");
-        BValueArray publishedEvents = (BValueArray) returns[0];
-        BValueArray receivedEvents = (BValueArray) returns[1];
-
-        Assert.assertNotNull(publishedEvents);
-        Assert.assertNotNull(receivedEvents);
-        Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
-                + "match the number published: Received" + receivedEvents.stringValue() + ", but Expected"
-                + publishedEvents.stringValue() + ", ");
-        for (int i = 0; i < publishedEvents.size(); i++) {
-            Assert.assertTrue(BVM.isEqual(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
-                    new ArrayList<>()), "Received event does not match the published event");
-        }
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test receipt of stream constrained by tuple type with correct subscription and publishing, "
@@ -214,19 +201,19 @@ public class BStreamValueTest {
     @Test(description = "Test receipt of stream constrained by any type with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForAnydataTypeStream() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAnydataTypeStream");
-        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test stream publish with structurally equivalent records")
     public void testStreamsPublishingForStructurallyEquivalentRecords() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamsPublishingForStructurallyEquivalentRecords");
-        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test stream publish with a stream initialized via a function argument")
     public void testStreamPublishingInitStreamViaFuncArgs() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingInitStreamViaFuncArgs");
-        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test receipt of stream constrained by union type with correct publishing and subscribing "
@@ -235,19 +222,8 @@ public class BStreamValueTest {
         long intVal = 100;
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAssignableUnionTypeStream",
                                            new BValue[]{ new BInteger(intVal) });
-        BValueArray publishedEvents = (BValueArray) returns[0];
-        BValueArray receivedEvents = (BValueArray) returns[1];
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
 
-        Assert.assertNotNull(publishedEvents);
-        Assert.assertNotNull(receivedEvents);
-        Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
-                + "match the number published");
-        for (int i = 0; i < publishedEvents.size() - 1; i++) {
-            Assert.assertTrue(BVM.isEqual(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
-                    new ArrayList<>()), "Received event does not match the published event");
-        }
-        Assert.assertEquals(receivedEvents.getRefValue(receivedEvents.size() - 1).value(), intVal,
-                            "Received event does not match the expected casted value");
     }
 
     @Test(description = "Test if the published value is cloned or not")
@@ -257,16 +233,5 @@ public class BStreamValueTest {
         Assert.assertNotEquals(returns[0], returns[1]);
         Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Gima");
         Assert.assertEquals(((BMap) returns[1]).get("name").stringValue(), "CloneOfGima");
-    }
-
-    private void assertEventEquality(BValueArray publishedEvents, BValueArray receivedEvents) {
-        Assert.assertNotNull(publishedEvents);
-        Assert.assertNotNull(receivedEvents);
-        Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
-                + "match the number published");
-        for (int i = 0; i < publishedEvents.size(); i++) {
-            Assert.assertTrue(BVM.isEqual(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
-                    new ArrayList<>()), "Received event does not match the published event");
-        }
     }
 }

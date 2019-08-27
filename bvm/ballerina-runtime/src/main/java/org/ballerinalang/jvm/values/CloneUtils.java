@@ -51,13 +51,6 @@ public class CloneUtils {
         }
 
         RefValue refValue = (RefValue) value;
-
-        if (refValue.getType().getTag() == TypeTags.ERROR_TAG ||
-            !TypeChecker.checkIsLikeType(refValue, BTypes.typePureType)) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.CLONE_ERROR, RuntimeErrors.
-                    UNSUPPORTED_CLONE_OPERATION, refValue.getType());
-        }
-
         return refValue.copy(new HashMap<>());
     }
 }
