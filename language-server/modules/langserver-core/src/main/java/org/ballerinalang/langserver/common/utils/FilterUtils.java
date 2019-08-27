@@ -146,6 +146,13 @@ public class FilterUtils {
         ChainedFieldModel startField = invocationFieldList.get(0);
         List<SymbolInfo> symbolList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         BSymbol bSymbol = getVariableByName(startField.name.getText(), symbolList).getScopeEntry().symbol;
+        if (bSymbol instanceof BPackageSymbol) {
+            /*
+            Above common filter extract package symbols as well. Hence we skip since dot delimiter is not valid over a 
+            module 
+             */
+            return resultList;
+        }
         BType symbolType = bSymbol instanceof BInvokableSymbol ? ((BInvokableSymbol) bSymbol).retType : bSymbol.type;
         BType modifiedSymbolBType = getModifiedBType(symbolType);
         Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(modifiedSymbolBType, context);

@@ -152,6 +152,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"forkJoinCompletion2.json", "function"},
                 {"forkJoinCompletion3.json", "function"},
                 {"forkJoinCompletion4.json", "function"},
+                {"packageContentSuggestionInvalid1.json", "function"},
         };
     }
 }
