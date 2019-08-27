@@ -93,7 +93,7 @@ public class BLangConstants {
 
     public static final BPackage BALLERINA_BUILTIN_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "builtin");
     public static final BPackage BALLERINA_RUNTIME_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "runtime");
-    public static final BPackage BALLERINA_LANG_ERROR_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "lang_error");
+    public static final BPackage BALLERINA_LANG_ERROR_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "lang.error");
 
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
