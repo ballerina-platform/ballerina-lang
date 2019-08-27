@@ -47,8 +47,6 @@ dependencies {
     implementation project(':ballerina-task')
     implementation project(':ballerina-io')
     implementation project(':ballerina-encoding')
-    implementation 'commons-logging:commons-logging'
-    implementation 'org.apache.commons:commons-lang3'
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
