@@ -24,7 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Test class for program execution order tests
+ * Test class for program execution order tests.
  *
  * @since 1.0.0
  */
