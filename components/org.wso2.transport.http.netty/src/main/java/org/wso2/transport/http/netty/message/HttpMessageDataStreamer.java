@@ -111,7 +111,7 @@ public class HttpMessageDataStreamer {
         @Override
         public void close() throws IOException {
             byteBuffer = null;
-//            releaseHttpContent();    //fix memory leak issue in error path
+            releaseHttpContent();    //fix memory leak issue in error path
             super.close();
         }
 
