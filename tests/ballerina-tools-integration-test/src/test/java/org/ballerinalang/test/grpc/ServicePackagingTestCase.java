@@ -68,7 +68,7 @@ public class ServicePackagingTestCase extends BaseTest {
 
         // Run gRPC service from the balx file.
         BServerInstance ballerinaServerForService = new BServerInstance(balServer);
-        ballerinaServerForService.startServer(generatedBalx.toString());
+        ballerinaServerForService.startServer(generatedBalx.toString(), true);
 
         try {
             // run gRPC client to connect with the service.

@@ -93,6 +93,7 @@ public function complexWorkerTest() returns [int, map<string>] {
         }
 
         worker w5 {
+            wait w4;
             i = i + 50;
             m1["m"] = "M";
             fork {
@@ -136,6 +137,7 @@ public function testWithRecords() returns Student {
     }
 
      worker w3 {
+        wait w2;
         stu.email = "adamp@wso2.com";
      }
 

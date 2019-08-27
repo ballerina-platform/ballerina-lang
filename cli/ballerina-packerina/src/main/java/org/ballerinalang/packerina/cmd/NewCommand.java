@@ -118,7 +118,8 @@ public class NewCommand implements BLauncherCmd {
         errStream.println("created a new Ballerina project at " + userDir.relativize(path));
         errStream.println();
         errStream.println("Next:");
-        errStream.println("    use `ballerina add` to add a Ballerina module inside the project.");
+        errStream.println("    Move into the project directory and use `ballerina add <module-name>` to");
+        errStream.println("    add a new ballerina module.");
     }
 
     @Override

@@ -85,13 +85,23 @@ public class BuildCommand implements BLauncherCmd {
         this.skipCopyLibsFromDist = false;
     }
 
-    public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, 
-                        boolean exitWhenFinish, boolean skipCopyLibsFromDist) {
+    public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist) {
         this.sourceRootPath = userDir;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+    }
+    
+    public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, Path executableOutputDir) {
+        this.sourceRootPath = userDir;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.output = executableOutputDir.toString();
     }
     
     @CommandLine.Option(names = {"--sourceroot"},
@@ -102,7 +112,10 @@ public class BuildCommand implements BLauncherCmd {
                                                                    "executable(s).")
     private boolean compile;
     
-    @CommandLine.Option(names = {"--output", "-o"}, description = "writes the output to the given file. The provided " +
+    @CommandLine.Option(names = {"--all", "-a"}, description = "Build or compile all the modules of the project.")
+    private boolean buildAll;
+    
+    @CommandLine.Option(names = {"--output", "-o"}, description = "Writes output to the given file. The provided " +
                                                                   "output filename may or may not contain the '.jar' " +
                                                                   "extension.")
     private String output;
@@ -136,7 +149,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "enable experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--test-config"}, description = "the path to the configuration file when running tests.")
+    @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests.")
     private String configFilePath;
 
     public void execute() {
@@ -150,7 +163,7 @@ public class BuildCommand implements BLauncherCmd {
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
-                    "ballerina build [<bal-file> | <module-name>]",
+                    "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
                     false);
             
             CommandUtil.exitError(this.exitWhenFinish);
@@ -166,21 +179,32 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
     
+        // if -a or --all flag is not given, then it is mandatory to give a module name or ballerina file as arg.
+        if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
+            CommandUtil.printError(this.errStream,
+                    "'build' command requires a module name or a ballerina file to build/compile. use '-a' or " +
+                    "'--all' flag to build/compile all the modules of the project.",
+                    "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        
         // validation and decide source root and source full path
         this.sourceRootPath = null != this.sourceRoot ?
                 Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
         Path sourcePath = null;
         Path targetPath;
         
-        // when no bal file or module is given, it is assumed to build all modules of the project. check if the command
-        // is executed within a ballerina project. update source root path if command executed inside a project.
-        if (this.argList == null || this.argList.size() == 0) {
+        // when -a or --all flag is provided. check if the command is executed within a ballerina project. update source
+        // root path if command executed inside a project.
+        if (this.buildAll) {
             // when building all the modules
             //// check if output flag is set
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                        "The '-o' and '--output' flags are only supported when building a standalone Ballerina file.",
-                        "ballerina build <bal-file> -o foo.jar",
+                        "'-o' and '--output' flag is only supported for building a single ballerina file.",
+                        "ballerina build <ballerina-file> -o foo.jar",
                         true);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -306,9 +330,10 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid Ballerina source path. Either a module in a Ballerina project or a " +
-                    "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension is expected.",
-                    "ballerina build [<bal-file> | <module-name>]",
+                    "invalid ballerina source path, it should either be a module name in a ballerina project or a " +
+                    "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension. use the -a or --all " +
+                    "flag to build or compile all modules.",
+                    "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -335,7 +360,8 @@ public class BuildCommand implements BLauncherCmd {
         buildContext.setErr(errStream);
     
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
-        Path outputPath = null == this.output ? this.sourceRootPath : Paths.get(this.output);
+        // output path is the current directory if -o flag is not given.
+        Path outputPath = null == this.output ? Paths.get(System.getProperty("user.dir")) : Paths.get(this.output);
         Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
         
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -352,8 +378,8 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable .jar file
                 .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
                 .addTask(new PrintExecutablePathTask(), this.compile)   // print the location of the executable
-                .addTask(new CreateLockFileTask(), Files.exists(buildContext.getLockFilePath()) || isSingleFileBuild)
-                                                // create a lock file if it does not exists(projects only)
+                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
+                                                                    // skipLock flag is not given exists(projects only)
                 .addTask(new CreateDocsTask(), isSingleFileBuild)   // generate API docs(projects only)
                 .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
@@ -378,9 +404,9 @@ public class BuildCommand implements BLauncherCmd {
         out.append("When building a Ballerina project or a specific module in a project, the \n");
         out.append("executable \".jar\" files will be created in the <project-root>/target/bin directory. \n");
         out.append("\n");
-        out.append("Building a standalone Ballerina file will create an executable .jar file in the \n");
-        out.append("current directory. The name of the executable file will be \n");
-        out.append("<bal-file-name>-executable.jar. \n");
+        out.append("Building a single Ballerina file will create an executable .jar file in the \n");
+        out.append("current directory. The name of the executable file will be. \n");
+        out.append("<ballerina-file-name>-executable.jar. \n");
         out.append("\n");
         out.append("If the output file is specified with the -o flag, the output \n");
         out.append("will be written to the given output file. The -o flag will only \n");
@@ -389,8 +415,8 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina build [-o <output>] [--off-line] [--skip-tests] [--skip-lock] " +
-                   "[<bal-file | module-name>] \n");
+        out.append("  ballerina build [-o <output-file>] [--off-line] [--skip-tests] [--skip-lock] " +
+                   "{<ballerina-file | module-name> | -a | --all} \n");
     }
 
     @Override

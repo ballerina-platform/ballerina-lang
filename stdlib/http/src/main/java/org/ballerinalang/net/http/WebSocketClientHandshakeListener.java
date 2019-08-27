@@ -59,12 +59,10 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
                             HttpUtil.createResponseStruct(carbonResponse));
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
-                wsService, webSocketConnection, webSocketClient);
-        webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
+        WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(webSocketConnection,
+                                                                                    webSocketConnector);
         WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
         clientConnectorListener.setConnectionInfo(connectionInfo);
-        webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
         if (readyOnConnect) {
             webSocketConnection.readNextFrame();
         }
@@ -78,10 +76,17 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         }
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
-                wsService, null, webSocketClient);
-        webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
+        WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null, webSocketConnector);
         countDownLatch.countDown();
         WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+    }
+
+    private WebSocketOpenConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
+                                                                       ObjectValue webSocketConnector) {
+        WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
+                wsService, webSocketConnection, webSocketClient);
+        webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
+        webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
+        return connectionInfo;
     }
 }

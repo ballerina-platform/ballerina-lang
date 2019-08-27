@@ -4,7 +4,7 @@ NAME
 
 SYNOPSIS
     ballerina build [-o <output>] [--sourceroot] [--off-line] [--skip-tests]
-                    [--skip-lock] [<bal-file | module-name>]
+                    [--skip-lock] {<ballerina-file | module-name> | -a | --all}
 
 DESCRIPTION
 
@@ -13,7 +13,7 @@ DESCRIPTION
 
     Building a standalone Ballerina file will create an executable .jar file in the
     current directory. The name of the executable file will be
-    <bal-file-name>-executable.jar.
+    <ballerina-file-name>-executable.jar.
 
     If the output file is specified with the -o flag, the output
     will be written to the given output file name. The -o flag will only work
@@ -28,6 +28,12 @@ OPTIONS
         Provides the path to be taken as the root of the source.
         Source will be looked up relative to the given source root
         path.
+
+    -c or --compile
+        Compile the source without generating executable(s).
+
+    -a or --all
+        Build or compile all the modules of a project.
 
     --off-line
         Build offline without downloading the dependencies.

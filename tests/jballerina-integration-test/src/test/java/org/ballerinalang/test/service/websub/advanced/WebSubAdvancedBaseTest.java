@@ -43,7 +43,7 @@ public class WebSubAdvancedBaseTest extends BaseTest {
         String confPath = new File("src/test/resources/websub/publisher/src/advanced_services/sample-users.toml")
                 .getAbsolutePath();
         String[] publisherArgs = {"-c", confPath};
-        publisherServerInstance.startServer(balFile, "advanced_services", publisherArgs, new int[]{23080});
+        publisherServerInstance.startServer(balFile, "advanced_services", null, publisherArgs, new int[]{23080});
     }
 
     @AfterGroups(value = "websub-test")

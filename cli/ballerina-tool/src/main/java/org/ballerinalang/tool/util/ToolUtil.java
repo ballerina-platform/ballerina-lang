@@ -53,8 +53,8 @@ import javax.net.ssl.X509TrustManager;
  */
 public class ToolUtil {
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/update-tool";
-    private static final String BALLERINA_CONFIG = "ballerina-version";
-    private static final String BALLERINA_TOOLS_CONFIG = "ballerina-tools-version";
+    private static final String BALLERINA_TYPE = "jballerina";
+    private static final String BALLERINA_TOOL_NAME = "ballerina";
 
     private static TrustManager[] trustAllCerts = new TrustManager[]{
             new X509TrustManager() {
@@ -86,7 +86,7 @@ public class ToolUtil {
                             dist.getStringValue("type") + "-" + dist.getStringValue("version")));
                 }
             } else {
-                File folder = new File(OSUtils.getDistributionsPath());
+                File folder = new File(getDistributionsPath());
                 File[] listOfFiles;
                 listOfFiles = folder.listFiles();
                 for (int i = 0; i < listOfFiles.length; i++) {
@@ -105,34 +105,35 @@ public class ToolUtil {
      * @return Used Ballerina version
      */
     private static String getCurrentBallerinaVersion() throws IOException {
-        return getVersion(OSUtils.getDistributionsPath() + File.separator + BALLERINA_CONFIG);
+        return getVersion(OSUtils.getBallerinaVersionFilePath());
     }
 
     private static void setCurrentBallerinaVersion(String version) throws IOException {
-        setVersion(OSUtils.getDistributionsPath() + File.separator + BALLERINA_CONFIG, version);
+        setVersion(OSUtils.getBallerinaVersionFilePath(), version);
     }
 
     /**
      * Provides used Ballerina tools version.
      * @return Used Ballerina tools version.
      */
-    private static String getCurrentToolsVersion() throws IOException {
-        return getVersion(OSUtils.getToolPath() + File.separator + BALLERINA_TOOLS_CONFIG);
+    private static String getCurrentToolsVersion() {
+        //TODO: Need to read folder
+        return "1.0.0-beta";
     }
-
-    private static void setCurrentToolsVersion(String version) throws IOException {
-        setVersion(OSUtils.getToolPath() + File.separator + BALLERINA_TOOLS_CONFIG, version);
-    }
-
 
     private static String getVersion(String path) throws IOException {
         BufferedReader br = Files.newBufferedReader(Paths.get(path));
         List<String> list = br.lines().collect(Collectors.toList());
-        return list.get(0);
+        return list.get(0).replace(BALLERINA_TYPE + "-", "");
     }
 
-    private static void setVersion(String path, String version) throws IOException {
+    public static void setVersion(String path, String version) throws IOException {
         PrintWriter writer = new PrintWriter(path, "UTF-8");
+
+        if (!version.contains(BALLERINA_TYPE)) {
+            version = BALLERINA_TYPE  + "-" + version;
+        }
+
         writer.println(version);
         writer.close();
     }
@@ -153,7 +154,7 @@ public class ToolUtil {
 
     public static boolean use(PrintStream printStream, String distribution) {
         try {
-            File installFile = new File(OSUtils.getDistributionsPath() + File.separator + distribution);
+            File installFile = new File(getDistributionsPath() + File.separator + distribution);
             if (installFile.exists()) {
                 if (distribution.equals(getCurrentBallerinaVersion())) {
                     printStream.println(distribution + " is already in use ");
@@ -204,30 +205,35 @@ public class ToolUtil {
 
     public static void download(PrintStream printStream, HttpURLConnection conn,
                                 String distribution) throws IOException {
-        printStream.print("Downloading " + distribution);
-        InputStream in = conn.getInputStream();
-        String zipFileLocation = OSUtils.getDistributionsPath() + File.separator + distribution + ".zip";
-        FileOutputStream out = new FileOutputStream(zipFileLocation);
-        byte[] b = new byte[1024];
-        int count;
-        int progress = 0;
-        while ((count = in.read(b)) > 0) {
-            out.write(b, 0, count);
-            progress++;
-            if (progress % 1024 == 0) {
-                printStream.print(".");
+        String distPath = getDistributionsPath();
+        if (new File(distPath).canWrite()) {
+            printStream.print("Downloading " + distribution);
+            InputStream in = conn.getInputStream();
+            String zipFileLocation = getDistributionsPath() + File.separator + distribution + ".zip";
+            FileOutputStream out = new FileOutputStream(zipFileLocation);
+            byte[] b = new byte[1024];
+            int count;
+            int progress = 0;
+            while ((count = in.read(b)) > 0) {
+                out.write(b, 0, count);
+                progress++;
+                if (progress % 1024 == 0) {
+                    printStream.print(".");
+                }
             }
-        }
-        printStream.println();
-        unzip(zipFileLocation, OSUtils.getDistributionsPath());
-        setCurrentBallerinaVersion(distribution);
+            printStream.println();
+            unzip(zipFileLocation, getDistributionsPath());
 
-        if (conn.getResponseCode() != 200) {
-            throw new RuntimeException("Failed : HTTP error code : "
-                    + conn.getResponseCode());
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + conn.getResponseCode());
+            }
+            conn.disconnect();
+            printStream.println(distribution + " is installed. Please execute \"ballerina dist use " +
+                    "" + distribution + "\" to use as the default");
+        } else {
+            printStream.println("Current user does not have write permissions to " + distPath + " directory");
         }
-        conn.disconnect();
-        printStream.println(distribution + " is installed ");
     }
 
     public static void update(PrintStream printStream, String version) {
@@ -236,14 +242,26 @@ public class ToolUtil {
     }
 
     public static void remove(PrintStream outStream, String version) {
+        boolean isCurrentVersion = false;
         try {
-            if (version.equals(getCurrentBallerinaVersion())) {
+            isCurrentVersion = version.equals(getCurrentBallerinaVersion());
+        } catch (IOException e) {
+            outStream.println("There is no default version for current user");
+        }
+
+        try {
+            if (isCurrentVersion) {
                 outStream.println("You cannot remove default Ballerina version");
             } else {
-                File directory = new File(OSUtils.getDistributionsPath() + File.separator + version);
+                File directory = new File(getDistributionsPath() + File.separator + version);
                 if (directory.exists()) {
-                    deleteFiles(directory.toPath(), outStream, version);
-                    outStream.println(version + " deleted successfully");
+                    if (directory.canWrite()) {
+                        deleteFiles(directory.toPath(), outStream, version);
+                        outStream.println(version + " deleted successfully");
+                    } else {
+                        outStream.println("Current user does not have write permissions to "
+                                + directory.toPath() + " directory");
+                    }
                 } else {
                     outStream.println(version + " does not exist");
                 }
@@ -328,6 +346,16 @@ public class ToolUtil {
         }
         zipIn.close();
         new File(zipFilePath).delete();
+    }
+
+    /**
+     * Provides path of the installed distributions.
+     * @return installed distributions path
+     * @throws IOException happens version file cannot be read
+     */
+    public static String getDistributionsPath() throws IOException {
+        return OSUtils.getInstalltionPath() + File.separator
+                + BALLERINA_TOOL_NAME + "-" + getCurrentBallerinaVersion() + File.separator + "distributions";
     }
 }
 

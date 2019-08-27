@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "log-api"
+    artifactId = "log-api"
     version = "@project.version@"
     path = "./lib/ballerina-log-api-@project.version@.jar"
     groupId = "ballerina"

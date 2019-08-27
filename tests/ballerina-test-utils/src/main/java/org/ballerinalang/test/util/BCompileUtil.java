@@ -60,9 +60,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -139,6 +141,21 @@ public class BCompileUtil {
             return compileOnJBallerina(sourceFilePath, false, true);
         }
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
+    }
+
+
+    /**
+     * Compile on a separated process.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileInProc(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        CompilerContext context = new CompilerContext();
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, true);
     }
 
     /**
@@ -664,16 +681,16 @@ public class BCompileUtil {
                                                      SourceDirectory sourceDirectory, boolean init) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, sourceDirectory);
-        return compileOnJBallerina(context, sourceRoot, packageName, false, init);
+        return compileOnJBallerina(context, sourceRoot, packageName, false, init, false);
     }
 
     public static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp, boolean init) {
         CompilerContext context = new CompilerContext();
-        return compileOnJBallerina(context, sourceRoot, packageName, temp, init);
+        return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false);
     }
 
     public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-            boolean temp, boolean init) {
+                                                    boolean temp, boolean init, boolean onProc) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
@@ -692,7 +709,8 @@ public class BCompileUtil {
             JBallerinaInMemoryClassLoader cl = BootstrapRunner.createClassLoaders(bLangPackage,
                                                                                   systemBirCache,
                                                                                   buildDir.resolve("test-bir-temp"),
-                                                                                  Optional.empty(), false);
+                    Optional.empty(), false,
+                    onProc);
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
@@ -707,24 +725,48 @@ public class BCompileUtil {
         }
     }
 
-    public static void runMain(CompileResult compileResult, String[] args) throws Throwable {
-        String initClassName = BFileUtil.getQualifiedClassName(((BLangPackage)
-                compileResult.getAST()).packageID.orgName.value,
-                ((BLangPackage) compileResult.getAST()).packageID.name.value, MODULE_INIT_CLASS_NAME);
-        Class<?> initClazz = compileResult.classLoader.loadClass(initClassName);
-        Method mainMethod;
+    public static String runMain(CompileResult compileResult, String[] args) {
+        ExitDetails exitDetails = run(compileResult, args);
+
+        if (exitDetails.exitCode != 0) {
+            throw new RuntimeException(exitDetails.errorOutput);
+        }
+        return exitDetails.consoleOutput;
+    }
+
+    public static ExitDetails run(CompileResult compileResult, String[] args) {
+        BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());
+        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID.orgName.value,
+                compiledPkg.packageID.name.value, MODULE_INIT_CLASS_NAME);
+        JBallerinaInMemoryClassLoader classLoader = compileResult.classLoader;
+        Class<?> initClazz = classLoader.loadClass(initClassName);
+
         try {
-            mainMethod = initClazz.getDeclaredMethod("main", String[].class);
-            mainMethod.invoke(null, (Object) args);
-        } catch (InvocationTargetException e) {
-            if (e.getTargetException() instanceof ErrorValue) {
-                throw e.getTargetException();
-            }
-            throw new RuntimeException("Main method invocation failed", e);
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+            final List<String> actualArgs = new ArrayList<>();
+            actualArgs.add(0, "java");
+            actualArgs.add(1, "-cp");
+            String classPath = System.getProperty("java.class.path") + ":" + classLoader.getClassPath();
+            actualArgs.add(2, classPath);
+            actualArgs.add(3, initClazz.getCanonicalName());
+            actualArgs.addAll(Arrays.asList(args));
+
+            final Runtime runtime = Runtime.getRuntime();
+            final Process process = runtime.exec(actualArgs.toArray(new String[0]));
+            String consoleInput = getConsoleOutput(process.getInputStream());
+            String consoleError = getConsoleOutput(process.getErrorStream());
+            process.waitFor();
+            int exitValue = process.exitValue();
+            return new ExitDetails(exitValue, consoleInput, consoleError);
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
+    }
 
+    private static String getConsoleOutput(InputStream inputStream) {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+        reader.lines().iterator().forEachRemaining(sj::add);
+        return sj.toString();
     }
 
     private static CompileResult compileOnJBallerina(String sourceFilePath, boolean temp, boolean init) {
@@ -732,5 +774,20 @@ public class BCompileUtil {
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return compileOnJBallerina(sourceRoot.toString(), packageName, temp, init);
+    }
+
+    /**
+     * Class to hold program execution outputs.
+     */
+    public static class ExitDetails {
+        public int exitCode;
+        public String consoleOutput;
+        public String errorOutput;
+
+        public ExitDetails(int exitCode, String consoleOutput, String errorOutput) {
+            this.exitCode = exitCode;
+            this.consoleOutput = consoleOutput;
+            this.errorOutput = errorOutput;
+        }
     }
 }

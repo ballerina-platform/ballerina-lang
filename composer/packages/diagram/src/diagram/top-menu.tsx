@@ -19,6 +19,7 @@ export interface TopMenuProps {
     handleReset: () => void;
     handleDepthSelect: (depth: number) => void;
     maxInvocationDepth: number;
+    reachedInvocationDepth: number;
     zoomFactor: number;
 }
 
@@ -37,6 +38,7 @@ export const TopMenu = (props: TopMenuProps) => {
         openedState,
         zoomFactor = 1,
         maxInvocationDepth,
+        reachedInvocationDepth,
     } = props;
 
     return (
@@ -48,7 +50,8 @@ export const TopMenu = (props: TopMenuProps) => {
                 </div>
                 <div onClick={handleOpened} className="status-wrapper">
                     Zoom : <Label> {`${Math.floor(zoomFactor * 100)}%`} </Label>
-                    Depth : <Label>{maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}</Label>
+                    Depth : <Label>{maxInvocationDepth === -1 ?
+                        reachedInvocationDepth : maxInvocationDepth.toString()}</Label>
                     Design : <Label>{selectedModeText}</Label>
                 </div>
             </div> :
@@ -104,15 +107,22 @@ export const TopMenu = (props: TopMenuProps) => {
                     </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
                         <Dropdown
-                            text={maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}
+                            text={maxInvocationDepth === -1 ?
+                                reachedInvocationDepth.toString() : maxInvocationDepth.toString()}
                             className="menu-dropdown-small"
                         >
                             <Dropdown.Menu>
-                                <Dropdown.Item onClick={() => handleDepthSelect(0)} text={0} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(1)} text={1} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(2)} text={2} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(3)} text={3} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(-1)} text={"All"} />
+                                {
+                                    (() => {
+                                        const items = [];
+
+                                        for (let i = 0; i < reachedInvocationDepth + 1; i++) {
+                                            items.push(<Dropdown.Item onClick={() => handleDepthSelect(i)} text={i} />);
+                                        }
+
+                                        return items;
+                                    })()
+                                }
                             </Dropdown.Menu>
                         </Dropdown>
                         <Popup

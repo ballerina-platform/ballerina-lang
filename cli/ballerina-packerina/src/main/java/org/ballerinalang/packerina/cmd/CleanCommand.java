@@ -44,7 +44,12 @@ public class CleanCommand implements BLauncherCmd {
     
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
-    
+
+    public CleanCommand(Path sourceRoot) {
+        this.sourceRootPath = sourceRoot;
+        this.outStream = System.out;
+    }
+
     public CleanCommand() {
         this.sourceRootPath = Paths.get(System.getProperty("user.dir"));
         this.outStream = System.out;

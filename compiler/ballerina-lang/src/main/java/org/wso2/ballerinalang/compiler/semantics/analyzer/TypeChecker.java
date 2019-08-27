@@ -643,7 +643,15 @@ public class TypeChecker extends BLangNodeVisitor {
                             actType = checkExpr(listConstructor.exprs.get(i), env, expType);
                             results.add(expType.tag != TypeTags.NONE ? expType : actType);
                         } else {
-                            restType = checkExpr(listConstructor.exprs.get(i), env, tupleType.restType);
+                            if (tupleType.restType != null) {
+                                restType = checkExpr(listConstructor.exprs.get(i), env, tupleType.restType);
+                            } else {
+                                // tuple type size != list constructor exprs
+                                dlog.error(listConstructor.pos, DiagnosticCode.SYNTAX_ERROR,
+                                        "tuple and expression size does not match");
+                                resultType = symTable.semanticError;
+                                return;
+                            }
                         }
                     }
                     actualType = new BTupleType(results);

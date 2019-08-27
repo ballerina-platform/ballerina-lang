@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.object;
 
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -671,7 +672,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
-    @Test(dataProvider = "missingNativeImplFiles")
+    @Test(dataProvider = "missingNativeImplFiles", groups = "brokenOnJBallerina")
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
             BCompileUtil.compile(filePath);
@@ -707,5 +708,32 @@ public class ObjectTest {
                 {"test-src/object/object_with_missing_native_impl.bal"},
                 {"test-src/object/object_with_missing_native_impl_2.bal"}
         };
+    }
+
+    @Test(description = "Test field name and method name in different namespaces")
+    public void testFieldWithSameNameAsMethod() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/object/object_field_with_same_name_as_method.bal");
+        BValue[] result = BRunUtil.invoke(compileResult, "testFieldWithSameNameAsMethod");
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
+        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
+        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
+        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
+        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
+        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
+        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
+    }
+
+    @Test(description = "Test field name and method name in different namespaces from balo")
+    public void testFieldWithSameNameAsMethodFromBalo() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        BValue[] result = BRunUtil.invoke(compileResult, "testBaloWithFieldWithSameNameAsMethod");
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
+        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
+        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
+        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
+        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
+        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
+        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
     }
 }

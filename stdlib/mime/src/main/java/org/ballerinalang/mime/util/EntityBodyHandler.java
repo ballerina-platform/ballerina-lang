@@ -104,14 +104,33 @@ public class EntityBodyHandler {
     }
 
     /**
+     * Since JSON is a union of multiple data types. There is no specific data source for JSON. Hence use this method to
+     * add JSON data source which tracks the JSON type using a flag.
+     *
+     * @param entityObj         Represent the ballerina entity
+     * @param messageDataSource which represent the entity body in memory
+     */
+    public static void addJsonMessageDataSource(ObjectValue entityObj, Object messageDataSource) {
+        setParseJsonAndDataSource(entityObj, messageDataSource, true);
+    }
+
+    /**
      * Associate a given message data source with a given entity.
      *
      * @param entityObj      Represent the ballerina entity
      * @param messageDataSource which represent the entity body in memory
      */
     public static void addMessageDataSource(ObjectValue entityObj, Object messageDataSource) {
+        setParseJsonAndDataSource(entityObj, messageDataSource, false);
+    }
+
+    private static void setParseJsonAndDataSource(ObjectValue entityObj, Object messageDataSource, boolean json) {
+        /* specifies whether the type of the datasource is json. This is necessary because json is a union of
+         * different data types and is not a single data type.*/
+        entityObj.addNativeData(MimeConstants.PARSE_AS_JSON, json);
         entityObj.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
+
 
     /**
      * Construct BlobDataSource from the underneath byte channel which is associated with the entity object.
