@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.grpc.sample;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BBoolean;
@@ -45,6 +46,8 @@ import java.nio.file.Paths;
 @Test(groups = "grpc-test")
 public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
 
+    private BPackage defaultPkg = new BPackage(".", "");
+
     private CompileResult result;
 
     @BeforeClass(alwaysRun = true)
@@ -58,7 +61,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
     @Test
     public void testIntArrayInputClient() {
         //TestInt intArray = {values:[1,2,3,4,5]};
-        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(".", "TestInt");
+        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestInt");
 
         ArrayValue intArray = new ArrayValue(new long[]{1L, 2L, 3L, 4L, 5L});
         requestStruct.put("values", intArray);
@@ -73,7 +76,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
     @Test
     public void testStringArrayInputClient() {
         //TestString stringArray = {values:["A", "B", "C"]};
-        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(".", "TestString");
+        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestString");
         ArrayValue stringArray = new ArrayValue(new String[] {"A", "B", "C"});
         requestStruct.put("values", stringArray);
 
@@ -87,7 +90,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
     @Test
     public void testFloatArrayInputClient() {
         //TestFloat floatArray = {values:[1.1, 1.2, 1.3, 1.4, 1.5]};
-        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(".", "TestFloat");
+        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestFloat");
         ArrayValue floatArray = new ArrayValue(new double[] {1.1, 1.2, 1.3, 1.4, 1.5});
         requestStruct.put("values", floatArray);
 
@@ -101,7 +104,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
     @Test
     public void testBooleanArrayInputClient() {
         //TestBoolean booleanArray = {values:[true, false, true]};
-        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(".", "TestBoolean");
+        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestBoolean");
         ArrayValue booleanArray = new ArrayValue(new boolean[] {true, false, true});
         requestStruct.put("values", booleanArray);
 
