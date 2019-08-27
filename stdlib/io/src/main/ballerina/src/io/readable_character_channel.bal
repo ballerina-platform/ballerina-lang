@@ -35,10 +35,11 @@ public type ReadableCharacterChannel object {
     # + cs - Character-set (i.e UTF-8) which should be used to encode/decode
     function init(ReadableByteChannel bChannel, string cs) = external;
 
-    # Reads a given number of characters.
+    # Reads a given number of characters. This will attempt read up to `numberOfChars` characters from the channel.
+    # `io:EoFError` will return once channel reach to it end.
     #
     # + numberOfChars - Number of characters which should be read
-    # + return - Content which is read or `Error` if any error occurred
+    # + return - Content which is read or `EoFError` once channel reach to it end. `Error` if any error occurred.
     public function read(@untainted int numberOfChars) returns @tainted string|Error = external;
 
     # Reads a json from the given channel.
