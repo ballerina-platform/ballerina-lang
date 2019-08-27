@@ -972,6 +972,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
+        if (precedingVar.getKind() == NodeKind.VARIABLE
+                && ((BLangSimpleVariable) precedingVar).name.value.equals(Names.IGNORE.value)
+                && var.getKind() == NodeKind.ERROR_VARIABLE) {
+            return false;
+        }
+
         return precedingVar.getKind() == NodeKind.VARIABLE;
     }
 
