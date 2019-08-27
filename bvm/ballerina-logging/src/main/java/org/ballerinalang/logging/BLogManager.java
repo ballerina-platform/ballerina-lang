@@ -23,6 +23,7 @@ import org.ballerinalang.logging.formatters.HttpAccessLogFormatter;
 import org.ballerinalang.logging.formatters.HttpTraceLogFormatter;
 import org.ballerinalang.logging.formatters.JsonLogFormatter;
 import org.ballerinalang.logging.util.BLogLevel;
+import org.ballerinalang.logging.util.BLogLevelMapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -126,12 +127,19 @@ public class BLogManager extends LogManager {
             consoleLogger = Logger.getLogger(CONSOLE_LOGGER);
         }
 
+        BLogLevel level = loggerLevels.get(CONSOLE_LOGGER);
+        if (level == null) {
+            level = loggerLevels.get(BALLERINA_USER_LOG_LEVEL);
+        }
+
+        Level logLevel = BLogLevelMapper.getLoggerLevel(level);
+
         ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setLevel(Level.FINEST);
+        consoleHandler.setLevel(logLevel);
         consoleHandler.setFormatter(new DefaultLogFormatter());
         consoleLogger.addHandler(consoleHandler);
         consoleLogger.setUseParentHandlers(false);
-        consoleLogger.setLevel(Level.FINEST);
+        consoleLogger.setLevel(logLevel);
     }
 
     /**
