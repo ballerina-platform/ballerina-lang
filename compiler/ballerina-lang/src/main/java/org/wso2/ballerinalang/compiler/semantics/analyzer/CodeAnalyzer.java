@@ -533,7 +533,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             dlog.error(matchStmt.pos, DiagnosticCode.MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS);
         }
         // Execute the following block if there are no unmatched expression types
-        if ((staticLastPattern || structuredLastPattern) && !hasErrorType(matchStmt.exprTypes)) {
+        if ((staticLastPattern && !hasErrorType(matchStmt.exprTypes)) || structuredLastPattern) {
             if (matchStmt.getPatternClauses().size() == 1) {
                 dlog.error(matchStmt.getPatternClauses().get(0).pos, DiagnosticCode.MATCH_STMT_PATTERN_ALWAYS_MATCHES);
             }
@@ -671,7 +671,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BLangMatchStructuredBindingPatternClause finalPattern = clauses.get(clauses.size() - 1);
         if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE
                 && finalPattern.typeGuardExpr == null
-                && !errorTypeInMatchExpr) {
+                && !(errorTypeInMatchExpr && isWildcardMatchPattern(finalPattern))) {
             finalPattern.isLastPattern = true;
         }
 
@@ -696,6 +696,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         return finalPattern.isLastPattern;
+    }
+
+    private boolean isWildcardMatchPattern(BLangMatchStructuredBindingPatternClause finalPattern) {
+        return ((BLangSimpleVariable) finalPattern.bindingPatternVariable).name.value.equals(Names.IGNORE.value);
     }
 
     /**
@@ -968,7 +972,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        return precedingVar.getKind() == NodeKind.VARIABLE && !errorTypeInMatchExpr;
+        return precedingVar.getKind() == NodeKind.VARIABLE;
     }
 
     /**
