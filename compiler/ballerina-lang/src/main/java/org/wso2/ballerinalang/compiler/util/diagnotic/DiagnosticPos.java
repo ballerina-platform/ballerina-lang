@@ -74,33 +74,39 @@ public class DiagnosticPos implements DiagnosticPosition {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof DiagnosticPos)) {
+            return false;
+        }
+        DiagnosticPos diagnosticPos = (DiagnosticPos) obj;
+        return src.equals(diagnosticPos.src) && (sLine == diagnosticPos.sLine && eLine == diagnosticPos.eLine &&
+                sCol == diagnosticPos.sCol && eCol == diagnosticPos.eCol);
+    }
+
+    @Override
+    public int hashCode() {
+        return src.hashCode() + sLine + eLine + sCol + eCol;
+    }
+
+    @Override
     public int compareTo(DiagnosticPosition diagnosticPosition) {
+        // Compare the source first.
         int value = this.getSource().compareTo(diagnosticPosition.getSource());
         if (value != 0) {
             return value;
         }
 
+        // If the sources are same, then compare the start line.
         if (sLine < diagnosticPosition.getStartLine()) {
             return -1;
         } else if (sLine > diagnosticPosition.getStartLine()) {
             return 1;
         }
 
+        // If the start line is the same, then compare the start column.
         if (sCol < diagnosticPosition.getStartColumn()) {
             return -1;
         } else if (sCol > diagnosticPosition.getStartColumn()) {
-            return 1;
-        }
-
-        if (eLine < diagnosticPosition.getEndLine()) {
-            return -1;
-        } else if (eLine > diagnosticPosition.getEndLine()) {
-            return 1;
-        }
-
-        if (eCol < diagnosticPosition.getEndColumn()) {
-            return -1;
-        } else if (eCol > diagnosticPosition.getEndColumn()) {
             return 1;
         }
 
