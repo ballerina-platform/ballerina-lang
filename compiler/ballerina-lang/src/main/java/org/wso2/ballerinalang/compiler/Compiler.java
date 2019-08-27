@@ -49,6 +49,7 @@ public class Compiler {
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
     private final Manifest manifest;
+    private boolean langLibsLoaded;
     private PrintStream outStream;
 
     private Compiler(CompilerContext context) {
@@ -61,6 +62,7 @@ public class Compiler {
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.outStream = System.out;
+        this.langLibsLoaded = false;
     }
 
     public static Compiler getInstance(CompilerContext context) {
@@ -151,8 +153,10 @@ public class Compiler {
     // private methods
 
     private List<BLangPackage> compilePackages(List<PackageID> pkgIdList) {
-
-        this.compilerDriver.loadLangModules(pkgIdList);
+        if (!this.langLibsLoaded) {
+            this.compilerDriver.loadLangModules(pkgIdList);
+            this.langLibsLoaded = true;
+        }
         this.compilerDriver.loadUtilsPackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode

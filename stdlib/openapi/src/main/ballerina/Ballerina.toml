@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "openapi"
+    artifactId = "openapi"
     version = "@project.version@"
     path = "./lib/ballerina-openapi-@project.version@.jar"
     groupId = "ballerina"
