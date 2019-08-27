@@ -41,4 +41,17 @@ public class HttpPayloadTestCase extends HttpBaseTest {
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "W3Schools Home PageRSS Tutorial", "Message content mismatched");
     }
+
+    @Test(description = "test getXmlPayload() for inbound response with parser errors. FullMessageListener is " +
+            "notified via transport thread and thrown exception should be caught at ballerina space")
+    public void testGetXmlPayloadReturnParserError() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(9118, "test/getPayloadForParseError"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(),
+                            "Error occurred while extracting xml data from entity: ParseError at [row,col]:[1," +
+                                    "1]Message: Content is not allowed in prolog.", "Message content mismatched");
+    }
 }

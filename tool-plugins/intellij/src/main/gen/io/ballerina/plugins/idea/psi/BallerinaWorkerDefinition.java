@@ -20,9 +20,8 @@ package io.ballerina.plugins.idea.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 
-public interface BallerinaWorkerDefinition extends BallerinaTopLevelDefinition {
+public interface BallerinaWorkerDefinition extends PsiElement {
 
   @NotNull
   List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();

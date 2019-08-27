@@ -128,8 +128,7 @@ public abstract class AbstractTask implements Task {
     @Override
     public void stop() throws SchedulingException {
         try {
-            JobKey jobKey = quartzJobs.get(this.getId());
-            TaskManager.getInstance().getScheduler().deleteJob(jobKey);
+            TaskManager.getInstance().getScheduler().unscheduleJob(triggerKey);
         } catch (SchedulerException e) {
             throw new SchedulingException("Failed to stop the task.", e);
         }

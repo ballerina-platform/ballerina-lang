@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/cache;
-import ballerina/reflect;
-
 # Representation of the Authorization filter
 #
 # + authzHandler - `AuthzHandler` instance for handling authorization
@@ -41,12 +38,18 @@ public type AuthzFilter object {
         boolean|AuthorizationError authorized = true;
         var scopes = getScopes(context);
         if (scopes is string[]|string[][]) {
-            authorized = handleAuthzRequest(self.authzHandler, request, context, scopes);
+            authorized = self.authzHandler.canProcess(request);
+            if (authorized is boolean && authorized) {
+                authorized = self.authzHandler.process(scopes);
+            }
         } else {
             if (scopes) {
                 var selfScopes = self.scopes;
                 if (selfScopes is string[]|string[][]) {
-                    authorized = handleAuthzRequest(self.authzHandler, request, context, selfScopes);
+                    authorized = self.authzHandler.canProcess(request);
+                    if (authorized is boolean && authorized) {
+                        authorized = self.authzHandler.process(selfScopes);
+                    }
                 } else {
                     authorized = true;
                 }
@@ -61,24 +64,6 @@ public type AuthzFilter object {
         return true;
     }
 };
-
-function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context,
-                            string[]|string[][] scopes) returns boolean|AuthorizationError {
-    boolean|AuthorizationError authorized = true;
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (principal is runtime:Principal) {
-        var canProcessResponse = authzHandler.canProcess(request);
-        if (canProcessResponse is boolean && canProcessResponse) {
-            authorized = authzHandler.process(principal?.username ?: "", context.getServiceName(),
-                                              context.getResourceName(), request.method, scopes);
-        } else {
-            authorized = canProcessResponse;
-        }
-    } else {
-        authorized = false;
-    }
-    return authorized;
-}
 
 # Verifies if the authorization is successful. If not responds to the user.
 #

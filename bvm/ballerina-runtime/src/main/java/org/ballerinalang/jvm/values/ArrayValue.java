@@ -64,6 +64,7 @@ import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
  */
 public class ArrayValue implements RefValue, CollectionValue {
 
+    static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
     protected BType arrayType;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
 
@@ -72,7 +73,7 @@ public class ArrayValue implements RefValue, CollectionValue {
      * <p>
      * This is same as Java
      */
-    protected int maxArraySize = Integer.MAX_VALUE - 8;
+    protected int maxArraySize = SYSTEM_ARRAY_MAX;
     private static final int DEFAULT_ARRAY_SIZE = 100;
     protected int size = 0;
 
@@ -1165,14 +1166,36 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     public void setLength(long length) {
+        if (length == size) {
+            return;
+        }
         handleFrozenArrayValue();
-
         int newLength = (int) length;
+        checkFixedLength(length);
         rangeCheck(length, size);
         fillerValueCheck(newLength, size);
         resizeInternalArray(newLength);
         fillValues(newLength);
         size = newLength;
+    }
+
+    private void checkFixedLength(long length) {
+        if (arrayType == null) {
+            return;
+        }
+        if (arrayType.getTag() == TypeTags.TUPLE_TAG) {
+            BTupleType tupleType = (BTupleType) this.arrayType;
+            if (tupleType.getRestType() == null) {
+                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                        RuntimeErrors.ILLEGAL_TUPLE_SIZE, size, length);
+            } else if (tupleType.getTupleTypes().size() > length) {
+                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                        RuntimeErrors.ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE, tupleType.getTupleTypes().size(), length);
+            }
+        } else if (((BArrayType) this.arrayType).getState() == ArrayState.CLOSED_SEALED) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                    RuntimeErrors.ILLEGAL_ARRAY_SIZE, size, length);
+        }
     }
 
     /**

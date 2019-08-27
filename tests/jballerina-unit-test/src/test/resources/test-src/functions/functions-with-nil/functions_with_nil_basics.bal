@@ -1,6 +1,4 @@
 
-import ballerina/io;
-
 function funcReturnNilImplicit() {
     int a = 10;
     string s = "test";

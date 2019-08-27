@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -49,6 +50,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.StringJoiner;
 
+import static org.wso2.ballerinalang.compiler.parser.BLangPackageBuilder.escapeQuotedIdentifier;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
@@ -638,7 +640,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         String workerName = null;
         if (ctx.workerDefinition() != null) {
-            workerName = ctx.workerDefinition().Identifier().getText();
+            workerName = escapeQuotedIdentifier(ctx.workerDefinition().Identifier().getText());
         }
         boolean retParamsAvail = ctx.workerDefinition().returnParameter() != null;
         int numAnnotations = ctx.annotationAttachment().size();
@@ -1229,7 +1231,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (childCount == 2) {
             boolean keyColumn = KEYWORD_KEY.equals(ctx.getChild(0).getText());
             if (keyColumn) {
-                columnName = ctx.getChild(1).getText();
+                columnName = escapeQuotedIdentifier(ctx.getChild(1).getText());
                 this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
                 this.pkgBuilder.markPrimaryKeyColumn(columnName);
             } else {
@@ -1237,7 +1239,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 dlog.error(pos, DiagnosticCode.TABLE_KEY_EXPECTED);
             }
         } else {
-            columnName = ctx.getChild(0).getText();
+            columnName = escapeQuotedIdentifier(ctx.getChild(0).getText());
             this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
         }
     }
@@ -2418,7 +2420,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier().size() == 2) {
             String pkgName = ctx.Identifier(0).getText();
             String name = ctx.Identifier(1).getText();
-            this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), pkgName, name);
+            DiagnosticPos pos = getCurrentPos(ctx);
+            if (Names.IGNORE.value.equals(pkgName))  {
+                dlog.error(pos, DiagnosticCode.INVALID_PACKAGE_NAME_QUALIFER, pkgName);
+            }
+            this.pkgBuilder.addNameReference(pos, getWS(ctx), pkgName, name);
         } else {
             String name = ctx.Identifier(0).getText();
             this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), null, name);
@@ -2434,7 +2440,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier() != null) {
             String pkgName = ctx.Identifier().getText();
             String name = ctx.anyIdentifierName().getText();
-            this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), pkgName, name);
+            DiagnosticPos pos = getCurrentPos(ctx);
+            if (Names.IGNORE.value.equals(pkgName))  {
+                dlog.error(pos, DiagnosticCode.INVALID_PACKAGE_NAME_QUALIFER, pkgName);
+            }
+            this.pkgBuilder.addNameReference(pos, getWS(ctx), pkgName, name);
         } else {
             String name = ctx.anyIdentifierName().getText();
             this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), null, name);

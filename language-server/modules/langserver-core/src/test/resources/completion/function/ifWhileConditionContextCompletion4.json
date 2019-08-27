@@ -980,14 +980,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AuthCacheConfig",
+      "label": "AuthzCacheConfig",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
       },
       "sortText": "120",
-      "insertText": "AuthCacheConfig",
+      "insertText": "AuthzCacheConfig",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1007,17 +1007,6 @@
       "detail": "Object",
       "sortText": "120",
       "insertText": "AttributeFilter",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WebSocketListener",
-      "kind": "Class",
-      "detail": "Object",
-      "documentation": {
-        "left": "Represents a WebSocket service endpoint."
-      },
-      "sortText": "120",
-      "insertText": "WebSocketListener",
       "insertTextFormat": "Snippet"
     },
     {

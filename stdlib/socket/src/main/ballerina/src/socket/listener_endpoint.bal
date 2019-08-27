@@ -45,6 +45,9 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     function initServer(int port, ListenerConfig config) returns error? = external;
 
     function register(service s, string? name) returns error? = external;

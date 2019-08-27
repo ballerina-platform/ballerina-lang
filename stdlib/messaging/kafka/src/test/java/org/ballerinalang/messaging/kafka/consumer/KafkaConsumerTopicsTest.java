@@ -34,10 +34,10 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
@@ -58,9 +58,8 @@ public class KafkaConsumerTopicsTest {
     @BeforeClass
     public void setup() throws IOException {
         result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_topics.bal")));
-        Properties prop = new Properties();
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-get-available-topics-test");
+        kafkaCluster = createKafkaCluster(dataDir, 14008, 14108).addBrokers(1).startup();
     }
 
     @Test(description = "Test Kafka getAvailableTopics function")
@@ -130,14 +129,5 @@ public class KafkaConsumerTopicsTest {
                 dataDir.deleteOnExit();
             }
         }
-    }
-
-    private static KafkaCluster kafkaCluster() {
-        if (kafkaCluster != null) {
-            throw new IllegalStateException();
-        }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-get-available-topics-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14008, 14108);
-        return kafkaCluster;
     }
 }

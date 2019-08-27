@@ -67,7 +67,12 @@ public enum RuntimeErrors {
     ILLEGAL_ARRAY_INSERTION("illegal.array.insertion", "RUNTIME_0041"),
     XML_FUNC_TYPE_ERROR("unexpected.xml.type", "RUNTIME_0042"),
     JAVA_NULL_REFERENCE("java.null.reference", "RUNTIME_0043"),
-    ILLEGAL_TUPLE_INSERTION("illegal.tuple.insertion", "RUNTIME_0044");
+    ILLEGAL_TUPLE_INSERTION("illegal.tuple.insertion", "RUNTIME_0044"),
+    ILLEGAL_ARRAY_SIZE("illegal.array.size", "RUNTIME_0045"),
+    ILLEGAL_TUPLE_SIZE("illegal.tuple.size", "RUNTIME_0046"),
+    ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE("illegal.rest.tuple.size", "RUNTIME_0047"),
+    STRING_INDEX_OUT_OF_RANGE("string.index.out.of.range", "RUNTIME_0048"),
+    INVALID_SUBSTRING_RANGE("invalid.substring.range", "RUNTIME_0049");
 
     private String errorMsgKey;
     private String errorCode;

@@ -48,7 +48,6 @@ import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 import org.ballerinax.jdbc.table.BCursorTable;
 import org.ballerinax.jdbc.table.SQLDataIterator;
 import org.ballerinax.jdbc.transaction.SQLTransactionContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -157,8 +156,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         BStructureType tableConstraint = structType;
         if (structType == null) {
             tableConstraint = new BRecordType("$table$anon$constraint$",
-                    new BPackage(Names.BUILTIN_ORG.getValue(), Names.LANG.value + Names.DOT.value + Names.ANNOTATIONS,
-                            Names.DEFAULT_VERSION.getValue()), 0, false);
+                                              new BPackage("ballerina", "lang.annotations", "0.0.0"), 0, false);
             ((BRecordType) tableConstraint).restFieldType = BTypes.typeAnydata;
         }
         return new BCursorTable(

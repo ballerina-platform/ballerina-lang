@@ -50,26 +50,38 @@ public class BallerinaErrorBindingPatternImpl extends ASTWrapperPsiElement imple
 
   @Override
   @Nullable
+  public BallerinaErrorFieldBindingPatterns getErrorFieldBindingPatterns() {
+    return findChildByClass(BallerinaErrorFieldBindingPatterns.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaErrorRestBindingPattern getErrorRestBindingPattern() {
     return findChildByClass(BallerinaErrorRestBindingPattern.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getLeftParenthesis() {
-    return findChildByType(LEFT_PARENTHESIS);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightParenthesis() {
-    return findChildByType(RIGHT_PARENTHESIS);
+  public BallerinaTypeName getTypeName() {
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
   @NotNull
+  public PsiElement getLeftParenthesis() {
+    return findNotNullChildByType(LEFT_PARENTHESIS);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRightParenthesis() {
+    return findNotNullChildByType(RIGHT_PARENTHESIS);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getError() {
-    return findNotNullChildByType(ERROR);
+    return findChildByType(ERROR);
   }
 
   @Override

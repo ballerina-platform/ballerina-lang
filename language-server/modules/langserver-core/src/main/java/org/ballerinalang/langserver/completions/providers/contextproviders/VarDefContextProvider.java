@@ -20,13 +20,9 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
-import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -44,21 +40,15 @@ public class VarDefContextProvider extends LSCompletionProvider {
     @Override
     @SuppressWarnings("unchecked")
     public List<CompletionItem> getCompletions(LSContext context) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
 
         Class sorterKey;
         if (invocationOrDelimiterTokenType > -1) {
             sorterKey = ActionAndFieldAccessContextItemSorter.class;
-            Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
-                    SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
-            completionItems.addAll(this.getCompletionItemList(filteredList, context));
         } else {
             sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
-            completionItems.addAll(this.getVarDefExpressionCompletions(context, false));
         }
-
         context.put(CompletionKeys.ITEM_SORTER_KEY, sorterKey);
-        return completionItems;
+        return new ArrayList<>(this.getVarDefExpressionCompletions(context, false));
     }
 }

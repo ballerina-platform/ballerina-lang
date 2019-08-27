@@ -157,7 +157,7 @@ public class WorkerSyncSendTest {
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
-    @Test(enabled = false)
+    @Test()
     public void errorResultWithMultipleWorkers() {
         BValue[] returns = BRunUtil.invoke(result, "errorResultWithMultipleWorkers");
         Assert.assertEquals(returns.length, 1);

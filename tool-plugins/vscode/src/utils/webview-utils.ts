@@ -1,5 +1,5 @@
 import { Uri, ExtensionContext, WebviewOptions, WebviewPanelOptions } from "vscode";
-import { join } from "path";
+import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
 
 export function getWebViewResourceRoot(): string {
@@ -57,6 +57,11 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
             '<link rel="stylesheet" type="text/css" href="' + cssFile + '" />').join('\n') 
         : '';
 
+    const fontDir = join(getDistributionComposerURI(), 'font');
+
+    // in windows fontdir path contains \ as separator. css does not like this.
+    const fontDirWithSeparatorReplaced = fontDir.split(sep).join("/");
+
     return `
             <!DOCTYPE html>
             <html>
@@ -73,11 +78,18 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                         left: calc(50% - 20px);
                         top: calc(50% - 20px);
                     }
+                    @font-face{
+                        font-family: font-ballerina;
+                        src: url("${fontDirWithSeparatorReplaced}/font-ballerina.eot");
+                        src: url("${fontDirWithSeparatorReplaced}/font-ballerina.eot?#iefix") format("embedded-opentype"), url("${fontDirWithSeparatorReplaced}/font-ballerina.woff2") format("woff2"), url("${fontDirWithSeparatorReplaced}/font-ballerina.woff") format("woff"), url("${fontDirWithSeparatorReplaced}/font-ballerina.ttf") format("truetype"), url("${fontDirWithSeparatorReplaced}/font-ballerina.svg#font-ballerina") format("svg");
+                        font-weight:normal;
+                        font-style:normal;
+                   }
                     ${styles}
                 </style>
             </head>
             
-            <body style="overflow: hidden;" class="${bodyCss}">
+            <body class="${bodyCss}">
                 ${body}
                 <script>
                     ${scripts}
@@ -107,7 +119,7 @@ export function getComposerPath(): string {
 
 export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
     return [
-        join(getComposerPath(), 'codepoints.js'),
+        join(getDistributionComposerURI(), 'codepoints.js'),
         join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
@@ -116,7 +128,7 @@ export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
 export function getComposerCSSFiles(): string[] {
     return [
         join(getComposerPath(), 'themes', 'ballerina-default.min.css'),
-        join(getComposerPath(), 'font', 'font-ballerina.css')
+        join(getDistributionComposerURI(), 'font', 'font-ballerina.css')
     ];
 }
 
