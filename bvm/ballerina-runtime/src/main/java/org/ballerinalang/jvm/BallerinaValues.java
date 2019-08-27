@@ -36,7 +36,7 @@ import java.util.Map.Entry;
 public class BallerinaValues {
 
     /**
-     * Overloaded method that creates a runtime record value using the given package id and record type name.
+     * Method that creates a runtime record value using the given package id and record type name.
      *
      * @param packageId the package id that the record type resides.
      * @param recordTypeName name of the record type.
@@ -48,7 +48,7 @@ public class BallerinaValues {
     }
 
     /**
-     * Overloaded method that populates record fields using the given package id, record type name and a map of
+     * Method that populates record fields using the given package id, record type name and a map of
      * field names and associated values for fields.
      *
      * @param packageId the package id that the record type resides.
@@ -67,7 +67,7 @@ public class BallerinaValues {
     }
 
     /**
-     * Overloaded method that creates a runtime object value using the given package id and object type name.
+     * Method that creates a runtime object value using the given package id and object type name.
      *
      * @param packageId the package id that the object type resides.
      * @param objectTypeName name of the object type.
