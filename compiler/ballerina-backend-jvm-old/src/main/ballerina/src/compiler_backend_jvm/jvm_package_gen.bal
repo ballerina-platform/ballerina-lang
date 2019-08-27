@@ -355,7 +355,6 @@ function getModuleLevelClassName(string orgName, string moduleName, string sourc
 
 function getPackageName(string orgName, string moduleName) returns string {
     string packageName = "";
-     handle source file path start with '/'.
     if (moduleName != ".") {
         packageName = cleanupName(moduleName) + "/";
     }

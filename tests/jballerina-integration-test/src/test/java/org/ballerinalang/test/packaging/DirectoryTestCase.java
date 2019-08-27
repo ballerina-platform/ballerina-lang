@@ -38,6 +38,7 @@ import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 public class DirectoryTestCase extends BaseTest {
     private BMainInstance balClient;
     private Path testProjectPath;
+
     /**
      * Copy the TestProject1 to a temp folder.
      *
@@ -47,7 +48,7 @@ public class DirectoryTestCase extends BaseTest {
     public void setUp() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
     }
-    
+
     /**
      * Run TestProject which has main file inside abc directory and check whether the expected output received.
      *
@@ -56,17 +57,17 @@ public class DirectoryTestCase extends BaseTest {
     @Test(description = "Test building and running TestProject")
     public void testRunDirectory() throws BallerinaTestException {
         testProjectPath = Paths.get("src", "test", "resources", "packaging", "executable", "TestProject")
-                                      .toAbsolutePath();
+                               .toAbsolutePath();
         // Run and see output
         String msg = "Main inside directory and File name with . and File name with -";
         LogLeecher fooRunLeecher = new LogLeecher(msg);
-        balClient.runMain("run", new String[] {"foo"}, new HashMap<>(), new String[0],
-                          new LogLeecher[]{fooRunLeecher}, testProjectPath.toString());
+        balClient.runMain("run", new String[] { "foo" }, new HashMap<>(), new String[0],
+                          new LogLeecher[] { fooRunLeecher }, testProjectPath.toString());
         fooRunLeecher.waitForText(10000);
     }
-    
+
     @AfterClass
     private void cleanup() throws Exception {
-        deleteFiles(Paths.get(this.testProjectPath.toString(),"target").toAbsolutePath());
+        deleteFiles(Paths.get(this.testProjectPath.toString(), "target").toAbsolutePath());
     }
 }
