@@ -52,3 +52,11 @@ public function main3(string... args) {panic
   )
         ;
 }
+
+public function main4(string... args) {
+  panic   getError();
+}
+
+public function getError() returns error {
+    return   error ("Player has to be initialized") ;
+}
