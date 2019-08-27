@@ -643,9 +643,6 @@ public class TypeChecker extends BLangNodeVisitor {
                             actType = checkExpr(listConstructor.exprs.get(i), env, expType);
                             results.add(expType.tag != TypeTags.NONE ? expType : actType);
                         } else {
-                            // TODO: 8/21/19 The fix below is a temporary one. The rest type should be NoType if
-                            //  absent. Should be able to simply pass tupleType.restType as the expType.
-                            //  https://github.com/ballerina-platform/ballerina-lang/issues/18074
                             if (tupleType.restType != null) {
                                 restType = checkExpr(listConstructor.exprs.get(i), env, tupleType.restType);
                             } else {
