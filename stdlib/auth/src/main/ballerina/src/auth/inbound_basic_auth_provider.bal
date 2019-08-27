@@ -56,15 +56,15 @@ public type InboundBasicAuthProvider object {
         if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX)) {
             if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA256)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha256(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                encoding:encodeHex(crypto:hashSha256(password.toBytes())),
                                 extractHash(passwordFromConfig));
             } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA384)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha384(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                encoding:encodeHex(crypto:hashSha384(password.toBytes())),
                                 extractHash(passwordFromConfig));
             } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA512)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha512(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                encoding:encodeHex(crypto:hashSha512(password.toBytes())),
                                 extractHash(passwordFromConfig));
             } else {
                 authenticated = password == passwordFromConfig;

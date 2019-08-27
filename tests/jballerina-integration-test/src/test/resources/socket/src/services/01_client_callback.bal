@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/internal;
 import ballerina/io;
 import ballerina/socket;
 
@@ -33,7 +32,7 @@ service echo on echoEP {
         var payload = req.getTextPayload();
         http:Response resp = new;
         if (payload is string) {
-            byte[] payloadByte = internal:toByteArray(payload, "UTF-8");
+            byte[] payloadByte = payload.toBytes();
             var writeResult = socketClient->write(payloadByte);
             if (writeResult is int) {
                 io:println("Number of bytes written: ", writeResult);
