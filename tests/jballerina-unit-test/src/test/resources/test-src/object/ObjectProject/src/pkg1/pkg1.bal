@@ -16,3 +16,27 @@ public type Employee object {
         return self.email;
     }
 };
+
+public type SameFieldAndMethodObject object {
+    public int someInt = 13;
+    public float someFloat = 1.1;
+
+    public function someInt() returns int {
+        self.someInt += 10;
+        return self.someInt;
+    }
+
+    public function someFloat() returns float {
+        return 2.2;
+    }
+
+    public function getInt() returns int {
+        return self.someInt;
+    }
+
+    public function testFloat() returns [float, float] {
+        float f1 = self.someFloat;
+        float f2 = self.someFloat();
+        return [f1, f2];
+    }
+};

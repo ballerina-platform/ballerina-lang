@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "kafka"
+    artifactId = "kafka"
     version = "@project.version@"
     path = "./lib/ballerina-kafka-@project.version@.jar"
     groupId = "ballerina"
