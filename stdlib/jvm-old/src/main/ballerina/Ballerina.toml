@@ -6,14 +6,14 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "jvm"
+    artifactId = "jvm"
     version = "@project.version@"
     path = "../libs/ballerina-jvm-old-1.0.0-beta-SNAPSHOT.jar"
     groupId = "ballerina"
     modules = ["jvm"]
 
     [[platform.libraries]]
-    artafactId = "asm"
+    artifactId = "asm"
     version = "6.2.1"
     path = "../../../../distribution/bootstrapper/build/dist/pack0/jballerina-tools-1.0.0-alpha2/bre/lib/asm-7.1.jar"
     groupId = "org.ow2.asm"

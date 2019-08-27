@@ -143,6 +143,21 @@ public class BCompileUtil {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
+
+    /**
+     * Compile on a separated process.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileInProc(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        CompilerContext context = new CompilerContext();
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, true);
+    }
+
     /**
      * Only compiles the file and does not run them.
      *
@@ -666,16 +681,16 @@ public class BCompileUtil {
                                                      SourceDirectory sourceDirectory, boolean init) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, sourceDirectory);
-        return compileOnJBallerina(context, sourceRoot, packageName, false, init);
+        return compileOnJBallerina(context, sourceRoot, packageName, false, init, false);
     }
 
     public static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp, boolean init) {
         CompilerContext context = new CompilerContext();
-        return compileOnJBallerina(context, sourceRoot, packageName, temp, init);
+        return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false);
     }
 
     public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-            boolean temp, boolean init) {
+                                                    boolean temp, boolean init, boolean onProc) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
@@ -694,7 +709,8 @@ public class BCompileUtil {
             JBallerinaInMemoryClassLoader cl = BootstrapRunner.createClassLoaders(bLangPackage,
                                                                                   systemBirCache,
                                                                                   buildDir.resolve("test-bir-temp"),
-                                                                                  Optional.empty(), false);
+                    Optional.empty(), false,
+                    onProc);
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
@@ -710,6 +726,15 @@ public class BCompileUtil {
     }
 
     public static String runMain(CompileResult compileResult, String[] args) {
+        ExitDetails exitDetails = run(compileResult, args);
+
+        if (exitDetails.exitCode != 0) {
+            throw new RuntimeException(exitDetails.errorOutput);
+        }
+        return exitDetails.consoleOutput;
+    }
+
+    public static ExitDetails run(CompileResult compileResult, String[] args) {
         BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());
         String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID.orgName.value,
                 compiledPkg.packageID.name.value, MODULE_INIT_CLASS_NAME);
@@ -720,8 +745,7 @@ public class BCompileUtil {
             final List<String> actualArgs = new ArrayList<>();
             actualArgs.add(0, "java");
             actualArgs.add(1, "-cp");
-            String classPath = System.getProperty("java.class.path") + ":" + classLoader.getCompiledJarPath() + ":" +
-                    classLoader.getImportsCachePath();
+            String classPath = System.getProperty("java.class.path") + ":" + classLoader.getClassPath();
             actualArgs.add(2, classPath);
             actualArgs.add(3, initClazz.getCanonicalName());
             actualArgs.addAll(Arrays.asList(args));
@@ -732,10 +756,7 @@ public class BCompileUtil {
             String consoleError = getConsoleOutput(process.getErrorStream());
             process.waitFor();
             int exitValue = process.exitValue();
-            if (exitValue != 0) {
-                throw new RuntimeException(consoleError);
-            }
-            return consoleInput;
+            return new ExitDetails(exitValue, consoleInput, consoleError);
         } catch (InterruptedException | IOException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
@@ -753,5 +774,20 @@ public class BCompileUtil {
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return compileOnJBallerina(sourceRoot.toString(), packageName, temp, init);
+    }
+
+    /**
+     * Class to hold program execution outputs.
+     */
+    public static class ExitDetails {
+        public int exitCode;
+        public String consoleOutput;
+        public String errorOutput;
+
+        public ExitDetails(int exitCode, String consoleOutput, String errorOutput) {
+            this.exitCode = exitCode;
+            this.consoleOutput = consoleOutput;
+            this.errorOutput = errorOutput;
+        }
     }
 }

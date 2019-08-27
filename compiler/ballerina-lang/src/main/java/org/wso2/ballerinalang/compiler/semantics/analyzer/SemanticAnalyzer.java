@@ -2280,6 +2280,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+        if (names.fromIdNode(constant.name) == Names.IGNORE) {
+            dlog.error(constant.name.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+        }
         if (constant.typeNode != null && !types.isAllowedConstantType(constant.typeNode.type)) {
             dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
         }
