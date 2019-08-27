@@ -217,8 +217,8 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 0, "invalid token 'var'", 3, 20);
         BAssertUtil.validateError(resultNeg, 1, "extraneous input '\" = \"'", 3, 23);
         BAssertUtil.validateError(resultNeg, 2, "token recognition error at: '\";\\n    return 'global\\ '", 3, 31);
-        BAssertUtil.validateError(resultNeg, 3, "token recognition error at: '\\'", 4, 22);
-        BAssertUtil.validateError(resultNeg, 4, "missing token '=' before 'v'", 4, 21);
+        BAssertUtil.validateError(resultNeg, 3, "missing token '=' before 'v'", 4, 21);
+        BAssertUtil.validateError(resultNeg, 4, "token recognition error at: '\\'", 4, 22);
     }
 
     @Test

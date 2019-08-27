@@ -35,93 +35,95 @@ public class SimpleConstantNegativeTest {
         Assert.assertEquals(compileResult.getErrorCount(), 57);
 
         int index = 0;
-        int offset = 1;
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'",
-                offset, 29);
+                1, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found 'string'",
-                offset += 1, 21);
+                2, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
-                offset += 1, 23);
+                3, 23);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'float', found 'boolean'",
-                offset += 1, 25);
+                4, 25);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'decimal', found 'boolean'",
-                offset += 1, 29);
+                5, 29);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 6, 27);
+        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 20, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 21, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 27, 9);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
-                offset += 1, 27);
-        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 14, 5);
-        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 1, 5);
-        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 6, 9);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
-                offset += 7, 21);
-        BAssertUtil.validateError(compileResult, index++, "invalid literal for type 'string'", offset += 2, 18);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", offset += 5, 7);
+                34, 21);
+        BAssertUtil.validateError(compileResult, index++, "invalid literal for type 'string'", 36, 18);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 41, 7);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
-                offset += 17, 21);
+                58, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
-                offset += 9, 12);
+                67, 12);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '(E|F)', found '(D|E)'",
-                offset += 18, 11);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[UVW, UVW]'", offset += 7, 1);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'SSS'", offset += 5, 18);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[IJK, IJK]'", offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'RST'", offset += 5, 20);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[LMN, OPQ, LMN]'", offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'RST'", offset += 2, 20);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[OPQ, LMN, OPQ]'", offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, EGI, BDF]'",
-                offset += 5, 1);
+                85, 11);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[UVW, UVW]'", 92, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[IJK, IJK]'", 97, 1);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'SSS'", 97, 18);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[LMN, OPQ, LMN]'", 102, 1);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'RST'", 102, 20);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[OPQ, LMN, OPQ]'", 104, 1);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'RST'", 104, 20);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[ACE, BDF, CEG, ACE]'",
+                109, 1);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[ACE, BDF, CEG, EGI, ACE]'",
-                offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[ACE, BDF, CEG, ACE]'", offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'DFH'", offset += 2, 26);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, EGI, BDF]'", offset, 1);
+                109, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, EGI, BDF]'",
+                109, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, ACE, BDF]'",
+                111, 1);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, EGI, ACE, BDF]'",
-                offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, ACE, BDF]'", offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[CEG, EGI, BDF, CEG]'",
-                offset += 2, 1);
+                111, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, EGI, BDF]'",
+                111, 1);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'DFH'", 111, 26);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[CEG, ACE, BDF, CEG]'",
+                113, 1);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[CEG, EGI, ACE, BDF, CEG]'",
-                offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[CEG, ACE, BDF, CEG]'", offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[EGI, BDF, CEG, EGI]'",
-                offset += 4, 1);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, ACE, BDF]'", offset, 1);
+                113, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[CEG, EGI, BDF, CEG]'",
+                113, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[ACE, BDF, CEG, ACE]'",
+                117, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, ACE, BDF]'",
+                117, 1);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[EGI, ACE, BDF, CEG, EGI]'",
-                offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[ACE, BDF, CEG, ACE]'", offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'PQ'", offset += 5, 10);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'J'", offset += 5, 10);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'S'", offset += 4, 10);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'T'", offset, 12);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'U'", offset, 14);
+                117, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[EGI, BDF, CEG, EGI]'",
+                117, 1);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'PQ'", 122, 10);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'J'", 127, 10);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'S'", 131, 10);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'T'", 131, 12);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'U'", 131, 14);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'false', found 'boolean'",
-                offset += 17, 29);
+                148, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'true', found 'boolean'",
-                offset += 9, 32);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '40', found 'int'",
-                offset += 11, 25);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '20', found 'int'", offset += 9,
-                28);
+                157, 32);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '40', found 'int'", 168, 25);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '20', found 'int'", 177, 28);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '240', found 'int'",
-                offset += 11, 26);
+                188, 26);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0f', found 'float'",
-                offset += 11, 27);
+                199, 27);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '2.0f', found 'float'",
-                offset += 9, 30);
+                208, 30);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0d', found 'float'",
-                offset += 11, 29);
+                219, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina is awesome', found" +
-                " 'string'", offset += 11, 28);
+                " 'string'", 230, 28);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina rocks', found " +
-                "'string'", offset += 9, 31);
+                "'string'", 239, 31);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '()'",
-                offset += 6, 24);
-        BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", offset += 4, 33);
-        BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", offset += 1, 33);
-        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 12, 5);
+                245, 24);
+        BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", 249, 33);
+        BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", 250, 33);
+        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 262, 5);
         BAssertUtil.validateError(compileResult, index++, "constant cannot be defined with type 'Foo', expected a " +
-                "simple basic types or a map of a simple basic type", offset += 10, 7);
+                "simple basic types or a map of a simple basic type", 272, 7);
         BAssertUtil.validateError(compileResult, index, "constant cannot be defined with type 'json', expected a " +
-                "simple basic types or a map of a simple basic type", offset += 2, 7);
+                "simple basic types or a map of a simple basic type", 274, 7);
     }
 }

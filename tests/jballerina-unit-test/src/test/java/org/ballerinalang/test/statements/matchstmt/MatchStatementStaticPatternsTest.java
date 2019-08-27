@@ -403,9 +403,9 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 242, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 256, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 257, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 258, 9);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid key: only identifiers and strings are allowed as record literal keys", 258, 10);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 258, 9);
         BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 270, 9);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid literal for match pattern; allowed literals are simple, tuple and record only", 279, 9);
