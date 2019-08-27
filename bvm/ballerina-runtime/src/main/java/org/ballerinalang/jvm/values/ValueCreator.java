@@ -39,13 +39,12 @@ import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
 public abstract class ValueCreator {
 
     private static final Map<String, ValueCreator> runtimeValueCreators = new HashMap<>();
-    private static final String PERIOD = ".";
 
     public static void addValueCreator(String orgName, String moduleName, String moduleVersion,
                                        ValueCreator valueCreator) {
         String key = getLookupKey(orgName, moduleName, moduleVersion);
 
-        if (!key.equals(PERIOD) && runtimeValueCreators.containsKey(key)) {
+        if (!key.equals(DOT) && runtimeValueCreators.containsKey(key)) {
             // silently fail
             return;
         }
