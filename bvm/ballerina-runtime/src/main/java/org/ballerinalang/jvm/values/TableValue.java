@@ -224,6 +224,8 @@ public class TableValue implements RefValue, CollectionValue {
         try {
             this.addData(data);
             return null;
+        } catch (ErrorValue e) {
+            return e;
         } catch (Throwable e) {
             return TableUtils.createTableOperationError(e);
         }
