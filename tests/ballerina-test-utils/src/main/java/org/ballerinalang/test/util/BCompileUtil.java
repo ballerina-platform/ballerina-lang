@@ -143,6 +143,21 @@ public class BCompileUtil {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
+
+    /**
+     * Compile on a separated process.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileInProc(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        CompilerContext context = new CompilerContext();
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, true);
+    }
+
     /**
      * Only compiles the file and does not run them.
      *
@@ -666,16 +681,16 @@ public class BCompileUtil {
                                                      SourceDirectory sourceDirectory, boolean init) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, sourceDirectory);
-        return compileOnJBallerina(context, sourceRoot, packageName, false, init);
+        return compileOnJBallerina(context, sourceRoot, packageName, false, init, false);
     }
 
     public static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp, boolean init) {
         CompilerContext context = new CompilerContext();
-        return compileOnJBallerina(context, sourceRoot, packageName, temp, init);
+        return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false);
     }
 
     public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-            boolean temp, boolean init) {
+                                                    boolean temp, boolean init, boolean onProc) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
@@ -694,7 +709,8 @@ public class BCompileUtil {
             JBallerinaInMemoryClassLoader cl = BootstrapRunner.createClassLoaders(bLangPackage,
                                                                                   systemBirCache,
                                                                                   buildDir.resolve("test-bir-temp"),
-                                                                                  Optional.empty(), false);
+                    Optional.empty(), false,
+                    onProc);
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil

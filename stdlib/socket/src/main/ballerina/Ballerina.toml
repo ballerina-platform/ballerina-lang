@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "socket"
+    artifactId = "socket"
     version = "@project.version@"
     path = "./lib/ballerina-socket-@project.version@.jar"
     groupId = "ballerina"
