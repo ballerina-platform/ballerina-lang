@@ -103,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
@@ -1265,12 +1266,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordDestructure stmt) {
+        List<BLangExpression> varRefs = stmt.varRef.recordRefFields.stream()
+                .map(e -> e.variableReference).collect(Collectors.toList());
+        varRefs.add((BLangExpression) stmt.varRef.restParam);
+        this.checkDuplicateVarRefs(varRefs);
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
     }
 
     public void visit(BLangErrorDestructure stmt) {
+        List<BLangExpression> varRefs = new ArrayList<>();
+        varRefs.add(stmt.varRef.reason);
+        varRefs.addAll(stmt.varRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
+        varRefs.add(stmt.varRef.restVar);
+        this.checkDuplicateVarRefs(varRefs);
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
@@ -1278,9 +1288,65 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
+        List<BLangExpression> varRefs = new ArrayList<>(stmt.varRef.expressions);
+        varRefs.add((BLangExpression) stmt.varRef.restParam);
+        this.checkDuplicateVarRefs(varRefs);
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
+    }
+
+    private void checkDuplicateVarRefs(List<BLangExpression> varRefs) {
+        checkDuplicateVarRefs(varRefs, new HashSet<>());
+    }
+
+    private void checkDuplicateVarRefs(List<BLangExpression> varRefs, Set<BSymbol> symbols) {
+        for (BLangExpression varRef : varRefs) {
+            if (varRef == null || (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF
+                    && varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR
+                    && varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR
+                    && varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR
+                    && varRef.getKind() != NodeKind.RECORD_VARIABLE_REF
+                    && varRef.getKind() != NodeKind.ERROR_VARIABLE_REF
+                    && varRef.getKind() != NodeKind.TUPLE_VARIABLE_REF)) {
+                continue;
+            }
+
+            if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                    && names.fromIdNode(((BLangSimpleVarRef) varRef).variableName) == Names.IGNORE) {
+                continue;
+            }
+
+            if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+                BLangTupleVarRef tupVarRef = (BLangTupleVarRef) varRef;
+                List<BLangExpression> refs = new ArrayList<>(tupVarRef.expressions);
+                refs.add((BLangExpression) tupVarRef.restParam);
+                checkDuplicateVarRefs(refs, symbols);
+            }
+
+            if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+                BLangRecordVarRef recVarRef = (BLangRecordVarRef) varRef;
+                List<BLangExpression> refs = recVarRef.recordRefFields.stream()
+                        .map(e -> e.variableReference).collect(Collectors.toList());
+                refs.add((BLangExpression) recVarRef.restParam);
+                checkDuplicateVarRefs(refs, symbols);
+            }
+
+            if (varRef.getKind() == NodeKind.ERROR_VARIABLE_REF) {
+                BLangErrorVarRef errVarRef = (BLangErrorVarRef) varRef;
+                List<BLangExpression> refs = new ArrayList<>();
+                refs.add(errVarRef.reason);
+                refs.addAll(errVarRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
+                refs.add(errVarRef.restVar);
+                checkDuplicateVarRefs(refs, symbols);
+            }
+
+            BLangVariableReference varRefExpr = (BLangVariableReference) varRef;
+            if (varRefExpr.symbol != null && !symbols.add(varRefExpr.symbol)) {
+                this.dlog.error(varRef.pos, DiagnosticCode.DUPLICATE_VARIABLE_IN_BINDING_PATTERN,
+                        varRefExpr.symbol);
+            }
+        }
     }
 
     public void visit(BLangBreak breakNode) {
