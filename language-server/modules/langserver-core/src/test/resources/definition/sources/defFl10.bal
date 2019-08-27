@@ -1,12 +1,12 @@
 function foo(string | int | boolean a) returns string {
     string sampleRet = "sample";
     match a {
-        12 => return "Value is '12'";
-        "Hello" => return "Value is 'Hello'";
-        15 => return "Value is '15'";
-        true => return "Value is 'true'";
-        false => return "Value is 'false'";
-        "HelloAgain" => return sampleRet;
+        12 => {return "Value is '12'";};
+        "Hello" => {return "Value is 'Hello'";};
+        15 => {return "Value is '15'";};
+        true => {return "Value is 'true'";};
+        false => {return "Value is 'false'";};
+        "HelloAgain" => {return sampleRet;};
     }
 
     return "Value is 'Default'";
