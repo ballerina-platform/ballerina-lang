@@ -6,9 +6,6 @@ import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState, ViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
 import { visitor as hiddenBlockVisitor } from "../visitors/hidden-block-visitor";
-import { visitor as initVisitor } from "../visitors/init-visitor";
-import { setMaxInvocationDepth, setProjectAST, visitor as invocationVisitor
-    } from "../visitors/invocation-expanding-visitor";
 import { visitor as interactionModeVisitor } from "../visitors/mode-visitors/interaction-mode-visitor";
 import { visitor as statementModeVisitor } from "../visitors/mode-visitors/statement-mode-visitor";
 import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
@@ -97,11 +94,6 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         cuViewState.container.w = diagramWidth;
         cuViewState.container.h = diagramHeight;
 
-        // Initialize AST node view state
-        ASTUtil.traversNode(ast, initVisitor);
-        setProjectAST(projectAst);
-        setMaxInvocationDepth(this.props.maxInvocationDepth === undefined ? -1 : this.props.maxInvocationDepth);
-        ASTUtil.traversNode(ast, invocationVisitor);
         if (this.props.mode === DiagramMode.INTERACTION) {
             ASTUtil.traversNode(ast, interactionModeVisitor);
         } else {
@@ -112,6 +104,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         // Calculate dimention of AST Nodes.
         ASTUtil.traversNode(ast, sizingVisitor);
         // Calculate positions of the AST Nodes.
+        (ast.viewState as ViewState).bBox.x = 0;
+        (ast.viewState as ViewState).bBox.y = 0;
         ASTUtil.traversNode(ast, positioningVisitor);
         // Get React components for AST Nodes.
         children.push(DiagramUtils.getComponents(ast));

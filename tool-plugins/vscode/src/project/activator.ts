@@ -1,6 +1,8 @@
 import { BallerinaExtension, ExtendedLangClient, BALLERINA_LANG_ID, ballerinaExtInstance } from "../core";
 import { workspace, window, Uri } from "vscode";
 import { TM_EVENT_OPEN_DETECTED_PROJECT_ROOT_VIA_PROMPT, CMP_PROJECT_SUPPORT } from "../telemetry";
+import { activateTestRunner } from "./cli-cmds/test";
+import { activateBuildCommand } from "./cli-cmds/build";
 
 function promptOpenFolder(path: string) {
     const reporter = ballerinaExtInstance.telemetryReporter;
@@ -40,4 +42,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             });
         }
     });
+    // activate ballerina test command
+    activateTestRunner();
+
+    // activate ballerina build command
+    activateBuildCommand();
 }

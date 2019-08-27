@@ -1,7 +1,6 @@
 import ballerina/encoding;
 import ballerina/io;
 import ballerina/http;
-import ballerina/mime;
 
 function testContentType(http:Request req, string contentTypeValue) returns @tainted string {
     checkpanic req.setContentType(contentTypeValue);

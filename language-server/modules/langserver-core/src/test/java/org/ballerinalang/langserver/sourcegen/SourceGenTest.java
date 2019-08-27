@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.sourcegen;
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
@@ -66,7 +67,7 @@ public class SourceGenTest {
 
     @Test(description = "Source gen test suit for formatting source gen", dataProvider = "unitTestFiles")
     public void formattingSourceGenTests(File file) {
-        LSServiceOperationContext formatContext = new LSServiceOperationContext();
+        LSServiceOperationContext formatContext = new LSServiceOperationContext(LSContextOperation.TXT_FORMATTING);
         try {
             Path filePath = Paths.get(file.getPath());
             formatContext.put(DocumentServiceKeys.FILE_URI_KEY, filePath.toUri().toString());

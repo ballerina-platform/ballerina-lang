@@ -91,6 +91,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -513,8 +514,11 @@ public class HttpUtil {
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
-        MapValue<String, Object> detailRecord = createHttpErrorDetailRecord(message, null);
-        return BallerinaErrors.createError(errorType.getReason(), detailRecord);
+        Map<String, Object> values = new HashMap<>();
+        values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, message);
+        MapValue<String, Object> detail =
+                BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD, values);
+        return BallerinaErrors.createError(errorType.getReason(), detail);
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType, ErrorValue cause) {
@@ -525,7 +529,8 @@ public class HttpUtil {
     private static MapValue<String, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
         MapValue<String, Object> detail = BallerinaValues
                 .createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD);
-        return BallerinaValues.createRecord(detail, message, cause);
+        return cause == null ? BallerinaValues.createRecord(detail, message) :
+                BallerinaValues.createRecord(detail, message, cause);
     }
 
     // TODO: Find a better way to get the error type than String matching.
@@ -1166,26 +1171,30 @@ public class HttpUtil {
         } else {
             HttpUtil.setDefaultTrustStore(senderConfiguration);
         }
-        MapValue proxy = clientEndpointConfig.getMapValue(HttpConstants.PROXY_STRUCT_REFERENCE);
-        if (proxy != null) {
-            String proxyHost = proxy.getStringValue(HttpConstants.PROXY_HOST);
-            int proxyPort = proxy.getIntValue(HttpConstants.PROXY_PORT).intValue();
-            String proxyUserName = proxy.getStringValue(HttpConstants.PROXY_USERNAME);
-            String proxyPassword = proxy.getStringValue(HttpConstants.PROXY_PASSWORD);
-            try {
-                proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
-            } catch (UnknownHostException e) {
-                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
+        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
+        if (HTTP_1_1_VERSION.equals(httpVersion)) {
+            MapValue<String, Object> http1Settings = (MapValue<String, Object>) clientEndpointConfig
+                    .get(HttpConstants.HTTP1_SETTINGS);
+            MapValue proxy = http1Settings.getMapValue(HttpConstants.PROXY_STRUCT_REFERENCE);
+            if (proxy != null) {
+                String proxyHost = proxy.getStringValue(HttpConstants.PROXY_HOST);
+                int proxyPort = proxy.getIntValue(HttpConstants.PROXY_PORT).intValue();
+                String proxyUserName = proxy.getStringValue(HttpConstants.PROXY_USERNAME);
+                String proxyPassword = proxy.getStringValue(HttpConstants.PROXY_PASSWORD);
+                try {
+                    proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
+                } catch (UnknownHostException e) {
+                    throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
+                }
+                if (!proxyUserName.isEmpty()) {
+                    proxyServerConfiguration.setProxyUsername(proxyUserName);
+                }
+                if (!proxyPassword.isEmpty()) {
+                    proxyServerConfiguration.setProxyPassword(proxyPassword);
+                }
+                senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
             }
-            if (!proxyUserName.isEmpty()) {
-                proxyServerConfiguration.setProxyUsername(proxyUserName);
-            }
-            if (!proxyPassword.isEmpty()) {
-                proxyServerConfiguration.setProxyPassword(proxyPassword);
-            }
-            senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         }
-
         long timeoutMillis = clientEndpointConfig.getIntValue(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
         if (timeoutMillis < 0) {
             senderConfiguration.setSocketIdleTimeout(0);
@@ -1193,8 +1202,6 @@ public class HttpUtil {
             senderConfiguration.setSocketIdleTimeout(
                     validateConfig(timeoutMillis, HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT));
         }
-
-        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (httpVersion != null) {
             senderConfiguration.setHttpVersion(httpVersion);
         }

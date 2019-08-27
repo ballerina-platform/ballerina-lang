@@ -30,6 +30,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "Statement",
@@ -116,7 +124,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|int|boolean)"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `(string|int|boolean)`   \n  \n"
         }
       },
       "sortText": "130",

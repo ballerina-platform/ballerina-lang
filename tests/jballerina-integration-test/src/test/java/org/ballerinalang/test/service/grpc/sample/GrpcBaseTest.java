@@ -46,9 +46,9 @@ public class GrpcBaseTest extends BaseTest {
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "grpc").getAbsolutePath();
-        String[] args = new String[] { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert };
+        String[] args = new String[] { "--certificate.key=" + privateKey, "--public.cert=" + publicCert };
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFile, "grpcservices", args, requiredPorts);
+        serverInstance.startServer(balFile, "grpcservices", null, args, requiredPorts);
     }
 
     @AfterGroups(value = "grpc-test", alwaysRun = true)

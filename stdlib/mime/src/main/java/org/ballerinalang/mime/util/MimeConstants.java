@@ -104,6 +104,7 @@ public class MimeConstants {
     public static final String BODY_PARTS = "body_parts";
     public static final String ENTITY_HEADERS = "entity_headers";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String PARSE_AS_JSON = "PARSE_AS_TEXT";
 
     public static final String CHARSET = "charset";
 

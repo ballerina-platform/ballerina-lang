@@ -89,7 +89,7 @@ public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
         webSubSubscriber.addLogLeecher(notificationAfterLogLeecherOne);
         webSubSubscriber.addLogLeecher(notificationAfterLogLeecherTwo);
 
-        webSubSubscriber.startServer(subscriberBal, new String[0], new int[]{WEBSUB_PORT});
+        webSubSubscriber.startServer(subscriberBal, new String[0], new String[0], new int[]{WEBSUB_PORT});
     }
 
     @Test

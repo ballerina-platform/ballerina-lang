@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_TRANSACTIONS;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
 /**
@@ -53,8 +54,8 @@ public class KafkaProducerTransactionsTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).addBrokers(3).startup();
+        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-transaction-test");
+        kafkaCluster = createKafkaCluster(dataDir, 14012, 14112).addBrokers(3).startup();
     }
 
     @Test(description = "Test Kafka producer send function within transaction")
@@ -145,14 +146,5 @@ public class KafkaProducerTransactionsTest {
                 dataDir.deleteOnExit();
             }
         }
-    }
-
-    protected static KafkaCluster kafkaCluster() {
-        if (kafkaCluster != null) {
-            throw new IllegalStateException();
-        }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-transaction-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14012, 14112);
-        return kafkaCluster;
     }
 }

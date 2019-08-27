@@ -96,7 +96,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
 
                 if (error == null || error.isEmpty()) {
                     notifyClient(client, MessageType.Info, "Pulling success for the '" + moduleName + "' module!");
-                    clearDiagnostics(client, diagnosticsHelper, documentUri);
+                    clearDiagnostics(client, diagnosticsHelper, documentUri, context);
                 } else {
                     notifyClient(client, MessageType.Error,
                             "Pulling failed for the '" + moduleName + "' module!\n" + error);

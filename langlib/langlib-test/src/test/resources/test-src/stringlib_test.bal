@@ -91,3 +91,12 @@ function testToCodepointInts(string st) returns int[] {
 function testFromCodePointInts(int[] ints) returns string|error {
     return strings:fromCodePointInts(ints);
 }
+
+function testSubstringOutRange() returns string {
+    return "abcdef".substring(7, 9);
+}
+
+function testSubstring(string s, int si, int ei) returns error|string {
+    error|string sub = trap s.substring(si, ei);
+    return sub;
+}

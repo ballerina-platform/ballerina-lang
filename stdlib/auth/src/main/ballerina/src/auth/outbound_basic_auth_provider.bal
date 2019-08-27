@@ -16,6 +16,7 @@
 
 import ballerina/encoding;
 import ballerina/log;
+import ballerina/runtime;
 
 # Represents the outbound Basic Auth authenticator.
 #
@@ -77,7 +78,7 @@ public type Credential record {|
 function getAuthTokenForBasicAuth(Credential credential) returns string|Error {
     string username = credential.username;
     string password = credential.password;
-    if (username == EMPTY_STRING || password == EMPTY_STRING) {
+    if (username == "" || password == "") {
         return prepareError("Username or password cannot be empty.");
     }
     string str = username + ":" + password;
