@@ -493,3 +493,11 @@ function foo9(any x) returns string {
     }
 }
 
+function testErrorShouldNotMatchWildCardPattern() returns string {
+    any|error v = error("{UserGenError}Error");
+    match v {
+        0 => { return "zero"; }
+        _ => { return "other"; }
+    }
+    return "no-match";
+}

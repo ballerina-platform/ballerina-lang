@@ -332,6 +332,12 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "default");
     }
 
+    @Test(description = "Test error not being match to wildcard match pattern")
+    public void testErrorShouldNotMatchWildCardPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorShouldNotMatchWildCardPattern");
+        Assert.assertEquals(returns[0].stringValue(), "no-match");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
         Assert.assertEquals(resultNegative.getErrorCount(), 64);

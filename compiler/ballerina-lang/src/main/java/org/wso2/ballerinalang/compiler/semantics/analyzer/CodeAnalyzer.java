@@ -533,7 +533,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             dlog.error(matchStmt.pos, DiagnosticCode.MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS);
         }
         // Execute the following block if there are no unmatched expression types
-        if ((staticLastPattern && !hasErrorType(matchStmt.exprTypes)) || structuredLastPattern) {
+        if ((staticLastPattern || structuredLastPattern) && !hasErrorType(matchStmt.exprTypes)) {
             if (matchStmt.getPatternClauses().size() == 1) {
                 dlog.error(matchStmt.getPatternClauses().get(0).pos, DiagnosticCode.MATCH_STMT_PATTERN_ALWAYS_MATCHES);
             }
@@ -557,7 +557,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        return analyseStructuredBindingPatterns(matchStmt.getStructuredPatternClauses());
+        return analyseStructuredBindingPatterns(matchStmt.getStructuredPatternClauses(),
+                hasErrorType(matchStmt.exprTypes));
     }
 
     /**
@@ -640,13 +641,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        return analyzeStaticPatterns(matchedPatterns);
+        return analyzeStaticPatterns(matchedPatterns, hasErrorType(matchStmt.exprTypes));
     }
 
-    private boolean analyzeStaticPatterns(List<BLangMatchStaticBindingPatternClause> matchedPatterns) {
+    private boolean analyzeStaticPatterns(List<BLangMatchStaticBindingPatternClause> matchedPatterns,
+                                          boolean errorTypeInMatchExpr) {
         BLangMatchStaticBindingPatternClause finalPattern = matchedPatterns.get(matchedPatterns.size() - 1);
         if (finalPattern.literal.getKind() == NodeKind.SIMPLE_VARIABLE_REF
-                && ((BLangSimpleVarRef) finalPattern.literal).variableName.value.equals(Names.IGNORE.value)) {
+                && ((BLangSimpleVarRef) finalPattern.literal).variableName.value.equals(Names.IGNORE.value)
+                && !errorTypeInMatchExpr) {
             finalPattern.isLastPattern = true;
         }
 
@@ -663,9 +666,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return finalPattern.isLastPattern;
     }
 
-    private boolean analyseStructuredBindingPatterns(List<BLangMatchStructuredBindingPatternClause> clauses) {
+    private boolean analyseStructuredBindingPatterns(List<BLangMatchStructuredBindingPatternClause> clauses,
+                                                     boolean errorTypeInMatchExpr) {
         BLangMatchStructuredBindingPatternClause finalPattern = clauses.get(clauses.size() - 1);
-        if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE && finalPattern.typeGuardExpr == null) {
+        if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE
+                && finalPattern.typeGuardExpr == null
+                && !errorTypeInMatchExpr) {
             finalPattern.isLastPattern = true;
         }
 
@@ -682,7 +688,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangVariable precedingVar = precedingPattern.bindingPatternVariable;
                 BLangVariable currentVar = currentPattern.bindingPatternVariable;
 
-                if (checkStructuredPatternSimilarity(precedingVar, currentVar) &&
+                if (checkStructuredPatternSimilarity(precedingVar, currentVar, errorTypeInMatchExpr) &&
                         checkTypeGuardSimilarity(precedingPattern.typeGuardExpr, currentPattern.typeGuardExpr)) {
                     dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
                     clauses.remove(j--);
@@ -846,9 +852,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      *
      * @param precedingVar the structured pattern that appears on top
      * @param var          the structured pattern that appears after the precedingVar
+     * @param errorTypeInMatchExpr
      * @return true if the the current pattern is unreachable due to the preceding pattern
      */
-    private boolean checkStructuredPatternSimilarity(BLangVariable precedingVar, BLangVariable var) {
+    private boolean checkStructuredPatternSimilarity(BLangVariable precedingVar, BLangVariable var, boolean errorTypeInMatchExpr) {
         if (precedingVar.type.tag == TypeTags.SEMANTIC_ERROR || var.type.tag == TypeTags.SEMANTIC_ERROR) {
             return false;
         }
@@ -872,7 +879,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return false;
                 }
                 if (!checkStructuredPatternSimilarity(
-                        precedingKeyValue.valueBindingPattern, recVarAsMap.get(precedingKeyValue.key.value))) {
+                        precedingKeyValue.valueBindingPattern,
+                        recVarAsMap.get(precedingKeyValue.key.value),
+                        errorTypeInMatchExpr)) {
                     return false;
                 }
             }
@@ -908,7 +917,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
 
             for (int i = 0; i < memberVars.size(); i++) {
-                if (!checkStructuredPatternSimilarity(precedingMemberVars.get(i), memberVars.get(i))) {
+                if (!checkStructuredPatternSimilarity(precedingMemberVars.get(i), memberVars.get(i),
+                        errorTypeInMatchExpr)) {
                     return false;
                 }
             }
@@ -946,7 +956,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         return false;
                     }
                     boolean similar =
-                            checkStructuredPatternSimilarity(detailEntry.valueBindingPattern, correspondingCurDetail);
+                            checkStructuredPatternSimilarity(detailEntry.valueBindingPattern, correspondingCurDetail, errorTypeInMatchExpr);
                     if (!similar) {
                         return false;
                     }
@@ -955,7 +965,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        return precedingVar.getKind() == NodeKind.VARIABLE;
+        return precedingVar.getKind() == NodeKind.VARIABLE && !errorTypeInMatchExpr;
     }
 
     /**

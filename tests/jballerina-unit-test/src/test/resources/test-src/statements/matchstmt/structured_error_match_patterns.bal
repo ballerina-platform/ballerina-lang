@@ -203,6 +203,7 @@ function foo5(any|error e) returns string {
             }
         }
     }
+    return "Not-matched";
 }
 
 function testBasicErrorMatch7() returns string[] {
@@ -243,6 +244,7 @@ function matching(error<Fin2, ErrorData2>|error<Fin1, ErrorData2> a) returns str
         var error(reason, message = message, fatal = fatal) => return "reason = " + reason + ", message = " + <string>message + ", fatal = " + (<boolean>fatal ? "true" : "false");
         var x => return "Failed";
     }
+    return "Not-matched";
 }
 
 function testErrorMatchPattern() returns string {
