@@ -354,6 +354,7 @@ function getModuleLevelClassName(string orgName, string moduleName, string sourc
 
 function getPackageName(string orgName, string moduleName) returns string {
     string packageName = "";
+    // handle source file path start with '/'.
     if (moduleName != ".") {
         packageName = cleanupName(moduleName) + "/";
     }
@@ -377,7 +378,7 @@ function cleanupName(string name) returns string {
 }
 
 function cleanupSourceFileName(string name) returns string {
-    return internal:replace(name, ".","$$$");
+    return internal:replace(name, ".", FILE_NAME_PERIOD_SEPERATOR);
 }
 
 function cleanupPackageName(string pkgName) returns string {

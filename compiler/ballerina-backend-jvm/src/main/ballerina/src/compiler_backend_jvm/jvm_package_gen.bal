@@ -338,6 +338,7 @@ function calculateBirCachePath(string birCacheDir, bir:ModuleID modId, string ex
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
     string className = cleanupSourceFileName(sourceFileName);
+    // handle source file path start with '/'.
     if (className.startsWith("/")) {
         className = className.substring(1, className.length());
     }
@@ -377,7 +378,7 @@ function cleanupName(string name) returns string {
 }
 
 function cleanupSourceFileName(string name) returns string {
-    return internal:replace(name, ".","$$$");
+    return internal:replace(name, ".", FILE_NAME_PERIOD_SEPERATOR);
 }
 
 function cleanupPackageName(string pkgName) returns string {
