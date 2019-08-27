@@ -87,6 +87,9 @@ public class BDiagnostic implements Diagnostic {
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
         if (!(obj instanceof BDiagnostic)) {
             return false;
         }
