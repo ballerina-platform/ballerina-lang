@@ -3610,7 +3610,6 @@ public class FormattingNodeTree {
                     }
                 }
 
-
                 for (JsonElement wsItem : ws) {
                     JsonObject currentWS = wsItem.getAsJsonObject();
                     if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
@@ -3650,6 +3649,8 @@ public class FormattingNodeTree {
                                             ? indentation : indentationOfParent));
                                 }
                             }
+                        } else if (text.equals(Tokens.SEMICOLON)) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         }
                     }
                 }
