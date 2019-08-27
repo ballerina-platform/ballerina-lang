@@ -47,6 +47,21 @@ public class OSUtils {
         return null;
     }
 
+    /**
+     * Provide file name of executable for current operating system.
+     * @return name of the file
+     */
+    public static String getExecutableFileName() {
+        if (OSUtils.isWindows()) {
+            return "ballerina.bat";
+        } else if (OSUtils.isUnix() || OSUtils.isSolaris()) {
+            return "ballerina";
+        } else if (OSUtils.isMac()) {
+            return "ballerina";
+        }
+        return null;
+    }
+
     public static String getBallerinaVersionFilePath() throws IOException {
 
         String userHome = System.getProperty("user.home");

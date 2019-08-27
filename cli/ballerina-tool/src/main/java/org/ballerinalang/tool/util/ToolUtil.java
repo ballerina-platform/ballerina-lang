@@ -77,23 +77,28 @@ public class ToolUtil {
      */
     public static void listDistributions(PrintStream outStream, boolean isRemote) {
         try {
+            outStream.println("Distributions available locally: \n");
             String currentBallerinaVersion = getCurrentBallerinaVersion();
+            File folder = new File(getDistributionsPath());
+            File[] listOfFiles;
+            listOfFiles = folder.listFiles();
+            for (int i = 0; i < listOfFiles.length; i++) {
+                if (listOfFiles[i].isDirectory()) {
+                    outStream.println(markVersion(BALLERINA_TYPE + "-" + currentBallerinaVersion,
+                            listOfFiles[i].getName()));
+                }
+            }
+            outStream.println();
+
             if (isRemote) {
+                outStream.println("Distributions available remotely: \n");
                 MapValue distributions = getDistributions();
                 for (int i = 0; i < distributions.getArrayValue("list").size(); i++) {
                     MapValue dist = (MapValue) distributions.getArrayValue("list").get(i);
-                    outStream.println(markVersion(currentBallerinaVersion,
+                    outStream.println(markVersion(BALLERINA_TYPE + "-" + currentBallerinaVersion,
                             dist.getStringValue("type") + "-" + dist.getStringValue("version")));
                 }
-            } else {
-                File folder = new File(getDistributionsPath());
-                File[] listOfFiles;
-                listOfFiles = folder.listFiles();
-                for (int i = 0; i < listOfFiles.length; i++) {
-                    if (listOfFiles[i].isDirectory()) {
-                        outStream.println(markVersion(currentBallerinaVersion, listOfFiles[i].getName()));
-                    }
-                }
+                outStream.println();
             }
         } catch (IOException | KeyManagementException | NoSuchAlgorithmException e) {
             outStream.println("Ballerina Update service is not available");
@@ -118,7 +123,7 @@ public class ToolUtil {
      */
     private static String getCurrentToolsVersion() {
         //TODO: Need to read folder
-        return "1.0.0-beta";
+        return "1.0.0-beta-SNAPSHOT";
     }
 
     private static String getVersion(String path) throws IOException {
@@ -344,6 +349,14 @@ public class ToolUtil {
             zipIn.closeEntry();
             entry = zipIn.getNextEntry();
         }
+
+        final File file = new File(destDirectory
+                + File.separator + "bin"
+                + File.separator + OSUtils.getExecutableFileName());
+        file.setReadable(true, false);
+        file.setExecutable(true, false);
+        file.setWritable(true, false);
+
         zipIn.close();
         new File(zipFilePath).delete();
     }
@@ -355,7 +368,7 @@ public class ToolUtil {
      */
     public static String getDistributionsPath() throws IOException {
         return OSUtils.getInstalltionPath() + File.separator
-                + BALLERINA_TOOL_NAME + "-" + getCurrentBallerinaVersion() + File.separator + "distributions";
+                + BALLERINA_TOOL_NAME + "-" + getCurrentToolsVersion() + File.separator + "distributions";
     }
 }
 
