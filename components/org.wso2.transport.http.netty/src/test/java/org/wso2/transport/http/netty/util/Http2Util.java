@@ -19,6 +19,12 @@
 
 package org.wso2.transport.http.netty.util;
 
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpScheme;
+import io.netty.handler.codec.http2.DefaultHttp2Headers;
+import io.netty.handler.codec.http2.Http2Headers;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -131,5 +137,17 @@ public class Http2Util {
         }
         return connectorFactory.createHttpClientConnector(
                 HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
+    }
+
+    public static Http2Headers http1HeadersToHttp2Headers(FullHttpRequest request) {
+        CharSequence host = request.headers().get(HttpHeaderNames.HOST);
+        Http2Headers http2Headers = new DefaultHttp2Headers()
+                .method(HttpMethod.GET.asciiName())
+                .path(request.uri())
+                .scheme(HttpScheme.HTTP.name());
+        if (host != null) {
+            http2Headers.authority(host);
+        }
+        return http2Headers;
     }
 }

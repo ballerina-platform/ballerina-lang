@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,22 +16,23 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.util.server.initializers;
+package org.wso2.transport.http.netty.util.server.initializers.http2.expect100continue;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
+import org.wso2.transport.http.netty.util.server.initializers.http2.Http2ServerInitializer;
 
 /**
- * Handler responsible for sending out the channel ID.
+ * Handler responsible for sending an abnormal 100-continue response along with a final response.
  */
-public class Http2SendChannelIDInitializer extends Http2ServerInitializer {
+public class Abnormal100ContinueServerInitializer extends Http2ServerInitializer {
     @Override
     protected ChannelHandler getBusinessLogicHandler() {
-        return new H2ChannelIdHandlerBuilder().build();
+        return new Abnormal100ContinueHandlerBuilder().build();
     }
 
     @Override
     protected Http2ConnectionHandler getBusinessLogicHandlerViaBuiler() {
-        return new H2ChannelIdHandlerBuilder().build();
+        return new Abnormal100ContinueHandlerBuilder().build();
     }
 }

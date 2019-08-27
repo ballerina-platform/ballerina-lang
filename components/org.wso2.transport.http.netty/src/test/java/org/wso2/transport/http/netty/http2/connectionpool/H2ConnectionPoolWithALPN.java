@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
-import org.wso2.transport.http.netty.util.server.initializers.Http2SendChannelIDInitializer;
+import org.wso2.transport.http.netty.util.server.initializers.http2.channelidsender.Http2SendChannelIDInitializer;
 
 import java.util.HashMap;
 

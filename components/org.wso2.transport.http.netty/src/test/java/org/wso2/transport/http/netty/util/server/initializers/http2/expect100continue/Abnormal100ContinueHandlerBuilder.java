@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.util.server.initializers;
+package org.wso2.transport.http.netty.util.server.initializers.http2.expect100continue;
 
 import io.netty.handler.codec.http2.AbstractHttp2ConnectionHandlerBuilder;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
@@ -27,26 +27,27 @@ import io.netty.handler.codec.http2.Http2Settings;
 import static io.netty.handler.logging.LogLevel.INFO;
 
 /**
- * Represents the channel id handler builder.
+ * Represents the handler builder for 100-continue.
  */
-public final class H2ChannelIdHandlerBuilder
-    extends AbstractHttp2ConnectionHandlerBuilder<H2ChannelIdHandler, H2ChannelIdHandlerBuilder> {
+public final class Abnormal100ContinueHandlerBuilder extends
+                                                     AbstractHttp2ConnectionHandlerBuilder<Abnormal100ContinueHandler,
+                                                             Abnormal100ContinueHandlerBuilder> {
 
-    private static final Http2FrameLogger logger = new Http2FrameLogger(INFO, H2ChannelIdHandler.class);
+    private static final Http2FrameLogger LOGGER = new Http2FrameLogger(INFO, Abnormal100ContinueHandler.class);
 
-    H2ChannelIdHandlerBuilder() {
-        frameLogger(logger);
+    Abnormal100ContinueHandlerBuilder() {
+        frameLogger(LOGGER);
     }
 
     @Override
-    public H2ChannelIdHandler build() {
+    protected Abnormal100ContinueHandler build() {
         return super.build();
     }
 
     @Override
-    protected H2ChannelIdHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
-                                       Http2Settings initialSettings) {
-        H2ChannelIdHandler handler = new H2ChannelIdHandler(decoder, encoder, initialSettings);
+    protected Abnormal100ContinueHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
+                                               Http2Settings initialSettings) {
+        Abnormal100ContinueHandler handler = new Abnormal100ContinueHandler(decoder, encoder, initialSettings);
         frameListener(handler);
         return handler;
     }
