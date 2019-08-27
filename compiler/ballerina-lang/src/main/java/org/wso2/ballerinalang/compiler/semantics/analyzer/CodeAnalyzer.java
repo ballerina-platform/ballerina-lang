@@ -855,7 +855,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @param errorTypeInMatchExpr
      * @return true if the the current pattern is unreachable due to the preceding pattern
      */
-    private boolean checkStructuredPatternSimilarity(BLangVariable precedingVar, BLangVariable var, boolean errorTypeInMatchExpr) {
+    private boolean checkStructuredPatternSimilarity(BLangVariable precedingVar,
+                                                     BLangVariable var,
+                                                     boolean errorTypeInMatchExpr) {
         if (precedingVar.type.tag == TypeTags.SEMANTIC_ERROR || var.type.tag == TypeTags.SEMANTIC_ERROR) {
             return false;
         }
@@ -956,7 +958,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         return false;
                     }
                     boolean similar =
-                            checkStructuredPatternSimilarity(detailEntry.valueBindingPattern, correspondingCurDetail, errorTypeInMatchExpr);
+                            checkStructuredPatternSimilarity(detailEntry.valueBindingPattern, correspondingCurDetail,
+                                    errorTypeInMatchExpr);
                     if (!similar) {
                         return false;
                     }
