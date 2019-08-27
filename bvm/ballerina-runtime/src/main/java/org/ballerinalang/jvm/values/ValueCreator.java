@@ -39,9 +39,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
 public abstract class ValueCreator {
 
     private static final Map<String, ValueCreator> runtimeValueCreators = new HashMap<>();
-    private static final String UNDERSCORE = "_";
-    public static final String PERIOD = ".";
-    public static final String SLASH = "/";
+    private static final String PERIOD = ".";
 
     public static void addValueCreator(String orgName, String moduleName, String moduleVersion,
                                        ValueCreator valueCreator) {
@@ -70,10 +68,6 @@ public abstract class ValueCreator {
         }
 
         return pkgName + moduleName + VERSION_SEPARATOR + version;
-    }
-
-    public static String cleanupName(String name) {
-        return name.replace(PERIOD, UNDERSCORE);
     }
 
     public static ValueCreator getValueCreator(String key) {
