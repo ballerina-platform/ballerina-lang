@@ -33,6 +33,7 @@ public class Constants {
     public static final String HTTP_TRACE_LOG = "http.tracelog";
     public static final String HTTP_TRACE_LOG_ENABLED = "http.tracelog.enabled";
     public static final String HTTP_TRACE_LOG_CONSOLE = "b7a.http.tracelog.console";
+    public static final String CONSOLE_LOGGER = "b7a.log.console";
     public static final String HTTP_TRACE_LOG_FILE = "b7a.http.tracelog.path";
     public static final String HTTP_TRACE_LOG_HOST = "b7a.http.tracelog.host";
     public static final String HTTP_TRACE_LOG_PORT = "b7a.http.tracelog.port";

@@ -18,6 +18,7 @@
 package org.ballerinalang.logging;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.logging.formatters.DefaultLogFormatter;
 import org.ballerinalang.logging.formatters.HttpAccessLogFormatter;
 import org.ballerinalang.logging.formatters.HttpTraceLogFormatter;
 import org.ballerinalang.logging.formatters.JsonLogFormatter;
@@ -44,6 +45,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG_LEVEL;
+import static org.ballerinalang.logging.util.Constants.CONSOLE_LOGGER;
 import static org.ballerinalang.logging.util.Constants.DEFAULT_LOG_FILE_HANDLER_PATTERN;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG_CONSOLE;
@@ -73,6 +75,7 @@ public class BLogManager extends LogManager {
     private BLogLevel ballerinaUserLogLevel = BLogLevel.INFO; // default to INFO
     private Logger httpTraceLogger;
     private Logger httpAccessLogger;
+    private Logger consoleLogger;
 
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
@@ -110,10 +113,25 @@ public class BLogManager extends LogManager {
 
         setHttpTraceLogHandler();
         setHttpAccessLogHandler();
+        setConsoleLogHandler();
     }
 
     public BLogLevel getPackageLogLevel(String pkg) {
         return loggerLevels.containsKey(pkg) ? loggerLevels.get(pkg) : ballerinaUserLogLevel;
+    }
+
+    public void setConsoleLogHandler() {
+        if (consoleLogger == null) {
+            // keep a reference to prevent this logger from being garbage collected
+            consoleLogger = Logger.getLogger(CONSOLE_LOGGER);
+        }
+
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setLevel(Level.FINEST);
+        consoleHandler.setFormatter(new DefaultLogFormatter());
+        consoleLogger.addHandler(consoleHandler);
+        consoleLogger.setUseParentHandlers(false);
+        consoleLogger.setLevel(Level.FINEST);
     }
 
     /**
