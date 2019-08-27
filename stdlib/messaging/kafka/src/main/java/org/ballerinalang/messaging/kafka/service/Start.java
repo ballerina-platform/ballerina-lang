@@ -27,12 +27,15 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import java.io.PrintStream;
+
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_SERVER_CONNECTOR_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERVICE_STARTED;
 
 /**
  * Start server connector.
@@ -50,12 +53,14 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
         isPublic = true
 )
 public class Start {
+    private static final PrintStream console = System.out;
 
     public static Object start(Strand strand, ObjectValue listener) {
         KafkaServerConnectorImpl serverConnector = (KafkaServerConnectorImpl) listener
                 .getNativeData(CONSUMER_SERVER_CONNECTOR_NAME);
         try {
             serverConnector.start();
+            console.println(SERVICE_STARTED);
         } catch (KafkaConnectorException e) {
             return KafkaUtils.createKafkaError(e.getMessage(), CONSUMER_ERROR);
         }

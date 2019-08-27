@@ -39,6 +39,9 @@ public class KafkaConstants {
     public static final String FULL_PACKAGE_NAME = KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + VERSION;
     public static final String KAFKA_PROTOCOL_PACKAGE = BALLERINA_PACKAGE_PREFIX + KAFKA_PACKAGE_NAME;
 
+    public static final String SERVICE_STARTED = "[ballerina/kafka] started kafka listener ";
+    public static final String SERVICE_STOPPED = "[ballerina/kafka] stopped kafka listener ";
+
     public static final String NATIVE_CONSUMER = "KafkaConsumer";
     public static final String NATIVE_PRODUCER = "KafkaProducer";
     public static final String NATIVE_PRODUCER_CONFIG = "KafkaProducerConfig";
