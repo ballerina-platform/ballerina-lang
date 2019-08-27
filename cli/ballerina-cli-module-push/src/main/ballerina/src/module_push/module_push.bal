@@ -45,11 +45,11 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string or
     } else {
         string statusCode = response.statusCode.toString();
         if (statusCode.startsWith("5")) {
-            panic createError("error occured in remote registry. url: " + url);
+            panic createError("error occured in remote repository. url: " + url);
         } else if (statusCode != "200") {
             json|error jsonResponse = response.getJsonPayload();
             if (jsonResponse is error) {
-                panic createError("unsupported response received from remote registry.");
+                panic createError("unsupported response received from remote r.");
             } else {
                 string message = jsonResponse.message.toString();
                 panic createError(message);
