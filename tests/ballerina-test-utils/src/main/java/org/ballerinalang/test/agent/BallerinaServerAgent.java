@@ -69,8 +69,6 @@ public class BallerinaServerAgent {
 
     private static final int DEFAULT_AGENT_PORT = -1;
 
-    private static final int SCHEDULER_LINE_NUM = 315;
-
     private static long timeout = DEFAULT_EXIT_TIMEOUT;
     private static int exitStatus = DEFAULT_EXIT_STATUS;
     private static int killStatus = DEFAULT_KILL_STATUS;
@@ -112,8 +110,8 @@ public class BallerinaServerAgent {
                     CtClass cc = cp.get("org.ballerinalang.jvm.scheduling.Scheduler");
                     cc.addField(CtField.make("boolean agentStarted;", cc));
 
-                    CtMethod m = cc.getDeclaredMethod("run");
-                    m.insertAt(SCHEDULER_LINE_NUM, "if (!agentStarted && immortal) {" +
+                    CtMethod m = cc.getDeclaredMethod("start");
+                    m.insertBefore("if (!agentStarted && immortal) {" +
                             "org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();" +
                             "agentStarted = true;" +
                             " }");

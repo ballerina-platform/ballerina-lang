@@ -6,8 +6,15 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "jdbc"
+    artifactId = "jdbc"
     version = "@project.version@"
     path = "./lib/ballerina-jdbc-@project.version@.jar"
     groupId = "ballerina"
+    modules = ["jdbc"]
+
+    [[platform.libraries]]
+    artifactId = "HikariCP"
+    version = "3.3.1"
+    path = "./lib/HikariCP-3.3.1.jar"
+    groupId = "com.zaxxer"
     modules = ["jdbc"]

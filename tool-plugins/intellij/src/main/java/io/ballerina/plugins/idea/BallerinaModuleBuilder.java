@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea;
 
-import com.google.common.base.Strings;
 import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
 import com.intellij.ide.util.projectWizard.ModuleBuilderListener;
@@ -29,14 +28,17 @@ import com.intellij.openapi.projectRoots.SdkTypeId;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.containers.ContainerUtil;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkType;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -48,7 +50,7 @@ public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourceP
     private ModifiableRootModel rootModel;
 
     @Override
-    public void setupRootModel(ModifiableRootModel modifiableRootModel) throws ConfigurationException {
+    public void setupRootModel(@NotNull ModifiableRootModel modifiableRootModel) throws ConfigurationException {
         this.rootModel = modifiableRootModel;
         addListener(this);
         super.setupRootModel(modifiableRootModel);
@@ -56,31 +58,65 @@ public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourceP
 
     @Override
     public List<Pair<String, String>> getSourcePaths() {
-
-        String ballerinaSdkPath = BallerinaSdkService.getInstance(rootModel.getProject()).
-                getSdkHomePath(rootModel.getModule());
-
-        if (Strings.isNullOrEmpty(ballerinaSdkPath)) {
-            LOG.info("Ballerina SDK is not found. Trying to auto detect ballerina distribution to init" +
-                    " the ballerina project");
-            ballerinaSdkPath = BallerinaSdkUtils.autoDetectSdk(rootModel.getProject());
-        }
-
-        if (!ballerinaSdkPath.isEmpty()) {
-            LOG.info("Initiating ballerina project using ballerina init command");
-            try {
-                String command = String.format("%s%s%s init", ballerinaSdkPath, File.separator,
-                        BallerinaConstants.BALLERINA_EXEC_PATH);
-                File dir = new File(Objects.requireNonNull(getContentEntryPath()));
-                Runtime.getRuntime().exec(command, null, dir);
-            } catch (IOException e) {
-                LOG.warn("Failed to execute ballerina init command due to:", e);
-                addBallerinaProjectArtifacts();
-            }
-        } else {
-            addBallerinaProjectArtifacts();
+        try {
+            // Todo - Revamp with "ballerina init ." command, when its available.
+            initProject(Paths.get(Objects.requireNonNull(rootModel.getProject().getBasePath())));
+        } catch (Exception e) {
+            LOG.warn("Ballerina project artifacts creation is failed dues to: ", e);
         }
         return ContainerUtil.emptyList();
+    }
+
+    /**
+     * Initialize a new ballerina project in the given path.
+     *
+     * @param path Project path
+     * @throws IOException If any IO exception occurred
+     */
+    private static void initProject(Path path) throws IOException {
+        // We will be creating following in the project directory
+        // - Ballerina.toml
+        // - src/
+        // - tests/
+        // -- resources/      <- integration test resources
+        // - .gitignore       <- git ignore file
+
+        Path manifest = path.resolve("Ballerina.toml");
+        Path src = path.resolve("src");
+        Path test = path.resolve("tests");
+        Path testResources = test.resolve("resources");
+        Path gitignore = path.resolve(".gitignore");
+
+
+        Files.createFile(manifest);
+        Files.createFile(gitignore);
+        Files.createDirectory(src);
+        Files.createDirectory(test);
+        Files.createDirectory(testResources);
+
+        String defaultManifest = "[project]\n" +
+                "org-name= \"ORG_NAME\"\n" +
+                "version= \"0.1.0\"\n" +
+                "\n" +
+                "[dependencies]\n";
+
+        String defaultGitignore = "target\n";
+
+        // replace manifest org with a guessed value.
+        defaultManifest = defaultManifest.replaceAll("ORG_NAME", guessOrgName());
+
+        Files.write(manifest, defaultManifest.replace("\n", System.lineSeparator()).getBytes(StandardCharsets.UTF_8));
+        Files.write(gitignore, defaultGitignore.replace("\n", System.lineSeparator()).getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static String guessOrgName() {
+        String guessOrgName = System.getProperty("user.name");
+        if (guessOrgName == null) {
+            guessOrgName = "my_org";
+        } else {
+            guessOrgName = guessOrgName.toLowerCase(Locale.getDefault());
+        }
+        return guessOrgName;
     }
 
     private void addBallerinaProjectArtifacts() {

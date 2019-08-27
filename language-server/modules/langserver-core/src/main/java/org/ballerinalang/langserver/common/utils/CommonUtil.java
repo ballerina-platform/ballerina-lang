@@ -35,7 +35,6 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
-import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.index.LSIndexException;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
@@ -49,13 +48,10 @@ import org.ballerinalang.model.types.ConstrainedType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
@@ -100,15 +96,10 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -151,13 +142,15 @@ public class CommonUtil {
 
     public static final boolean LS_DEBUG_ENABLED;
 
+    public static final boolean LS_TRACE_ENABLED;
+
     public static final String BALLERINA_HOME;
 
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
 
     static {
-        String debugLogStr = System.getProperty("ballerina.debugLog");
-        LS_DEBUG_ENABLED = Boolean.parseBoolean(debugLogStr);
+        LS_DEBUG_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.debugLog"));
+        LS_TRACE_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.traceLog"));
         BALLERINA_HOME = System.getProperty("ballerina.home");
     }
 
@@ -539,7 +532,7 @@ public class CommonUtil {
      * @param withAlias      label with alias
      * @return {@link String} Label string
      */
-    private static String getAnnotationLabel(String aliasComponent, BAnnotationSymbol annotation, boolean withAlias) {
+    public static String getAnnotationLabel(String aliasComponent, BAnnotationSymbol annotation, boolean withAlias) {
         String pkgComponent = withAlias ? aliasComponent + CommonKeys.PKG_DELIMITER_KEYWORD : "";
         return pkgComponent + annotation.getName().getValue();
     }
@@ -986,7 +979,8 @@ public class CommonUtil {
                 .filter(topLevelNode -> !(topLevelNode instanceof BLangFunction
                         && ((BLangFunction) topLevelNode).flagSet.contains(Flag.LAMBDA))
                         && !(topLevelNode instanceof BLangSimpleVariable
-                        && ((BLangSimpleVariable) topLevelNode).flagSet.contains(Flag.SERVICE)))
+                        && ((BLangSimpleVariable) topLevelNode).flagSet.contains(Flag.SERVICE))
+                        && !(topLevelNode instanceof BLangImportPackage && topLevelNode.getWS() == null))
                 .collect(Collectors.toList());
     }
 
@@ -1438,47 +1432,6 @@ public class CommonUtil {
     }
 
     /**
-     * Notify user an error message through LSP protocol.
-     *
-     * @param operation          operation name
-     * @param error          {@link Throwable}
-     * @param languageClient language client
-     */
-    public static void notifyUser(String operation, UserErrorException error, LanguageClient languageClient) {
-        if (languageClient != null) {
-            languageClient.showMessage(
-                    new MessageParams(MessageType.Error, operation + " failed, " + error.getMessage()));
-        }
-    }
-
-    /**
-     * Logs the error message through the LSP protocol.
-     *
-     * @param message        log message
-     * @param error          {@link Throwable}
-     * @param languageClient language client
-     * @param textDocument   text document
-     * @param position       position
-     */
-    public static void logError(String message, Throwable error, LanguageClient languageClient,
-                                TextDocumentIdentifier textDocument, Position... position) {
-        String details = getErrorDetails(textDocument, error, position);
-        if (CommonUtil.LS_DEBUG_ENABLED) {
-            if (languageClient != null) {
-                final Charset charset = StandardCharsets.UTF_8;
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                try {
-                    PrintStream ps = new PrintStream(baos, true, charset.name());
-                    error.printStackTrace(ps);
-                } catch (UnsupportedEncodingException e1) {
-                    //ignore
-                }
-                languageClient.logMessage(new MessageParams(MessageType.Error, message + " " + details + "\n" + baos));
-            }
-        }
-    }
-
-    /**
      * Get the path from given string URI.
      *
      * @param uri file uri
@@ -1491,39 +1444,5 @@ public class CommonUtil {
             // ignore
         }
         return Optional.empty();
-    }
-
-    private static String getErrorDetails(TextDocumentIdentifier textDocument, Throwable error, Position... position) {
-        String msg = error.getMessage();
-        StringBuilder result = new StringBuilder("{");
-        if (textDocument != null) {
-            result.append("uri: ").append(textDocument.getUri().replaceFirst("file://", ""));
-        }
-        if (position != null && position[0] != null) {
-            if (position.length == 2) {
-                // Range
-                result.append(", line: ").append(position[0].getLine() + 1)
-                        .append(", col:").append(position[0].getCharacter() + 1);
-                result.append("- line: ").append(position[1].getLine() + 1)
-                        .append(", col:").append(position[1].getCharacter() + 1);
-            } else {
-                // Position
-                result.append(", line: ").append(position[0].getLine() + 1)
-                        .append(", col:").append(position[0].getCharacter() + 1);
-            }
-        }
-        if (msg != null && !msg.isEmpty()) {
-            result.append(", error: ").append(msg);
-        } else {
-            result.append(", error: ").append(error.toString());
-            for (StackTraceElement elm : error.getStackTrace()) {
-                if (elm.getClassName().startsWith("org.wso2.")) {
-                    result.append(", ").append(elm.toString());
-                    break;
-                }
-            }
-        }
-        result.append("}");
-        return result.toString();
     }
 }

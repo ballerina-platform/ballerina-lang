@@ -520,6 +520,7 @@ recordRefBindingPattern
 
 errorRefBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS ((variableReference (COMMA errorNamedArgRefPattern)*) | errorNamedArgRefPattern+) (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
+    |   TYPE_ERROR LEFT_PARENTHESIS errorRefRestPattern RIGHT_PARENTHESIS
     |   typeName LEFT_PARENTHESIS errorNamedArgRefPattern (COMMA errorNamedArgRefPattern)*  (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
     ;
 

@@ -84,7 +84,7 @@ public type PrivateKey record {|
 # + certificate - Public key certificate
 public type PublicKey record {|
     KeyAlgorithm algorithm;
-    Certificate? certificate;
+    Certificate certificate?;
 |};
 
 # X509 public key certificate information.

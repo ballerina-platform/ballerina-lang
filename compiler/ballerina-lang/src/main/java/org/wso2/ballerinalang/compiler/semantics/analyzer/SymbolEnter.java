@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -143,6 +144,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
     private final Types types;
+    private final SourceDirectory sourceDirectory;
     private List<TypeDefinition> unresolvedTypes;
     private List<PackageID> importedPackages;
     private int typePrecedence;
@@ -169,6 +171,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
+        this.sourceDirectory = context.get(SourceDirectory.class);
         this.importedPackages = new ArrayList<>();
     }
 
@@ -308,9 +311,18 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         Name pkgAlias = names.fromIdNode(importPkgNode.alias);
-        if (symResolver.lookupSymbol(env, pkgAlias, SymTag.IMPORT) != symTable.notFoundSymbol) {
-            dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
-            return;
+        if (!Names.IGNORE.equals(pkgAlias)) {
+            BSymbol importSymbol =
+                    symResolver.resolvePrefixSymbol(env, pkgAlias, names.fromIdNode(importPkgNode.compUnit));
+            if (importSymbol != symTable.notFoundSymbol) {
+                if (isSameImport(importPkgNode, (BPackageSymbol) importSymbol)) {
+                    dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_IMPORT_MODULE,
+                            importPkgNode.getQualifiedPackageName());
+                } else {
+                    dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
+                }
+                return;
+            }
         }
 
         // TODO Clean this code up. Can we move the this to BLangPackageBuilder class
@@ -328,9 +340,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Here we set the version to enclosing package version. Following cases will be handled properly:
             // 1) Suppose the import is from the same project, then the enclosing package version set here will be used
             //    to lookup package symbol cache, avoiding re-defining package symbol.
-            // 2) Suppose the import is from Ballerina Central or another project which has the same org, then the
-            //    version is set when loading the import module.
-            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
+            String pkgName = importPkgNode.getPackageName().stream()
+                    .map(id -> id.value)
+                    .collect(Collectors.joining("."));
+            if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)) {
+                version = enclPackageID.version;
+            } else {
+                version = new Name("");
+            }
         } else {
             // means it's in 'import <org-name>/<pkg-name>' style
             orgName = names.fromIdNode(importPkgNode.orgName);
@@ -402,10 +419,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        // define the import package symbol in the current package scope
-        importPkgNode.symbol = pkgSymbol;
-        ((BPackageSymbol) this.env.scope.owner).imports.add(pkgSymbol);
-        this.env.scope.define(pkgAlias, pkgSymbol);
+        List<BPackageSymbol> imports = ((BPackageSymbol) this.env.scope.owner).imports;
+        if (!imports.contains(pkgSymbol)) {
+            imports.add(pkgSymbol);
+        }
+
+        // get a copy of the package symbol, add compilation unit info to it,
+        // and define it in the current package scope
+        BPackageSymbol symbol = duplicatePackagSymbol(pkgSymbol);
+        symbol.compUnit = names.fromIdNode(importPkgNode.compUnit);
+        symbol.scope = pkgSymbol.scope;
+        importPkgNode.symbol = symbol;
+        this.env.scope.define(pkgAlias, symbol);
     }
 
     @Override
@@ -1238,9 +1263,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // TODO Verify the rules..
                 // TODO Check whether the same package alias (if any) has been used for the same import
                 // TODO The version of an import package can be specified only once for a package
-                if (!pkgNode.imports.contains(node)) {
-                    pkgNode.imports.add((BLangImportPackage) node);
-                }
+                pkgNode.imports.add((BLangImportPackage) node);
                 break;
             case FUNCTION:
                 pkgNode.functions.add((BLangFunction) node);
@@ -1644,6 +1667,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         funcNode.symbol.flags |= Flags.RESOURCE;
 
+        if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE) ||
+                Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_WITH_VISIBILITY_QUALIFIER);
+        }
+
         if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);
         }
@@ -1952,6 +1980,31 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                                                 fieldSymbol));
         varNode.symbol = paramSymbol;
         return;
+    }
+
+    private BPackageSymbol duplicatePackagSymbol(BPackageSymbol originalSymbol) {
+        BPackageSymbol copy = new BPackageSymbol(originalSymbol.pkgID, originalSymbol.owner, originalSymbol.flags);
+        copy.initFunctionSymbol = originalSymbol.initFunctionSymbol;
+        copy.startFunctionSymbol = originalSymbol.startFunctionSymbol;
+        copy.stopFunctionSymbol = originalSymbol.stopFunctionSymbol;
+        copy.testInitFunctionSymbol = originalSymbol.testInitFunctionSymbol;
+        copy.testStartFunctionSymbol = originalSymbol.testStartFunctionSymbol;
+        copy.testStopFunctionSymbol = originalSymbol.testStopFunctionSymbol;
+        copy.packageFile = originalSymbol.packageFile;
+        copy.compiledPackage = originalSymbol.compiledPackage;
+        copy.entryPointExists = originalSymbol.entryPointExists;
+        copy.scope = originalSymbol.scope;
+        copy.owner = originalSymbol.owner;
+        return copy;
+    }
+
+    private boolean isSameImport(BLangImportPackage importPkgNode, BPackageSymbol importSymbol) {
+        if (!importPkgNode.orgName.value.equals(importSymbol.pkgID.orgName.value)) {
+            return false;
+        }
+
+        BLangIdentifier pkgName = importPkgNode.pkgNameComps.get(importPkgNode.pkgNameComps.size() - 1);
+        return pkgName.value.equals(importSymbol.pkgID.name.value);
     }
 
     /**

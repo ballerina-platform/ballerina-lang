@@ -1,4 +1,3 @@
-import ballerina/io;
 import ballerina/runtime;
 import ballerinax/java;
 
@@ -7,7 +6,7 @@ int i = 0;
 function timerTest() returns int {
     Callback c = new;
     startTimer(100, 3, c);
-    runtime:sleep(400);
+    runtime:sleep(500);
     return i;
 }
 

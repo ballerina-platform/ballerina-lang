@@ -88,8 +88,8 @@ function hypotTest (float a, float b) returns (float) {
     return math:hypot(a, b);
 }
 
-function IEEEremainderTest (float a, float b) returns (float) {
-    return math:IEEEremainder(a, b);
+function remainderTest (float a, float b) returns (float) {
+    return math:remainder(a, b);
 }
 
 function logTest (float value) returns (float) {

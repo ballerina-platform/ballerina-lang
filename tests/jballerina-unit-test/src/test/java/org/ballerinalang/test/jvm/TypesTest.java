@@ -42,6 +42,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -791,5 +793,22 @@ public class TypesTest {
     public void testObjectWithSameNameAsFileName() {
         BValue[] result = BRunUtil.invoke(objectsResult, "testObjectWithSameNameAsFileName");
         Assert.assertEquals((result[0]).stringValue(), "works!");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string\\[\\]' cannot be cast to " +
+                    "'\\[float\\]\\[\\]'.*")
+    public void testTupleArrayTypeToString() {
+        BRunUtil.invoke(compileResult, "testTupleArrayTypeToString");
+    }
+
+    @Test
+    public void testTypeDescValuePrint() {
+        PrintStream tempOut = System.out;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        BRunUtil.invoke(compileResult, "testTypeDescValuePrint");
+        Assert.assertEquals(new String(baos.toByteArray()), "typedesc map<int|string>");
+        System.setOut(tempOut);
     }
 }

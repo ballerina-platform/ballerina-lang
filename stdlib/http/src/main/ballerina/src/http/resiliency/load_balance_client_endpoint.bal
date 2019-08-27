@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/mime;
+
 # LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
 #
 # + loadBalanceClientConfig - The configurations for the load balance client endpoint
@@ -351,7 +353,6 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
         forwarded:lbConfig.forwarded,
         followRedirects:lbConfig.followRedirects,
         retryConfig:lbConfig.retryConfig,
-        proxy:lbConfig.proxy,
         poolConfig:lbConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:lbConfig.cache,

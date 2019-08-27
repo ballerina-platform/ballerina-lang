@@ -16,7 +16,9 @@
 
 package io.ballerina.plugins.idea.debugger;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
@@ -32,15 +34,16 @@ import com.intellij.xdebugger.frame.XInlineDebuggerDataCallback;
 import com.intellij.xdebugger.frame.XNamedValue;
 import com.intellij.xdebugger.frame.XNavigatable;
 import com.intellij.xdebugger.frame.XStackFrame;
+import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.frame.XValueModifier;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
-import com.intellij.xdebugger.frame.presentation.XNumericValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation;
-import com.intellij.xdebugger.frame.presentation.XStringValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XValuePresentation;
 import io.ballerina.plugins.idea.highlighting.syntax.BallerinaSyntaxHighlightingColors;
 import org.eclipse.lsp4j.debug.Variable;
+import org.eclipse.lsp4j.debug.VariablesArguments;
+import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,20 +54,17 @@ import javax.swing.Icon;
  */
 public class BallerinaXValue extends XNamedValue {
 
+    private static final Logger LOG = Logger.getInstance(BallerinaXValue.class);
     @NotNull
     private final BallerinaDebugProcess process;
     @NotNull
     private final Variable variable;
-    @NotNull
-    private final String frameName;
     @Nullable
     private final Icon icon;
 
-    BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull String frameName,
-                    @NotNull Variable variable, @Nullable Icon icon) {
+    BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull Variable variable, @Nullable Icon icon) {
         super(variable.getName());
         this.process = process;
-        this.frameName = frameName;
         this.variable = variable;
         this.icon = icon;
     }
@@ -73,7 +73,7 @@ public class BallerinaXValue extends XNamedValue {
     public void computePresentation(@NotNull XValueNode node, @NotNull XValuePlace place) {
         XValuePresentation presentation = getPresentation();
         boolean hasChildren = false;
-        if (variable.getValue() == null && variable.getNamedVariables() > 0) {
+        if (variable.getVariablesReference() != null && variable.getVariablesReference() > 0) {
             hasChildren = true;
         }
         node.setPresentation(icon, presentation, hasChildren);
@@ -81,8 +81,21 @@ public class BallerinaXValue extends XNamedValue {
 
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
-        // Todo
-        return;
+        try {
+            XValueChildrenList list = new XValueChildrenList();
+            // Sends a variable request to get the child variables.
+            VariablesArguments variablesArgs = new VariablesArguments();
+            variablesArgs.setVariablesReference(variable.getVariablesReference());
+
+            VariablesResponse variableResp = process.getDapClientConnector().getRequestManager()
+                    .variables(variablesArgs);
+            for (Variable variable : variableResp.getVariables()) {
+                list.add(variable.getName(), new BallerinaXValue(process, variable, AllIcons.Nodes.Field));
+            }
+            node.addChildren(list, true);
+        } catch (Exception e) {
+            LOG.warn("Fetching DAP variable child values failed due to ", e);
+        }
     }
 
     @Nullable
@@ -96,17 +109,28 @@ public class BallerinaXValue extends XNamedValue {
         String value = variable.getValue();
         String type = variable.getType();
 
-        if (type.equals(BallerinaXValueType.STRING.getValue())) {
-            return new XStringValuePresentation(value);
+        if (type.equalsIgnoreCase(BallerinaXValueType.STRING.getValue())) {
+            return new XValuePresentation() {
+                @Override
+                public void renderValue(@NotNull XValueTextRenderer renderer) {
+                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.STRING);
+                }
+            };
         }
 
-        if (type.equals(BallerinaXValueType.INT.getValue())
-                || type.equals(BallerinaXValueType.FLOAT.getValue())
-                || type.equals(BallerinaXValueType.DECIMAL.getValue())) {
-            return new XNumericValuePresentation(value);
+        if (type.equalsIgnoreCase(BallerinaXValueType.INT.getValue())
+                || type.equalsIgnoreCase(BallerinaXValueType.FLOAT.getValue())
+                || type.equalsIgnoreCase(BallerinaXValueType.DECIMAL.getValue())
+                || type.equalsIgnoreCase(BallerinaXValueType.LONG.getValue())) {
+            return new XRegularValuePresentation(value, type) {
+                @Override
+                public void renderValue(@NotNull XValueTextRenderer renderer) {
+                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.NUMBER);
+                }
+            };
         }
 
-        if (type.equals(BallerinaXValueType.BOOLEAN.getValue())) {
+        if (type.equalsIgnoreCase(BallerinaXValueType.BOOLEAN.getValue())) {
             return new XValuePresentation() {
                 @Override
                 public void renderValue(@NotNull XValueTextRenderer renderer) {
@@ -196,6 +220,7 @@ public class BallerinaXValue extends XNamedValue {
         BOOLEAN("Boolean"),
         INT("Int"),
         FLOAT("Float"),
+        LONG("Long"),
         DECIMAL("Decimal");
 
         private String value;

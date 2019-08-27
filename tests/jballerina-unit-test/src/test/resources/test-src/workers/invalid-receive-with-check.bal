@@ -1,4 +1,4 @@
-import ballerina/io;
+
 
 public function main() {
     worker w1 {
