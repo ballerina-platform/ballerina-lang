@@ -533,7 +533,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             dlog.error(matchStmt.pos, DiagnosticCode.MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS);
         }
         // Execute the following block if there are no unmatched expression types
-        if (staticLastPattern || structuredLastPattern) {
+        if ((staticLastPattern && !hasErrorType(matchStmt.exprTypes)) || structuredLastPattern) {
             if (matchStmt.getPatternClauses().size() == 1) {
                 dlog.error(matchStmt.getPatternClauses().get(0).pos, DiagnosticCode.MATCH_STMT_PATTERN_ALWAYS_MATCHES);
             }
@@ -546,6 +546,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             this.statementReturns = matchStmtReturns;
         }
+    }
+
+    private boolean hasErrorType(List<BType> typeList) {
+        return typeList.stream().anyMatch(t -> types.isAssignable(t, symTable.errorType));
     }
 
     private boolean analyzeStructuredMatchPatterns(BLangMatch matchStmt) {
@@ -799,8 +803,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return (precedingLiteral.value.equals(literal.value));
                 }
                 return false;
-            case TypeTags.NONE:
-                // preceding pattern is '_'. Hence will match all patterns that follow.
+            case TypeTags.ANY:
+                // preceding pattern is '_'. Hence will match all patterns except error that follow.
+                if (pattern.type.tag == TypeTags.ERROR) {
+                    return false;
+                }
                 return true;
             default:
                 return false;
