@@ -38,12 +38,12 @@ public class BallerinaValues {
     /**
      * Overloaded method that creates a runtime record value using the given package id and record type name.
      *
-     * @param bPackage the package id that the record type resides.
+     * @param packageId the package id that the record type resides.
      * @param recordTypeName name of the record type.
      * @return value of the record.
      */
-    public static MapValue<String, Object> createRecordValue(BPackage bPackage, String recordTypeName) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(bPackage.toString());
+    public static MapValue<String, Object> createRecordValue(BPackage packageId, String recordTypeName) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         return valueCreator.createRecordValue(recordTypeName);
     }
 
@@ -51,14 +51,14 @@ public class BallerinaValues {
      * Overloaded method that populates record fields using the given package id, record type name and a map of
      * field names and associated values for fields.
      *
-     * @param bPackage the package id that the record type resides.
+     * @param packageId the package id that the record type resides.
      * @param recordTypeName name of the record type.
      * @param valueMap values to be used for fields when creating the record.
      * @return value of the populated record.
      */
-    public static MapValue<String, Object> createRecordValue(BPackage bPackage, String recordTypeName,
+    public static MapValue<String, Object> createRecordValue(BPackage packageId, String recordTypeName,
                                                              Map<String, Object> valueMap) {
-        MapValue<String, Object> record = createRecordValue(bPackage, recordTypeName);
+        MapValue<String, Object> record = createRecordValue(packageId, recordTypeName);
         for (Entry<String, Object> fieldEntry : valueMap.entrySet()) {
             record.put(fieldEntry.getKey(), fieldEntry.getValue());
         }
@@ -69,13 +69,13 @@ public class BallerinaValues {
     /**
      * Overloaded method that creates a runtime object value using the given package id and object type name.
      *
-     * @param bPackage the package id that the object type resides.
+     * @param packageId the package id that the object type resides.
      * @param objectTypeName name of the object type.
      * @param fieldValues values to be used for fields when creating the object value instance.
      * @return value of the object.
      */
-    public static ObjectValue createObjectValue(BPackage bPackage, String objectTypeName, Object... fieldValues) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(bPackage.toString());
+    public static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Object... fieldValues) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         Object[] fields = new Object[fieldValues.length * 2];
 
         // Adding boolean values for each arg
