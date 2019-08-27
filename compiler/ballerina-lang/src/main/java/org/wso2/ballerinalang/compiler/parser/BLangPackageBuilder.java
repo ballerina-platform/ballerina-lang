@@ -1556,8 +1556,7 @@ public class BLangPackageBuilder {
         invocationWsStack.push(ws);
     }
 
-    void createInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation, boolean argsAvailable,
-                              boolean safeNavigate) {
+    void createInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation, boolean argsAvailable) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);

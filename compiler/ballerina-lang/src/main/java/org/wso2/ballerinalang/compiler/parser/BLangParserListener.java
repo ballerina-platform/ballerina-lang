@@ -1853,8 +1853,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         String invocation = ctx.invocation().anyIdentifierName().getText();
-        boolean safeNavigate = ctx.invocation().NOT() != null;
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
     }
 
     @Override
@@ -1929,8 +1928,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         String invocation = ctx.invocation().anyIdentifierName().getText();
-        boolean safeNavigate = ctx.invocation().NOT() != null;
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
     }
 
     @Override
@@ -1941,8 +1939,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         String invocation = ctx.invocation().anyIdentifierName().getText();
-        boolean safeNavigate = ctx.invocation().NOT() != null;
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
     }
 
     /**
