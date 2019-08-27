@@ -113,7 +113,7 @@ public class CryptoTest {
                 .decodeHex("68F6CA0B55B55099331BF4EAA659B8BDC94FBDCE2F54D94FD90DA8240797A5D7".toCharArray());
         byte[] expectedSha384Hash = Hex.decodeHex(("F00B4A8C67B38E7E32FF8B1AB570345743878F7ADED9B5FA02518DDD84E16CBC" +
                 "A344AF42CB60A1FD5C48C5FEDCFF7F24").toCharArray());
-        byte[] expectedSha512hash = Hex.decodeHex(("1C9BED7C87E7D17BA07ADD67F59B4A29AFD2B046409B65429E77D0CEE53A33C5" +
+        byte[] expectedSha512Hash = Hex.decodeHex(("1C9BED7C87E7D17BA07ADD67F59B4A29AFD2B046409B65429E77D0CEE53A33C5" +
                 "E26731DC1CB091FAADA8C5D6433CB1544690804CC046A55D6AFED8BE0B901062").toCharArray());
 
         BValue[] args = {new BValueArray("Ballerina test".getBytes(StandardCharsets.UTF_8))};
@@ -136,7 +136,7 @@ public class CryptoTest {
 
         returnValues = BRunUtil.invoke(compileResult, "testHashWithSHA512", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSha512hash);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), expectedSha512Hash);
     }
 
     @Test(description = "Test CRC32b generation")

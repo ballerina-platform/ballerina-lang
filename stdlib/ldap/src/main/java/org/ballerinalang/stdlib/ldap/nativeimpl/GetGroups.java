@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.ldap.nativeimpl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -29,6 +27,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.ballerinalang.stdlib.ldap.util.LdapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -53,7 +53,7 @@ import javax.naming.ldap.Rdn;
         functionName = "getGroups", isPublic = true)
 public class GetGroups {
 
-    private static final Log LOG = LogFactory.getLog(GetGroups.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GetGroups.class);
 
     public static Object getGroups(Strand strand, MapValue<?, ?> ldapConnection, String userName) {
         try {
