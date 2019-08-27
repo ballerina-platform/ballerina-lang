@@ -25,6 +25,7 @@ import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
 import { getCommonWebViewOptions } from '../utils';
+import { TM_EVENT_OPEN_DOC_PREVIEW, CMP_DOCS_PREVIEW } from '../telemetry';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -120,9 +121,11 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient, nod
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-	let context = <ExtensionContext>ballerinaExtInstance.context;
-	let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+	const reporter = ballerinaExtInstance.telemetryReporter;
+	const context = <ExtensionContext>ballerinaExtInstance.context;
+	const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 	const docsRenderDisposable = commands.registerCommand('ballerina.showDocs', nodeNameArg => {
+		reporter.sendTelemetryEvent(TM_EVENT_OPEN_DOC_PREVIEW, { component: CMP_DOCS_PREVIEW });
 		return ballerinaExtInstance.onReady()
 			.then(() => {
 				const { experimental } = langClient.initializeResult!.capabilities;
@@ -132,7 +135,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 					ballerinaExtInstance.showMessageServerMissingCapability();
 					return {};
 				}
-				showDocs(context, langClient, (nodeNameArg) ? nodeNameArg.argumentV : "");
+				showDocs(context, langClient, (nodeNameArg) ? nodeNameArg.argumentV : "");				
 			})
 			.catch((e) => {
 				if (!ballerinaExtInstance.isValidBallerinaHome()) {
@@ -140,6 +143,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				} else {
 					ballerinaExtInstance.showPluginActivationError();
 				}
+				reporter.sendTelemetryException(e, { component: CMP_DOCS_PREVIEW });
 			});
 	});
 

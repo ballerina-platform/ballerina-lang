@@ -160,3 +160,43 @@ type bar object {
         return x;
     }
 };
+
+public function testAsyncInvWithoutDefaultParams() returns int {
+   future<int> aa = start asyncTest("example value!!!!!!!!");
+   return wait aa;
+}
+
+public function testAsyncInvWithDefaultParams() returns int {
+   future<int> aa = start asyncTest("example value!!!!!!!!", e = 45);
+   return wait aa;
+}
+
+public function asyncTest(string a, int e = 5) returns int {
+    return e;
+}
+
+Person p = new();
+
+public function testAttachedAsyncInvWithoutDefaultParams() returns int {
+   future<int> aa = start p.asyncTest("value");
+   return wait aa;
+}
+
+public function testAttachedAsyncInvWithDefaultParams() returns int {
+   future<int> aa = start p.asyncTest("value", e = new);
+   return wait aa;
+}
+
+public type Person object {
+
+   public function asyncTest(string a, Emp e = new Emp(val = 40)) returns int {
+       return e.val;
+   }
+};
+
+public type Emp object {
+    public int val;
+    public function __init(int val = 9) {
+        self.val = val;
+    }
+};

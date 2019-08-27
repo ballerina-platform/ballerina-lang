@@ -28,7 +28,7 @@ import java.time.zone.ZoneRulesException;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * A util class for the time package's native implementation.

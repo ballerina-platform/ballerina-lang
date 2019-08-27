@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -45,11 +43,7 @@ import static org.ballerinalang.net.websub.WebSubUtils.createError;
                 @Argument(name = "content", type = TypeKind.OBJECT)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)}
 )
-public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class ValidateAndPublishToInternalHub {
 
     public static Object validateAndPublishToInternalHub(Strand strand, String hubUrl, String topic,
                                                          MapValue<String, Object> content) {

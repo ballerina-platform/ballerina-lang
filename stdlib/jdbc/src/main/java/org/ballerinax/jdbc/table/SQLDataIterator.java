@@ -260,6 +260,21 @@ public class SQLDataIterator extends TableIterator {
             throw new PanickingApplicationException(exceptionMessage);
         }
     }
+    private void validateAndSetDecimalValue(MapValue<String, Object> bStruct, String fieldName, int actualTypeTag,
+            DecimalValue value, String exceptionMessage)
+            throws PanickingApplicationException {
+        boolean typeMatches = isValidType(actualTypeTag, value);
+        setMatchingRefRecordField(bStruct, fieldName, value, typeMatches, exceptionMessage);
+    }
+
+    private boolean isValidType(int actualTypeTag, DecimalValue value) {
+        if (actualTypeTag == TypeTags.DECIMAL_TAG) {
+            return true;
+        } else if (actualTypeTag == TypeTags.INT_TAG) {
+            return value == null || value.value().scale() == 0;
+        }
+        return false;
+    }
 
     private void handleNilToNonNillableFieldAssignment() throws PanickingApplicationException {
         throw new PanickingApplicationException("Trying to assign a Nil value to a non-nillable field");
@@ -469,13 +484,15 @@ public class SQLDataIterator extends TableIterator {
         boolean isOriginalValueNull = rs.wasNull();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             Boolean booleanValue = isOriginalValueNull ? null : boolValue;
-            validateAndSetRefRecordField(bStruct, fieldName, TypeTags.BOOLEAN_TAG, retrieveNonNilTypeTag(fieldType),
+            int[] expectedTypeTags = { TypeTags.INT_TAG, TypeTags.BOOLEAN_TAG };
+            validateAndSetRefRecordField(bStruct, fieldName, expectedTypeTags, retrieveNonNilTypeTag(fieldType),
                     booleanValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
             } else {
-                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.BOOLEAN_TAG, fieldTypeTag, boolValue,
+                int[] expectedTypeTags = { TypeTags.INT_TAG, TypeTags.BOOLEAN_TAG };
+                validateAndSetRefRecordField(bStruct, fieldName, expectedTypeTags, fieldTypeTag, boolValue,
                         MISMATCHING_FIELD_ASSIGNMENT);
             }
         }
@@ -631,14 +648,14 @@ public class SQLDataIterator extends TableIterator {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             DecimalValue refValue = isOriginalValueNull ? null : new DecimalValue(fValue);
-            validateAndSetRefRecordField(bStruct, fieldName, TypeTags.DECIMAL_TAG, retrieveNonNilTypeTag(fieldType),
-                    refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+            validateAndSetDecimalValue(bStruct, fieldName, retrieveNonNilTypeTag(fieldType), refValue,
+                    UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
             } else {
-                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.DECIMAL_TAG, fieldTypeTag,
-                        new DecimalValue(fValue), MISMATCHING_FIELD_ASSIGNMENT);
+                validateAndSetDecimalValue(bStruct, fieldName, fieldTypeTag, new DecimalValue(fValue),
+                        MISMATCHING_FIELD_ASSIGNMENT);
             }
         }
     }

@@ -61,10 +61,10 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 )
 public class InitStub {
 
-    public static Object initStub(Strand strand, ObjectValue clientEndpoint, String stubType, String rootDescriptor,
-                                  MapValue<String, Object> descriptorMap) {
-        HttpClientConnector clientConnector = (HttpClientConnector) clientEndpoint.getNativeData(CLIENT_CONNECTOR);
-        String urlString = (String) clientEndpoint.getNativeData(ENDPOINT_URL);
+    public static Object initStub(Strand strand, ObjectValue genericEndpoint, ObjectValue clientEndpoint,
+                                  String stubType, String rootDescriptor, MapValue<String, Object> descriptorMap) {
+        HttpClientConnector clientConnector = (HttpClientConnector) genericEndpoint.getNativeData(CLIENT_CONNECTOR);
+        String urlString = (String) genericEndpoint.getNativeData(ENDPOINT_URL);
 
         if (stubType == null || rootDescriptor == null || descriptorMap == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
@@ -74,15 +74,16 @@ public class InitStub {
 
         try {
             ServiceDefinition serviceDefinition = new ServiceDefinition(rootDescriptor, descriptorMap);
-            Map<String, MethodDescriptor> methodDescriptorMap = serviceDefinition.getMethodDescriptors();
+            Map<String, MethodDescriptor> methodDescriptorMap =
+                    serviceDefinition.getMethodDescriptors(clientEndpoint.getType().getAttachedFunctions());
 
-            clientEndpoint.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
+            genericEndpoint.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
             if (BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
                 BlockingStub blockingStub = new BlockingStub(clientConnector, urlString);
-                clientEndpoint.addNativeData(SERVICE_STUB, blockingStub);
+                genericEndpoint.addNativeData(SERVICE_STUB, blockingStub);
             } else if (NON_BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
                 NonBlockingStub nonBlockingStub = new NonBlockingStub(clientConnector, urlString);
-                clientEndpoint.addNativeData(SERVICE_STUB, nonBlockingStub);
+                genericEndpoint.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {
                 return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                         .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while " +

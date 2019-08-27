@@ -26,7 +26,7 @@ public enum CompilerOptionName {
 
     PROJECT_DIR("projectDirectory"),
 
-    STANDALONE_FILE("standaloneFile"),
+    SOURCE_TYPE("sourceType"),
 
     PRESERVE_WHITESPACE("preserveWhitespace"),
 
@@ -47,8 +47,6 @@ public enum CompilerOptionName {
     TARGET_BINARY_PATH("targetBinaryPath"),
 
     LOCK_ENABLED("lockEnabled"),
-
-    SIDDHI_RUNTIME_ENABLED("siddhiRuntimeEnabled"),
 
     EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled");
 

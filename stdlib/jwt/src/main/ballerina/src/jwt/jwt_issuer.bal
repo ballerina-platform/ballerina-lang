@@ -17,25 +17,44 @@
 import ballerina/crypto;
 import ballerina/encoding;
 
-# Represents JWT issuer configurations.
+# Represents authentication provider configurations that supports generating JWT for client interactions.
+#
+# + username - JWT token username
+# + issuer - JWT token issuer
+# + audience - JWT token audience
+# + customClaims - Map of custom claims
+# + expTimeInSeconds - Expiry time in seconds
+# + keyStoreConfig - JWT key store configurations
+# + signingAlg - Signing algorithm
+public type JwtIssuerConfig record {|
+    string username?;
+    string issuer;
+    string[] audience;
+    map<json> customClaims?;
+    int expTimeInSeconds = 300;
+    JwtKeyStoreConfig keyStoreConfig;
+    JwtSigningAlgorithm signingAlg = RS256;
+|};
+
+# Represents JWT key store configurations.
 #
 # + keyStore - Keystore to be used in JWT signing
 # + keyAlias - Signing key alias
 # + keyPassword - Signing key password
-public type JwtIssuerConfig record {|
+public type JwtKeyStoreConfig record {|
     crypto:KeyStore keyStore;
     string keyAlias;
     string keyPassword;
 |};
 
 # Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
-# in the `JwtIssuerConfig` and the `alg` field of `JwtHeader` is not `NONE`.
+# in the `JwtKeyStoreConfig` and the `alg` field of `JwtHeader` is not `NONE`.
 #
 # + header - JwtHeader object
 # + payload - JwtPayload object
-# + config - JWT issuer config record
+# + config - JWT key store config record
 # + return - JWT token string or an `Error` if token validation fails
-public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns string|Error {
+public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig? config) returns string|Error {
     string jwtHeader = check buildHeaderString(header);
     string jwtPayload = check buildPayloadString(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
@@ -44,7 +63,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
         if (alg == NONE) {
             return jwtAssertion;
         } else {
-            if (config is JwtIssuerConfig) {
+            if (config is JwtKeyStoreConfig) {
                 crypto:KeyStore keyStore = config.keyStore;
                 string keyAlias = config.keyAlias;
                 string keyPassword = config.keyPassword;
@@ -78,14 +97,18 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
                     return prepareError("Private key decoding failed.", privateKey);
                 }
             } else {
-                return prepareError("Signing JWT requires JwtIssuerConfig with keystore information.");
+                return prepareError("Signing JWT requires JwtKeyStoreConfig with keystore information.");
             }
         }
     }
     return prepareError("Failed to issue JWT since signing algorithm is not specified.");
 }
 
-function buildHeaderString(JwtHeader header) returns string|Error {
+# Build the header string from the `JwtHeader` record.
+#
+# + header - JWT header record to be built as a string
+# + return - The header string or an `Error` if building the string fails
+public function buildHeaderString(JwtHeader header) returns string|Error {
     map<json> headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
         return prepareError("Mandatory field signing algorithm (alg) is empty.");
@@ -121,7 +144,11 @@ function buildHeaderString(JwtHeader header) returns string|Error {
     return encodedPayload;
 }
 
-function buildPayloadString(JwtPayload payload) returns string|Error {
+# Build the payload string from the `JwtPayload` record.
+#
+# + payload - JWT payload record to be built as a string
+# + return - The payload string or an `Error` if building the string fails
+public function buildPayloadString(JwtPayload payload) returns string|Error {
     map<json> payloadJson = {};
     string? sub = payload?.sub;
     if (sub is string) {
@@ -149,19 +176,21 @@ function buildPayloadString(JwtPayload payload) returns string|Error {
     } else if (aud is string[]) {
         payloadJson[AUD] = aud;
     }
+    int? nbf = payload?.nbf;
+    if (nbf is int) {
+        payloadJson[NBF] = nbf;
+    }
     var customClaims = payload?.customClaims;
-    if (customClaims is map<json>) {
-        payloadJson = addMapToJson(payloadJson, customClaims);
+    if (customClaims is map<json> && customClaims.length() > 0) {
+        payloadJson = appendToMap(customClaims, payloadJson);
     }
     string payloadInString = payloadJson.toString();
     return encoding:encodeBase64Url(payloadInString.toBytes());
 }
 
-function addMapToJson(map<json> inJson, map<json> mapToConvert) returns map<json> {
-    if (mapToConvert.length() != 0) {
-        foreach var key in mapToConvert.keys() {
-            inJson[key] = mapToConvert[key];
-        }
+function appendToMap(map<json> fromMap, map<json> toMap) returns map<json> {
+    foreach var key in fromMap.keys() {
+        toMap[key] = fromMap[key];
     }
-    return inJson;
+    return toMap;
 }

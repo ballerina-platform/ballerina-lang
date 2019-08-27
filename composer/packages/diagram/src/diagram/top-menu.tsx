@@ -1,5 +1,5 @@
 import React from "react";
-import { Dropdown, DropdownItemProps, Grid, Icon, Label } from "semantic-ui-react";
+import { Dropdown, DropdownItemProps, Grid, Icon, Label, Popup} from "semantic-ui-react";
 import { DiagramMode } from "./diagram-context";
 
 export interface TopMenuProps {
@@ -19,6 +19,7 @@ export interface TopMenuProps {
     handleReset: () => void;
     handleDepthSelect: (depth: number) => void;
     maxInvocationDepth: number;
+    reachedInvocationDepth: number;
     zoomFactor: number;
 }
 
@@ -37,6 +38,7 @@ export const TopMenu = (props: TopMenuProps) => {
         openedState,
         zoomFactor = 1,
         maxInvocationDepth,
+        reachedInvocationDepth,
     } = props;
 
     return (
@@ -48,7 +50,8 @@ export const TopMenu = (props: TopMenuProps) => {
                 </div>
                 <div onClick={handleOpened} className="status-wrapper">
                     Zoom : <Label> {`${Math.floor(zoomFactor * 100)}%`} </Label>
-                    Depth : <Label>{maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}</Label>
+                    Depth : <Label>{maxInvocationDepth === -1 ?
+                        reachedInvocationDepth : maxInvocationDepth.toString()}</Label>
                     Design : <Label>{selectedModeText}</Label>
                 </div>
             </div> :
@@ -58,24 +61,44 @@ export const TopMenu = (props: TopMenuProps) => {
                         Zoom
                         </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
-                        <Icon onClick={handleZoomOut} className="fw fw-minus tooltip">
-                            <span className="tooltiptext"> Zoom out </span>
-                        </Icon>
+                        <Popup
+                            trigger={<Icon onClick={handleZoomOut} className="fw fw-minus"/>}
+                            content="Zoom out"
+                            position="top center"
+                            size="small"
+                            inverted
+                            />
                         <Label className="menu-dropdown-small"> {`${Math.floor(zoomFactor * 100)}%`} </Label>
-                        <Icon onClick={handleZoomIn} className="fw fw-add tooltip">
-                            <span className="tooltiptext"> Zoom in </span>
-                        </Icon>
-                        <Icon onClick={handleFitClick} className="fw fw-fit-to-screen tooltip">
-                            <span className="tooltiptext"> Fit to Screen</span>
-                        </Icon>
+                        <Popup
+                            trigger={<Icon onClick={handleZoomIn} className="fw fw-add"/>}
+                            content="Zoom in"
+                            position="top center"
+                            size="small"
+                            inverted
+                            />
+                        <Popup
+                            trigger={<Icon onClick={handleFitClick} className="fw fw-fit-to-screen"/>}
+                            content="Fit to Screen"
+                            position="top center"
+                            size="small"
+                            inverted
+                            />
                     </Grid.Column>
                     <Grid.Column className="menu-control" width={3}>
-                        <Icon onClick={handleReset} className="fw fw-refresh tooltip">
-                            <span className="tooltiptext"> Reset</span>
-                        </Icon>
-                        <Icon onClick={handleClosed} className="fw fw-uncheck tooltip">
-                            <span className="tooltiptext"> Close </span>
-                        </Icon>
+                        <Popup
+                            trigger={<Icon onClick={handleReset} className="fw fw-refresh"/>}
+                            content="Reset"
+                            position="top center"
+                            size="small"
+                            inverted
+                        />
+                        <Popup
+                            trigger={<Icon onClick={handleClosed} className="fw fw-uncheck"/>}
+                            content="Close"
+                            position="top center"
+                            size="small"
+                            inverted
+                        />
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row className="menu-row" columns={3}>
@@ -84,23 +107,38 @@ export const TopMenu = (props: TopMenuProps) => {
                     </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
                         <Dropdown
-                            text={maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}
+                            text={maxInvocationDepth === -1 ?
+                                reachedInvocationDepth.toString() : maxInvocationDepth.toString()}
                             className="menu-dropdown-small"
                         >
                             <Dropdown.Menu>
-                                <Dropdown.Item onClick={() => handleDepthSelect(0)} text={0} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(1)} text={1} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(2)} text={2} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(3)} text={3} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(-1)} text={"All"} />
+                                {
+                                    (() => {
+                                        const items = [];
+
+                                        for (let i = 0; i < reachedInvocationDepth + 1; i++) {
+                                            items.push(<Dropdown.Item onClick={() => handleDepthSelect(i)} text={i} />);
+                                        }
+
+                                        return items;
+                                    })()
+                                }
                             </Dropdown.Menu>
                         </Dropdown>
-                        <Icon className="fw fw-expand-all tooltip">
-                            <span className="tooltiptext"> Expand all </span>
-                        </Icon>
-                        <Icon className="fw fw-collapse-all tooltip">
-                            <span className="tooltiptext"> Collapse all </span>
-                        </Icon>
+                        <Popup
+                            trigger={<Icon onClick={() => handleDepthSelect(-1)}  className="fw fw-expand-all"/>}
+                            content="Expand all"
+                            position="top center"
+                            size="small"
+                            inverted
+                        />
+                        <Popup
+                            trigger={<Icon onClick={() => handleDepthSelect(0)} className="fw fw-collapse-all"/>}
+                            content="Collapse all"
+                            position="top center"
+                            size="small"
+                            inverted
+                        />
                     </Grid.Column>
                     <Grid.Column width={3} />
                 </Grid.Row>

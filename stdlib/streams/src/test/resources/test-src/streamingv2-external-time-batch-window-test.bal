@@ -24,7 +24,7 @@ type Teacher record {
     string school;
 };
 
-type TeacherOutput record{
+type TeacherOutput record {
     int timestamp;
     string name;
     int count;

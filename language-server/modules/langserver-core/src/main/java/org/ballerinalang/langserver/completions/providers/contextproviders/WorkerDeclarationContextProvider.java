@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.SnippetGenerator;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -31,7 +30,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Parser rule based variable definition statement context resolver.
@@ -46,21 +44,15 @@ public class WorkerDeclarationContextProvider extends LSCompletionProvider {
     @SuppressWarnings("unchecked")
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Boolean inWorkerReturnCtx = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        if (invocationOrDelimiterTokenType > -1) {
-            List<CommonToken> defaultTokens = context.get(CompletionKeys.LHS_TOKENS_KEY).stream()
-                    .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
-                    .collect(Collectors.toList());
-            List<Integer> defaultTokenTypes = defaultTokens.stream()
-                    .map(CommonToken::getType)
-                    .collect(Collectors.toList());
+        if (invocationOrDelimiterTokenType == BallerinaParser.COLON) {
+            List<CommonToken> defaultTokens = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+            List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
             int pkgDelimIndex = defaultTokenTypes.indexOf(BallerinaParser.COLON);
-            if (pkgDelimIndex > -1) {
-                String pkgName = defaultTokens.get(pkgDelimIndex - 1).getText();
-                completionItems.addAll(this.getTypesInPackage(visibleSymbols, pkgName, context));
-            }
+            String pkgName = defaultTokens.get(pkgDelimIndex - 1).getText();
+            completionItems.addAll(this.getTypesInPackage(visibleSymbols, pkgName, context));
         } else if (inWorkerReturnCtx != null && inWorkerReturnCtx) {
             completionItems.addAll(this.getBasicTypes(visibleSymbols));
             completionItems.addAll(this.getPackagesCompletionItems(context));

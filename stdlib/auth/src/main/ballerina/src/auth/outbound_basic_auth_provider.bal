@@ -16,6 +16,7 @@
 
 import ballerina/encoding;
 import ballerina/log;
+import ballerina/runtime;
 
 # Represents the outbound Basic Auth authenticator.
 #
@@ -24,12 +25,12 @@ public type OutboundBasicAuthProvider object {
 
     *OutboundAuthProvider;
 
-    public Credential credential;
+    public Credential? credential;
 
     # Provides authentication based on the provided Basic Auth configuration.
     #
     # + credential - The credential configurations.
-    public function __init(Credential credential) {
+    public function __init(Credential? credential = ()) {
         self.credential = credential;
     }
 
@@ -37,7 +38,19 @@ public type OutboundBasicAuthProvider object {
     #
     # + return - The generated token or the `Error` if an error occurred during validation.
     public function generateToken() returns string|Error {
-        return getAuthTokenForBasicAuth(self.credential);
+        var credential = self.credential;
+        if (credential is ()) {
+            runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
+            if (authContext is runtime:AuthenticationContext) {
+                string? authToken = authContext?.authToken;
+                if (authToken is string) {
+                    return authToken;
+                }
+            }
+            return prepareError("Failed to generate basic auth token since credential config is not defined and auth token is not defined in the authentication context at invocation context.");
+        } else {
+            return getAuthTokenForBasicAuth(credential);
+        }
     }
 
     # Inspects the incoming data and generates the token for Basic authentication.
@@ -65,7 +78,7 @@ public type Credential record {|
 function getAuthTokenForBasicAuth(Credential credential) returns string|Error {
     string username = credential.username;
     string password = credential.password;
-    if (username == EMPTY_STRING || password == EMPTY_STRING) {
+    if (username == "" || password == "") {
         return prepareError("Username or password cannot be empty.");
     }
     string str = username + ":" + password;

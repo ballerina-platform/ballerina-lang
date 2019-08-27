@@ -17,6 +17,9 @@
 package org.ballerinalang.jvm.scheduling;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -58,6 +61,8 @@ public class Scheduler {
 
     private static final BlockingQueue<String> DEBUG_LOG;
 
+    private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
+
     static {
         if (DEBUG) {
             DEBUG_LOG = new LinkedBlockingDeque<>();
@@ -67,16 +72,42 @@ public class Scheduler {
     }
 
     private AtomicInteger totalStrands = new AtomicInteger();
-    private final int numThreads;
+    /**
+     * By default number of threads = (Available logical Processors * 2).
+     * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
+     */
+    private int numThreads;
     private Semaphore mainBlockSem;
+
+    public Scheduler(boolean immortal) {
+        try {
+            String poolSizeConf = System.getenv(BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
+            this.numThreads = poolSizeConf == null ?
+                    Runtime.getRuntime().availableProcessors() * 2 : Integer.parseInt(poolSizeConf);
+        } catch (Throwable t) {
+            // Log and continue with default
+            this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
+            logger.error("Error occurred in scheduler while reading system variable:" +
+                    BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR, t);
+        }
+        this.immortal = immortal;
+    }
 
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
         this.immortal = immortal;
     }
 
-    public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent) {
-        return schedule(params, fp.getFunction(), parent, null, null);
+    public static Strand getStrand() {
+        Strand strand = strandHolder.get().strand;
+        if (strand == null) {
+            throw new IllegalStateException("strand is not accessible form non-strand-worker threads");
+        }
+        return strand;
+    }
+
+    public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType) {
+        return schedule(params, fp.getFunction(), parent, null, null, returnType);
     }
 
     public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
@@ -91,11 +122,16 @@ public class Scheduler {
      * @param parent   - parent strand that makes the request to schedule another
      * @param callback - to notify any listener when ever the execution of the given function is finished
      * @param properties - request properties which requires for co-relation
+     * @param returnType - return type of the scheduled function
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
-                                Map<String, Object> properties) {
-        FutureValue future = createFuture(parent, callback, properties);
+                                Map<String, Object> properties, BType returnType) {
+        FutureValue future = createFuture(parent, callback, properties, returnType);
+        return schedule(params, function, parent, future);
+    }
+
+    private FutureValue schedule(Object[] params, Function function, Strand parent, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
@@ -116,7 +152,7 @@ public class Scheduler {
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Consumer consumer, Strand parent) {
-        FutureValue future = createFuture(parent, null, null);
+        FutureValue future = createFuture(parent, null, null, BTypes.typeNull);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
@@ -191,11 +227,14 @@ public class Scheduler {
                 if (DEBUG) {
                     debugLog(item + " executing");
                 }
+                strandHolder.get().strand = item.future.strand;
                 result = item.execute();
             } catch (Throwable e) {
                 panic = e;
                 notifyChannels(item, panic);
                 logger.error("Strand died", e);
+            } finally {
+                strandHolder.get().strand = null;
             }
 
             switch (item.getState()) {
@@ -277,9 +316,6 @@ public class Scheduler {
                         // (number of started stands - finished stands) = 0, all the work is done
                         assert runnableList.size() == 0;
 
-                        // server agent start code will be inserted in above line during tests.
-                        // It depends on this line number 279.
-                        // update the linenumber @BallerinaServerAgent#SCHEDULER_LINE_NUM if modified
                         if (DEBUG) {
                             debugLog("+++++++++ all work completed ++++++++");
                         }
@@ -361,11 +397,21 @@ public class Scheduler {
             }
     }
 
-    private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties) {
+    private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties,
+                                     BType constraint) {
         Strand newStrand = new Strand(this, parent, properties);
-        FutureValue future = new FutureValue(newStrand, callback);
+        if (parent != null) {
+            newStrand.observerContext = parent.observerContext;
+        }
+        FutureValue future = new FutureValue(newStrand, callback, constraint);
         future.strand.frames = new Object[100];
         return future;
+    }
+
+    public void poison() {
+        for (int i = 0; i < numThreads; i++) {
+            runnableList.add(POISON_PILL);
+        }
     }
 }
 

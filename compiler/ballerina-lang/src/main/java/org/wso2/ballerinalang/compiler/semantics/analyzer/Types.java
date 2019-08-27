@@ -670,6 +670,10 @@ public class Types {
             return isTupleTypeAssignableToArrayType((BTupleType) source, (BArrayType) target, unresolvedTypes);
         }
 
+        if (source.tag == TypeTags.ARRAY && target.tag == TypeTags.TUPLE) {
+            return isArrayTypeAssignableToTupleType((BArrayType) source, (BTupleType) target, unresolvedTypes);
+        }
+
         if (source.tag == TypeTags.TUPLE || target.tag == TypeTags.TUPLE) {
             return isTupleTypeAssignable(source, target, unresolvedTypes);
         }
@@ -708,12 +712,24 @@ public class Types {
         BTupleType lhsTupleType = (BTupleType) target;
         BTupleType rhsTupleType = (BTupleType) source;
 
-        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+        if (lhsTupleType.restType == null && rhsTupleType.restType != null) {
             return false;
         }
 
-        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
-            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i), unresolvedTypes)) {
+        if (lhsTupleType.restType == null && lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        if (lhsTupleType.restType != null && rhsTupleType.restType != null) {
+            if (!isAssignable(rhsTupleType.restType, lhsTupleType.restType, unresolvedTypes)) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
+            BType lhsType = (lhsTupleType.tupleTypes.size() > i)
+                    ? lhsTupleType.tupleTypes.get(i) : lhsTupleType.restType;
+            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsType, unresolvedTypes)) {
                 return false;
             }
         }
@@ -722,8 +738,32 @@ public class Types {
 
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
                                                      List<TypePair> unresolvedTypes) {
-        return source.tupleTypes.stream()
+        if (target.state != BArrayState.UNSEALED
+                && (source.restType != null || source.tupleTypes.size() != target.size)) {
+            return false;
+        }
+
+        List<BType> sourceTypes = new ArrayList<>(source.tupleTypes);
+        if (source.restType != null) {
+            sourceTypes.add(source.restType);
+        }
+        return sourceTypes.stream()
                 .allMatch(tupleElemType -> isAssignable(tupleElemType, target.eType, unresolvedTypes));
+    }
+
+    private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
+                                                     List<TypePair> unresolvedTypes) {
+        if (source.state != BArrayState.UNSEALED
+                && (target.restType != null || target.tupleTypes.size() != source.size)) {
+            return false;
+        }
+
+        List<BType> targetTypes = new ArrayList<>(target.tupleTypes);
+        if (target.restType != null) {
+            targetTypes.add(target.restType);
+        }
+        return targetTypes.stream()
+                .allMatch(tupleElemType -> isAssignable(source.eType, tupleElemType, unresolvedTypes));
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
@@ -988,6 +1028,9 @@ public class Types {
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) collectionType;
                 LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
+                if (tupleType.restType != null) {
+                    tupleTypes.add(tupleType.restType);
+                }
                 varType = tupleTypes.size() == 1 ?
                         tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
                 break;
@@ -1699,7 +1742,15 @@ public class Types {
 
         @Override
         public Boolean visit(BObjectType t, BType s) {
-            return t == s;
+            if (t == s) {
+                return true;
+            }
+
+            if (s.tag != TypeTags.OBJECT) {
+                return false;
+            }
+
+            return t.tsymbol.pkgID.equals(s.tsymbol.pkgID) && t.tsymbol.name.equals(s.tsymbol.name);
         }
 
         @Override
@@ -1740,6 +1791,14 @@ public class Types {
         }
 
         public Boolean visit(BTupleType t, BType s) {
+            // tuples of [string...], [string, string...] can be treated as string[]
+            if (s.tag == TypeTags.ARRAY && t.restType != null) {
+                Set<BType> types = new HashSet<>(t.tupleTypes);
+                types.add(t.restType);
+                if (types.size() == 1 && types.contains(((BArrayType) s).eType)) {
+                    return true;
+                }
+            }
             if (s.tag != TypeTags.TUPLE) {
                 return false;
             }
@@ -1847,13 +1906,18 @@ public class Types {
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
 
-            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
-            if (!Symbols.isOptional(lhsField.symbol) && (rhsField == null || Symbols.isOptional(rhsField.symbol))) {
+            // There should be a corresponding RHS field
+            if (rhsField == null) {
                 return false;
             }
 
-            // If there is a corresponding RHS field, it should be assignable to the LHS field.
-            if (rhsField != null && !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            // If LHS field is required, so should the RHS field
+            if (!Symbols.isOptional(lhsField.symbol) && Symbols.isOptional(rhsField.symbol)) {
+                return false;
+            }
+
+            // The corresponding RHS field should be assignable to the LHS field.
+            if (!isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
 
@@ -1877,7 +1941,8 @@ public class Types {
 
     private boolean isInSameVisibilityRegion(BSymbol lhsSym, BSymbol rhsSym) {
         if (Symbols.isPrivate(lhsSym)) {
-            return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID) && lhsSym.name.equals(rhsSym.name);
+            return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID)
+                    && lhsSym.owner.name.equals(rhsSym.owner.name);
         } else if (Symbols.isPublic(lhsSym)) {
             return Symbols.isPublic(rhsSym);
         }

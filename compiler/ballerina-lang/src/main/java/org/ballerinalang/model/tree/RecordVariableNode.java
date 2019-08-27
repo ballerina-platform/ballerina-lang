@@ -42,7 +42,7 @@ public interface RecordVariableNode extends VariableNode, AnnotatableNode, Docum
 
     VariableNode getRestParam();
 
-    boolean isClosed();
+    boolean hasRestParam();
 
     /**
      * Interface for key and value of a record variable.

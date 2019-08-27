@@ -98,14 +98,7 @@ export function isWorkerFuture(node: ASTNode) {
             }
 
             if (ASTKindChecker.isInvocation(initialExp)) {
-                const exp = (initialExp as Invocation).expression;
-                if (exp === undefined) {
-                    return false;
-                }
-                if (ASTKindChecker.isSimpleVariableRef(exp)) {
-                    const simpleVarName: string = (exp as SimpleVariableRef).variableName.value;
-                    return /^0.*/.test(simpleVarName);
-                }
+                return /^0.*/.test(initialExp.name.value);
             }
         }
     }

@@ -202,3 +202,92 @@ function testForEach() returns string {
 
     return result;
 }
+
+function testSetLength(int newLength) returns [int, int[], int[]] {
+    int[] ar = [1, 2, 3, 4, 5, 6, 7];
+    ar.setLength(newLength);
+    int [] ar2 = ar.clone();
+    ar2.setLength(newLength+1);
+    return [ar.length(), ar, ar2];
+}
+
+function testShift() returns [int[], int] {
+    int[] s = [1, 2, 3, 4, 5];
+    var e = s.shift();
+    return [s, e];
+}
+
+function testUnshift() returns int[] {
+    int[] s = [1, 2, 3, 4, 5];
+    s.unshift(8, 8);
+    return s;
+}
+
+type Obj object {
+    int i;
+    int j;
+    function __init(int i, int j) {
+        self.i = i;
+        self.j = j;
+    }
+};
+
+function testUnshiftTypeWithoutFillerValues () returns Obj[] {
+    Obj[] arr = [];
+    arr.unshift(new Obj(1, 1), new Obj(1,2));
+    return arr;
+}
+
+function testRemoveAll() returns int[] {
+    int[] ar = [1, 2, 3, 4, 5, 6, 7];
+    ar.removeAll();
+    return ar;
+}
+
+function testRemoveAllFixedLengthArray() returns int[] {
+    int[7] ar = [1, 2, 3, 4, 5, 6, 7];
+    ar.removeAll();
+    return ar;
+}
+
+function testTupleResize() returns [int, string] {
+    [int, string] t = [1, "hello"];
+    t.setLength(3);
+    return t;
+}
+
+function testTupleRemoveAll() returns [int, string] {
+    [int, string] t = [1, "hello"];
+    t.removeAll();
+    return t;
+}
+
+function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string] {
+    [int, string, boolean...] t = [1, "hello", true];
+    t.removeAll();
+    return t;
+}
+
+function testTupleRemoveAllForTupleWithJustRestMemberType() returns boolean {
+    [int...] t = [1, 2, 3];
+    t.removeAll();
+    return t.length() == 0;
+}
+
+function testTupleSetLengthLegal() returns boolean {
+    [int, int, int...] t = [1, 2, 3, 4];
+    t.setLength(2);
+    return t.length() == 2;
+}
+
+function testTupleSetLengthIllegal() returns boolean {
+    [int, int, int...] t = [1, 2, 3, 4];
+    t.setLength(1);
+    return t.length() == 1;
+}
+
+function testTupleSetLengthToSameAsOriginal() returns boolean {
+    [int, int] t = [1, 2];
+    t.setLength(2);
+    return t.length() == 2;
+}

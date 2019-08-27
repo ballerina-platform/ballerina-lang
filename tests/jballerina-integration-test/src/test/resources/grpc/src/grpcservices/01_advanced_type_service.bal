@@ -30,8 +30,8 @@ service HelloWorld on ep {
         io:println("name: " + req.name);
         string message = "Submitted name: " + req.name;
         io:println("Response message " + message);
-        error? err = caller->send(message);
-        if (err is error) {
+        grpc:Error? err = caller->send(message);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         }
         checkpanic caller->complete();
@@ -41,8 +41,8 @@ service HelloWorld on ep {
         io:println("requested name: " + name);
         Person person = {name:"Sam", address:{postalCode:10300, state:"CA", country:"USA"}};
         io:println(person);
-        error? err = caller->send(person);
-        if (err is error) {
+        grpc:Error? err = caller->send(person);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         }
         checkpanic caller->complete();
@@ -53,8 +53,8 @@ service HelloWorld on ep {
         StockQuote res = {symbol:"WSO2", name:"WSO2.com", last:149.52, low:150.70, high:
         149.18};
         io:println(res);
-        error? err = caller->send(res);
-        if (err is error) {
+        grpc:Error? err = caller->send(res);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         }
         checkpanic caller->complete();
@@ -63,9 +63,9 @@ service HelloWorld on ep {
     resource function testInputStructNoOutput(grpc:Caller caller, StockQuote req) {
         io:println("Symbol: " + req.symbol);
         io:println("Name: " + req.name);
-        io:println("Last: " + req.last);
-        io:println("Low: " + req.low);
-        io:println("High: " + req.high);
+        io:println("Last: " + req.last.toString());
+        io:println("Low: " + req.low.toString());
+        io:println("High: " + req.high.toString());
     }
 
     resource function testNoInputOutputStruct(grpc:Caller caller) {
@@ -73,8 +73,8 @@ service HelloWorld on ep {
         StockQuote res1 = {symbol:"Google", name:"Google Inc.", last:100.0, low:101.0, high:102.0};
         StockQuotes quotes = {stock:[res, res1]};
 
-        error? err = caller->send(quotes);
-        if (err is error) {
+        grpc:Error? err = caller->send(quotes);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         }
         checkpanic caller->complete();
@@ -83,8 +83,8 @@ service HelloWorld on ep {
     resource function testNoInputOutputArray(grpc:Caller caller) {
         string[] names = ["WSO2", "Google"];
         StockNames stockNames = {names:names};
-        error? err = caller->send(stockNames);
-        if (err is error) {
+        grpc:Error? err = caller->send(stockNames);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         }
         checkpanic caller->complete();

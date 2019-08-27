@@ -61,8 +61,8 @@ service TestService on server8 {
     resource function testNoRequest(grpc:Caller caller) {
         string resp = "service invoked with no request";
         io:println("Server send response : " + resp);
-        error? err = caller->send(resp);
-        if (err is error) {
+        grpc:Error? err = caller->send(resp);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         }
         checkpanic caller->complete();

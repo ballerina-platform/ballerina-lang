@@ -83,6 +83,8 @@
        Lifeline
 --------------------*/
 
+@light-diagram-client-line-stroke-color: #eeeff0;
+@dark-diagram-client-line-stroke-color: #eeeff0;
 @light-diagram-life-line-stroke-color: @light-diagram-stroke-color;
 @dark-diagram-life-line-stroke-color: @dark-diagram-stroke-color;
 @light-diagram-life-line-text-color: @light-diagram-base-text-color;
@@ -104,6 +106,8 @@
 
 @diagram-life-line-stroke-width: @diagram-stroke-width;
 @diagram-life-line-head-font-size: calc(@diagram-font-size + 2px);
+
+@diagram-client-line-stroke-width: 4px;
 
 
 /*--- Condition ---*/

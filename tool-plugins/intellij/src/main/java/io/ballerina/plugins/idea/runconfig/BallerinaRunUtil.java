@@ -166,7 +166,7 @@ public class BallerinaRunUtil {
         // Get the function name.
         PsiElement functionName = callableUnitSignature.getAnyIdentifierName().getIdentifier();
         // Check whether the function name is "main".
-        if (functionName == null || !BallerinaConstants.MAIN.equals(functionName.getText())) {
+        if (functionName == null || !BallerinaConstants.MAIN.equals(functionName.getText().trim())) {
             return false;
         }
 
@@ -176,7 +176,7 @@ public class BallerinaRunUtil {
     @Contract("null -> false")
     private static boolean isPublicFunction(BallerinaFunctionDefinition functionDefinitionNode) {
         PsiElement firstChild = PsiTreeUtil.firstChild(functionDefinitionNode);
-        return firstChild != null && firstChild.getText().equals("public");
+        return firstChild != null && firstChild.getText().trim().equals("public");
     }
 
     @Contract("null -> false")

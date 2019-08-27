@@ -12,9 +12,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller.\n  \n  \n---    \n**Parameters**  \n- _message_  \n    The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:GenericListenerError|ballerina/http:InitializingInboundRequestError|ballerina/http:ReadingInboundRequestHeadersError|ballerina/http:ReadingInboundRequestBodyError|ballerina/http:InitializingOutboundResponseError|ballerina/http:WritingOutboundResponseHeadersError|ballerina/http:WritingOutboundResponseBodyError|ballerina/http:Initiating100ContinueResponseError|ballerina/http:Writing100ContinueResponseError)?"
+          "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`(Defaultable)  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n**Returns** `(()|error)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "respond(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -29,9 +30,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nPushes a promise to the caller.\n  \n  \n---    \n**Parameters**  \n- _promise_  \n    Push promise message  \n  \n  \n**Return**  \n(ballerina/http:GenericListenerError|ballerina/http:InitializingInboundRequestError|ballerina/http:ReadingInboundRequestHeadersError|ballerina/http:ReadingInboundRequestBodyError|ballerina/http:InitializingOutboundResponseError|ballerina/http:WritingOutboundResponseHeadersError|ballerina/http:WritingOutboundResponseBodyError|ballerina/http:Initiating100ContinueResponseError|ballerina/http:Writing100ContinueResponseError)?"
+          "value": "**Package:** _ballerina/http_  \n  \nPushes a promise to the caller.\n  \n**Params**  \n- `http:PushPromise` promise: Push promise message  \n  \n**Returns** `(()|error)`   \n- An `http:ListenerError` in case of failures  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "promise(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -46,9 +48,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSends a promised push response to the caller.\n  \n  \n---    \n**Parameters**  \n- _promise_  \n    Push promise message  \n  \n- _response_  \n    The outbound response  \n  \n  \n**Return**  \n(ballerina/http:GenericListenerError|ballerina/http:InitializingInboundRequestError|ballerina/http:ReadingInboundRequestHeadersError|ballerina/http:ReadingInboundRequestBodyError|ballerina/http:InitializingOutboundResponseError|ballerina/http:WritingOutboundResponseHeadersError|ballerina/http:WritingOutboundResponseBodyError|ballerina/http:Initiating100ContinueResponseError|ballerina/http:Writing100ContinueResponseError)?"
+          "value": "**Package:** _ballerina/http_  \n  \nSends a promised push response to the caller.\n  \n**Params**  \n- `http:PushPromise` promise: Push promise message  \n- `http:Response` response: The outbound response  \n  \n**Returns** `(()|error)`   \n- An `http:ListenerError` in case of failures while responding with the promised response  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "pushPromisedResponse(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -57,15 +60,16 @@
       }
     },
     {
-      "label": "acceptWebSocketUpgrade(map\u003cstring\u003e headers)(http:WebSocketCaller)",
+      "label": "acceptWebSocketUpgrade(map<string> headers)(http:WebSocketCaller)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSends an upgrade request with custom headers.\n  \n  \n---    \n**Parameters**  \n- _headers_  \n    A `map` of custom headers for handshake  \n  \n  \n**Return**  \nballerina/http:WebSocketCaller"
+          "value": "**Package:** _ballerina/http_  \n  \nSends an upgrade request with custom headers.\n  \n**Params**  \n- `map<string>` headers: A `map` of custom headers for handshake  \n  \n**Returns** `http:WebSocketCaller`   \n- WebSocket service endpoint  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "acceptWebSocketUpgrade(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -80,9 +84,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCancels the handshake.\n  \n  \n---    \n**Parameters**  \n- _status_  \n    Error Status code for cancelling the upgrade and closing the connection.\n           This error status code need to be 4xx or 5xx else the default status code would be 400.  \n  \n- _reason_  \n    Reason for cancelling the upgrade  \n  \n  \n**Return**  \n(ballerina/http:WsConnectionClosureError|ballerina/http:WsInvalidHandshakeError|ballerina/http:WsPayloadTooBigError|ballerina/http:WsProtocolError|ballerina/http:WsConnectionError|ballerina/http:WsInvalidContinuationFrameError|ballerina/http:WsGenericError)?"
+          "value": "**Package:** _ballerina/http_  \n  \nCancels the handshake.\n  \n**Params**  \n- `int` status: Error Status code for cancelling the upgrade and closing the connection.\n           This error status code need to be 4xx or 5xx else the default status code would be 400.  \n- `string` reason: Reason for cancelling the upgrade  \n  \n**Returns** `(()|error)`   \n- An `error` if an error occurs during cancelling the upgrade or nil  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "cancelWebSocketUpgrade(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -97,15 +102,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSends a `100-continue` response to the caller.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/http:GenericListenerError|ballerina/http:InitializingInboundRequestError|ballerina/http:ReadingInboundRequestHeadersError|ballerina/http:ReadingInboundRequestBodyError|ballerina/http:InitializingOutboundResponseError|ballerina/http:WritingOutboundResponseHeadersError|ballerina/http:WritingOutboundResponseBodyError|ballerina/http:Initiating100ContinueResponseError|ballerina/http:Writing100ContinueResponseError)?"
+          "value": "**Package:** _ballerina/http_  \n  \nSends a `100-continue` response to the caller.\n  \n  \n  \n**Returns** `(()|error)`   \n- Returns an `http:ListenerError` if failed to send the `100-continue` response  \n  \n"
         }
       },
-      "insertText": "continue(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "130",
+      "insertText": "continue()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "redirect(http:Response response, (300|301|302|303|304|305|307|308) code, string[] locations)((()|error))",
@@ -114,9 +116,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSends a redirect response to the user with the specified redirection status code.\n  \n  \n---    \n**Parameters**  \n- _response_  \n    Response to be sent to the caller  \n  \n- _code_  \n    The redirect status code to be sent  \n  \n- _locations_  \n    An array of URLs to which the caller can redirect to  \n  \n  \n**Return**  \n(ballerina/http:GenericListenerError|ballerina/http:InitializingInboundRequestError|ballerina/http:ReadingInboundRequestHeadersError|ballerina/http:ReadingInboundRequestBodyError|ballerina/http:InitializingOutboundResponseError|ballerina/http:WritingOutboundResponseHeadersError|ballerina/http:WritingOutboundResponseBodyError|ballerina/http:Initiating100ContinueResponseError|ballerina/http:Writing100ContinueResponseError)?"
+          "value": "**Package:** _ballerina/http_  \n  \nSends a redirect response to the user with the specified redirection status code.\n  \n**Params**  \n- `http:Response` response: Response to be sent to the caller  \n- `(300|301|302|303|304|305|307|308)` code: The redirect status code to be sent  \n- `string[]` locations: An array of URLs to which the caller can redirect to  \n  \n**Returns** `(()|error)`   \n- Returns an `http:ListenerError` if failed to send the redirect response  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "redirect(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -131,9 +134,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 200 OK.\n  \n  \n---    \n**Parameters**  \n- _message_  \n    The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:GenericListenerError|ballerina/http:InitializingInboundRequestError|ballerina/http:ReadingInboundRequestHeadersError|ballerina/http:ReadingInboundRequestBodyError|ballerina/http:InitializingOutboundResponseError|ballerina/http:WritingOutboundResponseHeadersError|ballerina/http:WritingOutboundResponseBodyError|ballerina/http:Initiating100ContinueResponseError|ballerina/http:Writing100ContinueResponseError)?"
+          "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 200 OK.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`(Defaultable)  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`  \n  \n**Returns** `(()|error)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "ok(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -148,9 +152,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 201 Created.\n  \n  \n---    \n**Parameters**  \n- _uri_  \n    Represents the most specific URI for the newly created resource  \n  \n- _message_  \n    The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/http:GenericListenerError|ballerina/http:InitializingInboundRequestError|ballerina/http:ReadingInboundRequestHeadersError|ballerina/http:ReadingInboundRequestBodyError|ballerina/http:InitializingOutboundResponseError|ballerina/http:WritingOutboundResponseHeadersError|ballerina/http:WritingOutboundResponseBodyError|ballerina/http:Initiating100ContinueResponseError|ballerina/http:Writing100ContinueResponseError)?"
+          "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 201 Created.\n  \n**Params**  \n- `string` uri: Represents the most specific URI for the newly created resource  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.  \n  \n**Returns** `(()|error)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "created(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -165,9 +170,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 202 Accepted.\n  \n  \n---    \n**Parameters**  \n- _message_  \n    The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/http:GenericListenerError|ballerina/http:InitializingInboundRequestError|ballerina/http:ReadingInboundRequestHeadersError|ballerina/http:ReadingInboundRequestBodyError|ballerina/http:InitializingOutboundResponseError|ballerina/http:WritingOutboundResponseHeadersError|ballerina/http:WritingOutboundResponseBodyError|ballerina/http:Initiating100ContinueResponseError|ballerina/http:Writing100ContinueResponseError)?"
+          "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 202 Accepted.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.  \n  \n**Returns** `(()|error)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "accepted(${1})",
       "insertTextFormat": "Snippet",
       "command": {

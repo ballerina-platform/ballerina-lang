@@ -15,8 +15,13 @@
 // under the License.
 
 # The type bound for a table row.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 type RowType map<anydata|error>;
+
+# Returns the number of members in `tbl`.
+public function length(table<map<anydata|error>> tbl) returns int = external;
 
 type TableIterator object {
 
@@ -53,7 +58,7 @@ public function hasNext(table<record {}> dt) returns boolean = external;
 # Retrives the current row and return a record with the data in the columns.
 #
 # + return - The resulting row as a record
-public function getNext(table<record {}> dt) returns any = external;
+public function getNext(table<record {}> dt) returns record {} = external;
 
 # Add record to the table.
 #

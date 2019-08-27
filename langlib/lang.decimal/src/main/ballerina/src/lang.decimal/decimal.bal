@@ -14,33 +14,56 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Sum of all the arguments
-# 0 if no args
+# Sum of all the arguments.
+# 0 if no args.
+#
+# + xs - decimal numbers to sum
+# + return - sum of the arguments
 public function sum(decimal... xs) returns decimal = external;
 
-# Maximum of all the arguments
+# Maximum of all the arguments.
+#
+# + x - first paramter to check for max value
+# + xs - rest of the parameter to check for max value
+# + return - maximum value of all provided values
 public function max(decimal x, decimal... xs) returns decimal = external;
 
-# Minimum of all the arguments
+# Minimum of all the arguments.
+#
+# + x - first paramter to check for min value
+# + xs - rest of the parameter to check for min value
+# + return - minimum value of all provided values
 public function min(decimal x, decimal... xs) returns decimal = external;
 
-# IEEE abs operation
+# IEEE abs operation.
+#
+# + x - whose absolute value is to be determined
+# + return - absolute value of the argument
 public function abs(decimal x) returns decimal = external;
 
 # Floating point value that is a mathematical integer and closest to `x`.
 # If there are two such integers, choose the one that is even
 # (this is the round-to-nearest rounding mode, which is the default for IEEE
 # and for Ballerina).
-# Same as Java Math.round method
+# Same as Java Math.rint method
 # Same as .NET Math.Round method
 # IEEE 754 roundToIntegralTiesToEven operation
 # Note that `<int>x` is the same as `<int>x.round()`
+#
+# + x - whose value to be rounded
+# + return - rounded value
 public function round(decimal x) returns decimal = external;
 
-# Largest (closest to +∞) floating point value not greater than `x` that is a mathematical integer
+# Largest (closest to +∞) floating point value not greater than `x` that is a mathematical integer.
+#
+# + x - whose value to be floored
+# + return - floored value
 public function floor(decimal x) returns decimal = external;
 
 # Smallest (closest to -∞) floating point value not less than `x` that is a mathematical integer
+#
+# + x - value to performe ceiling on
+# + return - integer ceiling value of the argument in decimal
 public function ceiling(decimal x) returns decimal = external;
 
 # Return the decimal value represented by `s`.
@@ -49,4 +72,7 @@ public function ceiling(decimal x) returns decimal = external;
 # - the DecimalFloatingPointLiteral may have a leading `+` or `-` sign
 # - a FloatingPointTypeSuffix is not allowed
 # This is the inverse of `value:toString` applied to an `decimal`.
+#
+# + s - string representation of a decimal
+# + return - decimal representation of the argument or error
 public function fromString(string s) returns decimal|error = external;

@@ -17,9 +17,8 @@
 import ballerina/filepath;
 import ballerina/http;
 import ballerina/io;
-import ballerina/system;
+import ballerina/file;
 import ballerina/'lang\.int as lint;
-import ballerina/'lang\.string as lstring;
 import ballerina/internal;
 
 const int MAX_INT_VALUE = 2147483647;
@@ -73,6 +72,8 @@ public function main(string... args) {
     string versionRange = args[8];
     isBuild = <@untainted> args[9] == "true";
     boolean nightlyBuild = <@untainted> args[10] == "true";
+    string langSpecVersion = args[11];
+    string platform = args[12];
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -82,21 +83,21 @@ public function main(string... args) {
         // validate port
         int|error port = lint:fromString(strPort);
         if (port is error) {
-            panic createError("invalid port : " + strPort);
+            panic createError("invalid port specified for remote resigry: " + strPort);
         } else {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is error) {
-                panic createError("failed to resolve host : " + host + " with port " + port.toString());
+                panic createError("failed to resolve host of remote registry: " + host + " with port " + port.toString());
             } else {
                 httpEndpoint = result;
-                return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, <@untainted> terminalWidth, nightlyBuild);
+                return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
             }
         }
     } else if (host != "" || strPort != "") {
-        panic createError("both host and port should be provided to enable proxy");
+        panic createError("both host and port should be provided to enable proxy for accessing remote registry.");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
-        return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, <@untainted> terminalWidth, nightlyBuild);
+        return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
     }
 }
 
@@ -110,15 +111,23 @@ public function main(string... args) {
 # + terminalWidth - Width of the terminal
 # + nightlyBuild - Release is a nightly build
 function pullPackage(http:Client httpEndpoint, string url, string modulePath, string baloCache, string versionRange,
-                     string terminalWidth, boolean nightlyBuild) {
+                     string platform, string langSpecVersion, string terminalWidth, boolean nightlyBuild) {
     http:Client centralEndpoint = httpEndpoint;
 
     http:Request req = new;
+    if (platform != "") {
+        req.setHeader("Ballerina-Platform", platform);
+    }
+
+    if (langSpecVersion != "") {
+        req.setHeader("Ballerina-Language-Specification-Version", langSpecVersion);
+    }
+
     req.addHeader("Accept-Encoding", "identity");
     http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, req);
     if (httpResponse is error) {
         error e = httpResponse;
-        panic createError("connection to the remote host failed : " + e.reason());
+        panic createError("connection to the remote registry host failed : " + e.reason());
     } else {
         string statusCode = httpResponse.statusCode.toString();
         if (internal:hasPrefix(statusCode, "5")) {
@@ -133,7 +142,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     panic createError(resp.message.toString());
                 }
             } else {
-                panic createError("error occurred when pulling the module");
+                panic createError("error occurred when pulling the module from remote registry");
             }
         } else {
             string contentLengthHeader;
@@ -159,18 +168,24 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
 
             if (valid) {
                 string moduleName = modulePath.substring(internal:lastIndexOf(modulePath, "/") + 1, modulePath.length());
-                string baloFile = moduleName + ".balo";
+                string baloFile = uriParts[uriParts.length() - 1];
 
                 // adding version to the module path
                 string modulePathWithVersion = modulePath + ":" + moduleVersion;
                 string baloCacheWithModulePath = checkpanic filepath:build(baloCache, moduleVersion); // <user.home>.ballerina/balo_cache/<org-name>/<module-name>/<module-version>
 
-                string baloPath = checkpanic filepath:build(baloCacheWithModulePath, baloFile);
-                if (system:exists(baloPath)) {
-                    panic createError("module already exists in the home repository");
+                // get file name from content-disposition header
+                if (httpResponse.hasHeader("Content-Disposition")) {
+                    string contentDispositionHeader = httpResponse.getHeader("Content-Disposition");
+                    baloFile = contentDispositionHeader.substring("attachment; filename=".length(), contentDispositionHeader.length());
                 }
 
-                string|error createBaloFile = system:createDir(baloCacheWithModulePath, true);
+                string baloPath = checkpanic filepath:build(baloCacheWithModulePath, baloFile);
+                if (file:exists(<@untainted> baloPath)) {
+                    panic createError("module already exists in the home repository: " + baloPath);
+                }
+
+                string|error createBaloFile = file:createDir(<@untainted> baloCacheWithModulePath, true);
                 if (createBaloFile is error) {
                     panic createError("error creating directory for balo file");
                 }
@@ -194,10 +209,12 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     } else {
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
-                            string nightlyBuildMetafile = checkpanic filepath:build(baloCache, "nightly.build");
-                            string|error createdNightlyBuildFile = system:createFile(nightlyBuildMetafile);
-                            if (createdNightlyBuildFile is error) {
-                                panic createError("Error occurred while creating nightly.build file.");
+                            string nightlyBuildMetafile = checkpanic filepath:build(baloCacheWithModulePath, "nightly.build");
+                            if (!file:exists(<@untainted> nightlyBuildMetafile)) {
+                                string|error createdNightlyBuildFile = file:createFile(<@untainted> nightlyBuildMetafile);
+                                if (createdNightlyBuildFile is error) {
+                                    panic createError("error occurred while creating nightly.build file.");
+                                }
                             }
                         }
                         return ();
@@ -229,7 +246,7 @@ public function defineEndpointWithProxy(string url, string hostname, int port, s
             shareSession: true
         },
         followRedirects: { enabled: true, maxCount: 5 },
-        proxy : getProxyConfigurations(hostname, port, username, password)
+        http1Settings: { proxy : getProxyConfigurations(hostname, port, username, password) }
     });
     return <@untainted> httpEndpointWithProxy;
 }
@@ -315,7 +332,7 @@ function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel d
         int intTotalCount = <int>totalCount;
         string size = "[" + bar + ">" + spaces + "] " + intTotalCount.toString() + "/" + baloSize.toString();
         string msg = truncateString(modulePath + toAndFrom, terminalWidth - size.length());
-        io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
+        io:print("\r" + logFormatter.formatLog(<@untainted> (rightPad(msg, rightpadLength) + size)));
     }
     io:println("\r" + logFormatter.formatLog(rightPad(modulePath + toAndFrom, terminalWidth)));
     return;

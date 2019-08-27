@@ -40,7 +40,6 @@ public class BLangRecordVarRef extends BLangVariableReference implements RecordV
     public BLangIdentifier pkgAlias;
     public List<BLangRecordVarRefKeyValue> recordRefFields;
     public ExpressionNode restParam;
-    public boolean isClosed;
 
     public BLangRecordVarRef() {
         recordRefFields = new ArrayList<>();

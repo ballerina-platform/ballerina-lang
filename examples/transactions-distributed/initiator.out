@@ -1,5 +1,5 @@
 # To start the `initiator` service, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run --experimental initiator.bal
-[ballerina/http] started HTTP/WS endpoint 10.100.1.182:53871
-[ballerina/http] started HTTP/WS endpoint localhost:8080
+[ballerina/http] started HTTP/WS listener 10.100.1.182:53871
+[ballerina/http] started HTTP/WS listener localhost:8080

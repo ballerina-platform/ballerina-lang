@@ -244,6 +244,6 @@ public class ResponseCacheControlObj {
     }
 
     private long getIntValue(ObjectValue responseCacheControl, String fieldName) {
-        return (Integer) responseCacheControl.get(fieldName);
+        return Long.parseLong(responseCacheControl.get(fieldName).toString());
     }
 }

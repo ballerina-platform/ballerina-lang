@@ -30,13 +30,13 @@ public type OutboundOAuth2Provider object {
 
     *auth:OutboundAuthProvider;
 
-    public ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig oauth2ProviderConfig;
+    public ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig? oauth2ProviderConfig;
     public CachedToken tokenCache;
 
     # Provides authentication based on the provided OAuth2 configuration.
     #
     # + outboundJwtAuthConfig - Outbound OAuth2 authentication configurations
-    public function __init(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig oauth2ProviderConfig) {
+    public function __init(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig? oauth2ProviderConfig = ()) {
         self.oauth2ProviderConfig = oauth2ProviderConfig;
         self.tokenCache = {
             accessToken: "",
@@ -49,11 +49,23 @@ public type OutboundOAuth2Provider object {
     #
     # + return - Generated token or `auth:Error` if an error occurred
     public function generateToken() returns @tainted (string|auth:Error) {
-        var authToken = getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, false);
-        if (authToken is string) {
-            return authToken;
+        var oauth2ProviderConfig = self.oauth2ProviderConfig;
+        if (oauth2ProviderConfig is ()) {
+            runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
+            if (authContext is runtime:AuthenticationContext) {
+                string? authToken = authContext?.authToken;
+                if (authToken is string) {
+                    return authToken;
+                }
+            }
+            return auth:prepareError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
-            return auth:prepareError("Failed to generate OAuth2 token.", authToken);
+            var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, false);
+            if (authToken is string) {
+                return authToken;
+            } else {
+                return auth:prepareError("Failed to generate OAuth2 token.", authToken);
+            }
         }
     }
 
@@ -62,15 +74,20 @@ public type OutboundOAuth2Provider object {
     # + data - Map of data which is extracted from the HTTP response
     # + return - String token, or `auth:Error` occurred when generating token or `()` if nothing to be returned
     public function inspect(map<anydata> data) returns @tainted (string|auth:Error?) {
-        if (data[http:STATUS_CODE] == http:UNAUTHORIZED_401) {
-            var authToken = getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
-            if (authToken is string) {
-                return authToken;
-            } else {
-                return auth:prepareError("Failed to generate OAuth2 token at inspection.", authToken);
+        var oauth2ProviderConfig = self.oauth2ProviderConfig;
+        if (oauth2ProviderConfig is ()) {
+            return ();
+        } else {
+            if (data[http:STATUS_CODE] == http:STATUS_UNAUTHORIZED) {
+                var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, true);
+                if (authToken is string) {
+                    return authToken;
+                } else {
+                    return auth:prepareError("Failed to generate OAuth2 token at inspection.", authToken);
+                }
             }
+            return ();
         }
-        return ();
     }
 };
 
@@ -80,7 +97,7 @@ public type OutboundOAuth2Provider object {
 # + clientId - Client ID for the client credentials grant authentication
 # + clientSecret - Client secret for the client credentials grant authentication
 # + scopes - Scope of the access request
-# + clockSkew - Clock skew in seconds
+# + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
 # + credentialBearer - How authentication credentials are sent to the authorization endpoint
 # + clientConfig - HTTP client configurations which calls the authorization endpoint
@@ -89,7 +106,7 @@ public type ClientCredentialsGrantConfig record {|
     string clientId;
     string clientSecret;
     string[] scopes?;
-    int clockSkew = 0;
+    int clockSkewInSeconds = 0;
     boolean retryRequest = true;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
     http:ClientEndpointConfig clientConfig = {};
@@ -104,7 +121,7 @@ public type ClientCredentialsGrantConfig record {|
 # + clientSecret - Client secret for password grant authentication
 # + scopes - Scope of the access request
 # + refreshConfig - Configurations for refreshing the access token
-# + clockSkew - Clock skew in seconds
+# + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
 # + credentialBearer - How authentication credentials are sent to the authorization endpoint
 # + clientConfig - HTTP client configurations which calls the authorization endpoint
@@ -116,7 +133,7 @@ public type PasswordGrantConfig record {|
     string clientSecret?;
     string[] scopes?;
     RefreshConfig refreshConfig?;
-    int clockSkew = 0;
+    int clockSkewInSeconds = 0;
     boolean retryRequest = true;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
     http:ClientEndpointConfig clientConfig = {};
@@ -126,13 +143,13 @@ public type PasswordGrantConfig record {|
 #
 # + accessToken - Access token for the authorization endpoint
 # + refreshConfig - Configurations for refreshing the access token
-# + clockSkew - Clock skew in seconds
+# + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
 # + credentialBearer - How authentication credentials are sent to the authorization endpoint
 public type DirectTokenConfig record {|
     string accessToken?;
     DirectTokenRefreshConfig refreshConfig?;
-    int clockSkew = 0;
+    int clockSkewInSeconds = 0;
     boolean retryRequest = true;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
 |};
@@ -216,7 +233,7 @@ function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|
         }
     } else {
         if (updateRequest) {
-            authConfig.accessToken = EMPTY_STRING;
+            authConfig.accessToken = "";
         }
         if (authConfig.retryRequest) {
             return getAuthTokenForOAuth2DirectTokenMode(authConfig, tokenCache);
@@ -233,7 +250,7 @@ function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
                                             @tainted CachedToken tokenCache) returns @tainted (string|Error) {
     string cachedAccessToken = tokenCache.accessToken;
-    if (cachedAccessToken == EMPTY_STRING) {
+    if (cachedAccessToken == "") {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
         log:printDebug(function () returns string {
             return "OAuth2 password grant type; Access token received from authorization request. Cache is empty.";
@@ -274,7 +291,7 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
                                                      @tainted CachedToken tokenCache)
                                                      returns @tainted (string|Error) {
     string cachedAccessToken = tokenCache.accessToken;
-    if (cachedAccessToken == EMPTY_STRING) {
+    if (cachedAccessToken == "") {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
         log:printDebug(function () returns string {
             return "OAuth2 client credentials grant type; Access token received from authorization request. Cache is empty.";
@@ -314,9 +331,9 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
                                               @tainted CachedToken tokenCache) returns @tainted (string|Error) {
     string cachedAccessToken = tokenCache.accessToken;
-    if (cachedAccessToken == EMPTY_STRING) {
+    if (cachedAccessToken == "") {
         var directAccessToken = grantTypeConfig?.accessToken;
-        if (directAccessToken is string && directAccessToken != EMPTY_STRING) {
+        if (directAccessToken is string && directAccessToken != "") {
             log:printDebug(function () returns string {
                 return "OAuth2 direct token mode; Access token received from user given request. Cache is empty.";
             });
@@ -388,12 +405,12 @@ function isCachedTokenValid(CachedToken tokenCache) returns boolean {
 function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|PasswordGrantConfig config,
                                                 @tainted CachedToken tokenCache) returns @tainted (string|Error) {
     RequestConfig requestConfig;
-    int clockSkew;
+    int clockSkewInSeconds;
     string tokenUrl;
     http:ClientEndpointConfig clientConfig;
 
     if (config is ClientCredentialsGrantConfig) {
-        if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
+        if (config.clientId == "" || config.clientSecret == "") {
             return prepareError("Client id or client secret cannot be empty.");
         }
         tokenUrl = config.tokenUrl;
@@ -404,14 +421,14 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
             scopes: config?.scopes,
             credentialBearer: config.credentialBearer
         };
-        clockSkew = config.clockSkew;
+        clockSkewInSeconds = config.clockSkewInSeconds;
         clientConfig = config.clientConfig;
     } else {
         tokenUrl = config.tokenUrl;
         string? clientId = config?.clientId;
         string? clientSecret = config?.clientSecret;
         if (clientId is string && clientSecret is string) {
-            if (clientId == EMPTY_STRING || clientSecret == EMPTY_STRING) {
+            if (clientId == "" || clientSecret == "") {
                 return prepareError("Client id or client secret cannot be empty.");
             }
             requestConfig = {
@@ -428,12 +445,12 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
                 credentialBearer: config.credentialBearer
             };
         }
-        clockSkew = config.clockSkew;
+        clockSkewInSeconds = config.clockSkewInSeconds;
         clientConfig = config.clientConfig;
     }
 
     http:Request authorizationRequest = check prepareRequest(requestConfig);
-    return doRequest(tokenUrl, authorizationRequest, clientConfig, tokenCache, clockSkew);
+    return doRequest(tokenUrl, authorizationRequest, clientConfig, tokenCache, clockSkewInSeconds);
 }
 
 # Request an access token from the authorization endpoint using the provided refresh configurations.
@@ -444,7 +461,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
 function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig config,
                                           @tainted CachedToken tokenCache) returns @tainted (string|Error) {
     RequestConfig requestConfig;
-    int clockSkew;
+    int clockSkewInSeconds;
     string refreshUrl;
     http:ClientEndpointConfig clientConfig;
 
@@ -454,7 +471,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             string? clientId = config?.clientId;
             string? clientSecret = config?.clientSecret;
             if (clientId is string && clientSecret is string) {
-                if (clientId == EMPTY_STRING || clientSecret == EMPTY_STRING) {
+                if (clientId == "" || clientSecret == "") {
                     return prepareError("Client id or client secret cannot be empty.");
                 }
                 refreshUrl = <@untainted> refreshConfig.refreshUrl;
@@ -472,11 +489,11 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
         } else {
             return prepareError("Failed to refresh access token since RefreshTokenConfig is not provided.");
         }
-        clockSkew = config.clockSkew;
+        clockSkewInSeconds = config.clockSkewInSeconds;
     } else {
         var refreshConfig = config?.refreshConfig;
         if (refreshConfig is DirectTokenRefreshConfig) {
-            if (refreshConfig.clientId == EMPTY_STRING || refreshConfig.clientSecret == EMPTY_STRING) {
+            if (refreshConfig.clientId == "" || refreshConfig.clientSecret == "") {
                 return prepareError("Client id or client secret cannot be empty.");
             }
             refreshUrl = refreshConfig.refreshUrl;
@@ -491,11 +508,11 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
         } else {
             return prepareError("Failed to refresh access token since DirectRefreshTokenConfig is not provided.");
         }
-        clockSkew = config.clockSkew;
+        clockSkewInSeconds = config.clockSkewInSeconds;
     }
 
     http:Request refreshRequest = check prepareRequest(requestConfig);
-    return doRequest(refreshUrl, refreshRequest, clientConfig, tokenCache, clockSkew);
+    return doRequest(refreshUrl, refreshRequest, clientConfig, tokenCache, clockSkewInSeconds);
 }
 
 # Execute the actual request and get the access token from authorization endpoint.
@@ -504,17 +521,17 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 # + request - Prepared request to be sent to the authorization endpoint
 # + clientConfig - HTTP client configurations which calls the authorization endpoint
 # + tokenCache - Cached token configurations
-# + clockSkew - Clock skew in seconds
+# + clockSkewInSeconds - Clock skew in seconds
 # + return - Access token received or `Error` if an error occurred during HTTP client invocation
 function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig,
-                   @tainted CachedToken tokenCache, int clockSkew) returns @tainted (string|Error) {
+                   @tainted CachedToken tokenCache, int clockSkewInSeconds) returns @tainted (string|Error) {
     http:Client clientEP = new(url, clientConfig);
-    var response = clientEP->post(EMPTY_STRING, request);
+    var response = clientEP->post("", request);
     if (response is http:Response) {
         log:printDebug(function () returns string {
             return "Request sent successfully to URL: " + url;
         });
-        return extractAccessTokenFromResponse(response, tokenCache, clockSkew);
+        return extractAccessTokenFromResponse(response, tokenCache, clockSkewInSeconds);
     } else {
         return prepareError("Failed to send request to URL: " + url, response);
     }
@@ -527,17 +544,17 @@ function doRequest(string url, http:Request request, http:ClientEndpointConfig c
 function prepareRequest(RequestConfig config) returns http:Request|Error {
     http:Request req = new;
     string textPayload = config.payload;
-    string scopeString = EMPTY_STRING;
+    string scopeString = "";
     string[]? scopes = config.scopes;
     if (scopes is string[]) {
         foreach var requestScope in scopes {
             string trimmedRequestScope = requestScope.trim();
-            if (trimmedRequestScope != EMPTY_STRING) {
-                scopeString = scopeString + WHITE_SPACE + trimmedRequestScope;
+            if (trimmedRequestScope != "") {
+                scopeString = scopeString + " " + trimmedRequestScope;
             }
         }
     }
-    if (scopeString != EMPTY_STRING) {
+    if (scopeString != "") {
         textPayload = textPayload + "&scope=" + scopeString;
     }
 
@@ -566,17 +583,17 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
 #
 # + response - HTTP response object
 # + tokenCache - Cached token configurations
-# + clockSkew - Clock skew in seconds
+# + clockSkewInSeconds - Clock skew in seconds
 # + return - Extracted access token or `Error` if an error occurred during the HTTP client invocation
-function extractAccessTokenFromResponse(http:Response response, @tainted CachedToken tokenCache, int clockSkew)
+function extractAccessTokenFromResponse(http:Response response, @tainted CachedToken tokenCache, int clockSkewInSeconds)
                                         returns @tainted (string|Error) {
-    if (response.statusCode == http:OK_200) {
+    if (response.statusCode == http:STATUS_OK) {
         var payload = response.getJsonPayload();
         if (payload is json) {
             log:printDebug(function () returns string {
                 return "Received an valid response. Extracting access token from the payload.";
             });
-            updateTokenCache(payload, tokenCache, clockSkew);
+            updateTokenCache(payload, tokenCache, clockSkewInSeconds);
             return payload.access_token.toString();
         } else {
             return prepareError("Failed to retrieve access token since the response payload is not a JSON.", payload);
@@ -595,14 +612,14 @@ function extractAccessTokenFromResponse(http:Response response, @tainted CachedT
 #
 # + responsePayload - Payload of the response
 # + tokenCache - Cached token configurations
-# + clockSkew - Clock skew in seconds
-function updateTokenCache(json responsePayload, CachedToken tokenCache, int clockSkew) {
+# + clockSkewInSeconds - Clock skew in seconds
+function updateTokenCache(json responsePayload, CachedToken tokenCache, int clockSkewInSeconds) {
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
     tokenCache.accessToken = accessToken;
     var expiresIn = responsePayload.expires_in;
     if (expiresIn is int) {
-        tokenCache.expiryTime = issueTime + (expiresIn - clockSkew) * 1000;
+        tokenCache.expiryTime = issueTime + (expiresIn - clockSkewInSeconds) * 1000;
     }
     if (responsePayload.refresh_token is string) {
         string refreshToken = responsePayload.refresh_token.toString();

@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
-import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
@@ -149,12 +148,11 @@ public class HttpDispatcher {
         ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, CALLER);
         ObjectValue inRequest = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, REQUEST);
         ObjectValue inRequestEntity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
-        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
         HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
 
-        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
+        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, httpCarbonMessage);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         Object[] paramValues = new Object[signatureParams.getParamCount() * 2];
@@ -229,7 +227,7 @@ public class HttpDispatcher {
                     return stringDataSource;
                 case TypeTags.JSON_TAG:
                     Object bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
-                    EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
+                    EntityBodyHandler.addJsonMessageDataSource(inRequestEntity, bjson);
                     return bjson;
                 case TypeTags.XML_TAG:
                     XMLValue bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
@@ -289,7 +287,7 @@ public class HttpDispatcher {
      */
     private static Object getBJsonValue(ObjectValue inRequestEntity) {
         Object bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
-        EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
+        EntityBodyHandler.addJsonMessageDataSource(inRequestEntity, bjson);
         return bjson;
     }
 

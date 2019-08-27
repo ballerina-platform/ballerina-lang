@@ -20,6 +20,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+import com.google.common.base.Strings;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -28,8 +29,8 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -81,15 +82,17 @@ public class BallerinaDiagramUtils {
         // Requests the AST from the Ballerina language server.
         Editor editor = getEditorFor(file, project);
 
-        // Retrieves attached ballerina SDk of the project.
-        BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
-        if (balSdk.getSdkPath() == null) {
-            LOG.warn(String.format("No Ballerina SDK is found for the project: %s", project.getName()));
-            return "";
+        // Retrieves attached ballerina SDk path of the project.
+        String balSdkPath = BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath();
+
+        // Checks for the user-configured auto detection settings.
+        if (Strings.isNullOrEmpty(balSdkPath)
+                && BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+            balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
         }
-        if (!balSdk.hasWebviewSupport()) {
-            LOG.warn(String.format("Detected ballerina sdk version for %s does not have diagram editor support",
-                    project.getName()));
+
+        if (Strings.isNullOrEmpty(balSdkPath)) {
+            LOG.warn(String.format("No Ballerina SDK is found for the project: %s", project.getName()));
             return "";
         }
 
@@ -104,10 +107,10 @@ public class BallerinaDiagramUtils {
 
             // If a ballerina project is not found, diagram editor treats it as an individual bal file.
             if (ballerinaProjectRoot.isEmpty()) {
-                return getWebviewContent(ballerinaProjectRoot, editorToURIString(editor), panel, balSdk.getSdkPath());
+                return getWebviewContent(ballerinaProjectRoot, editorToURIString(editor), panel, balSdkPath);
             } else {
                 return getWebviewContent(pathToUri(ballerinaProjectRoot), editorToURIString(editor), panel,
-                        balSdk.getSdkPath());
+                        balSdkPath);
             }
         }
         return "";

@@ -18,18 +18,19 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'org.apache.commons:commons-lang3'
     implementation 'org.apache.ws.commons.axiom:axiom-impl'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
     implementation 'org.apache.ws.commons.axiom:axiom-c14n'
-
-    implementation project(':ballerina-streaming:siddhi-core')
-    implementation project(':ballerina-streaming:siddhi-query-api')
-    implementation project(':ballerina-streaming:siddhi-query-compiler')
-    implementation project(':ballerina-streaming:siddhi-annotations')
-    implementation project(':ballerina-config')
-
+    implementation 'org.apache.commons:commons-lang3'
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-util'
     implementation 'org.awaitility:awaitility'
+    implementation 'org.apache.commons:commons-lang3'
+
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-logging')
 }
+
+
+description = 'Ballerina - Runtime Core'
+

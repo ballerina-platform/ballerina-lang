@@ -54,7 +54,12 @@ public class LSCompletionProviderFactory {
         for (LSCompletionProvider provider : providerServices) {
             if (provider != null) {
                 for (Class attachmentPoint : provider.getAttachmentPoints()) {
-                    this.providers.put(attachmentPoint, provider);
+                    if (!this.providers.containsKey(attachmentPoint)
+                            || (this.providers.get(attachmentPoint).getPrecedence() == 
+                            LSCompletionProvider.Precedence.LOW
+                            && provider.getPrecedence() == LSCompletionProvider.Precedence.HIGH)) {
+                        this.providers.put(attachmentPoint, provider);
+                    }
                 }
             }
         }

@@ -14,12 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/runtime;
-import ballerina/mime;
 import ballerina/log;
-import ballerina/math;
-import ballerina/config;
 import ballerina/internal;
 
 # Provides redirect functionality for HTTP client remote functions.
@@ -57,7 +52,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function get(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function get(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
         if (result is Response) {
             return result;
@@ -89,7 +84,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function head(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function head(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_HEAD);
         if (result is Response) {
             return result;
@@ -168,7 +163,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function delete(string path, RequestMessage message) returns Response|ClientError {
+    public function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_DELETE);
         if (result is Response) {
             return result;
@@ -184,7 +179,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function options(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_OPTIONS);
         if (result is Response) {
             return result;
@@ -351,12 +346,11 @@ function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndp
         http1Settings: config.http1Settings,
         http2Settings: config.http2Settings,
         circuitBreaker: config.circuitBreaker,
-        timeoutMillis: config.timeoutMillis,
+        timeoutInMillis: config.timeoutInMillis,
         httpVersion: config.httpVersion,
         forwarded: config.forwarded,
         followRedirects: config.followRedirects,
         retryConfig: config.retryConfig,
-        proxy: config.proxy,
         poolConfig: config.poolConfig,
         secureSocket: config.secureSocket,
         cache: config.cache,
@@ -369,13 +363,13 @@ function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndp
 //Get the HTTP method that should be used for redirection based on the status code.
 function getRedirectMethod(HttpOperation httpVerb, Response response) returns HttpOperation|() {
     int statusCode = response.statusCode;
-    if ((statusCode == MULTIPLE_CHOICES_300 || statusCode == USE_PROXY_305 || statusCode == TEMPORARY_REDIRECT_307
-            || statusCode == PERMANENT_REDIRECT_308) && (httpVerb == HTTP_GET || httpVerb == HTTP_HEAD)) {
+    if ((statusCode == STATUS_MULTIPLE_CHOICES || statusCode == STATUS_USE_PROXY || statusCode == STATUS_TEMPORARY_REDIRECT
+            || statusCode == STATUS_PERMANENT_REDIRECT) && (httpVerb == HTTP_GET || httpVerb == HTTP_HEAD)) {
         return httpVerb;
-    } else if ((statusCode == MOVED_PERMANENTLY_301 || statusCode == FOUND_302) &&
+    } else if ((statusCode == STATUS_MOVED_PERMANENTLY || statusCode == STATUS_FOUND) &&
         (httpVerb == HTTP_GET || httpVerb == HTTP_HEAD)) {
         return HTTP_GET;
-    } else if (statusCode == SEE_OTHER_303) {
+    } else if (statusCode == STATUS_SEE_OTHER) {
         return HTTP_GET;
     } else {
         return ();
@@ -391,7 +385,7 @@ function createRedirectRequest(int statusCode, Request request) returns Request 
             redirectRequest.addHeader(headerName, headerValue);
         }
     }
-    if (statusCode == SEE_OTHER_303) {
+    if (statusCode == STATUS_SEE_OTHER) {
         redirectRequest.removeHeader(TRANSFER_ENCODING);
         redirectRequest.removeHeader(CONTENT_LENGTH);
     }

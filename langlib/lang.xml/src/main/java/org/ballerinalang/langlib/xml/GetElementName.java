@@ -18,14 +18,10 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -40,24 +36,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetElementName extends BlockingNativeCallableUnit {
+public class GetElementName {
 
     private static final String OPERATION = "get element name in xml";
-
-    @Override
-    public void execute(Context ctx) {
-        BValue result = null;
-        try {
-            // Accessing Parameters.
-            BXML xml = (BXML) ctx.getRefArgument(0);
-            result = xml.getElementName();
-        } catch (Throwable e) {
-            ErrorHandler.handleXMLException(OPERATION, e);
-        }
-        
-        // Setting output value.
-        ctx.setReturnValues(result);
-    }
 
     public static String getElementName(Strand strand, XMLValue<?> xml) {
         try {

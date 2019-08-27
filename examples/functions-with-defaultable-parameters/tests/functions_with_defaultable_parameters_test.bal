@@ -21,7 +21,9 @@ function testFunc() {
     main();
     test:assertEquals(outputs[0], "Base Salary: 2500 | Annual Increment: 20 | Bonus Rate: 0.02");
     test:assertEquals(outputs[1], "Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.02");
-    test:assertEquals(outputs[2], "Base Salary: 2500 | Annual Increment: 20 | Bonus Rate: 0.1");
-    test:assertEquals(outputs[3], "Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.1");
-    test:assertEquals(outputs[4], "Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.1");
+    test:assertEquals(outputs[2], "Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.02");
+    test:assertEquals(outputs[3], "Base Salary: 2500 | Annual Increment: 20 | Bonus Rate: 0.1");
+    test:assertEquals(outputs[4], "Base Salary: 2500 | Annual Increment: 20 | Bonus Rate: 0.1");
+    test:assertEquals(outputs[5], "Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.1");
+    test:assertEquals(outputs[6], "Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.1");
 }

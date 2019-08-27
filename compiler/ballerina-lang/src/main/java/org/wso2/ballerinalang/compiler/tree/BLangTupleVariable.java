@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 public class BLangTupleVariable extends BLangVariable implements TupleVariableNode {
 
     public List<BLangVariable> memberVariables;
+    public BLangVariable restVariable;
 
     public BLangTupleVariable() {
         this.annAttachments = new ArrayList<>();
@@ -67,7 +68,8 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
 
     @Override
     public String toString() {
-        return "[" + memberVariables.stream().map(BLangVariable::toString).collect(Collectors.joining(",")) + "] " +
-                (expr != null ? " = " + String.valueOf(expr) : "");
+        return "[" + memberVariables.stream().map(BLangVariable::toString).collect(Collectors.joining(",")) +
+                ((restVariable != null) ? (memberVariables.size() > 0 ? ",..." : "...") +
+                        restVariable.toString() : "") + "] " + (expr != null ? " = " + String.valueOf(expr) : "");
     }
 }

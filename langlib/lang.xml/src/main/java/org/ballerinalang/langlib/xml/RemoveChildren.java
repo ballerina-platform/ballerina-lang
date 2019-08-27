@@ -18,13 +18,10 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -40,23 +37,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "qname", type = TypeKind.STRING)},
         isPublic = true
 )
-public class RemoveChildren extends BlockingNativeCallableUnit {
+public class RemoveChildren {
 
     private static final String OPERATION = "remove children from xml element";
-
-    @Override
-    public void execute(Context ctx) {
-        try {
-            BXML<?> xml = (BXML<?>) ctx.getRefArgument(0);
-            String qname = ctx.getStringArgument(0);
-            xml.removeChildren(qname);
-        } catch (Throwable e) {
-            ErrorHandler.handleXMLException(OPERATION, e);
-        }
-
-        // Setting output value.
-        ctx.setReturnValues();
-    }
 
     public static void removeChildren(Strand strand, XMLValue<?> xml, String qname) {
         try {

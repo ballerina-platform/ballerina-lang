@@ -46,11 +46,11 @@ import org.ballerinalang.natives.annotations.Receiver;
 public class Close {
 
     public static Object close(Strand strand, ObjectValue connectionObjectValue, Object closeCode, Object closeMessage,
-                               Object timeout) {
+                               Object timeoutInMillis) {
         Connection connection = (Connection)
                 connectionObjectValue.getNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT);
         try {
-            ConnectionUtils.handleCloseConnection(connection, closeCode, closeMessage, timeout);
+            ConnectionUtils.handleCloseConnection(connection, closeCode, closeMessage, timeoutInMillis);
         } catch (RabbitMQConnectorException exception) {
             return RabbitMQUtils.returnErrorValue
                     (RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getDetail());

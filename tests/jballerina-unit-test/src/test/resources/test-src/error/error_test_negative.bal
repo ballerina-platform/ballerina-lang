@@ -34,6 +34,7 @@ function testInvalidErrorReasonWithConstantAsReason() returns error {
 
 type Foo record {|
     string message;
+    error cause?;
     int...;
 |};
 
@@ -72,4 +73,47 @@ type ER UserDefErrorOne|UserDefErrorTwo;
 
 function contextuallyExpTypeIsAUnion() {
     ER e = error("OtherReason");
+}
+
+type Bee record {|
+    string message?;
+    boolean fatal;
+    error cause?;
+    anydata...;
+|};
+
+const R = "r";
+const N = "r";
+type RN R|N;
+type RNStr R|N|string;
+
+type BeeError error <R, Bee>;
+type RNError error <RN, Bee>;
+type RNStrError error <RNStr, Bee>;
+
+function testIndirectErrorDestructuring() {
+    BeeError e = BeeError(message="Msg", fatal=false, other="k");
+    RNError e2 = RNError(message="Msg", fatal=false, other="k");
+    RNStrError e3 = RNStrError(message="Msg", fatal=false, other="k");
+}
+
+type TrxErrorData2 record {|
+    string message = "";
+    error cause?;
+    map<string> data = {};
+|};
+
+const string reasonA = "ErrNo-1";
+type UserDefErrorTwoA error<reasonA, TrxErrorData2>;
+
+public function errorReasonInference() returns [error, error] {
+    UserDefErrorTwoA er1 = error();
+    map<string> data = {"arg1":"arg1-1", "arg2":"arg2-2"};
+    UserDefErrorTwoA er2 = error(message = "message", data = data);
+    return [er1, er2];
+}
+
+function panicOnNonErrorMemberUnion() {
+    error|int e = 5;
+    panic e;
 }

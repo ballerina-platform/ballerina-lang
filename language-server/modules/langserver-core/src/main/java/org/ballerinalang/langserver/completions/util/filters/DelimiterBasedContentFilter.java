@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.util.filters;
 
 import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -44,7 +43,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Filter the actions, functions and types in a package.
@@ -58,17 +56,12 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
 
     @Override
     public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSContext ctx) {
-        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        List<CommonToken> defaultTokens = lhsTokens.stream()
-                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
-                .collect(Collectors.toList());
-        List<Integer> defaultTokenTypes = defaultTokens.stream()
-                .map(CommonToken::getType)
-                .collect(Collectors.toList());
+        List<CommonToken> defaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> defaultTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         int delimiter = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        String symbolToken = defaultTokens.get(defaultTokenTypes.lastIndexOf(delimiter) - 1).getText();
+        String symbolToken = defaultTokens.get(defaultTokenTypes.lastIndexOf(delimiter) - 1).getText().replace("'", "");
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
-        List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
         boolean isActionInvocation = BallerinaParser.RARROW == delimiter
                 && CommonUtil.isClientObject(symbol.getScopeEntry().symbol);

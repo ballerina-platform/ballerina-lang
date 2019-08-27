@@ -20,14 +20,15 @@ package org.ballerinalang.test.service.grpc.tool;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageParser;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.ProtoUtils;
+import org.ballerinalang.protobuf.exception.CodeGeneratorException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
@@ -57,27 +58,26 @@ public class ProtoMessageTestCase {
     private void setup() throws Exception {
         compilerFile = ProtoDescriptorUtils.getProtocCompiler();
         Path resourceDir = Paths.get("src", "test", "resources").toAbsolutePath();
-        Path protoPath = resourceDir.resolve(Paths.get("grpc", "tool", "testMessage.proto"));
+        Path protoPath = resourceDir.resolve(Paths.get("grpc", "src", "tool", "testMessage.proto"));
         //read message descriptor from proto file.
         readMessageDescriptor(protoPath);
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "tool", "testMessage_pb.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "tool", "testMessage_pb.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
     @Test(description = "Test case for parsing proto message with string field")
     public void testStringTypeProtoMessage() {
         // convert message to byte array.
-        BStructureType structureType = result.getProgFile().getEntryPackage().getStructInfo("Test1").getType();
-        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(structureType.getPackagePath(),
-                structureType.getName());
+        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(".", "Test1");
         bMapValue.put("name", "John");
         Message message = new Message("Test1", bMapValue);
         Assert.assertEquals(message.getSerializedSize(), 6);
         byte[] msgArray = message.toByteArray();
         //convert byte array back to message object.
         InputStream messageStream = new ByteArrayInputStream(msgArray);
-        Message message1 = ProtoUtils.marshaller(new MessageParser("Test1", BTypes.typeMap)).parse(messageStream);
+        Message message1 = ProtoUtils.marshaller(new MessageParser("Test1", new BRecordType("Test1",
+                new BPackage(null, null, null), 0, false))).parse(messageStream);
         Assert.assertEquals(message1.toString(), message.toString());
         Assert.assertFalse(message1.isError());
     }
@@ -85,7 +85,7 @@ public class ProtoMessageTestCase {
     @Test(description = "Test case for parsing proto message with primitive field")
     public void testPrimitiveTypeProtoMessage() {
         // convert message to byte array.
-        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(result.getAST().toString(), "Test2");
+        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(".", "Test2");
         bMapValue.put("a", "John");
         bMapValue.put("b", 1.2D);
         bMapValue.put("c", 2.5F);
@@ -100,7 +100,8 @@ public class ProtoMessageTestCase {
         byte[] msgArray = message.toByteArray();
         //convert byte array back to message object.
         InputStream messageStream = new ByteArrayInputStream(msgArray);
-        Message message1 = ProtoUtils.marshaller(new MessageParser("Test2", BTypes.typeMap)).parse(messageStream);
+        Message message1 = ProtoUtils.marshaller(new MessageParser("Test2", new BRecordType("Test2",
+                new BPackage(null, null, null), 0, false))).parse(messageStream);
         Assert.assertEquals(message1.toString(), message.toString());
         Assert.assertFalse(message1.isError());
     }
@@ -108,7 +109,7 @@ public class ProtoMessageTestCase {
     @Test(description = "Test case for parsing proto message with array field")
     public void testArrayFieldTypeProtoMessage() {
         // convert message to byte array.
-        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(result.getAST().toString(), "Test3");
+        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(".", "Test3");
         bMapValue.put("a", new ArrayValue(new String[]{"John"}));
         bMapValue.put("b", new ArrayValue(new double[]{1.2}));
         bMapValue.put("c", new ArrayValue(new double[]{2.5F}));
@@ -122,13 +123,14 @@ public class ProtoMessageTestCase {
         byte[] msgArray = message.toByteArray();
         //convert byte array back to message object.
         InputStream messageStream = new ByteArrayInputStream(msgArray);
-        Message message1 = ProtoUtils.marshaller(new MessageParser("Test3", BTypes.typeMap)).parse
-                (messageStream);
+        Message message1 = ProtoUtils.marshaller(new MessageParser("Test3", new BRecordType("Test3",
+                new BPackage(null, null, null), 0, false))).parse(messageStream);
         Assert.assertEquals(((MapValue<String, Object>) message1.getbMessage()).size(), bMapValue.size());
         Assert.assertFalse(message1.isError());
     }
 
-    private void readMessageDescriptor(Path protoPath) throws IOException, Descriptors.DescriptorValidationException {
+    private void readMessageDescriptor(Path protoPath)
+            throws IOException, Descriptors.DescriptorValidationException, CodeGeneratorException {
         DescriptorProtos.FileDescriptorSet descriptorSet = ProtoDescriptorUtils.getProtoFileDescriptor(compilerFile,
                 protoPath.toString());
         DescriptorProtos.FileDescriptorProto fileDescriptorProto = descriptorSet.getFile(0);

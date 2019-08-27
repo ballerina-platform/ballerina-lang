@@ -104,7 +104,7 @@ service InitiatorService on coordinatorListener {
                 var resPayload = typedesc<json>.constructFrom(regRes);
                 if (resPayload is json) {
                     http:Response res = new;
-                    res.statusCode = http:OK_200;
+                    res.statusCode = http:STATUS_OK;
                     res.setJsonPayload(<@untainted json> resPayload);
                     var resResult = conn->respond(res);
                     if (resResult is http:ListenerError) {

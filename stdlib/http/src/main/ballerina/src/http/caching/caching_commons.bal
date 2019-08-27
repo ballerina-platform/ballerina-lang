@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/internal;
-import ballerina/'lang\.int as langint;
+import ballerina/lang.'int;
 
 // Cache-control directives
 # Forces the cache to validate a cached response with the origin server before serving.
@@ -242,7 +242,7 @@ function getExpirationDirectiveValue (string directive) returns int {
         return -1;
     }
 
-    var age =  langint:fromString(directiveParts[1]);
+    var age =  'int:fromString(directiveParts[1]);
     if (age is int) {
         return age;
     }

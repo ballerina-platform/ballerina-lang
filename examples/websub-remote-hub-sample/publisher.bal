@@ -14,7 +14,7 @@ public function main() {
                 websubHubClientEP->registerTopic("http://websubpubtopic.com");
     if (registrationResponse is error) {
         io:println("Error occurred registering topic: " +
-                                <string>registrationResponse.detail().message);
+                                <string>registrationResponse.detail()?.message);
     } else {
         io:println("Topic registration successful!");
     }
@@ -29,7 +29,7 @@ public function main() {
                                 { "action": "publish", "mode": "remote-hub" });
     if (publishResponse is error) {
         io:println("Error notifying hub: " +
-                                    <string>publishResponse.detail().message);
+                                    <string>publishResponse.detail()?.message);
     } else {
         io:println("Update notification successful!");
     }

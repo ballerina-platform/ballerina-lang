@@ -134,7 +134,7 @@ service backEndService on new http:Listener(9091) {
                 }
             }
         } else {
-            var result = caller->respond(());
+            var result = caller->respond();
             handleError(result);
         }
     }

@@ -56,13 +56,8 @@ public class IncompatibleArgsInWindowTest {
 
     @Test(description = "Checks whether the window function exists or not")
     public void testForWindowFunction() {
-        Assert.assertEquals(notFoundResult.getErrorCount(), 2);
-        BAssertUtil.validateError(notFoundResult, 0,
-                "invalid streaming 'Window' type 'nonExistingWindow' found",
-                62, 47);
-        BAssertUtil.validateError(notFoundResult, 1,
-                "undefined function 'nonExistingWindow'",
-                62, 47);
+        Assert.assertEquals(notFoundResult.getErrorCount(), 1);
+        BAssertUtil.validateError(notFoundResult, 0, "undefined function 'nonExistingWindow'", 62, 47);
     }
 
     @Test(description = "Checks whether the window function returns 'streams:Window' object")

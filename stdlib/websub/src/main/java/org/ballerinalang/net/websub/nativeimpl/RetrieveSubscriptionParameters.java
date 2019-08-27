@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -45,8 +43,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.
-        ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants
+        .ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TARGET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_HOST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_PORT;
@@ -71,20 +69,20 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
                 structPackage = WEBSUB_PACKAGE),
         returnType = {@ReturnType(type = TypeKind.ARRAY)}
 )
-public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
+public class RetrieveSubscriptionParameters {
 
     private static final String LOCALHOST = "localhost";
 
-    @Override
-    public void execute(Context context) {
-    }
-
     @SuppressWarnings("unchecked")
     public static ArrayValue retrieveSubscriptionParameters(Strand strand, ObjectValue subscriberServiceEndpoint) {
-        ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(WEBSUB_HTTP_ENDPOINT);
-        Object[] webSubHttpServices = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
-                                        .getServicesByHost(DEFAULT_HOST).values().toArray();
         ArrayValue subscriptionDetailArray = new ArrayValue(new BArrayType(new BMapType(BTypes.typeAny)));
+        ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(WEBSUB_HTTP_ENDPOINT);
+        WebSubServicesRegistry webSubServicesRegistry = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(
+                WEBSUB_SERVICE_REGISTRY));
+        if (webSubServicesRegistry.getServicesMapHolder(DEFAULT_HOST) == null) {
+            return subscriptionDetailArray;
+        }
+        Object[] webSubHttpServices = webSubServicesRegistry.getServicesByHost(DEFAULT_HOST).values().toArray();
 
         for (int index = 0; index < webSubHttpServices.length; index++) {
             WebSubHttpService webSubHttpService = (WebSubHttpService) webSubHttpServices[index];

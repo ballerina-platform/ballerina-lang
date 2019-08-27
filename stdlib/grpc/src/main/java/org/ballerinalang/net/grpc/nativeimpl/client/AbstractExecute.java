@@ -1,4 +1,5 @@
 /*
+/*
  *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -19,11 +20,12 @@ package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
+import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 
 /**
  * {@code AbstractExecute} is the Execute action implementation of the gRPC Connector.
@@ -41,8 +43,8 @@ abstract class AbstractExecute {
         return MessageUtils.getMethodType(methodDescriptorProto);
     }
 
-    static ErrorValue notifyErrorReply(String type, String errorMessage) {
-        String reason = "{ballerina/grpc}" + type;
-        return BallerinaErrors.createError(reason, errorMessage);
+    static ErrorValue notifyErrorReply(Status.Code status, String errorMessage) {
+        return MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                .fromCode(status).withDescription(errorMessage)));
     }
 }

@@ -32,12 +32,12 @@ service dataService on new http:Listener(9090) {
                 // conversion fails.
                 res.setPayload({ "Error": "Error occured while converting the
                 data to JSON" });
-                res.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                res.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             }
         } else {
             // Set a payload indicating an error in case the data retrieval
             // fails.
-            res.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            res.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             res.setPayload({ "Error": "Error occured while retrieving data
             from the database" });
         }

@@ -39,6 +39,7 @@ public class BLangTupleVarRef extends BLangVariableReference implements TupleVar
     public BVarSymbol varSymbol;
     public BLangIdentifier pkgAlias;
     public List<BLangExpression> expressions;
+    public ExpressionNode restParam;
 
     public BLangTupleVarRef() {
         this.expressions = new ArrayList<>();
@@ -57,7 +58,8 @@ public class BLangTupleVarRef extends BLangVariableReference implements TupleVar
 
     @Override
     public String toString() {
-        return "[" + expressions.stream().map(ExpressionNode::toString).collect(Collectors.joining(",")) + "]";
+        return "[" + expressions.stream().map(ExpressionNode::toString).collect(Collectors.joining(","))
+                + ((restParam != null) ? ", ..." + restParam.toString() + "]" : "]");
     }
 
     @Override

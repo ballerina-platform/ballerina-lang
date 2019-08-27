@@ -37,7 +37,7 @@ service orderMgt on httpListener {
         response.statusCode = 202;
         var result = caller->respond(response);
         if (result is error) {
-           log:printError("Error responding on ordering", err = result);
+           log:printError("Error responding on ordering", result);
         }
     }
 
@@ -57,20 +57,21 @@ service orderMgt on httpListener {
             response.statusCode = 202;
             var result = caller->respond(response);
             if (result is error) {
-               log:printError("Error responding on ordering", err = result);
+               log:printError("Error responding on ordering", result);
             }
 
             // Publishes the update to the Hub to notify the subscribers.
             string orderCreatedNotification = "New Order Added: " + orderId;
             log:printInfo(orderCreatedNotification);
-            result = webSubHub.publishUpdate(ORDER_TOPIC,
+            var updateResult = webSubHub.publishUpdate(ORDER_TOPIC,
                                                     orderCreatedNotification);
-            if (result is error) {
-                log:printError("Error publishing update", err = result);
+            if (updateResult is error) {
+                log:printError("Error publishing update", updateResult);
             }
         } else {
-            log:printError("Error retrieving payload", err = orderReq);
-            panic orderReq;
+            error e = orderReq;
+            log:printError("Error retrieving payload", e);
+            panic e;
         }
     }
 
@@ -85,7 +86,7 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
 
     var result = internalHub.registerTopic(ORDER_TOPIC);
     if (result is error) {
-        log:printError("Error registering topic", err = result);
+        log:printError("Error registering topic", result);
     }
     return internalHub;
 }

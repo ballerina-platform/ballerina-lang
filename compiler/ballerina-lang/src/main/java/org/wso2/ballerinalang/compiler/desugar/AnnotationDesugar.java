@@ -141,9 +141,6 @@ public class AnnotationDesugar {
         defineTypeAnnotations(pkgNode, env, initFunction);
         defineServiceAnnotations(pkgNode, env, initFunction);
         defineFunctionAnnotations(pkgNode, env, initFunction);
-
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
     private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
@@ -304,7 +301,7 @@ public class AnnotationDesugar {
     }
 
     private void addVarArgsAnnotation(BLangFunction mainFunc) {
-        if (mainFunc.symbol.getParameters().isEmpty()) {
+        if (mainFunc.symbol.getParameters().isEmpty() && mainFunc.symbol.restParam == null) {
             return;
         }
         DiagnosticPos pos = mainFunc.pos;
@@ -358,6 +355,12 @@ public class AnnotationDesugar {
             valueLiteral.exprs.add(str);
         }
 
+        if (mainFunc.symbol.restParam != null) {
+            BLangLiteral str = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            str.value = mainFunc.symbol.restParam.name.value;
+            str.type = symTable.stringType;
+            valueLiteral.exprs.add(str);
+        }
         descriptorKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
         BSymbol fieldSymbol = symResolver.resolveStructField(mainFunc.pos, pkgEnv,
                 names.fromString(ARG_NAMES), bStructSymbol);

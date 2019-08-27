@@ -18,13 +18,14 @@ import ballerina/'lang\.object as lang;
 # Represents a ballerina task listener.
 public type Listener object {
     *lang:AbstractListener;
+    boolean started = false;
 
     private TimerConfiguration|AppointmentConfiguration listenerConfiguration;
 
     public function __init(TimerConfiguration|AppointmentConfiguration configs) {
         if (configs is TimerConfiguration) {
-            if (configs["initialDelay"] == ()) {
-                configs.initialDelay = configs.interval;
+            if (configs["initialDelayInMillis"] == ()) {
+                configs.initialDelayInMillis = configs.intervalInMillis;
             }
         }
         self.listenerConfiguration = configs;
@@ -42,17 +43,30 @@ public type Listener object {
         }
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     public function __start() returns error? {
         var result = self.start();
         if (result is error) {
             panic result;
         }
+        lock {
+            self.started = true;
+        }
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         var result = self.stop();
         if (result is error) {
             panic result;
+        }
+        lock {
+            self.started = false;
         }
     }
 
@@ -65,6 +79,10 @@ public type Listener object {
     function stop() returns ListenerError? = external;
 
     function detachService(service attachedService) returns ListenerError? = external;
+
+    function isStarted() returns boolean {
+        return self.started;
+    }
 
     # Pauses the task.
     #

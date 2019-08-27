@@ -37,8 +37,8 @@ public class MapConstantNegativeTest {
 
         validateError(compileResult, 0, "incompatible types: expected 'boolean', found 'boolean?'", 18, 35);
         validateError(compileResult, 1, "expression is not a constant expression", 18, 35);
-        validateError(compileResult, 2, "expression is not a constant expression", 20, 26);
-        validateError(compileResult, 3, "expression is not a constant expression", 20, 36);
+        validateError(compileResult, 2, "expression is not a constant expression", 20, 27);
+        validateError(compileResult, 3, "expression is not a constant expression", 20, 38);
         validateError(compileResult, 4, "cannot update constant value", 34, 5);
     }
 }

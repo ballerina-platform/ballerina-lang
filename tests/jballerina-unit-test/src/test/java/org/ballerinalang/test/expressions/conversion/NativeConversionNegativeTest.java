@@ -72,14 +72,6 @@ public class NativeConversionNegativeTest {
     }
 
     @Test
-    public void testEmptyMaptoStructWithDefaults() {
-        BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithDefaults");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<anydata>' value cannot be converted to 'StructWithDefaults'");
-    }
-
-    @Test
     public void testEmptyMaptoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
@@ -103,7 +95,7 @@ public class NativeConversionNegativeTest {
         Assert.assertEquals(errorMsg, "'TX[]' value cannot be converted to 'json'");
     }
 
-    @Test(description = "Test passing tainted value with convert", groups = "brokenOnLangLibChange")
+    @Test(description = "Test passing tainted value with convert")
     public void testTaintedValue() {
         Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
         BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to untainted " +

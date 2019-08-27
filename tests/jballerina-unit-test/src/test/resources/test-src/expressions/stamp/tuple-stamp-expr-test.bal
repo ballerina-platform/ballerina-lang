@@ -76,7 +76,7 @@ function stampTupleToAnydata() returns anydata|error {
 }
 
 function stampTupleValueToArray() returns Employee[]|error {
-    [Employee, Person] tupleValue = [   { name: "Mohan", status: "single", batch: "LK2015", school: "Royal College" },
+    [Employee, Person] tupleValue = [   { name: "Mohan", status: "single", batch: "LK2015", "school": "Royal College" },
                                         { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" }];
 
     Employee[]|error returnValue = Employee[].constructFrom(tupleValue);

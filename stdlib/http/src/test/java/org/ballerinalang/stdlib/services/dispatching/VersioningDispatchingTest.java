@@ -42,16 +42,12 @@ import java.nio.file.Paths;
 public class VersioningDispatchingTest {
 
     private static final int MOCK_ENDPOINT_1_PORT = 9090;
-    private static final int MOCK_ENDPOINT_2_PORT = 9091;
-    private static final int MOCK_ENDPOINT_3_PORT = 9092;
     private static final String PKG_NAME = "abc.xyz";
 
     @BeforeClass
     public void setup() {
         Path sourceRoot = Paths.get("test-src", "services", "dispatching", "versioning");
         BCompileUtil.compile(sourceRoot.resolve("successcase1").toString(), PKG_NAME);
-        BCompileUtil.compile(sourceRoot.resolve("successcase2").toString(), PKG_NAME);
-        BCompileUtil.compile(sourceRoot.resolve("successcase3").toString(), PKG_NAME);
     }
 
     @Test(description = "Test dispatching with version template, no version allow and match major configs",
@@ -190,45 +186,5 @@ public class VersioningDispatchingTest {
         Assert.assertNotNull(errorMessage, "Message body null");
         Assert.assertTrue(errorMessage.contains("no matching service found for path"),
                           "Expected error not found.");
-    }
-
-    @Test(description = "Test dispatching with empty version", dataProvider = "emptyVersionService")
-    public void testWithEmptyVersion(String path) {
-        HTTPTestRequest request = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_2_PORT, request);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("hello").stringValue(), "common service"
-                , "Incorrect resource invoked.");
-    }
-
-    @DataProvider(name = "emptyVersionService")
-    public static Object[][] emptyVersionService() {
-        return new Object[][]{
-                {"/echo/v0.0/go"},
-                {"/echo/go"},
-                {"/echo/v0/go"}
-        };
-    }
-
-    @Test(description = "Test dispatching with single version", dataProvider = "singleVersionService")
-    public void testWithOnlyMajorPackageVersion(String path) {
-        HTTPTestRequest request = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_3_PORT, request);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("hello").stringValue(), "common service"
-                , "Incorrect resource invoked.");
-    }
-
-    @DataProvider(name = "singleVersionService")
-    public static Object[][] singleVersionService() {
-        return new Object[][]{
-                {"/sample/vxxx/go"},
-                {"/sample/go"},
-                {"/sample/vxxx/go"}
-        };
     }
 }

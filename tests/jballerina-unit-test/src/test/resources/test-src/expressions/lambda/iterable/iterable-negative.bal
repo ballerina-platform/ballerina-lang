@@ -45,23 +45,23 @@ function test5(){
     int x;
     x = s.forEach(function (string s) {word = word + s;});
 
-    var [z, y] = s.map(function ([int, string] tuple) returns [int, string] { var [i, v] = tuple;
-                           return [i * 2, v + v];
+    var [z, y] = s.map(function (string value) returns string {
+                           return value.toUpperAscii;
                        });
 }
 
 function test6(){
     string[] s = ["1", "a"];
-    _ = s.count(test5);
+    _ = s.length(test5);
     s.filter();
     int i = 10;
-    s.foreach(i);
+    s.forEach(i);
 }
 
 function test7(){
     string[] s = ["foo", "bar"];
-    s.foreach(function ([string, string, string] z) {});
-    s.foreach(function () {});
+    s.forEach(function ([string, string, string] z) {});
+    s.forEach(function () {});
     s.filter(function (string s) returns [boolean, int] {return [true, 1];});
     s.filter(function (string s) {});
     s.filter(function (person p) {});
@@ -80,7 +80,7 @@ function test9() {
     int[] a = arr.map(function (int v) returns (int) {
                         return v + 1;
                    }).map(function (int v) returns (string) {
-                        return "Test" + v;
+                        return "Test" + v.toString();
                    });
 }
 
@@ -89,18 +89,18 @@ function test10() {
     int[] a = arr.map(function (int v) returns (int) {
                         return v + 1;
                    }).map(function (int v) returns (string) {
-                        return "Test" + v;
+                        return "Test" + v.toString();
                    }).filter(function (string s) returns boolean { return true;});
 }
 
 function test11() {
     map<any> z = {a:"1", b:"2"};
 
-    map<any> m = z.filter(function (any s) returns boolean {
-          return s == ();
+    map<any> m = z.filter(function (string s) returns boolean {
+          return s == "";
     });
 
-    any x = z.filter(function (any s) returns boolean {
+    string x = z.filter(function (any s) returns boolean {
          return s == ();
     });
 }
@@ -108,19 +108,16 @@ function test11() {
 function testVarInLHS() {
     int[] numbers = [-5, -3, 2, 7, 12];
     var filtered = numbers.filter(function (int i) returns boolean {
-            return i >= 0;
+            return i;
         });
-    float avg = filtered.average();
 }
 
 function testVarInLHS2() {
     int[] numbers = [-5, -3, 2, 7, 12];
-    var mapped = numbers.map(function(int value) returns float {
-            return float.convert(value);
-        }).filter(function (float value) returns boolean {
+    var mapped = numbers.filter(function (int value) returns boolean {
             return value > 0;
-        }).map(function (float value) returns [string, float] {
-            return [string.convert(value), value];
+        }).map(function (int value) returns [string, float] {
+            return [value.toString(), value];
         });
 }
 
@@ -134,11 +131,9 @@ function testIndexBasedAccess() {
 int[] globalNumbers = [-5, -3, 2, 7, 12];
 
 function testAnydataInLHS() {
-    anydata mapped = globalNumbers.map(function(int value) returns float {
-               return float.convert(value);
-           }).filter(function (float value) returns boolean {
+    anydata mapped = globalNumbers.filter(function (int value) returns boolean {
                return value > 0;
-           }).map(function (float value) returns [string, float] {
-               return [string.convert(value), value];
+           }).map(function (int value) returns [string, float] {
+               return [value.toString(), value];
            });
 }

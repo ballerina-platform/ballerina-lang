@@ -60,7 +60,7 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
 
         String[] subscriberArgs = {};
-        webSubSubscriber.startServer(subscribersBal, subscriberArgs, new int[]{23484});
+        webSubSubscriber.startServer(subscribersBal, new String[0], subscriberArgs, new int[]{23484});
     }
 
     @Test

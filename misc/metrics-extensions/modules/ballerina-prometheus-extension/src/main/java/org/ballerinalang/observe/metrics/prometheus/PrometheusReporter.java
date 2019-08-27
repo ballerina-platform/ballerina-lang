@@ -22,15 +22,11 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.metrics.spi.MetricReporter;
 import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
-import org.ballerinalang.tool.LauncherUtils;
-import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.spi.EmbeddedExecutor;
+import org.ballerinalang.util.EmbeddedExecutorProvider;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * This is the reporter extension for the Prometheus.
@@ -42,8 +38,6 @@ public class PrometheusReporter implements MetricReporter {
 
     private static final PrintStream console = System.out;
     private static final String PROMETHEUS_PACKAGE = "prometheus";
-    private static final String REPORTER_BALX_FILE_NAME = "reporter.balx";
-    private static final String BALX_LIB_DIRECTORY = "lib";
     private static final String PROMETHEUS_HOST_CONFIG = ObservabilityConstants.CONFIG_TABLE_METRICS
             + "." + PROMETHEUS_PACKAGE + ".host";
     private static final String PROMETHEUS_PORT_CONFIG = ObservabilityConstants.CONFIG_TABLE_METRICS + "."
@@ -53,28 +47,18 @@ public class PrometheusReporter implements MetricReporter {
 
     @Override
     public void init() throws InvalidConfigurationException {
-        String ballerinaHome = System.getProperty(BLangConstants.BALLERINA_HOME);
-        Path reporterSourcePath = Paths.get(ballerinaHome, BALX_LIB_DIRECTORY, BLangConstants.BLANG_EXEC_FILE_EXT,
-                PROMETHEUS_PACKAGE);
-        Path repoterBalxPath = Paths.get(ballerinaHome, BALX_LIB_DIRECTORY, BLangConstants.BLANG_EXEC_FILE_EXT,
-                PROMETHEUS_PACKAGE, REPORTER_BALX_FILE_NAME);
-        LauncherUtils.runProgram(reporterSourcePath, repoterBalxPath, loadCurrentConfigs(), null, new String[0],
-                                 true, false);
         String hostname = ConfigRegistry.getInstance().
                 getConfigOrDefault(PROMETHEUS_HOST_CONFIG, DEFAULT_PROMETHEUS_HOST);
         String port = ConfigRegistry.getInstance().getConfigOrDefault(PROMETHEUS_PORT_CONFIG,
                 DEFAULT_PROMETHEUS_PORT);
-        console.println("ballerina: started Prometheus HTTP endpoint " + hostname + ":" + port);
-    }
-
-    private Map<String, String> loadCurrentConfigs() {
-        Map<String, String> config = new HashMap<>();
-        Iterator<String> configKeys = ConfigRegistry.getInstance().keySetIterator();
-        while (configKeys.hasNext()) {
-            String key = configKeys.next();
-            config.put(key, ConfigRegistry.getInstance().getAsString(key));
+        EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
+        Optional<RuntimeException> prometheus = executor.executeService("prometheus");
+        if (prometheus.isPresent()) {
+            console.println("ballerina: failed to start Prometheus HTTP listener " + hostname + ":" + port + " "
+                    + prometheus.get().getMessage());
+            return;
         }
-        return config;
+        console.println("ballerina: started Prometheus HTTP listener " + hostname + ":" + port);
     }
 
     @Override

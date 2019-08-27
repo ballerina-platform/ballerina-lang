@@ -20,12 +20,14 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServerConnectorListener;
 import org.ballerinalang.net.grpc.ServerConnectorPortBindingListener;
 import org.ballerinalang.net.grpc.ServicesRegistry;
+import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
@@ -49,7 +51,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 )
 public class Start extends AbstractGrpcNativeFunction {
 
-    private static void startServerConnector(ObjectValue listener, ServicesRegistry servicesRegistry) {
+    private static Object startServerConnector(ObjectValue listener, ServicesRegistry servicesRegistry) {
         ServerConnector serverConnector = getServerConnector(listener);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(servicesRegistry));
@@ -58,17 +60,21 @@ public class Start extends AbstractGrpcNativeFunction {
         try {
             serverConnectorFuture.sync();
         } catch (Exception ex) {
-            throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
-                    + "': " + ex.getMessage(), ex);
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(
+                            "Failed to start server connector '" + serverConnector.getConnectorID()
+                            + "'. " + ex.getMessage())));
         }
         listener.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
+        return null;
     }
 
-    public static void start(Strand strand, ObjectValue listener) {
+    public static Object start(Strand strand, ObjectValue listener) {
         ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(listener);
 
         if (!isConnectorStarted(listener)) {
-            startServerConnector(listener, servicesRegistryBuilder.build());
+            return startServerConnector(listener, servicesRegistryBuilder.build());
         }
+        return null;
     }
 }

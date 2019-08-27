@@ -1,3 +1,0 @@
-// Natively, Ballerina supports Java Message Service (JMS). In this example,
-// a JMS queue receiver is created. Both the Connection and Session are created
-// explicitly to allow reusability.

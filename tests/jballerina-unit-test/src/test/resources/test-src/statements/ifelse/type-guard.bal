@@ -16,8 +16,6 @@
 
 // ========================== Basics ==========================
 
-import ballerina/'lang\.error as errors;
-import ballerina/'lang\.string as strings;
 
 function testValueTypeInUnion() returns string {
     int|string x = 5;
@@ -403,7 +401,7 @@ function testTypeGuardsWithRecords_2() returns string {
     }
 }
 
-public type CustomError error<string, record { int status = 500; }>;
+public type CustomError error<string, record { int status = 500; string message?; error cause?; }>;
 
 function testTypeGuardsWithError() returns string {
     CustomError err = error("some error");
@@ -784,7 +782,7 @@ function testTypeNarrowingForIntersectingAssignableUnion_1() returns boolean {
 }
 
 function testTypeNarrowingForIntersectingAssignableUnion_2() returns boolean {
-    record{} t = { name: "Maryam" };
+    record{} t = { "name": "Maryam" };
     string|record{} st = t;
     if (st is json|xml) {
         return false;
@@ -903,6 +901,7 @@ const ERR_REASON_TWO = "error reason two";
 
 type Details record {
     string message;
+    error cause?;
 };
 
 type MyError error<ERR_REASON, Details>;

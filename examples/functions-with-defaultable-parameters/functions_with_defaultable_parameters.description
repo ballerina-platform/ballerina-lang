@@ -1,4 +1,7 @@
 // Ballerina functions can have defaultable parameters. Defaultable parameters are optional parameters that have a default 
 // value. A function with defaultable parameters can be invoked without providing values for the defaultable parameters.
-// When invoking the function, the defaultable parameters have to be passed as key-value pairs.
-// The placement of defaultable parameters within a function call does not matter.
+// When invoking the function, arguments for the defaultable parameters can be passed as key-value pairs in which case
+// the placement of the arguments within the function call does not matter. However, all arguments after the first named
+// argument (key-value pair) need to be passed as named arguments.
+// Arguments for defautlable parameters can also be passed as positional arguments, in which case the arguments need to
+// be passed in order.

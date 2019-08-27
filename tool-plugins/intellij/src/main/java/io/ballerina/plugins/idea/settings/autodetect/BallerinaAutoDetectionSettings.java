@@ -20,22 +20,23 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Attribute;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Language server auto detection settings provider.
+ * Ballerina home auto detection settings provider.
  */
-@State(name = "BallerinaLangServerAutoDetection",
-       storages = @Storage(value = "editor.detect.langserver.xml"))
+@State(name = "BallerinaHomeAutoDetection", storages = @Storage(value = "editor.detect.ballerinaHome.xml"))
 public class BallerinaAutoDetectionSettings implements PersistentStateComponent<BallerinaAutoDetectionSettings> {
 
     @Attribute
     private boolean autoDetectBalHome = true;
 
-    public static BallerinaAutoDetectionSettings getInstance() {
-        return ServiceManager.getService(BallerinaAutoDetectionSettings.class);
+    public static BallerinaAutoDetectionSettings getInstance(Project project) {
+        return ServiceManager.getService(project, BallerinaAutoDetectionSettings.class);
     }
 
     @Nullable
@@ -45,15 +46,15 @@ public class BallerinaAutoDetectionSettings implements PersistentStateComponent<
     }
 
     @Override
-    public void loadState(BallerinaAutoDetectionSettings state) {
+    public void loadState(@NotNull BallerinaAutoDetectionSettings state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    public boolean autoDetectBalHome() {
+    public boolean getIsAutoDetectionEnabled() {
         return autoDetectBalHome;
     }
 
-    public void setAutoDetectBalHome(boolean autoDetectBalHome) {
+    public void setIsAutoDetectionEnabled(boolean autoDetectBalHome) {
         this.autoDetectBalHome = autoDetectBalHome;
     }
 }

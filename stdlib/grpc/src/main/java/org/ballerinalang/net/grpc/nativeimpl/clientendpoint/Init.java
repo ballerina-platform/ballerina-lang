@@ -17,13 +17,15 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -62,14 +64,16 @@ import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
 public class Init {
 
     @SuppressWarnings("unchecked")
-    public static void init(Strand strand, ObjectValue clientEndpoint, String urlString,
+    public static Object init(Strand strand, ObjectValue clientEndpoint, String urlString,
                             MapValue clientEndpointConfig, MapValue globalPoolConfig) {
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         URL url;
         try {
             url = new URL(urlString);
         } catch (MalformedURLException e) {
-            throw new BallerinaConnectorException("Malformed URL: " + urlString);
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Malformed URL: "
+                            + urlString)));
         }
 
         String scheme = url.getProtocol();
@@ -83,17 +87,23 @@ public class Init {
         }
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
-        populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
-        MapValue userDefinedPoolConfig = (MapValue) clientEndpointConfig.get(
-                HttpConstants.USER_DEFINED_POOL_CONFIG);
-        ConnectionManager poolManager = userDefinedPoolConfig == null ? getConnectionManager(globalPoolConfig) :
-                getConnectionManager(userDefinedPoolConfig);
-        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
-        senderConfiguration.setForceHttp2(true);
-        HttpClientConnector clientConnector = HttpUtil.createHttpWsConnectionFactory()
-                .createHttpClientConnector(properties, senderConfiguration, poolManager);
+        try {
+            populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
+            MapValue userDefinedPoolConfig = (MapValue) clientEndpointConfig.get(
+                    HttpConstants.USER_DEFINED_POOL_CONFIG);
+            ConnectionManager poolManager = userDefinedPoolConfig == null ? getConnectionManager(globalPoolConfig) :
+                    getConnectionManager(userDefinedPoolConfig);
+            senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
+            senderConfiguration.setForceHttp2(true);
+            HttpClientConnector clientConnector = HttpUtil.createHttpWsConnectionFactory()
+                    .createHttpClientConnector(properties, senderConfiguration, poolManager);
 
-        clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
-        clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
+            clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
+            clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
+        } catch (RuntimeException ex) {
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withCause(ex)));
+        }
+        return null;
     }
 }

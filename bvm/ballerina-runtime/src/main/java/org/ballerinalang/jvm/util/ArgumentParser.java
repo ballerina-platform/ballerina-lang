@@ -36,7 +36,6 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +48,7 @@ import java.util.Map;
 public class ArgumentParser {
 
     private static final String DEFAULT_PARAM_PREFIX = "-";
-    private static final String DEFAULT_PARAM_DELIMITER = "=";
+    private static final String NAMED_ARG_DELIMITER = "=";
     private static final String INVALID_ARG = "invalid argument: ";
     private static final String INVALID_ARG_AS_REST_ARG = "invalid argument as rest argument: ";
     private static final String UNSUPPORTED_TYPE_PREFIX = "unsupported type expected with entry function";
@@ -72,84 +71,110 @@ public class ArgumentParser {
      */
     public static Object[] extractEntryFuncArgs(ParamInfo[] funcInfo, String[] args,
                                                 boolean hasRestParam) {
+        Object[] bValueArgs = null;
+        try {
+            bValueArgs = getEntryFuncArgs(funcInfo, args, hasRestParam);
+        } catch (ErrorValue e) {
+            RuntimeUtils.handleUsageError(e.getReason());
+        }
+        return bValueArgs;
+    }
+
+    private static Object[] getEntryFuncArgs(ParamInfo[] funcInfo, String[] args,
+                                             boolean hasRestParam) {
         // first arg is reserved for strand
         Object[] bValueArgs = new Object[funcInfo.length * 2 + 1];
         Map<String, ParamInfo> namedArgs = new HashMap<>();
+        boolean isNamedArgFound = false;
 
-        //create map of defaultable params and there indices
+        //create map of default params and there indices
         int defaultableCount = 0;
-        for (ParamInfo info : funcInfo) {
+        for (int i = 0; i < funcInfo.length; i++) {
+            ParamInfo info = funcInfo[i];
+            info.index = i;
+            namedArgs.put(info.name, info);
             if (info.hasDefaultable) {
-                info.index = defaultableCount;
-                namedArgs.put(info.name, info);
                 defaultableCount++;
             }
         }
+        int argsCountExceptRestArgs = hasRestParam ? funcInfo.length - 1 : funcInfo.length;
+        int requiredParamsCount = hasRestParam ? argsCountExceptRestArgs - defaultableCount :
+                argsCountExceptRestArgs - defaultableCount;
 
-        int requiredParamsCount = hasRestParam ? funcInfo.length - defaultableCount - 1 :
-                funcInfo.length - defaultableCount;
-
-        // first populate defaultable values and extract rest of args
-        List<String> requiredAndRestArgs = new ArrayList<>();
-
-        int defaultableArgIndex = requiredParamsCount * 2 + 1;
-
-        if (defaultableCount > 0) {
-            // false will exist for not provided defaultable values, others will get replaced.
-            Arrays.fill(bValueArgs, defaultableArgIndex, bValueArgs.length, false);
-        }
-
-        for (String arg : args) {
-            if (isDefaultParamCandidate(arg) && namedArgs.containsKey(getParamName(arg))) {
+        // populate positional args and named args
+        List<String> restArgs = new ArrayList<>();
+        int providedRequiredArgsCount = 0;
+        for (int i = 0; i < args.length; i++) {
+            String arg = args[i];
+            boolean isNameArg = isNameArg(arg);
+            // handle named args
+            if (isNameArg) {
+                isNamedArgFound = true;
                 ParamInfo info = namedArgs.get(getParamName(arg));
-                bValueArgs[info.index * 2 + defaultableArgIndex] = getBValue(info.type, getValueString(arg));
-                bValueArgs[info.index * 2 + defaultableArgIndex + 1] = true;
+                bValueArgs[info.index * 2 + 1] = getBValue(info.type, getValueString(arg));
+                bValueArgs[info.index * 2 + 2] = true;
+                if (!info.hasDefaultable) {
+                    providedRequiredArgsCount++;
+                }
             } else {
-                requiredAndRestArgs.add(arg);
+                if (isNamedArgFound) {
+                    throw BallerinaErrors
+                            .createError("positional argument not allowed after named arguments when "
+                                                      + "calling the 'main' function");
+                }
+                // handle positional args
+                if (i < argsCountExceptRestArgs) {
+                    ParamInfo info = funcInfo[i];
+                    bValueArgs[2 * i + 1] = getBValue(info.type, arg);
+                    bValueArgs[2 * i + 2] = true;
+                    if (!info.hasDefaultable) {
+                        providedRequiredArgsCount++;
+                    }
+                } else {
+                    // if arg is not a positional or name arg, it will be considered as rest arg.
+                    restArgs.add(arg);
+                }
             }
         }
 
-        if (requiredAndRestArgs.size() < requiredParamsCount) {
-            throw BallerinaErrors.createUsageError("insufficient arguments to call the 'main' function");
+        if (providedRequiredArgsCount < requiredParamsCount) {
+            throw BallerinaErrors.createError("insufficient arguments to call the 'main' function");
         }
 
-        if (requiredAndRestArgs.size() > requiredParamsCount && !hasRestParam) {
-            throw BallerinaErrors.createUsageError("too many arguments to call the 'main' function");
-        }
-
-        // now go through required args and populate value[]
-        for (int i = 0; i < requiredParamsCount; i++) {
-            ParamInfo functionInfo = funcInfo[i];
-            String arg = requiredAndRestArgs.get(i);
-            bValueArgs[2 * i + 1] = getBValue(functionInfo.type, arg);
-            bValueArgs[2 * i + 2] = true;
-
+        if (!hasRestParam && !restArgs.isEmpty()) {
+            throw BallerinaErrors.createError("too many arguments to call the 'main' function");
         }
 
         // populate var args
         if (hasRestParam) {
-            // getVarargs() // vararg start index = requiredParamsCount
-            bValueArgs[funcInfo.length * 2 - 1] = getRestArgArray(funcInfo[funcInfo.length - 1].type,
-                    requiredParamsCount, requiredAndRestArgs);
+            bValueArgs[funcInfo.length * 2 - 1] = getRestArgArray(funcInfo[funcInfo.length - 1].type, restArgs);
             bValueArgs[funcInfo.length * 2] = true;
         }
 
+        // handle default values which does not have any arg value.
+        for (int i = requiredParamsCount; i < argsCountExceptRestArgs; i++) {
+            int defaultableArgIndex = i * 2 + 1;
+            if (bValueArgs[defaultableArgIndex + 1] == null) {
+                bValueArgs[defaultableArgIndex + 1] = false;
+                bValueArgs[defaultableArgIndex] = getDefaultBValue(funcInfo[i].type);
+            }
+        }
         return bValueArgs;
     }
 
-    private static boolean isDefaultParamCandidate(String arg) {
-        return arg.startsWith(DEFAULT_PARAM_PREFIX) && arg.contains(DEFAULT_PARAM_DELIMITER);
+    private static boolean isNameArg(String arg) {
+        return arg.startsWith(DEFAULT_PARAM_PREFIX) && arg.contains(NAMED_ARG_DELIMITER);
     }
 
     private static String getParamName(String arg) {
-        return arg.split(DEFAULT_PARAM_DELIMITER, 2)[0].substring(1).trim();
+        return arg.split(NAMED_ARG_DELIMITER, 2)[0].substring(1).trim();
     }
 
     private static String getValueString(String arg) {
-        return arg.split(DEFAULT_PARAM_DELIMITER, 2)[1];
+        return arg.split(NAMED_ARG_DELIMITER, 2)[1];
     }
 
-    public static Object getBValue(BType type, String value) {
+    private static Object getBValue(BType type, String value) {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.ANY_TAG:
@@ -168,25 +193,25 @@ public class ArgumentParser {
                 try {
                     return XMLFactory.parse(value);
                 } catch (RuntimeException e) {
-                    throw BallerinaErrors.createUsageError("invalid argument '" + value + "', expected XML value");
+                    throw BallerinaErrors.createError("invalid argument '" + value + "', expected XML value");
                 }
             case TypeTags.JSON_TAG:
                 try {
                     return JSONParser.parse(value);
                 } catch (BallerinaException e) {
-                    throw BallerinaErrors.createUsageError("invalid argument '" + value + "', expected JSON value");
+                    throw BallerinaErrors.createError("invalid argument '" + value + "', expected JSON value");
                 }
             case TypeTags.RECORD_TYPE_TAG:
                 try {
                     return JSONUtils.convertJSONToRecord(JSONParser.parse(value), (BStructureType) type);
                 } catch (BallerinaException e) {
-                    throw BallerinaErrors.createUsageError("invalid argument '" + value
+                    throw BallerinaErrors.createError("invalid argument '" + value
                             + "', error constructing record of type: " + type + ": "
                             + e.getLocalizedMessage().split(JSON_PARSER_ERROR)[0]);
                 }
             case TypeTags.TUPLE_TAG:
                 if (!value.startsWith("[") || !value.endsWith("]")) {
-                    throw BallerinaErrors.createUsageError("invalid argument '"
+                    throw BallerinaErrors.createError("invalid argument '"
                             + value + "', " + "expected tuple notation [\"[]\"] with tuple arg");
                 }
                 return parseTupleArg((BTupleType) type, value.substring(1, value.length() - 1));
@@ -194,14 +219,14 @@ public class ArgumentParser {
                 try {
                     return JSONUtils.convertJSONToBArray(JSONParser.parse(value), (BArrayType) type);
                 } catch (BallerinaException | ErrorValue e) {
-                    throw BallerinaErrors.createUsageError("invalid argument '" + value
+                    throw BallerinaErrors.createError("invalid argument '" + value
                             + "', expected array elements of " + "type: " + ((BArrayType) type).getElementType());
                 }
             case TypeTags.MAP_TAG:
                 try {
                     return JSONUtils.jsonToMap(JSONParser.parse(value), (BMapType) type);
                 } catch (ErrorValue | BallerinaException e) {
-                    throw BallerinaErrors.createUsageError("invalid argument '" + value
+                    throw BallerinaErrors.createError("invalid argument '" + value
                             + "', expected map argument of element type: " + ((BMapType) type).getConstrainedType());
                 }
             case TypeTags.UNION_TAG:
@@ -211,6 +236,20 @@ public class ArgumentParser {
         }
     }
 
+    private static Object getDefaultBValue(BType type) {
+        switch (type.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+            case TypeTags.BYTE_TAG:
+                return 0;
+            case TypeTags.BOOLEAN_TAG:
+                return false;
+            default:
+                return null;
+        }
+    }
+    
     private static long getIntegerValue(String argument) {
         try {
             if (argument.toUpperCase().startsWith(HEX_PREFIX)) {
@@ -218,7 +257,7 @@ public class ArgumentParser {
             }
             return Long.parseLong(argument);
         } catch (NumberFormatException e) {
-            throw BallerinaErrors.createUsageError("invalid argument '" + argument + "', expected integer value");
+            throw BallerinaErrors.createError("invalid argument '" + argument + "', expected integer value");
         }
     }
 
@@ -226,7 +265,7 @@ public class ArgumentParser {
         try {
             return Double.parseDouble(argument);
         } catch (NumberFormatException e) {
-            throw BallerinaErrors.createUsageError("invalid argument '" + argument + "', expected float value");
+            throw BallerinaErrors.createError("invalid argument '" + argument + "', expected float value");
         }
     }
 
@@ -234,13 +273,13 @@ public class ArgumentParser {
         try {
             return new DecimalValue(argument);
         } catch (NumberFormatException e) {
-            throw BallerinaErrors.createUsageError("invalid argument '" + argument + "', expected decimal value");
+            throw BallerinaErrors.createError("invalid argument '" + argument + "', expected decimal value");
         }
     }
 
     private static boolean getBooleanValue(String argument) {
         if (!TRUE.equalsIgnoreCase(argument) && !FALSE.equalsIgnoreCase(argument)) {
-            throw BallerinaErrors.createUsageError("invalid argument '" + argument
+            throw BallerinaErrors.createError("invalid argument '" + argument
                     + "', expected boolean value 'true' or " + "'false'");
         }
         return Boolean.parseBoolean(argument);
@@ -251,56 +290,56 @@ public class ArgumentParser {
         try {
             byteValue = Integer.parseInt(argument);
         } catch (NumberFormatException e) {
-            throw BallerinaErrors.createUsageError("invalid argument '" + argument + "', expected byte value");
+            throw BallerinaErrors.createError("invalid argument '" + argument + "', expected byte value");
         }
 
         if (!RuntimeUtils.isByteLiteral(byteValue)) {
-            throw BallerinaErrors.createUsageError("invalid argument '" + argument +
+            throw BallerinaErrors.createError("invalid argument '" + argument +
                     "', expected byte value, found int");
         }
 
         return byteValue;
     }
 
-    private static ArrayValue getRestArgArray(BType type, int index, List<String> args) {
+    private static ArrayValue getRestArgArray(BType type, List<String> args) {
         BType elementType = ((BArrayType) type).getElementType();
         try {
             switch (elementType.getTag()) {
                 case TypeTags.ANY_TAG:
                 case TypeTags.STRING_TAG:
                     ArrayValue stringArrayArgs = new ArrayValue(BTypes.typeString);
-                    for (int i = index; i < args.size(); i++) {
-                        stringArrayArgs.add(i - index, args.get(i));
+                    for (int i = 0; i < args.size(); i++) {
+                        stringArrayArgs.add(i, args.get(i));
                     }
                     return stringArrayArgs;
                 case TypeTags.INT_TAG:
                     ArrayValue intArrayArgs = new ArrayValue(BTypes.typeInt);
-                    for (int i = index; i < args.size(); i++) {
-                        intArrayArgs.add(i - index, getIntegerValue(args.get(i)));
+                    for (int i = 0; i < args.size(); i++) {
+                        intArrayArgs.add(i, getIntegerValue(args.get(i)));
                     }
                     return intArrayArgs;
                 case TypeTags.FLOAT_TAG:
                     ArrayValue floatArrayArgs = new ArrayValue(BTypes.typeFloat);
-                    for (int i = index; i < args.size(); i++) {
-                        floatArrayArgs.add(i - index, getFloatValue(args.get(i)));
+                    for (int i = 0; i < args.size(); i++) {
+                        floatArrayArgs.add(i, getFloatValue(args.get(i)));
                     }
                     return floatArrayArgs;
                 case TypeTags.BOOLEAN_TAG:
                     ArrayValue booleanArrayArgs = new ArrayValue(BTypes.typeBoolean);
-                    for (int i = index; i < args.size(); i++) {
-                        booleanArrayArgs.add(i - index, getBooleanValue(args.get(i)) ? 1 : 0);
+                    for (int i = 0; i < args.size(); i++) {
+                        booleanArrayArgs.add(i, getBooleanValue(args.get(i)) ? 1 : 0);
                     }
                     return booleanArrayArgs;
                 case TypeTags.BYTE_TAG:
                     ArrayValue byteArrayArgs = new ArrayValue(BTypes.typeByte);
-                    for (int i = index; i < args.size(); i++) {
-                        byteArrayArgs.add(i - index, (byte) getByteValue(args.get(i)));
+                    for (int i = 0; i < args.size(); i++) {
+                        byteArrayArgs.add(i, (byte) getByteValue(args.get(i)));
                     }
                     return byteArrayArgs;
                 default:
                     ArrayValue refValueArray = new ArrayValue();
-                    for (int i = index; i < args.size(); i++) {
-                        refValueArray.add(i - index, getBValue(elementType, args.get(i)));
+                    for (int i = 0; i < args.size(); i++) {
+                        refValueArray.add(i, getBValue(elementType, args.get(i)));
                     }
                     return refValueArray;
             }
@@ -308,7 +347,7 @@ public class ArgumentParser {
             throw BallerinaErrors.createError(e.getLocalizedMessage().replace(INVALID_ARG, INVALID_ARG_AS_REST_ARG));
         } catch (Exception e) {
             //Ideally shouldn't reach here
-            throw BallerinaErrors.createUsageError("error parsing rest arg: " + e.getLocalizedMessage());
+            throw BallerinaErrors.createError("error parsing rest arg: " + e.getLocalizedMessage());
         }
     }
 
@@ -318,7 +357,7 @@ public class ArgumentParser {
         String[] tupleElements = tupleArg.split(COMMA);
 
         if (tupleElements.length != type.getTupleTypes().size()) {
-            throw BallerinaErrors.createUsageError("invalid argument '[" + tupleArg
+            throw BallerinaErrors.createError("invalid argument '[" + tupleArg
                     + "]', element count mismatch for tuple " + "type: '" + type + "'");
         }
 
@@ -329,7 +368,7 @@ public class ArgumentParser {
             try {
                 if (elementType.getTag() == TypeTags.STRING_TAG) {
                     if (!tupleElement.startsWith("\"") || !tupleElement.endsWith("\"")) {
-                        throw BallerinaErrors.createUsageError("invalid tuple element argument '" + tupleElement
+                        throw BallerinaErrors.createError("invalid tuple element argument '" + tupleElement
                                 + stringSpecificationErrorSuffix);
                     }
                     tupleElement = tupleElement.substring(1, tupleElement.length() - 1);
@@ -339,10 +378,10 @@ public class ArgumentParser {
             } catch (BallerinaException | ErrorValue e) {
                 String localizedMessage = e.getLocalizedMessage();
                 if (localizedMessage.startsWith(UNSUPPORTED_TYPE_PREFIX)) {
-                    throw BallerinaErrors.createUsageError(
+                    throw BallerinaErrors.createError(
                             "unsupported element type for tuple as entry function argument: " + elementType);
                 } else if (!localizedMessage.endsWith(stringSpecificationErrorSuffix)) {
-                    throw BallerinaErrors.createUsageError("invalid tuple member argument '" + tupleElement + "', "
+                    throw BallerinaErrors.createError("invalid tuple member argument '" + tupleElement + "', "
                             + "expected value of type '" + elementType + "'");
                 }
                 throw e;
@@ -374,7 +413,7 @@ public class ArgumentParser {
                 memberTypeIndex++;
             }
         }
-        throw BallerinaErrors.createUsageError("invalid argument '" + unionArg + "' specified for union type: "
+        throw BallerinaErrors.createError("invalid argument '" + unionArg + "' specified for union type: "
                 + (type.isNilable() ? type.toString().replace("|null", "|()") : type));
     }
 }

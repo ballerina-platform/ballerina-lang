@@ -3,7 +3,7 @@ import ballerina/http;
 
 int port = 9090;
 
-auth:InboundBasicAuthProvider basicAuthProvider = new(());
+auth:InboundBasicAuthProvider basicAuthProvider = new;
 http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 http:ServiceSecureSocket secureSocket = {

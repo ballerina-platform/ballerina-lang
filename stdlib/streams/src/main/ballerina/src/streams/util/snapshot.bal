@@ -18,10 +18,9 @@ import ballerina/config;
 import ballerina/filepath;
 import ballerina/io;
 import ballerina/log;
-import ballerina/math;
 import ballerina/task;
 import ballerina/time;
-import ballerina/system;
+import ballerina/file;
 import ballerina/'lang\.int as langint;
 
 # Abstract Snapshotable to be referenced by all snapshotable objects.
@@ -39,7 +38,7 @@ public type Snapshotable abstract object {
 };
 
 // Global variables to be used with snapshot persistence.
-task:Scheduler persistScheduler = new({ interval: 1 });
+task:Scheduler persistScheduler = new({ intervalInMillis: 1 });
 map<map<any>> streamsPersistanceState = {};
 map<Snapshotable> snapshotables = {};
 string persistanceDirectory = "snapshots";
@@ -179,12 +178,12 @@ function writeStateToFile(string persistancePath) returns error? {
     time:Time ct = time:currentTime();
     int currentTimeMillis = ct.time;
 
-    if (!system:exists(persistancePath)) {
-        string|error e = system:createDir(persistancePath, true);
+    if (!file:exists(persistancePath)) {
+        string|error e = file:createDir(persistancePath, true);
     }
     string path = check filepath:build(persistancePath, currentTimeMillis.toString());
-    if (!system:exists(path)) {
-        string|error filepath = system:createFile(path);
+    if (!file:exists(path)) {
+        string|error filepath = file:createFile(path);
         if (filepath is string) {
             snapshotFile = filepath;
         }
@@ -209,11 +208,11 @@ function writeStateToFile(string persistancePath) returns error? {
 # + return - An `array` containing absolute paths of all snapshot files.
 function getSnapshotFiles(string persistancePath) returns string[] {
     string[] snapshotFiles = [];
-    if (system:exists(persistancePath)) {
-        var files = system:readDir(persistancePath);
+    if (file:exists(persistancePath)) {
+        var files = file:readDir(persistancePath);
         int[] timestamps = [];
-        if (files is system:FileInfo[]) {
-            foreach system:FileInfo p in files {
+        if (files is file:FileInfo[]) {
+            foreach file:FileInfo p in files {
                 int|error t = langint:fromString(p.getName());
                 if (t is int) {
                     timestamps[timestamps.length()] = t;
@@ -253,8 +252,8 @@ function purgeOldSnapshotFiles(string persistancePath) {
         int i = 0;
         while (i < (files.length() - revisionsToKeep)) {
             string f = files[i];
-            if (system:exists(f)) {
-                error? e = system:remove(f);
+            if (file:exists(f)) {
+                error? e = file:remove(f);
                 if (e is error) {
                     log:printError("Couldn't delete snapshot.", e);
                 }
@@ -303,8 +302,8 @@ function persistStatesAndPurgeOldSnapshots() returns error? {
 # Function to initilize a Scheduler task and start periodic snapshotting.
 function startPersisting() {
     persistScheduler = new({
-            interval: persistanceIntervalInMillis,
-            initialDelay: persistanceIntervalInMillis
+            intervalInMillis: persistanceIntervalInMillis,
+            initialDelayInMillis: persistanceIntervalInMillis
         }
     );
     checkpanic persistScheduler.attach(persistanceSchedulerService);

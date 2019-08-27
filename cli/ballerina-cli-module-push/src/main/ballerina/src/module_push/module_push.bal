@@ -27,10 +27,11 @@ import ballerina/internal;
 # + url - URL to be invoked to push the module
 # + baloPath - Path to balo file
 # + outputLog - Message printed when the module is pushed successfully which includes module info
-function pushPackage (http:Client definedEndpoint, string accessToken, string url, string baloPath, string outputLog) {
+function pushPackage (http:Client definedEndpoint, string accessToken, string organization, string url, string baloPath, string outputLog) {
     http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
+    req.addHeader("Push-Organization", organization);
     req.setFileAsPayload(baloPath, mime:APPLICATION_OCTET_STREAM);
     http:Response|error response = httpEndpoint->post("", req);
 
@@ -49,7 +50,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string ur
         } else if (statusCode != "200") {
             json|error jsonResponse = response.getJsonPayload();
             if (jsonResponse is error) {
-                panic createError("invalid response json");
+                panic createError("unsupported response received from remote registry.");
             } else {
                 string message = jsonResponse.message.toString();
                 panic createError(message);
@@ -71,15 +72,16 @@ public function main(string... args) {
     string proxyUsername = args[3];
     string proxyPassword = args[4];
     string accessToken = args[5];
-    string pathToBalo = args[6];
-    string outputLog = args[7];
+    string organization = args[6];
+    string pathToBalo = args[7];
+    string outputLog = args[8];
     if (proxyHost != "" && proxyPortAsString != "") {
         int|error proxyPort = lint:fromString(proxyPortAsString);
         if (proxyPort is int) {
             http:Client|error result = trap defineEndpointWithProxy(urlWithModulePath, proxyHost, proxyPort, proxyUsername, proxyPassword);
             if (result is http:Client) {
                 httpEndpoint = result;
-                pushPackage(httpEndpoint, accessToken, urlWithModulePath, pathToBalo, outputLog);
+                pushPackage(httpEndpoint, accessToken, organization, urlWithModulePath, <@untainted>pathToBalo, outputLog);
             } else {
                 panic createError("failed to resolve host : " + proxyHost + " with port " + proxyPortAsString);
             }
@@ -90,7 +92,7 @@ public function main(string... args) {
         panic createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(urlWithModulePath);
-        return <@untainted> pushPackage(httpEndpoint, accessToken, urlWithModulePath, pathToBalo, outputLog);
+        return <@untainted> pushPackage(httpEndpoint, accessToken, organization, urlWithModulePath, <@untainted>pathToBalo, outputLog);
     }
 }
 
@@ -112,7 +114,7 @@ function defineEndpointWithProxy(string url, string hostname, int port, string u
             verifyHostname: false,
             shareSession: true
         },
-        proxy : getProxyConfigurations(hostname, port, username, password),
+        http1Settings:{ proxy : getProxyConfigurations(hostname, port, username, password) },
         cache: {
             enabled: false
         }
@@ -124,7 +126,7 @@ function defineEndpointWithProxy(string url, string hostname, int port, string u
 #
 # + url - URL to be invoked
 # + return - Endpoint defined
-function defineEndpointWithoutProxy (string url) returns http:Client{
+function defineEndpointWithoutProxy(string url) returns http:Client {
     http:Client httpEndpoint = new(url, {
         secureSocket:{
             trustStore:{

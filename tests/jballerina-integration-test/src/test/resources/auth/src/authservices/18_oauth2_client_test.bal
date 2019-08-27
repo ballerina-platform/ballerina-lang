@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 import ballerina/oauth2;
 
 // Test the client credentials grant type with valid credentials
@@ -291,7 +290,7 @@ service echo18 on listener18 {
             checkpanic caller->respond(backendResponse);
         } else {
             http:Response errResponse = new;
-            errResponse.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            errResponse.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             var cause = backendResponse.detail()?.cause;
             if (cause is error) {
                 var innerCause = cause.detail()?.cause;

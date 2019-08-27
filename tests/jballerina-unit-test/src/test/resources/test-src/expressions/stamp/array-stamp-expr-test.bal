@@ -108,8 +108,8 @@ function stampRecordToAnydataArrayV2() returns anydata[]|error {
 }
 
 function stampAnydataArrayToUnion() returns Employee[]|int|error  {
-    Employee p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    Employee p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
+    Employee p1 = { name: "Raja", "age": 25, status: "single", batch: "LK2014", "school": "Hindu College" };
+    Employee p2 = { name: "Mohan", "age": 30, status: "single", batch: "LK2014", "school": "Hindu College" };
 
     Employee[] teacherArray = [p1, p2];
     Employee[]|int|error  employeeArray = Employee[]|int.constructFrom(teacherArray);
@@ -118,8 +118,8 @@ function stampAnydataArrayToUnion() returns Employee[]|int|error  {
 }
 
 function stampArrayValueToTuple() returns [Employee, Student]|error {
-    Employee[] arrayValue = [{ name: "Mohan", status: "single", batch: "LK2015", school: "Royal College" },
-    { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" }];
+    Employee[] arrayValue = [{ name: "Mohan", status: "single", batch: "LK2015", "school": "Royal College" },
+    { name: "Raja", status: "single", batch: "LK2014", "school": "Hindu College" }];
 
     [Employee, Student]|error returnValue = [Employee, Student].constructFrom(arrayValue);
     return returnValue;
@@ -224,8 +224,8 @@ function stampBasicMapArrayToAnydataMapArray() returns map<anydata>[]|error {
 }
 
 function stampRecordArrayToJsonArray() returns json[]|error {
-    Employee e1 = { name: "Waruna", status: "single", batch: "LK2018", age:10 };
-    Employee e2 = { name: "Heshitha", status: "single", batch: "LK2019", age:15 };
+    Employee e1 = { name: "Waruna", status: "single", batch: "LK2018", "age": 10 };
+    Employee e2 = { name: "Heshitha", status: "single", batch: "LK2019", "age": 15 };
     Employee[] employeeArray = [e1, e2];
     json[] jsonArray = check json[].constructFrom(employeeArray);
     return jsonArray;

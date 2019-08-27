@@ -1,6 +1,0 @@
-# Make sure to have the ActiveMQ Artemis broker running.
-
-# Navigate to the directory that contains the 'artemis_data_binding.bal' file
-# and execute the 'ballerina run' command as follows
-$ ballerina run artemis_data_binding.bal 
-[ballerina/artemis] Client Consumer created for queue my_queue

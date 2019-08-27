@@ -67,7 +67,8 @@ public class RecordTypeNodeScopeProvider extends LSCompletionProvider {
             completionItems.addAll(this.getCompletionItemList(eitherList, context));
             return completionItems;
         }
-        List<SymbolInfo> filteredTypes = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<SymbolInfo> filteredTypes = visibleSymbols.stream()
                 .filter(symbolInfo -> FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredTypes, context));

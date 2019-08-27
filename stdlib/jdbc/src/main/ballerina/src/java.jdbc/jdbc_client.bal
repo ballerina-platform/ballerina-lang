@@ -73,10 +73,10 @@ public type JdbcClient client object {
 };
 
 function nativeSelect(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>? recordType,
-   Param... parameters) returns @tainted table<record {}>|Error = external;
+    Param... parameters) returns @tainted table<record {}>|Error = external;
 
 function nativeCall(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
-   returns @tainted table<record {}>[]|()|Error = external;
+    returns @tainted table<record {}>[]|()|Error = external;
 
 function nativeUpdate(JdbcClient sqlClient, @untainted string sqlQuery, Param... parameters)
     returns UpdateResult|Error = external;

@@ -1,0 +1,18 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run range_expressions.bal
+foreach for 25 ... 28
+25
+26
+27
+28
+
+foreach for 25 ..< 28
+25
+26
+27
+
+iterable object for 25 ..< 28
+25
+26
+27

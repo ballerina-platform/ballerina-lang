@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.jvm.classwriter;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -49,13 +47,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
                 @Argument(name = "interfaces", type = ARRAY, elementType = STRING)
         }
 )
-public class Visit extends BlockingNativeCallableUnit {
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM Unsupported");
-    }
+public class Visit {
 
     public static void visit(Strand strand, ObjectValue oCw, long versionNumber, long access,
                              String name, Object signature, String superName, Object optInterfaces) {

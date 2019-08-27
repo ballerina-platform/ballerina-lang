@@ -1,5 +1,5 @@
 # To start the services, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run http_failover.bal
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:8080
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS listener 0.0.0.0:8080
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9090

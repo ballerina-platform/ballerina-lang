@@ -107,7 +107,7 @@ public class TableLiteralSyntaxTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*", enabled = false)
+          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*")
     public void testTableAddOnConstrainedTableWithViolation() {
         BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation");
     }
@@ -116,6 +116,14 @@ public class TableLiteralSyntaxTest {
     public void testTableAddOnConstrainedTableWithViolation2() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation2");
         Assert.assertTrue((returns[0]).stringValue().contains("Unique index or primary key violation:"));
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp =
+                  ".*execute update failed: Unique index or primary key violation:.*")
+    public void testTableAddOnConstrainedTableWithViolation3() {
+        BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation3");
+        Assert.fail("Expected exception should have been thrown by this point");
     }
 
     @Test
@@ -284,7 +292,7 @@ public class TableLiteralSyntaxTest {
                 "incompatible types: record of type:Company cannot be added to a table with type:Person");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJson");
         Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1, \"age\":30, \"salary\":300.5, \"name\":\"jane\", "
@@ -292,7 +300,7 @@ public class TableLiteralSyntaxTest {
                 + "{\"id\":3, \"age\":32, \"salary\":100.5, \"name\":\"john\", \"married\":false}]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testToXML() {
         BValue[] returns = BRunUtil.invoke(result, "testToXML");
         Assert.assertEquals((returns[0]).stringValue(), "<results><result><id>1</id><age>30</age>"
@@ -302,7 +310,7 @@ public class TableLiteralSyntaxTest {
                 + "</result></results>");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableWithAllDataToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testTableWithAllDataToJson");
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -325,14 +333,14 @@ public class TableLiteralSyntaxTest {
                 "<results><result><id>1</id><blobData>Sample Text" + "</blobData></result></results>");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testStructWithDefaultDataToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStructWithDefaultDataToJson");
         Assert.assertEquals((returns[0]).stringValue(),
                 "[{\"id\":1, \"age\":0, \"salary\":0.0, \"name\":\"\", " + "\"married\":false}]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testStructWithDefaultDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToXml");
         Assert.assertEquals((returns[0]).stringValue(),
@@ -340,7 +348,7 @@ public class TableLiteralSyntaxTest {
                         + "<married>false</married></result></results>");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableWithArrayDataToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testTableWithArrayDataToJson");
         Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1, \"intArrData\":[1, 2, 3], "
@@ -383,7 +391,7 @@ public class TableLiteralSyntaxTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableAddAndAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddAndAccess");
         Assert.assertEquals((returns[0]).stringValue(),
@@ -474,7 +482,7 @@ public class TableLiteralSyntaxTest {
 
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 18);
+        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 39, 11);
         BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 46, 42);
         BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in record 'Person'", 47, 10);
@@ -506,6 +514,8 @@ public class TableLiteralSyntaxTest {
                                   "field 'xArr' of type 'xml[]' is not allowed as a table column", 212, 29);
         BAssertUtil.validateError(resultNegative, 17,
                                   "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
+        BAssertUtil.validateError(resultNegative, 18,
+                                  "cannot infer table type", 223, 14);
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")

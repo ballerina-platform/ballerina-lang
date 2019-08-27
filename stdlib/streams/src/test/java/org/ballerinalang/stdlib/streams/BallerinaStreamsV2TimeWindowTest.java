@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.981.2
  */
+@Test(groups = { "TakesTooMuchTime" })
 public class BallerinaStreamsV2TimeWindowTest {
     private CompileResult result1, result2, resultNegative;
 
@@ -78,12 +79,7 @@ public class BallerinaStreamsV2TimeWindowTest {
 
     @Test(description = "Checks whether the window function exists or not")
     public void testForWindowFunction() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resultNegative, 0,
-                "invalid streaming 'Window' type 'undefinedWindow' found",
-                62, 47);
-        BAssertUtil.validateError(resultNegative, 1,
-                "undefined function 'undefinedWindow'",
-                62, 47);
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultNegative, 0, "undefined function 'undefinedWindow'", 62, 47);
     }
 }

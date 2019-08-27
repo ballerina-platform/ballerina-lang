@@ -24,7 +24,7 @@ public type Listener object {
     *lang:AbstractListener;
 
     private int port = 0;
-    private ServiceEndpointConfiguration config = {};
+    private ListenerConfiguration config = {};
 
     # Starts the registered service.
     #
@@ -33,10 +33,14 @@ public type Listener object {
         return self.start();
     }
 
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
     # Stops the registered service.
     #
     # + return - Returns an error if encounters an error while stopping the server, returns nil otherwise.
-    public function __stop() returns error? {
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 
@@ -49,11 +53,14 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     # Gets called when the endpoint is being initialize during module init time.
     #
     # + port - Listener port.
     # + config - The ServiceEndpointConfiguration of the endpoint.
-    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+    public function __init(int port, ListenerConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
         error? err = self.initEndpoint();
@@ -64,12 +71,11 @@ public type Listener object {
 
     function initEndpoint() returns error? = external;
 
-
     function register(service serviceType, string? name) returns error? = external;
 
-    function start() = external;
+    function start() returns error? = external;
 
-    function stop() = external;
+    function stop() returns error? = external;
 };
 
 # Maximum number of requests that can be processed at a given time on a single connection.
@@ -81,24 +87,15 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 # Represents the gRPC server endpoint configuration.
 #
 # + host - The server hostname.
-# + keepAlive - Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
-#               which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
 # + secureSocket - The SSL configurations for the client endpoint.
 # + httpVersion - HTTP version supported by the endpoint. This should be 2.0 as gRPC works only with HTTP/2.
-# + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
+# + timeoutInMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout.
-# + requestLimits - Configures the parameters for request validation.
-# + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
-#                          connection. By default, 10 requests can be pipelined on a single connection and the user can
-#                          change this limit appropriately. This will be applicable only for HTTP 1.1.
-public type ServiceEndpointConfiguration record {|
+public type ListenerConfiguration record {|
     string host = "0.0.0.0";
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
-    ServiceSecureSocket? secureSocket = ();
+    ListenerSecureSocket? secureSocket = ();
     string httpVersion = "2.0";
-    RequestLimits? requestLimits = ();
-    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
-    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
+    int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
 |};
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -116,9 +113,9 @@ public type ServiceEndpointConfiguration record {|
 # + sslVerifyClient - The type of client certificate verification
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
-# + handshakeTimeout - SSL handshake time out
-# + sessionTimeout - SSL session time out
-public type ServiceSecureSocket record {|
+# + handshakeTimeoutInSeconds - SSL handshake time out
+# + sessionTimeoutInSeconds - SSL session time out
+public type ListenerSecureSocket record {|
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();
     string certFile = "";
@@ -127,24 +124,15 @@ public type ServiceSecureSocket record {|
     string trustedCertFile = "";
     Protocols? protocol = ();
     ValidateCert? certValidation = ();
-    string[] ciphers = [];
+    string[] ciphers = ["TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+                        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                        "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"];
     string sslVerifyClient = "";
     boolean shareSession = true;
-    ServiceOcspStapling? ocspStapling = ();
-    int handshakeTimeout?;
-    int sessionTimeout?;
+    ListenerOcspStapling? ocspStapling = ();
+    int handshakeTimeoutInSeconds?;
+    int sessionTimeoutInSeconds?;
 |};
 
-# Configures limits for requests. If these limits are violated, the request is rejected.
-#
-# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
-#                  `414 - URI Too Long` response.
-# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
-#                   `413 - Payload Too Large` response.
-# + maxEntityBodySize - Maximum allowed size for the entity body. Exceeding this limit will result in a
-#                       `413 - Payload Too Large` response.
-public type RequestLimits record {|
-    int maxUriLength = -1;
-    int maxHeaderSize = -1;
-    int maxEntityBodySize = -1;
-|};

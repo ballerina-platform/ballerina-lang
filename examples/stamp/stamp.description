@@ -1,6 +1,0 @@
-// Ballerina supports the `.stamp()` built-in method to change the storage type of a value to a specified type
-// by mutating the value.
-// Stamps can only be used with `anydata`-typed values.
-// If successful, a stamp attempt returns the value itself with the type changed to the stamped type.
-// If a stamp attempt fails due to an incompatible type being specified or a non-`anydata` value being present, an
-// error is returned.

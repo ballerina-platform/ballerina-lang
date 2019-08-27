@@ -35,15 +35,15 @@ function testTypicalScenario() returns [http:Response[], error?[]] {
     http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[400, 404, 500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -75,15 +75,15 @@ function testTrialRunFailure() returns [http:Response[], error?[]] {
     http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[400, 404, 500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -116,15 +116,15 @@ function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
     http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[400, 404, 500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -152,15 +152,15 @@ function testForceOpenScenario() returns [http:Response[], error?[]] {
     http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -191,15 +191,15 @@ function testForceCloseScenario() returns [http:Response[], error?[]] {
     http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -231,15 +231,15 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Respo
     http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 6
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -268,15 +268,15 @@ function testRequestVolumeThresholdFailureResponseScenario() returns [http:Respo
     http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 6
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -344,7 +344,7 @@ public type MockClient client object {
     }
 
     public remote function delete(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
+                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                 returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
@@ -364,7 +364,7 @@ public type MockClient client object {
             } else {
                 error err = result;
                 string errMessage = err.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_TRIAL_RUN_FAILURE) {
@@ -374,7 +374,7 @@ public type MockClient client object {
             } else {
                 error err = result;
                 string errMessage = err.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_HTTP_SC_FAILURE) {
@@ -384,7 +384,7 @@ public type MockClient client object {
             } else {
                 error err = result;
                 string errMessage = err.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_CB_FORCE_OPEN) {
@@ -396,7 +396,7 @@ public type MockClient client object {
             } else {
                 error err = result;
                 string errMessage = err.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS) {
@@ -491,7 +491,7 @@ function handleRequestVolumeThresholdSuccessResponseScenario() returns http:Resp
 
 function handleRequestVolumeThresholdFailureResponseScenario() returns http:Response {
     http:Response response = new;
-    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+    response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
     return response;
 }
 
@@ -503,7 +503,7 @@ function getErrorStruct() returns http:ClientError {
 function getResponse() returns http:Response {
     // TODO: The way the status code is set may need to be changed once struct fields can be made read-only
     http:Response response = new;
-    response.statusCode = http:OK_200;
+    response.statusCode = http:STATUS_OK;
     return response;
 }
 
@@ -545,14 +545,14 @@ listener http:MockListener mockEP = new(9090);
 http:Client clientEP = new("http://localhost:8080", {
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 10000,
-            bucketSizeMillis: 2000
+            timeWindowInMillis: 10000,
+            bucketSizeInMillis: 2000
         },
         failureThreshold: 0.3,
-        resetTimeMillis: 1000,
+        resetTimeInMillis: 1000,
         statusCodes: [500, 502, 503]
     },
-    timeoutMillis: 2000
+    timeoutInMillis: 2000
 });
 
 @http:ServiceConfig { basePath: "/cb" }

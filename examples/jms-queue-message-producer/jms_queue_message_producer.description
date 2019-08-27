@@ -1,4 +1,0 @@
-// In this example, a message is published to a queue using a
-// Java Message Service (JMS) publisher. Both the connection and session are
-// created explicitly to allow reusability.
-

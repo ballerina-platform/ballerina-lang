@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.net.websub;
 
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.services.ErrorHandlerUtils;
 
 /**
  * Empty callback implementation for WebSub resources.

@@ -49,7 +49,6 @@ import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 public class Ping {
 
     public static Object ping(Strand strand, ObjectValue wsConnection, ArrayValue binaryData) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
@@ -57,7 +56,6 @@ public class Ping {
             ChannelFuture future = connectionInfo.getWebSocketConnection().ping(ByteBuffer.wrap(binaryData.getBytes()));
             WebSocketUtil.handleWebSocketCallback(callback, future);
         } catch (Exception e) {
-            //TODO remove this call back
             callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }

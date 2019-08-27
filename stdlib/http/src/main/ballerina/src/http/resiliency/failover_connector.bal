@@ -22,10 +22,10 @@
 //# Provides a set of configurations for controlling the failover behaviour of the endpoint.
 //#
 //# + failoverCodes - Array of HTTP response status codes for which the failover mechanism triggers
-//# + interval - Failover delay interval in milliseconds
+//# + intervalInMillis - Failover delay interval in milliseconds
 //public type FailoverConfig record {
 //    int[] failoverCodes = [];
-//    int interval = 0;
+//    int intervalInMillis = 0;
 //    !...;
 //};
 //
@@ -35,11 +35,11 @@
 //#
 //# + failoverClientsArray - Array of HTTP Clients that needs to be Failover
 //# + failoverCodesIndex - An indexed array of HTTP response status codes for which the failover mechanism triggers
-//# + failoverInterval - Failover delay interval in milliseconds
+//# + failoverIntervalInMillis - Failover delay interval in milliseconds
 //public type FailoverInferredConfig record {
 //    CallerActions[] failoverClientsArray = [];
 //    boolean[] failoverCodesIndex = [];
-//    int failoverInterval = 0;
+//    int failoverIntervalInMillis = 0;
 //    !...;
 //};
 //
@@ -285,7 +285,7 @@
 //    int currentIndex = failoverActions.succeededEndpointIndex;
 //    int initialIndex = failoverActions.succeededEndpointIndex;
 //    int startIndex = -1;
-//    int failoverInterval = failoverInferredConfig.failoverInterval;
+//    int failoverIntervalInMillis = failoverInferredConfig.failoverIntervalInMillis;
 //
 //    CallerActions[] failoverClients = failoverInferredConfig.failoverClientsArray;
 //    CallerActions failoverClient = failoverClients[failoverActions.succeededEndpointIndex];
@@ -389,7 +389,7 @@
 //            }
 //        }
 //        failoverRequest = check createFailoverRequest(failoverRequest, requestEntity);
-//        runtime:sleep(failoverInterval);
+//        runtime:sleep(failoverIntervalInMillis);
 //        failoverClient = failoverClients[currentIndex];
 //    }
 //    return inResponse;

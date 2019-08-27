@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -167,7 +168,8 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
         blockNode.stmts.forEach(stmt -> this.acceptNode(stmt, blockEnv));
         if (!terminateVisitor && this.isCursorWithinBlock()) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
+                    = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
             this.populateSymbols(visibleSymbolEntries);
         }
     }
@@ -230,6 +232,23 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangSimpleVariable variable) {
+        if (variable.expr != null) {
+            this.blockPositionStack.push(variable.expr.pos);
+            acceptNode(variable.expr, symbolEnv);
+            this.blockPositionStack.pop();
+        }
+    }
+
+    public void visit(BLangTypeInit typeInit) {
+        if (!terminateVisitor && this.isCursorWithinBlock()) {
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
+                    = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
+            this.populateSymbols(visibleSymbolEntries);
+        }
+    }
+
     // Private Methods
     private void acceptNode(BLangNode node, SymbolEnv env) {
         if (this.terminateVisitor) {
@@ -243,6 +262,9 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     }
 
     private boolean isCursorWithinBlock() {
+        if (blockPositionStack.isEmpty()) {
+            return false;
+        }
         DiagnosticPos blockPosition = CommonUtil.toZeroBasedPosition(blockPositionStack.peek());
         int cursorLine = cursorPosition.getLine();
         int cursorColumn = cursorPosition.getCharacter();
@@ -266,11 +288,18 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
      * Populate the symbols.
      * @param symbolEntries symbol entries
      */
-    private void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries) {
+    private void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries) {
         this.terminateVisitor = true;
         List<SymbolInfo> visibleSymbols = new ArrayList<>();
 
-        symbolEntries.forEach((k, v) -> visibleSymbols.add(new SymbolInfo(k.getValue(), v)));
+        for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : symbolEntries.entrySet()) {
+            Name name = entry.getKey();
+            List<Scope.ScopeEntry> entryList = entry.getValue();
+            List<SymbolInfo> filteredSymbolInfos = entryList.stream()
+                    .map(scopeEntry -> new SymbolInfo(name.value, scopeEntry))
+                    .collect(Collectors.toList());
+            visibleSymbols.addAll(filteredSymbolInfos);
+        }
         lsContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 }

@@ -14,4 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Default error type.
+# The first type parameter discribe reason type which must be a subtype of string,
+# and the second type parameter is for the error detail.
+# The error detail record type may contain an optional message, optional cause,
+# and any other pure constrained mapping values.
 public type 'error error<string, record {| string message?; error cause?; (anydata|error)...; |}>;

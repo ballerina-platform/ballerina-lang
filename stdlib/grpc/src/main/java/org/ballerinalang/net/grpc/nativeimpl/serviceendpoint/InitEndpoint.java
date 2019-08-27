@@ -15,17 +15,19 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 
@@ -52,12 +54,13 @@ import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
         isPublic = true
 )
 public class InitEndpoint extends AbstractGrpcNativeFunction {
+    private static final Logger LOG = LoggerFactory.getLogger(InitEndpoint.class);
 
     public static Object initEndpoint(Strand strand, ObjectValue listenerObject) {
         MapValue serviceEndpointConfig = listenerObject.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);
         long port = listenerObject.getIntValue(ENDPOINT_CONFIG_PORT);
-        ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
         try {
+            ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
             ServicesRegistry.Builder servicesRegistryBuilder = new ServicesRegistry.Builder();
@@ -65,8 +68,8 @@ public class InitEndpoint extends AbstractGrpcNativeFunction {
             listenerObject.addNativeData(SERVICE_REGISTRY_BUILDER, servicesRegistryBuilder);
             return null;
         } catch (Exception e) {
-            // TODO: Add proper error object.
-            return BallerinaErrors.createError("{ballerina/grpc}INTERNAL_ERROR");
+            LOG.error("Error while initializing service listener.", e);
+            return MessageUtils.getConnectorError(e);
         }
     }
 

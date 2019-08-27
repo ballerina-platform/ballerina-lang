@@ -23,19 +23,19 @@ function process(io:ReadableCSVChannel csvChannel) returns error? {
 }
 
 //Specifies the location of the `.CSV` file.
-public function main() {
+public function main() returns error? {
     string srcFileName = "./files/sample.csv";
     // Opens a CSV channel in the `write` mode and writes some data to
-    // the ./files/sample.csv file for later use.
+    // the `./files/sample.csv` file for later use.
     // The record separator of the `.CSV` file is a
     // new line and the field separator is a comma (,).
-    io:WritableCSVChannel wCsvChannel = io:openWritableCsvFile(srcFileName);
+    io:WritableCSVChannel wCsvChannel = check io:openWritableCsvFile(srcFileName);
     string[][] data = [["1", "James", "10000"], ["2", "Nathan", "150000"],
     ["3", "Ronald", "120000"], ["4", "Roy", "6000"], ["5", "Oliver", "1100000"]];
     writeDataToCSVChannel(wCsvChannel, ...data);
     closeWritableCSVChannel(wCsvChannel);
     // Opens a CSV channel in the `read` mode, which is the default mode.
-    io:ReadableCSVChannel rCsvChannel = io:openReadableCsvFile(srcFileName);
+    io:ReadableCSVChannel rCsvChannel = check io:openReadableCsvFile(srcFileName);
     io:println("Start processing the CSV file from ", srcFileName);
     var processedResult = process(rCsvChannel);
     if (processedResult is error) {
@@ -46,7 +46,7 @@ public function main() {
     // Closes the CSV channel.
     closeReadableCSVChannel(rCsvChannel);
     // Opens a CSV channel in the `read` mode, which is the default mode.
-    io:ReadableCSVChannel rCsvChannel2 = io:openReadableCsvFile(srcFileName);
+    io:ReadableCSVChannel rCsvChannel2 = check io:openReadableCsvFile(srcFileName);
     // Reads the `.CSV` file as a `table`.
     io:println("Reading  " + srcFileName + " as a table");
     var tblResult = rCsvChannel2.getTable(Employee);
@@ -61,12 +61,12 @@ public function main() {
     closeReadableCSVChannel(rCsvChannel2);
     // Opens a CSV channel in the "write" mode and writes the `table` to a `.CSV` file.
     string targetFileName = "./files/output.csv";
-    io:WritableCSVChannel wCsvChannel2 = io:openWritableCsvFile(targetFileName);
+    io:WritableCSVChannel wCsvChannel2 = check io:openWritableCsvFile(targetFileName);
     io:println("Creating a table and adding data");
     table<Employee> employeeTable = createTableAndAddData();
     io:println("Writing the table to " + targetFileName);
     foreach var entry in employeeTable {
-        string[] rec = [entry.id, entry.name, string.convert(entry.salary)];
+        string[] rec = [entry.id, entry.name, entry.salary.toString()];
         writeDataToCSVChannel(wCsvChannel2, rec);
     }
     closeWritableCSVChannel(wCsvChannel2);

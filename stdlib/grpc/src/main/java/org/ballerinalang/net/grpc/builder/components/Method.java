@@ -21,7 +21,6 @@ import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getMappingBalType;
 
 /**
@@ -93,11 +92,9 @@ public class Method {
             MethodDescriptor.MethodType methodType = MessageUtils.getMethodType(methodDescriptor);
             String methodName = methodDescriptor.getName();
             String inputType = methodDescriptor.getInputType();
-            inputType = inputType != null ? getMappingBalType(inputType.substring(inputType.lastIndexOf
-                    (PACKAGE_SEPARATOR) + 1)) : null;
+            inputType = inputType != null ? getMappingBalType(inputType) : null;
             String outputType = methodDescriptor.getOutputType();
-            outputType = outputType != null ? getMappingBalType(outputType.substring(outputType.lastIndexOf
-                    (PACKAGE_SEPARATOR) + 1)) : null;
+            outputType = outputType != null ? getMappingBalType(outputType) : null;
             return new Method(methodName, methodId, inputType, outputType, methodType);
         }
     }

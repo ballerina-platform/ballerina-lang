@@ -16,13 +16,12 @@
 
 import ballerina/io;
 import ballerina/http;
-import ballerina/mime;
 
 listener http:Listener serviceEndpoint2 = new(9102);
 
 listener http:Listener serviceEndpoint3 = new(9103);
 
-http:ServiceEndpointConfiguration httpsEPConfig = {
+http:ListenerConfiguration httpsEPConfig = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

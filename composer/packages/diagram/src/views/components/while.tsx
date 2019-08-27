@@ -72,8 +72,7 @@ export const While: React.StatelessComponent<{
                     <line className="hide-line" x1={p1.x} y1={p1.y + 1} x2={r4.x} y2={r4.y - 1} strokeLinecap="round" />
                     <ArrowHead direction={"right"} className="condition-arrow-head" {...p4} />
                     <Condition {...conditionProps} astModel={model} />
-                    {/* FIXME remove cast to any on While node to get VisibleEndpoints */}
-                    {model.body && <Block model={model.body} visibleEndpoints={(model as any).VisibleEndpoints} />}
+                    {model.body && <Block model={model.body} />}
                 </g>
             </g>);
     };

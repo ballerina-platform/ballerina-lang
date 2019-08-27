@@ -360,6 +360,10 @@ public final class Status implements Serializable {
         return Code.OK == code;
     }
 
+    public String getReason() {
+        return GrpcConstants.STATUS_ERROR_MAP.get(code.value());
+    }
+
     /**
      * Convert this {@link Status} to a {@link RuntimeException}.
      *

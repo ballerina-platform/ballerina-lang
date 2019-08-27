@@ -18,9 +18,8 @@
 package org.ballerinalang.protobuf.cmd;
 
 import com.google.protobuf.DescriptorProtos;
-import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.ballerinalang.protobuf.BalGenerationConstants;
-import org.ballerinalang.protobuf.exception.BalGenToolException;
+import org.ballerinalang.protobuf.exception.CodeGeneratorException;
 import org.ballerinalang.protobuf.utils.ProtocCommandBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,8 +47,8 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.resolvePro
 public class DescriptorsGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(DescriptorsGenerator.class);
     
-    public static Set<byte[]> generateDependentDescriptor(String exePath, String rootProtoPath, String
-            rootDescriptorPath) {
+    static Set<byte[]> generateDependentDescriptor(String exePath, String rootProtoPath, String
+            rootDescriptorPath) throws CodeGeneratorException {
         Set<byte[]> dependentDescSet = new HashSet<>();
         File tempDir = new File(TMP_DIRECTORY_PATH);
         File initialFile = new File(rootDescriptorPath);
@@ -57,10 +58,20 @@ public class DescriptorsGenerator {
                 if (isWindows()) {
                     dependentFilePath = dependentFilePath.replaceAll("/", "\\\\");
                 }
+                Path protoFilePath = Paths.get(dependentFilePath).getFileName();
+                if (protoFilePath == null) {
+                    throw new CodeGeneratorException("Error occurred while reading proto descriptor. Dependent " +
+                            "filepath is not defined properly. Filepath: " + dependentFilePath);
+                }
+                String protoFilename = protoFilePath.toString();
+                String descFilename = protoFilename.endsWith(PROTO_SUFFIX) ? protoFilename.replace(PROTO_SUFFIX,
+                        DESC_SUFFIX) : null;
+                if (descFilename == null) {
+                    throw new CodeGeneratorException("Error occurred while reading proto descriptor. Dependent " +
+                            "filepath is not defined properly. Filepath: " + dependentFilePath);
+                }
                 // desc file path: desc_gen/dependencies + <filename>.desc
-                String relativeDescFilepath = BalGenerationConstants.META_DEPENDENCY_LOCATION + dependentFilePath
-                        .substring(dependentFilePath.lastIndexOf(BalGenerationConstants.FILE_SEPARATOR),
-                                dependentFilePath.length()).replace(PROTO_SUFFIX, DESC_SUFFIX);
+                String relativeDescFilepath = BalGenerationConstants.META_DEPENDENCY_LOCATION + descFilename;
 
                 File dependentDescFile = new File(tempDir, relativeDescFilepath);
                 boolean isDirectoryCreated = dependentDescFile.getParentFile().mkdirs();
@@ -71,8 +82,8 @@ public class DescriptorsGenerator {
                 String protoPath;
                 String protoFolderPath;
                 if (!dependentFilePath.contains(GOOGLE_STANDARD_LIB)) {
-                    protoPath = new File(resolveProtoFolderPath(rootProtoPath), dependentFilePath).getAbsolutePath();
                     protoFolderPath = resolveProtoFolderPath(rootProtoPath);
+                    protoPath = new File(protoFolderPath, dependentFilePath).getAbsolutePath();
                 } else {
                     protoPath = new File(tempDir, dependentFilePath).getAbsolutePath();
                     protoFolderPath = tempDir.getAbsolutePath();
@@ -92,16 +103,16 @@ public class DescriptorsGenerator {
                     }
                     byte[] dependentDesc = childDescSet.getFile(0).toByteArray();
                     if (dependentDesc.length == 0) {
-                        throw new BalGenerationException("Error occurred at generating dependent proto " +
+                        throw new CodeGeneratorException("Error occurred at generating dependent proto " +
                                 "descriptor for dependent proto '" + relativeDescFilepath + "'.");
                     }
                     dependentDescSet.add(dependentDesc);
                 } catch (IOException e) {
-                    throw new BalGenToolException("Error extracting dependent bal.", e);
+                    throw new CodeGeneratorException("Error extracting dependent bal.", e);
                 }
             }
         } catch (IOException e) {
-            throw new BalGenToolException("Error parsing descriptor file " + initialFile, e);
+            throw new CodeGeneratorException("Error parsing descriptor file " + initialFile, e);
         }
         return dependentDescSet;
     }
@@ -114,7 +125,8 @@ public class DescriptorsGenerator {
      * @param descriptorPath file descriptor path.
      * @return byte array of generated proto file.
      */
-    public static byte[] generateRootDescriptor(String exePath, String protoPath, String descriptorPath) {
+    static byte[] generateRootDescriptor(String exePath, String protoPath, String descriptorPath)
+            throws CodeGeneratorException {
         String command = new ProtocCommandBuilder
                 (exePath, protoPath, resolveProtoFolderPath(protoPath), descriptorPath).build();
         generateDescriptor(command);
@@ -125,7 +137,7 @@ public class DescriptorsGenerator {
                 return set.getFile(0).toByteArray();
             }
         } catch (IOException e) {
-            throw new BalGenToolException("Error reading generated descriptor file '" + descriptorPath + "'.", e);
+            throw new CodeGeneratorException("Error reading generated descriptor file '" + descriptorPath + "'.", e);
         }
         return new byte[0];
     }

@@ -16,7 +16,6 @@
 
 import ballerina/auth;
 import ballerina/crypto;
-import ballerina/runtime;
 
 # Represents Ballerina configuration for LDAP based auth provider.
 #
@@ -38,7 +37,12 @@ public type InboundLdapAuthProvider object {
     public function __init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
         self.instanceId = instanceId;
         self.ldapConnectionConfig = ldapConnectionConfig;
-        self.ldapConnection = initLdapConnectionContext(self.ldapConnectionConfig, instanceId);
+        var ldapConnection = initLdapConnectionContext(self.ldapConnectionConfig, instanceId);
+        if (ldapConnection is LdapConnection) {
+            self.ldapConnection = ldapConnection;
+        } else {
+            panic ldapConnection;
+        }
     }
 
     # Authenticate with username and password.
@@ -51,28 +55,24 @@ public type InboundLdapAuthProvider object {
         }
         string username;
         string password;
+        string[] scopes;
         [username, password] = check auth:extractUsernameAndPassword(credential);
         var authenticated = doAuthenticate(self.ldapConnection, username, password);
+        var groups = getGroups(self.ldapConnection, username);
+        if (groups is string[]) {
+            scopes = groups;
+        } else {
+            return auth:prepareError("Failed to get groups from LDAP with the username: " + username, groups);
+        }
         if (authenticated is boolean) {
             if (authenticated) {
-                runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-                if (principal is runtime:Principal) {
-                    principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
-                    // By default set userId as username.
-                    principal.username = username;
-                    var groups = getGroups(self.ldapConnection, username);
-                    if (groups is string[]) {
-                        principal.scopes = groups;
-                    } else {
-                        return auth:prepareError("Failed to get groups from LDAP with the username: " + username,
-                                                 groups);
-                    }
-                }
+                auth:setAuthenticationContext("ldap", credential);
+                string userId = self.ldapConnectionConfig.domainName + ":" + username;
+                auth:setPrincipal(userId, username, scopes);
             }
             return authenticated;
         } else {
-            return auth:prepareError("Failed to authenticate LDAP with username: " + username + " and password: "
-                                     + password, authenticated);
+            return auth:prepareError("Failed to authenticate LDAP with username: " + username + " and password: " + password, authenticated);
         }
     }
 };
@@ -96,10 +96,10 @@ public type InboundLdapAuthProvider object {
 # + membershipAttribute - Define the attribute that contains the distinguished names (DN) of user objects that are in a group
 # + userRolesCacheEnabled -  To indicate whether to cache the role list of a user
 # + connectionPoolingEnabled - Define whether LDAP connection pooling is enabled
-# + ldapConnectionTimeout - Timeout in making the initial LDAP connection
-# + readTimeout - The value of this property is the read timeout in milliseconds for LDAP operations
+# + connectionTimeoutInMillis - Timeout in making the initial LDAP connection in milliseconds
+# + readTimeoutInMillis - The value of this property is the read timeout in milliseconds for LDAP operations
 # + retryAttempts - Retry the authentication request if a timeout happened
-# + secureClientSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
+# + secureSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
 #                  communicate through ldaps.
 public type LdapConnectionConfig record {|
     string domainName;
@@ -119,19 +119,19 @@ public type LdapConnectionConfig record {|
     string membershipAttribute;
     boolean userRolesCacheEnabled = false;
     boolean connectionPoolingEnabled = true;
-    int ldapConnectionTimeout = 5000;
-    int readTimeout = 60000;
+    int connectionTimeoutInMillis = 5000;
+    int readTimeoutInMillis = 60000;
     int retryAttempts = 0;
-    SecureClientSocket? secureClientSocket = ();
+    SecureSocket secureSocket?;
 |};
 
 # Configures the SSL/TLS options to be used for LDAP communication.
 #
 # + trustStore - Configures the trust store to be used
 # + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
-public type SecureClientSocket record {|
-    crypto:TrustStore? trustStore = ();
-    string trustedCertFile = "";
+public type SecureSocket record {|
+    crypto:TrustStore trustStore?;
+    string trustedCertFile?;
 |};
 
 public type LdapConnection record {|
@@ -157,6 +157,6 @@ public function doAuthenticate(LdapConnection ldapConnection, string username, s
 #
 # + ldapConnectionConfig - `LdapConnectionConfig` instance
 # + instanceId - Unique id generated to identify an endpoint
-# + return - `LdapConnection` instance
+# + return - `LdapConnection` instance, or `Error` if error occurred
 public function initLdapConnectionContext(LdapConnectionConfig ldapConnectionConfig, string instanceId)
-                                          returns LdapConnection = external;
+                                          returns LdapConnection|Error = external;

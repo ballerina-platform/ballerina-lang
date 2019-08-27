@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/internal;
 
 function remove () returns (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
@@ -22,42 +21,6 @@ function testGetKeys () returns (string[]) {
     map<json> jm = <map<json>> j;
     return jm.keys();
 }
-
-//function testToXML (json msg) returns (xml | error?) {
-//    return msg.toXML({});
-//}
-//
-//function testToXMLStringValue () returns (xml | error?) {
-//    json j = "value";
-//    return j.toXML({});
-//}
-//
-//function testToXMLBooleanValue () returns (xml | error?) {
-//    json j = true;
-//    return j.toXML({});
-//}
-//
-//function testToXMLString (json msg) returns (string) {
-//    var x = msg.toXML({});
-//    string retVal = "";
-//    if (x is xml) {
-//        retVal = io:sprintf("%s", x);
-//    }
-//    return retVal;
-//}
-//
-//function testToXMLWithXMLSequence (json msg) returns (string) {
-//    var x = msg.toXML({});
-//    string retVal = "";
-//    if (x is xml) {
-//        retVal = io:sprintf("%s", x);
-//    }
-//    return retVal;
-//}
-//
-//function testToXMLWithOptions (json msg) returns (xml | error?) {
-//    return msg.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
-//}
 
 function testStringToJSONConversion() returns @tainted (json | error) {
     string s = "{\"foo\": \"bar\"}";

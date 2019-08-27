@@ -41,27 +41,28 @@ public class Compiler {
 
     private static final CompilerContext.Key<Compiler> COMPILER_KEY =
             new CompilerContext.Key<>();
-    private static PrintStream outStream = System.out;
 
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
-    private final LockFileWriter lockFileWriter;
     private final DependencyTree dependencyTree;
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
     private final Manifest manifest;
+    private boolean langLibsLoaded;
+    private PrintStream outStream;
 
     private Compiler(CompilerContext context) {
         context.put(COMPILER_KEY, this);
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
-        this.lockFileWriter = LockFileWriter.getInstance(context);
         this.dependencyTree = DependencyTree.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
+        this.outStream = System.out;
+        this.langLibsLoaded = false;
     }
 
     public static Compiler getInstance(CompilerContext context) {
@@ -70,6 +71,10 @@ public class Compiler {
             compiler = new Compiler(context);
         }
         return compiler;
+    }
+    
+    public void setOutStream(PrintStream outStream) {
+        this.outStream = outStream;
     }
 
     public BLangPackage compile(String sourcePackage) {
@@ -85,18 +90,14 @@ public class Compiler {
             throw ProjectDirs.getPackageNotFoundError(sourcePackage);
         }
 
-        return compilePackage(packageID, isBuild);
-    }
-
-    public List<BLangPackage> build() {
-        return compilePackages(true);
+        return compilePackage(packageID);
     }
 
     public BLangPackage build(String sourcePackage) {
         if (!this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)) {
             throw new BLangCompilerException("no ballerina source files found in module '" + sourcePackage + "'");
         }
-        outStream.println("Compiling source");
+        this.outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage, true);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
@@ -106,17 +107,13 @@ public class Compiler {
 
     public void write(List<BLangPackage> packageList) {
         if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
-            outStream.println("Generating executables");
+            this.outStream.println("Generating executables");
         }
         packageList.forEach(this.binaryFileWriter::write);
-        packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
-        this.lockFileWriter.writeLockFile(this.manifest);
     }
 
     public void write(BLangPackage bLangPackage, String targetFileName) {
         this.binaryFileWriter.write(bLangPackage, targetFileName);
-        this.lockFileWriter.addEntryPkg(bLangPackage.symbol);
-        this.lockFileWriter.writeLockFile(this.manifest);
     }
 
     public void list() {
@@ -144,10 +141,9 @@ public class Compiler {
         if (pkgList.size() == 0) {
             return new ArrayList<>();
         }
-        if (isBuild) {
-            outStream.println("Compiling source");
-        }
-        List<BLangPackage> compiledPackages = compilePackages(pkgList, isBuild);
+        
+        this.outStream.println("Compiling source");
+        List<BLangPackage> compiledPackages = compilePackages(pkgList);
         // If it is a build and dlog is not empty, compilation should fail
         if (isBuild && this.dlog.errorCount > 0) {
             throw new BLangCompilerException("compilation contains errors");
@@ -156,15 +152,17 @@ public class Compiler {
     }
     // private methods
 
-    private List<BLangPackage> compilePackages(List<PackageID> pkgIdList, boolean isBuild) {
-
-        this.compilerDriver.loadLangModules(pkgIdList);
+    private List<BLangPackage> compilePackages(List<PackageID> pkgIdList) {
+        if (!this.langLibsLoaded) {
+            this.compilerDriver.loadLangModules(pkgIdList);
+            this.langLibsLoaded = true;
+        }
         this.compilerDriver.loadUtilsPackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         List<BLangPackage> packages = pkgIdList.stream()
-                .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, isBuild))
+                .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, this.outStream))
                 .filter(Objects::nonNull) // skip the packages that were not loaded properly
                 .collect(Collectors.toList());
 
@@ -176,9 +174,8 @@ public class Compiler {
         return packages;
     }
 
-    private BLangPackage compilePackage(PackageID packageID, boolean isBuild) {
-
-        List<BLangPackage> compiledPackages = compilePackages(Lists.of(packageID), isBuild);
+    private BLangPackage compilePackage(PackageID packageID) {
+        List<BLangPackage> compiledPackages = compilePackages(Lists.of(packageID));
         // TODO: this should check for dlog.errorCount > 0. But currently some errors are
         // not getting added to dlog, hence cannot check for error count. Issue #10454.
         if (compiledPackages.isEmpty()) {

@@ -1,0 +1,8 @@
+// In idiomatic Ballerina code, errors should be communicated via explicit return values in functions.
+// Java error handling is different from Ballerina. Java constructors and methods throw both
+// checked and unchecked exceptions. In Java interoperability design, if a Java method throws an
+// unchecked exception then the corresponding Ballerina function invocation panics.
+// A panic indicates abnormal completions and usually implies that something unexpected has occurred.
+// If a Java method throws a checked exception, then the corresponding Ballerina function
+// should have the `error` type in its return signature.
+// Let's look at how to handle Java exceptions in Ballerina.

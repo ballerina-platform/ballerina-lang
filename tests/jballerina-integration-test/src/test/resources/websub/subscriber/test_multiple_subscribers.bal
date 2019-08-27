@@ -15,11 +15,12 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/mime;
-import ballerina/http;
 import ballerina/websub;
 
 listener websub:Listener websubEP = new websub:Listener(23383);
+
+// Following listner has no services attached with and it should not fail the listener start
+listener websub:Listener websubEndPointWithNoAttachedServices = new websub:Listener(23384);
 
 @websub:SubscriberServiceConfig {
     path:"/websub",

@@ -90,14 +90,7 @@ export default class DocPreview extends React.Component {
             parameters[param.name.value] = {
                 name: param.name.value,
                 type: ASTUtil.genSource(param.typeNode),
-            };
-        });
-
-        node.defaultableParameters.forEach(param => {
-            parameters[param.variable.name.value] = {
-                name: param.variable.name.value,
-                type: ASTUtil.genSource(param.variable.typeNode),
-                defaultValue: param.variable.initialExpression.value,
+                defaultValue: param.initialExpression ? param.initialExpression.value : undefined,
             };
         });
 

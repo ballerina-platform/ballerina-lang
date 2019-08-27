@@ -1,101 +1,44 @@
-import ballerina/java;
+import ballerinax/java;
 
-@java:Constructor {class:"java.lang.Boolean", paramTypes:["boolean"]}
-public function createBoxedBooleanFromBBoolean(boolean value) returns handle = external;
-
+// Test a function that accepts a Ballerina boolean for a Java boolean
 public function testCreateBoxedBooleanFromBBoolean(boolean value) returns handle {
     return createBoxedBooleanFromBBoolean(value);
 }
 
-@java:Constructor {class:"java.lang.Byte", paramTypes:["byte"]}
-public function createBoxedByteFromBInt(int value) returns handle = external;
+public function createBoxedBooleanFromBBoolean(boolean value) returns handle = @java:Constructor {
+    class:"java.lang.Boolean",
+    paramTypes:["boolean"]
+} external;
 
-@java:Constructor {class:"java.lang.Byte", paramTypes:["java.lang.String"]}
-public function createBoxedByteFromJString(handle stringValue) returns handle = external;
 
-public function testCreateBoxedByteFromBInt(int value)  returns handle {
-    return createBoxedByteFromBInt(value);
+// Test a function that accepts a Ballerina byte for a Java byte
+public function testCreateBoxedByteFromBByte(byte value) returns handle {
+    return createBoxedByteFromBByte(value);
 }
 
-public function testCreateBoxedByteFromJString(handle stringValue)  returns handle {
-    return createBoxedByteFromJString(stringValue);
-}
+public function createBoxedByteFromBByte(byte value) returns handle = @java:Constructor {
+    class:"java.lang.Byte",
+    paramTypes:["byte"]
+} external;
 
-@java:Constructor {class:"java.lang.Short", paramTypes:["short"]}
-public function createBoxedShortFromBInt(int value) returns handle = external;
 
-public function testCreateBoxedShortFromBInt(int value) returns handle {
-    return createBoxedShortFromBInt(value);
-}
-
-@java:Constructor {class:"java.lang.Character", paramTypes:["char"]}
-public function createBoxedCharacterFromBInt(int value) returns handle = external;
-
-public function testCreateBoxedCharacterFromBInt(int value) returns handle {
-    return createBoxedCharacterFromBInt(value);
-}
-
-@java:Constructor {class:"java.lang.Integer", paramTypes:["int"]}
-public function createBoxedIntegerFromBInt(int value) returns handle = external;
-
-public function testCreateBoxedIntegerFromBInt(int value) returns handle {
-    return createBoxedIntegerFromBInt(value);
-}
-
-@java:Constructor {class:"java.lang.Long", paramTypes:["long"]}
-public function createBoxedLongFromBInt(int value) returns handle = external;
-
+// Test a function that accepts a Ballerina int for a Java long
 public function testCreateBoxedLongFromBInt(int value) returns handle {
     return createBoxedLongFromBInt(value);
 }
 
-// From java double from
+public function createBoxedLongFromBInt(int value) returns handle = @java:Constructor {
+    class:"java.lang.Long",
+    paramTypes:["long"]
+} external;
 
-@java:Constructor {class:"java.lang.Byte", paramTypes:["byte"]}
-public function createBoxedByteFromBFloat(float value) returns handle = external;
 
-public function testCreateBoxedByteFromBFloat(float value)  returns handle {
-    return createBoxedByteFromBFloat(value);
-}
-
-@java:Constructor {class:"java.lang.Short", paramTypes:["short"]}
-public function createBoxedShortFromBFloat(float value) returns handle = external;
-
-public function testCreateBoxedShortFromBFloat(float value) returns handle {
-    return createBoxedShortFromBFloat(value);
-}
-
-@java:Constructor {class:"java.lang.Character", paramTypes:["char"]}
-public function createBoxedCharacterFromBFloat(float value) returns handle = external;
-
-public function testCreateBoxedCharacterFromBFloat(float value) returns handle {
-    return createBoxedCharacterFromBFloat(value);
-}
-
-@java:Constructor {class:"java.lang.Integer", paramTypes:["int"]}
-public function createBoxedIntegerFromBFloat(float value) returns handle = external;
-
-public function testCreateBoxedIntegerFromBFloat(float value) returns handle {
-    return createBoxedIntegerFromBFloat(value);
-}
-
-@java:Constructor {class:"java.lang.Long", paramTypes:["long"]}
-public function createBoxedLongFromBFloat(float value) returns handle = external;
-
-public function testCreateBoxedLongFromBFloat(float value) returns handle {
-    return createBoxedLongFromBFloat(value);
-}
-
-@java:Constructor {class:"java.lang.Float", paramTypes:["float"]}
-public function createBoxedFloatFromBFloat(float value) returns handle = external;
-
-public function testCreateBoxedFloatFromBFloat(float value) returns handle {
-    return createBoxedFloatFromBFloat(value);
-}
-
-@java:Constructor {class:"java.lang.Double", paramTypes:["double"]}
-public function createBoxedDoubleFromBFloat(float value) returns handle = external;
-
+// Test a function that accepts a Ballerina float for a Java double
 public function testCreateBoxedDoubleFromBFloat(float value) returns handle {
     return createBoxedDoubleFromBFloat(value);
 }
+
+public function createBoxedDoubleFromBFloat(float value) returns handle = @java:Constructor {
+    class:"java.lang.Double",
+    paramTypes:["double"]
+} external;

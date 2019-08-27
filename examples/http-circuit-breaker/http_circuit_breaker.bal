@@ -6,7 +6,7 @@ import ballerina/runtime;
 // The circuit breaker looks for errors across a rolling time window.
 // After the circuit is broken, it does not send requests to
 // the backend until the `resetTime`.
-http:Client backendClientEP = new("http://localhost:8080", config = {
+http:Client backendClientEP = new("http://localhost:8080", {
         // Circuit breaker configuration options that control the
         // behavior of the Ballerina circuit breaker.
         circuitBreaker: {
@@ -16,20 +16,20 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
 
                 // Time period in milliseconds for which the failure threshold
                 // is calculated.
-                timeWindowMillis: 10000,
+                timeWindowInMillis: 10000,
 
                 // The granularity at which the time window slides.
                 // This is measured in milliseconds.
                 // The `RollingWindow` is divided into buckets
                 //  and slides by these increments.
-                // For example, if this `timeWindowMillis` is set to
-                // 10000 milliseconds and `bucketSizeMillis` 2000.
+                // For example, if this `timeWindowInMillis` is set to
+                // 10000 milliseconds and `bucketSizeInMillis` 2000.
                 // Then `RollingWindow` breaks into sub windows with
                 // 2-second buckets and stats are collected with
                 // respect to the buckets. As time rolls a new bucket
                 // will be appended to the end of the window and the
                 // old bucket will be removed.
-                bucketSizeMillis: 2000,
+                bucketSizeInMillis: 2000,
 
                 // Minimum number of requests in a `RollingWindow`
                 // that will trip the circuit.
@@ -47,15 +47,15 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             // attempting to make another request to the upstream service.
             // When the failure threshold exceeds, the circuit trips to
             // `OPEN` state. Once the circuit is in `OPEN` state
-            // circuit breaker waits for the time configured in `resetTimeMillis`
+            // circuit breaker waits for the time configured in `resetTimeInMillis`
             // and switch the circuit to the `HALF_OPEN` state.
-            resetTimeMillis: 10000,
+            resetTimeInMillis: 10000,
 
             // HTTP response status codes that are considered as failures
             statusCodes: [400, 404, 500]
 
         },
-        timeoutMillis: 2000
+        timeoutInMillis: 2000
     });
 
 // Create an HTTP service bound to the endpoint (circuitBreakerEP).
@@ -89,8 +89,8 @@ service circuitbreaker on new http:Listener(9090) {
             }
         } else {
             http:Response response = new;
-            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            response.setPayload(<string> backendResponse.detail().message);
+            response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
+            response.setPayload(<string> backendResponse.detail()?.message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response",

@@ -515,48 +515,6 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-jms -->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jms</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jms</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jms</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
-            <!--ballerina-activemq-artemis-->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-activemq-artemis</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-activemq-artemis</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-activemq-artemis</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
             <!-- ballerina-rabbitmq -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1528,22 +1486,6 @@
                 <type>zip</type>
             </dependency>
 
-            <!-- Siddhi Stream Dependencies -->
-            <dependency>
-                <groupId>org.wso2.orbit.com.lmax</groupId>
-                <artifactId>disruptor</artifactId>
-                <version>${disruptor.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-core</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
             <!-- Compile time dependencies -->
             <dependency>
                 <groupId>org.mvel</groupId>
@@ -1552,26 +1494,6 @@
                 <version>${mvel2.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>siddhi-core</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>siddhi-query-api</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>siddhi-query-compiler</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>siddhi-annotations</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
             <dependency>
                 <groupId>io.ballerina.messaging</groupId>
                 <artifactId>broker-common</artifactId>
@@ -1650,12 +1572,7 @@
                 <artifactId>HdrHistogram</artifactId>
                 <version>${hdrhistogram.version}</version>
             </dependency>
-            <!-- JMS connector dependencies -->
-            <dependency>
-                <groupId>javax.jms</groupId>
-                <artifactId>javax.jms-api</artifactId>
-                <version>${javax.jms.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>org.bytedeco.javacpp-presets</groupId>
                 <artifactId>llvm-platform</artifactId>
@@ -1713,23 +1630,6 @@
                 <version>${rabbitmq.version}</version>
             </dependency>
 
-            <!--Artemis dependencies -->
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>artemis-core-client</artifactId>
-                <version>${artemis.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>artemis-commons</artifactId>
-                <version>${artemis.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>artemis-server</artifactId>
-                <version>${artemis.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
@@ -1879,11 +1779,9 @@
                 <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/xslt</module>
-                <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
-                <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
                 <module>stdlib/ldap</module>
@@ -1894,7 +1792,7 @@
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-runtime</module>
-                <module>bvm/ballerina-streaming</module>
+
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -1979,11 +1877,9 @@
                 <module>stdlib/utils</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/xslt</module>
-                <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
-                <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
                 <module>stdlib/ldap</module>
@@ -1994,7 +1890,7 @@
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-runtime</module>
-                <module>bvm/ballerina-streaming</module>
+
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -2073,11 +1969,9 @@
                 <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/xslt</module>
-                <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
-                <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
                 <module>stdlib/ldap</module>
@@ -2088,7 +1982,6 @@
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-runtime</module>
-                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -2174,14 +2067,12 @@
                 <module>stdlib/grpc</module>
                 <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
-                <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
-                <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
 
@@ -2190,7 +2081,6 @@
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-runtime</module>
-                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -2572,7 +2462,7 @@
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
-        <transport.http.version>6.0.298</transport.http.version>
+        <transport.http.version>6.1.9</transport.http.version>
         <carbon.securevault.version>5.0.12</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
@@ -2663,9 +2553,6 @@
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
 
         <mvel2.version>2.4.4.Final</mvel2.version>
-        <disruptor.version>3.3.2.wso2v2</disruptor.version>
-        <guava.version>23.0</guava.version>
-        <metrics.version>3.1.0</metrics.version>
 
         <!-- Observability -->
         <open.tracing.version>0.31.0</open.tracing.version>
@@ -2675,13 +2562,8 @@
         <okio.version>2.2.2</okio.version>
         <hdrhistogram.version>2.1.11</hdrhistogram.version>
 
-        <!-- JMS Connector -->
-        <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
         <wso2.securevault.version>1.1.2</wso2.securevault.version>
-
-        <!-- Artemis connector -->
-        <artemis.version>2.7.0</artemis.version>
         <beanutils.version>1.9.3</beanutils.version>
         <jboss.version>3.3.2.Final</jboss.version>
         <commons-collections.version>3.2.2</commons-collections.version>

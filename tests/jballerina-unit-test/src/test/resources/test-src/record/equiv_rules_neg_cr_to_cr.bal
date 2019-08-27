@@ -37,3 +37,21 @@ function testMissingRequiredField2() {
     Person2 p = {name:"John"};
     AnotherPerson ap = p;
 }
+
+type AnotherPerson3 record {|
+    string name;
+    float weight?;
+|};
+
+// Tests assignment when the LHS type has optional fields which don't correspond to any fields in the RHS type.
+function testClosedToClosedAssignment1() returns AnotherPerson3 {
+    Person1 p = {name:"John Doe"};
+    AnotherPerson3 ap = p;
+    return ap;
+}
+
+function testClosedToClosedAssignment2() {
+    Person1 p = {name:"John Doe"};
+    AnotherPerson3 ap = p;
+    ap.weight = 60.5;
+}

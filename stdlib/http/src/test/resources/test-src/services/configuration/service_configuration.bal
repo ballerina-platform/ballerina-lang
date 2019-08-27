@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/config;
 
-listener http:MockListener backendEP = new(config:getAsInt("backendEP.port"));
+listener http:MockListener backendEP = new(config:getAsInt("\"backendEP.port\""));
 
 @http:ServiceConfig {
     basePath: config:getAsString("hello.basePath")

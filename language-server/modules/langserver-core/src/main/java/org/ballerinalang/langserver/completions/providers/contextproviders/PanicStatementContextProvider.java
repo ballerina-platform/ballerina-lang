@@ -26,6 +26,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,8 +41,8 @@ public class PanicStatementContextProvider extends LSCompletionProvider {
 
     @Override
     public List<CompletionItem> getCompletions(LSContext context) {
-        List<SymbolInfo> symbolInfoList = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
-        List<SymbolInfo> filteredList = symbolInfoList.stream()
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<SymbolInfo> filteredList = visibleSymbols.stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type instanceof BErrorType)
                 .collect(Collectors.toList());
 

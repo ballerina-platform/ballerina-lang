@@ -263,7 +263,7 @@ public class ArgumentParserNegativeTest {
         try {
             CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                     + "test_main_with_defaultable_param.bal");
-            BCompileUtil.runMain(compileResult, new String[]{"1", "true", "hi", "not"});
+            BCompileUtil.runMain(compileResult, new String[]{"1", "true", "hi", "not", "yes"});
         } catch (Throwable e) {
             Assert.assertTrue(e.getMessage().contains("ballerina: too many arguments to call the 'main' function"),
                               "invalid error message, error message for too many args with defaultable params not "
@@ -423,6 +423,18 @@ public class ArgumentParserNegativeTest {
             return;
         }
         Assert.fail("invalid record map value not identified");
+    }
+
+    @Test
+    public void testInvalidMixedArgs() {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                                                                       "test_main_with_defaultable_param.bal");
+            BCompileUtil.runMain(compileResult, new String[] { "-i=2", "false", "-s=hi", "is" });
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: positional argument not allowed after "
+                                                              + "named arguments when calling the 'main' function"));
+        }
     }
 
     @DataProvider(name = "intValues")

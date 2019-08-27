@@ -1,6 +1,6 @@
 import {
     Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
-    If, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
+    Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
 } from "@ballerina/ast-model";
 import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
 import { BlockViewState } from "../view-model/block";
@@ -10,14 +10,12 @@ import { WorkerSendViewState } from "../view-model/worker-send";
 
 let visibleEPsInCurrentFunc: VisibleEndpoint[] = [];
 let envEndpoints: VisibleEndpoint[] = [];
+let currentWorker: VariableDef | undefined;
 
 function initStatement(node: ASTNode) {
     if (!node.viewState) {
         node.viewState = new StmntViewState();
     }
-    // undo previous expandings
-    // the same statement may be expanded inside some functions but not in others
-    // (node.viewState as StmntViewState).expandContext = undefined;
 }
 
 export const visitor: Visitor = {
@@ -36,9 +34,8 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
-        const parentNode = (parent as (If | BalFunction));
-        if (parentNode.VisibleEndpoints) {
-            envEndpoints = [...envEndpoints, ...parentNode.VisibleEndpoints];
+        if (node.VisibleEndpoints) {
+            envEndpoints = [...envEndpoints, ...node.VisibleEndpoints];
         }
     },
 
@@ -46,22 +43,21 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
-        const parentNode = (parent as (If | BalFunction));
-        if (parentNode.VisibleEndpoints) {
-            const parentsVisibleEndpoints = parentNode.VisibleEndpoints;
+        if (node.VisibleEndpoints) {
+            const parentsVisibleEndpoints = node.VisibleEndpoints;
             envEndpoints = envEndpoints.filter((ep) => (!parentsVisibleEndpoints.includes(ep)));
         }
     },
 
     beginVisitFunction(node: BalFunction) {
-        if (node.VisibleEndpoints) {
-            visibleEPsInCurrentFunc = [...node.VisibleEndpoints, ...visibleEPsInCurrentFunc];
-        }
         if (!node.viewState) {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
         }
         if (node.body) {
+            if (node.body.VisibleEndpoints) {
+                visibleEPsInCurrentFunc = [...node.body.VisibleEndpoints, ...visibleEPsInCurrentFunc];
+            }
             node.body.statements.forEach((statement, index) => {
                 // Hide All worker nodes.
                 if (ASTUtil.isWorker(statement)) {
@@ -78,6 +74,14 @@ export const visitor: Visitor = {
                     }
                 }
             });
+            // fix go to source position of caller EP
+            if (node.resource && node.body.VisibleEndpoints) {
+                const callerEP = node.body.VisibleEndpoints.find((vEP) => vEP.caller);
+                if (callerEP) {
+                    // update position to match caller definition (which is the first param)
+                    callerEP.position = node.parameters[0].position;
+                }
+            }
         }
     },
 
@@ -111,8 +115,20 @@ export const visitor: Visitor = {
         }
     },
 
+    beginVisitVariableDef(node: VariableDef) {
+        if (ASTUtil.isWorker(node)) {
+            if (!node.viewState) {
+                node.viewState = new WorkerViewState();
+            }
+            currentWorker = node;
+        }
+    },
+
     endVisitVariableDef(node: VariableDef) {
         initStatement(node);
+        if (ASTUtil.isWorker(node)) {
+            currentWorker = undefined;
+        }
     },
 
     endVisitAssignment(node: Assignment) {
@@ -130,6 +146,11 @@ export const visitor: Visitor = {
     beginVisitReturn(node: Return) {
         if (!node.viewState) {
             node.viewState = new ReturnViewState();
+        }
+        if (currentWorker) {
+            const viewState = (node.viewState as ReturnViewState);
+            viewState.containingWokerViewState = currentWorker.viewState;
+            (currentWorker.viewState as WorkerViewState).returnStatements.push(node);
         }
     },
 

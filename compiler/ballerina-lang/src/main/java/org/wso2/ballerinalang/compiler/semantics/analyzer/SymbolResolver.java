@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -150,24 +151,21 @@ public class SymbolResolver extends BLangNodeVisitor {
             return true;
         }
 
-        BSymbol memSym = lookupMemberSymbol(pos, env.scope, env, symbol.name, expSymTag);
-        if (symbol.getKind() == SymbolKind.XMLNS) {
-            if (memSym.getKind() == SymbolKind.XMLNS) {
-                dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
-                return false;
-            }
-            if (memSym == symTable.notFoundSymbol) {
-                return true;
-            }
-        }
-
         if ((foundSym.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             // In order to remove duplicate errors.
             return false;
         }
 
-        //if a symbol is found, then check whether it is unique
-        return isUniqueSymbol(pos, symbol, foundSym);
+        // if a symbol is found, then check whether it is unique
+        return isDistinctSymbol(pos, symbol, foundSym);
+    }
+
+    public boolean checkForUniqueSymbol(SymbolEnv env, BSymbol symbol, int expSymTag) {
+        BSymbol foundSym = lookupSymbol(env, symbol.name, expSymTag);
+        if (foundSym == symTable.notFoundSymbol) {
+            return true;
+        }
+        return isDistinctSymbol(symbol, foundSym);
     }
 
     /**
@@ -191,7 +189,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         //if a symbol is found, then check whether it is unique
-        return isUniqueSymbol(pos, symbol, foundSym);
+        return isDistinctSymbol(pos, symbol, foundSym);
     }
 
     /**
@@ -203,32 +201,73 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
-    private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
+    private boolean isDistinctSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
         if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
-            return true;
-        }
-
-        //check for symbols defined at root package level.
-        if (symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
-                (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
-            dlog.error(pos, DiagnosticCode.REDECLARED_BUILTIN_SYMBOL, symbol.name);
             return false;
         }
-        //check whether the given symbol owner is same as found symbol's owner
-        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE || foundSym.owner == symbol.owner) {
-            //found symbol is a type symbol.
+
+        // Type names should be unique and cannot be shadowed
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
 
-        if (Symbols.isFlagOn(Flags.LAMBDA, symbol.flags) &&
-                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
+        if (isSymbolDefinedInRootPkgLvl(foundSym)) {
+            dlog.error(pos, DiagnosticCode.REDECLARED_BUILTIN_SYMBOL, symbol.name);
+            return false;
+        }
+
+        if (hasSameOwner(symbol, foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * This method will check whether the symbol being defined is unique comparing it with the found symbol
+     * from the scope.
+     *
+     * @param symbol   symbol that is being defined.
+     * @param foundSym symbol that is found from the scope.
+     * @return true if the symbol is unique, false otherwise.
+     */
+    private boolean isDistinctSymbol(BSymbol symbol, BSymbol foundSym) {
+        // It is allowed to have a error constructor symbol with the same name as a type def.
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
+            return false;
+        }
+
+        // Type names should be unique and cannot be shadowed
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
+            return false;
+        }
+
+        if (isSymbolDefinedInRootPkgLvl(foundSym)) {
+            return false;
+        }
+
+        return !hasSameOwner(symbol, foundSym);
+    }
+
+
+    private boolean hasSameOwner(BSymbol symbol, BSymbol foundSym) {
+        // check whether the given symbol owner is same as found symbol's owner
+        if (foundSym.owner == symbol.owner) {
+            return true;
+        }
+
+        // If the symbol being defined is inside a lambda and the existing symbol is defined inside a function, both
+        // symbols are in the same block scope.
+        return Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE);
+    }
+
+    private boolean isSymbolDefinedInRootPkgLvl(BSymbol foundSym) {
+        return symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
+                (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME;
     }
 
     /**
@@ -591,12 +630,36 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolvePkgSymbol(pos, env, pkgAlias, SymTag.PACKAGE);
     }
 
-    public BSymbol resolveImportSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
-        return resolvePkgSymbol(pos, env, pkgAlias, SymTag.IMPORT);
+    public BSymbol resolvePrefixSymbol(SymbolEnv env, Name pkgAlias, Name compUnit) {
+        if (pkgAlias == Names.EMPTY) {
+            // Return the current package symbol
+            return env.enclPkg.symbol;
+        }
+
+        // Lookup for an imported package
+        ScopeEntry entry = env.scope.lookup(pkgAlias);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.XMLNS) == SymTag.XMLNS) {
+                return entry.symbol;
+            }
+
+            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
+                    ((BPackageSymbol) entry.symbol).compUnit.equals(compUnit)) {
+                ((BPackageSymbol) entry.symbol).isUsed = true;
+                return entry.symbol;
+            }
+
+            entry = entry.next;
+        }
+
+        if (env.enclEnv != null) {
+            return resolvePrefixSymbol(env.enclEnv, pkgAlias, compUnit);
+        }
+
+        return symTable.notFoundSymbol;
     }
 
     private BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, int symTag) {
-
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
             return env.enclPkg.symbol;
@@ -809,8 +872,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         // 2) Retrieve the package symbol first
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+        BSymbol pkgSymbol =
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.getSource().getCompilationUnitName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
         }
 
@@ -818,7 +883,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, expSymTag);
     }
 
-    private BSymbol lookupLangLibMethodInModule(BPackageSymbol moduleSymbol, Name name) {
+    public BSymbol lookupLangLibMethodInModule(BPackageSymbol moduleSymbol, Name name) {
 
         // What we get here is T.Name, this should convert to
         ScopeEntry entry = moduleSymbol.scope.lookup(name);
@@ -897,6 +962,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
+            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
             return;
         }
         throw new IllegalStateException("built-in error not found ?");
@@ -1044,6 +1110,9 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
+        if (tupleTypeNode.restParamType !=  null) {
+            tupleType.restType = resolveTypeNode(tupleTypeNode.restParamType, env);
+        }
 
         resultType = tupleType;
     }
@@ -1166,7 +1235,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         functionTypeNode.getParams().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t.getTypeNode(), env)));
         BType retParamType = resolveTypeNode(functionTypeNode.returnTypeNode, this.env);
         resultType = new BInvokableType(paramTypes, retParamType, null);
-    }
+    } 
 
     /**
      * Lookup all the visible in-scope symbols for a given environment scope.
@@ -1174,13 +1243,24 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param env Symbol environment
      * @return all the visible symbols
      */
-    public Map<Name, ScopeEntry> getAllVisibleInScopeSymbols(SymbolEnv env) {
-        Map<Name, ScopeEntry> visibleEntries = new HashMap<>();
-        visibleEntries.putAll(env.scope.entries);
+    public Map<Name, List<ScopeEntry>> getAllVisibleInScopeSymbols(SymbolEnv env) {
+        Map<Name, List<ScopeEntry>> visibleEntries = new HashMap<>();
+        env.scope.entries.forEach((key, value) -> {
+            ArrayList<ScopeEntry> entryList = new ArrayList<>();
+            entryList.add(value);
+            visibleEntries.put(key, entryList);
+        });
         if (env.enclEnv != null) {
-            getAllVisibleInScopeSymbols(env.enclEnv).forEach((name, scopeEntry) -> {
+            getAllVisibleInScopeSymbols(env.enclEnv).forEach((name, entryList) -> {
                 if (!visibleEntries.containsKey(name)) {
-                    visibleEntries.put(name, scopeEntry);
+                    visibleEntries.put(name, entryList);
+                } else {
+                    List<ScopeEntry> scopeEntries = visibleEntries.get(name);
+                    entryList.forEach(scopeEntry -> {
+                        if (!scopeEntries.contains(scopeEntry) && !(scopeEntry.symbol instanceof BVarSymbol)) {
+                            scopeEntries.add(scopeEntry);
+                        }
+                    });
                 }
             });
         }

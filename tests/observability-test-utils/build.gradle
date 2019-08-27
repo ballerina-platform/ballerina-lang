@@ -19,14 +19,21 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
 dependencies {
     baloCreat project(':lib-creator')
     shadow project(':ballerina-core')
-//    shadow project(':lib-creator')
     shadow project(':ballerina-lang')
     shadow project(':ballerina-lang:annotations')
     shadow 'com.google.code.gson:gson'
     implementation 'io.opentracing:opentracing-mock'
+    implementation project(':ballerina-runtime')
+    
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Observability - Tracing Test Utils'
@@ -42,4 +49,8 @@ shadowJar {
         exclude('META-INF/*.DSA')
         exclude('META-INF/*.RSA')
     }
+}
+
+createBalo {
+    jvmTarget = 'true'
 }

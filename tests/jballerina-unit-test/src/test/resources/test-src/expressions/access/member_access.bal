@@ -146,7 +146,7 @@ function testRecordMemberAccessByLiteral() returns boolean {
     boolean b = true;
     int i = 100;
 
-    Employee e = { name: s, id: i, registered: b, other: 1.0 };
+    Employee e = { name: s, id: i, registered: b, "other": 1.0 };
 
     string s2 = e["name"];
     boolean? b2 = e["registered"];
@@ -166,7 +166,7 @@ function testRecordMemberAccessByConstant() returns boolean {
     boolean b = true;
     int i = 100;
 
-    Employee e = { name: s, id: i, registered: b, other: 1.0 };
+    Employee e = { name: s, id: i, registered: b, "other": 1.0 };
 
     string s2 = e[NAMEC];
     boolean? b2 = e[REGISTEREDC];
@@ -182,7 +182,7 @@ function testRecordMemberAccessByVariable() returns boolean {
     boolean b = true;
     int i = 100;
 
-    Employee e = { name: s, id: i, registered: b, other: 1.0 };
+    Employee e = { name: s, id: i, registered: b, "other": 1.0 };
 
     string index = "name";
     anydata s2 = e[index];

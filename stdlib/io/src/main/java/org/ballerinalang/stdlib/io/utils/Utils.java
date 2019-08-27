@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
@@ -27,11 +25,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -67,22 +61,7 @@ public class Utils {
     private static final String DECODING_ERROR = "{ballerina/mime}DecodingFailed";
 
 
-    public static BMap<String, BValue> createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
-        String zoneIdName;
-        try {
-            ZoneId zoneId = ZoneId.of(zoneIdValue);
-            zoneIdName = zoneId.toString();
-            //Get offset in seconds
-            TimeZone tz = TimeZone.getTimeZone(zoneId);
-            int offsetInMills = tz.getOffset(new Date().getTime());
-            int offset = offsetInMills / 1000;
-            return BLangVMStructs.createBStruct(timezoneStructInfo, zoneIdName, offset);
-        } catch (ZoneRulesException e) {
-            throw new BallerinaException("invalid timezone id: " + zoneIdValue);
-        }
-    }
-
-    public static MapValue<String, BValue> createTimeZone(MapValue timezoneStructInfo, String zoneIdValue) {
+    public static MapValue<String, Object> createTimeZone(MapValue timezoneStructInfo, String zoneIdValue) {
         String zoneIdName;
         try {
             ZoneId zoneId = ZoneId.of(zoneIdValue);
@@ -97,36 +76,14 @@ public class Utils {
         }
     }
 
-    public static BMap<String, BValue> createTimeStruct(StructureTypeInfo timezoneStructInfo,
-                                           StructureTypeInfo timeStructInfo, long millis, String zoneIdName) {
-        BMap<String, BValue> timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
-        return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
-    }
-
-    public static MapValue<String, BValue> createTimeStruct(MapValue timezoneStructInfo,
+    public static MapValue<String, Object> createTimeStruct(MapValue timezoneStructInfo,
                                                         MapValue timeStructInfo, long millis, String zoneIdName) {
-        MapValue<String, BValue> timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
+        MapValue<String, Object> timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
         return BallerinaValues.createRecord(timeStructInfo, millis, timezone);
-    }
-
-    public static StructureTypeInfo getTimeZoneStructInfo(Context context) {
-        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
-        if (timePackageInfo == null) {
-            return null;
-        }
-        return timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
     }
 
     public static MapValue<String, Object> getTimeZoneStructInfo() {
         return BallerinaValues.createRecordValue(PACKAGE_TIME, STRUCT_TYPE_TIMEZONE);
-    }
-
-    public static StructureTypeInfo getTimeStructInfo(Context context) {
-        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
-        if (timePackageInfo == null) {
-            return null;
-        }
-        return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
     }
 
     public static MapValue<String, Object> getTimeStructInfo() {

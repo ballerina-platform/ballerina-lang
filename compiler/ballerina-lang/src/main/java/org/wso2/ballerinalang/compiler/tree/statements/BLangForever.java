@@ -34,14 +34,8 @@ import java.util.List;
 public class BLangForever extends BLangExpressionStmt implements ForeverNode {
 
     private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
-    private String siddhiQuery;
     private SymbolEnv env;
-    private boolean isSiddhiRuntimeEnabled = false;
     public List<BLangSimpleVariable> params;
-
-    public BLangForever(boolean isSiddhiRuntimeEnabled) {
-        this.isSiddhiRuntimeEnabled = isSiddhiRuntimeEnabled;
-    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -73,24 +67,11 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
         this.getParameters().add((BLangSimpleVariable) param);
     }
 
-    public String getSiddhiQuery() {
-        return siddhiQuery;
-    }
-
-
-    public void setSiddhiQuery(String siddhiQuery) {
-        this.siddhiQuery = siddhiQuery;
-    }
-
     public SymbolEnv getEnv() {
         return env;
     }
 
     public void setEnv(SymbolEnv env) {
         this.env = env;
-    }
-
-    public boolean isSiddhiRuntimeEnabled() {
-        return isSiddhiRuntimeEnabled;
     }
 }

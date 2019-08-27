@@ -1,6 +1,6 @@
 import {
     Assignment, ASTKindChecker, ASTNode, ASTUtil, Block, ExpressionStatement,
-    Function as BalFunction, If, Invocation, VariableDef, VisibleEndpoint, Visitor
+    Function as BalFunction, Invocation, VariableDef, VisibleEndpoint, Visitor
 } from "@ballerina/ast-model";
 import { ProjectAST } from "@ballerina/lang-service";
 import _ from "lodash";
@@ -12,33 +12,38 @@ let projectAST: ProjectAST;
 let envEndpoints: VisibleEndpoint[] = [];
 let invocationDepth = 0;
 let maxInvocationDepth = 0;
+let reachedInvocationDepth = 0;
 
 // This function processes endpoint parameters of expanded functions
 // so that actions to these parameters can be drawn to the original endpoint passed to them
 function handleEndpointParams(expandContext: ExpandContext) {
     const invocation = expandContext.expandableNode;
     const expandedFunction = expandContext.expandedSubTree;
-    if (!expandedFunction || !expandedFunction.VisibleEndpoints || !expandedFunction.parameters) {
+    if (!expandedFunction
+            || (expandedFunction.body && !expandedFunction.body.VisibleEndpoints)
+            || !expandedFunction.parameters) {
         return;
     }
 
     const params = expandedFunction.parameters;
 
-    expandedFunction.VisibleEndpoints.forEach((ep) => {
-        // Find of one of the visible endpoints is actually a parameter to the function
-        params.forEach((p, i) => {
-            if (ASTKindChecker.isVariable(p)) {
-                if (p.name.value === ep.name) {
-                    // visible endpoint is a parameter
-                    const arg = invocation.argumentExpressions[i];
-                    if (ASTKindChecker.isSimpleVariableRef(arg)) {
-                        // This parameter actually refers to an endpoint with name in arg.variableName
-                        (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
+    if (expandedFunction.body && expandedFunction.body.VisibleEndpoints) {
+        expandedFunction.body.VisibleEndpoints.forEach((ep) => {
+            // Find of one of the visible endpoints is actually a parameter to the function
+            params.forEach((p, i) => {
+                if (ASTKindChecker.isVariable(p)) {
+                    if (p.name.value === ep.name) {
+                        // visible endpoint is a parameter
+                        const arg = invocation.argumentExpressions[i];
+                        if (ASTKindChecker.isSimpleVariableRef(arg)) {
+                            // This parameter actually refers to an endpoint with name in arg.variableName
+                            (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
+                        }
                     }
                 }
-            }
+            });
         });
-    });
+    }
 }
 
 function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
@@ -79,6 +84,10 @@ function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
     ASTUtil.traversNode(viewState.expandContext.expandedSubTree, initVisitor);
 
     invocationDepth += 1;
+    if (invocationDepth > reachedInvocationDepth) {
+        reachedInvocationDepth = invocationDepth;
+    }
+
     ASTUtil.traversNode(viewState.expandContext.expandedSubTree, visitor);
     invocationDepth -= 1;
 
@@ -152,10 +161,15 @@ function getExpandedSubTree(invocation: Invocation): {node: BalFunction, uri: st
 export function setProjectAST(ast: ProjectAST) {
     projectAST = ast;
     invocationDepth = 0;
+    reachedInvocationDepth = 0;
 }
 
 export function setMaxInvocationDepth(depth: number) {
     maxInvocationDepth = depth;
+}
+
+export function getReachedInvocationDepth() {
+    return reachedInvocationDepth;
 }
 
 export const visitor: Visitor = {
@@ -163,9 +177,8 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
-        const parentNode = (node.parent as (If | BalFunction));
-        if (parentNode.VisibleEndpoints) {
-            envEndpoints = [...envEndpoints, ...parentNode.VisibleEndpoints];
+        if (node.VisibleEndpoints) {
+            envEndpoints = [...envEndpoints, ...node.VisibleEndpoints];
         }
     },
 
@@ -173,9 +186,8 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
-        const parentNode = (parent as (If | BalFunction));
-        if (parentNode.VisibleEndpoints) {
-            const visibleEndpoints = parentNode.VisibleEndpoints;
+        if (node.VisibleEndpoints) {
+            const visibleEndpoints = node.VisibleEndpoints;
             envEndpoints = envEndpoints.filter((ep) => (!visibleEndpoints.includes(ep)));
         }
     },

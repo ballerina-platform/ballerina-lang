@@ -30,7 +30,7 @@ import ballerina/log;
 // optional configurations are the default values of the return types of
 // the functions.
 listener http:Listener helloWorldEP
-    = new(config:getAsInt("hello.http.port", defaultValue = 9095), config = {
+    = new(config:getAsInt("hello.http.port", 9095), config = {
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

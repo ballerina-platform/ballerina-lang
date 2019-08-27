@@ -31,10 +31,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
@@ -47,7 +43,6 @@ import java.util.Locale;
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
 import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
 
 /**
@@ -57,8 +52,7 @@ import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
  */
 public class MessageUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
-    private static final String UNKNOWN_ERROR = "Unknown Error";
+    private static final String UNKNOWN_ERROR_DETAIL = "Unknown error occurred";
 
     /** maximum buffer to be read is 16 KB. */
     private static final int MAX_BUFFER_LENGTH = 16384;
@@ -114,25 +108,25 @@ public class MessageUtils {
      * @return error value.
      */
     public static ErrorValue getConnectorError(Throwable error) {
-        String reason = "{ballerina/grpc}";
+        String reason;
         String message;
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
-            reason = reason + statusException.getStatus().getCode().name();
+            reason = statusException.getStatus().getReason();
             String errorDescription = statusException.getStatus().getDescription();
             if (errorDescription != null) {
                 message =  statusException.getStatus().getDescription();
             } else if (statusException.getStatus().getCause() != null) {
                 message = statusException.getStatus().getCause().getMessage();
             } else {
-                message =  UNKNOWN_ERROR;
+                message = UNKNOWN_ERROR_DETAIL;
             }
         } else {
             if (error.getMessage() == null) {
-                reason = reason + UNKNOWN.name();
-                message =  UNKNOWN_ERROR;
+                reason = GrpcConstants.UNKNOWN_ERROR;
+                message = UNKNOWN_ERROR_DETAIL;
             } else {
-                reason = reason + INTERNAL.name();
+                reason = GrpcConstants.INTERNAL_ERROR;
                 message = error.getMessage();
             }
         }
@@ -247,10 +241,6 @@ public class MessageUtils {
         return nextChar == '+' || nextChar == ';';
     }
 
-    public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
-        return new DefaultHttpWsConnectorFactory();
-    }
-
     public static HttpCarbonMessage createHttpCarbonMessage(boolean isRequest) {
         HttpCarbonMessage httpCarbonMessage;
         if (isRequest) {
@@ -290,6 +280,34 @@ public class MessageUtils {
                 return Status.Code.UNAVAILABLE;
             default:
                 return UNKNOWN;
+        }
+    }
+
+    static int statusCodeToHttpCode(Status.Code code) {
+        switch (code) {
+            case CANCELLED:
+                return 499; // Client Closed Request
+            case INVALID_ARGUMENT:
+            case FAILED_PRECONDITION:
+            case OUT_OF_RANGE:
+                return 400; // Bad Request
+            case DEADLINE_EXCEEDED:
+                return 504; // Gateway timeout
+            case NOT_FOUND:
+                return 404; // Not Found
+            case ALREADY_EXISTS:
+            case ABORTED:
+                return 409; // Conflicts
+            case PERMISSION_DENIED:
+                return 403; // Forbidden
+            case UNAUTHENTICATED:
+                return 401; // Unauthorized
+            case UNIMPLEMENTED:
+                return 501; // Not Implemented
+            case UNAVAILABLE:
+                return 503; // Service Unavailable
+            default:
+                return 500; // Internal Server Error
         }
     }
 

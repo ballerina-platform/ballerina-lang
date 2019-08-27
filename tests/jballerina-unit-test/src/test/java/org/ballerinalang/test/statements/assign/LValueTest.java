@@ -83,8 +83,18 @@ public class LValueTest {
         validateError(negativeResult, i++, "undefined field 'y' in record 'E'", 75, 5);
         validateError(negativeResult, i++, "invalid operation: type 'map<int>?' does not support member access for " +
                 "assignment", 78, 5);
-        validateError(negativeResult, i, "invalid operation: type 'E?' does not support field access", 79, 5);
+        validateError(negativeResult, i++, "invalid operation: type 'E?' does not support field access", 79, 5);
     }
+
+    @Test
+    public void testNegativeLvexpr() {
+        CompileResult negative = BCompileUtil.compile("test-src/statements/assign/lvexpr_negative.bal");
+        int i = 0;
+        validateError(negative, i++, "invocations are not supported on the left hand side of an assignment", 26, 5);
+        validateError(negative, i++, "invocations are not supported on the left hand side of an assignment", 27, 5);
+        Assert.assertEquals(i, negative.getErrorCount());
+    }
+
 
     @Test(dataProvider = "valueStoreFunctions")
     public void testValueStore(String function) {
@@ -160,7 +170,7 @@ public class LValueTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IllegalArrayInsertion message=array of length 2 " +
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IllegalListInsertion message=array of length 2 " +
                     "cannot be expanded into array of length 4 without filler values.*")
     public void testArrayFillFailure() {
         BRunUtil.invoke(result, "testArrayFillFailure");

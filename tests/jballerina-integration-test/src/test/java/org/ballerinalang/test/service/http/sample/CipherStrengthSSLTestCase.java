@@ -36,7 +36,7 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
     private final String weakCipherServiceUrl = "https://localhost:9227";
     private String strongCipherClient;
     private String weakCipherClient;
-
+    
     @BeforeClass
     public void init() {
         strongCipherClient = new File(
@@ -85,7 +85,8 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
             throws BallerinaTestException {
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.runMain(clientProgram, null, new String[] { serverUrl }, new LogLeecher[] { clientLeecher });
+        ballerinaClient.runMain(clientProgram, null, new String[] { serverUrl }, null, new String[]{},
+                new LogLeecher[] { clientLeecher });
         clientLeecher.waitForText(20000);
     }
 }

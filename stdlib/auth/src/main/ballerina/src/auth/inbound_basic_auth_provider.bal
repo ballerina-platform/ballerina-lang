@@ -18,7 +18,6 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/internal;
-import ballerina/runtime;
 
 # Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
 #
@@ -32,7 +31,7 @@ public type InboundBasicAuthProvider object {
     # Provides authentication based on the provided configuration.
     #
     # + basicAuthConfig - The Basic Auth provider configurations.
-    public function __init(BasicAuthConfig? basicAuthConfig) {
+    public function __init(BasicAuthConfig? basicAuthConfig = ()) {
         if (basicAuthConfig is BasicAuthConfig) {
             self.basicAuthConfig = basicAuthConfig;
         } else {
@@ -45,7 +44,7 @@ public type InboundBasicAuthProvider object {
     # + credential - Credential
     # + return - `true` if authentication is successful, otherwise `false` or `Error` occurred while extracting credentials
     public function authenticate(string credential) returns boolean|Error {
-        if (credential == EMPTY_STRING) {
+        if (credential == "") {
             return false;
         }
         string username;
@@ -74,12 +73,9 @@ public type InboundBasicAuthProvider object {
             authenticated = password == passwordFromConfig;
         }
         if (authenticated) {
-            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-            if (principal is runtime:Principal) {
-                principal.userId = username;
-                principal.username = username;
-                principal.scopes = getScopes(username, self.basicAuthConfig.tableName);
-            }
+            setAuthenticationContext("basic", credential);
+            string[] scopes = getScopes(username, self.basicAuthConfig.tableName);
+            setPrincipal(username, username, scopes);
         }
         return authenticated;
     }

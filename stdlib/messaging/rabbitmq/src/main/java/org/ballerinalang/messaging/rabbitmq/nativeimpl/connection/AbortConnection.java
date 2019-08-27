@@ -44,10 +44,10 @@ import org.ballerinalang.natives.annotations.Receiver;
 public class AbortConnection {
 
     public static Object abortConnection(Strand strand, ObjectValue connectionObjectValue, Object closeCode,
-                                         Object closeMessage, Object timeout) {
+                                         Object closeMessage, Object timeoutInMillis) {
         Connection connection = (Connection) connectionObjectValue.
                 getNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT);
-        ConnectionUtils.handleAbortConnection(connection, closeCode, closeMessage, timeout);
+        ConnectionUtils.handleAbortConnection(connection, closeCode, closeMessage, timeoutInMillis);
         connectionObjectValue.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, null);
         return null;
     }

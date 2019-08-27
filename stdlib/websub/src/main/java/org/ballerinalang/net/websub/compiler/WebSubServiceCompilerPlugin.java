@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SPECIFIC_SUBSCRIBER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERIC_SUBSCRIBER_SERVICE_TYPE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
@@ -82,7 +83,13 @@ public class WebSubServiceCompilerPlugin extends AbstractTransportCompilerPlugin
         }
 
         BType listenerType = ((BLangService) serviceNode).listenerType;
-        if (listenerType != null && !WEBSUB_LISTENER.equals(listenerType.getDesc())) {
+        if (listenerType == null) {
+            if (annotations.stream()
+                    .anyMatch(annotation -> WEBSUB.equals(annotation.getPackageAlias().getValue()) &&
+                            ANN_NAME_WEBSUB_SPECIFIC_SUBSCRIBER.equals(annotation.getAnnotationName().getValue()))) {
+                return;
+            }
+        } else if (!WEBSUB_LISTENER.equals(listenerType.getDesc())) {
             return;
         }
 

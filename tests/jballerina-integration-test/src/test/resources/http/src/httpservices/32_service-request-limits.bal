@@ -16,26 +16,26 @@
 
 import ballerina/http;
 
-http:ServiceEndpointConfiguration urlLimitConfig = {
-    requestLimits: {
+http:ListenerConfiguration urlLimitConfig = {
+    http1Settings: {
         maxUriLength: 1024
     }
 };
 
-http:ServiceEndpointConfiguration lowUrlLimitConfig = {
-    requestLimits: {
+http:ListenerConfiguration lowUrlLimitConfig = {
+    http1Settings: {
         maxUriLength: 2
     }
 };
 
-http:ServiceEndpointConfiguration lowHeaderConfig = {
-    requestLimits: {
+http:ListenerConfiguration lowHeaderConfig = {
+    http1Settings: {
         maxHeaderSize: 30
     }
 };
 
-http:ServiceEndpointConfiguration midSizeHeaderConfig = {
-    requestLimits: {
+http:ListenerConfiguration midSizeHeaderConfig = {
+    http1Settings: {
         maxHeaderSize: 100
     }
 };

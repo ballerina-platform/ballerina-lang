@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -38,6 +37,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class SetLength {
 
     public static void setLength(Strand strand, ArrayValue arr, long i) {
-        throw BallerinaErrors.createError("Function 'setLength()' is not implemented");
+        arr.setLength(i);
     }
 }

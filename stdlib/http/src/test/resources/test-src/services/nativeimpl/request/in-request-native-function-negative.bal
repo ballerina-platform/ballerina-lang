@@ -1,21 +1,21 @@
 import ballerina/http;
 import ballerina/mime;
 
-function testGetContentLength(http:Request req) returns string {
+function testGetContentLength(http:Request req) returns @tainted string {
     if (req.hasHeader("content-legth")) {
         return req.getHeader("content-length");
     }
     return "Content-length is not found";
 }
 
-function testGetHeader(http:Request req, string key) returns string {
+function testGetHeader(http:Request req, string key) returns @tainted string {
     if (req.hasHeader(key)) {
         return req.getHeader(key);
     }
     return "Header not found!";
 }
 
-function testGetJsonPayload(http:Request req) returns json|error {
+function testGetJsonPayload(http:Request req) returns @tainted json|error {
     return req.getJsonPayload();
 }
 
@@ -32,15 +32,15 @@ function testGetRequestURL(http:Request req) returns string {
     return url;
 }
 
-function testGetTextPayload(http:Request req) returns string|error {
+function testGetTextPayload(http:Request req) returns @tainted string|error {
     return req.getTextPayload();
 }
 
-function testGetBinaryPayload(http:Request req) returns byte[]|error {
+function testGetBinaryPayload(http:Request req) returns @tainted byte[]|error {
     return req.getBinaryPayload();
 }
 
-function testGetXmlPayload(http:Request req) returns xml|error {
+function testGetXmlPayload(http:Request req) returns @tainted xml|error {
     return req.getXmlPayload();
 }
 

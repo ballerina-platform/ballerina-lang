@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -143,6 +144,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
     private final Types types;
+    private final SourceDirectory sourceDirectory;
     private List<TypeDefinition> unresolvedTypes;
     private List<PackageID> importedPackages;
     private int typePrecedence;
@@ -169,6 +171,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
+        this.sourceDirectory = context.get(SourceDirectory.class);
         this.importedPackages = new ArrayList<>();
     }
 
@@ -308,9 +311,18 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         Name pkgAlias = names.fromIdNode(importPkgNode.alias);
-        if (symResolver.lookupSymbol(env, pkgAlias, SymTag.IMPORT) != symTable.notFoundSymbol) {
-            dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
-            return;
+        if (!Names.IGNORE.equals(pkgAlias)) {
+            BSymbol importSymbol =
+                    symResolver.resolvePrefixSymbol(env, pkgAlias, names.fromIdNode(importPkgNode.compUnit));
+            if (importSymbol != symTable.notFoundSymbol) {
+                if (isSameImport(importPkgNode, (BPackageSymbol) importSymbol)) {
+                    dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_IMPORT_MODULE,
+                            importPkgNode.getQualifiedPackageName());
+                } else {
+                    dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
+                }
+                return;
+            }
         }
 
         // TODO Clean this code up. Can we move the this to BLangPackageBuilder class
@@ -328,9 +340,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Here we set the version to enclosing package version. Following cases will be handled properly:
             // 1) Suppose the import is from the same project, then the enclosing package version set here will be used
             //    to lookup package symbol cache, avoiding re-defining package symbol.
-            // 2) Suppose the import is from Ballerina Central or another project which has the same org, then the
-            //    version is set when loading the import module.
-            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
+            String pkgName = importPkgNode.getPackageName().stream()
+                    .map(id -> id.value)
+                    .collect(Collectors.joining("."));
+            if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)) {
+                version = enclPackageID.version;
+            } else {
+                version = new Name("");
+            }
         } else {
             // means it's in 'import <org-name>/<pkg-name>' style
             orgName = names.fromIdNode(importPkgNode.orgName);
@@ -402,10 +419,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        // define the import package symbol in the current package scope
-        importPkgNode.symbol = pkgSymbol;
-        ((BPackageSymbol) this.env.scope.owner).imports.add(pkgSymbol);
-        this.env.scope.define(pkgAlias, pkgSymbol);
+        List<BPackageSymbol> imports = ((BPackageSymbol) this.env.scope.owner).imports;
+        if (!imports.contains(pkgSymbol)) {
+            imports.add(pkgSymbol);
+        }
+
+        // get a copy of the package symbol, add compilation unit info to it,
+        // and define it in the current package scope
+        BPackageSymbol symbol = duplicatePackagSymbol(pkgSymbol);
+        symbol.compUnit = names.fromIdNode(importPkgNode.compUnit);
+        symbol.scope = pkgSymbol.scope;
+        importPkgNode.symbol = symbol;
+        this.env.scope.define(pkgAlias, symbol);
     }
 
     @Override
@@ -626,7 +651,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
+
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
+        // Reset public flag when set on a non public type.
+        typeDefSymbol.flags &= getPublicFlagResetingMask(typeDefinition.flagSet, typeDefinition.typeNode);
+        definedType.flags = typeDefSymbol.flags;
+
         if (typeDefinition.annAttachments.stream()
                 .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
             // TODO : Clean this. Not a nice way to handle this.
@@ -647,12 +677,28 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    // If this type is defined to a public type or this is a anonymous type, return int with all bits set to 1,
+    // so that we can bitwise and it with any flag and the original flag will not change.
+    // If the type is not a public type then return a mask where public flag is set to zero and all others are set
+    // to 1 so that we can perform bitwise and operation to remove the public flag from given flag.
+    private int getPublicFlagResetingMask(Set<Flag> flagSet, BLangType typeNode) {
+        boolean isAnonType =
+                typeNode instanceof BLangStructureTypeNode && ((BLangStructureTypeNode) typeNode).isAnonymous;
+        if (flagSet.contains(Flag.PUBLIC) || isAnonType) {
+            return Integer.MAX_VALUE;
+        } else {
+            return ~Flags.PUBLIC;
+        }
+    }
+
     private void defineErrorConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
+        BErrorType errorType = (BErrorType) typeDefSymbol.type;
         BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
-                typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
+                typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, errorType, typeDefSymbol.owner);
+        errorType.ctorSymbol = symbol;
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
-        symbol.retType = typeDefSymbol.type;
+        symbol.retType = errorType;
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }
@@ -908,9 +954,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineObjectAttachedInvokableSymbolParams(BLangInvokableNode invokableNode, SymbolEnv invokableEnv) {
         // visit required params of the function
-        invokableNode.requiredParams.forEach(varNode -> {
-            visitObjectAttachedFunctionParam(varNode, invokableEnv);
-        });
+        invokableNode.clonedEnv = invokableEnv.shallowClone();
+        invokableNode.requiredParams.forEach(varNode -> visitObjectAttachedFunctionParam(varNode, invokableEnv));
 
         if (invokableNode.returnTypeNode != null) {
             invokableNode.returnTypeNode.type = symResolver.resolveTypeNode(invokableNode.returnTypeNode, env);
@@ -1218,9 +1263,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // TODO Verify the rules..
                 // TODO Check whether the same package alias (if any) has been used for the same import
                 // TODO The version of an import package can be specified only once for a package
-                if (!pkgNode.imports.contains(node)) {
-                    pkgNode.imports.add((BLangImportPackage) node);
-                }
+                pkgNode.imports.add((BLangImportPackage) node);
                 break;
             case FUNCTION:
                 pkgNode.functions.add((BLangFunction) node);
@@ -1375,7 +1418,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                              SymbolEnv invokableEnv) {
         boolean foundDefaultableParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
-
+        invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
             defineNode(varNode, invokableEnv);
             if (varNode.expr != null) {
@@ -1478,6 +1521,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         return varSymbol;
     }
 
+    public void defineExistingVarSymbolInEnv(BVarSymbol varSymbol, SymbolEnv env) {
+        if (!symResolver.checkForUniqueSymbol(env, varSymbol, SymTag.VARIABLE_NAME)) {
+            varSymbol.type = symTable.semanticError;
+        }
+        env.scope.define(varSymbol.name, varSymbol);
+    }
+
     public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
         return createVarSymbol(Flags.asMask(flagSet), varType, varName, env);
     }
@@ -1514,7 +1564,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineRecordInitFunction(BLangTypeDefinition typeDef, SymbolEnv conEnv) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunction(typeDef.pos, "", Names.INIT_FUNCTION_SUFFIX);
+        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(typeDef.pos, "",
+                                                                                     Names.INIT_FUNCTION_SUFFIX);
 
         recordTypeNode.initFunction.receiver = createReceiver(typeDef.pos, typeDef.name);
         recordTypeNode.initFunction.attachedFunction = true;
@@ -1532,9 +1583,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Check whether there exists a struct field with the same name as the function name.
         if (isValidAttachedFunc) {
             if (typeSymbol.tag == SymTag.OBJECT) {
-                validateFunctionsAttachedToObject(funcNode, funcSymbol, invokableEnv);
+                validateFunctionsAttachedToObject(funcNode, funcSymbol);
             } else if (typeSymbol.tag == SymTag.RECORD) {
-                validateFunctionsAttachedToRecords(funcNode, funcSymbol, invokableEnv);
+                validateFunctionsAttachedToRecords(funcNode, funcSymbol);
             }
         }
 
@@ -1542,8 +1593,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         funcSymbol.receiverSymbol = funcNode.receiver.symbol;
     }
 
-    private void validateFunctionsAttachedToRecords(BLangFunction funcNode, BInvokableSymbol funcSymbol,
-                                                    SymbolEnv invokableEnv) {
+    private void validateFunctionsAttachedToRecords(BLangFunction funcNode, BInvokableSymbol funcSymbol) {
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) funcNode.receiver.type.tsymbol;
 
@@ -1551,19 +1601,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
     }
 
-    private void validateFunctionsAttachedToObject(BLangFunction funcNode, BInvokableSymbol funcSymbol,
-                                                   SymbolEnv invokableEnv) {
+    private void validateFunctionsAttachedToObject(BLangFunction funcNode, BInvokableSymbol funcSymbol) {
 
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) funcNode.receiver.type.tsymbol;
-        BSymbol symbol = symResolver.lookupMemberSymbol(funcNode.receiver.pos, objectSymbol.scope, invokableEnv,
-                names.fromIdNode(funcNode.name), SymTag.VARIABLE);
-        if (symbol != symTable.notFoundSymbol) {
-            dlog.error(funcNode.pos, DiagnosticCode.OBJECT_FIELD_AND_FUNC_WITH_SAME_NAME,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-            return;
-        }
-
         BAttachedFunction attachedFunc = new BAttachedFunction(
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
 
@@ -1615,6 +1656,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         funcNode.symbol.flags |= Flags.RESOURCE;
+
+        if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE) ||
+                Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_WITH_VISIBILITY_QUALIFIER);
+        }
 
         if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);
@@ -1924,6 +1970,31 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                                                 fieldSymbol));
         varNode.symbol = paramSymbol;
         return;
+    }
+
+    private BPackageSymbol duplicatePackagSymbol(BPackageSymbol originalSymbol) {
+        BPackageSymbol copy = new BPackageSymbol(originalSymbol.pkgID, originalSymbol.owner, originalSymbol.flags);
+        copy.initFunctionSymbol = originalSymbol.initFunctionSymbol;
+        copy.startFunctionSymbol = originalSymbol.startFunctionSymbol;
+        copy.stopFunctionSymbol = originalSymbol.stopFunctionSymbol;
+        copy.testInitFunctionSymbol = originalSymbol.testInitFunctionSymbol;
+        copy.testStartFunctionSymbol = originalSymbol.testStartFunctionSymbol;
+        copy.testStopFunctionSymbol = originalSymbol.testStopFunctionSymbol;
+        copy.packageFile = originalSymbol.packageFile;
+        copy.compiledPackage = originalSymbol.compiledPackage;
+        copy.entryPointExists = originalSymbol.entryPointExists;
+        copy.scope = originalSymbol.scope;
+        copy.owner = originalSymbol.owner;
+        return copy;
+    }
+
+    private boolean isSameImport(BLangImportPackage importPkgNode, BPackageSymbol importSymbol) {
+        if (!importPkgNode.orgName.value.equals(importSymbol.pkgID.orgName.value)) {
+            return false;
+        }
+
+        BLangIdentifier pkgName = importPkgNode.pkgNameComps.get(importPkgNode.pkgNameComps.size() - 1);
+        return pkgName.value.equals(importSymbol.pkgID.name.value);
     }
 
     /**

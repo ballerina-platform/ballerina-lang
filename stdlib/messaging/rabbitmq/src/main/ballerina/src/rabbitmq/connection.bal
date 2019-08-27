@@ -31,9 +31,9 @@ public type Connection object {
     # + closeCode - The close code (For information, go to the "Reply Codes" section in the
     #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
     # + closeMessage - A message indicating the reason for closing the connection.
-    # + timeout - Timeout (in milliseconds) for completing all the close-related operations. Use -1 for infinity.
+    # + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations. Use -1 for infinity.
     # + return - An error if an I/O problem is encountered.
-    public function close(int? closeCode = (), string? closeMessage = (), int? timeout = ())
+    public function close(int? closeCode = (), string? closeMessage = (), int? timeoutInMillis = ())
                     returns Error? = external;
 
     # Aborts the RabbitMQ `Connection` and all its `Channel`s.
@@ -43,9 +43,9 @@ public type Connection object {
     # + closeCode - The close code (For information, go to the "Reply Codes" section in the
     #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
     # + closeMessage - A message indicating the reason for closing the connection.
-    # + timeout - Timeout (in milliseconds) for completing all the close-related operations. Use -1 for infinity.
+    # + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations. Use -1 for infinity.
     # + return - An error if an I/O problem is encountered.
-    public function abortConnection(int? closeCode = (), string? closeMessage = (), int? timeout = ())
+    public function abortConnection(int? closeCode = (), string? closeMessage = (), int? timeoutInMillis = ())
                                                                                     returns Error? = external;
 
     # Checks whether `close` was already called.

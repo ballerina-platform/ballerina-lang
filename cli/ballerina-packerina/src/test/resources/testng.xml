@@ -26,6 +26,7 @@ under the License.
                 <exclude name="broken"/>
             </run>
         </groups>
+
         <packages>
             <package name="org.ballerinalang.packerina.*"/>
         </packages>

@@ -1,4 +1,4 @@
-public type InvalidNameError error<string, record { string companyName; }>;
+public type InvalidNameError error<string, record { string companyName; string message?; error cause?; }>;
 
 function getQuote(string name) returns (float|InvalidNameError) {
 

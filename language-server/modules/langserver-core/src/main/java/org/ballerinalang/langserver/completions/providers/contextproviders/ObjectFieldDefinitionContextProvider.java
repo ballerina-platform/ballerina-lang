@@ -22,10 +22,10 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -50,10 +50,11 @@ public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
         BLangNode scopeNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         List<Integer> lhsTokenTypes = lhsTokens.stream().map(CommonToken::getType).collect(Collectors.toList());
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         int invocationOrDelimiterTokenType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         if (invocationOrDelimiterTokenType > -1) {
             completionItems.addAll(getDelimiterBasedCompletionItems(ctx));
-            ItemSorters.get(ActionAndFieldAccessContextItemSorter.class).sortItems(ctx, completionItems);
+            ctx.put(CompletionKeys.ITEM_SORTER_KEY, ActionAndFieldAccessContextItemSorter.class);
             return completionItems;
         }
         
@@ -61,7 +62,7 @@ public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
             return this.getProvider(BallerinaParser.VariableDefinitionStatementContext.class).getCompletions(ctx);
         }
 
-        completionItems.addAll(this.getBasicTypes(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY)));
+        completionItems.addAll(this.getBasicTypes(visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
         completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
 

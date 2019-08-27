@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -60,6 +61,13 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangSimpleVariable restParam;
 
     public BInvokableSymbol symbol;
+    /**
+     * clonedEnv is used for function parameter variable scoping.
+     * Scope of clonedEnv will be populated with function parameters one by one at semantic phase to support
+     * referencing of previous function parameters.
+     */
+    // TODO: Should be properly fixed by doing symbolEnter of function parameters only when needed at semantic phase.
+    public SymbolEnv clonedEnv;
 
     public boolean desugaredReturnType;
 

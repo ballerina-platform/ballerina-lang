@@ -53,7 +53,6 @@ public class AbstractCallableUnitCallBack implements CallableUnitCallback {
      */
     static void handleFailure(StreamObserver streamObserver, ErrorValue error) {
         String errorMsg = error.stringValue();
-        //TODO: ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         if (streamObserver != null) {
             streamObserver.onError(new Message(
                     new StatusRuntimeException(org.ballerinalang.net.grpc.Status.fromCodeValue(

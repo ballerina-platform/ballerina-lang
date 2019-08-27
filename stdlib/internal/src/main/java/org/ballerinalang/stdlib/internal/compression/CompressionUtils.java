@@ -15,18 +15,10 @@
  */
 package org.ballerinalang.stdlib.internal.compression;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * Util class for compression related operations.
@@ -40,26 +32,14 @@ public class CompressionUtils {
     /**
      * Get compression error as a ballerina struct.
      *
-     * @param context Represent ballerina context
      * @param msg     Error message in string form
-     * @return Ballerina struct with compression error
+     * @return ErrorValue struct with compression error
      */
-    public static BError createCompressionError(Context context, String msg) {
-        BMap<String, BValue> compressionErrorRecord = createCompressionErrorRecord(context);
-        compressionErrorRecord.put(COMPRESSION_ERROR_MESSAGE, new BString(msg));
-        return BLangVMErrors.createError(context, true, BTypes.typeError,
-                                         COMPRESSION_ERROR_CODE, compressionErrorRecord);
-    }
-
     public static ErrorValue createCompressionError(String msg) {
         MapValue<String, Object> compressionErrorRecord = BallerinaValues.createRecordValue(
                 PROTOCOL_PACKAGE_COMPRESSION, COMPRESSION_ERROR_RECORD);
         compressionErrorRecord.put(COMPRESSION_ERROR_MESSAGE, msg);
         return BallerinaErrors.createError(
                 COMPRESSION_ERROR_CODE, compressionErrorRecord);
-    }
-
-    private static BMap<String, BValue> createCompressionErrorRecord(Context context) {
-        return BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_COMPRESSION, COMPRESSION_ERROR_RECORD);
     }
 }

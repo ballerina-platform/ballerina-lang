@@ -42,17 +42,18 @@ public class NonBlockingStub extends AbstractStub {
      *
      * @param request  request message.
      * @param responseObserver response Observer.
-     * @param methodDescriptor method descriptor
+     * @param methodDescriptor method descriptor.
+     * @throws Exception if an error occur while processing client call.
      */
     public void executeServerStreaming(Message request, StreamObserver responseObserver,
-                                       MethodDescriptor methodDescriptor) {
+                                       MethodDescriptor methodDescriptor) throws Exception {
         ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request.getHeaders()), methodDescriptor);
         call.start(new NonblockingCallListener(responseObserver, true));
         try {
             call.sendMessage(request);
             call.halfClose();
         } catch (Exception e) {
-            throw cancelThrow(call, e);
+            cancelThrow(call, e);
         }
     }
 
@@ -79,17 +80,18 @@ public class NonBlockingStub extends AbstractStub {
      *
      * @param request  request message.
      * @param responseObserver response Observer.
-     * @param methodDescriptor method descriptor
+     * @param methodDescriptor method descriptor.
+     * @throws Exception if an error occur while processing client call.
      */
     public void executeUnary(Message request, StreamObserver responseObserver,
-                                           MethodDescriptor methodDescriptor) {
+                                           MethodDescriptor methodDescriptor) throws Exception {
         ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request.getHeaders()), methodDescriptor);
         call.start(new NonblockingCallListener(responseObserver, false));
         try {
             call.sendMessage(request);
             call.halfClose();
         } catch (Exception e) {
-            throw cancelThrow(call, e);
+            cancelThrow(call, e);
         }
     }
 

@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.PrimitiveIterator;
 
 /**
  * Extern function lang.string:codePointCompare(string, string).
@@ -39,8 +39,28 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class CodePointCompare {
 
-    public static int codePointCompare(Strand strand, String str1, String str2) {
-        throw BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
-                                          "codePointCompare() function not supported");
+    public static long codePointCompare(Strand strand, String str1, String str2) {
+        // Compare each code point of str1 with str2's codepoint at corresponding position.
+        // If all all previous codepoints being equal and str1 is exhausted and str2 has more
+        // codepoints remain in it then str2 is consider lager.
+
+        PrimitiveIterator.OfInt iterator1 = str1.codePoints().iterator();
+        PrimitiveIterator.OfInt iterator2 = str2.codePoints().iterator();
+        while (iterator1.hasNext()) {
+            if (!iterator2.hasNext()) {
+                return 1;
+            }
+            Integer codePoint1 = iterator1.next();
+            Integer codePoint2 = iterator2.next();
+
+            int cmp = codePoint1.compareTo(codePoint2);
+            if (cmp != 0) {
+                return cmp;
+            }
+        }
+        if (iterator2.hasNext()) {
+            return -1;
+        }
+        return 0;
     }
 }

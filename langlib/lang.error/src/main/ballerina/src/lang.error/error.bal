@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# A type parameter that is a subtype of error `Detail` record type.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 type RecordType record {|
     string message?;
@@ -21,21 +24,53 @@ type RecordType record {|
     (anydata|error)...;
 |};
 
+# A type parameter that is a subtype of `string` type.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 type StringType string;
 
-// Returns the error's reason string
+# Returns the error's reason string.
+#
+# + e - the error value
+# + return - error reason
 public function reason(error<StringType> e) returns StringType = external;
 
-// Returns the error's detail record as a frozen mapping
+# Returns the error's detail record as an immutable mapping.
+#
+# + e - the error value
+# + return - error detail value
 public function detail(error<string,RecordType> e) returns RecordType = external;
 
-// Returns an object representing the stack trace of the error
-public function stackTrace(error e) returns object { } = external;
+# Returns an object representing the stack trace of the error.
+#
+# + e - the error value
+# + return - stack trace of the error value
+public function stackTrace(error e) returns CallStack = external;
 
-
+# Default error detail record.
 public type Detail record {|
     string message?;
     error cause?;
     (anydata|error)...;
 |};
+
+# Representation of `CallStackElement`
+#
+# + callableName - Callable name
+# + moduleName - Module name
+# + fileName - File name
+# + lineNumber - Line number
+public type CallStackElement record {|
+    string callableName;
+    string moduleName;
+    string fileName;
+    int lineNumber;
+|};
+
+# Represent error call stack.
+#
+# + callStack - call stack
+public type CallStack object {
+    public CallStackElement[] callStack;
+};

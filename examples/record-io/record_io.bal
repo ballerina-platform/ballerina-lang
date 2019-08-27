@@ -8,8 +8,8 @@ import ballerina/log;
 // (e.g., a comma).
 function getReadableRecordChannel(string filePath, string encoding, string rs,
                                   string fs)
-                                        returns (io:ReadableTextRecordChannel) {
-    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
+                                        returns @tainted io:ReadableTextRecordChannel|error {
+    io:ReadableByteChannel byteChannel = check io:openReadableFile(filePath);
     // Creates a readable character channel
     // from the readable byte channel to read the content as text.
     io:ReadableCharacterChannel characterChannel = new(byteChannel, encoding);
@@ -28,8 +28,8 @@ function getReadableRecordChannel(string filePath, string encoding, string rs,
 // (e.g., a comma).
 function getWritableRecordChannel(string filePath, string encoding, string rs,
                                   string fs)
-                                        returns (io:WritableTextRecordChannel) {
-    io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
+                                        returns @tainted io:WritableTextRecordChannel|error {
+    io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
     // Creates a writable character channel
     // from the writable byte channel to read the content as text.
     io:WritableCharacterChannel characterChannel = new(byteChannel, encoding);
@@ -75,17 +75,17 @@ function closeWc(io:WritableTextRecordChannel wc) {
 }
 
 //Specifies the location of the `.CSV` file and the text file. 
-public function main() {
+public function main() returns error? {
     string srcFileName = "./files/sample.csv";
     string dstFileName = "./files/sampleResponse.txt";
     // The record separator of the `.CSV` file is a
     // new line and the field separator is a comma (,).
     io:ReadableTextRecordChannel srcRecordChannel =
-    getReadableRecordChannel(srcFileName, "UTF-8", "\\r?\\n", ",");
+    check getReadableRecordChannel(srcFileName, "UTF-8", "\\r?\\n", ",");
     //The record separator of the text file
     //is a new line and the field separator is a pipe (|).
     io:WritableTextRecordChannel dstRecordChannel =
-    getWritableRecordChannel(dstFileName, "UTF-8", "\r\n", "|");
+    check getWritableRecordChannel(dstFileName, "UTF-8", "\r\n", "|");
     io:println("Start processing the CSV file from " + srcFileName +
                " to the text file in " + dstFileName);
     var result = process(srcRecordChannel, dstRecordChannel);

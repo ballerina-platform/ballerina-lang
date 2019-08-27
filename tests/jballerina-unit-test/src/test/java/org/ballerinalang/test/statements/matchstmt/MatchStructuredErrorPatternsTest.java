@@ -70,7 +70,7 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(returns[++i].stringValue(), msg + "error : Error Code");
     }
 
-    @Test(description = "Test basics of structured pattern match statement 1", groups = "brokenOnLangLibChange")
+    @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch4() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch4", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -143,7 +143,7 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(results.getString(++i), "reason = Error Three, message = msgTwo, fatal = false");
     }
 
-    @Test(description = "TestMatchingErrorRestParameter", groups = "brokenOnLangLibChange")
+    @Test(description = "TestMatchingErrorRestParameter")
     public void testErrorRestParameterMatch() {
         BInteger[] args0 = { new BInteger(0) };
         BValue[] returns0 = BRunUtil.invoke(result, "testErrorRestParamMatch", args0);
@@ -151,7 +151,7 @@ public class MatchStructuredErrorPatternsTest {
 
         BInteger[] args1 = { new BInteger(1) };
         BValue[] returns1 = BRunUtil.invoke(result, "testErrorRestParamMatch", args1);
-        Assert.assertEquals(returns1[0].stringValue(), "(\"x\", 1)");
+        Assert.assertEquals(returns1[0].stringValue(), "x 1");
 
         BInteger[] args2 = { new BInteger(2) };
         BValue[] returns2 = BRunUtil.invoke(result, "testErrorRestParamMatch", args2);
@@ -159,7 +159,7 @@ public class MatchStructuredErrorPatternsTest {
 
         BInteger[] args3 = { new BInteger(3) };
         BValue[] returns3 = BRunUtil.invoke(result, "testErrorRestParamMatch", args3);
-        Assert.assertEquals(returns3[0].stringValue(), "Error Code{\"foo\":\"foo\"}");
+        Assert.assertEquals(returns3[0].stringValue(), "Error Code foo=foo");
     }
 
     @Test(description = "Test error match pattern")
@@ -178,19 +178,25 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(returns[++i].stringValue(), "Const reason:Msg");
     }
 
+    @Test(description = "Test indirect error match pattern")
+    public void testIndirectErrorMatchPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorMatchPattern", new BValue[]{});
+        Assert.assertEquals(returns[0].stringValue(), "Msg");
+    }
+
     @Test(description = "Test pattern will not be matched 2")
     public void testUnreachablePatterns() {
         Assert.assertEquals(resultNegative.getErrorCount(), 8);
         int i = -1;
         String unreachablePattern = "unreachable pattern: " +
                 "preceding patterns are too general or the pattern ordering is not correct";
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 27, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 32, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 42, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 48, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 58, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 63, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 77, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 82, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 29, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 34, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 44, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 50, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 60, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 65, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 80, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 13);
     }
 }

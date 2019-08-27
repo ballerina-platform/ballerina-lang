@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 2,
-    "character": 1
+    "line": 3,
+    "character": 2
   },
   "source": "annotation/source/listenerAnnotation1.bal",
   "items": [
@@ -9,17 +9,18 @@
       "label": "openapi:ClientEndpoint",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "openapi:ClientEndpoint {\n\t${1}\n}",
+      "sortText": "120",
+      "insertText": "openapi:ClientEndpoint",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },

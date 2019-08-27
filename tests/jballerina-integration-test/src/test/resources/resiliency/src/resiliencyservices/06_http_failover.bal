@@ -16,9 +16,7 @@
 //
 
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
-import ballerina/mime;
 import ballerina/runtime;
 
 listener http:Listener failoverEP05 = new(9305);
@@ -28,9 +26,9 @@ listener http:Listener backendEP05 = new(8085);
 
 // Define the failover client end point to call the backend services.
 http:FailoverClient foBackendEP05 = new({
-    timeoutMillis: 5000,
+    timeoutInMillis: 5000,
     failoverCodes: [501, 502, 503],
-    intervalMillis: 5000,
+    intervalInMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
         { url: "http://localhost:3467/inavalidEP" },
@@ -49,7 +47,7 @@ service failoverDemoService05 on failoverEP05 {
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
         string startIndex = foBackendEP05.succeededEndpointIndex.toString();
-        var backendRes = foBackendEP05->forward("/", request);
+        var backendRes = foBackendEP05->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;
             var responseToCaller = caller->respond(responseMessage);

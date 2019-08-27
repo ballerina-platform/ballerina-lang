@@ -35,13 +35,14 @@ import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.ballerinalang.net.grpc.listener.StreamingServerCallHandler;
 import org.ballerinalang.net.grpc.listener.UnaryServerCallHandler;
 import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BYTES_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_DOUBLE_MESSAGE;
@@ -101,12 +102,18 @@ public class ServicesBuilderUtils {
 
             MethodDescriptor.MethodType methodType;
             ServerCallHandler serverCallHandler;
+            MethodDescriptor.Marshaller reqMarshaller = null;
             Map<String, ServiceResource> resourceMap = new HashMap<>();
             ServiceResource mappedResource = null;
 
             for (AttachedFunction function : service.getType().getAttachedFunctions()) {
                 if (methodDescriptor.getName().equals(function.getName())) {
                     mappedResource = new ServiceResource(scheduler, service, function);
+                    reqMarshaller = ProtoUtils.marshaller(new MessageParser(requestDescriptor.getName(),
+                            getResourceInputParameterType(function)));
+                } else if (ON_MESSAGE_RESOURCE.equals(function.getName())) {
+                    reqMarshaller = ProtoUtils.marshaller(new MessageParser(requestDescriptor.getName(),
+                            getResourceInputParameterType(function)));
                 }
                 resourceMap.put(function.getName(), new ServiceResource(scheduler, service, function));
             }
@@ -124,10 +131,13 @@ public class ServicesBuilderUtils {
                 methodType = MethodDescriptor.MethodType.UNARY;
                 serverCallHandler = new UnaryServerCallHandler(methodDescriptor, mappedResource);
             }
-            MethodDescriptor.Marshaller reqMarshaller = ProtoUtils.marshaller(new MessageParser(requestDescriptor
-                    .getName(), getBallerinaValueType(requestDescriptor.getName())));
+            if (reqMarshaller == null) {
+                reqMarshaller = ProtoUtils.marshaller(new MessageParser(requestDescriptor
+                        .getName(), getBallerinaValueType(service.getType().getPackage(),
+                        requestDescriptor.getName())));
+            }
             MethodDescriptor.Marshaller resMarshaller = ProtoUtils.marshaller(new MessageParser(responseDescriptor
-                    .getName(), getBallerinaValueType(responseDescriptor.getName())));
+                    .getName(), getBallerinaValueType(service.getType().getPackage(), responseDescriptor.getName())));
             MethodDescriptor.Builder methodBuilder = MethodDescriptor.newBuilder();
             MethodDescriptor grpcMethodDescriptor = methodBuilder.setType(methodType)
                     .setFullMethodName(methodName)
@@ -228,7 +238,7 @@ public class ServicesBuilderUtils {
      * @param protoType Protocol buffer type
      * @return Mapping BType of the proto type.
      */
-    static BType getBallerinaValueType(String protoType) throws BallerinaException {
+    static BType getBallerinaValueType(BPackage bPackage, String protoType) {
         if (protoType.equalsIgnoreCase(WRAPPER_DOUBLE_MESSAGE) || protoType
                 .equalsIgnoreCase(WRAPPER_FLOAT_MESSAGE)) {
             return BTypes.typeFloat;
@@ -246,9 +256,22 @@ public class ServicesBuilderUtils {
         } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
             return new BArrayType(BTypes.typeByte);
         } else {
-            return new BRecordType(protoType, new BPackage(null, null,
-                    null), 0, false);
+            return new BRecordType(protoType, bPackage, 0, true);
         }
+    }
+
+    private static BType getResourceInputParameterType(AttachedFunction attachedFunction) {
+        BType[] inputParams = attachedFunction.type.getParameterType();
+        if (inputParams.length > 1) {
+            BType inputType = inputParams[1];
+            if (inputType != null && "Headers".equals(inputType.getName()) &&
+                    inputType.getPackage() != null && PROTOCOL_PACKAGE_GRPC.equals(inputType.getPackage().getName())) {
+                return BTypes.typeNull;
+            } else {
+                return inputParams[1];
+            }
+        }
+        return BTypes.typeNull;
     }
 
 }

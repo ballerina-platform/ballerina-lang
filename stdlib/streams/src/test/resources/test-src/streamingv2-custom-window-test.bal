@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/runtime;
 
 // Custom window implementation that injects status and phoneNo attributes to the stream.
@@ -116,8 +115,8 @@ function startSelectQuery() returns (Person[]) {
 function initFilterQuery() {
     forever {
         from childrenStream window customWindow()
-        select childrenStream.name, childrenStream.age, childrenStream.status as status,
-        childrenStream.city as address, childrenStream.phoneNo as phoneNo
+        select childrenStream.name, childrenStream.age, <string>childrenStream?.status as status,
+        childrenStream.city as address, <string>childrenStream?.phoneNo as phoneNo
         => (Person[] persons) {
             foreach var p in persons {
                 personStream.publish(p);

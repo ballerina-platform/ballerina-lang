@@ -4,7 +4,7 @@
 # `.bal` file and run the `ballerina run` command by setting `-e b7a.http.tracelog.console=true` to start the service.
 $ ballerina run caching_proxy.bal -e b7a.http.tracelog.console=true
 ballerina: deploying service(s) in 'caching_proxy.bal'
-ballerina: started HTTP/WS server connector 0.0.0.0:9090
+ballerina: started HTTP/WS listener 0.0.0.0:9090
 # The caching proxy receives a request from a client.
 [2018-03-28 21:43:28,309] TRACE {http.tracelog.downstream} - [id: 0x340d752c, correlatedSource: n/a, host:/127.0.0.1:9090 - remote:/127.0.0.1:60366] INBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
 GET /cache HTTP/1.1
@@ -120,7 +120,7 @@ content-length: 27, 27B
 # The output for the mock service.
 $ ballerina run hello_service.bal -e b7a.http.tracelog.console=true
 ballerina: deploying service(s) in 'hello_service.bal'
-ballerina: started HTTP/WS server connector 0.0.0.0:8080
+ballerina: started HTTP/WS listener 0.0.0.0:8080
 # For the first request that the caching proxy receives, it sends a request to the hello service.
 [2018-03-28 21:43:28,443] TRACE {http.tracelog.downstream} - [id: 0x5f677afe, correlatedSource: n/a, host:/127.0.0.1:8080 - remote:/127.0.0.1:47474] INBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
 GET /hello HTTP/1.1

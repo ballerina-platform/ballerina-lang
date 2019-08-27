@@ -42,11 +42,11 @@ function recordVarInRecordVar() returns [string, int, string, boolean] {
 }
 
 function getPersonWithAge() returns PersonWithAge {
-    return {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    return { name: "Peter", age: {age:29, format: "Y"}, married: true, "work": "SE" };
 }
 
 function recordVarInRecordVar2() returns [string, Age] {
-    PersonWithAge p = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    PersonWithAge p = { name: "Peter", age: {age:29, format: "Y"}, married: true, "work": "SE" };
     PersonWithAge {name: fName, age} = p;
     return [fName, age];
 }
@@ -85,9 +85,9 @@ function tupleVarInRecordVar() returns [string, int, string] {
 }
 
 function defineThreeRecordVariables() returns [string, int] {
-    PersonWithAge p1 = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE"};
-    PersonWithAge p2 = {name: "Doe", age: {age:15, format: "MM"}, married: true, work: "SE"};
-    PersonWithAge p3 = {name: "Peter", age: {age:5, format: "DD"}, married: true, work: "SE"};
+    PersonWithAge p1 = { name: "John", age: {age:30, format: "YY"}, married: true, "work": "SE" };
+    PersonWithAge p2 = { name: "Doe", age: {age:15, format: "MM"}, married: true, "work": "SE" };
+    PersonWithAge p3 = { name: "Peter", age: {age:5, format: "DD"}, married: true, "work": "SE" };
     PersonWithAge {name: fName1, age: {age: theAge1, format: format1}, married: married1} = p1;
     PersonWithAge {name: fName2, age: {age: theAge2, format: format2}, married: married2} = p2;
     PersonWithAge {name: fName3, age: {age: theAge3, format: format3}, married: married3} = p3;
@@ -109,7 +109,7 @@ function getPersonRecord() returns Person {
 }
 
 function nestedRecordVariableWithRHSInvocation() returns string {
-    PersonWithAge person = {name: "Peter", age: getAgeRecord(), married: true, work: "SE"};
+    PersonWithAge person = {name: "Peter", age: getAgeRecord(), married: true, "work": "SE"};
     PersonWithAge {name: fName, age: {age: theAge, format}, married} = person;
     string name = fName + " Parker";
     return name;
@@ -121,25 +121,25 @@ function getAgeRecord() returns Age {
 }
 
 function testRestParameter() returns map<anydata|error> {
-    PersonWithAge p = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE", other: getAgeRecord()};
+    PersonWithAge p = {name: "John", age: {age:30, format: "YY"}, married: true, "work": "SE", "other": getAgeRecord()};
     PersonWithAge {name, age: {age, format}, married, ...rest} = p;
     return rest;
 }
 
 function testNestedRestParameter() returns [map<anydata|error>, map<anydata|error>] {
-    PersonWithAge p = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
+    PersonWithAge p = { name: "John", age: { age: 30, format: "YY", "year": 1990 }, married: true, "work": "SE" };
     PersonWithAge {name, age: {age, format, ...rest1}, married, ...rest2} = p;
     return [rest1, rest2];
 }
 
 function testVariableAssignment() returns [string, int, string, boolean, map<anydata|error>] {
-    PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    PersonWithAge person = { name: "Peter", age: { age: 29, format: "Y" }, married: true, "work": "SE" };
     var {name: fName, age: {age, format}, married, ...rest} = person;
     return [fName, age, format, married, rest];
 }
 
 function testVariableAssignment2() returns [string, int, string, boolean, map<anydata|error>] {
-    PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    PersonWithAge person = { name: "Peter", age: { age: 29, format: "Y" }, married: true, "work": "SE"};
     var {name: fName, age: {age, format}, married, ...rest} = person;
     fName = "James";
     age = 30;
@@ -246,7 +246,7 @@ type UnionThree record {
 };
 
 function testRecordVarWithUnionType() returns [int, float, UnionOne|UnionTwo] {
-    UnionOne u1 = {var1: false, var2: 12, restP1: "stringP1", restP2: true};
+    UnionOne u1 = { var1: false, var2: 12, "restP1": "stringP1", "restP2": true };
     UnionThree u3 = {var1: 50, var2: 51.1, var3: u1};
     UnionThree {var1, var2, var3, ...rest} = u3;
     return [var1, var2, var3];
@@ -284,13 +284,13 @@ function testMapRecordVar() returns [anydata, anydata, anydata, string?, string?
 }
 
 function testIgnoreVariable() returns [string, int] {
-    PersonWithAge p = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
+    PersonWithAge p = { name: "John", age: { age:30, format: "YY", "year": 1990 }, married: true, "work": "SE" };
     PersonWithAge {name, age: {age, format: _, ...rest1}, married: _, ...rest2} = p;
     return [name, age];
 }
 
 function testRecordVariableWithOnlyRestParam() returns map<anydata|error> {
-    PersonWithAge p = { name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE" };
+    PersonWithAge p = { name: "John", age: { age:30, format: "YY", "year": 1990}, married: true, "work": "SE" };
     PersonWithAge { ...rest } = p;
     return rest;
 }
@@ -320,7 +320,7 @@ type ObjectRestRecord record {|
 |};
 
 function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean] {
-    IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
+    IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
     IntRestRecord { name: name1, ...other1 } = rec1;
     var { name: name2, ...other2 } = rec1;
 

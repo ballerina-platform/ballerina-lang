@@ -111,7 +111,7 @@
     extends("StaticMatch(OrExpression|(Simple|Record|List|Identifier)Literal)") = StaticMatchLiteral
 
     // This is to identify top level elements in a file.
-    implements("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
+    implements("(Type|Service|GlobalVariable|Function|Annotation|Constant)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
 
     generateTokenAccessors = true
 }
@@ -154,9 +154,8 @@ Definition ::= ( TypeDefinition
 
 private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|'@'|external|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
 
-ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=3}
-ServiceBody ::= LEFT_BRACE ServiceBodyMember* RIGHT_BRACE
-ServiceBodyMember ::= ObjectFieldDefinition | ObjectFunctionDefinition
+ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=1}
+ServiceBody ::= LEFT_BRACE ObjectFunctionDefinition* RIGHT_BRACE
 
 // Pin to make sure callable unit is identified correctly
 CallableUnitBody ::= LEFT_BRACE (RIGHT_BRACE | Statement* WorkerWithStatementsBlock+ RIGHT_BRACE | Statement+ RIGHT_BRACE ) {pin=1}
@@ -204,13 +203,9 @@ SealedLiteral ::= NOT <<restDescriptorPredicate>> ELLIPSIS
 
 ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* (public|private)? (remote|resource)? function CallableUnitSignature (CallableUnitBody | ExternalFunctionBody? SEMICOLON) {pin=5}
 
-AnnotationDefinition ::= public? const? annotation TypeName? identifier (on AttachmentPoint (COMMA AttachmentPoint)*)? SEMICOLON {
-    pin=3
-}
+AnnotationDefinition ::= public? const? annotation (TypeName identifier | identifier) (on AttachmentPoint (COMMA AttachmentPoint)*)? SEMICOLON {pin=3}
 
-ConstantDefinition ::= constWithoutType | constWithType
-private constWithType ::= PUBLIC? CONST TypeName identifier ASSIGN ConstantExpression SEMICOLON
-private constWithoutType ::= PUBLIC? CONST identifier ASSIGN ConstantExpression SEMICOLON
+ConstantDefinition ::= public? const (TypeName identifier  | identifier) ASSIGN ConstantExpression SEMICOLON  {pin=2}
 ConstantExpression ::=  SimpleLiteral | RecordLiteral
 
 GlobalVariableDefinition ::= varDefinition
@@ -282,7 +277,7 @@ ArrayTypeName ::= TypeName (LEFT_BRACKET (IntegerLiteral | MUL)? RIGHT_BRACKET)+
 NullableTypeName ::= TypeName <<nullableTypePredicate>> QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS {pin=1}
-TupleTypeName ::=  LEFT_BRACKET TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)? RIGHT_BRACKET {pin=1}
+TupleTypeName ::=  LEFT_BRACKET ((TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)?) | TupleRestDescriptor) RIGHT_BRACKET {pin=1}
 ObjectTypeName ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=3}
 
 InclusiveRecordTypeDescriptor ::=   record LEFT_BRACE FieldDescriptor* RIGHT_BRACE
@@ -359,7 +354,7 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|error|panic|from|worker|record|identifier|wait)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|checkpanic|error|panic|from|worker|record|identifier|wait)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
@@ -373,7 +368,7 @@ RecordLiteralBody ::= (RecordKeyValue (COMMA RecordKeyValue)*){pin(".*")=1}
 
 RecordKeyValue ::= RecordKey COLON Expression {pin=1}
 
-RecordKey ::= Expression | identifier
+RecordKey ::= LEFT_BRACKET Expression RIGHT_BRACKET | Expression | identifier
 
 TableLiteral ::= table LEFT_BRACE TableColumnDefinition? (COMMA TableDataArray)? RIGHT_BRACE {pin=1}
 
@@ -446,11 +441,18 @@ BindingPattern ::= identifier | StructuredBindingPattern
 
 StructuredBindingPattern ::= ListBindingPattern | RecordBindingPattern | ErrorBindingPattern
 
-ErrorBindingPattern ::= error LEFT_PARENTHESIS identifier (COMMA ErrorDetailBindingPattern)* (COMMA ErrorRestBindingPattern)? RIGHT_PARENTHESIS {pin=1}
-ErrorMatchPattern ::= TYPE_ERROR LEFT_PARENTHESIS ErrorArgListMatchPattern RIGHT_PARENTHESIS
+ErrorBindingPattern ::= (error LEFT_PARENTHESIS identifier (COMMA ErrorDetailBindingPattern)* (COMMA ErrorRestBindingPattern)? RIGHT_PARENTHESIS)
+                           | (TypeName LEFT_PARENTHESIS ErrorFieldBindingPatterns RIGHT_PARENTHESIS)
+
+ErrorFieldBindingPatterns ::= ErrorDetailBindingPattern (COMMA ErrorDetailBindingPattern)* (COMMA ErrorRestBindingPattern)? | ErrorRestBindingPattern
+
+ErrorMatchPattern ::= error LEFT_PARENTHESIS ErrorArgListMatchPattern RIGHT_PARENTHESIS | TypeName LEFT_PARENTHESIS ErrorFieldMatchPatterns RIGHT_PARENTHESIS
 ErrorArgListMatchPattern::= SimpleMatchPattern (COMMA ErrorDetailBindingPattern)* (COMMA RestMatchPattern)?
                           | ErrorDetailBindingPattern (COMMA ErrorDetailBindingPattern)* (COMMA RestMatchPattern)?
                           | RestMatchPattern
+
+ErrorFieldMatchPatterns ::= ErrorDetailBindingPattern (COMMA ErrorDetailBindingPattern)* (COMMA RestMatchPattern)? | RestMatchPattern
+
 ErrorRestBindingPattern ::= ELLIPSIS identifier
 RestMatchPattern ::= ELLIPSIS var identifier
 SimpleMatchPattern ::= var? (identifier | QUOTED_STRING_LITERAL)
@@ -476,20 +478,18 @@ BindingRefPattern ::= VariableReference
 
 StructuredRefBindingPattern ::= ListRefBindingPattern | RecordRefBindingPattern
 
-// TODO : Add rest binding pattern to comply with 2019r1 spec.
-ListRefBindingPattern ::= LEFT_BRACKET BindingRefPattern (COMMA BindingRefPattern)+ RIGHT_BRACKET {pin=1}
+ListRefBindingPattern ::= LEFT_BRACKET ((BindingRefPattern (COMMA BindingRefPattern)* (COMMA ListRefRestPattern)?) | ListRefRestPattern) RIGHT_BRACKET {pin=1}
 
-RecordRefBindingPattern ::= ClosedRecordRefBindingPattern | OpenRecordRefBindingPattern
+ListRefRestPattern ::= ELLIPSIS VariableReference {pin=1}
 
-OpenRecordRefBindingPattern ::= LEFT_BRACE EntryRefBindingPattern RIGHT_BRACE
+RecordRefBindingPattern ::= LEFT_BRACE EntryRefBindingPattern RIGHT_BRACE
 
-ClosedRecordRefBindingPattern ::= LEFT_CLOSED_RECORD_DELIMITER PIPE FieldRefBindingPattern (COMMA FieldRefBindingPattern)* PIPE RIGHT_CLOSED_RECORD_DELIMITER {pin=1}
-
-ErrorRefBindingPattern ::= error LEFT_PARENTHESIS ((VariableReference (COMMA ErrorNamedArgRefPattern)*) | ErrorNamedArgRefPattern+) (COMMA ErrorRefRestPattern)? RIGHT_PARENTHESIS
+ErrorRefBindingPattern ::= (error LEFT_PARENTHESIS ((VariableReference (COMMA ErrorNamedArgRefPattern)*) | ErrorNamedArgRefPattern+) (COMMA ErrorRefRestPattern)? RIGHT_PARENTHESIS)
+                            | (TypeName LEFT_PARENTHESIS ErrorNamedArgRefPattern (COMMA ErrorNamedArgRefPattern)*  (COMMA ErrorRefRestPattern)? RIGHT_PARENTHESIS)
 ErrorNamedArgRefPattern ::= identifier ASSIGN BindingRefPattern
 ErrorRefRestPattern::= ELLIPSIS VariableReference
 
-EntryRefBindingPattern ::= FieldRefBindingPattern (COMMA FieldRefBindingPattern)* (COMMA RestRefBindingPattern)? | RestRefBindingPattern
+EntryRefBindingPattern ::= FieldRefBindingPattern (COMMA FieldRefBindingPattern)* (COMMA RestRefBindingPattern)? | RestRefBindingPattern?
 
 FieldRefBindingPattern ::= identifier (COLON BindingRefPattern)? {pin=1}
 
@@ -773,40 +773,10 @@ NamedArgs ::= identifier ASSIGN Expression {pin=2}
 
 RestArgs ::= ELLIPSIS Expression {pin=1}
 
-// XML parsing
+// Todo - remove after restoring xml grammar
+XmlLiteral ::= XML_LITERAL_START XmlAllowedText XML_LITERAL_END
+XmlAllowedText ::= XML_ALL_CHAR*
 
-XmlLiteral ::= XML_LITERAL_START XmlItem XML_LITERAL_END {pin=1}
-
-XmlItem ::= ProcIns | Comment | Element | XmlText | cdata
-
-Content ::= XmlText? ((ProcIns | Comment | Element | cdata) XmlText?)*
-
-//Todo - Verify
-Comment ::= XML_COMMENT_START (XML_COMMENT_TEMPLATE_TEXT Expression RIGHT_BRACE)* XML_COMMENT_TEXT* XML_COMMENT_END {pin=1}
-
-Element ::= StartTag Content CloseTag | EmptyTag
-
-StartTag ::= XML_TAG_OPEN XmlQualifiedName Attribute* XML_TAG_CLOSE {pin=1}
-
-CloseTag ::= XML_TAG_OPEN_SLASH XmlQualifiedName XML_TAG_CLOSE {pin=1}
-
-EmptyTag ::= XML_TAG_OPEN XmlQualifiedName Attribute* XML_TAG_SLASH_CLOSE {pin=1}
-
-ProcIns ::= XML_TAG_SPECIAL_OPEN (XML_PI_TEMPLATE_TEXT Expression RIGHT_BRACE)* XML_PI_TEXT {pin=1}
-
-Attribute ::= XmlQualifiedName EQUALS XmlQuotedString;
-
-XmlText ::= (XML_TEMPLATE_TEXT Expression RIGHT_BRACE)+ XML_TEXT_SEQUENCE? | XML_TEXT_SEQUENCE
-
-XmlQuotedString ::= XmlSingleQuotedString | XmlDoubleQuotedString
-
-XmlSingleQuotedString ::= SINGLE_QUOTE (XML_SINGLE_QUOTED_TEMPLATE_STRING Expression RIGHT_BRACE)* XML_SINGLE_QUOTED_STRING_SEQUENCE? SINGLE_QUOTE_END
-
-XmlDoubleQuotedString ::= DOUBLE_QUOTE (XML_DOUBLE_QUOTED_TEMPLATE_STRING Expression RIGHT_BRACE)* XML_DOUBLE_QUOTED_STRING_SEQUENCE? DOUBLE_QUOTE_END
-
-XmlQualifiedName ::= (XML_QNAME QNAME_SEPARATOR)? XML_QNAME
-
-// Todo - Uncomment
 StringTemplateLiteral ::= STRING_TEMPLATE_LITERAL_START StringTemplateContent? STRING_TEMPLATE_LITERAL_END {pin=1 /*recoverWhile=StringTemplateLiteralRecover*/}
 
 // Todo - Update to statement recover

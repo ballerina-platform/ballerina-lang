@@ -26,8 +26,8 @@ under the License.
                 <exclude name="broken"/>
             </run>
         </groups>
-<!--        <packages>-->
-<!--            <package name="org.ballerinalang.langserver.compiler.*"/>-->
-<!--        </packages>-->
+        <packages>
+            <package name="org.ballerinalang.langserver.compiler.*"/>
+        </packages>
     </test>
 </suite>

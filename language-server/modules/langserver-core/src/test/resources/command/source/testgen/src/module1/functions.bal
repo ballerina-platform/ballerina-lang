@@ -42,7 +42,7 @@ public function returnJson(int n1, int n2, int n3) returns json {
     return j;
 }
 
-function functionPointerAsParam(int a, function (int x, int y) returns (int) func) returns (int) {
+public function functionPointerAsParam(int a, function (int x, int y) returns (int) func) returns (int) {
     int x = a + func.call(6, 70);
     return x;
 }
@@ -59,7 +59,7 @@ public function complexInput(task:Scheduler scheduler) returns error? {
     return ();
 }
 
-function complexReturnType(string url) returns http:Client {
+public function complexReturnType(string url) returns http:Client {
     http:Client myclient = new("https://postman-echo.com/get?foo1=bar1&foo2=bar2");
     return myclient;
 }

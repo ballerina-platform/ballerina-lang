@@ -120,6 +120,7 @@ public class VisibleEndpointTest {
         JsonArray visibleEpsInNestedIf = wrapperIf
                 .getAsJsonArray("statements")
                 .get(0).getAsJsonObject() // first statement is a If
+                .getAsJsonObject("body")
                 .getAsJsonArray("VisibleEndpoints");
         Assert.assertEquals(visibleEpsInNestedIf.get(0).getAsJsonObject().get("name").getAsString(),
                 "clientEPInNestedIf");
@@ -127,6 +128,7 @@ public class VisibleEndpointTest {
         JsonArray visibleEpsInNestedWhile = wrapperIf
                 .getAsJsonArray("statements")
                 .get(1).getAsJsonObject() // second statement is a While
+                .getAsJsonObject("body")
                 .getAsJsonArray("VisibleEndpoints");
         Assert.assertEquals(visibleEpsInNestedWhile.get(0).getAsJsonObject().get("name").getAsString(),
                 "clientEPInNestedWhile");
@@ -141,6 +143,7 @@ public class VisibleEndpointTest {
         JsonArray visibleEpsInNestedIfF2 = wrapperWhile
                 .getAsJsonArray("statements")
                 .get(0).getAsJsonObject() // first statement is a If
+                .getAsJsonObject("body")
                 .getAsJsonArray("VisibleEndpoints");
         Assert.assertEquals(visibleEpsInNestedIfF2.get(0).getAsJsonObject().get("name").getAsString(),
                 "clientEPInNestedIf");
@@ -148,6 +151,7 @@ public class VisibleEndpointTest {
         JsonArray visibleEpsInNestedWhileF2 = wrapperWhile
                 .getAsJsonArray("statements")
                 .get(1).getAsJsonObject() // second statement is a While
+                .getAsJsonObject("body")
                 .getAsJsonArray("VisibleEndpoints");
         Assert.assertEquals(visibleEpsInNestedWhileF2.get(0).getAsJsonObject().get("name").getAsString(),
                 "clientEPInNestedWhile");
