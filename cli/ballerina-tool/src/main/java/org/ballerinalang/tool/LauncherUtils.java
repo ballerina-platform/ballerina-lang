@@ -450,7 +450,7 @@ public class LauncherUtils {
             Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
             classLoader = BootstrapRunner.createClassLoaders(entryPkgNode,
                     Paths.get(balHome).resolve("bir-cache"),
-                    targetDirectory,  Optional.empty(), false);
+                    targetDirectory, Optional.empty(), false, false);
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }

@@ -6,28 +6,28 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "java-nats-streaming"
+    artifactId = "java-nats-streaming"
     version = "2.2.1"
     path = "./lib/java-nats-streaming-2.2.1.jar"
     groupId = "io.nats"
     modules = ["nats"]
 
     [[platform.libraries]]
-    artafactId = "jnats"
+    artifactId = "jnats"
     version = "2.6.0"
     path = "./lib/jnats-2.6.0.jar"
     groupId = "io.nats"
     modules = ["nats"]
 
     [[platform.libraries]]
-    artafactId = "protobuf-java"
+    artifactId = "protobuf-java"
     version = "3.9.1"
     path = "./lib/protobuf-java-3.9.1.jar"
     groupId = "com.google.protobuf"
     modules = ["nats"]
     
     [[platform.libraries]]
-    artafactId = "nats"
+    artifactId = "nats"
     version = "@project.version@"
     path = "./lib/ballerina-nats-@project.version@.jar"
     groupId = "ballerina"
