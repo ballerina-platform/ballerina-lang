@@ -30,12 +30,13 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.io.PrintStream;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_SERVER_CONNECTOR_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERVICE_STOPPED;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getBrokerNames;
 
 /**
  * Stop the server connector.
@@ -56,7 +57,7 @@ public class Stop {
 
     public static Object stop(Strand strand, ObjectValue listener) {
         KafkaServerConnectorImpl serverConnector = (KafkaServerConnectorImpl) listener
-                .getNativeData(CONSUMER_SERVER_CONNECTOR_NAME);
+                .getNativeData(SERVER_CONNECTOR);
         boolean isStopped;
         try {
             isStopped = serverConnector.stop();
@@ -66,7 +67,7 @@ public class Stop {
         if (!isStopped) {
             return KafkaUtils.createKafkaError("Failed to stop the kafka service.", CONSUMER_ERROR);
         }
-        console.println(SERVICE_STOPPED);
+        console.println(SERVICE_STOPPED + getBrokerNames(listener));
         return null;
     }
 }

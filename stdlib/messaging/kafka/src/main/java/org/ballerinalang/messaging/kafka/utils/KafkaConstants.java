@@ -59,7 +59,7 @@ public class KafkaConstants {
 
     public static final String CONSUMER_RECORD_STRUCT_NAME = "ConsumerRecord";
     public static final String CONSUMER_STRUCT_NAME = "Consumer";
-    public static final String CONSUMER_SERVER_CONNECTOR_NAME = "serverConnector";
+    public static final String SERVER_CONNECTOR = "serverConnector";
 
     public static final String CONSUMER_CONFIG_FIELD_NAME = "consumerConfig";
 
