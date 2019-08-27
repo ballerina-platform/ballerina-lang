@@ -161,7 +161,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private MapValue<String, Object> createFrozenBatchUpdateResultRecord(ArrayValue countArray,
             MapValue<String, ArrayValue> generatedKeys, ErrorValue retError) {
         MapValue<String, Object> batchUpdateResultRecord = BallerinaValues
-                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.JDBC_BATCH_UPDATE_RESULT);
+                .createRecordValue(Constants.JDBC_PACKAGE_ID, Constants.JDBC_BATCH_UPDATE_RESULT);
         MapValue<String, Object> populatedUpdateResultRecord = BallerinaValues
                 .createRecord(batchUpdateResultRecord, countArray, generatedKeys, retError);
         populatedUpdateResultRecord.attemptFreeze(new Status(State.FROZEN));

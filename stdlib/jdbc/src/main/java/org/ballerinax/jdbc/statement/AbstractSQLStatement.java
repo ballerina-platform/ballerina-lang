@@ -294,7 +294,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     private MapValue<String, Object> getSQLParameter() {
-        return BallerinaValues.createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.SQL_PARAMETER);
+        return BallerinaValues.createRecordValue(Constants.JDBC_PACKAGE_ID, Constants.SQL_PARAMETER);
     }
 
     /**
