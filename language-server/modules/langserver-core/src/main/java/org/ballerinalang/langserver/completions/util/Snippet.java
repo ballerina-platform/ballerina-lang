@@ -78,6 +78,8 @@ public enum Snippet {
 
     DEF_IMMEDIATE_STOP_FUNCTION(SnippetGenerator.getImmediateStopFunctionSnippet()),
 
+    DEF_DETACH_FUNCTION(SnippetGenerator.getDetachFunctionSnippet()),
+
     // Expressions Snippets
     EXPR_MATCH(SnippetGenerator.getMatchExpressionSnippet()),
     
