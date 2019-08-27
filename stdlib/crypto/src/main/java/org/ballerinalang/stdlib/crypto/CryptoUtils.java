@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.stdlib.crypto;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -54,7 +54,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class CryptoUtils {
 
-    private static final Log LOG = LogFactory.getLog(CryptoUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CryptoUtils.class);
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
