@@ -158,7 +158,7 @@ public class CodeGenerator {
     public void generateService(String executionPath, String definitionPath,
                                 String reldefinitionPath, String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(GenType.GEN_SERVICE, executionPath, definitionPath, reldefinitionPath , serviceName, outPath);
+        generate(GenType.GEN_SERVICE, executionPath, definitionPath, reldefinitionPath, serviceName, outPath);
     }
 
     /**

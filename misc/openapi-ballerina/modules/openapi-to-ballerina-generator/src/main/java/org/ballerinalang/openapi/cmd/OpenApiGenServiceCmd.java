@@ -203,7 +203,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         Path pathRelative = basePath.relativize(absPath);
 
         try {
-            generator.generateService(executionPath, resourcePath.toString() , pathRelative.toString(),
+            generator.generateService(executionPath, resourcePath.toString(), pathRelative.toString(),
                     moduleArgs.get(1), output);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
