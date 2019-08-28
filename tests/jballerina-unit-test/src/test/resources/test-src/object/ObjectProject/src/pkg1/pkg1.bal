@@ -40,3 +40,15 @@ public type SameFieldAndMethodObject object {
         return [f1, f2];
     }
 };
+
+public type TempCache object {
+    public int capacity;
+    public int expiryTimeInMillis;
+    public float evictionFactor;
+
+    public function __init(public int expiryTimeInMillis = 900000, public int capacity = 100, public float evictionFactor = 0.25) {
+        self.capacity = capacity;
+        self.expiryTimeInMillis = expiryTimeInMillis;
+        self.evictionFactor = evictionFactor;
+    }
+};

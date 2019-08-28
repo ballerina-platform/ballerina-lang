@@ -155,6 +155,7 @@ public enum DiagnosticCode {
     REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT("remote.function.in.non.client.object"),
     RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT("resource.function.in.non.service.object"),
     RESOURCE_FUNCTION_WITH_VISIBILITY_QUALIFIER("resource.function.with.visibility.qualifier"),
+    RESOURCE_FUNCTION_INVALID_RETURN_TYPE("resource.function.invalid.return.type"),
     REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
     INVALID_LISTENER_VARIABLE("invalid.listener.var"),
     INVALID_LISTENER_ATTACHMENT("invalid.listener.attachment"),
@@ -456,7 +457,9 @@ public enum DiagnosticCode {
 
     VERSIONED_IMPORT_NOT_SUPPORTED("versioned.import.not.supported"),
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
-    INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment")
+    INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
+
+    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics")
 
     ;
     private String value;

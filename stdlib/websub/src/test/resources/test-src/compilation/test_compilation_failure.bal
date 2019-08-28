@@ -112,18 +112,6 @@ service {
 };
 
 service websubSubscriberEight =
-@websub:SubscriberServiceConfig {
-    path: "/websub",
-    subscribeOnStartUp: true,
-    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
-}
-service {
-    resource function onNotification (websub:Notification notification) returns int? {
-        return 10;
-    }
-};
-
-service websubSubscriberNine =
 service {
     resource function noSubscriberServiceConfig (websub:Notification notification) {
     }

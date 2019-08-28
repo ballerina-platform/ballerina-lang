@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_INFO_TYPE;
-import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE_PATH;
+import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE_ID;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.createTimeRecord;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeRecord;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeZoneRecord;
@@ -79,7 +79,7 @@ public class FileUtils {
         } else {
             valueMap.put(FileConstants.ERROR_MESSAGE, UNKNOWN_MESSAGE);
         }
-        return BallerinaValues.createRecordValue(FILE_PACKAGE_PATH, FileConstants.ERROR_DETAILS, valueMap);
+        return BallerinaValues.createRecordValue(FILE_PACKAGE_ID, FileConstants.ERROR_DETAILS, valueMap);
     }
 
     public static ObjectValue getFileInfo(File inputFile) throws IOException {
@@ -88,7 +88,7 @@ public class FileUtils {
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
                 lastModified.toMillis(), zonedDateTime.getZone().toString());
-        return BallerinaValues.createObjectValue(FILE_PACKAGE_PATH, FILE_INFO_TYPE, inputFile.getName(),
+        return BallerinaValues.createObjectValue(FILE_PACKAGE_ID, FILE_INFO_TYPE, inputFile.getName(),
                 inputFile.length(), lastModifiedInstance, inputFile.isDirectory());
     }
 

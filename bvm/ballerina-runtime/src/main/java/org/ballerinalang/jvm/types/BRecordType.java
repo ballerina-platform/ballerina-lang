@@ -66,7 +66,7 @@ public class BRecordType extends BStructureType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) BallerinaValues.createRecordValue(this.pkg.toString(), this.typeName);
+        return (V) BallerinaValues.createRecordValue(this.pkg, this.typeName);
     }
 
     @SuppressWarnings("unchecked")
