@@ -32,6 +32,8 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
+
 /**
  * Extern function ballerina/io#createCsvChannel.
  *
@@ -55,11 +57,6 @@ import org.slf4j.LoggerFactory;
 )
 public class CreateCsvChannel {
     private static final Logger log = LoggerFactory.getLogger(CreateCsvChannel.class);
-
-    /**
-     * The package path of the delimited record channel.
-     */
-    private static final String RECORD_CHANNEL_PACKAGE = "ballerina/io";
     /**
      * The type of the delimited record channel.
      */
@@ -68,7 +65,7 @@ public class CreateCsvChannel {
     public static Object createCsvChannel(Strand strand, String filePath, String accessMode, String format,
                                           String charset) {
         try {
-            ObjectValue textRecordChannel = BallerinaValues.createObjectValue(RECORD_CHANNEL_PACKAGE, STRUCT_TYPE);
+            ObjectValue textRecordChannel = BallerinaValues.createObjectValue(IO_PACKAGE_ID, STRUCT_TYPE);
             DelimitedRecordChannel delimitedRecordChannel =
                     IOUtils.createDelimitedRecordChannelExtended(filePath, charset, accessMode, Format.valueOf(format));
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);

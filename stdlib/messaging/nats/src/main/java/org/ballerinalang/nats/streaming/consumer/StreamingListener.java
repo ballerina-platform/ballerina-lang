@@ -54,8 +54,8 @@ public class StreamingListener implements MessageHandler {
      */
     @Override
     public void onMessage(Message msg) {
-        ObjectValue ballerinaNatsMessage = BallerinaValues
-                .createObjectValue(Constants.NATS_PACKAGE, NATS_STREAMING_MESSAGE_OBJ_NAME, msg.getSubject(),
+        ObjectValue ballerinaNatsMessage = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
+                NATS_STREAMING_MESSAGE_OBJ_NAME, msg.getSubject(),
                         new ArrayValue(msg.getData()), msg.getReplyTo());
         ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MSG, msg);
         AttachedFunction onMessageResource = getAttachedFunction(service, "onMessage");
