@@ -54,7 +54,7 @@ public class WriteCharacters {
         try {
             return characterChannel.write(content, (int) startOffset);
         } catch (IOException e) {
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
     }
 

@@ -57,7 +57,7 @@ public class WriteInt64 {
             channel.writeLong(value, Representation.BIT_64);
         } catch (IOException e) {
             log.error("Error occurred while writing int64.", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
         return null;
     }

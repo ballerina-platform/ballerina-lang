@@ -56,7 +56,7 @@ public class OpenReadableFile extends AbstractNativeChannel {
         try {
             channel = createChannel(inFlow(pathUrl));
         } catch (BallerinaIOException e) {
-            channel = IOUtils.createError(e.getMessage());
+            channel = IOUtils.createError(e);
         } catch (ErrorValue e) {
             return e;
         }

@@ -53,19 +53,7 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
  */
 public class IOUtils {
 
-    private static final String PACKAGE_IO = "ballerina/io";
-
     private IOUtils() {
-    }
-
-    /**
-     * Creates an error message.
-     *
-     * @param values  the error details
-     * @return an error which will be propagated to ballerina user
-     */
-    public static ErrorValue createError(Object... values) {
-        return BallerinaErrors.createError(GenericError.errorCode(), createDetailRecord(values));
     }
 
     /**
@@ -76,6 +64,16 @@ public class IOUtils {
      */
     public static ErrorValue createError(String errorMsg) {
         return BallerinaErrors.createError(GenericError.errorCode(), createDetailRecord(errorMsg, null));
+    }
+
+    /**
+     * Creates an error message.
+     *
+     * @param error Java throwable instance
+     * @return an error which will be propagated to ballerina user
+     */
+    public static ErrorValue createError(Throwable error) {
+        return createError(error.getMessage());
     }
 
     /**

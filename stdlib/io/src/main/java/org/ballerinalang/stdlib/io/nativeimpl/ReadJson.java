@@ -57,7 +57,7 @@ public class ReadJson {
             return JSONParser.parse(reader);
         } catch (BallerinaException e) {
             log.error("unable to read json from character channel", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
     }
 }

@@ -57,7 +57,7 @@ public class WriteInt32 {
             channel.writeLong(value, Representation.BIT_32);
         } catch (IOException e) {
             log.error("Error occurred while writing int32.", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
         return null;
     }

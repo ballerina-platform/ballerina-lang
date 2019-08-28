@@ -63,7 +63,7 @@ public class WriteBytes {
             return byteChannel.write(writeBuffer);
         } catch (IOException e) {
             log.error("Error occurred while writing to the channel.", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
     }
 

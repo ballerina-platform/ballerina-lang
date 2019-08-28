@@ -294,11 +294,11 @@ public class CharacterChannel implements IOChannel {
      * @throws BallerinaIOException during I/O error.
      */
     public String read(int numberOfCharacters) throws BallerinaIOException {
-        //Will identify the number of characters required
+        //Identify the number of characters required
         int charsRequiredToBeReadFromChannel;
         StringBuilder content = new StringBuilder(numberOfCharacters);
         int numberOfBytesRequired = numberOfCharacters * MAX_BYTES_PER_CHAR;
-        //First the remaining buffer would be get and the characters remaining in the buffer will be written
+        //Initially the remaining buffer would be obtained and the characters remaining in the buffer will be written
         appendRemainingCharacters(content);
         //Content capacity would give the total size of the string builder (number of chars)
         //Content length will give the number of characters appended to the builder through the function
@@ -313,7 +313,7 @@ public class CharacterChannel implements IOChannel {
                     charsRequiredToBeReadFromChannel));
         }
         asyncReadBytesFromChannel(numberOfBytesRequired, numberOfCharacters);
-        //We need to ensure that the required amount of characters are available in the buffer
+        //Ensure that the required amount of characters are available in the buffer
         if (charBuffer.limit() < charsRequiredToBeReadFromChannel) {
             //This means the amount of chars required are not available
             charsRequiredToBeReadFromChannel = charBuffer.limit();

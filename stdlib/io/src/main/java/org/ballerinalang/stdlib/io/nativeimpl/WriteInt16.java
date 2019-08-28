@@ -57,7 +57,7 @@ public class WriteInt16 {
             channel.writeLong(value, Representation.BIT_16);
         } catch (IOException e) {
             log.error("Error occurred while writing int16.", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
         return null;
     }

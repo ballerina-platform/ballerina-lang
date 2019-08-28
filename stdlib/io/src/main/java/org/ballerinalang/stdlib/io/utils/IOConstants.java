@@ -53,12 +53,6 @@ public class IOConstants {
      */
     public static final int CHANNEL_BUFFER_SIZE = 16384;
 
-    /**
-     * Specifies the io package information.
-     */
-    public static final String IO_PACKAGE = "ballerina/io";
-
-
     public static final BPackage IO_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "io");
 
     /**

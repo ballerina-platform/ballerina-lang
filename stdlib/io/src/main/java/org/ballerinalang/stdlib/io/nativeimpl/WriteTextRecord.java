@@ -54,7 +54,7 @@ public class WriteTextRecord {
         try {
             delimitedRecordChannel.write(content);
         } catch (IOException e) {
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
         return null;
     }

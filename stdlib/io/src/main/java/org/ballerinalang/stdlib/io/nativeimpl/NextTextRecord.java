@@ -60,7 +60,7 @@ public class NextTextRecord {
                 return new ArrayValue(delimitedRecordChannel.read());
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading next text record from ReadableTextRecordChannel", e);
-                return IOUtils.createError(e.getMessage());
+                return IOUtils.createError(e);
             }
         }
     }

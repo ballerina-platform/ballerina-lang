@@ -62,8 +62,9 @@ public class ReadString {
             try {
                 return channel.readString((int) nBytes, encoding);
             } catch (IOException e) {
-                log.error("Error occurred while reading string.", e);
-                return IOUtils.createError(e);
+                String msg = "Error occurred while reading string: " + e.getMessage();
+                log.error(msg, e);
+                return IOUtils.createError(msg);
             }
         }
     }

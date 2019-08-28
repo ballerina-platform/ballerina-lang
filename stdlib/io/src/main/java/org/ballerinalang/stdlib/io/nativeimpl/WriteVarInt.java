@@ -57,7 +57,7 @@ public class WriteVarInt {
             channel.writeLong(value, Representation.VARIABLE);
         } catch (IOException e) {
             log.error("Error occurred while writing VarInt.", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
         return null;
     }

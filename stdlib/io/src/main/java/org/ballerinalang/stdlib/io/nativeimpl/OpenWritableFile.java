@@ -64,7 +64,7 @@ public class OpenWritableFile extends AbstractNativeChannel {
         try {
             return createChannel(inFlow(pathUrl, accessMode));
         } catch (BallerinaIOException e) {
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         } catch (ErrorValue e) {
             return e;
         }

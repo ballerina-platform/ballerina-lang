@@ -52,7 +52,7 @@ public class ReadXml {
         try {
             return XMLFactory.parse(reader);
         } catch (BallerinaException e) {
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
     }
 }

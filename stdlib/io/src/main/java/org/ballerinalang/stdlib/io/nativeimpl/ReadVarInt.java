@@ -55,7 +55,7 @@ public class ReadVarInt {
             return channel.readLong(Representation.VARIABLE).getValue();
         } catch (IOException e) {
             log.error("Error occurred while reading VarInt", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
     }
 

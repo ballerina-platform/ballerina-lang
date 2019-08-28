@@ -55,7 +55,7 @@ public class ReadInt64 {
             return channel.readLong(Representation.BIT_64).getValue();
         } catch (IOException e) {
             log.error("error occurred while reading Int64", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
     }
 

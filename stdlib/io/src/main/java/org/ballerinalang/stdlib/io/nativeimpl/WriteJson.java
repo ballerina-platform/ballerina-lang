@@ -52,7 +52,7 @@ public class WriteJson {
                     IOConstants.CHARACTER_CHANNEL_NAME);
             IOUtils.writeFull(characterChannel, content.toString());
         } catch (BallerinaIOException e) {
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
         return null;
     }

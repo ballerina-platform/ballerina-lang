@@ -57,7 +57,7 @@ public class WriteString {
             channel.writeString(value, encoding);
         } catch (IOException e) {
             log.error("Error occurred while writing string.", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
         return null;
     }

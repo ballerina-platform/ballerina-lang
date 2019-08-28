@@ -57,7 +57,7 @@ public class WriteFloat32 {
             channel.writeDouble(value, Representation.BIT_32);
         } catch (IOException e) {
             log.error("Error occurred while writing float32.", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
         return null;
     }

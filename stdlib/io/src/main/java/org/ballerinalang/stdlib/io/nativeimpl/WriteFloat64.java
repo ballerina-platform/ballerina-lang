@@ -57,7 +57,7 @@ public class WriteFloat64 {
             channel.writeDouble(value, Representation.BIT_64);
         } catch (IOException e) {
             log.error("Error occurred while writing float64.", e);
-            return IOUtils.createError(e.getMessage());
+            return IOUtils.createError(e);
         }
         return null;
     }
