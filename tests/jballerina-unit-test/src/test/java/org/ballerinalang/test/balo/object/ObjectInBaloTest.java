@@ -396,19 +396,22 @@ public class ObjectInBaloTest {
         BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 7, 35);
     }
 
-    @Test (description = "Negative test to test returning different type without type name")
+    @Test(description = "Negative test to test returning different type without type name")
     public void testObjectNegativeTestForReturnDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
                 "/object_new_in_return_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
-        BAssertUtil.validateError(result, 0, "cannot infer type of the object from 'testorg/foo:1.0.0:Apartment?'", 8,
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "cannot infer type of the object from 'testorg/foo:1.0.0:Apartment?'", 8,
                 12);
-        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'testorg/foo:1.0.0:Apartment?'", 12,
+        BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new'()", 8, 12);
+        BAssertUtil.validateError(result, i++, "cannot infer type of the object from 'testorg/foo:1.0.0:Apartment?'", 12,
                 33);
-        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'other'", 13, 19);
-        BAssertUtil.validateError(result, 3, "invalid variable definition; can not infer the assignment type.",
+        BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new'()", 12, 33);
+        BAssertUtil.validateError(result, i++, "cannot infer type of the object from 'other'", 13, 19);
+        BAssertUtil.validateError(result, i++, "invalid variable definition; can not infer the assignment type.",
                 13, 19);
-        BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'error'", 14, 21);
+        BAssertUtil.validateError(result, i++, "cannot infer type of the object from 'error'", 14, 21);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
 //    @Test (description = "Negative test to test returning different type without type name")
