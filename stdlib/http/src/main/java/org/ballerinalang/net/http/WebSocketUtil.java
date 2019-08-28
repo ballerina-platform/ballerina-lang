@@ -296,7 +296,6 @@ public class WebSocketUtil {
     }
 
     private static ErrorValue createErrorCause(String message, String reason, String packageName, String recordName) {
-
         MapValue<String, Object> detailRecordType = BallerinaValues.createRecordValue(packageName, recordName);
         MapValue<String, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
         return BallerinaErrors.createError(reason, detailRecord);
