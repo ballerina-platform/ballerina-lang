@@ -266,7 +266,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         funcNode.annAttachments.forEach(annotationAttachment -> {
             if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
-            } else if (funcNode.attachedOuterFunction || funcNode.attachedFunction) {
+            } else if (funcNode.attachedFunction) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
             }
             annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
@@ -492,6 +492,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
 
         if (varNode.isDeclaredWithVar) {
+            validateWorkerAnnAttachments(varNode.expr);
             handleDeclaredWithVar(varNode);
             return;
         }
@@ -526,7 +527,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         validateAnnotationAttachmentCount(varNode.annAttachments);
 
-        validateStartAnnAttachments(varNode.expr);
+        validateWorkerAnnAttachments(varNode.expr);
 
         if (varNode.name.value.equals(Names.IGNORE.value)) {
             // Fake symbol to prevent runtime failures down the line.
@@ -558,10 +559,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     /**
-     * Validate annotation attachment of START action.
+     * Validate annotation attachment of the `start` action or workers.
+     *
      * @param expr expression to be validated.
      */
-    private void validateStartAnnAttachments(BLangExpression expr) {
+    private void validateWorkerAnnAttachments(BLangExpression expr) {
         if (expr != null && expr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) expr).async) {
             ((BLangInvocation) expr).annAttachments.forEach(annotationAttachment -> {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.WORKER);
@@ -1459,7 +1461,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         typeChecker.checkExpr(assignNode.expr, this.env, expType);
 
-        validateStartAnnAttachments(assignNode.expr);
+        validateWorkerAnnAttachments(assignNode.expr);
 
         resetTypeNarrowing(varRef, assignNode.expr);
     }
@@ -1874,7 +1876,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (bType != symTable.nilType && bType != symTable.semanticError) {
             dlog.error(exprStmtNode.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
         }
-        validateStartAnnAttachments(exprStmtNode.expr);
+        validateWorkerAnnAttachments(exprStmtNode.expr);
     }
 
     @Override
@@ -2226,7 +2228,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnNode) {
         this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.type);
-        validateStartAnnAttachments(returnNode.expr);
+        validateWorkerAnnAttachments(returnNode.expr);
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
@@ -2565,11 +2567,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param funcNode Function node
      */
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
-        if (funcNode.attachedOuterFunction) {
-            dlog.error(funcNode.pos, DiagnosticCode.OBJECT_OUTSIDE_METHODS_NOT_ALLOWED);
-            return;
-        }
-
         if (!funcNode.attachedFunction) {
             return;
         }
