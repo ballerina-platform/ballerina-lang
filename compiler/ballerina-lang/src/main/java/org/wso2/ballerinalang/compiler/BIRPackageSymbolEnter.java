@@ -471,7 +471,7 @@ public class BIRPackageSymbolEnter {
         symbol.retType = typeDefSymbol.type;
         scope.define(symbol.name, symbol);
 
-        ((BErrorType) typeDefSymbol.type).ctorSymbol = symbol;
+        ((BErrorTypeSymbol) typeDefSymbol).ctorSymbol = symbol;
     }
 
     private BType readBType(DataInputStream dataInStream) throws IOException {
