@@ -109,7 +109,9 @@
         <quoteHandler fileType="Ballerina file"
                       className="io.ballerina.plugins.idea.editor.BallerinaQuoteHandler"/>
 
-        <enterHandlerDelegate implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
+        <!-- Enter Handlers-->
+        <enterHandlerDelegate order="last"
+                              implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
         <enterHandlerDelegate
                 implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterInDocumentationHandler"/>
 
