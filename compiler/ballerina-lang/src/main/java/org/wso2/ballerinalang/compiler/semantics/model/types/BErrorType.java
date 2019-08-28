@@ -33,7 +33,6 @@ public class BErrorType extends BType implements ErrorType {
 
     public BType reasonType;
     public BType detailType;
-    public BConstructorSymbol ctorSymbol;
 
     public BErrorType(BTypeSymbol tSymbol, BType reasonType, BType detailType) {
         super(TypeTags.ERROR, tSymbol);

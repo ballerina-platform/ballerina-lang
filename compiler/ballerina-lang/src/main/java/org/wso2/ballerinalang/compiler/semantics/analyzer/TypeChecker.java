@@ -2853,7 +2853,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.pos)) {
+        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.name, iExpr.pos)) {
             return;
         }
 
@@ -2893,7 +2893,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         resultType = expectedError;
         if (iExpr.symbol == symTable.errorType.tsymbol) {
-            iExpr.symbol = expectedError.ctorSymbol;
+            iExpr.symbol = ((BErrorTypeSymbol) expectedError.tsymbol).ctorSymbol;
         }
     }
 
@@ -2956,10 +2956,9 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, DiagnosticPos pos) {
+    private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, BLangIdentifier name, DiagnosticPos pos) {
         if (errorType.reasonType.tag != TypeTags.FINITE) {
-            dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
-                    errorType.ctorSymbol.name);
+            dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON, name);
             resultType = symTable.semanticError;
             return true;
         } else {
