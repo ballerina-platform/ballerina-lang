@@ -24,7 +24,6 @@ type TerminatorGenerator object {
     BalToJVMIndexMap indexMap;
     LabelGenerator labelGen;
     ErrorHandlerGenerator errorGen;
-    int lambdaIndex = 0;
     bir:Package module;
     string currentPackageName;
 
@@ -497,7 +496,7 @@ type TerminatorGenerator object {
             paramIndex += 1;
         }
         string funcName = callIns.name.value;
-        string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex.toString() + "$";
+        string lambdaName = "$" + funcName + "$lambda$" + lambdaIndex.toString() + "$";
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
 
         bir:BType? futureType = callIns.lhsOp?.typeValue;
@@ -508,7 +507,7 @@ type TerminatorGenerator object {
         boolean isVoid = returnType is bir:BTypeNil;
         createFunctionPointer(self.mv, currentClass, lambdaName, isVoid, 0);
         lambdas[lambdaName] = callIns;
-        self.lambdaIndex += 1;
+        lambdaIndex += 1;
         
         self.submitToScheduler(callIns.lhsOp, localVarOffset);
     }
