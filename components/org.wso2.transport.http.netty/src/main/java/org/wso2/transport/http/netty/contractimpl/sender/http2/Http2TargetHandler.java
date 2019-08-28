@@ -23,10 +23,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
+import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2NoMoreStreamIdsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,13 +213,17 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 serverPush = true;
             } else {
                 LOG.warn("Header Frame received on channel: {} with invalid stream id: {} ",
-                        http2ClientChannel, streamId);
+                         http2ClientChannel, streamId);
                 return;
             }
+        } else if (isUnexpected100ContinueResponse(http2HeadersFrame.getHeaders(), outboundMsgHolder.getRequest())) {
+            LOG.warn("Received an unexpected 100-continue response");
+            return;
         }
         Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame,
-                outboundMsgHolder, serverPush, http2MessageStateContext);
+                                                                             outboundMsgHolder, serverPush,
+                                                                             http2MessageStateContext);
     }
 
     private void onDataRead(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame) {
@@ -277,5 +283,10 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             LOG.debug("Channel is inactive");
         }
         http2ClientChannel.destroy();
+    }
+
+    private boolean isUnexpected100ContinueResponse(Http2Headers http2Headers, HttpCarbonMessage inboundReq) {
+        return HttpResponseStatus.CONTINUE.codeAsText().contentEquals(http2Headers.status()) &&
+                !inboundReq.is100ContinueExpected();
     }
 }
