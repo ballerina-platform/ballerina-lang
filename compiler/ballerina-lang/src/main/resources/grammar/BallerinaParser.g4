@@ -123,11 +123,6 @@ constantDefinition
 globalVariableDefinition
     :   PUBLIC? LISTENER typeName Identifier ASSIGN expression SEMICOLON
     |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
-    |   channelType Identifier ASSIGN expression SEMICOLON
-    ;
-
-channelType
-    : CHANNEL LT typeName GT
     ;
 
 attachmentPoint

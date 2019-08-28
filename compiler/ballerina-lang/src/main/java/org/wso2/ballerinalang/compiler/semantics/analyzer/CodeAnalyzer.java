@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -84,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
@@ -162,13 +162,13 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.util.Flags;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -197,6 +197,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  * (*) Loop continuation statement validation.
  * (*) Function return path existence and unreachable code validation.
  * (*) Worker send/receive validation.
+ * (*) Experimental feature usage.
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
 
@@ -226,6 +227,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean withinAbortedBlock;
     private boolean withinCommittedBlock;
     private boolean isJSONContext;
+    private boolean enableExperimentalFeatures;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -243,6 +245,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.typeChecker = TypeChecker.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.enableExperimentalFeatures = Boolean.parseBoolean(
+                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
     }
 
     private void resetFunction() {
@@ -309,17 +313,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        // ignore
+
+        analyzeNode(bLangTupleVariableDef.var, this.env);
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        // ignore
+
+        analyzeNode(bLangRecordVariableDef.var, this.env);
     }
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        // ignore
+
+        analyzeNode(bLangErrorVariableDef.errorVariable, this.env);
     }
 
     @Override
@@ -394,6 +401,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+
+        checkExperimentalFeatureValidity(ExperimentalFeatures.TRANSACTIONS, transactionNode.pos);
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction is within a handler function or retry block. This can check for single level only.
         // We need data flow analysis to check for further levels.
@@ -1085,6 +1094,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLock lockNode) {
+
+        checkExperimentalFeatureValidity(ExperimentalFeatures.LOCK, lockNode.pos);
         this.checkStatementExecutionValidity(lockNode);
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
     }
@@ -1125,6 +1136,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
+
+        checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMING_QUERIES, foreverStatement.pos);
         this.checkStatementExecutionValidity(foreverStatement);
         this.lastStatement = true;
     }
@@ -1216,6 +1229,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
         }
+    }
+
+    @Override
+    public void visit(BLangTupleVariable bLangTupleVariable) {
+
+        // TODO : Fix me.
+        analyzeExpr(bLangTupleVariable.expr);
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+
+        // TODO : Fix me.
+        analyzeExpr(bLangRecordVariable.expr);
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+
+        // TODO : Fix me.
+        analyzeExpr(bLangErrorVariable.expr);
     }
 
     private BType getNilableType(BType type) {
@@ -1578,11 +1612,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         /* ignore */
+        analyzeExpr(fieldAccessExpr.expr);
+        if (fieldAccessExpr.expr.type.tag == TypeTags.XML) {
+            checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, fieldAccessExpr.pos);
+        }
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
+        if (indexAccessExpr.expr.type.tag == TypeTags.XML) {
+            checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, indexAccessExpr.pos);
+        }
     }
 
     public void visit(BLangInvocation invocationExpr) {
@@ -1861,10 +1902,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        /* ignore */
+
+        analyzeExpr(bLangArrowFunction.expression);
     }
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+
+        checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ATTRIBUTES_ACCESS, xmlAttributeAccessExpr.pos);
         analyzeExpr(xmlAttributeAccessExpr.expr);
         analyzeExpr(xmlAttributeAccessExpr.indexExpr);
     }
@@ -1887,6 +1931,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangConstrainedType constrainedType) {
+
+        if (constrainedType.type.type.tag == TypeTags.STREAM) {
+            checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMS, constrainedType.pos);
+        }
         /* ignore */
     }
 
@@ -1912,83 +1960,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableQueryExpression tableQueryExpression) {
+
+        checkExperimentalFeatureValidity(ExperimentalFeatures.TABLE_QUERIES, tableQueryExpression.pos);
         /* ignore */
     }
 
     @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
-        /* ignore */
+
+        analyzeExpr(bLangVarArgsExpression.expr);
     }
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        /* ignore */
+
+        analyzeExpr(bLangNamedArgsExpression.expr);
     }
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
-        analyzeExpr(bLangMatchExpression.expr);
-        List<BType> exprTypes;
-
-        if (bLangMatchExpression.expr.type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) bLangMatchExpression.expr.type;
-            exprTypes = new ArrayList<>(unionType.getMemberTypes());
-        } else {
-            exprTypes = Lists.of(bLangMatchExpression.expr.type);
-        }
-
-        List<BType> unmatchedExprTypes = new ArrayList<>();
-        for (BType exprType : exprTypes) {
-            boolean assignable = false;
-            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
-                BType patternType = pattern.variable.type;
-                if (exprType.tag == TypeTags.SEMANTIC_ERROR || patternType.tag == TypeTags.SEMANTIC_ERROR) {
-                    return;
-                }
-
-                assignable = this.types.isAssignable(exprType, patternType);
-                if (assignable) {
-                    pattern.matchedTypesDirect.add(exprType);
-                    break;
-                } else if (exprType.tag == TypeTags.ANY) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.JSON && this.types.isAssignable(patternType, exprType)) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
-                        && this.types.isAssignable(patternType, exprType)) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.BYTE && patternType.tag == TypeTags.INT) {
-                    pattern.matchedTypesDirect.add(exprType);
-                    break;
-                } else {
-                    // TODO Support other assignable types
-                }
-            }
-
-            // check if the exprType can be added to implicit default pattern
-            if (!assignable && !this.types.isAssignable(exprType, bLangMatchExpression.type)) {
-                unmatchedExprTypes.add(exprType);
-            }
-        }
-
-        if (!unmatchedExprTypes.isEmpty()) {
-            dlog.error(bLangMatchExpression.pos, DiagnosticCode.MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN,
-                    unmatchedExprTypes);
-        }
-
-        boolean matchedPatternsAvailable = false;
-        for (int i = bLangMatchExpression.patternClauses.size() - 1; i >= 0; i--) {
-            BLangMatchExprPatternClause pattern = bLangMatchExpression.patternClauses.get(i);
-            if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
-                if (matchedPatternsAvailable) {
-                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
-                } else {
-                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
-                }
-            } else {
-                matchedPatternsAvailable = true;
-            }
-        }
     }
 
     @Override
@@ -2425,4 +2415,42 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
     }
+
+    private void checkExperimentalFeatureValidity(ExperimentalFeatures constructName, DiagnosticPos pos) {
+
+        if (enableExperimentalFeatures) {
+            return;
+        }
+
+        dlog.error(pos, DiagnosticCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, constructName.value);
+    }
+
+    /**
+     * Experimental feature list for JBallerina 1.0.0.
+     *
+     * @since JBallerina 1.0.0
+     */
+    private enum ExperimentalFeatures {
+        STREAMS("stream"),
+        TABLE_QUERIES("table queries"),
+        STREAMING_QUERIES("streaming queries"),
+        TRANSACTIONS("transaction"),
+        LOCK("lock"),
+        XML_ACCESS("xml access expression"),
+        XML_ATTRIBUTES_ACCESS("xml attribute expression"),
+        ;
+        private String value;
+
+        private ExperimentalFeatures(String value) {
+
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+
+            return value;
+        }
+    }
+
 }
