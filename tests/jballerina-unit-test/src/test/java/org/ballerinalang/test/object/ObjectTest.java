@@ -672,12 +672,12 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
-    @Test(dataProvider = "missingNativeImplFiles", groups = "brokenOnJBallerina")
+    @Test(dataProvider = "missingNativeImplFiles")
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
-            BCompileUtil.compile(filePath);
+            BCompileUtil.compileInProc(filePath);
         } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), "native function not available: Person.printName");
+            Assert.assertTrue(e.getMessage().contains("native function not available: Person.printName"));
             return;
         }
         Assert.fail("expected compilation to fail due to missing external implementation");
