@@ -9,6 +9,8 @@ const string someString = 120; // Invalid RHS value.
 const string _ = "PUT";
 const _ = 11;
 
+const invalidType someValue = 1;
+
 // Assigning var ref.
 string s = "Ballerina";
 public const string name2 = "";

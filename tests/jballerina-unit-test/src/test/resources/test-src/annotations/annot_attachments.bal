@@ -104,8 +104,8 @@ service ser on lis {
     @v5 {
         val: "54"
     }
-    resource function res(@v6 { val: "v64" } int intVal) returns @v7 string {
-        return "";
+    resource function res(@v6 { val: "v64" } int intVal) returns @v7 error? {
+        return;
     }
 }
 
@@ -116,8 +116,8 @@ service serTwo = @v8 {
     @v5 {
         val: "542"
     }
-    resource function res(@v6 { val: "v642" } int intVal) returns @v7 int {
-        return 1;
+    resource function res(@v6 { val: "v642" } int intVal) returns @v7 () {
+        return;
     }
 };
 

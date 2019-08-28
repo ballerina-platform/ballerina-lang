@@ -18,6 +18,10 @@
 
 package org.ballerinalang.nats;
 
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+
 /**
  * Represents the constants which will be used for NATS.
  */
@@ -55,6 +59,8 @@ public class Constants {
      * Represents nats package.
      */
     public static final String NATS_PACKAGE = "ballerina/nats";
+
+    public static final BPackage NATS_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "nats");
 
     /**
      * Represents the message which will be consumed from NATS.

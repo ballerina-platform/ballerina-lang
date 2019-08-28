@@ -65,8 +65,8 @@ public class DecodePublicKey {
             }
 
             Certificate certificate = keystore.getCertificate(keyAlias);
-            MapValue<String, Object> certificateBMap = BallerinaValues.createRecordValue(
-                    Constants.CRYPTO_PACKAGE, Constants.CERTIFICATE_RECORD);
+            MapValue<String, Object> certificateBMap = BallerinaValues.
+                    createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.CERTIFICATE_RECORD);
             if (certificate instanceof X509Certificate) {
                 X509Certificate x509Certificate = (X509Certificate) certificate;
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_ISSUER_FIELD,
@@ -91,8 +91,8 @@ public class DecodePublicKey {
             PublicKey publicKey = certificate.getPublicKey();
             //TODO: Add support for DSA/ECDSA keys and associated crypto operations
             if (publicKey.getAlgorithm().equals("RSA")) {
-                MapValue<String, Object> publicKeyMap = BallerinaValues.createRecordValue(
-                        Constants.CRYPTO_PACKAGE, Constants.PUBLIC_KEY_RECORD);
+                MapValue<String, Object> publicKeyMap = BallerinaValues.
+                        createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PUBLIC_KEY_RECORD);
                 publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
                 publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY_CERTIFICATE, certificate);
                 publicKeyMap.put(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD, publicKey.getAlgorithm());

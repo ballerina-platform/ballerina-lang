@@ -147,7 +147,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
             CodeGenerator generator = new CodeGenerator();
             List<GenSrcFile> oasSources = generator.generateBalSource(GeneratorConstants.GenType.GEN_SERVICE,
-                    tempOasJsonFile.getPath(), null);
+                    tempOasJsonFile.getPath(), "", null);
 
             Optional<GenSrcFile> oasServiceFile = oasSources.stream()
                     .filter(genSrcFile -> genSrcFile.getType().equals(GenSrcFile.GenFileType.GEN_SRC)).findAny();

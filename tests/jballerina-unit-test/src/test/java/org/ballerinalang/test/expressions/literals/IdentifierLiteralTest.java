@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 /**
  * Identifier literal test cases.
  */
+@Test(groups = { "brokenOnSpecDeviation" })
 public class IdentifierLiteralTest {
     private CompileResult result;
 
