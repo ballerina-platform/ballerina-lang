@@ -58,7 +58,7 @@ import static org.ballerinalang.jvm.BallerinaErrors.ERROR_MESSAGE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.BALLERINA;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
@@ -78,7 +78,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATIO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_INTENT_VERIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_NOTIFICATION_REQUEST;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_ID;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_CALLER;
 import static org.ballerinalang.net.websub.WebSubUtils.getHttpRequest;
 import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
@@ -249,14 +249,14 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
      */
     private ObjectValue getWebSubCaller(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                         MapValue endpointConfig) {
-        ObjectValue httpServiceServer = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT,
+        ObjectValue httpServiceServer = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, HTTP_LISTENER_ENDPOINT,
                           9090, endpointConfig); // sending a dummy port here as it gets initialized later - fix
-        ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, CALLER);
+        ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, CALLER);
 
         HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
         httpServiceServer.addNativeData(HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
-        return BallerinaValues.createObjectValue(WEBSUB_PACKAGE, WEBSUB_SERVICE_CALLER, httpCaller);
+        return BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID, WEBSUB_SERVICE_CALLER, httpCaller);
     }
 
     /**
@@ -264,14 +264,14 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
      * verification request received.
      */
     private ObjectValue createIntentVerificationRequest() {
-        return BallerinaValues.createObjectValue(WEBSUB_PACKAGE, WEBSUB_INTENT_VERIFICATION_REQUEST);
+        return BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID, WEBSUB_INTENT_VERIFICATION_REQUEST);
     }
 
     /**
      * Method to create the notification request representing WebSub notifications received.
      */
     private ObjectValue createNotification(ObjectValue httpRequest) {
-        ObjectValue notification = BallerinaValues.createObjectValue(WEBSUB_PACKAGE, WEBSUB_NOTIFICATION_REQUEST);
+        ObjectValue notification = BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID, WEBSUB_NOTIFICATION_REQUEST);
         notification.set(REQUEST, httpRequest);
         return notification;
     }

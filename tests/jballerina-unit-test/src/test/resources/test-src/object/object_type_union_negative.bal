@@ -45,9 +45,9 @@ type Obj4 object {
 Obj4 aOb = new(55, 66, 77);
 
 Obj|Obj2|Obj3|Obj4 a = new(5, 6, 7);
-Obj|Obj2|Obj3|Obj4 ab = new(5);
-Obj|Obj2|Obj3|Obj4 ac = new();
-Obj|Obj2|Obj3|Obj4 wrongDefaultableArgType = new(5, j="zero");
+Obj|Obj2|Obj3|Obj4 ab = new(5); // ambiguous type '(Obj|Obj2|Obj3|Obj4)'
+Obj|Obj2|Obj3|Obj4 ac = new(); // ambiguous type '(Obj|Obj2|Obj3|Obj4)'
+Obj|Obj2|Obj3|Obj4 wrongDefaultableArgType = new(5, j="zero"); // cannot infer type of the object from '(Obj|Obj2|Obj3|Obj4)'
 
 function getA() returns Obj|Obj2|Obj3|Obj4 {
     return a;
@@ -68,7 +68,7 @@ type Foo object {
 
     function test() {
         string p = "John Doe";
-        self.bar = new(p);
+        self.bar = new(p); // incompatible types: expected '(PersonRec|EmployeeRec)', found 'string'
     }
 };
 
@@ -87,3 +87,44 @@ type PersonRec record {|
 type EmployeeRec record {
     string name;
 };
+
+
+type InitObjOne object {
+
+    public function __init(int i, string f = "str") {
+
+    }
+};
+
+type InitObjTwo object {
+
+    public function __init(int i, boolean f = true) {
+
+    }
+};
+
+type InitObjThree object {
+
+    public function __init(int i, string s, int j = 10, string... k) {
+
+    }
+};
+
+function testAmbiguousObjectTypes() {
+    InitObjOne|InitObjTwo|float f1 = new(f = false, 2); // positional argument not allowed after named arguments
+    InitObjOne|InitObjTwo|float f2 = new(1, false); // valid
+    InitObjOne|InitObjTwo|float f3 = new(1, "str2"); // valid
+    InitObjOne|InitObjTwo|float f4 = new(1, f = false); // valid
+    InitObjOne|InitObjTwo|float f5 = new(1, f = "str2"); // valid
+    InitObjOne|InitObjTwo|int f6 = new(); // cannot infer type of the object from '(InitObjOne|InitObjTwo|int)'
+    InitObjOne|InitObjTwo|float f7 = new(1); // ambiguous type '(InitObjOne|InitObjTwo|float)'
+    InitObjOne|InitObjTwo|float f8 = new(1, 1.1); // cannot infer type of the object from '(InitObjOne|InitObjTwo|float)'
+
+    InitObjThree|boolean|string f9 = new(1, "s"); // valid
+    InitObjThree|boolean|string f10 = new(1, "s", 12, "a", "b", "c"); // valid
+    InitObjThree|boolean|string f11 = new(1, "s", j = 12); // valid
+    InitObjThree|boolean|string f12 = new(1, "s", "a", "b", "c"); // incompatible types: expected 'int', found 'string'
+    InitObjOne|InitObjThree|boolean|string f13 = new(1, "s", "a", "b", "c"); // cannot infer type of the object from '(InitObjOne|InitObjThree|boolean|string)'
+    InitObjThree|boolean|string f14 = new(1, "s", j = 20, "a"); // positional argument not allowed after named arguments
+    InitObjThree|InitObjOne|boolean|string f15 = new(1, "s", j = 20, "a", "b", "c"); // cannot infer type of the object from '(InitObjThree|InitObjOne|boolean|string)'
+}

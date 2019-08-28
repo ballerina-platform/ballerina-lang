@@ -55,7 +55,7 @@ public class RabbitMQUtils {
     private static MapValue populateRabbitMQErrorRecord(String msg) {
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(RabbitMQConstants.RABBITMQ_ERROR_MESSAGE, msg);
-        return BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_RABBITMQ,
+        return BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                 RabbitMQConstants.RABBITMQ_ERROR_DETAILS, valueMap);
     }
 
