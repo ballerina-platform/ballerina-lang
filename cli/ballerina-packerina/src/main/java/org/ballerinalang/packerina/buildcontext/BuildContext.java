@@ -63,7 +63,8 @@ import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
  */
 public class BuildContext extends HashMap<BuildContextField, Object> {
     private static final long serialVersionUID = 6363519534259706585L;
-    private static List<String> supportedPlatforms;
+    private List<String> supportedPlatforms = Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS)
+            .collect(Collectors.toList());
     private transient Path executableDir;
     private transient Path targetJarCacheDir;
     private transient Path targetBirCacheDir;
@@ -118,9 +119,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 // save '<target>/bin' dir for executables
                 this.executableDir = targetPath.resolve(ProjectDirConstants.BIN_DIR_NAME);
     
-                supportedPlatforms = Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS)
-                        .collect(Collectors.toList());
-                supportedPlatforms.add("any");
+                this.supportedPlatforms.add("any");
             } else {
                 throw new BLangCompilerException("location of the source root does not exists: " + sourceRootPath);
             }
@@ -340,7 +339,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                     .resolve(moduleID.name.value)
                     .resolve(moduleID.version.value));
     
-            for (String platform : supportedPlatforms) {
+            for (String platform : this.supportedPlatforms) {
                 String baloFileName = moduleID.name.value + "-"
                                       + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                       + platform + "-"
