@@ -24,8 +24,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,7 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Scanner;
+import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -91,20 +94,9 @@ public class BootstrapRunner {
             commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, birCachePaths));
 
             Process process = new ProcessBuilder(commands).start();
-            Scanner errorScanner = new Scanner(process.getErrorStream());
-            Scanner outputScanner = new Scanner(process.getInputStream());
 
-            new Thread(() -> {
-                while (outputScanner.hasNext()) {
-                    out.println(outputScanner.nextLine());
-                }
-            }).start();
-
-            new Thread(() -> {
-                while (errorScanner.hasNext()) {
-                    err.println(errorScanner.nextLine());
-                }
-            }).start();
+            String consoleOutput = getConsoleOutput(process.getInputStream(), out);
+            getConsoleOutput(process.getErrorStream(), err);
 
             boolean processEnded = process.waitFor(120, TimeUnit.SECONDS);
 
@@ -112,11 +104,21 @@ public class BootstrapRunner {
                 throw new BLangCompilerException("failed to generate jar file within 120s.");
             }
             if (process.exitValue() != 0) {
-                throw new BLangCompilerException("jvm code gen phase returned an error.");
+                throw new BLangCompilerException(consoleOutput);
             }
         } catch (InterruptedException | IOException e) {
             throw new BLangCompilerException("failed running jvm code gen phase.");
         }
+    }
+
+    private static String getConsoleOutput(InputStream inputStream, PrintStream printStream) {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+        reader.lines().iterator().forEachRemaining(line -> {
+            printStream.println(line);
+            sj.add(line);
+        });
+        return sj.toString();
     }
 
     private static List<String> createArgsForCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
