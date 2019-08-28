@@ -113,6 +113,10 @@
         <enterHandlerDelegate
                 implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterInDocumentationHandler"/>
 
+        <!-- Backspace Handlers-->
+        <backspaceHandlerDelegate id="BallerinaBackspaceHandler" order="first"
+                                  implementation="io.ballerina.plugins.idea.formatter.BallerinaIndentingBackspaceHandler"/>
+
         <!-- sdk -->
         <sdkType implementation="io.ballerina.plugins.idea.sdk.BallerinaSdkType"/>
 
