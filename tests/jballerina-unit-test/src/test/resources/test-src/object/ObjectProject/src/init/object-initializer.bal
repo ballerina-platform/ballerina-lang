@@ -202,7 +202,7 @@ function testMultipleErrorReturn() returns [Person4|FooErr|BarErr, Person4|FooEr
 }
 
 function panicTheStr() returns error|string {
-    return error("Paniced");
+    return error("Panicked");
 }
 
 type PanicReceiver object {
@@ -213,11 +213,17 @@ type PanicReceiver object {
     function __init (string name, int a = 30) {
         self.name = self.name + name;
         self.age = a;
+        panic error("__init panicked");
     }
 };
 
 function panicWrapper() {
     PanicReceiver r = new(checkpanic panicTheStr());
+}
+
+function testCheckPanicObjectInit(boolean b) returns error|Person4 {
+    Person4 r = check new(b);
+    return r;
 }
 
 function testCheckPanicInObjectInitArg() returns error {
