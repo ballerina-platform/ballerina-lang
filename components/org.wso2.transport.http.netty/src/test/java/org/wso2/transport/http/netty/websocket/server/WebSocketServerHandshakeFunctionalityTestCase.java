@@ -258,8 +258,8 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         urlConn.disconnect();
     }
 
-    @Test(priority = 1)
-    public void testListnerNotSetInMessageReading() throws URISyntaxException, InterruptedException {
+    @Test(priority = 1, enabled = false)
+    public void testListenerNotSetInMessageReading() throws URISyntaxException, InterruptedException {
         CountDownLatch serverHandshakeCountDownLatch = new CountDownLatch(1);
         listener.setHandshakeCompleteCountDownLatch(serverHandshakeCountDownLatch);
         WebSocketTestClient testClient = createClientAndHandshake("x-handshake", null);
@@ -283,7 +283,8 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
 
     @Test(priority = 2,
           expectedExceptions = WebSocketHandshakeException.class,
-          expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 500 Internal Server Error")
+          expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 500 Internal Server Error",
+          enabled = false)
     public void testListenerNotSetInHandshake() throws URISyntaxException, InterruptedException {
         serverConnectorFuture.setWebSocketConnectorListener(null);
         createClientAndHandshake("x-handshake", null);

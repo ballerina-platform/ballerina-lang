@@ -57,8 +57,9 @@ public class DefaultFullHttpMessageFuture implements FullHttpMessageFuture {
     @Override
     public void notifySuccess() {
         if (messageListener != null) {
-            messageListener.onComplete(httpCarbonMessage);
+            FullHttpMessageListener tempListener = messageListener;
             removeListener();
+            tempListener.onComplete(httpCarbonMessage);
         }
     }
 
@@ -66,9 +67,10 @@ public class DefaultFullHttpMessageFuture implements FullHttpMessageFuture {
     public void notifyFailure(Exception error) {
         this.error = error;
         if (messageListener != null) {
-            messageListener.onError(error);
-            this.error = null;
+            FullHttpMessageListener tempListener = messageListener;
             removeListener();
+            tempListener.onError(error);
+            this.error = null;
         }
     }
 }

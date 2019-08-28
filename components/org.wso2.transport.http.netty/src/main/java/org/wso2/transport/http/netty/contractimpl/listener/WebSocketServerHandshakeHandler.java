@@ -19,12 +19,10 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener;
 
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -133,13 +131,6 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             }
         }
         ctx.fireChannelRead(msg);
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
-                .addListener(ChannelFutureListener.CLOSE);
-        LOG.error("Error during WebSocket server handshake", cause);
     }
 
     /**

@@ -228,6 +228,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             serverPipeline.addBefore(Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
                                      new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS));
         }
+        serverPipeline.addLast(Constants.HTTP_EXCEPTION_HANDLER, new HttpExceptionHandler());
     }
 
     /**

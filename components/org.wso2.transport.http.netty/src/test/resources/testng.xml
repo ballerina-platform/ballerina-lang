@@ -127,6 +127,8 @@
 <!--            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringResponseDataWrite"/>-->
 <!--            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringResponseDataWrite2"/>-->
             <class name="org.wso2.transport.http.netty.http2.clientchannelclose.RemoteChannelCloseWithSSLError"/>
+            <class name="org.wso2.transport.http.netty.http2.compression.ResponseBodyCompressionTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.expect100continue.Abnormal100ContinueTestCase"/>
         </classes>
     </test>
     <test name="Transport Security Tests" parallel="false">

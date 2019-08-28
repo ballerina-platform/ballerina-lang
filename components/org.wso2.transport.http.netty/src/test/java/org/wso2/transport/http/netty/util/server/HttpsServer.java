@@ -34,8 +34,8 @@ import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
-import org.wso2.transport.http.netty.util.server.initializers.Http2ServerInitializer;
 import org.wso2.transport.http.netty.util.server.initializers.HttpServerInitializer;
+import org.wso2.transport.http.netty.util.server.initializers.http2.Http2ServerInitializer;
 
 import java.io.FileInputStream;
 import java.net.InetSocketAddress;

@@ -16,15 +16,11 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.util.server.initializers;
+package org.wso2.transport.http.netty.util.server.initializers.http2.channelidsender;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpScheme;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
@@ -38,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static org.wso2.transport.http.netty.util.Http2Util.http1HeadersToHttp2Headers;
 
 /**
  * A simple handler that responds with the connection id.
@@ -48,18 +45,6 @@ public final class H2ChannelIdHandler extends Http2ConnectionHandler implements 
     H2ChannelIdHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                        Http2Settings initialSettings) {
         super(decoder, encoder, initialSettings);
-    }
-
-    private static Http2Headers http1HeadersToHttp2Headers(FullHttpRequest request) {
-        CharSequence host = request.headers().get(HttpHeaderNames.HOST);
-        Http2Headers http2Headers = new DefaultHttp2Headers()
-            .method(HttpMethod.GET.asciiName())
-            .path(request.uri())
-            .scheme(HttpScheme.HTTP.name());
-        if (host != null) {
-            http2Headers.authority(host);
-        }
-        return http2Headers;
     }
 
     /**
@@ -74,7 +59,7 @@ public final class H2ChannelIdHandler extends Http2ConnectionHandler implements 
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
             HttpServerUpgradeHandler.UpgradeEvent upgradeEvent =
-                (HttpServerUpgradeHandler.UpgradeEvent) evt;
+                    (HttpServerUpgradeHandler.UpgradeEvent) evt;
             onHeadersRead(ctx, 1, http1HeadersToHttp2Headers(upgradeEvent.upgradeRequest()), 0, true);
         }
         super.userEventTriggered(ctx, evt);
@@ -82,7 +67,7 @@ public final class H2ChannelIdHandler extends Http2ConnectionHandler implements 
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LOG.error("Exception occurred in H2ChannelIdHandler :", cause.getMessage());
+        LOG.error("Exception occurred in H2ChannelIdHandler : {}", cause.getMessage());
         super.exceptionCaught(ctx, cause);
         ctx.close();
     }
