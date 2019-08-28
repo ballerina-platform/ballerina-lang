@@ -42,8 +42,6 @@ import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.swing.text.html.Option;
-
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME;
@@ -147,7 +145,6 @@ public class CopyNativeLibTask implements Task {
     private static Optional<Path> findImportBaloPath(BuildContext buildContext, BPackageSymbol importz, Path project) {
         // Get the jar paths
         PackageID id = importz.pkgID;
-    
     
         Optional<Dependency> importPathDependency = buildContext.getImportPathDependency(id);
         // Look if it is a project module.
