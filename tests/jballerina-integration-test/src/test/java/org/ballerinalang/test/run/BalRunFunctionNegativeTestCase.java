@@ -44,9 +44,11 @@ public class BalRunFunctionNegativeTestCase extends BaseTest {
     public void testInsufficientArguments() throws BallerinaTestException {
         LogLeecher errLogLeecher = new LogLeecher("ballerina: insufficient arguments to call the 'main' function",
                                                   LeecherType.ERROR);
+        String balFile = (new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                                           "run" + File.separator + "file" + File.separator +
+                                           "test_main_with_multiple_typed_params" + ".bal")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        bMainInstance.runMain((new File("src/test/resources/run/file/test_main_with_multiple_typed_params.bal"))
-                                      .getAbsolutePath(), new LogLeecher[] { errLogLeecher });
+        bMainInstance.runMain(balFile, new LogLeecher[] { errLogLeecher });
         errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
@@ -54,10 +56,11 @@ public class BalRunFunctionNegativeTestCase extends BaseTest {
     public void testTooManyArguments() throws BallerinaTestException {
         LogLeecher errLogLeecher = new LogLeecher("ballerina: too many arguments to call the 'main' function",
                                                   LeecherType.ERROR);
+        String balFile = (new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                                           "run" + File.separator + "file" + File.separator +
+                                           "test_main_with_no_params.bal")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        bMainInstance.runMain((new File("src/test/resources/run/file/test_main_with_no_params.bal"))
-                                      .getAbsolutePath(), new String[] {}, new String[] { "extra" },
-                              new LogLeecher[] { errLogLeecher });
+        bMainInstance.runMain(balFile, new String[] {}, new String[] { "extra" }, new LogLeecher[] { errLogLeecher });
         errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 }
