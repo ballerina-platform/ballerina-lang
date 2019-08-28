@@ -19,7 +19,6 @@
 package org.ballerinalang.test.service.grpc.sample;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -43,7 +42,6 @@ public class UnarySecuredBlockingBasicTestCase extends GrpcBaseTest {
     @BeforeClass
     public void setup() throws Exception {
         TestUtils.prepareBalo(this);
-//        System.setProperty("ballerina.home", serverInstance.getServerHome());
     }
 
     @Test
