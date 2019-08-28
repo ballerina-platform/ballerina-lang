@@ -16,6 +16,19 @@ export const WorkerSend: React.StatelessComponent<{
     }) => {
         const viewState: WorkerSendViewState = model.viewState;
 
+        const statementProps = {
+            className: "statement",
+            x: viewState.bBox.x + config.statement.padding.left,
+            y: viewState.bBox.y + (viewState.bBox.h / 2)
+        };
+
+        if (!viewState.isSynced) {
+            // Don't draw the arrow if not syced
+            return <g className="action-invocation">
+                {!viewState.isAction && <text {...statementProps}>{viewState.bBox.label}</text>}
+            </g>;
+        }
+
         const mLine = { x1: 1, y1: 0, x2: 0, y2: 0 };
         mLine.x1 = viewState.bBox.x;
         mLine.y1 = mLine.y2 = viewState.bBox.y + config.statement.height;
@@ -26,19 +39,6 @@ export const WorkerSend: React.StatelessComponent<{
         }
 
         const arrowDirection = (mLine.x2 > mLine.x1) ? "right" : "left";
-
-        const statementProps = {
-            className: "statement",
-            x: mLine.x1 + config.statement.padding.left,
-            y: viewState.bBox.y + (viewState.bBox.h / 2)
-        };
-
-        if (!viewState.isSynced) {
-            // Don't draw the arrow if not syced
-            return <g className="action-invocation">
-                {!viewState.isAction && <text {...statementProps}>{viewState.bBox.label}</text>}
-            </g>;
-        }
 
         return (
             <g className="action-invocation">

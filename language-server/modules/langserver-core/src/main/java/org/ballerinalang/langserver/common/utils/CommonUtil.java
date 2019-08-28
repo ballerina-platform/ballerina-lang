@@ -937,7 +937,6 @@ public class CommonUtil {
 
     public static boolean isInvalidSymbol(BSymbol symbol) {
         return ("_".equals(symbol.name.getValue())
-                || "runtime".equals(symbol.getName().getValue())
                 || symbol instanceof BAnnotationSymbol
                 || symbol instanceof BOperatorSymbol
                 || symbolContainsInvalidChars(symbol));

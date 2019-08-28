@@ -102,7 +102,7 @@ public class XMLAccessTest {
                 "<foo>1</foo><bar>2</bar><foo>3</foo><bar>4</bar><foo>5</foo><bar>6</bar><foo>7</foo><bar>8</bar>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testFieldBasedAccessWithNamespaces() {
         BValue[] returns = BRunUtil.invoke(result, "testFieldBasedAccessWithNamespaces");
         Assert.assertEquals(returns[0].stringValue(),

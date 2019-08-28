@@ -73,7 +73,7 @@ public class CreateClient {
 
         SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
                 .retrieveDatasource(sqlDatasourceParams);
-        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_PATH, Constants.JDBC_CLIENT);
+        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_ID, Constants.JDBC_CLIENT);
         sqlClient.addNativeData(Constants.JDBC_CLIENT, sqlDatasource);
         return sqlClient;
     }

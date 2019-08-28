@@ -95,7 +95,7 @@ public class CallStatement extends AbstractSQLStatement {
         String errorMessagePrefix = "Failed to execute stored procedure: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
-            conn = getDatabaseConnection(strand, client, datasource, false);
+            conn = getDatabaseConnection(strand, client, datasource);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
             ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
                     datasource.getDatabaseProductName());

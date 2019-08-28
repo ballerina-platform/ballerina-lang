@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 
 /**
  * Construct MediaType struct from Content-Type string.
@@ -46,7 +46,7 @@ public class GetMediaType {
 
     public static Object getMediaType(Strand strand, String contentType) {
         try {
-            ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+            ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
             mediaType = MimeUtil.parseMediaType(mediaType, contentType);
             return mediaType;
         } catch (Throwable e) {
