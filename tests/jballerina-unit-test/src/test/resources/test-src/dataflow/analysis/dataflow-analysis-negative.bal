@@ -649,3 +649,26 @@ function testMatch7() returns int {
     }
     return k; // variable 'k' may not have been initialized
 }
+
+function testMatch8() returns int {
+    any | error v = 1;
+    int k;
+    match v {
+        1 => {
+            k = 1;
+        }
+        2 => {
+            k = 2;
+        }
+        3 => {
+            k = 3;
+        }
+        4 => {
+            k = 4;
+        }
+        _ => {
+            k = 0;
+        }
+    }
+    return k; // variable 'k' may not have been initialized
+}

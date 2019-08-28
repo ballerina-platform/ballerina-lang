@@ -460,8 +460,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.uninitializedVars = uninitVars;
             return;
         }
-        uninitVars = new HashMap<>();
-        uninitVars = mergeUninitializedVars(uninitVars, this.uninitializedVars);
+        uninitVars = mergeUninitializedVars(new HashMap<>(), this.uninitializedVars);
         this.uninitializedVars = uninitVars;
     }
 
