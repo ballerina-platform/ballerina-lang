@@ -27,47 +27,47 @@ import org.testng.annotations.Test;
  * @since 1.0.0
  */
 public class NegativeValidationTest {
-    private final String expectedMsg1 = "error: .:class_not_found.bal:25:1: " +
-            "\\{ballerinax/java\\}CLASS_NOT_FOUND message=org.ballerinalang.nativeimpl.jvm.tests.PublicStaticMethods";
-    private final String expectedMsg2 = "error: .:method_not_found1.bal:8:1: " +
+    private final String expectedMsg1 = ".*error: .:class_not_found.bal:25:1: " +
+            "\\{ballerinax/java\\}CLASS_NOT_FOUND message=org.ballerinalang.nativeimpl.jvm.tests.PublicStaticMethods.*";
+    private final String expectedMsg2 = ".*error: .:method_not_found1.bal:8:1: " +
             "\\{ballerinax/java\\}METHOD_NOT_FOUND message=No such public method 'acceptStringOrErrorReturn' " +
-            "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
-    private final String expectedMsg3 = "error: .:method_not_found2.bal:22:1: " +
+            "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg3 = ".*error: .:method_not_found2.bal:22:1: " +
             "\\{ballerinax/java\\}METHOD_NOT_FOUND message=No such public method 'acceptObjectAndObjectReturn' " +
-            "with '3' parameter\\(s\\) found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
-    private final String expectedMsg4 = "error: .:method_not_found3.bal:21:1: " +
+            "with '3' parameter\\(s\\) found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg4 = ".*error: .:method_not_found3.bal:21:1: " +
             "\\{ballerinax/java\\}METHOD_NOT_FOUND message=No such public method 'acceptRecordAndRecordReturn' " +
-            "with '3' parameter\\(s\\) found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
-    private final String expectedMsg5 = "error: .:method_not_found4.bal:23:1: " +
+            "with '3' parameter\\(s\\) found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg5 = ".*error: .:method_not_found4.bal:23:1: " +
             "\\{ballerinax/java\\}METHOD_NOT_FOUND message=No such public method 'acceptIntAndUnionReturn' " +
-            "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
-    private final String expectedMsg6 = "error: .:method_not_found5.bal:23:1: " +
+            "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg6 = ".*error: .:method_not_found5.bal:23:1: " +
             "\\{ballerinax/java\\}METHOD_NOT_FOUND message=No such public method 'acceptIntStringAndUnionReturn' " +
-            "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
-    private final String expectedMsg7 = "error: .:method_sig_not_match1.bal:3:1: " +
+            "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg7 = ".*error: .:method_sig_not_match1.bal:3:1: " +
             "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=No such Java method " +
             "'acceptIntReturnIntThrowsCheckedException' which throws checked exception found in class " +
-            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
-    private final String expectedMsg8 = "error: .:method_sig_not_match2.bal:7:1: " +
+            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg8 = ".*error: .:method_sig_not_match2.bal:7:1: " +
             "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=No such Java method " +
             "'acceptRecordAndRecordReturnWhichThrowsCheckedException' which throws checked exception found in class " +
-            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
-    private final String expectedMsg9 = "error: .:method_sig_not_match3.bal:3:1: " +
+            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg9 = ".*error: .:method_sig_not_match3.bal:3:1: " +
             "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=No such Java method " +
             "'acceptIntUnionReturnWhichThrowsCheckedException' which throws checked exception found in class " +
-            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
-    private final String expectedMsg10 = "error: .:method_sig_not_match4.bal:14:1: " +
+            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg10 = ".*error: .:method_sig_not_match4.bal:14:1: " +
             "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=No such Java method " +
             "'acceptRefTypesAndReturnMapWhichThrowsCheckedException' which throws checked exception found in class " +
-            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
-    private final String expectedMsg11 = "error: .:method_sig_not_match5.bal:3:1: " +
+            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg11 = ".*error: .:method_sig_not_match5.bal:3:1: " +
             "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=No such Java method " +
             "'acceptStringErrorReturnWhichThrowsCheckedException' which throws checked exception found in class " +
-            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
-    private final String expectedMsg12 = "error: .:method_sig_not_match6.bal:3:1: " +
+            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg12 = ".*error: .:method_sig_not_match6.bal:3:1: " +
             "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=No such Java method " +
             "'getArrayValueFromMapWhichThrowsCheckedException' which throws checked exception found in class " +
-            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
+            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
 
     @Test(expectedExceptions = BLangCompilerException.class)
     public void testAcceptNothing() {
