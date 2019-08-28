@@ -118,7 +118,7 @@ public class LangLibValueTest {
         Assert.assertEquals(array.getString(3), "");
         Assert.assertEquals(array.getString(4), "true");
         Assert.assertEquals(array.getString(5), "345.2425341");
-        Assert.assertEquals(array.getString(6), "a=STRING b=12 c=12.4 d=true e=(x=x y=)");
+        Assert.assertEquals(array.getString(6), "a=STRING b=12 c=12.4 d=true e=x=x y=");
         Assert.assertEquals(array.getString(7),
                 "<CATALOG>" +
                 "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
@@ -139,7 +139,7 @@ public class LangLibValueTest {
                             "varNil= " +
                             "varBool=true " +
                             "varDecimal=345.2425341 " +
-                            "varjson=(a=STRING b=12 c=12.4 d=true e=(x=x y=)) " +
+                            "varjson=a=STRING b=12 c=12.4 d=true e=x=x y= " +
                             "varXml=<CATALOG>" +
                             "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
                             "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
@@ -149,8 +149,8 @@ public class LangLibValueTest {
                             "varErr=error Reason1 message=Test passing error union to a function " +
                             "varObj=object Student " +
                             "varObj2=Rola from MMV " +
-                            "varObjArr=(object Student Rola from MMV) " +
-                            "varRecord=(name=Gima address=(country=Sri Lanka city=Colombo street=Palm Grove) age=12)");
+                            "varObjArr=object Student Rola from MMV " +
+                            "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
     }
 
     @Test(dataProvider = "mergeJsonFunctions")

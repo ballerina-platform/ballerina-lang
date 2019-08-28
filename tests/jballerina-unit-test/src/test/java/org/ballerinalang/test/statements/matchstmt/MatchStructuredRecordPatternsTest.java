@@ -83,7 +83,7 @@ public class MatchStructuredRecordPatternsTest {
 
         BString bString = (BString) returns[0];
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : b=12 f=(s=S i=23 f=5.6)");
+        Assert.assertEquals(bString.stringValue(), "Matched Values : b=12 f=s=S i=23 f=5.6");
     }
 
     @Test(description = "Test basics of structured pattern match statement 5")

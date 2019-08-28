@@ -468,12 +468,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 K key = kvEntry.getKey();
                 V value = kvEntry.getValue();
                 BType type = TypeChecker.getType(value);
-                if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.MAP_TAG ||
-                    type.getTag() == TypeTags.TABLE_TAG || type.getTag() == TypeTags.TUPLE_TAG ||
-                    type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                    sj.add(key + "=(" + StringUtils.getStringValue(strand, value, type) + ")");
-                    continue;
-                }
                 sj.add(key + "=" + StringUtils.getStringValue(strand, value, type));
             }
             return sj.toString();
