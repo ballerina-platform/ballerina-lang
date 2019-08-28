@@ -1309,6 +1309,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "detach function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "public function __detach(service ${1:s}) returns error? {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "start function",
       "kind": "Snippet",
       "detail": "Snippet",
