@@ -483,13 +483,14 @@ function caz3(any f) returns string {
 }
 
 function testBracedUnionType() returns string {
-    any a = 12;
+    any|error a = 12;
     match a {
         1 | 2 => {return "1|2";}
         3 | 4 => {return "3|4";}
         11 | 12 => {return "11|12";}
         _ => {return "Default";}
     }
+    return "NoMatch";
 }
 
 const CONST1 = "Ballerina";
@@ -658,3 +659,11 @@ function foo9(any x) returns string {
     }
 }
 
+function testErrorShouldNotMatchWildCardPattern() returns string {
+    any|error v = error("{UserGenError}Error");
+    match v {
+        0 => { return "zero"; }
+        _ => { return "other"; }
+    }
+    return "no-match";
+}
