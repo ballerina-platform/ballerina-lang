@@ -164,4 +164,12 @@ public class ObjectInitializerTest {
         Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
         Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{f:\"foo\"}");
     }
+
+    @Test(description = "Test checkpanic expression in object init expr's argument")
+    public void testCheckPanicInObjectInitArg() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCheckPanicInObjectInitArg");
+
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "Paniced");
+    }
 }

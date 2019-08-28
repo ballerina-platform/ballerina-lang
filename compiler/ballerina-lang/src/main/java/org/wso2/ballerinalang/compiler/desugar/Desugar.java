@@ -3300,6 +3300,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatementExpression desugarObjectTypeInit(BLangTypeInit typeInitExpr) {
         typeInitExpr.desugared = true;
+        typeInitExpr.argsExpr = rewriteExprs(typeInitExpr.argsExpr);
+
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
 
         // Person $obj$ = new;
