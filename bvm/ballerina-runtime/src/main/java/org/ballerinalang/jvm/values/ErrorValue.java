@@ -69,9 +69,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     @Override
     public String stringValue() {
-        BType type = TypeChecker.getType(details);
-        return "error " + reason + Optional.ofNullable(details).map(details -> " " + StringUtils.getStringValue(null,
-                details, type)).orElse("");
+        return stringValue(null);
     }
 
     @Override
