@@ -585,3 +585,67 @@ type F object {
 public function testDataFlow_13(){
     object { public string s; } o = new;
 }
+
+function testMatch2() returns int {
+    any v = 1;
+    int k;
+    match v {
+        1 => {k = 1;}
+        2 => {k = 2;}
+    }
+    return k; // variable 'k' may not have been initialized
+}
+
+function testMatch3() returns int {
+    any v = 1;
+    int k;
+    match v {
+        1 => {k = 1;}
+        2 => {k = 2;}
+        _ => {k = 0;}
+    }
+    return k;
+}
+
+function testMatch4() returns int {
+    any v = 1;
+    int k;
+    match v {
+        1 => {k = 1;}
+        2 => {}
+        _ => {k = 0;}
+    }
+    return k; // variable 'k' may not have been initialized
+}
+
+function testMatch5() returns int {
+    any v = 1;
+    int k;
+    match v {
+        var [a, b] => {k = 1;}
+        var {a, b} => {k = 2;}
+    }
+    return k; // variable 'k' may not have been initialized
+}
+
+function testMatch6() returns int {
+    any v = 1;
+    int k;
+    match v {
+        var [a, b] => {k = 1;}
+        var {a, b} => {k = 2;}
+        var x => {k = 0;}
+    }
+    return k;
+}
+
+function testMatch7() returns int {
+    any v = 1;
+    int k;
+    match v {
+        var [a, b] => {k = 1;}
+        var {a, b} => {}
+        var x => {k = 0;}
+    }
+    return k; // variable 'k' may not have been initialized
+}
