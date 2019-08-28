@@ -67,8 +67,8 @@ public class ErrorGenerator {
     public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put("message", detailedErrorMessage);
-        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.APPLICATION_ERROR_DATA_RECORD_NAME, valueMap);
+        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues.
+                createRecordValue(Constants.JDBC_PACKAGE_ID, Constants.APPLICATION_ERROR_DATA_RECORD_NAME, valueMap);
         return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, sqlClientErrorDetailRecord);
     }
 
@@ -77,8 +77,8 @@ public class ErrorGenerator {
         valueMap.put("message", message);
         valueMap.put("sqlErrorCode", vendorCode);
         valueMap.put("sqlState", sqlState);
-        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME, valueMap);
+        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues.
+                createRecordValue(Constants.JDBC_PACKAGE_ID, Constants.DATABASE_ERROR_DATA_RECORD_NAME, valueMap);
         return BallerinaErrors.createError(Constants.DATABASE_ERROR_CODE, sqlClientErrorDetailRecord);
     }
 }

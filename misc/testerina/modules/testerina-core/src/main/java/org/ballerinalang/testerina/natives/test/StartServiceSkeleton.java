@@ -78,7 +78,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
 
         try {
             // TODO: find how to give the service name in to service generation function.
-            generator.generateService(userDir, openApiFilePath, "", rootDir.toString());
+            generator.generateService(userDir, openApiFilePath, "", "", rootDir.toString());
         } catch (IOException | BallerinaOpenApiException e) {
             throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to generate the "
                     + "service from the [OpenApi file] %s [cause] %s", openApiFilePath, e.getMessage()), e);

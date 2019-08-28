@@ -18,6 +18,9 @@
 
 package org.ballerinalang.stdlib.system.utils;
 
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
@@ -40,6 +43,8 @@ public class SystemConstants {
      * Package path.
      */
     static final String SYSTEM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
+
+    static final BPackage SYSTEM_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
 
     static final String ERROR_REASON_PREFIX = "{ballerina/system}";
 

@@ -16,7 +16,7 @@
 
 service x =
 service {
-    resource function foo() returns int = external;
+    resource function foo() returns error? = external;
 
     resource function bar() = external;
 
