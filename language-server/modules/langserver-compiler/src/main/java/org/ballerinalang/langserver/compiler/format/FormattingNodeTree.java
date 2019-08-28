@@ -2481,6 +2481,18 @@ public class FormattingNodeTree {
                         if (this.noHeightAvailable(identifierWhitespace.get(FormattingConstants.WS).getAsString())) {
                             identifierWhitespace.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         }
+                    } else if (text.equals(Tokens.ERROR)) {
+                        if (formatConfig
+                                .get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                            invocationWS.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
+                                    .get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                    + indentation);
+                        } else if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
+                            invocationWS.addProperty(FormattingConstants.WS,
+                                    this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                        } else {
+                            invocationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        }
                     } else if (identifierWhitespace == null &&
                             !ws.get(i + 1).getAsJsonObject().get(FormattingConstants.TEXT)
                                     .getAsString().equals(Tokens.COLON)) {
@@ -2491,11 +2503,18 @@ public class FormattingNodeTree {
                             invocationWS.addProperty(FormattingConstants.WS,
                                     FormattingConstants.EMPTY_SPACE);
                         } else {
-                            invocationWS.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
-                                    .get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
-                                    + this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
-                                    .getAsInt())
-                                    + indentation);
+                            if (formatConfig
+                                    .get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                                invocationWS.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
+                                        .get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                        + indentation);
+                            } else if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
+                                invocationWS.addProperty(FormattingConstants.WS,
+                                        this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
+                                                .getAsInt()));
+                            } else {
+                                invocationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            }
                         }
                     }
                 }
