@@ -39,15 +39,15 @@ public class HTTPClientContinueTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9242,
                 "continue"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Hello World!", "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Hello World!", "Message content mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
                 TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
     }
 
     @Test(description = "Negative test case for 100 continue of http client")
     public void testNegativeContinueAction() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9243,
-                "continue"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9242,
+                "continue/failure"));
         Assert.assertEquals(response.getResponseCode(), 417, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
                 TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");

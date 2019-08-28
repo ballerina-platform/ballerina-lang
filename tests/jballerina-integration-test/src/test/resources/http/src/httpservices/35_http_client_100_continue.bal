@@ -86,18 +86,12 @@ service continueClientTest on new http:Listener(9242)  {
             checkpanic caller->respond("Error in client post - HTTP/1.1");
         }
     }
-}
-
-@http:ServiceConfig {
-    basePath: "/continue"
-}
-service continueClientTest1 on new http:Listener(9243)  {
 
     @http:ResourceConfig {
         methods: ["GET"],
-        path: "/"
+        path: "/failure"
     }
-    resource function testContinueClient(http:Caller caller, http:Request req) {
+    resource function continueClient(http:Caller caller, http:Request req) {
         req.addHeader("Expect", "100-continue");
         req.addHeader("content-type", "application/json");
         req.setPayload({ name: "apple", color: "red" });
