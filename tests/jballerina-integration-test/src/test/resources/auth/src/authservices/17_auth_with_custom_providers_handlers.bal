@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/config;
 import ballerina/crypto;
 import ballerina/http;
 import ballerina/internal;
@@ -25,13 +26,19 @@ OutboundCustomAuthHandler outboundCustomAuthHandler = new(outboundCustomAuthProv
 http:Client client17 = new("https://localhost:20024", {
     auth: {
         authHandler: outboundCustomAuthHandler
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
 listener http:Listener listener17_1 = new(20023, {
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }
@@ -68,7 +75,7 @@ listener http:Listener listener17_2 = new(20024, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }
