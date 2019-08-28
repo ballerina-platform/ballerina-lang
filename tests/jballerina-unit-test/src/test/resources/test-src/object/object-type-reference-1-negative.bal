@@ -141,3 +141,13 @@ type RedecalredFieldObject_3 abstract object {
 type Bar object {
     *Baz;   // non existing type
 };
+
+type Too object {
+    *Tar; // non existing type
+
+    string s; // with member
+
+    public function __init(string s) {
+        self.s = s;
+    }
+};
