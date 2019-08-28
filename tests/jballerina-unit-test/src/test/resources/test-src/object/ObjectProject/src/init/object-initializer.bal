@@ -231,3 +231,6 @@ function testCheckPanicInObjectInitArg() returns error {
     return <error>p;
 }
 
+function testObjectInitPanic() returns error|PanicReceiver {
+    return trap new PanicReceiver("Mr. Panic");
+}

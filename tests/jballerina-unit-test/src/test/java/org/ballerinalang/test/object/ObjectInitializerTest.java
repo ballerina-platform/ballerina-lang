@@ -184,4 +184,10 @@ public class ObjectInitializerTest {
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(((BError) returns[0]).stringValue(), "Bar Error {b:\"bar\"}");
     }
+
+    @Test(description = "Test panic in object init function")
+    public void testObjectInitPanic() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInitPanic");
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "__init panicked {}");
+    }
 }
