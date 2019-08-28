@@ -3181,8 +3181,9 @@ public class Desugar extends BLangNodeVisitor {
         }
         result = genIExpr;
 
-        // TODO : Remove this if block. Not needed.
+
         if (iExpr.expr == null) {
+            fixTypeCastInTypeParamInvocation(iExpr, genIExpr);
             if (iExpr.exprSymbol == null) {
                 return;
             }
@@ -3214,6 +3215,11 @@ public class Desugar extends BLangNodeVisitor {
                 break;
         }
 
+        fixTypeCastInTypeParamInvocation(iExpr, genIExpr);
+    }
+
+    private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
+
         if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
             BType originalInvType = genIExpr.type;
             genIExpr.type = ((BInvokableSymbol) genIExpr.symbol).retType;
@@ -3227,7 +3233,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BOperatorSymbol conversionSymbol = Symbols
                     .createCastOperatorSymbol(genIExpr.type, originalInvType, symTable.errorType, false, true,
-                                              InstructionCodes.NOP, null, null);
+                            InstructionCodes.NOP, null, null);
             BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
             conversionExpr.expr = genIExpr;
             conversionExpr.targetType = originalInvType;

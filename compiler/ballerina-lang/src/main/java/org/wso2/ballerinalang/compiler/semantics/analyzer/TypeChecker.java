@@ -2708,17 +2708,6 @@ public class TypeChecker extends BLangNodeVisitor {
         Name funcName = names.fromIdNode(iExpr.name);
         Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
         BSymbol funcSymbol = symTable.notFoundSymbol;
-        // TODO: we may not need this section now, with the mandatory 'self'
-        // if no package alias, check for same object attached function
-        if (pkgAlias == Names.EMPTY && env.enclType != null) {
-            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                    env.enclType.type.tsymbol.name.value, funcName.value));
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
-                    env.enclType.type.tsymbol);
-            if (funcSymbol != symTable.notFoundSymbol) {
-                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
-            }
-        }
 
         BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgAlias, getCurrentCompUnit(iExpr));
         if (pkgSymbol == symTable.notFoundSymbol) {
@@ -2754,6 +2743,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
+        }
+
+        if (PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
+            // This will enable, type param support, if the function is called directly.
+            this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
         }
         // Set the resolved function symbol in the invocation expression.
         // This is used in the code generation phase.
