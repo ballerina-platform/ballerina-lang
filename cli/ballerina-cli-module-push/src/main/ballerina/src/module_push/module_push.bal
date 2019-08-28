@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
-import ballerina/'lang\.int as lint;
+import ballerina/io;
+import ballerina/lang.'int as lint;
+import ballerina/mime;
 
 # This functions pulls a module from ballerina central.
 #

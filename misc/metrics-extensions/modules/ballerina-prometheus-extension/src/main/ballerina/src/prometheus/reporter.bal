@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/observe;
 import ballerina/config;
-import ballerina/'lang\.string as str;
+import ballerina/http;
 import ballerina/internal;
+import ballerina/lang.'string as str;
+import ballerina/observe;
 
 const string METRIC_TYPE_GAUGE = "gauge";
 const string METRIC_TYPE_SUMMARY = "summary";
