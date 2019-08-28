@@ -43,12 +43,10 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
@@ -63,8 +61,6 @@ import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
  */
 public class BuildContext extends HashMap<BuildContextField, Object> {
     private static final long serialVersionUID = 6363519534259706585L;
-    private List<String> supportedPlatforms = Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS)
-            .collect(Collectors.toList());
     private transient Path executableDir;
     private transient Path targetJarCacheDir;
     private transient Path targetBirCacheDir;
@@ -118,8 +114,6 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 
                 // save '<target>/bin' dir for executables
                 this.executableDir = targetPath.resolve(ProjectDirConstants.BIN_DIR_NAME);
-    
-                this.supportedPlatforms.add("any");
             } else {
                 throw new BLangCompilerException("location of the source root does not exists: " + sourceRootPath);
             }
@@ -332,26 +326,19 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         }
     }
 
-    public Optional<Path> getBaloFromHomeCache(PackageID moduleID) {
+    public Path getBaloFromHomeCache(PackageID moduleID, String platform) {
         try {
             Path moduleBaloCacheDir = Files.createDirectories(getBaloCacheFromHome()
                     .resolve(moduleID.orgName.value)
                     .resolve(moduleID.name.value)
                     .resolve(moduleID.version.value));
     
-            for (String platform : this.supportedPlatforms) {
-                String baloFileName = moduleID.name.value + "-"
-                                      + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
-                                      + platform + "-"
-                                      + moduleID.version.value
-                                      + BLANG_COMPILED_PKG_BINARY_EXT;
-                Path baloFilePath = moduleBaloCacheDir.resolve(baloFileName);
-                if (Files.exists(baloFilePath)) {
-                    return Optional.of(baloFilePath);
-                }
-            }
-    
-            return Optional.empty();
+            String baloFileName = moduleID.name.value + "-"
+                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                  + platform + "-"
+                                  + moduleID.version.value
+                                  + BLANG_COMPILED_PKG_BINARY_EXT;
+            return moduleBaloCacheDir.resolve(baloFileName);
         } catch (IOException e) {
             throw new BLangCompilerException("error resolving balo_cache dir for module: " + moduleID);
         }

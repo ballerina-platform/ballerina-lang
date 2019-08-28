@@ -26,6 +26,7 @@ import org.ballerinalang.toml.model.Dependency;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,12 +36,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -53,14 +56,17 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_TM
  * Copy native libraries to target/tmp.
  */
 public class CopyNativeLibTask implements Task {
-
-    private boolean skipCopyLibsFromDist = false;
+    private List<String> supportedPlatforms = Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS)
+            .collect(Collectors.toList());
+    private boolean skipCopyLibsFromDist;
 
     public CopyNativeLibTask(boolean skipCopyLibsFromDist) {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        supportedPlatforms.add("any");
     }
 
     public CopyNativeLibTask() {
+        this(false);
     }
     
     @Override
@@ -132,17 +138,21 @@ public class CopyNativeLibTask implements Task {
 
     private void copyImportedLib(BuildContext buildContext, BPackageSymbol importz, Path project,
                                  Path tmpDir, String balHomePath) {
-        // Get the jar paths
-        Optional<Path> importJar = findImportBaloPath(buildContext, importz, project);
-        if (importJar.isPresent()) {
-            copyLibsFromBalo(importJar.get().toString(), tmpDir.toString());
-            return;
+        // Get the balo paths
+        for (String platform : supportedPlatforms) {
+            Path importJar = findImportBaloPath(buildContext, importz, project, platform);
+            if (importJar != null && Files.exists(importJar)) {
+                copyLibsFromBalo(importJar.toString(), tmpDir.toString());
+                return;
+            }
         }
+
         // If balo cannot be found from target or cache, get dependencies from distribution toml.
         copyDependenciesFromToml(importz, balHomePath, tmpDir);
     }
 
-    private static Optional<Path> findImportBaloPath(BuildContext buildContext, BPackageSymbol importz, Path project) {
+    private static Path findImportBaloPath(BuildContext buildContext, BPackageSymbol importz, Path project,
+                                           String platform) {
         // Get the jar paths
         PackageID id = importz.pkgID;
     
@@ -150,12 +160,12 @@ public class CopyNativeLibTask implements Task {
         // Look if it is a project module.
         if (ProjectDirs.isModuleExist(project, id.name.value)) {
             // If so fetch from project balo cache
-            return Optional.of(buildContext.getBaloFromTarget(id));
+            return buildContext.getBaloFromTarget(id);
         } else if (importPathDependency.isPresent()) {
-            return Optional.of(importPathDependency.get().getMetadata().getPath());
+            return importPathDependency.get().getMetadata().getPath();
         } else {
             // If not fetch from home balo cache.
-            return buildContext.getBaloFromHomeCache(id);
+            return buildContext.getBaloFromHomeCache(id, platform);
         }
     }
 
