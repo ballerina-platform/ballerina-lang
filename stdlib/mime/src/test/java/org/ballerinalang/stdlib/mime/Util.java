@@ -62,8 +62,8 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
@@ -309,7 +309,7 @@ public class Util {
     }
 
     public static ObjectValue createEntityObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
     }
 
     @Deprecated
@@ -318,7 +318,7 @@ public class Util {
     }
 
     public static ObjectValue createMediaTypeObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
     }
 
     @Deprecated
@@ -328,7 +328,7 @@ public class Util {
     }
 
     public static ObjectValue getContentDispositionStruct() {
-        return BallerinaValues.createObjectValue(PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, CONTENT_DISPOSITION_STRUCT);
     }
 
     @Deprecated
