@@ -20,6 +20,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -51,9 +52,9 @@ public class BRuntime {
         return new BRuntime(strand.scheduler);
     }
 
-    public void invokeMethod(ObjectValue object, String methodName, Object... args) {
+    public void invokeMethod(ObjectValue object, String methodName, CallableUnitCallback callback, Object... args) {
         Consumer func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        scheduler.schedule(new Object[1], func, null);
+        scheduler.schedule(new Object[1], func, null, callback);
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
