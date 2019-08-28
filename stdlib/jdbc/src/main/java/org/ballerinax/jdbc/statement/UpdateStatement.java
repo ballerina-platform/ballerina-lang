@@ -74,7 +74,7 @@ public class UpdateStatement extends AbstractSQLStatement {
         String errorMessagePrefix = "Failed to execute update query: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
-            conn = getDatabaseConnection(strand, client, datasource, false);
+            conn = getDatabaseConnection(strand, client, datasource);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
             ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
