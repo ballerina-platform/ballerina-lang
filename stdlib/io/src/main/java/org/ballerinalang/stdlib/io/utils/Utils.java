@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -47,11 +46,10 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
  */
 public class Utils {
 
-    public static final int READABLE_BUFFER_SIZE = 8192; //8KB
-    public static final String PROTOCOL_PACKAGE_MIME = "ballerina/mime";
-    public static final BPackage PACKAGE_ID_MIME = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "mime");
-    public static final String MIME_ERROR_MESSAGE = "message";
-    public static final String ERROR_RECORD_TYPE = "Detail";
+    private static final int READABLE_BUFFER_SIZE = 8192; //8KB
+    private static final BPackage PACKAGE_ID_MIME = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "mime");
+    private static final String MIME_ERROR_MESSAGE = "message";
+    private static final String ERROR_RECORD_TYPE = "Detail";
     private static final String STRUCT_TYPE = "ReadableByteChannel";
     private static final String ENCODING_ERROR = "{ballerina/mime}EncodingFailed";
     private static final String DECODING_ERROR = "{ballerina/mime}DecodingFailed";

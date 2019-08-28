@@ -152,7 +152,7 @@ public class Buffer {
             if (reversedByteBufferPosition >= minimumBytePosition) {
                 byteBuffer.position(reversedByteBufferPosition);
             } else {
-                String message = "The specified byte count " + count + " has not being read, hence cannot reverse";
+                String message = "The specified byte count " + count + " is not being read, hence cannot be reversed";
                 throw new BallerinaIOException(message);
             }
         } else {
