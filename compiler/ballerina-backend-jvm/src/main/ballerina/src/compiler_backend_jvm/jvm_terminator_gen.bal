@@ -451,7 +451,7 @@ type TerminatorGenerator object {
 
     function visitArg(bir:VarRef? arg) returns boolean {
         bir:VarRef argRef = getVarRef(arg);
-        if (internal:hasPrefix(argRef.variableDcl.name.value, "_")) {
+        if (argRef.variableDcl.name.value.startsWith("_")) {
             loadDefaultValue(self.mv, getVarRef(arg).typeValue);
             return false;
         }

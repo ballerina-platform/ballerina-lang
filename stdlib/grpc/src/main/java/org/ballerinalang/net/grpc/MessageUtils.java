@@ -41,8 +41,8 @@ import java.nio.charset.Charset;
 import java.util.Locale;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_GRPC_PKG_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
 
 /**
@@ -59,7 +59,7 @@ public class MessageUtils {
     private static final String GOOGLE_PROTOBUF_EMPTY = "google.protobuf.Empty";
 
     public static ObjectValue getHeaderObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
+        return BallerinaValues.createObjectValue(PROTOCOL_GRPC_PKG_ID, "Headers");
     }
 
     static boolean headersRequired(AttachedFunction function) {

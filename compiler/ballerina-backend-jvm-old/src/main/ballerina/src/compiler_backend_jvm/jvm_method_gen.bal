@@ -2324,7 +2324,7 @@ function findBIRFunction(bir:Package|bir:TypeDef|bir:Function src, string name) 
     return ();
 }
 
-function generateModuleInitializer(jvm:ClassWriter cw, bir:Package module, string currentPackageName) {
+function generateModuleInitializer(jvm:ClassWriter cw, bir:Package module) {
     string orgName = module.org.value;
     string moduleName = module.name.value;
     string versionValue = module.versionValue.value;
@@ -2337,10 +2337,13 @@ function generateModuleInitializer(jvm:ClassWriter cw, bir:Package module, strin
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
     mv.visitVarInsn(ASTORE, 1);
-    mv.visitLdcInsn(currentPackageName == "" ? "." : cleanupPackageName(currentPackageName));
+    mv.visitLdcInsn(orgName);
+    mv.visitLdcInsn(moduleName);
+    mv.visitLdcInsn(versionValue);
     mv.visitVarInsn(ALOAD, 1);
     mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
-                       io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
+                       io:sprintf("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE, VALUE_CREATOR),
+                       false);
 
     mv.visitInsn(RETURN);
     mv.visitMaxs(0,0);

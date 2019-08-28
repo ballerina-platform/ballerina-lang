@@ -94,7 +94,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DEFAULT_VAL
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DETAIL_RECORD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DURATION_UNDEFINED_VALUE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ENABLED_PROTOCOLS_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE_ID;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYMANAGER_ALGORITHM_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYSTORE_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYSTORE_TYPE_CONFIG;
@@ -562,7 +562,7 @@ public class KafkaUtils {
     }
 
     public static MapValue<String, Object> createKafkaRecord(String recordName) {
-        return BallerinaValues.createRecordValue(KAFKA_PROTOCOL_PACKAGE, recordName);
+        return BallerinaValues.createRecordValue(KAFKA_PROTOCOL_PACKAGE_ID, recordName);
     }
 
     public static ArrayValue getPartitionOffsetArrayFromOffsetMap(Map<TopicPartition, Long> offsetMap) {

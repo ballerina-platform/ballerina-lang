@@ -77,6 +77,15 @@ public abstract class OpenAPICommandTest {
         printStream.close();
     }
 
+    /**
+     * Retrieve resource location for test purpose.
+     *
+     * @return resource path.
+     */
+    public static Path getResourceFolderPath() {
+        return Paths.get("src/test/resources/").toAbsolutePath();
+    }
+
     public static OpenAPIBallerinaProject createBalProject(String directory, String moduleName) throws IOException {
         OpenAPIBallerinaProject openAPIBallerinaProject = new OpenAPIBallerinaProject();
         Path projectPath = Paths.get(directory);

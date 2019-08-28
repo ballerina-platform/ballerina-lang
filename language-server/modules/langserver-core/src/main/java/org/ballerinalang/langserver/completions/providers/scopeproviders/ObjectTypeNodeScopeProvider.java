@@ -104,6 +104,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
             completionItems.add(Snippet.DEF_REMOTE_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_INIT_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_ATTACH_FUNCTION.get().build(context));
+            completionItems.add(Snippet.DEF_DETACH_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_START_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_GRACEFUL_STOP_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_IMMEDIATE_STOP_FUNCTION.get().build(context));
