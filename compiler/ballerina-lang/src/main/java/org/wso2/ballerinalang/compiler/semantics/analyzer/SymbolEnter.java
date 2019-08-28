@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -695,7 +696,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BErrorType errorType = (BErrorType) typeDefSymbol.type;
         BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
                 typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, errorType, typeDefSymbol.owner);
-        errorType.ctorSymbol = symbol;
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
         symbol.retType = errorType;
@@ -703,7 +703,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             env.scope.define(symbol.name, symbol);
         }
 
-        ((BErrorType) typeDefSymbol.type).ctorSymbol = symbol;
+        ((BErrorTypeSymbol) typeDefSymbol).ctorSymbol = symbol;
     }
 
     @Override
@@ -998,6 +998,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (constant.typeNode != null) {
             staticType = symResolver.resolveTypeNode(constant.typeNode, env);
             if (staticType == symTable.noType) {
+                constant.symbol = getConstantSymbol(constant);
                 // This is to prevent concurrent modification exception.
                 if (!this.unresolvedTypes.contains(constant)) {
                     this.unresolvedTypes.add(constant);
@@ -1007,12 +1008,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             staticType = symTable.semanticError;
         }
-
-        // Create a new constant symbol.
-        Name name = names.fromIdNode(constant.name);
-        PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                symTable.semanticError, symTable.noType, env.scope.owner);
+        BConstantSymbol constantSymbol = getConstantSymbol(constant);
         constant.symbol = constantSymbol;
 
         NodeKind nodeKind = constant.expr.getKind();
@@ -1055,8 +1051,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        if (constant.symbol.name == Names.IGNORE) {
+            // Avoid symbol definition for constants with name '_'
+            return;
+        }
         // Add the symbol to the enclosing scope.
         env.scope.define(constantSymbol.name, constantSymbol);
+    }
+
+    private BConstantSymbol getConstantSymbol(BLangConstant constant) {
+        // Create a new constant symbol.
+        Name name = names.fromIdNode(constant.name);
+        PackageID pkgID = env.enclPkg.symbol.pkgID;
+        return new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
+                symTable.semanticError, symTable.noType, env.scope.owner);
     }
 
     @Override
@@ -1617,27 +1625,26 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        validateObjectInitFnReturnSignature(funcNode);
+        validateErrorOrNilReturn(funcNode, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR);
         objectSymbol.initializerFunc = attachedFunc;
     }
 
-    private void validateObjectInitFnReturnSignature(BLangFunction objectInitFn) {
-        BType returnType = objectInitFn.returnTypeNode.type;
-
-        if (returnType.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
-            if (memberTypes.stream().noneMatch(type -> type.tag != TypeTags.NIL && type.tag != TypeTags.ERROR)
-                    && memberTypes.contains(symTable.nilType)) {
-                return;
-            }
-        }
+    private void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
+        BType returnType = function.returnTypeNode.type;
 
         if (returnType.tag == TypeTags.NIL) {
             return;
         }
 
-        dlog.error(objectInitFn.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR, objectInitFn.receiver.type.toString(),
-                   objectInitFn.returnTypeNode.type.toString());
+        if (returnType.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
+            if (returnType.isNullable() &&
+                    memberTypes.stream().allMatch(type -> type.tag == TypeTags.NIL || type.tag == TypeTags.ERROR)) {
+                return;
+            }
+        }
+
+        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.type.toString());
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
@@ -1665,6 +1672,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);
         }
+
+        validateErrorOrNilReturn(funcNode, DiagnosticCode.RESOURCE_FUNCTION_INVALID_RETURN_TYPE);
     }
 
     private StatementNode createAssignmentStmt(BLangSimpleVariable variable, BVarSymbol varSym, BSymbol fieldVar) {

@@ -984,6 +984,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitErrorDetailBindingPattern(BallerinaParser.ErrorDetailBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
         String bindingVarName = null;
         if (ctx.bindingPattern() != null && ctx.bindingPattern().Identifier() != null) {
             bindingVarName = ctx.bindingPattern().Identifier().getText();

@@ -15,12 +15,12 @@
 // under the License.
 
 service helloWorld = service {
-    resource function sayHelloWithString(string x) returns string {
-        return x;
+    resource function sayHelloWithString(string x) returns error? {
+        return error("dummy err");
     }
 
-    resource function sayHelloWithInt(int x) returns int {
-        return x;
+    resource function sayHelloWithInt(int x) returns error? {
+        return;
     }
 
     resource function sayHelloWithNil1(string x) {

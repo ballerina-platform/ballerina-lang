@@ -103,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
@@ -542,7 +543,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             dlog.error(matchStmt.pos, DiagnosticCode.MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS);
         }
         // Execute the following block if there are no unmatched expression types
-        if (staticLastPattern || structuredLastPattern) {
+        if ((staticLastPattern && !hasErrorType(matchStmt.exprTypes)) || structuredLastPattern) {
             if (matchStmt.getPatternClauses().size() == 1) {
                 dlog.error(matchStmt.getPatternClauses().get(0).pos, DiagnosticCode.MATCH_STMT_PATTERN_ALWAYS_MATCHES);
             }
@@ -557,12 +558,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private boolean hasErrorType(List<BType> typeList) {
+        return typeList.stream().anyMatch(t -> types.isAssignable(t, symTable.errorType));
+    }
+
     private boolean analyzeStructuredMatchPatterns(BLangMatch matchStmt) {
         if (matchStmt.exprTypes.isEmpty()) {
             return false;
         }
 
-        return analyseStructuredBindingPatterns(matchStmt.getStructuredPatternClauses());
+        return analyseStructuredBindingPatterns(matchStmt.getStructuredPatternClauses(),
+                hasErrorType(matchStmt.exprTypes));
     }
 
     /**
@@ -645,12 +651,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        return analyzeStaticPatterns(matchedPatterns);
+        return analyzeStaticPatterns(matchedPatterns, hasErrorType(matchStmt.exprTypes));
     }
 
-    private boolean analyzeStaticPatterns(List<BLangMatchStaticBindingPatternClause> matchedPatterns) {
+    private boolean analyzeStaticPatterns(List<BLangMatchStaticBindingPatternClause> matchedPatterns,
+                                          boolean errorTypeInMatchExpr) {
         BLangMatchStaticBindingPatternClause finalPattern = matchedPatterns.get(matchedPatterns.size() - 1);
-        if (finalPattern.literal.type.tag == TypeTags.NONE) {
+        if (finalPattern.literal.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                && ((BLangSimpleVarRef) finalPattern.literal).variableName.value.equals(Names.IGNORE.value)
+                && !errorTypeInMatchExpr) {
             finalPattern.isLastPattern = true;
         }
 
@@ -667,9 +676,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return finalPattern.isLastPattern;
     }
 
-    private boolean analyseStructuredBindingPatterns(List<BLangMatchStructuredBindingPatternClause> clauses) {
+    private boolean analyseStructuredBindingPatterns(List<BLangMatchStructuredBindingPatternClause> clauses,
+                                                     boolean errorTypeInMatchExpr) {
         BLangMatchStructuredBindingPatternClause finalPattern = clauses.get(clauses.size() - 1);
-        if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE && finalPattern.typeGuardExpr == null) {
+        if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE
+                && finalPattern.typeGuardExpr == null
+                && !(errorTypeInMatchExpr && isWildcardMatchPattern(finalPattern))) {
             finalPattern.isLastPattern = true;
         }
 
@@ -686,7 +698,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangVariable precedingVar = precedingPattern.bindingPatternVariable;
                 BLangVariable currentVar = currentPattern.bindingPatternVariable;
 
-                if (checkStructuredPatternSimilarity(precedingVar, currentVar) &&
+                if (checkStructuredPatternSimilarity(precedingVar, currentVar, errorTypeInMatchExpr) &&
                         checkTypeGuardSimilarity(precedingPattern.typeGuardExpr, currentPattern.typeGuardExpr)) {
                     dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
                     clauses.remove(j--);
@@ -694,6 +706,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         return finalPattern.isLastPattern;
+    }
+
+    private boolean isWildcardMatchPattern(BLangMatchStructuredBindingPatternClause finalPattern) {
+        return ((BLangSimpleVariable) finalPattern.bindingPatternVariable).name.value.equals(Names.IGNORE.value);
     }
 
     /**
@@ -770,7 +786,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     BConstantSymbol precedingPatternSym =
                             (BConstantSymbol) ((BLangSimpleVarRef) precedingPattern).symbol;
                     if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                        if (pattern.type.tag != TypeTags.NONE) {
+                        if (!((BLangSimpleVarRef) pattern).variableName.value.equals(Names.IGNORE.value)) {
                             // pattern is a constant reference.
                             BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
                             return precedingPatternSym.value.equals(patternSym.value);
@@ -807,8 +823,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return (precedingLiteral.value.equals(literal.value));
                 }
                 return false;
-            case TypeTags.NONE:
-                // preceding pattern is '_'. Hence will match all patterns that follow.
+            case TypeTags.ANY:
+                // preceding pattern is '_'. Hence will match all patterns except error that follow.
+                if (pattern.type.tag == TypeTags.ERROR) {
+                    return false;
+                }
                 return true;
             default:
                 return false;
@@ -847,9 +866,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      *
      * @param precedingVar the structured pattern that appears on top
      * @param var          the structured pattern that appears after the precedingVar
+     * @param errorTypeInMatchExpr
      * @return true if the the current pattern is unreachable due to the preceding pattern
      */
-    private boolean checkStructuredPatternSimilarity(BLangVariable precedingVar, BLangVariable var) {
+    private boolean checkStructuredPatternSimilarity(BLangVariable precedingVar,
+                                                     BLangVariable var,
+                                                     boolean errorTypeInMatchExpr) {
         if (precedingVar.type.tag == TypeTags.SEMANTIC_ERROR || var.type.tag == TypeTags.SEMANTIC_ERROR) {
             return false;
         }
@@ -873,7 +895,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return false;
                 }
                 if (!checkStructuredPatternSimilarity(
-                        precedingKeyValue.valueBindingPattern, recVarAsMap.get(precedingKeyValue.key.value))) {
+                        precedingKeyValue.valueBindingPattern,
+                        recVarAsMap.get(precedingKeyValue.key.value),
+                        errorTypeInMatchExpr)) {
                     return false;
                 }
             }
@@ -909,7 +933,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
 
             for (int i = 0; i < memberVars.size(); i++) {
-                if (!checkStructuredPatternSimilarity(precedingMemberVars.get(i), memberVars.get(i))) {
+                if (!checkStructuredPatternSimilarity(precedingMemberVars.get(i), memberVars.get(i),
+                        errorTypeInMatchExpr)) {
                     return false;
                 }
             }
@@ -947,13 +972,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         return false;
                     }
                     boolean similar =
-                            checkStructuredPatternSimilarity(detailEntry.valueBindingPattern, correspondingCurDetail);
+                            checkStructuredPatternSimilarity(detailEntry.valueBindingPattern, correspondingCurDetail,
+                                    errorTypeInMatchExpr);
                     if (!similar) {
                         return false;
                     }
                 }
             }
             return true;
+        }
+
+        if (precedingVar.getKind() == NodeKind.VARIABLE
+                && ((BLangSimpleVariable) precedingVar).name.value.equals(Names.IGNORE.value)
+                && var.getKind() == NodeKind.ERROR_VARIABLE) {
+            return false;
         }
 
         return precedingVar.getKind() == NodeKind.VARIABLE;
@@ -1299,12 +1331,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordDestructure stmt) {
+        List<BLangExpression> varRefs = stmt.varRef.recordRefFields.stream()
+                .map(e -> e.variableReference).collect(Collectors.toList());
+        varRefs.add((BLangExpression) stmt.varRef.restParam);
+        this.checkDuplicateVarRefs(varRefs);
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
     }
 
     public void visit(BLangErrorDestructure stmt) {
+        List<BLangExpression> varRefs = new ArrayList<>();
+        varRefs.add(stmt.varRef.reason);
+        varRefs.addAll(stmt.varRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
+        varRefs.add(stmt.varRef.restVar);
+        this.checkDuplicateVarRefs(varRefs);
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
@@ -1312,9 +1353,65 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
+        List<BLangExpression> varRefs = new ArrayList<>(stmt.varRef.expressions);
+        varRefs.add((BLangExpression) stmt.varRef.restParam);
+        this.checkDuplicateVarRefs(varRefs);
         this.checkStatementExecutionValidity(stmt);
         analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
+    }
+
+    private void checkDuplicateVarRefs(List<BLangExpression> varRefs) {
+        checkDuplicateVarRefs(varRefs, new HashSet<>());
+    }
+
+    private void checkDuplicateVarRefs(List<BLangExpression> varRefs, Set<BSymbol> symbols) {
+        for (BLangExpression varRef : varRefs) {
+            if (varRef == null || (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF
+                    && varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR
+                    && varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR
+                    && varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR
+                    && varRef.getKind() != NodeKind.RECORD_VARIABLE_REF
+                    && varRef.getKind() != NodeKind.ERROR_VARIABLE_REF
+                    && varRef.getKind() != NodeKind.TUPLE_VARIABLE_REF)) {
+                continue;
+            }
+
+            if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                    && names.fromIdNode(((BLangSimpleVarRef) varRef).variableName) == Names.IGNORE) {
+                continue;
+            }
+
+            if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+                BLangTupleVarRef tupVarRef = (BLangTupleVarRef) varRef;
+                List<BLangExpression> refs = new ArrayList<>(tupVarRef.expressions);
+                refs.add((BLangExpression) tupVarRef.restParam);
+                checkDuplicateVarRefs(refs, symbols);
+            }
+
+            if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+                BLangRecordVarRef recVarRef = (BLangRecordVarRef) varRef;
+                List<BLangExpression> refs = recVarRef.recordRefFields.stream()
+                        .map(e -> e.variableReference).collect(Collectors.toList());
+                refs.add((BLangExpression) recVarRef.restParam);
+                checkDuplicateVarRefs(refs, symbols);
+            }
+
+            if (varRef.getKind() == NodeKind.ERROR_VARIABLE_REF) {
+                BLangErrorVarRef errVarRef = (BLangErrorVarRef) varRef;
+                List<BLangExpression> refs = new ArrayList<>();
+                refs.add(errVarRef.reason);
+                refs.addAll(errVarRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
+                refs.add(errVarRef.restVar);
+                checkDuplicateVarRefs(refs, symbols);
+            }
+
+            BLangVariableReference varRefExpr = (BLangVariableReference) varRef;
+            if (varRefExpr.symbol != null && !symbols.add(varRefExpr.symbol)) {
+                this.dlog.error(varRef.pos, DiagnosticCode.DUPLICATE_VARIABLE_IN_BINDING_PATTERN,
+                        varRefExpr.symbol);
+            }
+        }
     }
 
     public void visit(BLangBreak breakNode) {

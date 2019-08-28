@@ -528,6 +528,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateStartAnnAttachments(varNode.expr);
 
+        if (varNode.name.value.equals(Names.IGNORE.value)) {
+            // Fake symbol to prevent runtime failures down the line.
+            varNode.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID, symTable.anyType, env.scope.owner);
+        }
+
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
 
@@ -1980,7 +1985,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 // only support "_" in static match
                 Name varName = names.fromIdNode(((BLangSimpleVarRef) expression).variableName);
                 if (varName == Names.IGNORE) {
-                    expression.type = symTable.noType;
+                    expression.type = symTable.anyType;
                     return expression.type;
                 }
                 BType exprType = typeChecker.checkExpr(expression, env);
@@ -2280,6 +2285,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+        if (names.fromIdNode(constant.name) == Names.IGNORE) {
+            dlog.error(constant.name.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+        }
         if (constant.typeNode != null && !types.isAllowedConstantType(constant.typeNode.type)) {
             dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
         }
