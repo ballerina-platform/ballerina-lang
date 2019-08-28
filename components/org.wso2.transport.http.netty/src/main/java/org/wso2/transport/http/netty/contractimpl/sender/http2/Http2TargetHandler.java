@@ -206,7 +206,6 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     private void onHeaderRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame) {
         int streamId = http2HeadersFrame.getStreamId();
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
-
         boolean serverPush = false;
         if (outboundMsgHolder == null) {
             outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
@@ -217,13 +216,14 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                          http2ClientChannel, streamId);
                 return;
             }
-        } else if (isAbnormal100Response(http2HeadersFrame.getHeaders(), outboundMsgHolder.getRequest())) {
+        } else if (isUnexpected100ContinueResponse(http2HeadersFrame.getHeaders(), outboundMsgHolder.getRequest())) {
             LOG.warn("Received an unexpected 100-continue response");
             return;
         }
         Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame,
-                outboundMsgHolder, serverPush, http2MessageStateContext);
+                                                                             outboundMsgHolder, serverPush,
+                                                                             http2MessageStateContext);
     }
 
     private void onDataRead(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame) {
@@ -285,7 +285,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         http2ClientChannel.destroy();
     }
 
-    private boolean isAbnormal100Response(Http2Headers http2Headers, HttpCarbonMessage inboundReq) {
+    private boolean isUnexpected100ContinueResponse(Http2Headers http2Headers, HttpCarbonMessage inboundReq) {
         return HttpResponseStatus.CONTINUE.codeAsText().contentEquals(http2Headers.status()) &&
                 !inboundReq.is100ContinueExpected();
     }
