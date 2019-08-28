@@ -328,7 +328,11 @@ function genJMethodForBFunc(bir:Function func,
                 }
             }
             string metaVarName = localVar.meta.name;
-            if (metaVarName != "") {
+            if (metaVarName != "" &&
+                      // filter out compiler added vars
+                      !((metaVarName.startsWith("$") && metaVarName.endsWith("$"))
+                        || (metaVarName.startsWith("$$") && metaVarName.endsWith("$$"))
+                        || metaVarName.startsWith("_$$_"))) {
                 mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.typeValue),
                                 startLabel, endLabel, indexMap.getIndex(localVar));
             }
