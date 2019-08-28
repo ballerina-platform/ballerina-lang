@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.UUID;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
 
 /**
  * This class contains the common constants and methods required for invocation context processing.
@@ -50,8 +50,8 @@ public class InvocationContextUtils {
     }
 
     private static MapValue<String, Object> initInvocationContext(Strand strand) {
-        MapValue<String, Object> invocationContextInfo = BallerinaValues
-                .createRecordValue(BALLERINA_RUNTIME_PKG, STRUCT_TYPE_INVOCATION_CONTEXT);
+        MapValue<String, Object> invocationContextInfo = BallerinaValues.
+                createRecordValue(BALLERINA_RUNTIME_PKG_ID, STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
         invocationContextInfo.put(INVOCATION_ID_KEY, invocationId.toString());
         invocationContextInfo.put(INVOCATION_ATTRIBUTES, new MapValueImpl());

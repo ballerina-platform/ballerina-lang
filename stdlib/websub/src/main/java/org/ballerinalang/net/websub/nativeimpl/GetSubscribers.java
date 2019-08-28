@@ -40,6 +40,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTIO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS_CREATED_AT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_ID;
 
 /**
  * Extern function to retrieve details of subscribers registered to receive updates for a particular topic.
@@ -63,7 +64,7 @@ public class GetSubscribers {
         ArrayValue subscriberDetailArray = null;
         try {
             List<HubSubscriber> subscribers = Hub.getInstance().getSubscribers();
-            MapValue<String, Object> subscriberDetailsRecordValue = BallerinaValues.createRecordValue(WEBSUB_PACKAGE,
+            MapValue<String, Object> subscriberDetailsRecordValue = BallerinaValues.createRecordValue(WEBSUB_PACKAGE_ID,
                                                                                      SUBSCRIPTION_DETAILS);
             subscriberDetailArray = new ArrayValue(new BArrayType(subscriberDetailsRecordValue.getType()));
             for (HubSubscriber subscriber : subscribers) {

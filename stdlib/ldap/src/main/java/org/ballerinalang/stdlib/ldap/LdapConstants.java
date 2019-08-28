@@ -18,6 +18,10 @@
 
 package org.ballerinalang.stdlib.ldap;
 
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+
 /**
  * Constants to be used in LDAP user stores.
  *
@@ -27,6 +31,7 @@ public class LdapConstants {
 
     // Name of the Ballerina ldap module, used to create struct instances.
     public static final String LDAP_PACKAGE = "ballerina/ldap";
+    public static final BPackage LDAP_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "ldap");
 
     // Record used to reference to a LDAP connection.
     public static final String LDAP_CONNECTION = "LdapConnection";

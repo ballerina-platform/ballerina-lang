@@ -670,10 +670,12 @@ public class BRunUtil {
                 }
                 return jvmRecord;
             case TypeTags.OBJECT_TYPE_TAG:
-                String objPackagePath = type.tsymbol.pkgID.toString();
+                PackageID packageID = type.tsymbol.pkgID;
+                BPackage objPackage = new BPackage(packageID.orgName.getValue(), packageID.name.getValue(),
+                        packageID.version.getValue());
                 String objName = type.tsymbol.getName().getValue();
 
-                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackagePath, objName);
+                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackage, objName);
                 BMap<String, BValue> objVal = (BMap) value;
                 for (Map.Entry<String, BValue> entry : objVal.getMap().entrySet()) {
                     BValue entryVal = entry.getValue();
@@ -784,9 +786,10 @@ public class BRunUtil {
                 return jvmMap;
             case TypeTags.OBJECT_TYPE_TAG:
                 String objPackagePath = type.getPackagePath();
+                BPackage objPkgPath = new BPackage(objPackagePath, "");
                 String objName = type.getName();
 
-                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackagePath, objName);
+                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPkgPath, objName);
                 HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
                 if (nativeData == null) {
                     return jvmObject;

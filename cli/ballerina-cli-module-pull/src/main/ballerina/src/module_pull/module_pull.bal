@@ -130,7 +130,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
         panic createError("connection to the remote registry host failed : " + e.reason());
     } else {
         string statusCode = httpResponse.statusCode.toString();
-        if (internal:hasPrefix(statusCode, "5")) {
+        if (statusCode.startsWith("5")) {
             panic createError("remote registry failed for url:" + url);
         } else if (statusCode != "200") {
             var resp = httpResponse.getJsonPayload();
