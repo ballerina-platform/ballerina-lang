@@ -42,6 +42,8 @@ import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javax.swing.text.html.Option;
+
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME;
@@ -133,16 +135,16 @@ public class CopyNativeLibTask implements Task {
     private void copyImportedLib(BuildContext buildContext, BPackageSymbol importz, Path project,
                                  Path tmpDir, String balHomePath) {
         // Get the jar paths
-        Path importJar = findImportBaloPath(buildContext, importz, project);
-        if (importJar != null && Files.exists(importJar)) {
-            copyLibsFromBalo(importJar.toString(), tmpDir.toString());
+        Optional<Path> importJar = findImportBaloPath(buildContext, importz, project);
+        if (importJar.isPresent()) {
+            copyLibsFromBalo(importJar.get().toString(), tmpDir.toString());
             return;
         }
         // If balo cannot be found from target or cache, get dependencies from distribution toml.
         copyDependenciesFromToml(importz, balHomePath, tmpDir);
     }
 
-    private static Path findImportBaloPath(BuildContext buildContext, BPackageSymbol importz, Path project) {
+    private static Optional<Path> findImportBaloPath(BuildContext buildContext, BPackageSymbol importz, Path project) {
         // Get the jar paths
         PackageID id = importz.pkgID;
     
@@ -151,14 +153,13 @@ public class CopyNativeLibTask implements Task {
         // Look if it is a project module.
         if (ProjectDirs.isModuleExist(project, id.name.value)) {
             // If so fetch from project balo cache
-            return buildContext.getBaloFromTarget(id);
+            return Optional.of(buildContext.getBaloFromTarget(id));
         } else if (importPathDependency.isPresent()) {
-            return importPathDependency.get().getMetadata().getPath();
+            return Optional.of(importPathDependency.get().getMetadata().getPath());
         } else {
             // If not fetch from home balo cache.
             return buildContext.getBaloFromHomeCache(id);
         }
-        // return the path
     }
 
     private void copyLibsFromBalo(String jarFileName, String destFile) {
