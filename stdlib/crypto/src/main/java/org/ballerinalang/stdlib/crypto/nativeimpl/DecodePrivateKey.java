@@ -73,8 +73,8 @@ public class DecodePrivateKey {
 
             //TODO: Add support for DSA/ECDSA keys and associated crypto operations
             if (privateKey.getAlgorithm().equals("RSA")) {
-                MapValue<String, Object> privateKeyRecord = BallerinaValues.createRecordValue(
-                        Constants.CRYPTO_PACKAGE, Constants.PRIVATE_KEY_RECORD);
+                MapValue<String, Object> privateKeyRecord = BallerinaValues.
+                        createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PRIVATE_KEY_RECORD);
                 privateKeyRecord.addNativeData(Constants.NATIVE_DATA_PRIVATE_KEY, privateKey);
                 privateKeyRecord.put(Constants.PRIVATE_KEY_RECORD_ALGORITHM_FIELD, privateKey.getAlgorithm());
                 return privateKeyRecord;

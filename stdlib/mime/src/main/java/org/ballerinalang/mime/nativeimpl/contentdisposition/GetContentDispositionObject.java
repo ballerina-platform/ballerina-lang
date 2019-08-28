@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_STRUCT;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 
 /**
  * Construct ContentDisposition object given a content-disposition value.
@@ -44,7 +44,7 @@ import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 public class GetContentDispositionObject {
 
     public static ObjectValue getContentDispositionObject(Strand strand, String contentDisposition) {
-        ObjectValue contentDispositionObj = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME,
+        ObjectValue contentDispositionObj = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID,
                                                                      CONTENT_DISPOSITION_STRUCT);
         MimeUtil.populateContentDispositionObject(contentDispositionObj, contentDisposition);
         return contentDispositionObj;

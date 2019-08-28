@@ -18,6 +18,10 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+
 /**
  * I/O related constants.
  */
@@ -53,6 +57,9 @@ public class IOConstants {
      * Specifies the io package information.
      */
     public static final String IO_PACKAGE = "ballerina/io";
+
+
+    public static final BPackage IO_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "io");
 
     /**
      * Represents the base number of proto-buf.

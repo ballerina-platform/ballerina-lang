@@ -46,6 +46,7 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.AccessDeni
 import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.EoF;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.FileNotFoundError;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.GenericError;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 
 /**
  * Represents the util functions of IO operations.
@@ -98,8 +99,8 @@ public class IOUtils {
     }
 
     private static MapValue<String, Object> createDetailRecord(Object... values) {
-        MapValue<String, Object> detail = BallerinaValues
-                .createRecordValue(PACKAGE_IO, IOConstants.DETAIL_RECORD_TYPE_NAME);
+        MapValue<String, Object> detail = BallerinaValues.
+                createRecordValue(IO_PACKAGE_ID, IOConstants.DETAIL_RECORD_TYPE_NAME);
         return BallerinaValues.createRecord(detail, values);
     }
 

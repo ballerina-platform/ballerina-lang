@@ -179,10 +179,6 @@ public class SourcePruneTest {
                 {"src_prune_config41.json"},
                 // Match Statement
                 {"src_prune_config42.json"},
-                {"src_prune_config43.json"},
-                {"src_prune_config44.json"},
-                {"src_prune_config45.json"},
-                {"src_prune_config46.json"},
                 // Foreach statement
                 {"src_prune_config47.json"},
                 {"src_prune_config48.json"},

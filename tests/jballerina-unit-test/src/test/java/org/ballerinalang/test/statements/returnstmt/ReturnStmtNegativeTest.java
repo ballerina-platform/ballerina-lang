@@ -178,8 +178,8 @@ public class ReturnStmtNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-in-resource-with-" +
                 "mismatching-types.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'int'", 22, 16);
-        BAssertUtil.validateError(result, 1, "incompatible types: expected 'int', found 'string'", 26, 16);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'error?', found 'int'", 22, 16);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected '()', found 'string'", 26, 16);
         BAssertUtil.validateError(result, 2, "incompatible types: expected '()', found 'string'", 30, 16);
     }
 }
