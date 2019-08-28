@@ -32,6 +32,8 @@ import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.jvnet.mimepull.MIMEPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -62,6 +64,8 @@ import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
  * @since 0.963.0
  */
 public class EntityBodyHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(EntityBodyHandler.class);
 
     /**
      * Get a byte channel for a given text data.
@@ -131,7 +135,6 @@ public class EntityBodyHandler {
         entityObj.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
 
-
     /**
      * Construct BlobDataSource from the underneath byte channel which is associated with the entity object.
      *
@@ -144,9 +147,14 @@ public class EntityBodyHandler {
         if (byteChannel == null) {
             return new ArrayValue(new byte[0]);
         }
-        ArrayValue byteData = constructBlobDataSource(byteChannel.getInputStream());
-        byteChannel.close();
-        return byteData;
+//        ArrayValue byteData = constructBlobDataSource(byteChannel.getInputStream());
+//        byteChannel.close();
+//        return byteData;
+        try {
+            return constructBlobDataSource(byteChannel.getInputStream());
+        } finally {
+            closeByteChannel(byteChannel);
+        }
     }
 
     /**
@@ -165,7 +173,6 @@ public class EntityBodyHandler {
         return new ArrayValue(byteData);
     }
 
-
     /**
      * Construct JsonDataSource from the underneath byte channel which is associated with the entity object.
      *
@@ -173,16 +180,23 @@ public class EntityBodyHandler {
      * @return BJSON data source which is kept in memory
      */
     public static Object constructJsonDataSource(ObjectValue entityObj) {
+        Channel byteChannel = getByteChannel(entityObj);
+        if (byteChannel == null) {
+            return null;
+        }
         try {
-            Channel byteChannel = getByteChannel(entityObj);
-            if (byteChannel == null) {
-                return null;
-            }
-            Object jsonData = constructJsonDataSource(entityObj, byteChannel.getInputStream());
-            byteChannel.close();
-            return jsonData;
-        } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while closing connection", e);
+//            Channel byteChannel = getByteChannel(entityObj);
+//            if (byteChannel == null) {
+//                return null;
+//            }
+//            Object jsonData = constructJsonDataSource(entityObj, byteChannel.getInputStream());
+//            byteChannel.close();
+//            return jsonData;
+//        } catch (IOException e) {
+//            throw new BallerinaIOException("Error occurred while closing connection", e);
+            return constructJsonDataSource(entityObj, byteChannel.getInputStream());
+        } finally {
+            closeByteChannel(byteChannel);
         }
     }
 
@@ -216,16 +230,23 @@ public class EntityBodyHandler {
      * @return BXML data source which is kept in memory
      */
     public static XMLValue constructXmlDataSource(ObjectValue entityObj) {
+        Channel byteChannel = getByteChannel(entityObj);
+        if (byteChannel == null) {
+            throw new BallerinaIOException("Empty xml payload");
+        }
         try {
-            Channel byteChannel = getByteChannel(entityObj);
-            if (byteChannel == null) {
-                throw new BallerinaIOException("Empty xml payload");
-            }
-            XMLValue xmlContent = constructXmlDataSource(entityObj, byteChannel.getInputStream());
-            byteChannel.close();
-            return xmlContent;
-        } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while closing the channel", e);
+//            Channel byteChannel = getByteChannel(entityObj);
+//            if (byteChannel == null) {
+//                throw new BallerinaIOException("Empty xml payload");
+//            }
+//            XMLValue xmlContent = constructXmlDataSource(entityObj, byteChannel.getInputStream());
+//            byteChannel.close();
+//            return xmlContent;
+//        } catch (IOException e) {
+//            throw new BallerinaIOException("Error occurred while closing the channel", e);
+            return constructXmlDataSource(entityObj, byteChannel.getInputStream());
+        } finally {
+            closeByteChannel(byteChannel);
         }
     }
 
@@ -259,16 +280,23 @@ public class EntityBodyHandler {
      * @return StringDataSource which represent the entity body which is kept in memory
      */
     public static String constructStringDataSource(ObjectValue entityObj) {
+        Channel byteChannel = getByteChannel(entityObj);
+        if (byteChannel == null) {
+            throw new BallerinaIOException("String payload is null");
+        }
         try {
-            Channel byteChannel = getByteChannel(entityObj);
-            if (byteChannel == null) {
-                throw new BallerinaIOException("String payload is null");
-            }
-            String textContent = constructStringDataSource(entityObj, byteChannel.getInputStream());
-            byteChannel.close();
-            return textContent;
-        } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while closing the channel", e);
+//            Channel byteChannel = getByteChannel(entityObj);
+//            if (byteChannel == null) {
+//                throw new BallerinaIOException("String payload is null");
+//            }
+//            String textContent = constructStringDataSource(entityObj, byteChannel.getInputStream());
+//            byteChannel.close();
+//            return textContent;
+//        } catch (IOException e) {
+//            throw new BallerinaIOException("Error occurred while closing the channel", e);
+            return constructStringDataSource(entityObj, byteChannel.getInputStream());
+        } finally {
+            closeByteChannel(byteChannel);
         }
     }
 
@@ -392,5 +420,13 @@ public class EntityBodyHandler {
     public static Channel getByteChannel(ObjectValue entityObj) {
         return entityObj.getNativeData(ENTITY_BYTE_CHANNEL) != null ? (Channel) entityObj.getNativeData
                 (ENTITY_BYTE_CHANNEL) : null;
+    }
+
+    private static void closeByteChannel(Channel byteChannel) {
+        try {
+            byteChannel.close();
+        } catch (IOException e) {
+            log.error("Error occurred while closing byte channel", e);
+        }
     }
 }
