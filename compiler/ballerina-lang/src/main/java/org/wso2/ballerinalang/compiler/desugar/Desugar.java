@@ -3765,7 +3765,12 @@ public class Desugar extends BLangNodeVisitor {
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
         rewrite(lambdaFunction.function, env);
-        env.enclPkg.addFunction(lambdaFunction.function);
+
+        if (env.enclPkg.functions.stream()
+                .noneMatch(f -> f.name.value.equals(((BLangFunction) lambdaFunction.function).name.value))) {
+            env.enclPkg.addFunction(lambdaFunction.function);
+        }
+
         bLangArrowFunction.function = lambdaFunction.function;
         result = rewriteExpr(lambdaFunction);
     }
