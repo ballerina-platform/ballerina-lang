@@ -327,7 +327,7 @@ public class CallStatement extends AbstractSQLStatement {
                 case Constants.SQLDataTypes.TIMESTAMP:
                 case Constants.SQLDataTypes.DATETIME: {
                     Timestamp value = stmt.getTimestamp(index + 1, utcCalendar);
-                    paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
+                    paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value, utcCalendar));
                 }
                 break;
                 case Constants.SQLDataTypes.TIMETZ: {
@@ -337,7 +337,7 @@ public class CallStatement extends AbstractSQLStatement {
                 break;
                 case Constants.SQLDataTypes.TIME: {
                     Time value = stmt.getTime(index + 1, utcCalendar);
-                    paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
+                    paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value, utcCalendar));
                 }
                 break;
                 case Constants.SQLDataTypes.ARRAY: {

@@ -47,6 +47,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 /**
@@ -360,7 +361,7 @@ public class TableTypeTest {
     @Test(groups = TABLE_TEST, description = "Check date time operation")
     public void testDateTime() {
         BValue[] args = new BValue[4];
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
         cal.clear();
         cal.set(Calendar.YEAR, 2017);
@@ -390,7 +391,10 @@ public class TableTypeTest {
 
         BValue[] returns = BRunUtil.invoke(result,  "testDateTime", args);
         Assert.assertEquals(returns.length, 4);
-        assertDateStringValues(returns, dateInserted, timeInserted, timestampInserted);
+        String dateValue = "2017-06-23";
+        String timeValue = "14:15:23.000";
+        String timestampValue = "2017-02-25T16:33:55.000";
+        assertDateStringValues(returns, dateValue, timeValue, timestampValue);
     }
 
     @Test(groups = TABLE_TEST, description = "Check date time operation")
@@ -818,7 +822,7 @@ public class TableTypeTest {
           description = "Test mapping date to nillable string field")
     public void testMappingDatesToNillableStringType() {
         BValue[] args = new BValue[4];
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
         cal.clear();
         cal.set(Calendar.YEAR, 2017);
@@ -848,7 +852,10 @@ public class TableTypeTest {
 
         BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingDatesToNillableStringType", args);
         Assert.assertEquals(returns.length, 4);
-        assertDateStringValues(returns, dateInserted, timeInserted, timestampInserted);
+        String dateValue = "2017-06-23";
+        String timeValue = "14:15:23.000";
+        String timestampValue = "2017-02-25T16:33:55.000";
+        assertDateStringValues(returns, dateValue, timeValue, timestampValue);
     }
 
     @Test(groups = TABLE_TEST,
@@ -1137,27 +1144,27 @@ public class TableTypeTest {
         }
     }
 
-    private void assertDateStringValues(BValue[] returns, long dateInserted, long timeInserted,
-            long timestampInserted) {
+    private void assertDateStringValues(BValue[] returns, String dateInserted, String timeInserted,
+                                        String timestampInserted) {
         try {
             DateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
             String dateReturned = returns[0].stringValue();
             long dateReturnedEpoch = dfDate.parse(dateReturned).getTime();
-            Assert.assertEquals(dateReturnedEpoch, dateInserted);
+            Assert.assertEquals(dfDate.format(dateReturnedEpoch), dateInserted);
 
             DateFormat dfTime = new SimpleDateFormat("HH:mm:ss.SSS");
             String timeReturned = returns[1].stringValue();
             long timeReturnedEpoch = dfTime.parse(timeReturned).getTime();
-            Assert.assertEquals(timeReturnedEpoch, timeInserted);
+            Assert.assertEquals(dfTime.format(timeReturnedEpoch), timeInserted);
 
             DateFormat dfTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
             String timestampReturned = returns[2].stringValue();
             long timestampReturnedEpoch = dfTimestamp.parse(timestampReturned).getTime();
-            Assert.assertEquals(timestampReturnedEpoch, timestampInserted);
+            Assert.assertEquals(dfTimestamp.format(timestampReturnedEpoch), timestampInserted);
 
             String datetimeReturned = returns[3].stringValue();
             long datetimeReturnedEpoch = dfTimestamp.parse(datetimeReturned).getTime();
-            Assert.assertEquals(datetimeReturnedEpoch, timestampInserted);
+            Assert.assertEquals(dfTimestamp.format(datetimeReturnedEpoch), timestampInserted);
         } catch (ParseException e) {
             Assert.fail("Parsing the returned date/time/timestamp value has failed", e);
         }

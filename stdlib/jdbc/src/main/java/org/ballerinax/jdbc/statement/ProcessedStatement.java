@@ -45,6 +45,7 @@ import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
@@ -217,14 +218,22 @@ class ProcessedStatement {
                 setDateValue(stmt, value, index, direction);
                 break;
             case Constants.SQLDataTypes.TIMESTAMPTZ:
-                setTimeStampValue(stmt, value, index, direction, null);
+                Calendar calendarTimestamp = null;
+                if ((value != null)) {
+                    calendarTimestamp = Calendar.getInstance(extractTimezoneOffSet((String) value));
+                }
+                setTimeStampValue(stmt, value, index, direction, calendarTimestamp);
                 break;
             case Constants.SQLDataTypes.TIMESTAMP:
             case Constants.SQLDataTypes.DATETIME:
                 setTimeStampValue(stmt, value, index, direction, utcCalendar);
                 break;
             case Constants.SQLDataTypes.TIMETZ:
-                setTimeValue(stmt, value, index, direction, null);
+                Calendar calendarTime = null;
+                if ((value != null)) {
+                    calendarTime = Calendar.getInstance(extractTimezoneOffSet((String) value));
+                }
+                setTimeValue(stmt, value, index, direction, calendarTime);
                 break;
             case Constants.SQLDataTypes.TIME:
                 setTimeValue(stmt, value, index, direction, utcCalendar);
@@ -688,7 +697,31 @@ class ProcessedStatement {
         return new Date(calendar.getTime().getTime());
     }
 
-    private void setTimeStampValue(PreparedStatement stmt, Object value, int index, int direction, Calendar utcCalendar)
+    private TimeZone extractTimezoneOffSet(String timeStr) throws ApplicationException {
+        int lastIndexOfPlus = timeStr.lastIndexOf("+");
+        int lastIndexofMinus = timeStr.lastIndexOf("-");
+        ZoneId zoneOffSet;
+        if ((lastIndexOfPlus > 0) || (lastIndexofMinus > 0)) { //timezone +/-hh:mm
+            if (timeStr.endsWith("Z")) {
+                timeStr = timeStr.substring(0, timeStr.lastIndexOf("Z") - 1);
+            }
+            String timeOffSetStr;
+            if (lastIndexOfPlus > 0) {
+                timeOffSetStr = timeStr.substring(lastIndexOfPlus);
+            } else {
+                timeOffSetStr = timeStr.substring(lastIndexofMinus);
+            }
+            if (timeOffSetStr.charAt(3) != ':') {
+                throw new ApplicationException("Invalid time zone format " + timeOffSetStr + " specified");
+            }
+            zoneOffSet = ZoneId.of(timeOffSetStr);
+        } else { //no timezone
+            zoneOffSet = ZoneId.systemDefault();
+        }
+        return TimeZone.getTimeZone(zoneOffSet);
+    }
+
+    private void setTimeStampValue(PreparedStatement stmt, Object value, int index, int direction, Calendar calendar)
             throws ApplicationException, SQLException {
         Timestamp val = null;
         if (value != null) {
@@ -701,7 +734,7 @@ class ProcessedStatement {
             } else if (value instanceof Long) {
                 val = new Timestamp((Long) value);
             } else if (value instanceof String) {
-                val = convertToTimeStamp((String) value);
+                val = convertToTimeStamp((String) value, calendar);
             } else {
                 throw new ApplicationException("Invalid input type specified for timestamp parameter at index "
                         + index);
@@ -712,13 +745,13 @@ class ProcessedStatement {
                 if (val == null) {
                     stmt.setNull(index + 1, Types.TIMESTAMP);
                 } else {
-                    stmt.setTimestamp(index + 1, val, utcCalendar);
+                    stmt.setTimestamp(index + 1, val, calendar);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
                 if (val == null) {
                     stmt.setNull(index + 1, Types.TIMESTAMP);
                 } else {
-                    stmt.setTimestamp(index + 1, val, utcCalendar);
+                    stmt.setTimestamp(index + 1, val, calendar);
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.TIMESTAMP);
             } else if (Constants.QueryParamDirection.OUT == direction) {
@@ -732,13 +765,12 @@ class ProcessedStatement {
         }
     }
 
-    private Timestamp convertToTimeStamp(String source) throws ApplicationException {
+    private Timestamp convertToTimeStamp(String source, Calendar calendar) throws ApplicationException {
         //lexical representation of the date time is '-'? yyyy '-' mm '-' dd 'T' hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
         if ((source == null) || source.trim().equals("")) {
             return null;
         }
         source = source.trim();
-        Calendar calendar = Calendar.getInstance();
         calendar.clear();
         calendar.setLenient(false);
         if (source.startsWith("-")) {
@@ -757,15 +789,10 @@ class ProcessedStatement {
             int minite = Integer.parseInt(source.substring(14, 16));
             int second = Integer.parseInt(source.substring(17, 19));
             long miliSecond = 0;
-            int timeZoneOffSet = TimeZone.getDefault().getRawOffset();
             if (source.length() > 19) {
                 String rest = source.substring(19);
                 int[] offsetData = getTimeZoneWithMilliSeconds(rest);
                 miliSecond = offsetData[0];
-                int calculatedtimeZoneOffSet = offsetData[1];
-                if (calculatedtimeZoneOffSet != -1) {
-                    timeZoneOffSet = calculatedtimeZoneOffSet;
-                }
                 calendar.set(Calendar.DST_OFFSET, 0); //set the day light offset only if the time zone is present
             }
             calendar.set(Calendar.YEAR, year);
@@ -775,7 +802,6 @@ class ProcessedStatement {
             calendar.set(Calendar.MINUTE, minite);
             calendar.set(Calendar.SECOND, second);
             calendar.set(Calendar.MILLISECOND, (int) miliSecond);
-            calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
         } else {
             throw new ApplicationException("Datetime string of " + source + " can not be less than 19 characters");
         }
@@ -857,7 +883,7 @@ class ProcessedStatement {
         return timeZoneOffSet;
     }
 
-    private void setTimeValue(PreparedStatement stmt, Object value, int index, int direction, Calendar utcCalendar)
+    private void setTimeValue(PreparedStatement stmt, Object value, int index, int direction, Calendar calendar)
             throws ApplicationException, SQLException {
         Time val = null;
         if (value != null) {
@@ -870,7 +896,7 @@ class ProcessedStatement {
             } else if (value instanceof Long) {
                 val = new Time((Long) value);
             } else if (value instanceof String) {
-                val = convertToTime((String) value);
+                val = convertToTime((String) value, calendar);
             }
         }
         try {
@@ -878,13 +904,13 @@ class ProcessedStatement {
                 if (val == null) {
                     stmt.setNull(index + 1, Types.TIME);
                 } else {
-                    stmt.setTime(index + 1, val, utcCalendar);
+                    stmt.setTime(index + 1, val, calendar);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
                 if (val == null) {
                     stmt.setNull(index + 1, Types.TIME);
                 } else {
-                    stmt.setTime(index + 1, val, utcCalendar);
+                    stmt.setTime(index + 1, val, calendar);
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.TIME);
             } else if (Constants.QueryParamDirection.OUT == direction) {
@@ -898,13 +924,12 @@ class ProcessedStatement {
         }
     }
 
-    private Time convertToTime(String source) throws ApplicationException {
+    private Time convertToTime(String source, Calendar calendar) throws ApplicationException {
         //lexical representation of the time is hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
         if ((source == null) || source.trim().equals("")) {
             return null;
         }
         source = source.trim();
-        Calendar calendar = Calendar.getInstance();
         calendar.clear();
         calendar.setLenient(false);
         if (source.length() >= 8) {
@@ -915,19 +940,16 @@ class ProcessedStatement {
             int minite = Integer.parseInt(source.substring(3, 5));
             int second = Integer.parseInt(source.substring(6, 8));
             int miliSecond = 0;
-            int timeZoneOffSet = TimeZone.getDefault().getRawOffset();
             if (source.length() > 8) {
                 String rest = source.substring(8);
                 int[] offsetData = getTimeZoneWithMilliSeconds(rest);
                 miliSecond = offsetData[0];
-                timeZoneOffSet = offsetData[1];
                 calendar.set(Calendar.DST_OFFSET, 0); //set the day light offset only if the time zone is present
             }
             calendar.set(Calendar.HOUR_OF_DAY, hour);
             calendar.set(Calendar.MINUTE, minite);
             calendar.set(Calendar.SECOND, second);
             calendar.set(Calendar.MILLISECOND, miliSecond);
-            calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
         } else {
             throw new ApplicationException("Time string of " + source + " can not be less than 8 characters");
         }

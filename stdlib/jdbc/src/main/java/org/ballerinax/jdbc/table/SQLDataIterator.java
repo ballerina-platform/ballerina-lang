@@ -168,16 +168,16 @@ public class SQLDataIterator extends TableIterator {
                             handleDateValue(bStruct, fieldName, date, fieldType);
                             break;
                         case Types.TIME:
-                            Time timeTz = rs.getTime(index, utcCalendar);
-                            handleDateValue(bStruct, fieldName, timeTz, fieldType);
+                            Time time = rs.getTime(index, utcCalendar);
+                            handleDateValue(bStruct, fieldName, time, fieldType, utcCalendar);
                             break;
                         case Types.TIME_WITH_TIMEZONE:
-                            Time time = rs.getTime(index);
-                            handleDateValue(bStruct, fieldName, time, fieldType);
+                            Time timeTz = rs.getTime(index);
+                            handleDateValue(bStruct, fieldName, timeTz, fieldType);
                             break;
                         case Types.TIMESTAMP:
                             Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
-                            handleDateValue(bStruct, fieldName, timestamp, fieldType);
+                            handleDateValue(bStruct, fieldName, timestamp, fieldType, utcCalendar);
                             break;
                         case Types.TIMESTAMP_WITH_TIMEZONE:
                             Timestamp timestampTz = rs.getTimestamp(index);
@@ -505,12 +505,12 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleDateValue(MapValue<String, Object> record, String fieldName, java.util.Date date,
-            BType fieldType) throws PanickingApplicationException {
+            BType fieldType, Calendar... calendar) throws PanickingApplicationException {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
-            handleMappingDateValueToUnionType(fieldType, record, fieldName, date);
+            handleMappingDateValueToUnionType(fieldType, record, fieldName, date, calendar);
         } else {
-            handleMappingDateValueToNonUnionType(date, fieldTypeTag, record, fieldName);
+            handleMappingDateValueToNonUnionType(date, fieldTypeTag, record, fieldName, calendar);
         }
     }
 
@@ -667,11 +667,11 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingDateValueToUnionType(BType fieldType, MapValue<String, Object> record, String fieldName,
-            java.util.Date date) throws PanickingApplicationException {
+            java.util.Date date, Calendar... calendar) throws PanickingApplicationException {
         int type = retrieveNonNilTypeTag(fieldType);
         switch (type) {
         case TypeTags.STRING_TAG:
-            String dateValue = SQLDatasourceUtils.getString(date);
+            String dateValue = SQLDatasourceUtils.getString(date, calendar);
             record.put(fieldName, dateValue);
             break;
         case TypeTags.OBJECT_TYPE_TAG:
@@ -687,11 +687,12 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingDateValueToNonUnionType(java.util.Date date, int fieldTypeTag,
-            MapValue<String, Object> record, String fieldName) throws PanickingApplicationException {
+            MapValue<String, Object> record, String fieldName, Calendar... calendar)
+            throws PanickingApplicationException {
         if (date != null) {
             switch (fieldTypeTag) {
             case TypeTags.STRING_TAG:
-                String dateValue = SQLDatasourceUtils.getString(date);
+                String dateValue = SQLDatasourceUtils.getString(date, calendar);
                 record.put(fieldName, dateValue);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:

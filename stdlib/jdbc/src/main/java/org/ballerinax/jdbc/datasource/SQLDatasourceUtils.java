@@ -109,11 +109,16 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static String getString(java.util.Date value) {
+    public static String getString(java.util.Date value, Calendar... calendarObj) {
         if (value == null) {
             return null;
         }
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar;
+        if (calendarObj.length < 1) {
+            calendar = Calendar.getInstance();
+        } else {
+            calendar = calendarObj[0];
+        }
         calendar.clear();
         String type;
         if (value instanceof Time) {
