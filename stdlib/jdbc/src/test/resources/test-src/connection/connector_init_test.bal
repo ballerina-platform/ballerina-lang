@@ -26,15 +26,15 @@ jdbc:PoolOptions properties = {
     connectionInitSql: "SELECT 1"
 };
 
-map<any> propertiesMap = {"loginTimeout": "1000"};
+map<anydata> propertiesMap = {"loginTimeout": "1000"};
 jdbc:PoolOptions properties3 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
-map<any> propertiesMap2 = {"loginTimeout": "1000"};
+map<anydata> propertiesMap2 = {"loginTimeout": "1000"};
 jdbc:PoolOptions properties4 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
 jdbc:PoolOptions properties5 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
-map<any> propertiesMap3 = {"loginTimeout": "1000"};
+map<anydata> propertiesMap3 = {"loginTimeout": "1000"};
 jdbc:PoolOptions properties6 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
 function testConnectionPoolProperties1(string jdbcURL) returns @tainted json {

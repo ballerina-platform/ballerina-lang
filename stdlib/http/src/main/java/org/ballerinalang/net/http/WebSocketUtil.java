@@ -43,13 +43,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsGenericError;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
-import static org.ballerinalang.net.http.WebSocketConstants.FULL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
-import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE;
-
 
 /**
  * Utility class for WebSocket.
@@ -74,10 +71,10 @@ public class WebSocketUtil {
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                ObjectValue webSocketEndpoint = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
+                ObjectValue webSocketEndpoint = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
                         WebSocketConstants.WEBSOCKET_CALLER);
-                ObjectValue webSocketConnector = BallerinaValues.createObjectValue(
-                        PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+                ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
+                        WebSocketConstants.WEBSOCKET_CONNECTOR);
 
                 webSocketEndpoint.set(WebSocketConstants.LISTENER_CONNECTOR_FIELD, webSocketConnector);
                 populateEndpoint(webSocketConnection, webSocketEndpoint);
@@ -109,7 +106,6 @@ public class WebSocketUtil {
                 } else {
                     ErrorValue cause = createErrorCause(throwable.getMessage(),
                             WsInvalidHandshakeError.errorCode(),
-                            IO_PACKAGE,
                             WEBSOCKET_ERROR_DETAILS);
                     throw createWebSocketError(WsInvalidHandshakeError, "Unable to complete handshake", cause);
                 }
@@ -284,7 +280,7 @@ public class WebSocketUtil {
 
     private static MapValue<String, Object> createErrorDetailRecord(String message, ErrorValue cause) {
         MapValue<String, Object> detail = BallerinaValues
-                .createRecordValue(FULL_PACKAGE_HTTP, WEBSOCKET_ERROR_DETAILS);
+                .createRecordValue(PROTOCOL_HTTP_PKG_ID, WEBSOCKET_ERROR_DETAILS);
         return cause == null ? BallerinaValues.createRecord(detail, message) :
                 BallerinaValues.createRecord(detail, message, cause);
     }
@@ -292,11 +288,11 @@ public class WebSocketUtil {
     private static MapValue<String, Object> createErrorDetailRecord(String errMsg) {
         Map<String, Object> values = new HashMap<>();
         values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, errMsg);
-        return BallerinaValues.createRecordValue(FULL_PACKAGE_HTTP, WEBSOCKET_ERROR_DETAILS, values);
+        return BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID, WEBSOCKET_ERROR_DETAILS, values);
     }
 
-    private static ErrorValue createErrorCause(String message, String reason, String packageName, String recordName) {
-        MapValue<String, Object> detailRecordType = BallerinaValues.createRecordValue(packageName, recordName);
+    private static ErrorValue createErrorCause(String message, String reason, String recordName) {
+        MapValue<String, Object> detailRecordType = BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID, recordName);
         MapValue<String, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
         return BallerinaErrors.createError(reason, detailRecord);
     }

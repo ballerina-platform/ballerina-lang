@@ -54,11 +54,17 @@ public class CodeGeneratorTest {
         String definitionPath = RES_DIR + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(pkgName);
+
+        //Set relative path for contract path which will be printed on the generated service bal file
+        Path absPath = Paths.get(definitionPath);
+        Path basePath = Paths.get(projectPath.toString());
+        Path pathRelative = basePath.relativize(absPath);
+
         try {
             OpenAPIBallerinaProject ballerinaProject = OpenAPICommandTest.createBalProject(projectPath.toString(),
                     pkgName);
             Path outFile = ballerinaProject.getImplPath().resolve(Paths.get("openapi_petstore.bal"));
-            generator.generateService(projectPath.toString(), definitionPath, serviceName,
+            generator.generateService(projectPath.toString(), definitionPath, pathRelative.toString(), serviceName,
                     projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
@@ -132,7 +138,7 @@ public class CodeGeneratorTest {
         try {
             String expectedContent = new String(Files.readAllBytes(expectedFilePath));
             List<GenSrcFile> generatedFileList = generator.generateBalSource(GenType.GEN_SERVICE,
-                    definitionPath, "");
+                    definitionPath, "", "");
             if (generatedFileList.size() > 0) {
                 GenSrcFile actualGeneratedContent = generatedFileList.get(0);
                 Assert.assertEquals(actualGeneratedContent.getContent(), expectedContent,

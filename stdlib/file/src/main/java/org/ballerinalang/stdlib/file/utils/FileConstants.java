@@ -18,6 +18,9 @@
 
 package org.ballerinalang.stdlib.file.utils;
 
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
@@ -40,6 +43,7 @@ public class FileConstants {
      * Package path.
      */
     static final String FILE_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
+    static final BPackage FILE_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "file");
 
     static final String FILE_INFO_TYPE = "FileInfo";
 

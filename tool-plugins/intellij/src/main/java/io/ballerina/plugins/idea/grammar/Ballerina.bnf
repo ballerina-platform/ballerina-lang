@@ -154,7 +154,8 @@ Definition ::= ( TypeDefinition
 
 private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|'@'|external|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
 
-ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=1}
+// cannot set pin to "service" keyword because there can be variable definitions with service constructors.
+ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=3}
 ServiceBody ::= LEFT_BRACE ObjectFunctionDefinition* RIGHT_BRACE
 
 // Pin to make sure callable unit is identified correctly

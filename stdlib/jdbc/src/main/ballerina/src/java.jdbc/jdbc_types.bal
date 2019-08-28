@@ -29,7 +29,7 @@ public type ClientEndpointConfig record {|
     string username = "";
     string password = "";
     PoolOptions poolOptions?;
-    map<any> dbOptions = {};
+    map<anydata> dbOptions = {};
 |};
 
 # Represents the properties which are used to configure DB connection pool.
@@ -204,7 +204,7 @@ public const DIRECTION_INOUT = "INOUT";
 #                result row
 public type Parameter record {|
     SQLType sqlType;
-    any value = ();
+    anydata value = ();
     Direction direction = DIRECTION_IN;
     typedesc<record{}> recordType?;
 |};
