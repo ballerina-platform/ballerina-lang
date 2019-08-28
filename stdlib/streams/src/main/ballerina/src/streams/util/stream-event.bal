@@ -101,6 +101,7 @@ public type StreamEvent object {
 
     # Returns the value of an attribute.
     #
+    # + path - the path
     # + return - the attribute value.
     public function get(string path) returns anydata {
         string[] attribSplit = internal:split(path, "\\.");
