@@ -465,7 +465,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     .getValues(((ObjectReferenceImpl) value).referenceType().allFields());
             Map<String, Value> values = new HashMap<>();
             fieldValueMap.forEach((field, value1) -> {
-                values.put(field.toString(), value1);
+                // Filter out internal variables
+                if (!field.name().startsWith("$")) {
+                    values.put(field.name(), value1);
+                }
             });
 
             long variableReference = (long) nextVarReference.getAndIncrement();
