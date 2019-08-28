@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static org.wso2.transport.http.netty.util.Http2Util.HTTP2_RESPONSE_PAYLOAD;
 import static org.wso2.transport.http.netty.util.Http2Util.http1HeadersToHttp2Headers;
 
 /**
@@ -83,7 +84,7 @@ public class Abnormal100ContinueHandler extends Http2ConnectionHandler implement
         if (endOfStream) {
             Http2Headers headers = new DefaultHttp2Headers().status(OK.codeAsText());
             encoder().writeHeaders(ctx, streamId, headers, 0, false, ctx.newPromise());
-            ByteBuf content = Unpooled.wrappedBuffer("Final Response".getBytes());
+            ByteBuf content = Unpooled.wrappedBuffer(HTTP2_RESPONSE_PAYLOAD.getBytes());
             encoder().writeData(ctx, streamId, content, 0, true, ctx.newPromise());
         }
         return processed + padding;

@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.util.server.initializers.http2.expect100con
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.wso2.transport.http.netty.util.Http2Util.HTTP2_RESPONSE_PAYLOAD;
 import static org.wso2.transport.http.netty.util.Http2Util.getHttp2Client;
 import static org.wso2.transport.http.netty.util.TestUtil.HTTP_SCHEME;
 
@@ -66,7 +67,7 @@ public class Abnormal100ContinueTestCase {
         assertNotNull(response);
         String finalResponsePayload = TestUtil.getStringFromInputStream(
                 new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(finalResponsePayload, "Final Response");
+        assertEquals(finalResponsePayload, HTTP2_RESPONSE_PAYLOAD);
     }
 
     @AfterClass

@@ -51,6 +51,8 @@ import static org.wso2.transport.http.netty.contract.Constants.OPTIONAL;
  */
 public class Http2Util {
 
+    public static final String HTTP2_RESPONSE_PAYLOAD = "Final Response";
+
     public static ListenerConfiguration getH2ListenerConfigs() {
         Parameter paramServerCiphers = new Parameter("ciphers", "TLS_RSA_WITH_AES_128_CBC_SHA");
         List<Parameter> serverParams = new ArrayList<>(1);
