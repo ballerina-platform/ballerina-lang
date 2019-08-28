@@ -24,6 +24,12 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
+import static org.ballerinalang.jvm.util.BLangConstants.DOT;
+import static org.ballerinalang.jvm.util.BLangConstants.EMPTY;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
+
 /**
  * A {@code ValueCreator} is an API that will be implemented by all the module init classed from jvm codegen.
  * This provides facility for creating runtime record, object, error values.
@@ -34,13 +40,33 @@ public abstract class ValueCreator {
 
     private static final Map<String, ValueCreator> runtimeValueCreators = new HashMap<>();
 
-    public static void addValueCreator(String key, ValueCreator valueCreater) {
-        if (!key.equals(".") && runtimeValueCreators.containsKey(key)) {
+    public static void addValueCreator(String orgName, String moduleName, String moduleVersion,
+                                       ValueCreator valueCreator) {
+        String key = getLookupKey(orgName, moduleName, moduleVersion);
+
+        if (!key.equals(DOT) && runtimeValueCreators.containsKey(key)) {
             // silently fail
             return;
         }
 
-        runtimeValueCreators.put(key, valueCreater);
+        runtimeValueCreators.put(key, valueCreator);
+    }
+
+    private static String getLookupKey(String orgName, String moduleName, String version) {
+        if (DOT.equals(moduleName)) {
+            return moduleName;
+        }
+
+        String pkgName = "";
+        if (orgName != null && !orgName.equals(ANON_ORG)) {
+            pkgName = orgName + ORG_NAME_SEPARATOR;
+        }
+
+        if (version == null || version.equals(EMPTY)) {
+            return pkgName + moduleName;
+        }
+
+        return pkgName + moduleName + VERSION_SEPARATOR + version;
     }
 
     public static ValueCreator getValueCreator(String key) {

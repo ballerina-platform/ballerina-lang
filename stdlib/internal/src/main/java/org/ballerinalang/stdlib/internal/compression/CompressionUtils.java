@@ -17,14 +17,17 @@ package org.ballerinalang.stdlib.internal.compression;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Util class for compression related operations.
  */
 public class CompressionUtils {
-    private static final String PROTOCOL_PACKAGE_COMPRESSION = "ballerina/internal";
+    private static final BPackage PROTOCOL_PACKAGE_COMPRESSION = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "internal");
     private static final String COMPRESSION_ERROR_CODE = "{ballerina/internal}CompressionError";
     private static final String COMPRESSION_ERROR_RECORD = "CompressionError";
     private static final String COMPRESSION_ERROR_MESSAGE = "message";

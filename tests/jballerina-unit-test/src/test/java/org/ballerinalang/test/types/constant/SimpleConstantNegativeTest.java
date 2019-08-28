@@ -32,7 +32,7 @@ public class SimpleConstantNegativeTest {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 59);
+        Assert.assertEquals(compileResult.getErrorCount(), 61);
 
         int index = 0;
         int offset = 1;
@@ -52,6 +52,10 @@ public class SimpleConstantNegativeTest {
                 offset += 3, 14);
         BAssertUtil.validateError(compileResult, index++, "underscore is not allowed here",
                 offset += 1, 7);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'invalidType'",
+                offset += 2, 7);
+        BAssertUtil.validateError(compileResult, index++, "constant cannot be defined with type 'invalidType'," +
+                        " expected a simple basic types or a map of a simple basic type", offset, 7);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 14, 5);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 1, 5);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 6, 9);

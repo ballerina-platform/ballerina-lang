@@ -42,12 +42,10 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 import java.util.Arrays;
 
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsGenericError;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
-import static org.ballerinalang.net.http.WebSocketConstants.FULL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
-
 
 /**
  * Utility class for WebSocket.
@@ -72,10 +70,10 @@ public class WebSocketUtil {
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                ObjectValue webSocketEndpoint = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
+                ObjectValue webSocketEndpoint = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
                         WebSocketConstants.WEBSOCKET_CALLER);
-                ObjectValue webSocketConnector = BallerinaValues.createObjectValue(
-                        PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+                ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
+                        WebSocketConstants.WEBSOCKET_CONNECTOR);
 
                 webSocketEndpoint.set(WebSocketConstants.LISTENER_CONNECTOR_FIELD, webSocketConnector);
                 populateEndpoint(webSocketConnection, webSocketEndpoint);
@@ -251,7 +249,7 @@ public class WebSocketUtil {
     }
 
     private static MapValue<String, Object> createDetailRecord(Object... values) {
-        MapValue<String, Object> detail = BallerinaValues.createRecordValue(FULL_PACKAGE_HTTP,
+        MapValue<String, Object> detail = BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID,
                 WEBSOCKET_ERROR_DETAILS);
         return BallerinaValues.createRecord(detail, values);
     }
