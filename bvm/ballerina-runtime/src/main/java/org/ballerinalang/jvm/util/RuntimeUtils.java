@@ -26,8 +26,14 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
@@ -40,7 +46,11 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 
 public class RuntimeUtils {
 
+    private static final String CRASH_LOGGER = "b7a.log.crash";
+    private static final String  DEFAULT_CRASH_LOG_FILE = "ballerina-internal.log";
     private static PrintStream errStream = System.err;
+    public static final String USER_DIR = System.getProperty("user.dir");
+    public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 
     private static final Logger breLog = LoggerFactory.getLogger(RuntimeUtils.class);
 
@@ -119,10 +129,9 @@ public class RuntimeUtils {
         } else {
             // These errors are unhandled errors in JVM, hence logging them to bre log.
             errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
-            breLog.error(throwable.getMessage(), throwable);
+            silentlyLogBadSad(throwable);
         }
 
-        Runtime.getRuntime().exit(1);
     }
 
     public static void handleRuntimeReturnValues(Object returnValue) {
@@ -149,6 +158,35 @@ public class RuntimeUtils {
     
     public static void silentlyLogBadSad(Throwable throwable) {
         // These errors are unhandled errors in JVM, hence logging them to bre log.
-        breLog.error(throwable.getMessage(), throwable);
+        printCrashLog(throwable);
+    }
+
+    public static void printCrashLog(Throwable throwable) {
+        Level logLevel = Level.ALL;
+        java.util.logging.Logger crashLogger = java.util.logging.Logger.getLogger(CRASH_LOGGER);
+
+        try {
+            FileHandler handler = new FileHandler(initBRELogHandler(), true);
+            handler.setFormatter(new DefaultLogFormatter());
+            crashLogger.addHandler(handler);
+            crashLogger.setUseParentHandlers(false);
+            crashLogger.setLevel(logLevel);
+        } catch (IOException ioException) {
+            System.err.println("error initializing crash logger");
+        }
+        crashLogger.log(Level.SEVERE, throwable.getMessage(), throwable);
+    }
+
+    private static String initBRELogHandler() {
+        String fileName = LogManager.getLogManager().getProperty(BLangConstants.DEFAULT_LOG_FILE_HANDLER_PATTERN);
+        if (fileName == null || fileName.trim().isEmpty()) {
+            fileName = DEFAULT_CRASH_LOG_FILE;
+        }
+
+        if (Files.isWritable(Paths.get(USER_DIR))) {
+            return Paths.get(USER_DIR, fileName).toString();
+        } else {
+            return Paths.get(TEMP_DIR, fileName).toString();
+        }
     }
 }

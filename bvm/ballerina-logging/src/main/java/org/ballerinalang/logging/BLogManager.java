@@ -18,7 +18,6 @@
 package org.ballerinalang.logging;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.logging.formatters.DefaultLogFormatter;
 import org.ballerinalang.logging.formatters.HttpAccessLogFormatter;
 import org.ballerinalang.logging.formatters.HttpTraceLogFormatter;
 import org.ballerinalang.logging.formatters.JsonLogFormatter;
@@ -30,8 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -47,7 +44,6 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG_LEVEL;
 import static org.ballerinalang.logging.util.Constants.CONSOLE_LOGGER;
-import static org.ballerinalang.logging.util.Constants.DEFAULT_LOG_FILE_HANDLER_PATTERN;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG_CONSOLE;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG_FILE;
@@ -57,8 +53,6 @@ import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_FILE;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_HOST;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_PORT;
 import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
-import static org.ballerinalang.logging.util.Constants.TEMP_DIR;
-import static org.ballerinalang.logging.util.Constants.USER_DIR;
 
 /**
  * Java util logging manager for ballerina which overrides the readConfiguration method to replace placeholders
@@ -76,7 +70,6 @@ public class BLogManager extends LogManager {
     private BLogLevel ballerinaUserLogLevel = BLogLevel.INFO; // default to INFO
     private Logger httpTraceLogger;
     private Logger httpAccessLogger;
-    private Logger consoleLogger;
 
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
@@ -87,9 +80,6 @@ public class BLogManager extends LogManager {
             String val = substituteVariables((String) v);
             properties.setProperty((String) k, val);
         });
-
-        String breLogPath = initBRELogHandler(properties.getProperty(DEFAULT_LOG_FILE_HANDLER_PATTERN));
-        properties.setProperty(DEFAULT_LOG_FILE_HANDLER_PATTERN, breLogPath);
 
         super.readConfiguration(propertiesToInputStream(properties));
     }
@@ -114,32 +104,18 @@ public class BLogManager extends LogManager {
 
         setHttpTraceLogHandler();
         setHttpAccessLogHandler();
-        setConsoleLogHandler();
+
+        // have to set default console logger level here since ballerina config is not initialized at the time of the
+        // logger initialization
+        if (loggerLevels.get(CONSOLE_LOGGER) != null) {
+            LogManager.getLogManager().getLogger("").setLevel(BLogLevelMapper.getLoggerLevel(
+                    loggerLevels.get(CONSOLE_LOGGER)));
+        }
+
     }
 
     public BLogLevel getPackageLogLevel(String pkg) {
         return loggerLevels.containsKey(pkg) ? loggerLevels.get(pkg) : ballerinaUserLogLevel;
-    }
-
-    public void setConsoleLogHandler() {
-        if (consoleLogger == null) {
-            // keep a reference to prevent this logger from being garbage collected
-            consoleLogger = Logger.getLogger(CONSOLE_LOGGER);
-        }
-
-        BLogLevel level = loggerLevels.get(CONSOLE_LOGGER);
-        if (level == null) {
-            level = loggerLevels.get(BALLERINA_USER_LOG_LEVEL);
-        }
-
-        Level logLevel = BLogLevelMapper.getLoggerLevel(level);
-
-        ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setLevel(logLevel);
-        consoleHandler.setFormatter(new DefaultLogFormatter());
-        consoleLogger.addHandler(consoleHandler);
-        consoleLogger.setUseParentHandlers(false);
-        consoleLogger.setLevel(logLevel);
     }
 
     /**
@@ -280,18 +256,6 @@ public class BLogManager extends LogManager {
             if (outputStream != null) {
                 outputStream.close();
             }
-        }
-    }
-
-    private String initBRELogHandler(String fileName) throws IOException {
-        if (fileName == null || fileName.trim().isEmpty()) {
-            fileName = "ballerina-internal.log";
-        }
-
-        if (Files.isWritable(Paths.get(USER_DIR))) {
-            return Paths.get(USER_DIR, fileName).toString();
-        } else {
-            return Paths.get(TEMP_DIR, fileName).toString();
         }
     }
 }

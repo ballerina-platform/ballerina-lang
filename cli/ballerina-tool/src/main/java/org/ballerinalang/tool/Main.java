@@ -21,6 +21,7 @@ package org.ballerinalang.tool;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
+import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.ballerinalang.tool.util.ToolUtil;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -69,7 +70,7 @@ public class Main {
             Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
             errStream.println(getMessageForInternalErrors());
-            breLog.error(e.getMessage(), e);
+            RuntimeUtils.silentlyLogBadSad(e);
             Runtime.getRuntime().exit(1);
         }
     }
