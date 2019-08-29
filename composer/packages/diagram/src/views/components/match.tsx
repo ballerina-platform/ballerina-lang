@@ -24,7 +24,7 @@ export const Match: React.StatelessComponent<{
 
         frameBorder.x = viewState.bBox.x - viewState.bBox.leftMargin;
         frameBorder.y = viewState.bBox.y + config.frame.topMargin;
-        frameBorder.width = viewState.bBox.w + viewState.bBox.leftMargin;
+        frameBorder.width = viewState.bBox.w + viewState.bBox.leftMargin - config.flowCtrl.rightMargin;
         frameBorder.height = viewState.bBox.h - config.frame.topMargin;
 
         const expression = DiagramUtils.getTextWidth("match " + ASTUtil.genSource(model.expression).trim());

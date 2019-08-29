@@ -378,7 +378,7 @@ class SizingVisitor implements Visitor {
                 width : element.viewState.bBox.w;
         });
         viewState.bBox.h = height;
-        viewState.bBox.w = width;
+        viewState.bBox.w = width + config.flowCtrl.rightMargin;
         viewState.bBox.leftMargin = 60;
     }
 
