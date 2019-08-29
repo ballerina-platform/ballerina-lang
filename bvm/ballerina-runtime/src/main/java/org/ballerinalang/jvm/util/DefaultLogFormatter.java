@@ -27,8 +27,9 @@ import java.util.logging.LogRecord;
 
 /**
  * A custom log formatter for formatting the Ballerina user level logs.
+ * This class is duplicated from logging module to avoid dependency.
  *
- * @since 0.89
+ * @since 1.0
  */
 public class DefaultLogFormatter extends Formatter {
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";

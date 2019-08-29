@@ -162,6 +162,8 @@ public class RuntimeUtils {
     }
 
     public static void printCrashLog(Throwable throwable) {
+        // The fileHandle had to be created on demand, since the log file is getting created at the handler init.
+        // Which result in empty ballerina-internal.log files always getting created.
         Level logLevel = Level.ALL;
         java.util.logging.Logger crashLogger = java.util.logging.Logger.getLogger(CRASH_LOGGER);
 
