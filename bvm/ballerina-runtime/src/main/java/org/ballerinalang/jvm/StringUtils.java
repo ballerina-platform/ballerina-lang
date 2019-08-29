@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
