@@ -1325,9 +1325,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void checkDuplicateVarRefs(List<BLangExpression> varRefs, Set<BSymbol> symbols) {
         for (BLangExpression varRef : varRefs) {
             if (varRef == null || (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF
-                    && varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR
-                    && varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR
-                    && varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR
                     && varRef.getKind() != NodeKind.RECORD_VARIABLE_REF
                     && varRef.getKind() != NodeKind.ERROR_VARIABLE_REF
                     && varRef.getKind() != NodeKind.TUPLE_VARIABLE_REF)) {
