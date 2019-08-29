@@ -40,6 +40,7 @@ import javax.xml.namespace.QName;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
+import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 
 /**
  * {@code BXMLSequence} represents a sequence of {@link XMLItem}s in Ballerina.
@@ -176,7 +177,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public void setAttributes(MapValue<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -272,7 +273,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public void setChildren(XMLValue<?> seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -290,7 +291,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public void addChildren(XMLValue<?> seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -507,7 +508,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public void removeAttribute(String qname) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -522,7 +523,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public void removeChildren(String qname) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
