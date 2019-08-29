@@ -26,7 +26,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 
 /**
  * The handshake listener for the client.
@@ -57,14 +57,12 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         //using only one service endpoint in the client as there can be only one connection.
         webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD,
                             HttpUtil.createResponseStruct(carbonResponse));
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
+        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
-                wsService, webSocketConnection, webSocketClient);
-        webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
+        WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(webSocketConnection,
+                                                                                    webSocketConnector);
         WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
         clientConnectorListener.setConnectionInfo(connectionInfo);
-        webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
         if (readyOnConnect) {
             webSocketConnection.readNextFrame();
         }
@@ -76,12 +74,19 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         if (response != null) {
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
+        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
-                wsService, null, webSocketClient);
-        webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
+        WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null, webSocketConnector);
         countDownLatch.countDown();
         WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+    }
+
+    private WebSocketOpenConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
+                                                                       ObjectValue webSocketConnector) {
+        WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
+                wsService, webSocketConnection, webSocketClient);
+        webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
+        webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
+        return connectionInfo;
     }
 }

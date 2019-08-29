@@ -86,10 +86,6 @@ public class AttachPoint {
          */
         CONST("const"),
         /**
-         * Indicate Channel Attach point.
-         */
-        CHANNEL("channel"),
-        /**
          * Indicate Worker Attach point.
          */
         WORKER("worker");

@@ -44,7 +44,7 @@ public class AbstractObjectTest {
     public void testAbstractObjectNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
         int index = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 14);
+        Assert.assertEquals(negativeResult.getErrorCount(), 11);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 3, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person2'", 4, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 8, 18);
@@ -55,19 +55,14 @@ public class AbstractObjectTest {
                 "no implementation found for the function 'getName' of non-abstract object 'Person3'", 40, 5);
         BAssertUtil.validateError(negativeResult, index++,
                 "function 'getName' in abstract object 'Person4' cannot have a body", 51, 5);
-        BAssertUtil.validateError(negativeResult, index++,
-                                  "outside object method definitions are not allowed", 67, 1);
         BAssertUtil.validateError(negativeResult, index++, "abstract object field: 'age' can not be declared as " +
-                "private", 73, 5);
+                "private", 58, 5);
         BAssertUtil.validateError(negativeResult, index++, "interface function: 'getName' of abstract object " +
-                "'Person6' can not be declared as private", 76, 5);
+                "'Person6' can not be declared as private", 61, 5);
         BAssertUtil.validateError(negativeResult, index++, "interface function: 'getName' of abstract object 'Foo' " +
-                "can not be declared as private", 80, 5);
-        BAssertUtil.validateError(negativeResult, index++, "cannot find function signature for function 'getName' in " +
-                "object 'Bar'", 87, 1);
-        BAssertUtil.validateError(negativeResult, index++, "outside object method definitions are not allowed", 87, 1);
+                "can not be declared as private", 65, 5);
         BAssertUtil.validateError(negativeResult, index,
-                                  "external function: 'getName' not allowed in abstract object 'Person7'", 93, 5);
+                                  "external function: 'getName' not allowed in abstract object 'Person7'", 78, 5);
     }
 
     @Test

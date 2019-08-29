@@ -35,12 +35,18 @@ public class BallerinaConsoleFolding extends ConsoleFolding {
     @Override
     public boolean shouldFoldLine(@NotNull String line) {
         Matcher matcher = PATTERN.matcher(line);
-        return matcher.find();
+        return matcher.find() || isDebugLog(line);
     }
 
     @Nullable
     @Override
     public String getPlaceholderText(@NotNull List<String> lines) {
         return "<...>";
+    }
+
+    // Todo - Remove after moving debug adapter into the same JVM instance.
+    private boolean isDebugLog(@NotNull String line) {
+        return line.contains("Please start the remote debugging client to continue")
+                || line.contains("Listening for transport dt_socket");
     }
 }

@@ -282,6 +282,7 @@
             <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
             <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
+            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
         </classes>
     </test>
 

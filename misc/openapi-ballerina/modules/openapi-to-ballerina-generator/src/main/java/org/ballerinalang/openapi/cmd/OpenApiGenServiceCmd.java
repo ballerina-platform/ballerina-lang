@@ -16,8 +16,10 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.openapi.OpenApiMesseges.DEFINITION_EXISTS;
+import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_MODULE_ARGS_REQUIRED;
 import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_MODULE_REQUIRED;
 import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_PROJECT_ROOT;
+import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_SERVICE_NAME_REQUIRED;
 import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_DIRECTORY_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_MD_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.RESOURCE_DIRECTORY_EXCEPTION;
@@ -85,7 +87,13 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
 
         //Check if a module name is present
         if (moduleArgs == null || moduleArgs.size() < 2) {
-            throw LauncherUtils.createLauncherException(GEN_SERVICE_MODULE_REQUIRED);
+            throw LauncherUtils.createLauncherException(GEN_SERVICE_MODULE_ARGS_REQUIRED);
+        } else {
+            if (moduleArgs.get(0).trim().isEmpty()) {
+                throw LauncherUtils.createLauncherException(GEN_SERVICE_MODULE_REQUIRED);
+            } else if (moduleArgs.get(1).trim().isEmpty()) {
+                throw LauncherUtils.createLauncherException(GEN_SERVICE_SERVICE_NAME_REQUIRED);
+            }
         }
 
         //Check if an OpenApi definition is provided
@@ -182,11 +190,21 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
             }
         }
 
+        if (output.isEmpty()) {
+            output = executionPath;
+        }
+
         //Set source package for the generated service
         generator.setSrcPackage(moduleArgs.get(0));
 
+        //Set relative path for contract path which will be printed on the generated service bal file
+        Path absPath = Paths.get(resourcePath.toString());
+        Path basePath = Paths.get(output);
+        Path pathRelative = basePath.relativize(absPath);
+
         try {
-            generator.generateService(executionPath, resourcePath.toString(), moduleArgs.get(1), output);
+            generator.generateService(executionPath, resourcePath.toString(), pathRelative.toString(),
+                    moduleArgs.get(1), output);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
                     "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
