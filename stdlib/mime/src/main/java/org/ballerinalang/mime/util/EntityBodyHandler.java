@@ -147,9 +147,6 @@ public class EntityBodyHandler {
         if (byteChannel == null) {
             return new ArrayValue(new byte[0]);
         }
-//        ArrayValue byteData = constructBlobDataSource(byteChannel.getInputStream());
-//        byteChannel.close();
-//        return byteData;
         try {
             return constructBlobDataSource(byteChannel.getInputStream());
         } finally {
@@ -185,15 +182,6 @@ public class EntityBodyHandler {
             return null;
         }
         try {
-//            Channel byteChannel = getByteChannel(entityObj);
-//            if (byteChannel == null) {
-//                return null;
-//            }
-//            Object jsonData = constructJsonDataSource(entityObj, byteChannel.getInputStream());
-//            byteChannel.close();
-//            return jsonData;
-//        } catch (IOException e) {
-//            throw new BallerinaIOException("Error occurred while closing connection", e);
             return constructJsonDataSource(entityObj, byteChannel.getInputStream());
         } finally {
             closeByteChannel(byteChannel);
@@ -235,15 +223,6 @@ public class EntityBodyHandler {
             throw new BallerinaIOException("Empty xml payload");
         }
         try {
-//            Channel byteChannel = getByteChannel(entityObj);
-//            if (byteChannel == null) {
-//                throw new BallerinaIOException("Empty xml payload");
-//            }
-//            XMLValue xmlContent = constructXmlDataSource(entityObj, byteChannel.getInputStream());
-//            byteChannel.close();
-//            return xmlContent;
-//        } catch (IOException e) {
-//            throw new BallerinaIOException("Error occurred while closing the channel", e);
             return constructXmlDataSource(entityObj, byteChannel.getInputStream());
         } finally {
             closeByteChannel(byteChannel);
@@ -285,15 +264,6 @@ public class EntityBodyHandler {
             throw new BallerinaIOException("String payload is null");
         }
         try {
-//            Channel byteChannel = getByteChannel(entityObj);
-//            if (byteChannel == null) {
-//                throw new BallerinaIOException("String payload is null");
-//            }
-//            String textContent = constructStringDataSource(entityObj, byteChannel.getInputStream());
-//            byteChannel.close();
-//            return textContent;
-//        } catch (IOException e) {
-//            throw new BallerinaIOException("Error occurred while closing the channel", e);
             return constructStringDataSource(entityObj, byteChannel.getInputStream());
         } finally {
             closeByteChannel(byteChannel);
