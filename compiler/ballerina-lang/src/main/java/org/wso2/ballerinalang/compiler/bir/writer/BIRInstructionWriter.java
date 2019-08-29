@@ -108,6 +108,12 @@ public class BIRInstructionWriter extends BIRVisitor {
         writePosition(lock.pos);
         buf.writeByte(lock.kind.getValue());
         addCpAndWriteString(lock.globalVar.name.value);
+
+        int pkgIndex = addPkgCPEntry(lock.globalVar.pkgId);
+        buf.writeInt(pkgIndex);
+
+        writeType(lock.globalVar.type);
+
         addCpAndWriteString(lock.lockedBB.id.value);
     }
 
@@ -125,6 +131,11 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(unlock.globalVars.size());
         for (BIRNode.BIRGlobalVariableDcl globalVar : unlock.globalVars) {
             addCpAndWriteString(globalVar.name.value);
+
+            int pkgIndex = addPkgCPEntry(globalVar.pkgId);
+            buf.writeInt(pkgIndex);
+
+            writeType(globalVar.type);
         }
         buf.writeInt(unlock.fieldLocks.size());
         for (Map.Entry<BIRNode.BIRVariableDcl, Set<String>> entry : unlock.fieldLocks.entrySet()) {
@@ -424,18 +435,21 @@ public class BIRInstructionWriter extends BIRVisitor {
         if (birOperand.variableDcl.ignoreVariable) {
             buf.writeBoolean(true);
             writeType(birOperand.variableDcl.type);
-        } else {
-            buf.writeBoolean(false);
-            buf.writeByte(birOperand.variableDcl.kind.getValue());
-            buf.writeByte(birOperand.variableDcl.scope.getValue());
-            // TODO use the integer index of the variable.
-            addCpAndWriteString(birOperand.variableDcl.name.value);
+            return;
+        }
 
-            if (birOperand.variableDcl.kind == VarKind.CONSTANT) {
-                writeType(birOperand.variableDcl.type);
-                int pkgIndex = addPkgCPEntry(((BIRGlobalVariableDcl) birOperand.variableDcl).pkgId);
-                buf.writeInt(pkgIndex);
-            }
+        buf.writeBoolean(false);
+        buf.writeByte(birOperand.variableDcl.kind.getValue());
+        buf.writeByte(birOperand.variableDcl.scope.getValue());
+
+        // TODO use the integer index of the variable.
+        addCpAndWriteString(birOperand.variableDcl.name.value);
+
+        if (birOperand.variableDcl.kind == VarKind.GLOBAL) {
+            int pkgIndex = addPkgCPEntry(((BIRGlobalVariableDcl) birOperand.variableDcl).pkgId);
+            buf.writeInt(pkgIndex);
+
+            writeType(birOperand.variableDcl.type);
         }
     }
 

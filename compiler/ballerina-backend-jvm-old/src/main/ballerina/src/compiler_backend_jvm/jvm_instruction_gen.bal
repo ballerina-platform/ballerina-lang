@@ -1108,8 +1108,12 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     bir:BType bType = varDcl.typeValue;
 
     if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
+        bir:GlobalVariableDcl globalVar = <bir:GlobalVariableDcl> varDcl;
+        bir:ModuleID modId = <bir:ModuleID> globalVar?.moduleId;
+        string moduleName = getPackageName(modId.org, modId.name);
+
         string varName = varDcl.name.value;
-        string className = lookupGlobalVarClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(moduleName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
         return;
