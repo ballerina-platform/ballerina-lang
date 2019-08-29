@@ -48,6 +48,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 
@@ -227,6 +228,10 @@ public class MultipartDecoderTest {
         Assert.assertFalse(returnValues.length == 0 || returnValues[0] == null, "Invalid return value");
         BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
         Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
+        try {
+            Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
     }
 }

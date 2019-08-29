@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/filepath;
 import ballerina/http;
-import ballerina/io;
-import ballerina/file;
-import ballerina/'lang\.int as lint;
 import ballerina/internal;
+import ballerina/io;
+import ballerina/lang.'int as lint;
 
 const int MAX_INT_VALUE = 2147483647;
 const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
@@ -87,14 +87,14 @@ public function main(string... args) {
         } else {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is error) {
-                panic createError("failed to resolve host of remote registry: " + host + " with port " + port.toString());
+                panic createError("failed to resolve host of remote repository: " + host + " with port " + port.toString());
             } else {
                 httpEndpoint = result;
                 return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
             }
         }
     } else if (host != "" || strPort != "") {
-        panic createError("both host and port should be provided to enable proxy for accessing remote registry.");
+        panic createError("both host and port should be provided to enable proxy for accessing remote repository.");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
         return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
@@ -127,11 +127,11 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
     http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, req);
     if (httpResponse is error) {
         error e = httpResponse;
-        panic createError("connection to the remote registry host failed : " + e.reason());
+        panic createError("connection to the remote repository host failed : " + e.reason());
     } else {
         string statusCode = httpResponse.statusCode.toString();
-        if (internal:hasPrefix(statusCode, "5")) {
-            panic createError("remote registry failed for url:" + url);
+        if (statusCode.startsWith("5")) {
+            panic createError("remote repository failed for url:" + url);
         } else if (statusCode != "200") {
             var resp = httpResponse.getJsonPayload();
             if (resp is json) {
@@ -142,7 +142,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     panic createError(resp.message.toString());
                 }
             } else {
-                panic createError("error occurred when pulling the module from remote registry");
+                panic createError("error occurred when pulling the module from remote repository");
             }
         } else {
             string contentLengthHeader;

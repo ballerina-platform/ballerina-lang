@@ -68,6 +68,18 @@ public class MatchStructuredPatternsTest {
         Assert.assertEquals(bString.stringValue(), "Matched Values : S, 23, 5.6, 100, 12, S, 24, 5.6, 200");
     }
 
+    @Test(description = "Test error not being match to wildcard match pattern using 'var _' pattern")
+    public void testErrorShouldNotMatchWildCardPatternVarIgnore() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorShouldNotMatchWildCardPatternVarIgnore");
+        Assert.assertEquals(returns[0].stringValue(), "no-match");
+    }
+
+    @Test(description = "Test error match fall through '_' to error pattern")
+    public void testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern");
+        Assert.assertEquals(returns[0].stringValue(), "{UserGenError}Error");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
         int i = -1;

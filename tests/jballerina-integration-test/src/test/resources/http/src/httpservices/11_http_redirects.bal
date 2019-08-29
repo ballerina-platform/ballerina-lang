@@ -14,8 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/config;
 import ballerina/http;
+import ballerina/io;
 
 listener http:Listener serviceEndpoint2 = new(9102);
 
@@ -45,7 +46,13 @@ http:ClientEndpointConfig endPoint3Config = {
 };
 
 http:ClientEndpointConfig endPoint5Config = {
-    followRedirects: { enabled: true }
+    followRedirects: { enabled: true },
+    secureSocket: {
+        trustStore: {
+            path: config:getAsString("truststore"),
+            password: "ballerina"
+        }
+    }
 };
 
 @http:ServiceConfig {

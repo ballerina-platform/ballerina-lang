@@ -107,8 +107,8 @@ public class InitLdapConnectionContext {
             LdapConnectionContext connectionSource = new LdapConnectionContext(commonLdapConfiguration);
             DirContext dirContext = connectionSource.getContext();
 
-            MapValue<String, Object> ldapConnectionRecord = BallerinaValues.createRecordValue(
-                    LdapConstants.LDAP_PACKAGE, LdapConstants.LDAP_CONNECTION);
+            MapValue<String, Object> ldapConnectionRecord = BallerinaValues.
+                    createRecordValue(LdapConstants.LDAP_PACKAGE_ID, LdapConstants.LDAP_CONNECTION);
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONFIGURATION, commonLdapConfiguration);
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONNECTION_SOURCE, connectionSource);
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONNECTION_CONTEXT, dirContext);

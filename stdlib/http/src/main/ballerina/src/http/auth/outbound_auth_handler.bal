@@ -25,8 +25,8 @@ public type OutboundAuthHandler abstract object {
 
     # Inspects the request and response and evaluates what is to be done.
     #
-    # req - The `Request` instance.
-    # resp - The `Response` instance.
+    # + req - The `Request` instance.
+    # + resp - The `Response` instance.
     # + return - Returns the updated `Request` instance, the `AuthenticationError` in case of an error, or `()` if nothing is to be returned.
     public function inspect(Request req, Response resp) returns Request|AuthenticationError?;
 };

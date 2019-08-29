@@ -18,20 +18,12 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.CloneUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
-
-import java.util.HashMap;
 
 /**
  * Performs a deep copy, recursively copying all structural values and their members.
@@ -48,23 +40,6 @@ import java.util.HashMap;
 public class Clone {
 
     public static Object clone(Strand strand, Object value) {
-        
-        if (value == null) {
-            return null;
-        }
-
-        if (!(value instanceof RefValue)) {
-            return value;
-        }
-
-        RefValue refValue = (RefValue) value;
-
-        if (refValue.getType().getTag() == TypeTags.ERROR ||
-            !TypeChecker.checkIsLikeType(refValue, BTypes.typePureType)) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.CLONE_ERROR, RuntimeErrors.
-                    UNSUPPORTED_CLONE_OPERATION, refValue.getType());
-        }
-
-        return refValue.copy(new HashMap<>());
+        return CloneUtils.cloneValue(value);
     }
 }

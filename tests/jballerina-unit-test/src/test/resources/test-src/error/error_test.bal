@@ -306,3 +306,21 @@ function testFunc(int i) returns string|E1|E2 { // fails even if one of the erro
 public function testIndirectErrorReturn() returns E1|E2|string {
     return E1(message = "error msg");
 }
+
+const A1 = "a1";
+const B1 = "b1";
+
+type A error<A1>;
+type B error<B1>;
+
+type MyError A|B;
+
+public function testErrorUnionPassedToErrorParam() returns string {
+    A aErr = error(A1, one = 1);
+    MyError eErr = aErr;
+    return takeError(eErr);
+}
+
+function takeError(error e) returns string {
+    return e.reason();
+}

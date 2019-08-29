@@ -16,11 +16,13 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.jvm.types.BPackage;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
@@ -33,6 +35,7 @@ public class GrpcConstants {
     public static final String PROTOCOL_PACKAGE_GRPC = "grpc";
     public static final String ORG_NAME = "ballerina";
     public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = ORG_NAME + ORG_NAME_SEPARATOR + "grpc";
+    public static final BPackage PROTOCOL_GRPC_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "grpc");
 
     public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/grpc] started HTTPS/WSS listener ";
     public static final String HTTP_ENDPOINT_STARTED = "[ballerina/grpc] started HTTP/WS listener ";

@@ -39,36 +39,26 @@ public class BasicWorkerActionsNegativeTest {
     @Test(description = "Test negative scenarios of worker actions")
     public void testNegativeWorkerActions() {
         int index = 0;
-        BAssertUtil.validateError(result, index, "invalid type for worker send 'Person', expected anydata",
-                                  42, 9);
-        index++;
-        BAssertUtil.validateError(result, index, "invalid type for worker send 'Person', expected anydata",
-                                  44, 22);
-        index++;
-        BAssertUtil.validateError(result, index, "undefined worker 'w4'", 46, 17);
-        index++;
-        BAssertUtil.validateError(result, index, "invalid worker flush expression for 'w4', there are " +
+        BAssertUtil.validateError(result, index++, "invalid type for worker send 'Person', expected anydata",
+                42, 9);
+        BAssertUtil.validateError(result, index++, "invalid type for worker send 'Person', expected anydata",
+                44, 22);
+        BAssertUtil.validateError(result, index++, "invalid worker flush expression for 'w4', there are " +
                 "no worker send statements to 'w4' from 'w1'", 46, 17);
-        index++;
-        BAssertUtil.validateError(result, index, "variable assignment is required",
-                                  61, 9);
-        index++;
-        BAssertUtil.validateError(result, index, "invalid worker flush expression for 'w1', there are no " +
+        BAssertUtil.validateError(result, index++, "undefined worker 'w4'", 46, 17);
+        BAssertUtil.validateError(result, index++, "invalid worker flush expression for 'w1', there are no " +
                 "worker send statements to 'w1' from 'w3'", 61, 9);
-        index++;
-        BAssertUtil.validateError(result, index, "invalid worker send statement position, must be a top " +
+        BAssertUtil.validateError(result, index++, "variable assignment is required",
+                61, 9);
+        BAssertUtil.validateError(result, index++, "invalid worker send statement position, must be a top " +
                 "level statement in a worker", 74, 13);
-        index++;
-        BAssertUtil.validateError(result, index, "action invocation as an expression not allowed here",
-                                  78, 15);
-        index++;
-        BAssertUtil.validateError(result, index, "invalid worker receive statement position, must be a " +
+        BAssertUtil.validateError(result, index++, "action invocation as an expression not allowed here",
+                78, 15);
+        BAssertUtil.validateError(result, index++, "invalid worker receive statement position, must be a " +
                 "top level statement in a worker", 81, 19);
-        index++;
-        BAssertUtil.validateError(result, index, "invalid worker flush expression for 'w2', there are no " +
+        BAssertUtil.validateError(result, index++, "invalid worker flush expression for 'w2', there are no " +
                 "worker send statements to 'w2' from 'w1'", 91, 22);
-        index++;
         BAssertUtil.validateError(result, index, "invalid usage of receive expression, var not allowed",
-                                  112, 21);
+                112, 21);
     }
 }

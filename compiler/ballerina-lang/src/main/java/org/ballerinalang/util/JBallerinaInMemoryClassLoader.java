@@ -25,6 +25,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.StringJoiner;
 
 /**
  * An in-memory jar class loader.
@@ -36,13 +37,8 @@ public class JBallerinaInMemoryClassLoader {
 
     private URLClassLoader cl;
 
-    private Path compiledJarPath;
-    private Path importsCachePath;
-
     public JBallerinaInMemoryClassLoader(Path testJarPath, File importsCache) {
         try {
-            this.compiledJarPath = testJarPath;
-            this.importsCachePath = importsCache.toPath();
             int index = 0;
             URL[] jars;
             if (importsCache.isDirectory()) {
@@ -70,11 +66,13 @@ public class JBallerinaInMemoryClassLoader {
         }
     }
 
-    public Path getCompiledJarPath() {
-        return compiledJarPath;
+    public String getClassPath() {
+        URL[] urls = cl.getURLs();
+        StringJoiner joiner = new StringJoiner(":");
+        for (URL url : urls) {
+            joiner.add(url.getPath());
+        }
+        return joiner.toString();
     }
 
-    public Path getImportsCachePath() {
-        return importsCachePath;
-    }
 }

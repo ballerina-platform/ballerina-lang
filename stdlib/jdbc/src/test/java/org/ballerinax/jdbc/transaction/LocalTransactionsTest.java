@@ -218,6 +218,30 @@ public class LocalTransactionsTest {
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
+    public void testLocalTransactionWithUpdateAfterSelectAndForeachIteration() {
+        BValue[] returns = BRunUtil
+                .invoke(result, "testLocalTransactionWithUpdateAfterSelectAndForeachIteration", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+    }
+
+    @Test(groups = TRANSACTION_TEST_GROUP)
+    public void testLocalTransactionWithUpdateAfterSelectAndBreakingWhileIteration() {
+        BValue[] returns = BRunUtil
+                .invoke(result, "testLocalTransactionWithUpdateAfterSelectAndBreakingWhileIteration", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+    }
+
+    @Test(groups = TRANSACTION_TEST_GROUP)
+    public void testLocalTransactionWithUpdateAfterSelectAndTableClosure() {
+        BValue[] returns = BRunUtil
+                .invoke(result, "testLocalTransactionWithUpdateAfterSelectAndTableClosure", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+    }
+
+    @Test(groups = TRANSACTION_TEST_GROUP)
     public void testLocalTransactionWithSelectAndHasNextIteration() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionWithSelectAndHasNextIteration", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
