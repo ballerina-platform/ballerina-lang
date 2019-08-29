@@ -40,7 +40,7 @@ public class SslEchoTest extends WebSocketTestCommons {
     private static final String URL = "wss://localhost:21022/sslEcho";
     private WebSocketTestClient client;
 
-    // Related file 21_ssl_echo.bal
+    // Related file 22_ssl_echo.bal
     @BeforeClass(description = "Initializes the ssl client")
     public void setup() throws URISyntaxException, InterruptedException {
         client = new WebSocketTestClient(URL, true);

@@ -43,3 +43,24 @@ function throwError2(int | error a) {
         a;
     }
 }
+
+public function main2(string... args) {
+    panic error("Player has to be initialized");
+}
+
+public function main3(string... args) {
+    panic
+    error
+    (
+    "Player has to be initialized"
+    )
+    ;
+}
+
+public function main4(string... args) {
+    panic getError();
+}
+
+public function getError() returns error {
+    return error("Player has to be initialized");
+}

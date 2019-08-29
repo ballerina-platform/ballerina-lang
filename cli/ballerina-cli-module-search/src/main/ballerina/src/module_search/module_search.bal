@@ -18,7 +18,6 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/time;
 import ballerina/math;
-import ballerina/internal;
 import ballerina/'lang\.int as lint;
 
 # This function searches modules from ballerina central.
@@ -40,8 +39,8 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
         return;
     }
     string statusCode = httpResponse.statusCode.toString();
-    if (internal:hasPrefix(statusCode, "5")) {
-        io:println("remote registry failed for url : " + url + "/" + querySearched);
+    if (statusCode.startsWith("5")) {
+        io:println("remote repository failed for url : " + url + "/" + querySearched);
     } else if (statusCode != "200") {
         var resp = httpResponse.getJsonPayload();
         if (resp is json) {

@@ -30,7 +30,7 @@ import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_ID;
 
 /**
  * Extern function to start up the default Ballerina WebSub Hub.
@@ -63,8 +63,8 @@ public class StartUpHubService {
     }
 
     private static MapValue<String, Object> getHubStartedUpError(Hub hubInstance) {
-        MapValue<String, Object> hubStartedUpError = BallerinaValues.createRecordValue(
-                WEBSUB_PACKAGE, STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR);
+        MapValue<String, Object> hubStartedUpError = BallerinaValues.createRecordValue(WEBSUB_PACKAGE_ID,
+                STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR);
         return BallerinaValues.createRecord(hubStartedUpError, "Ballerina Hub already started up", null,
                                             hubInstance.getHubObject());
     }

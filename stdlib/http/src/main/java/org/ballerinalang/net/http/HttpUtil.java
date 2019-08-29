@@ -38,6 +38,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -113,7 +114,7 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
@@ -147,7 +148,7 @@ import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
@@ -167,7 +168,7 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE_NAME;
-import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
@@ -214,7 +215,7 @@ public class HttpUtil {
      * @return created entity.
      */
     public static ObjectValue createNewEntity(ObjectValue httpMessageStruct) {
-        ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
+        ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
         HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
                 HttpUtil.createHttpCarbonMessage(isRequest(httpMessageStruct)));
         entity.addNativeData(ENTITY_HEADERS, httpCarbonMessage.getHeaders());
@@ -499,13 +500,13 @@ public class HttpUtil {
         } else if (throwable instanceof ConnectionTimedOutException) {
             cause = createErrorCause(throwable.getMessage(),
                     IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
-                    IO_PACKAGE,
+                    IO_PACKAGE_ID,
                     DETAIL_RECORD_TYPE_NAME);
             return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else if (throwable instanceof ClientConnectorException) {
             cause = createErrorCause(throwable.getMessage(),
                     IOConstants.ErrorCode.GenericError.errorCode(),
-                    IO_PACKAGE,
+                    IO_PACKAGE_ID,
                     DETAIL_RECORD_TYPE_NAME);
             return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else {
@@ -517,7 +518,7 @@ public class HttpUtil {
         Map<String, Object> values = new HashMap<>();
         values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, message);
         MapValue<String, Object> detail =
-                BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD, values);
+                BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD, values);
         return BallerinaErrors.createError(errorType.getReason(), detail);
     }
 
@@ -527,8 +528,8 @@ public class HttpUtil {
     }
 
     private static MapValue<String, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
-        MapValue<String, Object> detail = BallerinaValues
-                .createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD);
+        MapValue<String, Object> detail = BallerinaValues.
+                createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD);
         return cause == null ? BallerinaValues.createRecord(detail, message) :
                 BallerinaValues.createRecord(detail, message, cause);
     }
@@ -576,7 +577,7 @@ public class HttpUtil {
         }
     }
 
-    private static ErrorValue createErrorCause(String message, String reason, String packageName, String recordName) {
+    private static ErrorValue createErrorCause(String message, String reason, BPackage packageName, String recordName) {
 
         MapValue<String, Object> detailRecordType = BallerinaValues.createRecordValue(packageName, recordName);
         MapValue<String, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
@@ -650,7 +651,7 @@ public class HttpUtil {
         inboundRequest.addNativeData(REQUEST, true);
 
         if (inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT) != null) {
-            MapValue mutualSslRecord = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP,
+            MapValue mutualSslRecord = BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID,
                                                                          MUTUAL_SSL_HANDSHAKE_RECORD);
             mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
                                 inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
@@ -666,7 +667,7 @@ public class HttpUtil {
 
         String cacheControlHeader = inboundRequestMsg.getHeader(CACHE_CONTROL.toString());
         if (cacheControlHeader != null) {
-            ObjectValue cacheControlObj = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
+            ObjectValue cacheControlObj = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
                                                                                REQUEST_CACHE_CONTROL);
             RequestCacheControlObj requestCacheControl = new RequestCacheControlObj(cacheControlObj);
             requestCacheControl.populateStruct(cacheControlHeader);
@@ -718,9 +719,9 @@ public class HttpUtil {
      */
     public static void enrichHttpCallerWithConnectionInfo(ObjectValue httpCaller, HttpCarbonMessage inboundMsg,
                                                           HttpResource httpResource, MapValue config) {
-        MapValue<String, Object> remote = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP,
+        MapValue<String, Object> remote = BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID,
                                                                             HttpConstants.REMOTE);
-        MapValue<String, Object> local = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
+        MapValue<String, Object> local = BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID, HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
@@ -773,8 +774,8 @@ public class HttpUtil {
 
         String cacheControlHeader = inboundResponseMsg.getHeader(CACHE_CONTROL.toString());
         if (cacheControlHeader != null) {
-            ResponseCacheControlObj responseCacheControl
-                    = new ResponseCacheControlObj(PROTOCOL_PACKAGE_HTTP, RESPONSE_CACHE_CONTROL);
+            ResponseCacheControlObj responseCacheControl = new ResponseCacheControlObj(PROTOCOL_HTTP_PKG_ID,
+                    RESPONSE_CACHE_CONTROL);
             responseCacheControl.populateStruct(cacheControlHeader);
             inboundResponse.set(RESPONSE_CACHE_CONTROL_FIELD, responseCacheControl.getObj());
         }
@@ -1153,9 +1154,9 @@ public class HttpUtil {
      * @return the Response struct
      */
     public static ObjectValue createResponseStruct(HttpCarbonMessage httpCarbonMessage) {
-        ObjectValue responseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+        ObjectValue responseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                                                                     HttpConstants.RESPONSE);
-        ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, HttpConstants.ENTITY);
+        ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, HttpConstants.ENTITY);
 
         HttpUtil.populateInboundResponse(responseObj, entity, httpCarbonMessage);
         return responseObj;

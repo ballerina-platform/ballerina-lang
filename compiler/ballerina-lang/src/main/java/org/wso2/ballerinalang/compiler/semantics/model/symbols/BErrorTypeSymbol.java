@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class BErrorTypeSymbol extends BTypeSymbol {
 
+    public BConstructorSymbol ctorSymbol;
+
     public BErrorTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(symTag, flags, name, pkgID, type, owner);
     }

@@ -46,8 +46,8 @@ service ser on lis {
         path: "testPath"
     }
     resource function res(@v2 int intVal, string strVal) returns
-                            @v3 { foo: "v41" }  @v3 { foo: "v42", bar: 2 } string {
-        return "";
+                            @v3 { foo: "v41" }  @v3 { foo: "v42", bar: 2 } () {
+        return;
     }
 }
 

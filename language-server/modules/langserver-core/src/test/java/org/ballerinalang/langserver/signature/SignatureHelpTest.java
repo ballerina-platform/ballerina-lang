@@ -89,7 +89,7 @@ public class SignatureHelpTest {
                 {"signatureWithinIfElse1.json", "signatureWithinWhile.bal"},
                 {"signatureWithinForeach.json", "signatureWithinForeach.bal"},
                 {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
-                {"signatureWithinObjectFunctions.json", "signatureWithinObjectFunctions.bal"},
+//                {"signatureWithinObjectFunctions.json", "signatureWithinObjectFunctions.bal"},
                 {"signatureWithinCheckPanic.json", "signatureWithinCheckPanic.bal"},
                 {"signatureWithinAnnotation.json", "signatureWithinAnnotations.bal"}
         };
