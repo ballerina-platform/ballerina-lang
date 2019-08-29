@@ -23,8 +23,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -52,7 +50,7 @@ public class RuntimeUtils {
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 
-    private static final Logger breLog = LoggerFactory.getLogger(RuntimeUtils.class);
+    private static final PrintStream stderr = System.err;
 
     /**
      * Used to handle rest args passed in to the main method.
@@ -174,7 +172,7 @@ public class RuntimeUtils {
             crashLogger.setUseParentHandlers(false);
             crashLogger.setLevel(logLevel);
         } catch (IOException ioException) {
-            System.err.println("error initializing crash logger");
+            stderr.print("error initializing crash logger");
         }
         crashLogger.log(Level.SEVERE, throwable.getMessage(), throwable);
     }
