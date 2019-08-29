@@ -458,8 +458,8 @@ public class FreezeAndIsFrozenTest {
     public void testFreezeAndIsFrozenNegativeCases() {
         Assert.assertEquals(negativeResult.getErrorCount(), 29);
         int index = 0;
-        validateError(negativeResult, index++, "function invocation on type 'other' is not supported", 19, 19);
-        validateError(negativeResult, index++, "incompatible types: expected 'PersonObj', found 'other'", 19, 19);
+        validateError(negativeResult, index++, "incompatible types: expected 'PersonObj', found 'anydata'", 19, 19);
+        validateError(negativeResult, index++, "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
         validateError(negativeResult, index++, "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
         validateError(negativeResult, index++, "incompatible types: expected 'anydata', found 'stream<int>'", 22, 9);
         validateError(negativeResult, index++, "incompatible types: expected 'anydata', found 'future<boolean>'", 25,

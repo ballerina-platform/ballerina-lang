@@ -145,9 +145,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
         for (StackTraceElement stackFrame : stackTrace) {
             Optional<StackTraceElement> stackTraceElement =
                     BallerinaErrors.filterStackTraceElement(stackFrame, index++);
-            if (stackTraceElement.isPresent()) {
-                filteredStack.add(stackTraceElement.get());
-            }
+            stackTraceElement.ifPresent(filteredStack::add);
         }
         StackTraceElement[] filteredStackArray = new StackTraceElement[filteredStack.size()];
         return filteredStack.toArray(filteredStackArray);
