@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.listener.http2;
+package org.wso2.transport.http.netty.contractimpl.common.http2;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
