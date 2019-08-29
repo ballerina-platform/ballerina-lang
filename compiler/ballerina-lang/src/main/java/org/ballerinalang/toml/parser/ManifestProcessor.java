@@ -228,9 +228,4 @@ public class ManifestProcessor {
         String tomlContent = writer.write(toml);
         Files.write(manifestPath, tomlContent.getBytes());
     }
-    
-    public static void main(String[] args) throws IOException {
-        PackageID a = new PackageID(new Name("foo"), new Name("bar"), new Name("9.2.1"));
-        addDependencyToManifest(Paths.get("/Users/hemikak/ballerina/dev/ballerina/compiler/ballerina-lang/src/test/resources/Ballerina.toml"), a);
-    }
 }
