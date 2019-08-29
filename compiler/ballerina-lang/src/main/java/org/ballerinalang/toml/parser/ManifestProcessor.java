@@ -18,17 +18,24 @@
 package org.ballerinalang.toml.parser;
 
 import com.moandjiezana.toml.Toml;
+import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -199,5 +206,31 @@ public class ManifestProcessor {
         return content.substring(0, 1).toLowerCase(Locale.getDefault()) + content.substring(1);
     }
     
-    public static void addDependencyToToml()
+    public static void addDependencyToManifest(Path manifestPath, PackageID moduleID) throws IOException {
+        Map<String, Object> toml = new Toml().read(manifestPath.toFile()).toMap();
+        Map<String, Object> dependencies = new HashMap<>();
+        if (toml.containsKey("dependencies")) {
+            Object tomlDepsAsObject = toml.get("dependencies");
+            Map<String, Object> updatedDependencies = new HashMap<>();
+            if (tomlDepsAsObject instanceof Map) {
+                // taking care of double quoted dependency names
+                HashMap<String, Object> tomlDeps = (HashMap<String, Object>) tomlDepsAsObject;
+                for (Map.Entry<String, Object> dep : tomlDeps.entrySet()) {
+                    updatedDependencies.put(dep.getKey().replaceAll("^\"|\"$", ""), dep.getValue());
+                }
+                dependencies = updatedDependencies;
+            }
+        }
+        
+        dependencies.put(moduleID.orgName.value + "/" + moduleID.name.value, moduleID.version.value);
+        toml.put("dependencies", dependencies);
+        TomlWriter writer = new TomlWriter();
+        String tomlContent = writer.write(toml);
+        Files.write(manifestPath, tomlContent.getBytes());
+    }
+    
+    public static void main(String[] args) throws IOException {
+        PackageID a = new PackageID(new Name("foo"), new Name("bar"), new Name("9.2.1"));
+        addDependencyToManifest(Paths.get("/Users/hemikak/ballerina/dev/ballerina/compiler/ballerina-lang/src/test/resources/Ballerina.toml"), a);
+    }
 }

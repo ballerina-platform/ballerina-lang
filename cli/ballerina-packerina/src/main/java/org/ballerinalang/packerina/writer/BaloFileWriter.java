@@ -145,7 +145,7 @@ public class BaloFileWriter {
                 .resolve(module.packageID.name.value);
         String moduleName = module.packageID.name.value;
         Path manifest = projectDirectory.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
-        populateProjectModulesToBallerinaToml(module, manifest);
+        populateTomlWithProjectModules(module, manifest);
         // Now lets put stuff in according to spec
         // /
         // └─ metadata/
@@ -169,7 +169,7 @@ public class BaloFileWriter {
         }
     }
     
-    private void populateProjectModulesToBallerinaToml(BLangPackage module, Path manifestPath) {
+    private void populateTomlWithProjectModules(BLangPackage module, Path manifestPath) {
         try {
             Manifest manifest = ManifestProcessor.parseTomlContentFromFile(manifestPath);
             for (BLangImportPackage importz : module.imports) {
@@ -178,14 +178,15 @@ public class BaloFileWriter {
                     // if its from the same project
                     if (ProjectDirs.isModuleExist(this.sourceDirectory.getPath(), importz.symbol.pkgID.name.value)) {
                         // check if its not already there as an import.
-                        Optional<Dependency> manifestDependency =manifest.getDependencies().stream()
+                        Optional<Dependency> manifestDependency = manifest.getDependencies().stream()
                                 .filter(dep -> dep.getOrgName().equals(importz.symbol.pkgID.orgName.value))
                                 .filter(dep -> dep.getModuleName().equals(importz.symbol.pkgID.name.value))
                                 .findAny();
                         
+                        // if dependency is not mentioned in toml
                         if (!manifestDependency.isPresent()) {
                             // update manifest
-                            manifest.getDependencies()
+                            ManifestProcessor.addDependencyToManifest(manifestPath, importz.symbol.pkgID);
                         }
                     }
                 }
