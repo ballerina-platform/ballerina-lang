@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
@@ -164,7 +165,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     returns http:Response {
 
     http:Response response = new;
-    var decodedTopic = http:decode(intentVerificationRequest.topic, "UTF-8");
+    var decodedTopic = encoding:decodeUriComponent(intentVerificationRequest.topic, "UTF-8");
     string reqTopic = decodedTopic is string ? decodedTopic : topic;
 
     string reqMode = intentVerificationRequest.mode;
