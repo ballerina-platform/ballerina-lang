@@ -56,7 +56,6 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static org.ballerinax.jdbc.Constants.PARAMETER_VALUE_FIELD;
-import static org.ballerinax.jdbc.Constants.TIMEZONE_UTC;
 
 /**
  * Represents a processed statement.
