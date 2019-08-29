@@ -56,6 +56,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static org.ballerinax.jdbc.Constants.PARAMETER_VALUE_FIELD;
+import static org.ballerinax.jdbc.Constants.TIMEZONE_UTC;
 
 /**
  * Represents a processed statement.
@@ -218,25 +219,17 @@ class ProcessedStatement {
                 setDateValue(stmt, value, index, direction);
                 break;
             case Constants.SQLDataTypes.TIMESTAMPTZ:
-                Calendar calendarTimestamp = null;
-                if ((value != null)) {
-                    calendarTimestamp = Calendar.getInstance(extractTimezoneOffSet((String) value));
-                }
-                setTimeStampValue(stmt, value, index, direction, calendarTimestamp);
+                setTimeStampValue(stmt, value, index, direction, true);
                 break;
             case Constants.SQLDataTypes.TIMESTAMP:
             case Constants.SQLDataTypes.DATETIME:
-                setTimeStampValue(stmt, value, index, direction, utcCalendar);
+                setTimeStampValue(stmt, value, index, direction, false);
                 break;
             case Constants.SQLDataTypes.TIMETZ:
-                Calendar calendarTime = null;
-                if ((value != null)) {
-                    calendarTime = Calendar.getInstance(extractTimezoneOffSet((String) value));
-                }
-                setTimeValue(stmt, value, index, direction, calendarTime);
+                setTimeValue(stmt, value, index, direction, true);
                 break;
             case Constants.SQLDataTypes.TIME:
-                setTimeValue(stmt, value, index, direction, utcCalendar);
+                setTimeValue(stmt, value, index, direction, false);
                 break;
             case Constants.SQLDataTypes.BINARY:
                 setBinaryValue(stmt, value, index, direction, Types.BINARY);
@@ -721,9 +714,11 @@ class ProcessedStatement {
         return TimeZone.getTimeZone(zoneOffSet);
     }
 
-    private void setTimeStampValue(PreparedStatement stmt, Object value, int index, int direction, Calendar calendar)
+    private void setTimeStampValue(PreparedStatement stmt, Object value, int index, int direction,
+                                   boolean isTimezoneAware)
             throws ApplicationException, SQLException {
         Timestamp val = null;
+        Calendar calendar = utcCalendar;
         if (value != null) {
             BType type = TypeChecker.getType(value);
             if (value instanceof MapValue && type.getName().equals(Constants.STRUCT_TIME) && type
@@ -734,6 +729,9 @@ class ProcessedStatement {
             } else if (value instanceof Long) {
                 val = new Timestamp((Long) value);
             } else if (value instanceof String) {
+                if (isTimezoneAware) {
+                    calendar = Calendar.getInstance(extractTimezoneOffSet((String) value));
+                }
                 val = convertToTimeStamp((String) value, calendar);
             } else {
                 throw new ApplicationException("Invalid input type specified for timestamp parameter at index "
@@ -883,9 +881,10 @@ class ProcessedStatement {
         return timeZoneOffSet;
     }
 
-    private void setTimeValue(PreparedStatement stmt, Object value, int index, int direction, Calendar calendar)
+    private void setTimeValue(PreparedStatement stmt, Object value, int index, int direction, boolean isTimezoneAware)
             throws ApplicationException, SQLException {
         Time val = null;
+        Calendar calendar = utcCalendar;
         if (value != null) {
             BType type = TypeChecker.getType(value);
             if (value instanceof MapValue && type.getName().equals(Constants.STRUCT_TIME) && type
@@ -896,6 +895,9 @@ class ProcessedStatement {
             } else if (value instanceof Long) {
                 val = new Time((Long) value);
             } else if (value instanceof String) {
+                if (isTimezoneAware) {
+                    calendar = Calendar.getInstance(extractTimezoneOffSet((String) value));
+                }
                 val = convertToTime((String) value, calendar);
             }
         }
