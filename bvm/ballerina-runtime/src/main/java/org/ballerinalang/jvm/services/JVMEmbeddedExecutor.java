@@ -15,20 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.cli.utils;
+package org.ballerinalang.jvm.services;
 
-import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.jvm.annotation.JavaSPIService;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.services.spi.EmbeddedExecutor;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.ArgumentParser;
 import org.ballerinalang.jvm.util.RuntimeUtils;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.spi.EmbeddedExecutor;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,7 +40,7 @@ import java.util.function.Function;
  *
  * @since 0.964
  */
-@JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
+@JavaSPIService("org.ballerinalang.jvm.services.spi.EmbeddedExecutor")
 public class JVMEmbeddedExecutor implements EmbeddedExecutor {
     
     /**
