@@ -59,12 +59,13 @@ public class BRuntime {
         scheduler.schedule(new Object[1], func, null, null);
     }
 
-    public void invokeMethodAsync(ObjectValue object, String methodName, CallableUnitCallback callback, Object... args) {
+    public void invokeMethodAsync(ObjectValue object, String methodName,
+                                  CallableUnitCallback callback, Object... args) {
         Consumer func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         scheduler.schedule(new Object[1], func, null, callback);
     }
 
-    public void invokeMethodSync(ObjectValue object, String methodName, Object... args) throws ErrorValue {
+    public void invokeMethodSync(ObjectValue object, String methodName, Object... args) {
         Consumer func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         Semaphore semaphore = new Semaphore(0);
         final ErrorValue[] errorValue = new ErrorValue[1];
