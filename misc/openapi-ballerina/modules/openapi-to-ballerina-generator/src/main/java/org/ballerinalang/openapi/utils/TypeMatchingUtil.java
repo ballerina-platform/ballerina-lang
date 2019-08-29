@@ -24,7 +24,6 @@ import org.ballerinalang.openapi.typemodel.OpenApiSchemaType;
 import org.ballerinalang.openapi.typemodel.OpenApiType;
 
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -141,25 +140,58 @@ public class TypeMatchingUtil {
 
     public static List<OpenApiPropertyType> getSchemaPropertyTypes(Map<String, Schema> property) {
 
-        SchemaParser schemaParser = new SchemaParser();
-        Class schemaParserClass = schemaParser.getClass();
         List<OpenApiPropertyType> propertyTypes = new ArrayList<>();
 
         for (Object propertyObject : property.entrySet()) {
             OpenApiPropertyType propertyType = new OpenApiPropertyType();
 
             String propName = (String) ((Map.Entry) propertyObject).getKey();
-            Class schemaTypeClass = ((Map.Entry) propertyObject).getValue().getClass();
-            String schemaTypeClassName = schemaTypeClass.getName();
-            String[] schemaMethodName = schemaTypeClassName.split("\\.");
-            try {
-                schemaParserClass.getDeclaredMethod("parse" + schemaMethodName[schemaMethodName.length - 1],
-                        Object.class, OpenApiPropertyType.class).invoke(schemaParserClass.newInstance(),
-                        ((Map.Entry) propertyObject).getValue(), propertyType);
-            } catch (IllegalAccessException | InvocationTargetException
-                    | NoSuchMethodException | InstantiationException e) {
-                outStream.println(e.getLocalizedMessage());
+
+            Schema schema = (Schema) ((Map.Entry) propertyObject).getValue();
+            String type = schema.getType();
+
+            if (type != null) {
+                switch (type) {
+                    case "string":
+                        propertyType.setPropertyType("string");
+                        break;
+                    case "array":
+                        ArraySchema arrayObj = (ArraySchema) schema;
+                        if (arrayObj.getItems() != null) {
+                            final Schema<?> items = arrayObj.getItems();
+                            propertyType.setIsArray(true);
+                            if (items.getType() != null) {
+                                propertyType.setPropertyType(delimeterizeUnescapedIdentifires(items.getType()));
+                            } else if (items.get$ref() != null) {
+                                final String[] referenceType = items.get$ref().split("/");
+                                propertyType.setPropertyType(delimeterizeUnescapedIdentifires(referenceType[referenceType.length - 1]));
+                            }
+                        }
+                        break;
+                    case "integer":
+                    case "number":
+                        propertyType.setPropertyType("int");
+                        break;
+                    case "boolean":
+                        propertyType.setPropertyType("boolean");
+                        break;
+                    case "object":
+                        Schema schemaObj = (Schema) schema;
+                        if (schemaObj.get$ref() != null && schemaObj.get$ref().startsWith("#")) {
+                            String[] ref = schemaObj.get$ref().split("/");
+                            propertyType.setPropertyType(delimeterizeUnescapedIdentifires(StringUtils.capitalize(ref[ref.length - 1])));
+                        }
+                        break;
+                    default:
+                        outStream.println(type);
+                        break;
+                }
+            } else if (schema.get$ref() != null) {
+                String[] ref = schema.get$ref().split("/");
+                propertyType.setPropertyType(
+                        delimeterizeUnescapedIdentifires(StringUtils.capitalize(ref[ref.length - 1])));
             }
+
             propertyType.setPropertyName(delimeterizeUnescapedIdentifires(propName));
             propertyTypes.add(propertyType);
         }
@@ -348,8 +380,11 @@ public class TypeMatchingUtil {
 
     public static String delimeterizeUnescapedIdentifires(String identifier) {
         //check if identifier starts with a number or contains spaces in between
-        if (Character.isDigit(identifier.charAt(0))) {
+        if (Character.isDigit(identifier.charAt(0)) || identifier.indexOf(".") > -1) {
             identifier = "'" + identifier;
+            if (identifier.contains(".")) {
+                identifier = identifier.replaceAll("\\.","\\\\.");
+            }
         }
         return identifier;
     }
