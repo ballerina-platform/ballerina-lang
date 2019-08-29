@@ -26,6 +26,7 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -109,11 +110,7 @@ public class PushCommand implements BLauncherCmd {
             }
         } else if (argList.size() == 1) {
             String packageName = argList.get(0);
-            boolean modulePushedSuccessfully = PushUtils.pushPackages(packageName, sourceRootPath);
-            if (!modulePushedSuccessfully) {
-                // Exit status, zero for OK, non-zero for error
-                Runtime.getRuntime().exit(1);
-            }
+            PushUtils.pushPackages(Collections.singletonList(packageName), sourceRootPath);
         } else {
             throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
