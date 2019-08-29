@@ -17,7 +17,6 @@
 
 import ballerina/http;
 import ballerina/log;
-import ballerina/io;
 import ballerina/runtime;
 
 listener http:Listener backendEP = new(8093);

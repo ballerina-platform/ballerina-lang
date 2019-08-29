@@ -19,8 +19,8 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
 import com.rabbitmq.client.AMQP;
-import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -57,7 +57,7 @@ public class GetProperties {
         String contentType = basicProperties.getContentType();
         String contentEncoding = basicProperties.getContentEncoding();
         String correlationId = basicProperties.getCorrelationId();
-        MapValue<String, Object> properties = BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_RABBITMQ,
+        MapValue<String, Object> properties = BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                 RabbitMQConstants.RECORD_BASIC_PROPERTIES);
         Object[] values = new Object[4];
         values[0] = replyTo;

@@ -81,6 +81,24 @@ function testStreamPublishingAndSubscriptionForRecord() returns [Employee, Emplo
     return [origEmployee, publishedEmployee, globalEmployee];
 }
 
+function testRecordPublishingToStreamArray() returns [Employee, Employee, Employee] {
+    globalEmployee = {};
+    Employee origEmployee = globalEmployee;
+    stream<Employee>[] s1 = [];
+    s1[1] = new; //Initialize 1st element in the array, so 0th element will be also filled with filler value.
+
+    s1[0].subscribe(assignGlobalEmployee);
+    Employee publishedEmployee = { id:1234, name:"Maryam" };
+    s1[0].publish(publishedEmployee);
+    int startTime = time:currentTime().time;
+
+    //allow for value update
+    while (globalEmployee.id == 0 && time:currentTime().time - startTime < 1000) {
+        runtime:sleep(100);
+    }
+    return [origEmployee, publishedEmployee, globalEmployee];
+}
+
 Employee[] globalEmployeeArray = [];
 
 function testStreamPublishingAndSubscriptionForMultipleRecordEvents() returns [Employee[], Employee[]] {
@@ -143,7 +161,7 @@ function testStreamPublishingAndSubscriptionForBooleanStream() returns [boolean[
 
 anydata[] globalAnydataArray = [];
 
-function testStreamPublishingAndSubscriptionForUnionTypeStream() returns [any[], any[]] {
+function testStreamPublishingAndSubscriptionForUnionTypeStream() returns boolean {
     globalAnydataArray = [];
     arrayIndex = 0;
     stream<int[]|string|boolean> unionStream = new;
@@ -159,10 +177,10 @@ function testStreamPublishingAndSubscriptionForUnionTypeStream() returns [any[],
     while (globalAnydataArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
-    return [publishedEvents, globalAnydataArray];
+    return publishedEvents == globalAnydataArray;
 }
 
-function testStreamPublishingAndSubscriptionForAssignableUnionTypeStream(int intVal) returns [any[], any[]] {
+function testStreamPublishingAndSubscriptionForAssignableUnionTypeStream(int intVal) returns boolean {
     globalAnydataArray = [];
     arrayIndex = 0;
     stream<string|boolean|int|int[]> unionStream = new;
@@ -178,10 +196,10 @@ function testStreamPublishingAndSubscriptionForAssignableUnionTypeStream(int int
     while (globalAnydataArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
-    return [publishedEvents, globalAnydataArray];
+    return publishedEvents == globalAnydataArray;
 }
 
-function testStreamPublishingAndSubscriptionForTupleTypeStream() returns [any[], any[]] {
+function testStreamPublishingAndSubscriptionForTupleTypeStream() returns boolean {
     globalAnydataArray = [];
     arrayIndex = 0;
     stream<[string, int]> tupleStream = new;
@@ -198,7 +216,7 @@ function testStreamPublishingAndSubscriptionForTupleTypeStream() returns [any[],
     while (globalAnydataArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
-    return [publishedEvents, globalAnydataArray];
+    return publishedEvents == globalAnydataArray;
 }
 
 function testStreamPublishingAndSubscriptionForAssignableTupleTypeStream(string s1, int i1, string s2, int i2) returns
@@ -220,7 +238,7 @@ function testStreamPublishingAndSubscriptionForAssignableTupleTypeStream(string 
     return globalAnydataArray;
 }
 
-function testStreamPublishingAndSubscriptionForAnydataTypeStream() returns [anydata[], anydata[]] {
+function testStreamPublishingAndSubscriptionForAnydataTypeStream() returns boolean {
     globalAnydataArray = [];
     arrayIndex = 0;
     stream<anydata> anydataStream = new;
@@ -236,10 +254,10 @@ function testStreamPublishingAndSubscriptionForAnydataTypeStream() returns [anyd
     while (globalAnydataArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
-    return [publishedEvents, globalAnydataArray];
+    return publishedEvents == globalAnydataArray;
 }
 
-function testStreamsPublishingForStructurallyEquivalentRecords() returns [any[], any[]] {
+function testStreamsPublishingForStructurallyEquivalentRecords() returns boolean {
     globalEmployeeArray = [];
     arrayIndex = 0;
     stream<Employee> employeeStream = new;
@@ -256,9 +274,56 @@ function testStreamsPublishingForStructurallyEquivalentRecords() returns [any[],
     while (globalEmployeeArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
-    return [publishedEvents, globalEmployeeArray];
+    return publishedEvents == globalEmployeeArray;
 }
 
+function testStreamViaFuncArg(stream<Employee> employeeStream) returns boolean {
+    globalEmployeeArray = [];
+    arrayIndex = 0;
+    employeeStream.subscribe(addPersonToGlobalEmployeeArray);
+    Person p1 = { id:3000, name:"Maryam" };
+    Person p2 = { id:3003, name:"Ziyad" };
+    Person[] publishedEvents = [p1, p2];
+    foreach var event in publishedEvents {
+        employeeStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+
+    //allow for value update
+    while (globalEmployeeArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
+        runtime:sleep(100);
+    }
+    return publishedEvents == globalEmployeeArray;
+}
+
+function testStreamPublishingInitStreamViaFuncArgs() returns boolean {
+    return testStreamViaFuncArg(new);
+}
+
+function testStreamEventClone() returns Employee[] {
+    arrayIndex = 0;
+    stream<Employee> s1 = new;
+    Employee[] arr = [];
+
+    s1.subscribe(function(Employee e) {
+        e.name = "CloneOfGima";
+        arr[arr.length()] = e;
+    });
+
+    Employee e1 = { id:1234, name:"Gima" };
+    arr[0] = e1;
+
+    s1.publish(e1);
+
+    int startTime = time:currentTime().time;
+
+    //allow for value update
+    while (globalEmployeeArray.length() < 2 && time:currentTime().time - startTime < 5000) {
+        runtime:sleep(100);
+    }
+
+    return arr;
+}
 
 function printJobDescription(Job j) {
     log:printInfo(j.description);

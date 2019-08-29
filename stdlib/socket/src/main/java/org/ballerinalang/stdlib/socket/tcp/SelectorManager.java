@@ -19,13 +19,13 @@
 package org.ballerinalang.stdlib.socket.tcp;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.runtime.BLangThreadFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.slf4j.Logger;
@@ -56,7 +56,7 @@ import java.util.concurrent.ThreadFactory;
 import static java.nio.channels.SelectionKey.OP_READ;
 import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_EXPECTED_READ_LENGTH;
 import static org.ballerinalang.stdlib.socket.SocketConstants.ErrorCode.ReadTimedOutError;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE_ID;
 
 /**
  * This will manage the Selector instance and handle the accept, read and write operations.
@@ -77,7 +77,7 @@ public class SelectorManager {
     private final Object startStopLock = new Object();
     private static final BTupleType receiveFromResultTuple = new BTupleType(
             Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt,
-                    BallerinaValues.createRecordValue(SOCKET_PACKAGE, "Address").getType()));
+                    BallerinaValues.createRecordValue(SOCKET_PACKAGE_ID, "Address").getType()));
     private static final BTupleType tcpReadResultTuple = new BTupleType(
             Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
 
@@ -408,7 +408,7 @@ public class SelectorManager {
 
     private ArrayValue createUdpSocketReturnValue(ReadPendingCallback callback, byte[] bytes,
             InetSocketAddress remoteAddress) {
-        MapValue<String, Object> address = BallerinaValues.createRecordValue(SOCKET_PACKAGE, "Address");
+        MapValue<String, Object> address = BallerinaValues.createRecordValue(SOCKET_PACKAGE_ID, "Address");
         address.put("port", remoteAddress.getPort());
         address.put("host", remoteAddress.getHostName());
         ArrayValue contentTuple = new ArrayValue(receiveFromResultTuple);

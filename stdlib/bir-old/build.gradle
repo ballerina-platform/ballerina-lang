@@ -30,19 +30,6 @@ configurations.testRuntimeClasspath {
 dependencies {
     balo project(path: ':ballerina-bootstrapper', configuration: 'pack1')
 
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-core')
-//    implementation project(':ballerina-builtin')
-    implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-io')
-    implementation project(':ballerina-encoding')
-    implementation project(':ballerina-log-api')
-    implementation project(':ballerina-time')
-    implementation project(':ballerina-internal')
-    implementation project(':ballerina-utils')
-
-    testCompile project(':ballerina-tool')
-    testCompile 'io.netty:netty-transport'
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
 }

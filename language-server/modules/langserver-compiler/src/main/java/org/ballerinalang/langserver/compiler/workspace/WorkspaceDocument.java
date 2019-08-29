@@ -17,34 +17,35 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Represents a document open in workspace.
  */
 public class WorkspaceDocument {
-    public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
-
     /* Tracking code lenses sent to client, to make-use in compilation failures */
     private List<CodeLens> codeLenses;
     private Path path;
     private String content;
     private String prunedContent;
     private boolean usePrunedSource;
+    private LSDocument lsDocument;
 
-    public WorkspaceDocument(Path path, String content) {
+    public WorkspaceDocument(Path path, String content, boolean isTempFile) {
         this.path = path;
         this.content = content;
         this.codeLenses = new ArrayList<>();
         this.usePrunedSource = false;
+        lsDocument = isTempFile ? null : new LSDocument(path.toUri().toString());
+    }
+
+    public WorkspaceDocument(Path path, String content) {
+        this(path, content, false);
     }
 
     public List<CodeLens> getCodeLenses() {
@@ -82,68 +83,13 @@ public class WorkspaceDocument {
         this.content = content;
     }
 
-    public void setContent(Range range, String content) {
-        this.content = getRangeTextAppliedContent(range, content, this.content);
-    }
-
     public void setPrunedContent(String prunedContent) {
         this.prunedContent = prunedContent;
         this.usePrunedSource = true;
     }
 
-    private String getRangeTextAppliedContent(Range range, String newText, String oldText) {
-        if (range == null) {
-            return newText;
-        }
-        String trimmedOldText = oldText.trim();
-        int trimmedTextStart = oldText.indexOf(trimmedOldText);
-        int trailingNewLines = oldText.substring(trimmedTextStart + trimmedOldText.length())
-                .replaceAll("\\r?\\n", " ").length();
-        List<String> oldTextLines = new ArrayList<>(Arrays.asList(oldText.split(LINE_SEPARATOR_SPLIT)));
-        if (oldTextLines.isEmpty()) {
-            oldTextLines.add("");
-        }
-        oldTextLines.addAll(Collections.nCopies(trailingNewLines, ""));
-        Position start = range.getStart();
-        Position end = range.getEnd();
-        int rangeLineLength = end.getLine() - start.getLine();
-        if (rangeLineLength == 0) {
-            // single line edit
-            String line = oldTextLines.get(start.getLine());
-            String mLine = line.substring(0, start.getCharacter()) + newText + line.substring(end.getCharacter());
-            oldTextLines.set(start.getLine(), mLine);
-        } else {
-            // multi-line edit
-
-            String trimmedNewText = newText.trim();
-            int trimmedNewTextStart = newText.indexOf(trimmedNewText);
-            int newTextTrailingNewLines = newText.substring(trimmedNewTextStart + trimmedNewText.length())
-                    .replaceAll("\\r?\\n", " ").length();
-            List<String> newTextList = new ArrayList<>(Arrays.asList(newText.split(LINE_SEPARATOR_SPLIT)));
-            newTextList.addAll(Collections.nCopies(newTextTrailingNewLines, ""));
-
-            String sLine = oldTextLines.get(start.getLine());
-            String eLine = oldTextLines.get(end.getLine());
-
-            // remove lines
-            int i = 0;
-            while (i <= rangeLineLength) {
-                oldTextLines.remove(start.getLine());
-                i++;
-            }
-
-            //add lines
-            int j = 0;
-            while (j < newTextList.size()) {
-                String changeText = newTextList.get(j);
-                String prefix = (j == 0) ? sLine.substring(0, start.getCharacter()) : "";
-                String suffix = (j == newTextList.size() - 1) ? eLine.substring(end.getCharacter()) : "";
-                String mLine = prefix + changeText + suffix;
-                oldTextLines.add(start.getLine() + j, mLine);
-                j++;
-            }
-        }
-        return String.join(System.lineSeparator(), oldTextLines);
+    public LSDocument getLSDocument() {
+        return lsDocument;
     }
 
     @Override

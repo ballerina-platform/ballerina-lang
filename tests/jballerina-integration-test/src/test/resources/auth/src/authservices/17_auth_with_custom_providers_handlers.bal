@@ -16,10 +16,7 @@
 
 import ballerina/auth;
 import ballerina/crypto;
-import ballerina/encoding;
 import ballerina/http;
-import ballerina/internal;
-import ballerina/runtime;
 
 OutboundCustomAuthProvider outboundCustomAuthProvider = new;
 OutboundCustomAuthHandler outboundCustomAuthHandler = new(outboundCustomAuthProvider);
@@ -137,7 +134,7 @@ public type InboundCustomAuthHandler object {
 
     public function canProcess(http:Request req) returns @tainted boolean {
         var customAuthHeader = req.getHeader(http:AUTH_HEADER);
-        return internal:hasPrefix(customAuthHeader, "Custom");
+        return customAuthHeader.startsWith("Custom");
     }
 };
 
@@ -151,12 +148,7 @@ public type InboundCustomAuthProvider object {
         string token = "4ddb0c25";
         boolean authenticated = crypto:crc32b(credential.toBytes()) == token;
         if (authenticated) {
-            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-            if (principal is runtime:Principal) {
-                principal.userId = token;
-                principal.username = token;
-                principal.scopes = [credential];
-            }
+            auth:setPrincipal(token, token, [credential]);
         }
         return authenticated;
     }

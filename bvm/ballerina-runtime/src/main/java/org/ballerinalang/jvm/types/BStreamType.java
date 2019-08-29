@@ -52,7 +52,7 @@ public class BStreamType extends BType {
 
     @Override
     public <V> V getZeroValue() {
-        return null;
+        return (V) new StreamValue(this);
     }
 
     @Override

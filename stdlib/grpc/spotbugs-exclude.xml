@@ -19,6 +19,6 @@
     <Match>
         <Class name="org.ballerinalang.net.grpc.proto.ServiceProtoBuilder" />
         <Method name="process" />
-        <Bug pattern="BC_IMPOSSIBLE_CAST" />
+        <Bug pattern="BC_IMPOSSIBLE_INSTANCEOF" />
     </Match>
 </FindBugsFilter>

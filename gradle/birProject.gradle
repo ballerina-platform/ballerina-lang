@@ -1,4 +1,5 @@
 import org.gradle.internal.os.OperatingSystem;
+import org.apache.tools.ant.filters.*;
 
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
@@ -14,6 +15,15 @@ task copyExternalMappingNextToBir(type: Copy) {
     from "$buildDir/classes/java/main/META-INF/this.map.json"
     into generatedBirDir
     rename { project.ext.moduleName + ".map.json" }
+}
+
+task copyTomlFiles(type: Copy) {
+    dependsOn compileJava
+    from('src/main/ballerina') {
+        include '*.toml'
+    }
+    filter(ReplaceTokens, tokens: ['project.version': project.version])
+    into generatedBirDir
 }
 
 task createBir {
@@ -33,9 +43,10 @@ task createBir {
     outputs.dir "$buildDir/generated-bir"
 }
 
-task createBirAndMappings {
+task createCacheEntries {
     dependsOn createBir
     dependsOn copyExternalMappingNextToBir
+    dependsOn copyTomlFiles
 }
 
 
@@ -60,7 +71,7 @@ task createBirJar(type: Exec) {
             if (OperatingSystem.current().isWindows()) {
                 commandLine 'cmd.exe', '/c',
 
-                        new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+                        new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bre/lib/compiler_backend_jvm.jar'),
 
                         generatedBirDir + project.ext.moduleName + '.bir',
                         mapPath,
@@ -70,7 +81,7 @@ task createBirJar(type: Exec) {
             } else {
                 commandLine 'sh',
 
-                        new File(it, '/bin/ballerina'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+                        new File(it, '/bin/ballerina'), 'run', new File(it, '/bre/lib/compiler_backend_jvm.jar'),
 
                         generatedBirDir + project.ext.moduleName + '.bir',
                         mapPath,
@@ -78,6 +89,14 @@ task createBirJar(type: Exec) {
                         'false',
                         "$buildDir/bir-cache"
             }
+            println commandLine
+        }
+    }
+
+    doLast {
+        if(!file("$buildDir/generated-bir-jar/${project.ext.moduleName}.jar").exists()){
+            println "$buildDir/generated-bir-jar/${project.ext.moduleName}.jar not created."
+            throw new GradleException("error in creating bir jar")
         }
     }
 
@@ -89,7 +108,7 @@ task createBirJar(type: Exec) {
 }
 
 task copySelfToBirCache(type: Copy) {
-    dependsOn createBirAndMappings
+    dependsOn createCacheEntries
     from "$buildDir/generated-bir"
     into "$buildDir/bir-cache"
 }
@@ -126,6 +145,6 @@ test {
 }
 
 artifacts {
-    bir file("$buildDir/generated-bir/"), { builtBy(createBirAndMappings) }
+    bir file("$buildDir/generated-bir/"), { builtBy(createCacheEntries) }
     birJar file("$buildDir/generated-bir-jar/" + moduleName + ".jar"), { builtBy(createBirJar) }
 }

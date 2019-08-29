@@ -18,7 +18,6 @@ import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
 import ballerina/internal;
-import ballerina/system;
 
 // Values that the grant_type parameter can hold.
 const GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
@@ -259,7 +258,7 @@ function getResponseForRefreshRequest(http:Request req, string authorizationHead
                     refreshToken = internal:split(param, "=")[1];
                     // If the refresh token contains the `=` symbol, then it is required to concatenate all the parts of the value since
                     // the String split breaks all those into separate parts.
-                    if (internal:hasSuffix(param, "==")) {
+                    if (param.endsWith("==")) {
                         refreshToken += "==";
                     }
                 } else if (internal:contains(param, "scope")) {

@@ -51,6 +51,8 @@ public class ConfigRegistry {
     private AESCipherTool cipherTool;
     private PrintStream stderr = System.err;
 
+    private boolean isInitialized;
+
     private ConfigRegistry() {
     }
 
@@ -90,6 +92,7 @@ public class ConfigRegistry {
         }
 
         addConfiguration("ballerina.source.root", System.getProperty("ballerina.source.root"));
+        isInitialized = true;
     }
 
     /**
@@ -440,5 +443,9 @@ public class ConfigRegistry {
 
     private String getEnvVarKey(String configKey) {
         return configKey.replace('.', '_');
+    }
+
+    public boolean isInitialized() {
+        return isInitialized;
     }
 }

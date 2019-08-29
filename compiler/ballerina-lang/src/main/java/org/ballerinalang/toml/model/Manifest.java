@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,7 +54,7 @@ public class Manifest {
                 .map(entry -> {
                     Dependency dependency = new Dependency();
                     // get rid of the double quotes
-                    dependency.setModuleName(entry.getKey());
+                    dependency.setModuleID(entry.getKey());
                     dependency.setMetadata(convertObjectToDependencyMetadata(entry.getValue()));
                     return dependency;
                 })
@@ -87,82 +86,36 @@ public class Manifest {
         this.platform = platform;
     }
 
-    public String getTargetPlatform() {
-        // check if platform exists else return any
-        if (null == platform.libraries) {
+    public String getTargetPlatform(String moduleName) {
+        // If module is a template we will return any
+        if (isTemplateModule(moduleName)) {
             return ProgramFileConstants.ANY_PLATFORM;
-        } else {
-            // if platform exist and target not given return error
+        }
+        // check if platform exists
+        if (null != platform.libraries) {
+            // Check if target exist return error if not
             if (null == platform.target) {
                 throw new BLangCompilerException("Platform target is not specified in the Ballerina.toml");
             }
-            // if platform exist and target not supported return error
-            if (Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS).anyMatch(platform.getTarget()::equals)) {
-                // else return the target platform
-                return platform.getTarget();
-            } else {
+            // Check if it is a valid platform
+            if (!(Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS).anyMatch(platform.getTarget()::equals))) {
                 throw new BLangCompilerException("Platform target is not supported by installed Ballerina SDK");
             }
+            // Check if module have platform specific libraries
+            List<Library> deps = platform.libraries.stream().filter(library -> {
+                return library.getModules() == null ||
+                        Arrays.stream(library.getModules()).anyMatch(moduleName::equals);
+            }).collect(Collectors.toList());
+            // If not return any
+            if (deps.size() > 0) {
+                return platform.target;
+            }
         }
+        // return any if not
+        return ProgramFileConstants.ANY_PLATFORM;
     }
 
-    /**
-     * Project definition.
-     */
-    public static class Project {
-        private String orgName = "";
-        private String version = "";
-        private List<String> license = new LinkedList<>();
-        private List<String> authors = new LinkedList<>();
-        private String repository = "";
-        private List<String> keywords = new LinkedList<>();
-
-        public String getOrgName() {
-            return orgName;
-        }
-
-        public void setOrgName(String orgName) {
-            this.orgName = orgName;
-        }
-
-        public String getVersion() {
-            return version;
-        }
-
-        public void setVersion(String version) {
-            this.version = version;
-        }
-
-        public List<String> getLicense() {
-            return license;
-        }
-
-        public void setLicense(List<String> license) {
-            this.license = license;
-        }
-
-        public List<String> getAuthors() {
-            return authors;
-        }
-
-        public void setAuthors(List<String> authors) {
-            this.authors = authors;
-        }
-
-        public String getRepository() {
-            return repository;
-        }
-
-        public void setRepository(String repository) {
-            this.repository = repository;
-        }
-
-        public List<String> getKeywords() {
-            return keywords;
-        }
-
-        public void setKeywords(List<String> keywords) {
-            this.keywords = keywords;
-        }
+    public boolean isTemplateModule(String moduleName) {
+        return this.getProject().getTemplates().contains(moduleName);
     }
 }

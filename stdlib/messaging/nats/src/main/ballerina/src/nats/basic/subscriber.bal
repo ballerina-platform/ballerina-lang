@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.object as lang;
+
+import ballerina/lang.'object as lang;
 
 # Represents a connection which will be used for subscription.
 public type Listener object {
@@ -40,6 +41,9 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     function register(service serviceType, string? name) returns error? = external;
 
     # Starts the listener in the lifecyle.
@@ -51,10 +55,14 @@ public type Listener object {
 
     function start() = external;
 
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
     # Stops the listener in the lifecyle.
     #
     # + return - error or ().
-    public function __stop() returns error? {
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 

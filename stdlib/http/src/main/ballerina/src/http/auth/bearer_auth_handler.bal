@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/log;
-import ballerina/internal;
 
 # Representation of the Bearer Auth header handler for both inbound and outbound HTTP traffic.
 #
@@ -39,7 +37,7 @@ public type BearerAuthHandler object {
     public function canProcess(Request req) returns @tainted boolean {
         if (req.hasHeader(AUTH_HEADER)) {
             string headerValue = extractAuthorizationHeaderValue(req);
-            return internal:hasPrefix(headerValue, auth:AUTH_SCHEME_BEARER);
+            return headerValue.startsWith(auth:AUTH_SCHEME_BEARER);
         }
         return false;
     }
@@ -86,8 +84,8 @@ public type BearerAuthHandler object {
 
     # Inspects the request and response and calls the Auth provider for inspection.
     #
-    # req - The `Request` instance.
-    # resp - The `Response` instance.
+    # + req - The `Request` instance.
+    # + resp - The `Response` instance.
     # + return - Returns the updated `Request` instance, the `AuthenticationError` in case of an error,
     # or `()` if nothing is to be returned.
     public function inspect(Request req, Response resp) returns Request|AuthenticationError? {

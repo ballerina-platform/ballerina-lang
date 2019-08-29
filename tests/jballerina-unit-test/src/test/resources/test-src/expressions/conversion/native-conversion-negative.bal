@@ -38,19 +38,9 @@ type Person2 record {|
     int age = 0;
 |};
 
-type StructWithDefaults record {|
-    string s = "string value";
-    int a = 45;
-    float f = 5.3;
-    boolean b = true;
-    json j = ();
-    byte[] blb = [];
-|};
-
-
 type StructWithoutDefaults record {|
     string s = "";
-    int a = 0;
+    int a;
     float f = 0.0;
     boolean b = false;
     json j = {};
@@ -110,12 +100,6 @@ function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
 function testEmptyJSONtoStructWithoutDefaults () returns (StructWithoutDefaults | error) {
     json j = {};
     var testStruct = check StructWithoutDefaults.constructFrom(j);
-    return testStruct;
-}
-
-function testEmptyMaptoStructWithDefaults () returns StructWithDefaults|error {
-    map<anydata> m = {};
-    var testStruct = check StructWithDefaults.constructFrom(m);
     return testStruct;
 }
 
@@ -179,6 +163,6 @@ function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|
 
 function basicMatch(any a) {
     match a {
-            var {var1, var2, var3} => io:println("Matched");
+            var {var1, var2, var3} => {io:println("Matched");}
     }
 }

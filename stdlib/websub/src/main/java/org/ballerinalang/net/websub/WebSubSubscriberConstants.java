@@ -18,6 +18,10 @@
 
 package org.ballerinalang.net.websub;
 
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+
 /**
  * Constants for WebSubSubscriber Services.
  *
@@ -34,6 +38,7 @@ public class WebSubSubscriberConstants {
     public static final String BALLERINA = "ballerina";
     public static final String WEBSUB = "websub";
     public static final String WEBSUB_PACKAGE = "ballerina/websub";
+    public static final BPackage WEBSUB_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "websub");
     public static final String WEBSUB_SERVICE_LISTENER = "Listener";
     public static final String WEBSUB_SERVICE_CALLER = "Caller";
     public static final String WEBSUB_HTTP_ENDPOINT = "serviceEndpoint";

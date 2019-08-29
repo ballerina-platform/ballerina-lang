@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSPr
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -40,6 +41,9 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -68,8 +72,15 @@ public class LSCompilerUtil {
 
     private static final Pattern untitledFilePattern =
             Pattern.compile(".*[/\\\\]temp[/\\\\](.*)[/\\\\]untitled.bal");
-    
+
+    private static EmptyPrintStream emptyPrintStream;
+
     static {
+        try {
+            emptyPrintStream = new EmptyPrintStream();
+        } catch (IOException e) {
+            logger.error("Unable to create the empty stream.");
+        }
         String experimental = System.getProperty("experimental");
         EXPERIMENTAL_FEATURES_ENABLED = Boolean.parseBoolean(experimental);
         // Here we will create a tmp directory as the untitled project repo.
@@ -94,13 +105,12 @@ public class LSCompilerUtil {
      * @param packageID          Package Name
      * @param packageRepository  Package Repository
      * @param sourceRoot         The source root of the project
-     * @param preserveWhitespace Preserve Whitespace
      * @param documentManager    {@link WorkspaceDocumentManager} Document Manager
      * @param compilerPhase      {@link CompilerPhase} Compiler Phase
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
-                                                         String sourceRoot, boolean preserveWhitespace,
+                                                         String sourceRoot,
                                                          WorkspaceDocumentManager documentManager,
                                                          CompilerPhase compilerPhase) {
         LSContextManager lsContextManager = LSContextManager.getInstance();
@@ -117,7 +127,7 @@ public class LSCompilerUtil {
                 : compilerPhase.toString();
 
         options.put(COMPILER_PHASE, phase);
-        options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
+        options.put(PRESERVE_WHITESPACE, Boolean.valueOf(true).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
 
@@ -140,14 +150,13 @@ public class LSCompilerUtil {
      *
      * @param packageRepository  Package Repository
      * @param sourceRoot         The source root of the project
-     * @param preserveWhitespace Preserve Whitespace
      * @param documentManager    {@link WorkspaceDocumentManager} Document Manager
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageRepository packageRepository,
-                                                         String sourceRoot, boolean preserveWhitespace,
+                                                         String sourceRoot,
                                                          WorkspaceDocumentManager documentManager) {
-        return prepareCompilerContext(null, packageRepository, sourceRoot, preserveWhitespace,
+        return prepareCompilerContext(null, packageRepository, sourceRoot,
                 documentManager, CompilerPhase.TAINT_ANALYZE);
     }
 
@@ -159,17 +168,16 @@ public class LSCompilerUtil {
      * @param pkgID         Package ID
      * @param pkgRepo Package Repository
      * @param lsDocument          LSDocument for Source Root
-     * @param preserveWhitespace Preserve Whitespace
      * @param docManager {@link WorkspaceDocumentManager} Document Manager
      * @param compilerPhase {@link CompilerPhase} Compiler Phase
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID pkgID, PackageRepository pkgRepo,
-                                                         LSDocument lsDocument, boolean preserveWhitespace,
+                                                         LSDocument lsDocument,
                                                          WorkspaceDocumentManager docManager,
                                                          CompilerPhase compilerPhase) {
-        CompilerContext context = prepareCompilerContext(pkgID, pkgRepo, lsDocument.getProjectRoot(),
-                                                         preserveWhitespace, docManager, compilerPhase);
+        CompilerContext context = prepareCompilerContext(pkgID, pkgRepo, lsDocument.getProjectRoot(), docManager,
+                                                         compilerPhase);
         Path sourceRootPath = lsDocument.getProjectRootPath();
         if (lsDocument.isWithinProject()) {
             LangServerFSProjectDirectory projectDirectory =
@@ -190,15 +198,14 @@ public class LSCompilerUtil {
      * @param packageID         Package Name
      * @param packageRepository Package Repository
      * @param sourceRoot        LSDocument for Source Root
-     * @param preserveWhitespace Preserve Whitespace
      * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
-                                                         LSDocument sourceRoot, boolean preserveWhitespace,
+                                                         LSDocument sourceRoot,
                                                          WorkspaceDocumentManager documentManager) {
-        return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace,
-                documentManager, CompilerPhase.COMPILER_PLUGIN);
+        return prepareCompilerContext(packageID, packageRepository, sourceRoot, documentManager,
+                                      CompilerPhase.COMPILER_PLUGIN);
     }
 
     private static boolean isSameFile(Path path1, Path path2) {
@@ -222,32 +229,14 @@ public class LSCompilerUtil {
                                        Class customErrorStrategy) {
         context.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, relativeFilePath);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
-        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
         if (customErrorStrategy != null) {
             compilerContext.put(DefaultErrorStrategy.class,
                                 CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
         }
         BLangDiagnosticLog.getInstance(compilerContext).errorCount = 0;
-        return Compiler.getInstance(compilerContext);
-    }
-
-     /** Get compiler for the given context.
-     *
-             * @param context               Language server context
-     * @param compilerContext       Compiler context
-     * @param customErrorStrategy   custom error strategy class
-     * @return {@link Compiler}     ballerina compiler
-     */
-    public static Compiler getCompiler(LSContext context, CompilerContext compilerContext,
-                                       Class customErrorStrategy) {
-        context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
-        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
-        if (customErrorStrategy != null) {
-            compilerContext.put(DefaultErrorStrategy.class,
-                    CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
-        }
-        BLangDiagnosticLog.getInstance(compilerContext).errorCount = 0;
-        return Compiler.getInstance(compilerContext);
+        Compiler compiler = Compiler.getInstance(compilerContext);
+        compiler.setOutStream(emptyPrintStream);
+        return compiler;
     }
 
     /**
@@ -372,10 +361,19 @@ public class LSCompilerUtil {
     static Manifest getManifest(Path projectDirPath) {
         Path tomlFilePath = projectDirPath.resolve((ProjectDirConstants.MANIFEST_FILE_NAME));
         try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath.toString());
-        } catch (IOException e) {
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException | TomlException e) {
             return new Manifest();
         }
     }
-}
 
+    static class EmptyPrintStream extends PrintStream {
+        EmptyPrintStream() throws UnsupportedEncodingException {
+            super(new OutputStream() {
+                @Override
+                public void write(int b) {
+                }
+            }, true, "UTF-8");
+        }
+    }
+}

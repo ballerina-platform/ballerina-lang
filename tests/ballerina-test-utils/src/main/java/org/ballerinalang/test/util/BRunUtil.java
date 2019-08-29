@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.test.util;
 
-import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.TypeChecker;
@@ -85,10 +82,6 @@ import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.Debugger;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -115,155 +108,6 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class BRunUtil {
-
-    /**
-     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
-     *
-     * @param compileResult CompileResult instance
-     * @param functionName  Name of the function to invoke
-     * @return return values of the function
-     */
-    @Deprecated
-    public static BValue[] invokeStateful(CompileResult compileResult, String functionName) {
-        BValue[] args = {};
-        return invokeStateful(compileResult, functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
-     *
-     * @param compileResult CompileResult instance
-     * @param functionName  Name of the function to invoke
-     * @param args          Input parameters for the function
-     * @return return values of the function
-     */
-    @Deprecated
-    public static BValue[] invokeStateful(CompileResult compileResult, String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-        return invokeStateful(compileResult, compileResult.getProgFile().getEntryPkgName(), functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
-     *
-     * @param compileResult CompileResult instance
-     * @param packageName   Name of the package to invoke
-     * @param functionName  Name of the function to invoke
-     * @return return values of the function
-     */
-    @Deprecated
-    public static BValue[] invokeStateful(CompileResult compileResult, String packageName, String functionName) {
-        BValue[] args = {};
-        return invokeStateful(compileResult, packageName, functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
-     *
-     * @param compileResult CompileResult instance
-     * @param packageName   Name of the package to invoke
-     * @param functionName  Name of the function to invoke
-     * @param args          Input parameters for the function
-     * @return return values of the function
-     */
-    @Deprecated
-    public static BValue[] invokeStateful(CompileResult compileResult, String packageName,
-                                          String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-
-        ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-        if (functionInfo == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
-        }
-
-        int requiredArgNo = functionInfo.getParamTypes().length;
-        int providedArgNo = args.length;
-        if (requiredArgNo != providedArgNo) {
-            throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
-                    providedArgNo + ".");
-        }
-
-        BValue[] response = BVMExecutor.executeFunction(programFile, functionInfo, args);
-
-        return spreadToBValueArray(response);
-    }
-
-//    Package init helpers
-    /**
-     * Invoke package init function.
-     *
-     * @param compileResult CompileResult instance
-     */
-    public static void invokePackageInit(CompileResult compileResult) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-        invokePackageInit(compileResult, compileResult.getProgFile().getEntryPkgName());
-    }
-
-    /**
-     * Invoke package init function.
-     *
-     * @param compileResult CompileResult instance
-     * @param packageName   Name of the package to invoke
-     */
-    protected static void invokePackageInit(CompileResult compileResult, String packageName) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-        ProgramFile programFile = compileResult.getProgFile();
-        WorkerExecutionContext context = new WorkerExecutionContext(programFile);
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
-        compileResult.setContext(context);
-
-        BVMExecutor.invokePackageInitFunctions(programFile);
-    }
-
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param packageName   Name of the package to invoke
-     * @param functionName  Name of the function to invoke
-     * @param args          Input parameters for the function
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-
-        ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-        if (functionInfo == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
-        }
-
-        BValue[] response = new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
-
-        return spreadToBValueArray(response);
-    }
-
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param packageName   Name of the package to invoke
-     * @param functionName  Name of the function to invoke
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName) {
-        BValue[] args = {};
-        return invoke(compileResult, packageName, functionName, args);
-    }
 
     /**
      * Invoke a ballerina function.
@@ -332,23 +176,6 @@ public class BRunUtil {
         args = addDefaultableBoolean(args);
         paramTypes = addDefaultableBooleanType(paramTypes);
         return invoke(compileResult, function, functionName, args, paramTypes);
-    }
-
-    /**
-     * This method takes care of invocation on JBallerina and the mapping of input and output values. It will use the
-     * given BVM based argument and function details to invoke on JBallerina and return results as BValues to maintain
-     * backward compatibility with existing invoke methods in BRunUtil.
-     *
-     * @param compileResult CompileResult instance
-     * @param functionName  Name of the function to invoke
-     * @param args          Input parameters for the function
-     * @return return values of the function
-     */
-    @Deprecated
-    private static BValue[] invokeOnJBallerina(CompileResult compileResult, String functionName, BValue[] args) {
-        BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
-        args = addDefaultableBoolean(args);
-        return invoke(compileResult, function, functionName, args);
     }
 
     private static Object[] addDefaultableBoolean(Object[] args) {
@@ -432,8 +259,9 @@ public class BRunUtil {
                 }
             };
 
-            Scheduler scheduler = new Scheduler(4, false);
-            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>());
+            Scheduler scheduler = new Scheduler(false);
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
+                    org.ballerinalang.jvm.types.BTypes.typeAny);
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
                 throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
@@ -568,8 +396,9 @@ public class BRunUtil {
                 }
             };
 
-            Scheduler scheduler = new Scheduler(4, false);
-            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>());
+            Scheduler scheduler = new Scheduler(false);
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
+                    org.ballerinalang.jvm.types.BTypes.typeAny);
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
                 throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
@@ -668,10 +497,12 @@ public class BRunUtil {
                 }
                 return jvmRecord;
             case TypeTags.OBJECT_TYPE_TAG:
-                String objPackagePath = type.tsymbol.pkgID.toString();
+                PackageID packageID = type.tsymbol.pkgID;
+                BPackage objPackage = new BPackage(packageID.orgName.getValue(), packageID.name.getValue(),
+                        packageID.version.getValue());
                 String objName = type.tsymbol.getName().getValue();
 
-                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackagePath, objName);
+                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackage, objName);
                 BMap<String, BValue> objVal = (BMap) value;
                 for (Map.Entry<String, BValue> entry : objVal.getMap().entrySet()) {
                     BValue entryVal = entry.getValue();
@@ -782,9 +613,10 @@ public class BRunUtil {
                 return jvmMap;
             case TypeTags.OBJECT_TYPE_TAG:
                 String objPackagePath = type.getPackagePath();
+                BPackage objPkgPath = new BPackage(objPackagePath, "");
                 String objName = type.getName();
 
-                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackagePath, objName);
+                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPkgPath, objName);
                 HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
                 if (nativeData == null) {
                     return jvmObject;
@@ -940,6 +772,7 @@ public class BRunUtil {
         return getBVMValue(value, new HashMap<>());
     }
 
+    @SuppressWarnings("rawtypes")
     private static BRefType<?> getBVMValue(Object value, Map<String, BRefType> bvmValueMap) {
         String hashCode = String.valueOf(System.identityHashCode(value));
         if (value == null) {
@@ -1251,22 +1084,9 @@ public class BRunUtil {
      * @return return values of the function
      */
     public static BValue[] invokeFunction(CompileResult compileResult, String functionName, BValue[] args) {
-        if (BCompileUtil.jBallerinaTestsEnabled()) {
-            return invokeOnJBallerina(compileResult, functionName, args);
-        }
-
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-
-        ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-        if (functionInfo == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
-        }
-
-        return new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
+        BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
+        args = addDefaultableBoolean(args);
+        return invoke(compileResult, function, functionName, args);
     }
 
     /**
@@ -1311,20 +1131,5 @@ public class BRunUtil {
     public static BValue[] invoke(CompileResult compileResult, String functionName) {
         BValue[] args = {};
         return invoke(compileResult, functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function given context.
-     *
-     * @param compileResult CompileResult instance.
-     * @param initFuncInfo Function to invoke.
-     * @param context invocation context.
-     */
-    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo,
-            WorkerExecutionContext context) {
-        Debugger debugger = new Debugger(compileResult.getProgFile());
-        compileResult.getProgFile().setDebugger(debugger);
-
-        BVMExecutor.executeFunction(compileResult.getProgFile(), initFuncInfo);
     }
 }

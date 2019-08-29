@@ -24,7 +24,7 @@ public type Client client object {
 
     # Gets called when the JDBC client is instantiated.
     public function __init(ClientEndpointConfig c) {
-        self.jdbcClient = createClient(c, getGlobalPoolConfigContainer().getGlobalPoolConfig());
+        self.jdbcClient = createClient(c, globalPoolConfigContainer.getGlobalPoolConfig());
     }
 
     # The call remote function implementation for JDBC Client to invoke stored procedures/functions.
@@ -102,13 +102,13 @@ public type Client client object {
     }
 
     function handleStoppedClientInvocation() returns Error {
-        ApplicationError e = error(message = "Client has been stopped");
+        ApplicationError e = ApplicationError(message = "Client has been stopped");
         return e;
     }
 
     function handleStoppedClientInvocationForBatchUpdate() returns BatchUpdateResult {
         int[] rowCount = [];
-        ApplicationError e = error(message = "Client has been stopped");
+        ApplicationError e = ApplicationError(message = "Client has been stopped");
         BatchUpdateResult res = { updatedRowCount: rowCount, generatedKeys : {}, returnedError : e};
         return res;
     }

@@ -15,9 +15,8 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 
-http:ServiceEndpointConfiguration serviceConf = {
+http:ListenerConfiguration serviceConf = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.command;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -37,8 +36,6 @@ public class ExecuteCommandKeys {
     
     public static final LSContext.Key<String> PKG_NAME_KEY = new LSContext.Key<>();
     
-    public static final LSContext.Key<LSCompiler> LS_COMPILER_KEY = new LSContext.Key<>();
-
     public static final LSContext.Key<DiagnosticsHelper> DIAGNOSTICS_HELPER_KEY = new LSContext.Key<>();
 
     private ExecuteCommandKeys() {

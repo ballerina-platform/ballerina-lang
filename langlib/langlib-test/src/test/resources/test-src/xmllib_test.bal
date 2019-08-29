@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.xml as xmllib;
+import ballerina/lang.'xml as xmllib;
 
 xml catalog = xml `<CATALOG>
                        <CD>
@@ -182,4 +182,14 @@ function testCopingComment() returns xml {
     // Makes a copy of an XML element.
     xml x = bookComment.copy();
     return x;
+}
+
+function testForEach() returns xml {
+    xml r = xmllib:concat();
+    foreach var x in catalog.* {
+        if (x is xml) {
+            r += x;
+        }
+    }
+    return r;
 }

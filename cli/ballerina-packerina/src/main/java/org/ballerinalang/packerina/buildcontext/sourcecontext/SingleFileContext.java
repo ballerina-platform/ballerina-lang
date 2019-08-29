@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.ballerinalang.packerina.utils.FileUtils.geFileNameWithoutExtension;
+
 /**
  * Dataholder for a single bal file compilation.
  */
@@ -33,6 +35,7 @@ public class SingleFileContext {
      */
     private Path balFile;
     private BLangPackage module;
+    private Path executableFilePath = null;
     
     public SingleFileContext(Path balFile) {
         if (Files.exists(balFile) && balFile.isAbsolute()) {
@@ -54,34 +57,15 @@ public class SingleFileContext {
         this.module = module;
     }
     
+    public Path getExecutableFilePath() {
+        return this.executableFilePath;
+    }
+    
+    public void setExecutableFilePath(Path executableFilePath) {
+        this.executableFilePath = executableFilePath;
+    }
+    
     public String getBalFileNameWithoutExtension() {
-        Path balFileName = this.balFile.getFileName();
-        if (null != balFileName) {
-            int index = indexOfExtension(balFileName.toString());
-            return index == -1 ? balFileName.toString() :
-                   balFileName.toString().substring(0, index);
-        } else {
-            return null;
-        }
-    }
-    
-    public static int indexOfExtension(String filename) {
-        if (filename == null) {
-            return -1;
-        } else {
-            int extensionPos = filename.lastIndexOf(46);
-            int lastSeparator = indexOfLastSeparator(filename);
-            return lastSeparator > extensionPos ? -1 : extensionPos;
-        }
-    }
-    
-    public static int indexOfLastSeparator(String filename) {
-        if (filename == null) {
-            return -1;
-        } else {
-            int lastUnixPos = filename.lastIndexOf(47);
-            int lastWindowsPos = filename.lastIndexOf(92);
-            return Math.max(lastUnixPos, lastWindowsPos);
-        }
+        return geFileNameWithoutExtension(this.balFile);
     }
 }

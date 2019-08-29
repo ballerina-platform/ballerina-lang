@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/reflect;
-
 # The `Node` object represents a node in the linkedlist data structure.
 #
 # + data - description
@@ -199,6 +197,7 @@ public type LinkedList object {
 
     # Removes the first occurence of the element pass as `elem` and return `true` of the removal is successful.
     #
+    # + elem - the element to be removed
     # + return - Return `true` if removal is successful otherwise `false`.
     public function removeFirstOccurrence(any? elem) returns boolean {
         return self.remove(elem);
@@ -206,6 +205,7 @@ public type LinkedList object {
 
     # Removes the first occurence of the element pass as `elem` and return `true` of the removal is successful.
     #
+    # + elem - the element to be removed
     # + return - Return `true` if removal is successful otherwise `false`.
     public function remove(any? elem) returns boolean {
         // TODO: find a way to loop, and implement properly

@@ -300,9 +300,47 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.getString(++i), "Default");
     }
 
+    @Test(description = "Test structured pattern match with empty tuple")
+    public void testStructuredMatchPatternWithEmptyTuple() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyTuple", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        BValueArray results = (BValueArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.getString(++i), msg + "empty array");
+        Assert.assertEquals(results.getString(++i), msg + "i: 1");
+        Assert.assertEquals(results.getString(++i), msg + "i: 1, j: 2");
+        Assert.assertEquals(results.getString(++i), msg + "i: 1, j: 2, k: 3");
+        Assert.assertEquals(results.getString(++i), msg + "default");
+    }
+
+    @Test(description = "Test structured pattern match with empty record")
+    public void testStructuredMatchPatternWithEmptyRecord() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyRecord", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        BValueArray results = (BValueArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.getString(++i), msg + "empty record");
+        Assert.assertEquals(results.getString(++i), msg + "a: 1");
+        Assert.assertEquals(results.getString(++i), msg + "a: 1, b: 2");
+        Assert.assertEquals(results.getString(++i), msg + "a: 1, b: 2, c: 3");
+        Assert.assertEquals(results.getString(++i), msg + "default");
+    }
+
+    @Test(description = "Test error not being match to wildcard match pattern")
+    public void testErrorShouldNotMatchWildCardPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorShouldNotMatchWildCardPattern");
+        Assert.assertEquals(returns[0].stringValue(), "no-match");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 63);
+        Assert.assertEquals(resultNegative.getErrorCount(), 64);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -371,10 +409,11 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 242, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 256, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 257, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 258, 9);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid key: only identifiers and strings are allowed as record literal keys", 258, 10);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 258, 9);
         BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 270, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 274, 1);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid literal for match pattern; allowed literals are simple, tuple and record only", 279, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 291, 9);
@@ -382,7 +421,7 @@ public class MatchStatementStaticPatternsTest {
 
     @Test(description = "Test unreachable pattern")
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative2.getErrorCount(), 21);
+        Assert.assertEquals(resultNegative2.getErrorCount(), 26);
         int i = -1;
         String unreachablePattern =
                 "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
@@ -408,5 +447,10 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 131, 9);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 138, 9);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 139, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 148, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 150, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 158, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 159, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 160, 13);
     }
 }

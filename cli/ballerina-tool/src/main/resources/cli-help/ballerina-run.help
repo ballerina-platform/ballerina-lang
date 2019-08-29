@@ -91,8 +91,8 @@ EXAMPLES
     Run the 'main' function and/or services in the hello source program
     $ ballerina run hello.bal
 
-    Run the 'main' function and/or services in the hello binary program
-    $ ballerina run hello.balx
+    Run the 'main' function and/or services in the hello executable jar
+    $ ballerina run hello-executable.jar
 
     Run the 'main' function and/or services in the hello module
     $ ballerina run hello

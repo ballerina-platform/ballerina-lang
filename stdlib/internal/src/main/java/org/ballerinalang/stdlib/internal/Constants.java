@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.internal;
 
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for internal package file functions.

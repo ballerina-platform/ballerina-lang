@@ -41,6 +41,7 @@ public type Client client object {
 
     # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #
+    # + clientEndpoint -  Client endpoint
     # + stubType - Service Stub type. possible values: blocking, nonblocking.
     # + descriptorKey - Proto descriptor key. Key of proto descriptor.
     # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
@@ -88,7 +89,6 @@ public type AbstractClientEndpoint abstract object {
 # + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + httpVersion - The HTTP version understood by the client
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
-# + proxy - Proxy server related options
 # + poolConfig - Connection pool configuration
 # + secureSocket - SSL/TLS related options
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
@@ -96,23 +96,9 @@ public type ClientEndpointConfig record {|
     int timeoutInMillis = 60000;
     string httpVersion = "2.0";
     string forwarded = "disable";
-    ProxyConfig? proxy = ();
     PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     Compression compression = COMPRESSION_AUTO;
-|};
-
-# Proxy server configurations to be used with the HTTP client endpoint.
-#
-# + host - Host name of the proxy server
-# + port - Proxy server port
-# + userName - Proxy server username
-# + password - proxy server password
-public type ProxyConfig record {|
-    string host = "";
-    int port = 0;
-    string userName = "";
-    string password = "";
 |};
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.

@@ -24,7 +24,7 @@
     {
       "label": "config",
       "kind": "Variable",
-      "detail": "http:ServiceEndpointConfiguration",
+      "detail": "http:ListenerConfiguration",
       "sortText": "120",
       "insertText": "config",
       "insertTextFormat": "Snippet"
@@ -34,12 +34,8 @@
       "kind": "Function",
       "detail": "Function",
       "sortText": "130",
-      "insertText": "__init(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "__init();",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "remoteAddress",

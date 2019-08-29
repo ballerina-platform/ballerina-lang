@@ -100,10 +100,10 @@ public class BaloFileWriter {
         }
         
         // Create the archive over write if exists
-        try (FileSystem balo = createBaloArchive(baloFilePath)) {
+        try (FileSystem baloFS = createBaloArchive(baloFilePath)) {
             // Now lets put stuff in
-            populateBaloArchive(balo, module);
-            buildContext.out().println("Created " + projectDirectory.relativize(baloFilePath));
+            populateBaloArchive(baloFS, module);
+            buildContext.out().println("\t" + projectDirectory.relativize(baloFilePath));
         } catch (IOException e) {
             // todo Check for permission
             throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
@@ -134,17 +134,19 @@ public class BaloFileWriter {
         return FileSystems.newFileSystem(zipDisk, env);
     }
 
-    private void populateBaloArchive(FileSystem balo, BLangPackage module) throws IOException {
-        Path root = balo.getPath("/");
+    private void populateBaloArchive(FileSystem baloFS, BLangPackage module) throws IOException {
+        Path root = baloFS.getPath("/");
         Path projectDirectory = this.sourceDirectory.getPath();
         Path moduleSourceDir = projectDirectory.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
                 .resolve(module.packageID.name.value);
         String moduleName = module.packageID.name.value;
+        Path manifest = projectDirectory.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
         // Now lets put stuff in according to spec
         // /
         // └─ metadata/
         //    └─ BALO.toml
         //    └─ MODULE.toml
+        //    └─ Ballerina.toml
         // └─ src/
         // └─ resources/
         // └─ platform-libs/
@@ -152,13 +154,16 @@ public class BaloFileWriter {
         //    └─ MODULE-DESC.md
         //    └─ api-docs/
 
-        addMetaData(root, moduleName);
-        addModuleSource(root, moduleSourceDir, moduleName);
-        addResources(root, moduleSourceDir);
+        addMetaData(root, moduleName, manifest);
+        addModuleSource(root, baloFS, moduleSourceDir, moduleName);
+        addResources(root, baloFS, moduleSourceDir);
         addModuleDoc(root, moduleSourceDir);
-        addPlatformLibs(root, projectDirectory, moduleName);
+        // Add platform libs only if it is not a template module.
+        if (!this.manifest.isTemplateModule(moduleName)) {
+            addPlatformLibs(root, projectDirectory, moduleName);
+        }
     }
-
+    
     private void addModuleDoc(Path root, Path moduleSourceDir) throws IOException {
         // create the docs directory in zip
         Path moduleMd = moduleSourceDir.resolve(ProjectDirConstants.MODULE_MD_FILE_NAME);
@@ -196,7 +201,7 @@ public class BaloFileWriter {
         }
     }
 
-    private void addResources(Path root, Path moduleSourceDir) throws IOException {
+    private void addResources(Path root, FileSystem fs, Path moduleSourceDir) throws IOException {
         // create the resources directory in zip
         Path resourceDir = moduleSourceDir.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
         Path resourceDirInBalo = root.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
@@ -204,36 +209,35 @@ public class BaloFileWriter {
 
         if (Files.exists(resourceDir)) {
             // copy resources file from module directory path in to zip
-            PathMatcher filter = FileSystems.getDefault().getPathMatcher("glob:**");
+            PathMatcher filter = fs.getPathMatcher("glob:**");
             Files.walkFileTree(resourceDir, new Copy(resourceDir, resourceDirInBalo, filter, filter));
         }
     }
 
-    private void addModuleSource(Path root, Path moduleSourceDir, String moduleName) throws IOException {
+    private void addModuleSource(Path root, FileSystem fs, Path moduleSourceDir, String moduleName) throws IOException {
         // create the module directory in zip
         Path srcInBalo = root.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
         Files.createDirectory(srcInBalo);
         Path moduleDirInBalo = srcInBalo.resolve(moduleName);
         Files.createDirectory(moduleDirInBalo);
+        boolean isTemplate = this.manifest.isTemplateModule(moduleName);
 
         // copy only bal file from module directory path in to zip
-        PathMatcher fileFilter = FileSystems.getDefault()
-                .getPathMatcher("glob:**/*" + ProjectDirConstants.BLANG_SOURCE_EXT);
+        PathMatcher fileFilter = fs.getPathMatcher("glob:**/*" + ProjectDirConstants.BLANG_SOURCE_EXT);
         // exclude resources and tests directories
         PathMatcher dirFilter = path -> {
-            FileSystem fd = FileSystems.getDefault();
             String prefix = moduleDirInBalo
                     .resolve(ProjectDirConstants.RESOURCE_DIR_NAME).toString();
 
             // Skip resources directory
-            if (fd.getPathMatcher("glob:" + prefix + "**").matches(path)) {
+            if (fs.getPathMatcher("glob:" + prefix + "**").matches(path)) {
                 return false;
             }
             // Skip tests directory
             prefix = moduleDirInBalo
                     .resolve(ProjectDirConstants.TEST_DIR_NAME).toString();
-            // Skip resources directory
-            if (fd.getPathMatcher("glob:" + prefix + "**").matches(path)) {
+            // Skip test directory
+            if (!isTemplate && fs.getPathMatcher("glob:" + prefix + "**").matches(path)) {
                 return false;
             }
             return true;
@@ -241,10 +245,11 @@ public class BaloFileWriter {
         Files.walkFileTree(moduleSourceDir, new Copy(moduleSourceDir, moduleDirInBalo, fileFilter, dirFilter));
     }
 
-    private void addMetaData(Path root, String moduleName) throws IOException {
+    private void addMetaData(Path root, String moduleName, Path manifestPath) throws IOException {
         Path metaDir = root.resolve(ProjectDirConstants.BALO_METADATA_DIR_NAME);
         Path baloMetaFile = metaDir.resolve(ProjectDirConstants.BALO_METADATA_FILE);
         Path moduleMetaFile = metaDir.resolve(ProjectDirConstants.BALO_MODULE_METADATA_FILE);
+        Path baloManifest = metaDir.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
 
         Files.createDirectories(metaDir);
 
@@ -256,16 +261,21 @@ public class BaloFileWriter {
         // Write to MODULE.toml
         Module moduleObj = new Module();
         moduleObj.setModule_name(moduleName);
-        moduleObj.setModule_organization(manifest.getProject().getOrgName());
-        moduleObj.setModule_version(manifest.getProject().getVersion());
-        moduleObj.setModule_authors(manifest.getProject().getAuthors());
-        moduleObj.setModule_keywords(manifest.getProject().getKeywords());
-        moduleObj.setModule_source_repository(manifest.getProject().getRepository());
-        moduleObj.setModule_licenses(manifest.getProject().getLicense());
-        moduleObj.setPlatform(manifest.getTargetPlatform());
+        moduleObj.setModule_organization(this.manifest.getProject().getOrgName());
+        moduleObj.setModule_version(this.manifest.getProject().getVersion());
+        moduleObj.setModule_authors(this.manifest.getProject().getAuthors());
+        moduleObj.setModule_keywords(this.manifest.getProject().getKeywords());
+        moduleObj.setModule_source_repository(this.manifest.getProject().getRepository());
+        moduleObj.setModule_licenses(this.manifest.getProject().getLicense());
+        moduleObj.setPlatform(this.manifest.getTargetPlatform(moduleName));
         moduleObj.setBallerina_version(RepoUtils.getBallerinaVersion());
+        moduleObj.setTemplate(String.valueOf(manifest.getProject().getTemplates().contains(moduleName)));
         String moduleToml = writer.write(moduleObj);
         Files.write(moduleMetaFile, moduleToml.getBytes(Charset.defaultCharset()));
+        
+        // Write Ballerina.toml
+        byte[] manifestBytes = Files.readAllBytes(manifestPath);
+        Files.write(baloManifest, manifestBytes);
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

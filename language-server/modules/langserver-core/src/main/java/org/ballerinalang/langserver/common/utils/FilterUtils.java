@@ -146,6 +146,13 @@ public class FilterUtils {
         ChainedFieldModel startField = invocationFieldList.get(0);
         List<SymbolInfo> symbolList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         BSymbol bSymbol = getVariableByName(startField.name.getText(), symbolList).getScopeEntry().symbol;
+        if (bSymbol instanceof BPackageSymbol) {
+            /*
+            Above common filter extract package symbols as well. Hence we skip since dot delimiter is not valid over a 
+            module 
+             */
+            return resultList;
+        }
         BType symbolType = bSymbol instanceof BInvokableSymbol ? ((BInvokableSymbol) bSymbol).retType : bSymbol.type;
         BType modifiedSymbolBType = getModifiedBType(symbolType);
         Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(modifiedSymbolBType, context);
@@ -315,24 +322,30 @@ public class FilterUtils {
                     || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         } else {
-            entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
             if (symbolType instanceof BUnionType) {
-                entries.putAll(getInvocationsAndFieldsForUnionType((BUnionType) symbolType));
+                entries.putAll(getInvocationsAndFieldsForUnionType((BUnionType) symbolType, context));
             } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
+                entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
                 Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries.entrySet().stream()
                         .filter(entry -> {
                             if (symbolType.tag == TypeTags.RECORD && (invocationToken == BallerinaParser.DOT
                                     || invocationToken == BallerinaParser.NOT)) {
-                                return !org.ballerinalang.model.util.Flags.isFlagOn(entry.getValue().symbol.flags,
+                                return !org.ballerinalang.jvm.util.Flags.isFlagOn(entry.getValue().symbol.flags,
                                         Flags.OPTIONAL);
                             }
                             return true;
                         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                 entries.putAll(filteredEntries);
+            } else {
+                entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
             }
         }
-        return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BInvokableSymbol))
-                || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))
+        /*
+        Here we add the BTypeSymbol check to skip the anyData and similar types suggested from lang lib scope entries
+         */
+        return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BTypeSymbol))
+                && ((!(entry.getValue().symbol instanceof BInvokableSymbol))
+                || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE)))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -341,48 +354,60 @@ public class FilterUtils {
      * If a certain field with the same name contains in all records we extract the field entries
      * 
      * @param unionType union type to evaluate
+     * @param context Language server operation context
      * @return {@link Map} map of scope entries
      */
-    private static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForUnionType(BUnionType unionType) {
+    private static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForUnionType(BUnionType unionType,
+                                                                                   LSContext context) {
         ArrayList<BType> memberTypes = new ArrayList<>(unionType.getMemberTypes());
         Map<Name, Scope.ScopeEntry> resultEntries = new HashMap<>();
-        boolean allMatch = memberTypes.stream().allMatch(bType -> bType.tag == TypeTags.RECORD);
-        // If all the members are not record types we stop proceeding
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
+        Types types = Types.getInstance(compilerContext);
+        // check whether union consists of same type tag symbols
+        BType firstMemberType = memberTypes.get(0);
+        boolean allMatch = memberTypes.stream().allMatch(bType -> bType.tag == firstMemberType.tag);
+        // If all the members are not same types we stop proceeding
         if (!allMatch) {
+            resultEntries.putAll(getLangLibScopeEntries(unionType, symbolTable, types));
             return resultEntries;
         }
-        // Keep track of the occurrences of each of the field names
-        LinkedHashMap<String, Integer> memberOccurrenceCounts = new LinkedHashMap<>();
-        List<Name> firstMemberFieldKeys = new ArrayList<>();
+
+        resultEntries.putAll(getLangLibScopeEntries(firstMemberType, symbolTable, types));
+        if (firstMemberType.tag == TypeTags.RECORD) {
+            // Keep track of the occurrences of each of the field names
+            LinkedHashMap<String, Integer> memberOccurrenceCounts = new LinkedHashMap<>();
+            List<Name> firstMemberFieldKeys = new ArrayList<>();
         /*
         We keep only the name fields of the first member type since a field has to appear in all the member types
          */
-        for (int memberCounter = 0; memberCounter < memberTypes.size(); memberCounter++) {
-            int finalMemberCounter = memberCounter;
-            ((BRecordType) memberTypes.get(memberCounter)).tsymbol.scope.entries.keySet()
-                    .forEach(name -> {
-                        if (memberOccurrenceCounts.containsKey(name.value)) {
-                            memberOccurrenceCounts.put(name.value, memberOccurrenceCounts.get(name.value) + 1);
-                        } else if (finalMemberCounter == 0) {
-                            // Fields are only captured for the first member type, otherwise the count is increased
-                            firstMemberFieldKeys.add(name);
-                            memberOccurrenceCounts.put(name.value, 1);
-                        }
-                    });
-        }
-        if (memberOccurrenceCounts.size() == 0) {
-            return resultEntries;
-        }
-        List<Integer> counts = new ArrayList<>(memberOccurrenceCounts.values());
-        Map<Name, Scope.ScopeEntry> firstMemberEntries = ((BRecordType) memberTypes.get(0)).tsymbol.scope.entries;
-        for (int i = 0; i < counts.size(); i++) {
-            if (counts.get(i) != memberTypes.size()) {
-                continue;
+            for (int memberCounter = 0; memberCounter < memberTypes.size(); memberCounter++) {
+                int finalMemberCounter = memberCounter;
+                ((BRecordType) memberTypes.get(memberCounter)).tsymbol.scope.entries.keySet()
+                        .forEach(name -> {
+                            if (memberOccurrenceCounts.containsKey(name.value)) {
+                                memberOccurrenceCounts.put(name.value, memberOccurrenceCounts.get(name.value) + 1);
+                            } else if (finalMemberCounter == 0) {
+                                // Fields are only captured for the first member type, otherwise the count is increased
+                                firstMemberFieldKeys.add(name);
+                                memberOccurrenceCounts.put(name.value, 1);
+                            }
+                        });
             }
-            Name name = firstMemberFieldKeys.get(i);
-            resultEntries.put(name, firstMemberEntries.get(name));
+            if (memberOccurrenceCounts.size() == 0) {
+                return resultEntries;
+            }
+            List<Integer> counts = new ArrayList<>(memberOccurrenceCounts.values());
+            Map<Name, Scope.ScopeEntry> firstMemberEntries = ((BRecordType) firstMemberType).tsymbol.scope.entries;
+            for (int i = 0; i < counts.size(); i++) {
+                if (counts.get(i) != memberTypes.size()) {
+                    continue;
+                }
+                Name name = firstMemberFieldKeys.get(i);
+                resultEntries.put(name, firstMemberEntries.get(name));
+            }
         }
-        
+
         return resultEntries;
     }
 
@@ -462,7 +487,7 @@ public class FilterUtils {
             if (symbol instanceof BInvokableSymbol) {
                 List<BVarSymbol> params = ((BInvokableSymbol) symbol).params;
                 return params.isEmpty() || params.get(0).type.tag == bType.tag ||
-                        (types.isAssignable(params.get(0).type, bType));
+                        (types.isAssignable(bType, params.get(0).type));
             }
             return symbol.kind != null;
         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

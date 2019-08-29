@@ -55,11 +55,13 @@ public abstract class LauncherImpl {
         boolean debugTests = args.get("debugTests") != null && (boolean) args.get("debugTests");
         if (debugTests) {
             command.add("test");
+            command.add("--debug");
+            command.add(debuggeePort);
         } else {
             command.add("run");
+            command.add("--debug");
+            command.add(debuggeePort);
         }
-        command.add("--debug");
-        command.add(debuggeePort);
         ArrayList<String> commandOptions = (ArrayList<String>) args.get("commandOptions");
         commandOptions = commandOptions == null ? new ArrayList<>() : commandOptions;
         command.addAll(commandOptions);
@@ -67,7 +69,7 @@ public abstract class LauncherImpl {
         command.add("--experimental");
 
         boolean networkLogs = args.get("networkLogs") != null && (boolean) args.get("networkLogs");
-        if (networkLogs) {
+        if (networkLogs && !debugTests) {
             Double networkLogsPort = (Double) args.get("networkLogsPort");
             command.add("-e");
             command.add("b7a.http.tracelog.host=localhost");

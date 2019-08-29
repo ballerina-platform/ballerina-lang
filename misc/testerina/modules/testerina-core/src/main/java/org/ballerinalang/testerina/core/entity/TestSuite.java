@@ -18,6 +18,7 @@
 
 package org.ballerinalang.testerina.core.entity;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
@@ -36,10 +37,16 @@ public class TestSuite {
     private String sourceFileName;
     private TesterinaFunction initFunction;
     private TesterinaFunction startFunction;
+    private TesterinaFunction stopFunction;
     private List<Test> tests = new ArrayList<>();
     private JBallerinaInMemoryClassLoader programFile;
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
     private List<String> afterSuiteFunctionNames = new ArrayList<>();
+
+    // We will use one scheduler to start the module and let it spin
+    // Then we will use a second scheduler to run the test function
+    public final Scheduler scheduler = new Scheduler(4, false);
+    public final Scheduler initScheduler = new Scheduler(4, false);
 
     public List<String> getBeforeSuiteFunctionNames() {
         return beforeSuiteFunctionNames;
@@ -101,6 +108,7 @@ public class TestSuite {
     public Map<String, FunctionInfo> getMockedRealFunctionsMap() {
         return mockedRealFunctionsMap;
     }
+
     public Map<String, String> getMockFunctionNamesMap() {
         return mockFunctionNamesMap;
     }
@@ -128,15 +136,19 @@ public class TestSuite {
     public TesterinaFunction getInitFunction() {
         return initFunction;
     }
+
     public void setInitFunction(TesterinaFunction initFunction) {
         this.initFunction = initFunction;
+        this.initFunction.scheduler = this.scheduler;
     }
 
     public TesterinaFunction getStartFunction() {
         return startFunction;
     }
+
     public void setStartFunction(TesterinaFunction startFunction) {
         this.startFunction = startFunction;
+        this.startFunction.scheduler = this.scheduler;
     }
 
     public List<TesterinaFunction> getTestUtilityFunctions() {
@@ -208,6 +220,7 @@ public class TestSuite {
     }
 
     public void addTestUtilityFunction(TesterinaFunction function) {
+        function.scheduler = this.scheduler;
         this.testUtilityFunctions.add(function);
     }
 
@@ -259,4 +272,44 @@ public class TestSuite {
         this.sourceFileName = sourceFileName;
     }
 
+    public TesterinaFunction getStopFunction() {
+        return stopFunction;
+    }
+
+    public void setStopFunction(TesterinaFunction stopFunction) {
+        this.stopFunction = stopFunction;
+        this.stopFunction.scheduler = this.scheduler;
+    }
+
+
+    public void start() {
+        if (initFunction != null && startFunction != null) {
+            // As the init function we need to use $moduleInit to initialize all the dependent modules
+            // properly.
+            initFunction.bFunction.name.value = "$moduleInit";
+            initFunction.scheduler = initScheduler;
+            initFunction.invoke();
+            // As the start function we need to use $moduleStart to start all the dependent modules
+            // properly.
+            startFunction.bFunction.name.value = "$moduleStart";
+            startFunction.scheduler = initScheduler;
+            startFunction.invoke();
+
+            // Once the start function finish we will re start the scheduler with immortal true
+            initScheduler.immortal = true;
+            Thread immortalThread = new Thread(() -> {
+                initScheduler.start();
+            }, "module-start");
+            immortalThread.setDaemon(true);
+            immortalThread.start();
+        }
+    }
+
+    public void stop() {
+        if (stopFunction != null) {
+            stopFunction.bFunction.name.value = "$moduleStop";
+            stopFunction.directInvoke(new Class[]{});
+        }
+        // this.initScheduler.poison();
+    }
 }

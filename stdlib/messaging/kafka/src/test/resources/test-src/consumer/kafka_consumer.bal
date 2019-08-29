@@ -17,7 +17,7 @@
 import ballerina/kafka;
 
 kafka:ConsumerConfig consumerConfig = {
-    bootstrapServers: "localhost:9100",
+    bootstrapServers: "localhost:14107",
     groupId: "test-group",
     clientId: "basic-consumer",
     offsetReset: "earliest",

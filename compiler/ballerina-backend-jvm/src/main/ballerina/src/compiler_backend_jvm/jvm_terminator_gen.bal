@@ -14,12 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/bir;
+import ballerina/io;
+import ballerina/internal;
+import ballerina/jvm;
+
 type TerminatorGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
     LabelGenerator labelGen;
     ErrorHandlerGenerator errorGen;
-    int lambdaIndex = 0;
     bir:Package module;
     string currentPackageName;
 
@@ -46,7 +50,7 @@ type TerminatorGenerator object {
         } else if (terminator is bir:Call) {
             self.genCallTerm(terminator, funcName, localVarOffset);
         } else if (terminator is bir:AsyncCall) {
-            self.genAsyncCallTerm(terminator, funcName, localVarOffset, attachedType);
+            self.genAsyncCallTerm(terminator, localVarOffset);
         } else if (terminator is bir:Branch) {
             self.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -446,7 +450,7 @@ type TerminatorGenerator object {
 
     function visitArg(bir:VarRef? arg) returns boolean {
         bir:VarRef argRef = getVarRef(arg);
-        if (internal:hasPrefix(argRef.variableDcl.name.value, "_")) {
+        if (argRef.variableDcl.name.value.startsWith("_")) {
             loadDefaultValue(self.mv, getVarRef(arg).typeValue);
             return false;
         }
@@ -456,50 +460,54 @@ type TerminatorGenerator object {
         return true;
     }
 
-    function genAsyncCallTerm(bir:AsyncCall callIns, string funcName, int localVarOffset, bir:BType? attachedType) {
+    function genAsyncCallTerm(bir:AsyncCall callIns, int localVarOffset) {
+        string orgName = callIns.pkgID.org;
+        string moduleName = callIns.pkgID.name;
         // Load the scheduler from strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
 
+        // create an Object[] for the rest params
+        int argsCount = callIns.args.length();
         //create an object array of args
-        self.mv.visitIntInsn(BIPUSH, callIns.args.length() * 2 + 1);
+        self.mv.visitLdcInsn(argsCount * 2 + 1);
+        self.mv.visitInsn(L2I);
         self.mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        
+
         int paramIndex = 1;
         foreach var arg in callIns.args {
-            bir:VarRef argRef = getVarRef(arg);
             self.mv.visitInsn(DUP);
-            self.mv.visitIntInsn(BIPUSH, paramIndex);
+            self.mv.visitLdcInsn(paramIndex);
+            self.mv.visitInsn(L2I);
 
-            var varDcl = getVariableDcl(argRef.variableDcl);
-            self.loadVar(varDcl);
-            bir:BType bType = argRef.typeValue;
-            addBoxInsn(self.mv, bType);
+            boolean userProvidedArg = self.visitArg(arg);
+            // Add the to the rest params array
+            addBoxInsn(self.mv, arg?.typeValue);
             self.mv.visitInsn(AASTORE);
             paramIndex += 1;
 
-            self.loadTrueValueAsArg(paramIndex);
+            self.mv.visitInsn(DUP);
+            self.mv.visitLdcInsn(paramIndex);
+            self.mv.visitInsn(L2I);
+
+            self.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
+            addBoxInsn(self.mv, "boolean");
+            self.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
-
-        string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex.toString() + "$";
+        string funcName = callIns.name.value;
+        string lambdaName = "$" + funcName + "$lambda$" + lambdaIndex.toString() + "$";
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-        string lookupKey = "";
-        if (attachedType is bir:BObjectType) {
-            lookupKey = currentPackageName + attachedType.name.value + "." + funcName;
-        } else {
-            lookupKey = currentPackageName + funcName;
-        }
-        string methodClass = lookupFullQualifiedClassName(lookupKey);
+
         bir:BType? futureType = callIns.lhsOp?.typeValue;
         bir:BType returnType = bir:TYPE_NIL;
         if (futureType is bir:BFutureType) {
             returnType = futureType.returnType;
         }
         boolean isVoid = returnType is bir:BTypeNil;
-        createFunctionPointer(self.mv, methodClass, lambdaName, isVoid, 0);
+        createFunctionPointer(self.mv, currentClass, lambdaName, isVoid, 0);
         lambdas[lambdaName] = callIns;
-        self.lambdaIndex += 1;
+        lambdaIndex += 1;
         
         self.submitToScheduler(callIns.lhsOp, localVarOffset);
     }
@@ -708,8 +716,10 @@ type TerminatorGenerator object {
     function submitToScheduler(bir:VarRef? lhsOp, int localVarOffset) {
         bir:BType? futureType = lhsOp?.typeValue;
         boolean isVoid = false;
+        bir:BType returnType = "any";
         if (futureType is bir:BFutureType) {
             isVoid = futureType.returnType is bir:BTypeNil;
+            returnType = futureType.returnType;
         }
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -717,8 +727,9 @@ type TerminatorGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleConsumer",
                 io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         } else {
+            loadType(self.mv, returnType);
             self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
-                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
+                io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
         }
 
         // store return

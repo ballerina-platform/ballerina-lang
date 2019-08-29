@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-
 /**
  * This Class will handle the type matching of a given OpenApi Object.
  */
@@ -55,7 +54,7 @@ public class TypeMatchingUtil {
                 OpenApiPathType path = new OpenApiPathType();
 
                 path.setPathName(next.getKey());
-                path.setOperations(traveseOperations(pathObj.readOperationsMap()));
+                path.setOperations(traveseOperations(pathObj.readOperationsMap(), next.getKey()));
 
                 pathList.add(path);
             }
@@ -208,12 +207,14 @@ public class TypeMatchingUtil {
 
         if (schema.get$ref() != null) {
             String[] refArray = schema.get$ref().split("/");
-            schemaType.setreference(refArray[refArray.length - 1]);
+            schemaType.setreference(StringUtils.capitalize(refArray[refArray.length - 1]));
+            schemaType.setItemName(refArray[refArray.length - 1].toLowerCase(Locale.ENGLISH));
         }
     }
 
 
-    public static List<OpenApiOperationType> traveseOperations(Map<PathItem.HttpMethod, Operation> operations) {
+    public static List<OpenApiOperationType> traveseOperations(Map<PathItem.HttpMethod, Operation> operations,
+                                                               String path) {
         Iterator<Map.Entry<PathItem.HttpMethod, Operation>> operationIterator = operations.entrySet().iterator();
         List<OpenApiOperationType> operationTypes = new ArrayList<>();
 
@@ -224,7 +225,14 @@ public class TypeMatchingUtil {
 
             if (nextOp.getValue().getOperationId() != null) {
                 operation.setOperationName(nextOp.getValue().getOperationId()
-                        .replace(" ", "_").toLowerCase(Locale.ENGLISH));
+                        .replace(" ", "_"));
+            } else {
+                String resName = "resource_" + "_" + nextOp.getKey().toString().toLowerCase(Locale.ENGLISH)
+                        + path.replaceAll("/", "_")
+                        .replaceAll("[{}]", "");
+                operation.setOperationName(resName);
+                outStream.println("warning : `" + resName + "` is used as the resource name since the " +
+                        "operation id is missing for " + path + " " + nextOp.getKey());
             }
 
             if (nextOp.getValue().getParameters() != null && !nextOp.getValue().getParameters().isEmpty()) {
@@ -322,19 +330,16 @@ public class TypeMatchingUtil {
         }
 
         if (requestBody.getContent() != null) {
-            for (Map.Entry<String, MediaType> entry : requestBody.getContent().entrySet()) {
-                OpenApiSchemaType schemaType = new OpenApiSchemaType();
-                final MediaType entryValue = entry.getValue();
+            final Map.Entry<String, MediaType> entry = requestBody.getContent().entrySet().iterator().next();
+            OpenApiSchemaType schemaType = new OpenApiSchemaType();
+            final MediaType entryValue = entry.getValue();
+            schemaType.setSchemaType(entry.getKey());
 
-                schemaType.setSchemaType(entry.getKey());
-
-                if (entryValue.getSchema() != null) {
-                    getTypesFromSchema(entryValue.getSchema(), schemaType);
-                }
-
-                contentList.add(schemaType);
+            if (entryValue.getSchema() != null) {
+                getTypesFromSchema(entryValue.getSchema(), schemaType);
             }
 
+            contentList.add(schemaType);
             requestBodyType.setContentList(contentList);
         }
 

@@ -20,10 +20,12 @@ import ballerina/jwt;
 jwt:InboundJwtAuthProvider jwtAuthProvider07 = new({
     issuer: "ballerina",
     audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 

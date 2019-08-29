@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.util;
 
+import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -40,7 +41,7 @@ public class TomlParserUtils {
     public static Settings readSettings() {
         Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME);
         try {
-            return SettingsProcessor.parseTomlContentFromFile(settingsFilePath.toString());
+            return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);
         } catch (IOException e) {
             return new Settings();
         }
@@ -55,8 +56,8 @@ public class TomlParserUtils {
     public static Manifest getManifest(Path projectDirPath) {
         Path manifestFilePath = projectDirPath.resolve((ProjectDirConstants.MANIFEST_FILE_NAME));
         try {
-            return ManifestProcessor.parseTomlContentFromFile(manifestFilePath.toString());
-        } catch (IOException e) {
+            return ManifestProcessor.parseTomlContentFromFile(manifestFilePath);
+        } catch (IOException | TomlException e) {
             return new Manifest();
         }
     }

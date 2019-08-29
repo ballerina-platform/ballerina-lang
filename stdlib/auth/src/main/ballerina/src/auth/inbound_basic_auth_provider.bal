@@ -18,7 +18,6 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/internal;
-import ballerina/runtime;
 
 # Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
 #
@@ -45,7 +44,7 @@ public type InboundBasicAuthProvider object {
     # + credential - Credential
     # + return - `true` if authentication is successful, otherwise `false` or `Error` occurred while extracting credentials
     public function authenticate(string credential) returns boolean|Error {
-        if (credential == EMPTY_STRING) {
+        if (credential == "") {
             return false;
         }
         string username;
@@ -54,18 +53,18 @@ public type InboundBasicAuthProvider object {
         string passwordFromConfig = readPassword(username);
         boolean authenticated = false;
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
-        if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX)) {
-            if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA256)) {
+        if (passwordFromConfig.startsWith(CONFIG_PREFIX)) {
+            if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA256)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha256(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                encoding:encodeHex(crypto:hashSha256(password.toBytes())),
                                 extractHash(passwordFromConfig));
-            } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA384)) {
+            } else if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA384)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha384(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                encoding:encodeHex(crypto:hashSha384(password.toBytes())),
                                 extractHash(passwordFromConfig));
-            } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA512)) {
+            } else if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA512)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha512(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                encoding:encodeHex(crypto:hashSha512(password.toBytes())),
                                 extractHash(passwordFromConfig));
             } else {
                 authenticated = password == passwordFromConfig;
@@ -75,7 +74,8 @@ public type InboundBasicAuthProvider object {
         }
         if (authenticated) {
             setAuthenticationContext("basic", credential);
-            setPrincipal(username, self.basicAuthConfig.tableName);
+            string[] scopes = getScopes(username, self.basicAuthConfig.tableName);
+            setPrincipal(username, username, scopes);
         }
         return authenticated;
     }
@@ -131,13 +131,4 @@ function getArray(string groupString) returns string[] {
         return groupsArr;
     }
     return internal:split(groupString, ",");
-}
-
-function setPrincipal(string username, string tableName) {
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (principal is runtime:Principal) {
-        principal.userId = username;
-        principal.username = username;
-        principal.scopes = getScopes(username, tableName);
-    }
 }

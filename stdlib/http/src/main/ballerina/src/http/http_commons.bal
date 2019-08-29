@@ -14,7 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
+import ballerina/mime;
+import ballerina/io;
 
 # Represents HTTP/1.0 protocol
 const string HTTP_1_0 = "1.0";
@@ -168,7 +169,7 @@ public type ValidateCert record {|
 # + enable - The status of OCSP stapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ServiceOcspStapling record {|
+public type ListenerOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
@@ -358,12 +359,12 @@ function populateMultipartRequest(Request inRequest) returns Request|error {
 
 function isMultipartRequest(Request request) returns @tainted boolean {
     return request.hasHeader(mime:CONTENT_TYPE) &&
-        internal:hasPrefix(request.getHeader(mime:CONTENT_TYPE), MULTIPART_AS_PRIMARY_TYPE);
+        request.getHeader(mime:CONTENT_TYPE).startsWith(MULTIPART_AS_PRIMARY_TYPE);
 }
 
 function isNestedEntity(mime:Entity entity) returns @tainted boolean {
     return entity.hasHeader(mime:CONTENT_TYPE) &&
-        internal:hasPrefix(entity.getHeader(mime:CONTENT_TYPE), MULTIPART_AS_PRIMARY_TYPE);
+        entity.getHeader(mime:CONTENT_TYPE).startsWith(MULTIPART_AS_PRIMARY_TYPE);
 }
 
 function createFailoverRequest(Request request, mime:Entity requestEntity) returns Request|error {

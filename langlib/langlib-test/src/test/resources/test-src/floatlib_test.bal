@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.float as floats;
+import ballerina/lang.'float as floats;
 
 function testIsFinite() returns [boolean, boolean] {
     float f = 12.34;

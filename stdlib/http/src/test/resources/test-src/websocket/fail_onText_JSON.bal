@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-service wsService on new http:WebSocketListener(9090) {
+service wsService on new http:Listener(9090) {
 
     resource function onText(http:WebSocketCaller caller, json text, boolean isFinal) {
     }

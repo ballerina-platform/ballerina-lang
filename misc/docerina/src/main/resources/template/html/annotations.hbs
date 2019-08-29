@@ -3,7 +3,8 @@
 
 {{> head }}
 
-<body>
+<body class="cBallerina-io">
+    {{> bioBody }}
     <div class="navi-wrapper">
         <div class="navi-wrapper-content">
             {{> logo }}
@@ -59,7 +60,8 @@
                             <ul>
                                 <li>
                                     <b>{{ name }}</b><span class="type">{{#if type}} {{{ typeName
-                                        type }}}{{/if}}</span> .{{ attachmentPoints }}</li>
+                                        type }}}{{/if}}</span> <img class="attach-icon" src="{{ rootPath }}html-template-resources/images/attach.svg">
+                                        {{ attachmentPoints }}</li>
                                 <li>
                                     {{{ description }}}
                                 </li>

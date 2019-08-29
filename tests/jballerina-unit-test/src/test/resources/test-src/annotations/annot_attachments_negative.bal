@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 type Annot record {
     string val;
@@ -34,6 +34,7 @@ const annotation map<string> v10 on source annotation;
 const annotation map<int> v11 on source var;
 public const annotation map<string> v12 on source const;
 const annotation map<string> v13 on source external;
+const annotation map<boolean> v15 on source worker;
 
 @v2 {
     val: "v2"
@@ -68,6 +69,9 @@ const annotation map<string> v13 on source external;
 }
 @v13 {
     val: "v13"
+}
+@v15 {
+    val: false
 }
 public type T1 record {
     string name;
@@ -104,6 +108,9 @@ public type T1 record {
 @v13 {
     val: "v13"
 }
+@v15 {
+    val: false
+}
 type T2 object {
     string name = "ballerina";
 
@@ -137,6 +144,9 @@ type T2 object {
     }
     @v13 {
         val: "v13"
+    }
+    @v15 {
+        val: false
     }
     public function setName(string name) {
         self.name = name;
@@ -173,6 +183,9 @@ type T2 object {
     @v13 {
         val: "v13"
     }
+    @v15 {
+        val: false
+    }
     public function getName() returns string { return self.name; }
 };
 
@@ -206,6 +219,9 @@ type T2 object {
 //}
 //@v13 {
 //    val: "v13"
+//}
+//@v15 {
+//    val: false
 //}
 //public function T2.getName() returns string {
 //    return self.name;
@@ -245,6 +261,9 @@ type T2 object {
 @v13 {
     val: "v13"
 }
+@v15 {
+    val: false
+}
 public function func() returns int {
     return 1;
 }
@@ -282,6 +301,9 @@ public function funcWithParam(@v1 {
                             }
                             @v13 {
                                 val: "v13"
+                            }
+                            @v15 {
+                                val: false
                             } string param) returns @v1 {
                                                         val: "v1"
                                                     }
@@ -317,6 +339,9 @@ public function funcWithParam(@v1 {
                                                     }
                                                     @v13 {
                                                         val: "v13"
+                                                    }
+                                                    @v15 {
+                                                        val: false
                                                     } int {
     return 1;
 }
@@ -355,6 +380,9 @@ public function funcWithParam(@v1 {
 @v13 {
     val: "v13"
 }
+@v15 {
+    val: false
+}
 listener Listener lis = new;
 
 @v1 {
@@ -391,6 +419,9 @@ listener Listener lis = new;
 @v13 {
     val: "v13"
 }
+@v15 {
+    val: false
+}
 service ser on lis {
 
     @v1 {
@@ -424,6 +455,9 @@ service ser on lis {
     @v13 {
         val: "v13"
     }
+    @v15 {
+        val: false
+    }
     resource function res() {
 
     }
@@ -438,10 +472,18 @@ type Listener object {
     public function __attach(service s, string? name = ()) returns error? {
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     public function __start() returns error? {
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
+        return ();
     }
 };
 
@@ -479,6 +521,9 @@ type Listener object {
 @v13 {
     val: "v13"
 }
+@v15 {
+    val: false
+}
 const annotation map<string> v14 on source annotation;
 
 @v1 {
@@ -514,6 +559,9 @@ const annotation map<string> v14 on source annotation;
 }
 @v13 {
     val: "v13"
+}
+@v15 {
+    val: false
 }
 int i = 12;
 
@@ -551,6 +599,9 @@ int i = 12;
 @v13 {
     val: "v13"
 }
+@v15 {
+    val: false
+}
 const f = 123.4;
 
 function externalFunctionOne(int fi, float ff) returns int = @v1 {
@@ -586,6 +637,9 @@ function externalFunctionOne(int fi, float ff) returns int = @v1 {
                                                             }
                                                             @v12 {
                                                                 val: "v12"
+                                                            }
+                                                            @v15 {
+                                                                val: false
                                                             } external;
 
 @v8 {
@@ -626,9 +680,96 @@ service serVar =
 @v13 {
     val: "v13"
 }
+@v15 {
+    val: false
+}
 service {
 
     resource function res() {
 
     }
 };
+
+function funcWithWorker() {
+
+    @v1 {
+        val: "v1"
+    }
+    @v2 {
+        val: "v2"
+    }
+    @v3 {
+        val: "v3"
+    }
+    @v4 {
+        val: 4
+    }
+    @v5 {
+        val: "v5"
+    }
+    @v6 {
+        val: "v6"
+    }
+    @v7
+    @v8 {
+        val: "v8"
+    }
+    @v9 {
+        val: "v9"
+    }
+    @v10 {
+        val: "v10"
+    }
+    @v11 {
+        val: 11
+    }
+    @v12 {
+        val: "v12"
+    }
+    @v13 {
+        val: "v13"
+    }
+    worker w1 {
+        // do nothing
+    }
+}
+
+future<()> fn =
+@v1 {
+    val: "v1"
+}
+@v2 {
+    val: "v2"
+}
+@v3 {
+    val: "v3"
+}
+@v4 {
+    val: 4
+}
+@v5 {
+    val: "v5"
+}
+@v6 {
+    val: "v6"
+}
+@v7
+@v8 {
+    val: "v8"
+}
+@v9 {
+    val: "v9"
+}
+@v10 {
+    val: "v10"
+}
+@v11 {
+    val: 11
+}
+@v12 {
+    val: "v12"
+}
+@v13 {
+    val: "v13"
+}
+start funcWithWorker();

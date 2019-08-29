@@ -21,6 +21,7 @@ import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -30,7 +31,6 @@ import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.services.ErrorHandlerUtils;
 
 import static org.ballerinalang.nats.Constants.NATS_STREAMING_MESSAGE_OBJ_NAME;
 import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
@@ -54,8 +54,8 @@ public class StreamingListener implements MessageHandler {
      */
     @Override
     public void onMessage(Message msg) {
-        ObjectValue ballerinaNatsMessage = BallerinaValues
-                .createObjectValue(Constants.NATS_PACKAGE, NATS_STREAMING_MESSAGE_OBJ_NAME, msg.getSubject(),
+        ObjectValue ballerinaNatsMessage = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
+                NATS_STREAMING_MESSAGE_OBJ_NAME, msg.getSubject(),
                         new ArrayValue(msg.getData()), msg.getReplyTo());
         ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MSG, msg);
         AttachedFunction onMessageResource = getAttachedFunction(service, "onMessage");

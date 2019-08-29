@@ -18,11 +18,11 @@ import ballerina/http;
 
 service helloWorld on new http:Listener(9090) {
 
-    resource function sayHelloWithString(int x) returns string {
+    resource function sayHelloWithString(int x) returns error? {
         return x;
     }
 
-    resource function sayHelloWithInt(string x) returns int {
+    resource function sayHelloWithInt(string x) returns () {
         return x;
     }
 

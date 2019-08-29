@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.object;
 
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -505,23 +506,27 @@ public class ObjectTest {
         int index = 0;
 
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 34, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/mod:0.0.0:Employee'",
+        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/mod:1.0.0:Employee'",
                                   34, 17);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
                                   38, 14);
-        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/mod:0.0.0:Employee'",
+        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/mod:1.0.0:Employee'",
                                   38, 14);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 45, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/pkg1:Employee'", 45, 17);
+        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/pkg1:1.0.0:Employee'", 45,
+                                    17);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'email'", 46, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'testorg/pkg1:Employee'", 46, 17);
+        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'testorg/pkg1:1.0.0:Employee'",
+                                46, 17);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
                                   49, 14);
-        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/pkg1:Employee'",
+        BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object " +
+                                                   "'testorg/pkg1:1.0.0:Employee'",
                                   49, 14);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol " + "'Employee" +
                 ".getEmail'", 50, 17);
-        BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object 'testorg/pkg1:Employee'",
+        BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object " +
+                                                   "'testorg/pkg1:1.0.0:Employee'",
                                   50, 17);
     }
 
@@ -601,6 +606,14 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[3]).intValue(), 12500);
     }
 
+    @Test
+    public void testObjectWithFutureTypeFieldWithValue() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_with_future_type_field.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "getIntFromFutureField");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
     @Test(description = "Test initialization of object union")
     @SuppressWarnings("unchecked")
     public void testUnionTypeObjectInit() {
@@ -662,9 +675,9 @@ public class ObjectTest {
     @Test(dataProvider = "missingNativeImplFiles")
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
-            BCompileUtil.compile(filePath);
+            BCompileUtil.compileInProc(filePath);
         } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), "native function not available: Person.printName");
+            Assert.assertTrue(e.getMessage().contains("native function not available: Person.printName"));
             return;
         }
         Assert.fail("expected compilation to fail due to missing external implementation");
@@ -678,15 +691,54 @@ public class ObjectTest {
         Assert.assertEquals(((BMap) foo.get("bar")).get("p").stringValue(), "{name:\"John Doe\"}");
     }
 
+    @Test(description = "Test invoking object inits with union params in another object's function")
+    public void testObjectInitFunctionWithDefaultableParams() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        BValue[] result = BRunUtil.invoke(compileResult, "testObjectInitFunctionWithDefaultableParams");
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 900000);
+        Assert.assertEquals(((BInteger) result[1]).intValue(), 10000);
+        Assert.assertEquals(((BInteger) result[2]).intValue(), 20000);
+        Assert.assertEquals(((BInteger) result[3]).intValue(), 30000);
+        Assert.assertEquals(((BInteger) result[4]).intValue(), 40000);
+    }
+
+    @Test(description = "Test invoking object inits with union params in another object's function")
+    public void testObjectInitFunctionWithDefaultableParams2() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        BValue[] result = BRunUtil.invoke(compileResult, "testObjectInitFunctionWithDefaultableParams2");
+        Assert.assertEquals(((BFloat) result[0]).floatValue(), 1.1);
+        Assert.assertEquals(((BInteger) result[1]).intValue(), 1);
+    }
+
     @Test(description = "Negative test for object union type inference")
     public void testNegativeUnionTypeInit() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
-        BAssertUtil.validateError(resultNegative, 0, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 48, 25);
-        BAssertUtil.validateError(resultNegative, 1, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 49, 25);
-        BAssertUtil.validateError(resultNegative, 2, "cannot infer type of the object from '(Obj|Obj2|Obj3|Obj4)'",
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 48, 25);
+        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 49, 25);
+        BAssertUtil.validateError(resultNegative, i++, "cannot infer type of the object from '(Obj|Obj2|Obj3|Obj4)'",
                                   50, 46);
-        BAssertUtil.validateError(resultNegative, 3, "cannot infer type of the object from 'Bar?'", 71, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected '(PersonRec|EmployeeRec)', found 'string'", 71, 24);
+        BAssertUtil.validateError(resultNegative, i++,
+                "missing required parameter 'i' in call to 'new'()", 114, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 114, 53);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type of the object from '(InitObjOne|InitObjTwo|int)'", 119, 36);
+        BAssertUtil.validateError(resultNegative, i++,
+                "ambiguous type '(InitObjOne|InitObjTwo|float)'", 120, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type of the object from '(InitObjOne|InitObjTwo|float)'", 121, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int', found 'string'", 126, 51);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type of the object from '(InitObjOne|InitObjThree|boolean|string)'", 127, 50);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 128, 59);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type of the object from '(InitObjThree|InitObjOne|boolean|string)'", 129, 50);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @DataProvider
@@ -695,5 +747,32 @@ public class ObjectTest {
                 {"test-src/object/object_with_missing_native_impl.bal"},
                 {"test-src/object/object_with_missing_native_impl_2.bal"}
         };
+    }
+
+    @Test(description = "Test field name and method name in different namespaces")
+    public void testFieldWithSameNameAsMethod() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/object/object_field_with_same_name_as_method.bal");
+        BValue[] result = BRunUtil.invoke(compileResult, "testFieldWithSameNameAsMethod");
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
+        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
+        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
+        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
+        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
+        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
+        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
+    }
+
+    @Test(description = "Test field name and method name in different namespaces from balo")
+    public void testFieldWithSameNameAsMethodFromBalo() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        BValue[] result = BRunUtil.invoke(compileResult, "testBaloWithFieldWithSameNameAsMethod");
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
+        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
+        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
+        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
+        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
+        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
+        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
     }
 }

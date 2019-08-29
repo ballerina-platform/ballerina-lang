@@ -19,7 +19,9 @@
 package org.ballerinalang.stdlib.mime;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -60,8 +62,8 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
@@ -188,7 +190,8 @@ public class Util {
      * @return A ballerina struct that represent a body part
      */
     public static ObjectValue getXmlBodyPart() {
-        BXMLItem xmlContent = new BXMLItem("<name>Ballerina</name>");
+        OMNode omNode = (OMNode) XMLFactory.parse("<name>Ballerina</name>").value();
+        BXMLItem xmlContent = new BXMLItem(omNode);
         ObjectValue bodyPart = createEntityObject();
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
                 xmlContent.stringValue().getBytes(StandardCharsets.UTF_8)));
@@ -306,7 +309,7 @@ public class Util {
     }
 
     public static ObjectValue createEntityObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
     }
 
     @Deprecated
@@ -315,7 +318,7 @@ public class Util {
     }
 
     public static ObjectValue createMediaTypeObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
     }
 
     @Deprecated
@@ -325,7 +328,7 @@ public class Util {
     }
 
     public static ObjectValue getContentDispositionStruct() {
-        return BallerinaValues.createObjectValue(PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, CONTENT_DISPOSITION_STRUCT);
     }
 
     @Deprecated

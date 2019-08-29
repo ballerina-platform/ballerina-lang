@@ -96,7 +96,8 @@ public class SignatureTest {
                 "test-src/services/signature/mismatched-body-param.bal").getPath()).getAbsolutePath());
         Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 2);
-        Assert.assertEquals(diag[0].getMessage(), "Invalid parameter(s) in the resource signature");
+        Assert.assertEquals(diag[0].getMessage(), "invalid resource parameter(s): cannot specify > 2 parameters " +
+                "without specifying path config and/or body config in the resource annotation");
         Assert.assertEquals(diag[1].getMessage(),
                             "Invalid data binding param in the signature : expected 'person', but found 'ballerina'");
     }
@@ -107,8 +108,8 @@ public class SignatureTest {
                 "test-src/services/signature/invalid-return.bal").getPath()).getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                            "invalid return type: expected error?");
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(), "invalid resource function return" +
+                " type 'int', expected a subtype of 'error?' containing '()'");
     }
 
     @Test

@@ -40,18 +40,18 @@ function testFieldBasedAccess() returns [xml, xml, xml, xml, xml, xml] {
     return [x4, x5, x6, x7, x8, x9];
 }
 
-function testFieldBasedAccessWithNamespaces() returns [xml, xml, xml, xml] {
-    xmlns "http://test.com/default";
-    xmlns "http://test.com" as ns0;
-
-    xml x1 = xml `<ns0:name><ns0:fname>John</ns0:fname><lname1>Doe</lname1></ns0:name>`;
-    xml x2 = xml `<name2><fname>Jane</fname><lname2><foo>7</foo><bar>8</bar></lname2></name2>`;
-    xml x3 = x1 + x2 + xml `<foo>apple</foo>`;
-
-    xml x4 = x1[ns0:fname];
-    xml x5 = x1["{http://test.com}fname"];
-    xml x6 = x1.'ns0\:fname;
-    xml x7 = x1.'\{http\:\/\/test\.com\}fname;
-
-    return [x4, x5, x6, x7];
-}
+//function testFieldBasedAccessWithNamespaces() returns [xml, xml, xml, xml] {
+//    xmlns "http://test.com/default";
+//    xmlns "http://test.com" as ns0;
+//
+//    xml x1 = xml `<ns0:name><ns0:fname>John</ns0:fname><lname1>Doe</lname1></ns0:name>`;
+//    xml x2 = xml `<name2><fname>Jane</fname><lname2><foo>7</foo><bar>8</bar></lname2></name2>`;
+//    xml x3 = x1 + x2 + xml `<foo>apple</foo>`;
+//
+//    xml x4 = x1[ns0:fname];
+//    xml x5 = x1["{http://test.com}fname"];
+//    xml x6 = x1.'ns0\:fname;
+//    xml x7 = x1.'\{http\:\/\/test\.com\}fname;
+//
+//    return [x4, x5, x6, x7];
+//}

@@ -21,6 +21,7 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -60,6 +61,15 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
     @SuppressWarnings("unchecked")
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
+        // If first resource's first parameter is WebSocketCaller, do not process in this plugin.
+        // This is done on the assumption of resources does not mix each other (HTTP and WebSocket)
+        if (resources.size() > 0 &&
+                resources.get(0).getParameters().size() > 0 &&
+                WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(
+                        resources.get(0).getParameters().get(0).type.toString())) {
+            return;
+        }
         int serviceConfigCount = 0;
         for (AnnotationAttachmentNode annotation : annotations) {
             if (annotation.getAnnotationName().getValue().equals(ANN_NAME_HTTP_SERVICE_CONFIG)) {
@@ -75,7 +85,6 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
         //        final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
         //        if (serviceType != null && HttpConstants.HTTP_SERVICE_TYPE.equals(serviceType.getTypeName()
         // .getValue())) {
-        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         resources.forEach(res -> {
             ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
             ResourceSignatureValidator.validateResourceReturnType(isResourceReturnsErrorOrNil(res), dlog, res.pos);

@@ -52,7 +52,7 @@ public class ResourceContextHolder {
         context.name = resource.getName().getValue();
         context.parameters = new ArrayList<>();
 
-        for (SimpleVariableNode node: resource.getParameters()) {
+        for (SimpleVariableNode node : resource.getParameters()) {
             ParameterContextHolder parameter = ParameterContextHolder.buildContext(node);
             if (parameter != null) {
                 context.parameters.add(parameter);
@@ -100,7 +100,7 @@ public class ResourceContextHolder {
             return null;
         }
 
-        return path.replaceAll("\\{", "${");
+        return path.replaceAll("\\{", "\\$\\{");
     }
 
     public String getMethod() {

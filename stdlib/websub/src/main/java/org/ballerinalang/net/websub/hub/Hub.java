@@ -20,12 +20,12 @@ package org.ballerinalang.net.websub.hub;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.broker.BallerinaBroker;
 import org.ballerinalang.net.websub.broker.BallerinaBrokerByteBuf;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ import static org.ballerinalang.jvm.values.connector.Executor.executeFunction;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.BALLERINA;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_ID;
 
 /**
  * The Ballerina WebSub Hub.
@@ -222,7 +222,7 @@ public class Hub {
                 started = true;
                 executeFunction(strand.scheduler, classLoader, BALLERINA, WEBSUB, HUB_SERVICE, "setupOnStartup");
                 setHubUrl(hubUrl);
-                setHubObject(BallerinaValues.createObjectValue(WEBSUB_PACKAGE, STRUCT_WEBSUB_BALLERINA_HUB, hubUrl,
+                setHubObject(BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID, STRUCT_WEBSUB_BALLERINA_HUB, hubUrl,
                                                                hubListener));
             } else {
                 throw new BallerinaWebSubException("Hub Service already started up");

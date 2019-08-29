@@ -16,17 +16,13 @@
 
 package org.ballerinalang.stdlib.internal.compression;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.internal.Constants;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -57,7 +53,7 @@ import java.util.zip.ZipOutputStream;
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class Compress extends BlockingNativeCallableUnit {
+public class Compress {
 
     /**
      * File path defined in ballerina.compression.
@@ -130,25 +126,6 @@ public class Compress extends BlockingNativeCallableUnit {
         return outputStream;
     }
 
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> srcPathStruct = (BMap<String, BValue>) context.getRefArgument(SRC_PATH_FIELD_INDEX);
-        Path srcPath = (Path) srcPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        BMap<String, BValue> destPathStruct = (BMap<String, BValue>) context.getRefArgument(DEST_PATH_FIELD_INDEX);
-        Path destPath = (Path) destPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        if (!srcPath.toFile().exists()) {
-            context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
-                    "compressed is not available: " + srcPath));
-        } else {
-            try {
-                compress(srcPath, destPath);
-                context.setReturnValues();
-            } catch (IOException | BLangRuntimeException e) {
-                context.setReturnValues(CompressionUtils.createCompressionError(context,
-                        "Error occurred when compressing " + e.getMessage()));
-            }
-        }
-    }
 
     public static Object compress(Strand strand, String dirPath, String destDir) {
         Path srcPath = Paths.get(dirPath);

@@ -50,14 +50,8 @@ import java.security.cert.X509Certificate;
 public class DecodePublicKey {
 
     @SuppressWarnings("unchecked")
-    public static Object decodePublicKey(Strand strand, Object keyStoreValue, Object keyAliasValue) {
+    public static Object decodePublicKey(Strand strand, Object keyStoreValue, String keyAlias) {
         MapValue<String, Object> keyStore = (MapValue<String, Object>) keyStoreValue;
-        String keyAlias = String.valueOf(keyAliasValue);
-
-        // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
-        if (keyStore == null) {
-            return CryptoUtils.createError("Key store information is required");
-        }
 
         File keyStoreFile = new File(
                 CryptoUtils.substituteVariables(keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).toString()));
@@ -71,8 +65,8 @@ public class DecodePublicKey {
             }
 
             Certificate certificate = keystore.getCertificate(keyAlias);
-            MapValue<String, Object> certificateBMap = BallerinaValues.createRecordValue(
-                    Constants.CRYPTO_PACKAGE, Constants.CERTIFICATE_RECORD);
+            MapValue<String, Object> certificateBMap = BallerinaValues.
+                    createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.CERTIFICATE_RECORD);
             if (certificate instanceof X509Certificate) {
                 X509Certificate x509Certificate = (X509Certificate) certificate;
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_ISSUER_FIELD,
@@ -97,8 +91,8 @@ public class DecodePublicKey {
             PublicKey publicKey = certificate.getPublicKey();
             //TODO: Add support for DSA/ECDSA keys and associated crypto operations
             if (publicKey.getAlgorithm().equals("RSA")) {
-                MapValue<String, Object> publicKeyMap = BallerinaValues.createRecordValue(
-                        Constants.CRYPTO_PACKAGE, Constants.PUBLIC_KEY_RECORD);
+                MapValue<String, Object> publicKeyMap = BallerinaValues.
+                        createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PUBLIC_KEY_RECORD);
                 publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
                 publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY_CERTIFICATE, certificate);
                 publicKeyMap.put(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD, publicKey.getAlgorithm());

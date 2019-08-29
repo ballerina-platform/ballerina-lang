@@ -13,8 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/io;
-import ballerina/'lang\.int as langint;
+import ballerina/lang.'int as langint;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
 public const string BOUNDARY = "boundary";
@@ -208,9 +209,10 @@ public type Entity object {
         return getContentDispositionObject(contentDispositionVal);
     }
 
-    # Sets the entity body with the given content.
+    # Sets the body of the entity with the given content. Note that any string value is set as `text/plain`. To send a
+    # JSON-compatible string, set the content-type header to `application/json` or use the `setJsonPayload` method instead.
     #
-    # + entityBody - Entity body can be of type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel` or `Entity[]`
+    # + entityBody - Entity body can be of the type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel`, or `Entity[]`.
     public function setBody(@untainted string|xml|json|byte[]|io:ReadableByteChannel|Entity[] entityBody) {
         if (entityBody is string) {
             self.setText(entityBody);

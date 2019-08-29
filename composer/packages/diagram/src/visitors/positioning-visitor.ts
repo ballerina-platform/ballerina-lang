@@ -181,7 +181,7 @@ class PositioningVisitor implements Visitor {
                     expandedFunctionVS.bBox.x = elViewState.bBox.x;
                     expandedFunctionVS.bBox.y = elViewState.bBox.y;
 
-                    ASTUtil.traversNode(expandedSubTree, this);
+                    ASTUtil.traversNode(expandedSubTree, new PositioningVisitor());
                 }
             }
             if (elViewState.hiddenBlockContext && elViewState.hiddenBlockContext.expanded) {

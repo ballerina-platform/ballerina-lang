@@ -72,14 +72,6 @@ public class NativeConversionNegativeTest {
     }
 
     @Test
-    public void testEmptyMaptoStructWithDefaults() {
-        BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithDefaults");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<anydata>' value cannot be converted to 'StructWithDefaults'");
-    }
-
-    @Test
     public void testEmptyMaptoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);

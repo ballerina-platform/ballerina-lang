@@ -1,7 +1,7 @@
 import { Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
-    Invocation, Return, Service, VariableDef, Visitor } from "@ballerina/ast-model";
+    Invocation, Return, Service, VariableDef, Visitor, WorkerSend } from "@ballerina/ast-model";
 import * as _ from "lodash";
-import { FunctionViewState, StmntViewState } from "../../view-model/index";
+import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
 
 const currentState: {
     topLevelNode?: ASTNode | undefined,
@@ -88,6 +88,36 @@ export const visitor: Visitor = {
 
     endVisitReturn(node: Return) {
         currentState.statement = undefined;
+    },
+
+    beginVisitWaitExpr() {
+        if (currentState.statement) {
+            currentState.statement.viewState.hidden = false;
+        }
+    },
+
+    beginVisitWorkerSend(node: WorkerSend) {
+        if (currentState.statement) {
+            currentState.statement.viewState.hidden = false;
+        }
+        const statement = currentState.statement ? currentState.statement : node;
+        (statement.viewState as ViewState).hidden = false;
+    },
+
+    beginVisitWorkerSyncSend(node: WorkerSend) {
+        if (currentState.statement) {
+            currentState.statement.viewState.hidden = false;
+        }
+        const statement = currentState.statement ? currentState.statement : node;
+        (statement.viewState as ViewState).hidden = false;
+    },
+
+    beginVisitWorkerReceive(node: WorkerSend) {
+        if (currentState.statement) {
+            currentState.statement.viewState.hidden = false;
+        }
+        const statement = currentState.statement ? currentState.statement : node;
+        (statement.viewState as ViewState).hidden = false;
     },
 
     beginVisitInvocation(node: Invocation) {

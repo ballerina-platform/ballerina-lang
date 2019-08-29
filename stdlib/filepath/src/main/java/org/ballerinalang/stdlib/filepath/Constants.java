@@ -18,7 +18,10 @@
 
 package org.ballerinalang.stdlib.filepath;
 
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for path package file functions.
@@ -40,6 +43,7 @@ public class Constants {
      * Package path to path package.
      */
     public static final String PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
+    public static final BPackage FILEPATH_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
 
     public static final String ERROR_REASON_PREFIX = "{ballerina/filepath}";
 

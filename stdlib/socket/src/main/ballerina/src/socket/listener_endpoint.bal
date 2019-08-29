@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 # Represents service endpoint where socket server service registered and start.
 #
@@ -33,12 +33,19 @@ public type Listener object {
         return self.start();
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
+    }
+
+    public function __detach(service s) returns error? {
     }
 
     function initServer(int port, ListenerConfig config) returns error? = external;

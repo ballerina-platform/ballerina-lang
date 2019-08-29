@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.decimal as decimals;
-
+import ballerina/lang.'decimal as decimals;
 
 function testSum(decimal p1, decimal p2) returns decimal {
     return decimals:sum(p1, p2);

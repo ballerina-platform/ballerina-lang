@@ -172,6 +172,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -270,6 +271,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
+        checkUnusedImports(pkgNode.imports);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
@@ -278,6 +280,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.currDependentSymbol.push(funcNode.symbol);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
+        funcNode.requiredParams.forEach(param -> analyzeNode(param, funcEnv));
+        analyzeNode(funcNode.restParam, funcEnv);
         analyzeBranch(funcNode.body, funcEnv);
         this.currDependentSymbol.pop();
     }
@@ -330,10 +334,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable variable) {
-        boolean validVariable = variable.symbol != null;
-        if (validVariable) {
-            this.currDependentSymbol.push(variable.symbol);
+        analyzeNode(variable.typeNode, env);
+        if (variable.symbol == null) {
+            if (variable.expr != null) {
+                analyzeNode(variable.expr, env);
+            }
+            return;
         }
+
+        this.currDependentSymbol.push(variable.symbol);
         try {
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
@@ -349,9 +358,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             addUninitializedVar(variable);
         } finally {
-            if (validVariable) {
-                this.currDependentSymbol.pop();
-            }
+            this.currDependentSymbol.pop();
         }
     }
 
@@ -381,6 +388,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBreak breakNode) {
+        terminateFlow();
     }
 
     @Override
@@ -431,16 +439,28 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch match) {
         analyzeNode(match.expr, env);
         Map<BSymbol, InitStatus> uninitVars = new HashMap<>();
+        BranchResult lastPatternResult = null;
         for (BLangMatch.BLangMatchBindingPatternClause patternClause : match.patternClauses) {
-            BranchResult result = analyzeBranch(patternClause, env);
-            // If the flow was terminated within the block, then that branch should not be considered for
-            // analyzing the data-flow for the downstream code.
-            if (result.flowTerminated) {
-                continue;
+            if (patternClause.isLastPattern) {
+                lastPatternResult = analyzeBranch(patternClause, env);
+            } else {
+                BranchResult result = analyzeBranch(patternClause, env);
+                // If the flow was terminated within the block, then that branch should not be considered for
+                // analyzing the data-flow for the downstream code.
+                if (result.flowTerminated) {
+                    continue;
+                }
+                uninitVars = mergeUninitializedVars(uninitVars, result.uninitializedVars);
             }
-            uninitVars = mergeUninitializedVars(uninitVars, result.uninitializedVars);
         }
 
+        if (lastPatternResult != null) {
+            // only if last pattern is present, uninitializedVars should be updated
+            uninitVars = mergeUninitializedVars(uninitVars, lastPatternResult.uninitializedVars);
+            this.uninitializedVars = uninitVars;
+            return;
+        }
+        uninitVars = mergeUninitializedVars(new HashMap<>(), this.uninitializedVars);
         this.uninitializedVars = uninitVars;
     }
 
@@ -466,6 +486,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(transactionNode.onRetryBody, env);
         analyzeNode(transactionNode.committedBody, env);
         analyzeNode(transactionNode.abortedBody, env);
+
+        // marks the injected import as used
+        Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        Name compUnitName = names.fromString(transactionNode.pos.getSource().getCompilationUnitName());
+        this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
 
     @Override
@@ -804,6 +829,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangContinue continueNode) {
+        terminateFlow();
     }
 
     @Override
@@ -872,6 +898,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForever foreverStatement) {
+        // marks the injected transaction import as used
+        Name compUnitName = names.fromString(foreverStatement.pos.getSource().getCompilationUnitName());
+        this.symResolver.resolvePrefixSymbol(env, Names.STREAMS_MODULE, compUnitName);
     }
 
     @Override
@@ -929,6 +958,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayType arrayType) {
+        analyzeNode(arrayType.getElementType(), env);
     }
 
     @Override
@@ -937,6 +967,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
+        analyzeNode(constrainedType.constraint, env);
     }
 
     @Override
@@ -945,10 +976,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
+        functionTypeNode.params.forEach(param -> analyzeNode(param.typeNode, env));
+        analyzeNode(functionTypeNode.returnTypeNode, env);
     }
 
     @Override
     public void visit(BLangUnionTypeNode unionTypeNode) {
+        unionTypeNode.memberTypeNodes.forEach(typeNode -> analyzeNode(typeNode, env));
     }
 
     @Override
@@ -986,19 +1020,24 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
+        objectTypeNode.getTypeReferences().forEach(type -> analyzeNode((BLangType) type, env));
         this.currDependentSymbol.pop();
     }
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        recordTypeNode.getTypeReferences().forEach(type -> analyzeNode((BLangType) type, env));
+        recordTypeNode.fields.forEach(field -> analyzeNode(field, env));
     }
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
+        finiteTypeNode.valueSpace.forEach(value -> analyzeNode(value, env));
     }
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
+        tupleTypeNode.memberTypeNodes.forEach(type -> analyzeNode(type, env));
     }
 
     @Override
@@ -1061,6 +1100,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         analyzeNode(typeTestExpr.expr, env);
+        analyzeNode(typeTestExpr.typeNode, env);
     }
 
     @Override
@@ -1104,6 +1144,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
+        analyzeNode(bLangTupleVariable.typeNode, env);
     }
 
     @Override
@@ -1117,6 +1158,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
+        analyzeNode(bLangRecordVariable.typeNode, env);
     }
 
     @Override
@@ -1129,6 +1171,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
+        analyzeNode(bLangErrorVariable.typeNode, env);
     }
 
     @Override
@@ -1141,10 +1184,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStaticBindingPatternClause bLangMatchStaticBindingPatternClause) {
+        analyzeNode(bLangMatchStaticBindingPatternClause.body, env);
     }
 
     @Override
     public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStructuredBindingPatternClause) {
+        analyzeNode(bLangMatchStructuredBindingPatternClause.body, env);
     }
 
     private void addUninitializedVar(BLangVariable variable) {
@@ -1306,6 +1351,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private void terminateFlow() {
         this.flowTerminated = true;
+    }
+
+    private void checkUnusedImports(List<BLangImportPackage> imports) {
+        for (BLangImportPackage importStmt : imports) {
+            if (importStmt.symbol == null || importStmt.symbol.isUsed ||
+                    Names.IGNORE.value.equals(importStmt.alias.value)) {
+                continue;
+            }
+            dlog.error(importStmt.pos, DiagnosticCode.UNUSED_IMPORT_MODULE, importStmt.getQualifiedPackageName());
+        }
     }
 
     private enum InitStatus {

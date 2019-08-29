@@ -1,4 +1,4 @@
-import testorg/foo version v1;
+import testorg/foo;
 
 function returnDifferentObectInit() returns foo:Apartment {
     return new (5, 7);

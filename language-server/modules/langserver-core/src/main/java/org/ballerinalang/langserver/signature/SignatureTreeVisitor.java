@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -228,6 +229,23 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
             this.blockPositionStack.push(assignment.expr.pos);
             acceptNode(assignment.expr, symbolEnv);
             this.blockPositionStack.pop();
+        }
+    }
+
+    @Override
+    public void visit(BLangSimpleVariable variable) {
+        if (variable.expr != null) {
+            this.blockPositionStack.push(variable.expr.pos);
+            acceptNode(variable.expr, symbolEnv);
+            this.blockPositionStack.pop();
+        }
+    }
+
+    public void visit(BLangTypeInit typeInit) {
+        if (!terminateVisitor && this.isCursorWithinBlock()) {
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
+                    = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
+            this.populateSymbols(visibleSymbolEntries);
         }
     }
 

@@ -130,8 +130,10 @@ public class IdleTimeoutResponseTestCase extends HttpBaseTest {
         SocketChannel clientSocket = connectToRemoteEndpoint();
         writeDelayedRequest(clientSocket);
         String expected = "HTTP/1.1 408 Request Timeout\r\n" +
-                "content-length: 0\r\n" +
-                "connection: close";
+                "content-length: 64\r\n" +
+                "content-type: text/plain\r\n" +
+                "connection: close\r\n" +
+                "server: Mysql";
         readAndAssertResponse(clientSocket, expected);
     }
 
@@ -230,7 +232,7 @@ public class IdleTimeoutResponseTestCase extends HttpBaseTest {
         String response = inboundContent.toString().trim();
         //Ignore the server header
         int newLineIndex = response.lastIndexOf("\r\n");
-        Assert.assertEquals(response.substring(0, newLineIndex), expected.trim());
+        Assert.assertEquals(response.substring(0, newLineIndex).trim(), expected.trim());
     }
 
     @Test(description = "Tests if 500 response is returned when the server times out. In this case a sleep is " +
@@ -239,6 +241,6 @@ public class IdleTimeoutResponseTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                                                                                          "idle/timeout500"));
         Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        Assert.assertEquals(response.getResponseCode(), 408, "Response code mismatched");
     }
 }

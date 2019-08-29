@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 final string strData1 = "data";
 final byte[] APPLICATION_DATA = strData1.toBytes();
@@ -23,7 +22,7 @@ final byte[] APPLICATION_DATA = strData1.toBytes();
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
 }
-service PingPongTestService1 on new http:WebSocketListener(21011) {
+service PingPongTestService1 on new http:Listener(21011) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15100/websocket", { callbackService:

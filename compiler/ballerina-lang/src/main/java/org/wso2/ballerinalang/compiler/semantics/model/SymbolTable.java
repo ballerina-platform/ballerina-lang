@@ -129,6 +129,7 @@ public class SymbolTable {
     public BRecordType detailType;
     public BConstructorSymbol errorConstructor;
     public BUnionType pureType;
+    public BUnionType errorOrNilType;
     public BType streamType = new BStreamType(TypeTags.STREAM, pureType, null);;
     public BFiniteType trueType;
     public BObjectType intRangeType;

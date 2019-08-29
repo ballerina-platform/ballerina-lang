@@ -66,6 +66,8 @@
             <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPCachingTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>
         </classes>
     </test>
 
@@ -93,6 +95,9 @@
             <class name="org.ballerinalang.test.service.http2.Http2GenericScenarioTestCase"/>
             <class name="org.ballerinalang.test.service.http2.MultipartTestCase"/>
             <class name="org.ballerinalang.test.service.http2.ClientUpgradeWithLargePayload"/>
+            <class name="org.ballerinalang.test.service.http2.HTTP2ClientActionsTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
         </classes>
     </test>
 
@@ -200,6 +205,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.BidiStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorReturnServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingOneofFieldTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.Http2GatewayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
@@ -226,6 +232,7 @@
                 "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
                 @BeforeClass in test classes which have @BeforeClass -->
             <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionProjectTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
@@ -248,7 +255,7 @@
 
     <test name="ballerina-data-streaming-tests" parallel="false">
         <classes>
-<!--            <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>-->
+            <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
         </classes>
     </test>
     <test name="ballerina-socket-tests" parallel="false">
@@ -260,12 +267,49 @@
     </test>
 
     <test name="ballerina-observability-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true" />
+        <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
-            <class
-                    name="org.ballerinalang.test.observability.tracing.TracingTestCase" />
-            <!--<class-->
-            <!--name="org.ballerinalang.test.observability.metrics.MetricsTestCase" />-->
+            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+            <!--<class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>-->
         </classes>
+    </test>
+
+    <test name="ballerina-packerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
+            <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
+            <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
+            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-task-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.task.TaskBaseTest"/>
+            <class name="org.ballerinalang.test.task.TimerWithHttpClientTestCase"/>
+            <class name="org.ballerinalang.test.task.AppointmentTest"/>
+            <class name="org.ballerinalang.test.task.TimerTest"/>
+            <class name="org.ballerinalang.test.task.TimerPauseResumeTestCase"/>
+            <class name="org.ballerinalang.test.task.TimerStopTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-cache-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.cache.CacheBaseTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-run-tests" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <packages>
+            <package name="org.ballerinalang.test.run.*"/>
+        </packages>
     </test>
 </suite>

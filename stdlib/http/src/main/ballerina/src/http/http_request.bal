@@ -16,6 +16,7 @@
 
 import ballerina/io;
 import ballerina/mime;
+import ballerina/internal;
 
 # Represents an HTTP request.
 #
@@ -303,7 +304,16 @@ public type Request object {
                 mime:HeaderUnavailableError typeError = error(mime:HEADER_UNAVAILABLE, message = errMessage);
                 return getGenericClientError(message, typeError);
             }
-            if (!(internal:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, mimeEntity.getHeader(mime:CONTENT_TYPE)))) {
+            string contentTypeHeaderValue = "";
+            var mediaType = mime:getMediaType(mimeEntity.getHeader(mime:CONTENT_TYPE));
+            if (mediaType is mime:InvalidContentTypeError) {
+                string errorMessage = <string> mediaType.detail()["message"];
+                mime:InvalidContentTypeError typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
+                return getGenericClientError(message, typeError);
+            } else {
+                contentTypeHeaderValue = mediaType.primaryType + "/" + mediaType.subType;
+            }
+            if (!(internal:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, contentTypeHeaderValue))) {
                 string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
                 mime:InvalidContentTypeError typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
                 return getGenericClientError(message, typeError);
@@ -433,10 +443,11 @@ public type Request object {
         self.setEntity(entity);
     }
 
-    # Sets the request payload.
+    # Sets the request payload. Note that any string value is set as `text/plain`. To send a JSON-compatible string,
+    # set the content-type header to `application/json` or use the `setJsonPayload` method instead.
     #
-    # + payload - Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
-    #             of body parts)
+    # + payload - Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel`, or `Entity[]` (i.e., a set
+    # of body parts).
     public function setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
         if (payload is string) {
             self.setTextPayload(payload);
@@ -474,13 +485,13 @@ public type Request object {
                 reqCC.noTransform = true;
             } else if (directive == ONLY_IF_CACHED) {
                 reqCC.onlyIfCached = true;
-            } else if (internal:hasPrefix(directive, MAX_AGE)) {
+            } else if (directive.startsWith(MAX_AGE)) {
                 reqCC.maxAge = getExpirationDirectiveValue(directive);
             } else if (directive == MAX_STALE) {
                 reqCC.maxStale = MAX_STALE_ANY_AGE;
-            } else if (internal:hasPrefix(directive, MAX_STALE)) {
+            } else if (directive.startsWith(MAX_STALE)) {
                 reqCC.maxStale = getExpirationDirectiveValue(directive);
-            } else if (internal:hasPrefix(directive, MIN_FRESH)) {
+            } else if (directive.startsWith(MIN_FRESH)) {
                 reqCC.minFresh = getExpirationDirectiveValue(directive);
             }
             // non-standard directives are ignored

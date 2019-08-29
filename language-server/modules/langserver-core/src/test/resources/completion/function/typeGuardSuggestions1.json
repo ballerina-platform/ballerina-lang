@@ -6,55 +6,18 @@
   "source": "function/source/typeGuardSuggestions1.bal",
   "items": [
     {
-      "label": "min(...int)(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int_  \n  \nMinimum of all the arguments\nXXX should we allow no args?  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
-        }
-      },
-      "insertText": "min(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "abs()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int_  \n  \nReturn absolute value of `n`  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
-        }
-      },
-      "insertText": "abs(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "toHexString()(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int_  \n  \nReturns representation of `n` as hexdecimal string.\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.int_  \n  \nReturns representation of `n` as hexdecimal string.\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.\n  \n  \n  \n**Returns** `string`   \n- hexadecimal string representation of int value  \n  \n"
         }
       },
-      "insertText": "toHexString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "130",
+      "insertText": "toHexString()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "max(...int)(int)",
@@ -63,9 +26,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int_  \n  \nMaximum of all the arguments\nXXX should we allow no args?  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+          "value": "**Package:** _ballerina/lang.int_  \n  \nMaximum of all the arguments.\n  \n**Params**  \n- ns: rest of the argument to check for max value  \n  \n**Returns** `int`   \n- maximum value of all provided values  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "max(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -74,21 +38,142 @@
       }
     },
     {
+      "label": "cloneReadOnly()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "sum(...int)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int_  \n  \nSum of all the arguments\n0 if no args  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+          "value": "**Package:** _ballerina/lang.int_  \n  \nSum of all the arguments.\n0 if no args\n  \n  \n  \n**Returns** `int`   \n- sum of arguments  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "sum(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "isReadOnly()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "abs()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int_  \n  \nReturn absolute value of `n`.\n  \n  \n  \n**Returns** `int`   \n- absolute value of `n`  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "abs()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "min(...int)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int_  \n  \nMinimum of all the arguments.\n  \n**Params**  \n- ns: rest of the argument to check for min value  \n  \n**Returns** `int`   \n- min value of all provided values  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "min(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "mergeJson(json j2)((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturn the result of merging json value `j1` with `j2`.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- merged json value or error  \n  \nIf the merge fails, then return an error.  \nThe merge of j1 with j2 is defined as follows:  \n- if j1 is (), then the result is j2  \n- if j2 is nil, then the result is j1  \n- if j1 is a mapping and j2 is a mapping, then for each entry [k, j] in j2,  \nset j1[k] to the merge of j1[k] with j  \n- if j1[k] is undefined, then set j1[k] to j  \n- if any merge fails, then the merge of j1 with j2 fails  \n- otherwise, the result is j1.  \n- otherwise, the merge fails  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "mergeJson(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "clone()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a simple, human-readable representation of `value` as a string.\n  \n  \n  \n**Returns** `string`   \n- simple, human-readable string representation of `value`  \n  \n- if `value` is a string, then returns `value`  \n- if `value` is `()`, then returns an empty string  \n- if `value` is boolean, then the string `true` or `false`  \n- if `value` is an int, then return `value` represented as a decimal string  \n- if `value` is a float or decimal, then return `value` represented as a decimal string,  \nwith a decimal point only if necessary, but without any suffix indicating the type of `value`  \nreturn `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `value` is a list, then returns the results toString on each member of the list  \nseparated by a space character  \n- if `value` is a map, then returns key=value for each member separated by a space character  \n- if `value` is xml, then returns `value` in XML format (as if it occurred within an XML element)  \n- if `value` is table, TBD  \n- if `value` is an error, then a string consisting of the following in order  \n1. the string `error`  \n2. a space character  \n3. the reason string  \n4. if the detail record is non-empty  \n1. a space character  \n2. the result of calling toString on the detail record  \n- if `value` is an object, then  \n- if `value` provides a `toString` method with a string return type and no required methods,  \nthen the result of calling that method on `value`  \n- otherwise, `object` followed by some implementation-dependent string  \n- if `value` is any other behavioral type, then the identifier for the behavioral type  \n(`function`, `future`, `service`, `typedesc` or `handle`)  \nfollowed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toJsonString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturn the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "toJsonString()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

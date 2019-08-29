@@ -6,9 +6,28 @@
   "source": "function/source/completionWithTupleVariableDef.bal",
   "items": [
     {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "check ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error",
       "kind": "Keyword",
       "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
+      },
       "sortText": "120",
       "insertText": "error",
       "insertTextFormat": "Snippet"
@@ -20,7 +39,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "130",
@@ -108,7 +127,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "java.jdbc",
+      "insertText": "jdbc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -146,29 +165,6 @@
             }
           },
           "newText": "import ballerina/lang.\u0027object;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/streams.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "streams.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/streams.balx;\n"
         }
       ]
     },
@@ -932,29 +928,6 @@
       ]
     },
     {
-      "label": "ballerina/transactions.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "transactions.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/transactions.balx;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.decimal",
       "kind": "Module",
       "detail": "Package",
@@ -1024,29 +997,6 @@
       ]
     },
     {
-      "label": "ballerina/cache.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "cache.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/cache.balx;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.table",
       "kind": "Module",
       "detail": "Package",
@@ -1066,29 +1016,6 @@
             }
           },
           "newText": "import ballerina/lang.\u0027table;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.annotations",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "\u0027annotations",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.\u0027annotations;\n"
         }
       ]
     },

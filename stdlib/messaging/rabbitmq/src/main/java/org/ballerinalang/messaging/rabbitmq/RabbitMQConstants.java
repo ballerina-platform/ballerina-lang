@@ -18,7 +18,10 @@
 
 package org.ballerinalang.messaging.rabbitmq;
 
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * RabbitMQ Connector Constants.
@@ -31,6 +34,7 @@ public class RabbitMQConstants {
     public static final String ORG_NAME = "ballerina";
     public static final String RABBITMQ = "rabbitmq";
     public static final String PACKAGE_RABBITMQ = ORG_NAME + ORG_NAME_SEPARATOR + RABBITMQ;
+    public static final BPackage PACKAGE_ID_RABBITMQ = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "rabbitmq");
 
     // Error constant fields
     public static final String RABBITMQ_ERROR_CODE = "{ballerina/rabbitmq}Error";

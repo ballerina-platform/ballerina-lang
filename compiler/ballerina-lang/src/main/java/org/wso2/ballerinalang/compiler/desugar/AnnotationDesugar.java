@@ -141,9 +141,6 @@ public class AnnotationDesugar {
         defineTypeAnnotations(pkgNode, env, initFunction);
         defineServiceAnnotations(pkgNode, env, initFunction);
         defineFunctionAnnotations(pkgNode, env, initFunction);
-
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
     private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
@@ -192,8 +189,7 @@ public class AnnotationDesugar {
                 // Add the lambda/invocation in a temporary block.
                 BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                 target.pos = initFunction.body.pos;
-                String identifier = (function.attachedFunction || function.attachedOuterFunction) ?
-                        function.symbol.name.value : function.name.value;
+                String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
 
                 int index;
                 if (function.attachedFunction && function.receiver.type instanceof BServiceType) {

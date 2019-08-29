@@ -35,6 +35,12 @@ import java.util.List;
  * Task for creating jar file.
  */
 public class CreateJarTask implements Task {
+
+    private boolean dumpBir;
+
+    public CreateJarTask(boolean dumpBir) {
+        this.dumpBir = dumpBir;
+    }
     
     @Override
     public void execute(BuildContext buildContext) {
@@ -56,8 +62,9 @@ public class CreateJarTask implements Task {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
 
-            BootstrapRunner.generateJarBinary2(tmpDir, entryBir.toString(), jarOutput.toString(),
-                    false, projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+            BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir,
+                    entryBir.toString(), jarOutput.toString(), this.dumpBir,
+                    projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
         }
     }
     
@@ -73,7 +80,8 @@ public class CreateJarTask implements Task {
             // If the module is part of the project write it to project jar cache check if file exist
             // If not write it to home jar cache
             // skip ballerina and ballerinax
-            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)) {
+            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)  ||
+                                                                buildContext.getImportPathDependency(id).isPresent()) {
                 jarFilePath = buildContext.getJarPathFromTargetCache(id);
                 birFilePath = buildContext.getBirPathFromTargetCache(id);
             } else {
@@ -81,11 +89,10 @@ public class CreateJarTask implements Task {
                 birFilePath = buildContext.getBirPathFromHomeCache(id);
             }
             if (!Files.exists(jarFilePath)) {
-                BootstrapRunner.generateJarBinary2(tmpDir, birFilePath.toString(),
-                        jarFilePath.toString(), false, reps);
-                BootstrapRunner.generateJarBinary(birFilePath.toString(), jarFilePath.toString(), false, reps);
+                BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir,
+                        birFilePath.toString(), jarFilePath.toString(), this.dumpBir, reps);
             }
-            writeImportJar(tmpDir, bimport.imports, sourceRoot, buildContext);
+            writeImportJar(tmpDir, bimport.imports, sourceRoot, buildContext, reps);
         }
     }
 }
