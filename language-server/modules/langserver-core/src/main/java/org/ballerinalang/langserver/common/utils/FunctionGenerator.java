@@ -284,7 +284,7 @@ public class FunctionGenerator {
                     argNames.add(argName);
                 }
                 if (restParam != null && (restParam.type instanceof BArrayType)) {
-                    list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx));
+                    list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
                 }
             }
         } else {
@@ -294,10 +294,10 @@ public class FunctionGenerator {
                     continue;
                 }
                 BVarSymbol param = parameterDefs.get(i);
-                list.add(CommonUtil.getBTypeName(param.type, ctx) + " " + param.getName());
+                list.add(CommonUtil.getBTypeName(param.type, ctx, true) + " " + param.getName());
             }
             if (restParam != null && (restParam.type instanceof BArrayType)) {
-                list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx));
+                list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
             }
         }
         return (!list.isEmpty()) ? list : new ArrayList<>();

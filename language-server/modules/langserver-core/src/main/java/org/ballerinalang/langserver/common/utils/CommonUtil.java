@@ -691,26 +691,27 @@ public class CommonUtil {
      *
      * @param bType BType to get the name
      * @param ctx   LS Operation Context
+     * @param doSimplify Simplifies the types eg. Errors
      * @return {@link String}   BType Name as String
      */
-    public static String getBTypeName(BType bType, LSContext ctx) {
+    public static String getBTypeName(BType bType, LSContext ctx, boolean doSimplify) {
         if (bType instanceof ConstrainedType) {
-            return getConstrainedTypeName(bType, ctx);
+            return getConstrainedTypeName(bType, ctx, doSimplify);
         }
         if (bType instanceof BUnionType) {
-            return getUnionTypeName((BUnionType) bType, ctx);
+            return getUnionTypeName((BUnionType) bType, ctx, doSimplify);
         }
         if (bType instanceof BTupleType) {
-            return getTupleTypeName((BTupleType) bType, ctx);
+            return getTupleTypeName((BTupleType) bType, ctx, doSimplify);
         }
         if (bType instanceof BFiniteType || bType instanceof BInvokableType || bType instanceof BNilType) {
             return bType.toString();
         }
         if (bType instanceof BArrayType) {
-            return getArrayTypeName((BArrayType) bType, ctx);
+            return getArrayTypeName((BArrayType) bType, ctx, doSimplify);
         }
         if (bType instanceof BRecordType) {
-            return getRecordTypeName((BRecordType) bType, ctx);
+            return getRecordTypeName((BRecordType) bType, ctx, doSimplify);
         }
         return getShallowBTypeName(bType, ctx);
     }
@@ -742,7 +743,7 @@ public class CommonUtil {
                 + nameComponents[nameComponents.length - 1];
     }
 
-    private static String getUnionTypeName(BUnionType unionType, LSContext ctx) {
+    private static String getUnionTypeName(BUnionType unionType, LSContext ctx, boolean doSimplify) {
         List<BType> nonErrorTypes = new ArrayList<>();
         List<BType> errorTypes = new ArrayList<>();
         StringBuilder unionName = new StringBuilder("(");
@@ -754,10 +755,10 @@ public class CommonUtil {
             }
         });
         String nonErrorsName = nonErrorTypes.stream()
-                .map(bType -> getBTypeName(bType, ctx))
+                .map(bType -> getBTypeName(bType, ctx, doSimplify))
                 .collect(Collectors.joining("|"));
         unionName.append(nonErrorsName);
-        if (errorTypes.size() > 3) {
+        if (errorTypes.size() > 3 && doSimplify) {
             if (nonErrorTypes.isEmpty()) {
                 unionName.append("error");
             } else {
@@ -765,7 +766,7 @@ public class CommonUtil {
             }
         } else if (!errorTypes.isEmpty()) {
             String errorsName = errorTypes.stream()
-                    .map(bType -> getBTypeName(bType, ctx))
+                    .map(bType -> getBTypeName(bType, ctx, doSimplify))
                     .collect(Collectors.joining("|"));
 
             if (nonErrorTypes.isEmpty()) {
@@ -778,18 +779,18 @@ public class CommonUtil {
         return unionName.toString();
     }
 
-    private static String getTupleTypeName(BTupleType tupleType, LSContext ctx) {
+    private static String getTupleTypeName(BTupleType tupleType, LSContext ctx, boolean doSimplify) {
         return "[" + tupleType.getTupleTypes().stream()
-                .map(bType -> getBTypeName(bType, ctx))
+                .map(bType -> getBTypeName(bType, ctx, doSimplify))
                 .collect(Collectors.joining(",")) + "]";
     }
 
-    private static String getRecordTypeName(BRecordType recordType, LSContext ctx) {
+    private static String getRecordTypeName(BRecordType recordType, LSContext ctx, boolean doSimplify) {
         if (recordType.tsymbol.kind == SymbolKind.RECORD && recordType.tsymbol.name.value.contains("$anonType")) {
             StringBuilder recordTypeName = new StringBuilder("record {");
             recordTypeName.append(CommonUtil.LINE_SEPARATOR);
             String fieldsList = recordType.fields.stream()
-                    .map(field -> getBTypeName(field.type, ctx) + " " + field.name.getValue() + ";")
+                    .map(field -> getBTypeName(field.type, ctx, doSimplify) + " " + field.name.getValue() + ";")
                     .collect(Collectors.joining(CommonUtil.LINE_SEPARATOR));
             recordTypeName.append(fieldsList).append(CommonUtil.LINE_SEPARATOR).append("}");
             return recordTypeName.toString();
@@ -798,8 +799,8 @@ public class CommonUtil {
         return getShallowBTypeName(recordType, ctx);
     }
 
-    private static String getArrayTypeName(BArrayType arrayType, LSContext ctx) {
-        return getBTypeName(arrayType.eType, ctx) + "[]";
+    private static String getArrayTypeName(BArrayType arrayType, LSContext ctx, boolean doSimplify) {
+        return getBTypeName(arrayType.eType, ctx, doSimplify) + "[]";
     }
 
     /**
@@ -807,9 +808,10 @@ public class CommonUtil {
      *
      * @param bType   BType to evaluate
      * @param context Language server operation context
+     * @param doSimplify
      * @return {@link StringBuilder} constraint type name
      */
-    private static String getConstrainedTypeName(BType bType, LSContext context) {
+    private static String getConstrainedTypeName(BType bType, LSContext context, boolean doSimplify) {
 
         if (!(bType instanceof ConstrainedType)) {
             return "";
@@ -821,7 +823,7 @@ public class CommonUtil {
         if (constraint.tsymbol.kind == SymbolKind.RECORD && constraint.tsymbol.name.value.contains("$anonType")) {
             constraintName.append("record {}");
         } else {
-            constraintName.append(getBTypeName(constraint, context));
+            constraintName.append(getBTypeName(constraint, context, doSimplify));
         }
 
         constraintName.append(">");
@@ -1063,7 +1065,7 @@ public class CommonUtil {
 
         BType returnType = symbol.type.getReturnType();
         if (returnType != null && !(returnType instanceof BNilType)) {
-            signature.append(initString).append(CommonUtil.getBTypeName(returnType, ctx));
+            signature.append(initString).append(CommonUtil.getBTypeName(returnType, ctx, false));
             signature.append(endString);
         }
 

@@ -615,7 +615,7 @@ public class CommandUtil {
                             edits.add(new TextEdit(newTextRange, newText));
                         } else {
                             // if (foo() is int) {...} else {...}
-                            String type = CommonUtil.getBTypeName(bType, context);
+                            String type = CommonUtil.getBTypeName(bType, context, true);
                             String newText = String.format("if (%s is %s) {%s} else {%s}",
                                                            content, type, padding, padding);
                             edits.add(new TextEdit(newTextRange, newText));
@@ -625,7 +625,7 @@ public class CommandUtil {
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
             String varName = CommonUtil.generateVariableName(bLangNode, nameEntries);
-            String typeDef = CommonUtil.getBTypeName(unionType, context);
+            String typeDef = CommonUtil.getBTypeName(unionType, context, true);
             boolean addErrorTypeAtEnd;
 
             List<BType> tMembers = new ArrayList<>((unionType).getMemberTypes());
@@ -639,7 +639,7 @@ public class CommandUtil {
             IntStream.range(0, tMembers.size() - 1)
                     .forEachOrdered(value -> {
                         BType bType = tMembers.get(value);
-                        String bTypeName = CommonUtil.getBTypeName(bType, context);
+                        String bTypeName = CommonUtil.getBTypeName(bType, context, true);
                         boolean isErrorType = bType instanceof BErrorType;
                         if (isErrorType && !addErrorTypeAtEnd) {
                             memberTypes.add(bTypeName);
