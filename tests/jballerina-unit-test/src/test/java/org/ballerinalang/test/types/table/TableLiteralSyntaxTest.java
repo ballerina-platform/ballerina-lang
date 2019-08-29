@@ -484,7 +484,8 @@ public class TableLiteralSyntaxTest {
     public void testTableReturnNegativeCases() {
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "object type not allowed as the constraint", 39, 11);
-        BAssertUtil.validateError(resultNegative, i++, "undefined column 'married2' for table of type 'Person'", 46, 42);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined column 'married2' for table of type 'Person'", 46, 42);
         BAssertUtil.validateError(resultNegative, i++, "undefined field 'married2' in record 'Person'", 47, 10);
         BAssertUtil.validateError(resultNegative, i++, "undefined field 'married2' in record 'Person'", 48, 9);
         BAssertUtil.validateError(resultNegative, i++, "undefined field 'married2' in record 'Person'", 49, 9);
