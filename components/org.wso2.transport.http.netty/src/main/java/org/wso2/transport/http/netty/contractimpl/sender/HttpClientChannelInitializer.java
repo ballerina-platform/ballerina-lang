@@ -46,6 +46,7 @@ import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
 import org.wso2.transport.http.netty.contractimpl.common.FrameLogger;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
+import org.wso2.transport.http.netty.contractimpl.common.http2.Http2ExceptionHandler;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpTraceLoggingHandler;
@@ -231,6 +232,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         pipeline.addLast(Constants.CONNECTION_HANDLER, http2ConnectionHandler);
         pipeline.addLast(Constants.HTTP2_TARGET_HANDLER, http2TargetHandler);
         pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
+        pipeline.addLast(Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler(http2ConnectionHandler));
     }
 
     /**
