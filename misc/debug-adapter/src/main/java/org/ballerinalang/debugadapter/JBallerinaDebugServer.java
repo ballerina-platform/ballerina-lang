@@ -496,7 +496,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             String stringValue = value.toString();
             dapVariable.setValue(stringValue);
             return dapVariable;
-        } else if (varType.startsWith("$value$")) {
+        } else if (varType.contains("$value$")) {
             // Record type
             String stringValue = value.type().name();
 
@@ -535,6 +535,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             dapVariable.setVariablesReference(variableReference);
             stringValue = stringValue.replace("$value$", "");
             dapVariable.setType(stringValue);
+            dapVariable.setValue(stringValue);
+            return dapVariable;
+        } else if ("org.ballerinalang.jvm.types.BObjectType".equalsIgnoreCase(varType)) {
+            Value typeName = ((ObjectReferenceImpl) value)
+                    .getValue(((ObjectReferenceImpl) value).referenceType().fieldByName("typeName"));
+            dapVariable.setType(varType);
+            String stringValue = typeName.toString();
             dapVariable.setValue(stringValue);
             return dapVariable;
         } else {
