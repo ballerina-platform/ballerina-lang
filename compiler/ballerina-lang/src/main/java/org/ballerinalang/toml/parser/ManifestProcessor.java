@@ -198,4 +198,6 @@ public class ManifestProcessor {
     private static String lowerCaseFirstLetter(String content) {
         return content.substring(0, 1).toLowerCase(Locale.getDefault()) + content.substring(1);
     }
+    
+    public static void addDependencyToToml()
 }

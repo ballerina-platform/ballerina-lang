@@ -22,10 +22,13 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.BaloToml;
+import org.ballerinalang.toml.exceptions.TomlException;
+import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Module;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -49,6 +52,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -141,6 +145,7 @@ public class BaloFileWriter {
                 .resolve(module.packageID.name.value);
         String moduleName = module.packageID.name.value;
         Path manifest = projectDirectory.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
+        populateProjectModulesToBallerinaToml(module, manifest);
         // Now lets put stuff in according to spec
         // /
         // └─ metadata/
@@ -161,6 +166,32 @@ public class BaloFileWriter {
         // Add platform libs only if it is not a template module.
         if (!this.manifest.isTemplateModule(moduleName)) {
             addPlatformLibs(root, projectDirectory, moduleName);
+        }
+    }
+    
+    private void populateProjectModulesToBallerinaToml(BLangPackage module, Path manifestPath) {
+        try {
+            Manifest manifest = ManifestProcessor.parseTomlContentFromFile(manifestPath);
+            for (BLangImportPackage importz : module.imports) {
+                // if import is from the same org as parent
+                if (importz.symbol.pkgID.orgName.value.equals(module.packageID.orgName.value)) {
+                    // if its from the same project
+                    if (ProjectDirs.isModuleExist(this.sourceDirectory.getPath(), importz.symbol.pkgID.name.value)) {
+                        // check if its not already there as an import.
+                        Optional<Dependency> manifestDependency =manifest.getDependencies().stream()
+                                .filter(dep -> dep.getOrgName().equals(importz.symbol.pkgID.orgName.value))
+                                .filter(dep -> dep.getModuleName().equals(importz.symbol.pkgID.name.value))
+                                .findAny();
+                        
+                        if (!manifestDependency.isPresent()) {
+                            // update manifest
+                            manifest.getDependencies()
+                        }
+                    }
+                }
+            }
+        } catch (IOException | TomlException e) {
+            // ignore
         }
     }
     
