@@ -124,13 +124,6 @@ public class FunctionSignatureNegativeTest {
     }
 
     @Test
-    public void testOutsideObjectMethodDefinition() {
-        CompileResult result = BCompileUtil.compile("test-src/functions" +
-                "/function_with_outside_object_method_definition.bal");
-        BAssertUtil.validateError(result, 1, "outside object method definitions are not allowed", 5, 1);
-    }
-
-    @Test
     public void testExternalResourceFunction() {
         CompileResult result = BCompileUtil.compile("test-src/functions/extern_resource_function_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);

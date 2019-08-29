@@ -233,7 +233,7 @@ public class ToolUtil {
                 }
             }
             printStream.println();
-            unzip(zipFileLocation, getDistributionsPath());
+            unzip(zipFileLocation, getDistributionsPath(), distribution);
 
             if (conn.getResponseCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : "
@@ -331,7 +331,7 @@ public class ToolUtil {
         return distributions;
     }
 
-    public static void unzip(String zipFilePath, String destDirectory) throws IOException {
+    public static void unzip(String zipFilePath, String destDirectory, String distribution) throws IOException {
         File destDir = new File(destDirectory);
         if (!destDir.exists()) {
             destDir.mkdir();
@@ -357,6 +357,7 @@ public class ToolUtil {
         }
 
         final File file = new File(destDirectory
+                + File.separator + distribution
                 + File.separator + "bin"
                 + File.separator + OSUtils.getExecutableFileName());
         file.setReadable(true, false);

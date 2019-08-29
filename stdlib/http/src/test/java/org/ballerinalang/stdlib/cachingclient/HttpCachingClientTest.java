@@ -75,7 +75,7 @@ public class HttpCachingClientTest {
         if (Files.notExists(Paths.get(sourceRoot.toString(), ".ballerina"))) {
             Files.createDirectory(Paths.get(sourceRoot.toString(), ".ballerina"));
         }
-        compileResult = BCompileUtil.compile(sourceRoot.toString(), "http", CompilerPhase.CODE_GEN,
+        compileResult = BCompileUtil.compile(sourceRoot.toString(), "http", CompilerPhase.BIR_GEN,
                                              new FileSystemProjectDirectory(sourceRoot));
     }
 

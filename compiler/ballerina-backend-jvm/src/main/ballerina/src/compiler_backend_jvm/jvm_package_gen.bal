@@ -49,6 +49,8 @@ bir:ModuleID[] dependentModuleArray = [];
 
 string currentClass = "";
 
+int lambdaIndex = 0;
+
 function lookupFullQualifiedClassName(string key) returns string {
     if (birFunctionMap.hasKey(key)) {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
@@ -217,6 +219,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         }
         // clear the lambdas
         lambdas = {};
+        lambdaIndex = 0;
         cw.visitEnd();
 
         var result = cw.toByteArray();
