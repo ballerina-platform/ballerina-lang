@@ -57,6 +57,7 @@ import static org.ballerinalang.packerina.utils.FileUtils.deleteDirectory;
  */
 public class BuildCommandTest extends CommandTest {
     private Path moduleBalo;
+    private Path tplModuleBalo;
     private Path testResources;
 
     @BeforeClass
@@ -344,11 +345,11 @@ public class BuildCommandTest extends CommandTest {
                                       "Generating executables\n" +
                                       "\ttarget" + File.separator + "bin" + File.separator + "foo-executable.jar\n");
 
-        // Clean that target
-        CleanCommand cleanCommand = new CleanCommand(sourceRoot);
-        new CommandLine(cleanCommand).parse();
-        cleanCommand.execute();
-        readOutput(true);
+        // Commented out below since it does a system exit and prevent rest of the test running.
+        // CleanCommand cleanCommand = new CleanCommand(sourceRoot);
+        // new CommandLine(cleanCommand).parse();
+        // cleanCommand.execute();
+        // readOutput(true);
     
         String tomlContent = "";
         Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
@@ -420,8 +421,14 @@ public class BuildCommandTest extends CommandTest {
         String baloName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java-0.1.0.balo";
         this.moduleBalo = target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)
                 .resolve(baloName);
-        Assert.assertTrue(Files.exists(target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)),
+        Assert.assertTrue(Files.exists(this.moduleBalo),
                 "Check if balo file exists");
+
+        String tplBaloName = "mytemplate-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0.balo";
+        this.tplModuleBalo = target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)
+                .resolve(tplBaloName);
+        Assert.assertTrue(Files.exists(this.tplModuleBalo),
+                "Check if template balo file exists");
 
         Path lockFile = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.LOCK_FILE_NAME);
         Assert.assertTrue(Files.exists(lockFile), "Check if lock file is created");
@@ -506,6 +513,9 @@ public class BuildCommandTest extends CommandTest {
                         Path moduleMD = moduleDir.resolve("Module.md");
                         Assert.assertFalse(Files.exists(moduleMD));
 
+                        Path testDir = moduleDir.resolve("tests");
+                        Assert.assertFalse(Files.exists(testDir));
+
                         Path resourceDirInModule = moduleDir.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
                         Assert.assertFalse(Files.exists(resourceDirInModule));
 
@@ -539,7 +549,97 @@ public class BuildCommandTest extends CommandTest {
                 });
     }
 
-    @Test(dependsOnMethods = {"testBuildCommand"}, enabled = false)
+
+    @Test(dependsOnMethods = {"testBuildCommand"})
+    public void testTemplateBaloContents() throws IOException {
+        URI baloZip = URI.create("jar:" + tplModuleBalo.toUri().toString());
+        FileSystems.newFileSystem(baloZip, Collections.emptyMap())
+                .getRootDirectories()
+                .forEach(root -> {
+                    try (Stream<Path> stream = Files.list(root)) {
+                        // Validate against the spec
+                        // /
+                        // └─ metadata/
+                        //    └─ BALO.toml
+                        //    └─ MODULE.toml
+                        // └─ src/
+                        // └─ resources/
+                        // └─ platform-libs/
+                        // └─ docs/
+                        //    └─ MODULE-DESC.md
+                        //    └─ api-docs/
+                        Path metadata = root.resolve(ProjectDirConstants.BALO_METADATA_DIR_NAME);
+                        Assert.assertTrue(Files.exists(metadata));
+                        Assert.assertTrue(Files.isDirectory(metadata));
+
+                        Path baloToml = metadata.resolve(ProjectDirConstants.BALO_METADATA_FILE);
+                        Assert.assertTrue(Files.exists(baloToml));
+
+                        Path moduleToml = metadata.resolve(ProjectDirConstants.BALO_MODULE_METADATA_FILE);
+                        Assert.assertTrue(Files.exists(moduleToml));
+
+                        // validate the content of the metafiles
+                        String moduleTomlContent = new String(Files.readAllBytes(moduleToml));
+                        String baloTomlContent = new String(Files.readAllBytes(baloToml));
+
+                        Module module = new Toml().read(moduleTomlContent).to(Module.class);
+                        BaloToml balo = new Toml().read(baloTomlContent).to(BaloToml.class);
+
+                        Assert.assertEquals(module.module_version, "0.1.0");
+                        Assert.assertEquals(balo.balo_version, "1.0.0");
+
+                        Path srcDir = root.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
+                        Assert.assertTrue(Files.exists(srcDir));
+
+                        Path moduleDir = srcDir.resolve("mytemplate");
+                        Assert.assertTrue(Files.exists(moduleDir));
+
+                        // Check if tests are included in the balo
+                        Path testDir = moduleDir.resolve("tests");
+                        Assert.assertTrue(Files.exists(testDir));
+
+                        Path testFile = testDir.resolve("main_test.bal");
+                        Assert.assertTrue(Files.exists(testFile));
+
+                        Path mainBal = moduleDir.resolve("main.bal");
+                        Assert.assertTrue(Files.exists(mainBal));
+
+                        Path moduleMD = moduleDir.resolve("Module.md");
+                        Assert.assertFalse(Files.exists(moduleMD));
+
+                        Path resourceDirInModule = moduleDir.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
+                        Assert.assertFalse(Files.exists(resourceDirInModule));
+
+                        // Check if resources is there
+                        Path resourceDir = root.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
+                        Assert.assertTrue(Files.exists(resourceDir));
+
+                        Path resourceDirContent = resourceDir.resolve("resource.txt");
+                        Assert.assertTrue(Files.exists(resourceDirContent));
+
+                        // Check for module md
+                        Path docsDir = root.resolve(ProjectDirConstants.BALO_DOC_DIR_NAME);
+                        Assert.assertTrue(Files.exists(docsDir));
+
+                        Path moduleMdInBalo = docsDir.resolve(ProjectDirConstants.MODULE_MD_FILE_NAME);
+                        Assert.assertTrue(Files.exists(moduleMdInBalo));
+
+                        // Check for platform libs
+                        Path platformLibDir = root.resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME);
+                        Assert.assertFalse(Files.exists(platformLibDir));
+
+                        Path jarFile = platformLibDir.resolve("toml4j.jar");
+                        Assert.assertFalse(Files.exists(jarFile));
+
+                        // Check if resources are copied.
+                        // check if template manifest exists
+                    } catch (IOException ex) {
+                        throw new AssertionError("Error while reading balo content");
+                    }
+                });
+    }
+
+    @Test(dependsOnMethods = {"testBuildCommand"})
     public void testTargetCacheDirectory() throws IOException {
         // check for the cache directory in target
         Path cache = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME)

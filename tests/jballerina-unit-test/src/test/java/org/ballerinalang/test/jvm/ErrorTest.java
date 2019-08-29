@@ -113,4 +113,16 @@ public class ErrorTest {
     public void testSelfReferencingObject() {
         BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
+
+    @Test
+    public void testRuntimeOOMError() {
+        try {
+            CompileResult compileResult = BCompileUtil.compile("test-src/jvm/runtime-oom-error.bal");
+            BCompileUtil.runMain(compileResult, new String[]{});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("java.lang.OutOfMemoryError: Java heap space"));
+            return;
+        }
+        Assert.fail("runtime out of memory errors are not handled");
+    }
 }

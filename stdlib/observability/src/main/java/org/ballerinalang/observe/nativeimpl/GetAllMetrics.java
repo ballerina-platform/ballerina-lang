@@ -57,7 +57,7 @@ import java.util.Set;
 public class GetAllMetrics {
 
     private static final BType METRIC_TYPE = BallerinaValues
-            .createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH, ObserveNativeImplConstants.METRIC)
+            .createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC)
             .getType();
 
     public static ArrayValue getAllMetrics(Strand strand) {
@@ -85,7 +85,7 @@ public class GetAllMetrics {
             }
             if (metricValue != null) {
                 MapValue<String, Object> metricStruct = BallerinaValues.createRecordValue(
-                        ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH, ObserveNativeImplConstants.METRIC);
+                        ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC);
                 metricStruct.put("name", metricId.getName());
                 metricStruct.put("desc", metricId.getDescription());
                 metricStruct.put("tags", getTags(metricId));

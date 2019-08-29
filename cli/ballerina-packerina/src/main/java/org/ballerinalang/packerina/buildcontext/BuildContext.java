@@ -326,13 +326,19 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         }
     }
 
-    public Path getBaloFromHomeCache(PackageID moduleID) {
+    public Path getBaloFromHomeCache(PackageID moduleID, String platform) {
         try {
             Path moduleBaloCacheDir = Files.createDirectories(getBaloCacheFromHome()
                     .resolve(moduleID.orgName.value)
                     .resolve(moduleID.name.value)
                     .resolve(moduleID.version.value));
-            return moduleBaloCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_PKG_BINARY_EXT);
+    
+            String baloFileName = moduleID.name.value + "-"
+                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                  + platform + "-"
+                                  + moduleID.version.value
+                                  + BLANG_COMPILED_PKG_BINARY_EXT;
+            return moduleBaloCacheDir.resolve(baloFileName);
         } catch (IOException e) {
             throw new BLangCompilerException("error resolving balo_cache dir for module: " + moduleID);
         }
@@ -352,7 +358,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                     // Get the version of the project.
                     String versionNo = manifest.getProject().getVersion();
                     // Identify the platform version
-                    String platform = manifest.getTargetPlatform();
+                    String platform = manifest.getTargetPlatform(moduleID.name.value);
                     // {module}-{lang spec version}-{platform}-{version}.balo
                     //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
                     String baloFileName = moduleID.name.value + "-"

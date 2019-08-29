@@ -23,7 +23,7 @@ package org.ballerinalang.toml.model;
  * @since 1.0
  */
 public class Library {
-    public String artafactId;
+    public String artifactId;
     public String version;
     public String path;
     public String groupId;
@@ -61,11 +61,11 @@ public class Library {
         this.modules = modules;
     }
 
-    public String getArtafactId() {
-        return artafactId;
+    public String getArtifactId() {
+        return artifactId;
     }
 
-    public void setArtafactId(String artafactId) {
-        this.artafactId = artafactId;
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
     }
 }

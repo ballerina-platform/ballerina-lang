@@ -33,7 +33,7 @@ public interface BallerinaServiceDefinition extends BallerinaTopLevelDefinition 
   @Nullable
   PsiElement getIdentifier();
 
-  @Nullable
+  @NotNull
   PsiElement getOn();
 
   @NotNull

@@ -58,24 +58,24 @@ public class MainFunctionsTest {
         assertTrue(result.endsWith("nil returning main invoked"), "expected nil to be returned");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testErrorReturningMain() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_return.bal");
-        String result = runMain(compileResult, new String[]{});
-        assertTrue(result.contains("error returning main invoked"),
+        BCompileUtil.ExitDetails result = BCompileUtil.run(compileResult, new String[]{});
+        assertTrue(result.consoleOutput.contains("error returning main invoked"),
                             "expected the main function to be invoked");
-        assertTrue(result.contains("error return"), "invalid error reason");
+        assertTrue(result.errorOutput.contains("error return"), "invalid error reason");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testErrorOrNilReturningMainReturningError() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
-        String result = runMain(compileResult, new String[]{"error", "1"});
-        assertTrue(result.contains("error? returning main invoked"),
+        BCompileUtil.ExitDetails result = BCompileUtil.run(compileResult, new String[]{"error", "1"});
+        assertTrue(result.consoleOutput.contains("error? returning main invoked"),
                             "expected the main function to be invoked");
-        assertTrue(result.contains("generic error"), "invalid error reason");
+        assertTrue(result.errorOutput.contains("generic error"), "invalid error reason");
     }
 
     @Test
@@ -88,15 +88,15 @@ public class MainFunctionsTest {
         assertTrue(result.endsWith("error? returning main invoked"), "expected nil to be returned");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testErrorOrNilReturningMainReturningCustomError() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
-        String result = runMain(compileResult, new String[]{"user_def_error", "1"});
-        assertTrue(result.startsWith("error? returning main invoked"),
+        BCompileUtil.ExitDetails result = BCompileUtil.run(compileResult, new String[]{"user_def_error", "1"});
+        assertTrue(result.consoleOutput.startsWith("error? returning main invoked"),
                             "expected the main function to be invoked");
-        assertTrue(result.contains("const error reason"), "invalid error reason");
-        assertTrue(result.contains("message=error message"), "invalid error message");
+        assertTrue(result.errorOutput.contains("const error reason"), "invalid error reason");
+        assertTrue(result.errorOutput.contains("message=error message"), "invalid error message");
     }
 
     @Test
