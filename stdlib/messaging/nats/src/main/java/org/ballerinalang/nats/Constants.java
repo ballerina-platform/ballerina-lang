@@ -119,5 +119,7 @@ public class Constants {
     public static final String KEY_STORE_PATH = "path";
 
     public static final String ERROR_SETTING_UP_SECURED_CONNECTION = "Error while setting up secured connection. ";
+    public static final String THREAD_INTERRUPTED_ERROR =
+            "Internal error occurred. The current thread got interrupted.";
 
 }

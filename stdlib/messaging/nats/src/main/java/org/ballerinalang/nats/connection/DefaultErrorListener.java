@@ -25,17 +25,14 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.nats.basic.consumer.DefaultMessageHandler;
+import org.ballerinalang.nats.basic.consumer.ErrorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.nats.Constants.NATS_ERROR_CODE;
-import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.nats.Utils.getMessageObject;
 
 /**
@@ -65,12 +62,7 @@ public class DefaultErrorListener implements ErrorListener {
         ErrorValue errorValue = BallerinaErrors.createError(NATS_ERROR_CODE, message);
         LOG.error(message);
         for (ObjectValue service : serviceList) {
-            boolean onErrorResourcePresent = Arrays.stream(service.getType().getAttachedFunctions())
-                    .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
-            if (onErrorResourcePresent) {
-                Executor.submit(scheduler, service, ON_ERROR_RESOURCE, new DefaultMessageHandler.ResponseCallback(),
-                        null, getMessageObject(null), Boolean.TRUE, errorValue, Boolean.TRUE);
-            }
+            ErrorHandler.dispatchError(service, scheduler, getMessageObject(null), errorValue);
         }
     }
 
@@ -80,12 +72,7 @@ public class DefaultErrorListener implements ErrorListener {
         String errorMsg = exp.getCause() != null ? exp.getCause().getMessage() : exp.getMessage();
         ErrorValue errorValue = BallerinaErrors.createError(NATS_ERROR_CODE, errorMsg);
         for (ObjectValue service : serviceList) {
-            boolean onErrorResourcePresent = Arrays.stream(service.getType().getAttachedFunctions())
-                    .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
-            if (onErrorResourcePresent) {
-                Executor.submit(scheduler, service, ON_ERROR_RESOURCE, new DefaultMessageHandler.ResponseCallback(),
-                        null, getMessageObject(null), Boolean.TRUE, errorValue, Boolean.TRUE);
-            }
+            ErrorHandler.dispatchError(service, scheduler, getMessageObject(null), errorValue);
         }
     }
 

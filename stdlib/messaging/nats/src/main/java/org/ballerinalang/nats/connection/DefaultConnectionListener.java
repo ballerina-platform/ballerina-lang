@@ -20,12 +20,8 @@ package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.nats.basic.consumer.DefaultMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +29,6 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.ballerinalang.nats.Constants.NATS_ERROR_CODE;
-import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
-import static org.ballerinalang.nats.Utils.getMessageObject;
 
 /**
  * ConnectionListener to track the status of a {@link Connection Connection}.
@@ -46,51 +39,46 @@ public class DefaultConnectionListener implements ConnectionListener {
 
     private static final PrintStream console;
     private static final Logger LOG = LoggerFactory.getLogger(DefaultConnectionListener.class);
-    private final Scheduler scheduler;
-    private final List<ObjectValue> serviceList;
 
-    DefaultConnectionListener(Scheduler scheduler, List<ObjectValue> serviceList) {
-        this.scheduler = scheduler;
-        this.serviceList = serviceList;
+    DefaultConnectionListener() {
     }
 
     @Override
     public void connectionEvent(Connection conn, Events type) {
         switch (type) {
-            case CONNECTED : {
+            case CONNECTED: {
+                // The connection has successfully completed the handshake with the gnatsd
                 console.println("[ballerina/nats] Connection established with server "
                         + conn.getConnectedUrl());
                 break;
             }
             case CLOSED: {
+                // The connection is permanently closed, either by manual action or failed reconnects
                 String message = conn.getLastError() != null ? "Connection closed." + conn.getLastError() :
                         "Connection closed.";
-                ErrorValue errorValue = BallerinaErrors.createError(NATS_ERROR_CODE, message);
-                LOG.warn(message);
-                for (ObjectValue service : serviceList) {
-                    boolean onErrorResourcePresent = Arrays.stream(service.getType().getAttachedFunctions())
-                            .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
-                    if (onErrorResourcePresent) {
-                        Executor.submit(scheduler, service, ON_ERROR_RESOURCE,
-                                new DefaultMessageHandler.ResponseCallback(), null, getMessageObject(null),
-                                Boolean.TRUE, errorValue, Boolean.TRUE);
-                    }
-                }
+                console.println("[ballerina/nats] " + message);
                 break;
             }
             case RECONNECTED: {
-                LOG.debug("Connection reconnected with server " + conn.getConnectedUrl());
+                // The connection was connected, lost its connection and successfully reconnected
+                String message = "Connection reconnected with server " + conn.getConnectedUrl();
+                console.println("[ballerina/nats] " + message);
                 break;
             }
             case DISCONNECTED: {
-                LOG.debug("Connection disconnected with server " + conn.getConnectedUrl());
+                // The connection lost its connection, but may try to reconnect if configured to.
+                String message = "Connection disconnected with server " + conn.getConnectedUrl();
+                console.println("[ballerina/nats] " + message);
                 break;
             }
             case RESUBSCRIBED: {
-                LOG.debug("Subscriptions reestablished with server " + conn.getConnectedUrl());
+                // The connection was reconnected and the server has been notified of all subscriptions
+                String message = "Subscriptions reestablished with server " + conn.getConnectedUrl();
+                console.println("[ballerina/nats] " + message);
                 break;
             }
             case DISCOVERED_SERVERS: {
+                // The connection was told about new servers from, from the current server.
                 LOG.debug("Server discovered. List of connected servers "
                         + Arrays.toString(conn.getServers().toArray()));
                 break;

@@ -123,7 +123,7 @@ public class Init {
 
         List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
         // Add NATS connection listener.
-        opts.connectionListener(new DefaultConnectionListener(strand.scheduler, serviceList));
+        opts.connectionListener(new DefaultConnectionListener());
 
         // Add NATS error listener.
         if (connectionConfig.getBooleanValue(ENABLE_ERROR_LISTENER)) {

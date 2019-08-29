@@ -1783,7 +1783,7 @@
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/messaging/rabbitmq</module>
-                <module>stdlib/nats</module>
+                <module>stdlib/messaging/nats</module>
                 <module>stdlib/ldap</module>
                 <module>stdlib/oauth2</module>
 
@@ -1881,7 +1881,7 @@
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/messaging/rabbitmq</module>
-                <module>stdlib/nats</module>
+                <module>stdlib/messaging/nats</module>
                 <module>stdlib/ldap</module>
                 <module>stdlib/oauth2</module>
 
@@ -2074,7 +2074,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/rabbitmq</module>
-                <module>stdlib/nats</module>
+                <module>stdlib/messaging/nats</module>
 
                 <module>misc/lib-creator</module>
 
