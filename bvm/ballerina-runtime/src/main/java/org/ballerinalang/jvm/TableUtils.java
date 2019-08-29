@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
@@ -133,7 +134,7 @@ public class TableUtils {
                 if (value == null) {
                     stmt.setNull(index, Types.DOUBLE);
                 } else {
-                    stmt.setDouble(index, (Double) data.get(fieldName));
+                    stmt.setDouble(index, ((DecimalValue) data.get(fieldName)).floatValue());
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
