@@ -78,7 +78,7 @@ public class AnnotationAccessExpressionContextProvider extends LSCompletionProvi
             pkgAlias = defaultTokens.get(pkgDelimiterIndex - 1);
         }
 
-        Map<String, String> pkgAliasMap = CommonUtil.getCurrentModuleImports(ctx).stream()
+        Map<String, String> pkgAliasMap = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
                 .collect(Collectors.toMap(pkg -> pkg.alias.value, pkg -> pkg.symbol.pkgID.toString()));
 
         if (pkgAlias != null) {
@@ -152,7 +152,7 @@ public class AnnotationAccessExpressionContextProvider extends LSCompletionProvi
             // If the annotation resides within the current package, no need to set the additional text edits
             return annotationItem;
         }
-        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(ctx);
+        List<BLangImportPackage> imports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
         Optional currentPkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
                     String pkgName = bLangImportPackage.orgName + "/"
