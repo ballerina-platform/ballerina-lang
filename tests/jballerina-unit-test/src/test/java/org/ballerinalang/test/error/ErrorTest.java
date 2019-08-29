@@ -357,4 +357,33 @@ public class ErrorTest {
         BValue[] args = new BValue[] { new BInteger(2) };
         BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
     }
+
+    @Test
+    public void testNonModuleQualifiedReasons() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/error/non_module_qualified_error_reasons_negative.bal");
+        Assert.assertEquals(compileResult.getWarnCount(), 3);
+
+        int index = 0;
+        BAssertUtil.validateWarning(compileResult, index++, "error reason '{test string 1' is not module qualified",
+                                    22, 21);
+        BAssertUtil.validateWarning(compileResult, index++, "error reason '{test string 1' is not module qualified",
+                                    23, 21);
+        BAssertUtil.validateWarning(compileResult, index, "error reason '{test/string}identifier' is not module " +
+                                            "qualified", 23, 21);
+    }
+
+    @Test
+    public void testNonModuleQualifiedReasonsInProject() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/error/error_project", "err_module");
+        Assert.assertEquals(compileResult.getWarnCount(), 3);
+
+        int index = 0;
+        BAssertUtil.validateWarning(compileResult, index++, "error reason '{test string 1' is not module qualified",
+                                    22, 21);
+        BAssertUtil.validateWarning(compileResult, index++, "error reason '{test string 1' is not module qualified",
+                                    23, 21);
+        BAssertUtil.validateWarning(compileResult, index, "error reason '{test/string}identifier' is not module " +
+                "qualified", 23, 21);
+    }
 }
