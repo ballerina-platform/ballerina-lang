@@ -95,8 +95,8 @@ public class BootstrapRunner {
 
             Process process = new ProcessBuilder(commands).start();
 
-            String consoleOutput = getConsoleOutput(process.getInputStream(), out);
-            getConsoleOutput(process.getErrorStream(), err);
+            getConsoleOutput(process.getInputStream(), out);
+            String consoleError = getConsoleOutput(process.getErrorStream(), err);
 
             boolean processEnded = process.waitFor(120, TimeUnit.SECONDS);
 
@@ -104,7 +104,7 @@ public class BootstrapRunner {
                 throw new BLangCompilerException("failed to generate jar file within 120s.");
             }
             if (process.exitValue() != 0) {
-                throw new BLangCompilerException(consoleOutput);
+                throw new BLangCompilerException(consoleError);
             }
         } catch (InterruptedException | IOException e) {
             throw new BLangCompilerException("failed running jvm code gen phase.");

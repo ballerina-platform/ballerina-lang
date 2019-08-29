@@ -439,16 +439,28 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch match) {
         analyzeNode(match.expr, env);
         Map<BSymbol, InitStatus> uninitVars = new HashMap<>();
+        BranchResult lastPatternResult = null;
         for (BLangMatch.BLangMatchBindingPatternClause patternClause : match.patternClauses) {
-            BranchResult result = analyzeBranch(patternClause, env);
-            // If the flow was terminated within the block, then that branch should not be considered for
-            // analyzing the data-flow for the downstream code.
-            if (result.flowTerminated) {
-                continue;
+            if (patternClause.isLastPattern) {
+                lastPatternResult = analyzeBranch(patternClause, env);
+            } else {
+                BranchResult result = analyzeBranch(patternClause, env);
+                // If the flow was terminated within the block, then that branch should not be considered for
+                // analyzing the data-flow for the downstream code.
+                if (result.flowTerminated) {
+                    continue;
+                }
+                uninitVars = mergeUninitializedVars(uninitVars, result.uninitializedVars);
             }
-            uninitVars = mergeUninitializedVars(uninitVars, result.uninitializedVars);
         }
 
+        if (lastPatternResult != null) {
+            // only if last pattern is present, uninitializedVars should be updated
+            uninitVars = mergeUninitializedVars(uninitVars, lastPatternResult.uninitializedVars);
+            this.uninitializedVars = uninitVars;
+            return;
+        }
+        uninitVars = mergeUninitializedVars(new HashMap<>(), this.uninitializedVars);
         this.uninitializedVars = uninitVars;
     }
 
@@ -1172,10 +1184,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStaticBindingPatternClause bLangMatchStaticBindingPatternClause) {
+        analyzeNode(bLangMatchStaticBindingPatternClause.body, env);
     }
 
     @Override
     public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStructuredBindingPatternClause) {
+        analyzeNode(bLangMatchStructuredBindingPatternClause.body, env);
     }
 
     private void addUninitializedVar(BLangVariable variable) {

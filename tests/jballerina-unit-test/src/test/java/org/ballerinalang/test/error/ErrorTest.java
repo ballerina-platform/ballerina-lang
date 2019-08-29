@@ -359,6 +359,12 @@ public class ErrorTest {
     }
 
     @Test
+    public void testErrorUnionPassedToErrorParam() {
+        BValue[] result = BRunUtil.invoke(errorTestResult, "testErrorUnionPassedToErrorParam");
+        Assert.assertEquals(result[0].stringValue(), "a1");
+    }
+
+    @Test
     public void testNonModuleQualifiedReasons() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/error/non_module_qualified_error_reasons_negative.bal");
@@ -370,7 +376,7 @@ public class ErrorTest {
         BAssertUtil.validateWarning(compileResult, index++, "error reason '{test string 1' is not module qualified",
                                     23, 21);
         BAssertUtil.validateWarning(compileResult, index, "error reason '{test/string}identifier' is not module " +
-                                            "qualified", 23, 21);
+                "qualified", 23, 21);
     }
 
     @Test

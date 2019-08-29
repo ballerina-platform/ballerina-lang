@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.websub.advanced;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -25,6 +26,7 @@ import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Base test class for advanced WebSub integration test cases which initializes required ballerina server instances
@@ -42,7 +44,10 @@ public class WebSubAdvancedBaseTest extends BaseTest {
         publisherServerInstance = new BServerInstance(balServer);
         String confPath = new File("src/test/resources/websub/publisher/src/advanced_services/sample-users.toml")
                 .getAbsolutePath();
-        String[] publisherArgs = {"-c", confPath};
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+        String[] publisherArgs = {"-c", confPath, "--truststore=" + trustStore };
         publisherServerInstance.startServer(balFile, "advanced_services", null, publisherArgs, new int[]{23080});
     }
 

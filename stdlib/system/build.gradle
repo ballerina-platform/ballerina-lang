@@ -26,7 +26,7 @@ configurations.testCompileClasspath {
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-rt')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-time')
     implementation project(':ballerina-lang:internal')
@@ -42,6 +42,7 @@ dependencies {
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
+    testCompile 'org.apache.commons:commons-lang3'
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
 }

@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/lang.'object as lang;
 import ballerina/websub;
-import ballerina/'lang\.object as lang;
 
 const string MOCK_HEADER = "MockHeader";
 
