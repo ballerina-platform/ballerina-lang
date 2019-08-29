@@ -956,7 +956,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             symTable.errorType = (BErrorType) entry.symbol.type;
             symTable.detailType = (BRecordType) symTable.errorType.detailType;
-            symTable.errorConstructor = symTable.errorType.ctorSymbol;
+            symTable.errorConstructor = ((BErrorTypeSymbol) symTable.errorType.tsymbol).ctorSymbol;
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.detailType.restFieldType = symTable.pureType;
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null);

@@ -90,13 +90,13 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testParseMainFuncWithoutParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-params-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 15);
+        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 1, 15);
     }
 
     @Test
     public void testObjectAttachedFunctionWithInvalidSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/parser/object-attached-func-with-invalid-syntax.bal");
-        BAssertUtil.validateError(result, 0, "invalid token '<'", 10, 10);
+        BAssertUtil.validateError(result, 0, "mismatched input '.'. expecting '('", 6, 17);
     }
 
     @Test

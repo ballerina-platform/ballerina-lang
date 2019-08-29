@@ -34,6 +34,7 @@ const annotation map<string> v10 on source annotation;
 const annotation map<int> v11 on source var;
 public const annotation map<string> v12 on source const;
 const annotation map<string> v13 on source external;
+const annotation map<boolean> v15 on source worker;
 
 @v1 {
     val: "v1 value"
@@ -146,3 +147,22 @@ type Listener object {
 };
 
 //function externalFunction(boolean b) returns @v7 string = @v13 { strOne: "one", strTwo: "two" } external;
+
+// Test compilation for annotations with the worker attach point.
+function funcWithWorker() {
+
+    @v15 {
+        val: true
+    }
+    worker w1 {
+        // do nothing
+    }
+}
+
+function funcWithFuture() {
+    future<()> fn =
+    @v15 {
+        val: false
+    }
+    start funcWithWorker();
+}

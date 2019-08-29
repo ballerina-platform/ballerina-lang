@@ -38,6 +38,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_GRPC_PKG_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_MESSAGE_DEFINITION;
@@ -115,7 +116,7 @@ public class StreamingExecute extends AbstractExecute {
                     return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
                 }
-                ObjectValue streamingConnection = BallerinaValues.createObjectValue(PROTOCOL_STRUCT_PACKAGE_GRPC,
+                ObjectValue streamingConnection = BallerinaValues.createObjectValue(PROTOCOL_GRPC_PKG_ID,
                         STREAMING_CLIENT);
                 streamingConnection.addNativeData(REQUEST_SENDER, requestSender);
                 streamingConnection.addNativeData(REQUEST_MESSAGE_DEFINITION, methodDescriptor

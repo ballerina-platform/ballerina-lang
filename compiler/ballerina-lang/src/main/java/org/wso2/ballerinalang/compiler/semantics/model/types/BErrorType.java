@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -33,7 +32,6 @@ public class BErrorType extends BType implements ErrorType {
 
     public BType reasonType;
     public BType detailType;
-    public BConstructorSymbol ctorSymbol;
 
     public BErrorType(BTypeSymbol tSymbol, BType reasonType, BType detailType) {
         super(TypeTags.ERROR, tSymbol);
