@@ -3300,7 +3300,20 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatementExpression desugarObjectTypeInit(BLangTypeInit typeInitExpr) {
         typeInitExpr.desugared = true;
-        typeInitExpr.argsExpr = rewriteExprs(typeInitExpr.argsExpr);
+
+        // TODO: There seems to be a hidden error in object typeInit desugar that cause null to be passed in
+        // when anonymous object is provided as a argument. Fix the actual error and replace below block with
+        // typeInitExpr.argsExpr = rewriteExprs(typeInitExpr.argsExpr);
+        // Re-production: AnonymousObjectTest.testAnonObjectAsObjectField
+        List<BLangExpression> args = new ArrayList<>(typeInitExpr.argsExpr.size());
+        for (BLangExpression arg : typeInitExpr.argsExpr) {
+            if (arg.getKind() != NodeKind.TYPE_INIT_EXPR) {
+                args.add(rewriteExpr(arg));
+            } else {
+                args.add(arg);
+            }
+        }
+        typeInitExpr.argsExpr = args;
 
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
 
