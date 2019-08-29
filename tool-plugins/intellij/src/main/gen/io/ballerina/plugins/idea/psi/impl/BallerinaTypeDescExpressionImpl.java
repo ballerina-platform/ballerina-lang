@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTypeAccessExpressionImpl extends BallerinaExpressionImpl implements BallerinaTypeAccessExpression {
+public class BallerinaTypeDescExpressionImpl extends BallerinaExpressionImpl implements BallerinaTypeDescExpression {
 
-  public BallerinaTypeAccessExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaTypeDescExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitTypeAccessExpression(this);
+    visitor.visitTypeDescExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
