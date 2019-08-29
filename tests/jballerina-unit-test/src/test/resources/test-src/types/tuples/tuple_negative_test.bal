@@ -50,12 +50,6 @@ function testTupleToArrayAssignmentNegative1() returns string[] {
     return y;
 }
 
-function testTupleToArrayAssignmentNegative2() returns string[] {
-    [string, string] x = ["a", "b"];
-    string[3] y = x;
-    return y;
-}
-
 function testArrayToTupleAssignmentNegative() returns [int...] {
     string[] x = ["a", "b", "c"];
     [int...] y = x;
