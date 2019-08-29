@@ -376,7 +376,7 @@ public class BTestRunner {
     }
 
     private String getClassName(BLangFunction function) {
-        return function.pos.src.cUnitName.replace(".bal", "").replace("/", "-");
+        return function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
     }
 
     private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
