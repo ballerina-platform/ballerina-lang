@@ -630,8 +630,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (referencedType == symTable.noType) {
                     if (!this.unresolvedTypes.contains(typeDefinition)) {
                         this.unresolvedTypes.add(typeDefinition);
+                        return;
                     }
-                    return;
                 }
             }
         }
