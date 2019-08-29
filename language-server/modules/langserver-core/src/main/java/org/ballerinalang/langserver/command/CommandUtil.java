@@ -288,11 +288,12 @@ public class CommandUtil {
             }
         } else if (isVariableAssignmentRequired(diagnosticMessage)) {
             try {
-                Position afterAliasPos = offsetPackageAliasPosition(diagnosedContent, position);
+                Position afterAliasPos = offsetInvocation(diagnosedContent, position);
                 SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, afterAliasPos);
                 BSymbol symbolAtCursor = refAtCursor.getSymbol();
 
                 boolean isInvocation = symbolAtCursor instanceof BInvokableSymbol;
+                boolean isRemoteInvocation = (symbolAtCursor.flags & Flags.REMOTE) == Flags.REMOTE;
                 boolean isInitInvocation = symbolAtCursor instanceof BObjectTypeSymbol &&
                         refAtCursor.getbLangNode() instanceof BLangInvocation;
 
@@ -318,15 +319,17 @@ public class CommandUtil {
                     } else if (returnType instanceof BUnionType) {
                         BUnionType unionType = (BUnionType) returnType;
                         hasError = unionType.getMemberTypes().stream().anyMatch(s -> s instanceof BErrorType);
-                        // Add type guard code action
-                        commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, symbolAtCursor.name);
-                        List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, refAtCursor, unionType);
-                        action = new CodeAction(commandTitle);
-                        action.setKind(CodeActionKind.QuickFix);
-                        action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                                new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), tEdits)))));
-                        action.setDiagnostics(diagnostics);
-                        actions.add(action);
+                        if (!isRemoteInvocation) {
+                            // Add type guard code action
+                            commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, symbolAtCursor.name);
+                            List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, refAtCursor, unionType);
+                            action = new CodeAction(commandTitle);
+                            action.setKind(CodeActionKind.QuickFix);
+                            action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                                    new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), tEdits)))));
+                            action.setDiagnostics(diagnostics);
+                            actions.add(action);
+                        }
                     }
                     // Add ignore return value code action
                     if (!hasError) {
@@ -472,11 +475,16 @@ public class CommandUtil {
         return actions;
     }
 
-    private static Position offsetPackageAliasPosition(String diagnosedContent, Position position) {
-        String quotesRemoved = diagnosedContent.replaceAll("\".*\"", "").replaceAll("'.*'", "");
-        int quotesIndex = quotesRemoved.indexOf(":");
-        if (quotesIndex > -1) {
-            position.setCharacter(position.getCharacter() + quotesIndex + 1);
+    private static Position offsetInvocation(String diagnosedContent, Position position) {
+        // Diagnosed message only contains the erroneous part of the line
+        // Thus we offset into last
+        String quotesRemoved = diagnosedContent
+                .replaceAll(".*:", "") // package invocation
+                .replaceAll(".*->", "") // action invocation
+                .replaceAll(".*\\.", ""); // object access invocation
+        int bal = diagnosedContent.length() - quotesRemoved.length();
+        if (bal > 0) {
+            position.setCharacter(position.getCharacter() + bal + 1);
         }
         return position;
     }
