@@ -18,11 +18,11 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
+import ballerina/internal;
+import ballerina/lang.'int as langint;
 import ballerina/log;
 import ballerina/system;
 import ballerina/time;
-import ballerina/'lang\.int as langint;
-import ballerina/internal;
 
 map<PendingSubscriptionChangeRequest> pendingRequests = {};
 

@@ -79,10 +79,36 @@ public class BDiagnostic implements Diagnostic {
     public DiagnosticCode getCode() {
         return code;
     }
-    
+
+    @Override
+    public int hashCode() {
+        return kind.hashCode() + pos.hashCode() + msg.hashCode() + code.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof BDiagnostic)) {
+            return false;
+        }
+        BDiagnostic diagnostic = (BDiagnostic) obj;
+        return kind == diagnostic.kind && pos.equals(diagnostic.pos) && msg.equals(diagnostic.msg) &&
+                code == diagnostic.code;
+    }
+
+    @Override
+    public int compareTo(Diagnostic diagnostic) {
+        int value = this.pos.compareTo(diagnostic.getPosition());
+        if (value != 0) {
+            return value;
+        }
+        return msg.compareTo(diagnostic.getMessage());
+    }
+
     @Override
     public String toString() {
         return this.kind + ": " + this.pos + ": " + this.msg;
     }
-    
 }

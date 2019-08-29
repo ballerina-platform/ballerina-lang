@@ -24,6 +24,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -145,6 +146,7 @@ public class CompileResult {
         }
 
         public List<Diagnostic> getDiagnostics() {
+            Collections.sort(diagnostics);
             return diagnostics;
         }
     }

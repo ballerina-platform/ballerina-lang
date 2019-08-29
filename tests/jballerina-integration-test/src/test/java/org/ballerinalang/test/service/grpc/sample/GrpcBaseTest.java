@@ -46,7 +46,14 @@ public class GrpcBaseTest extends BaseTest {
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "grpc").getAbsolutePath();
-        String[] args = new String[] { "--certificate.key=" + privateKey, "--public.cert=" + publicCert };
+        String keyStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
+                        .toString());
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+        String[] args = new String[] { "--certificate.key=" + privateKey, "--public.cert=" + publicCert,
+                "--keystore=" + keyStore, "--truststore=" + trustStore };
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(balFile, "grpcservices", null, args, requiredPorts);
     }

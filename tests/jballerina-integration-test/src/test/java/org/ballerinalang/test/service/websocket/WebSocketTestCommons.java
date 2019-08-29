@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.websocket;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -25,6 +26,7 @@ import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Facilitate the common functionality of WebSocket integration tests.
@@ -46,8 +48,15 @@ public class WebSocketTestCommons extends BaseTest {
                         21012, 21013, 21014, 21015, 21016, 21017, 21018, 21019, 21020, 21023, 21024, 21025, 21026};
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                           "websocket").getAbsolutePath();
+        String keyStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
+                        .toString());
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+        String[] args = new String[] { "--keystore=" + keyStore, "--truststore=" + trustStore };
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFile, "wsservices", requiredPorts);
+        serverInstance.startServer(balFile, "wsservices", null, args, requiredPorts);
     }
 
     @AfterGroups(value = "websocket-test", alwaysRun = true)

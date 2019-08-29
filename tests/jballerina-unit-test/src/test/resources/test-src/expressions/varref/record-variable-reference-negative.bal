@@ -185,3 +185,16 @@ function testDuplicateBinding2() {
     ComplexRecord rec1 = { i: 1, j: { i: 1, j: 2 } };
     { i: x, j: { i: x, j: x } } = rec1;
 }
+
+type Child record {
+    string name;
+    [int, Age] yearAndAge;
+};
+
+function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
+    [int, Age] yearAndAge3 = [2002, {age: 22, format: "Z"}];
+    Child ch3 = {name: "D", yearAndAge: yearAndAge3};
+    map<anydata> m = {};
+    {name: m["var1"], yearAndAge: [m["var2"], _]} = ch3;
+    return [m["var1"], m["var2"]];
+}

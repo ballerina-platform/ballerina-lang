@@ -513,9 +513,9 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, i++,
                                   "field 'bar' of type 'error' is not allowed as a table column", 196, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "field 'xArr' of type 'xml[]' is not allowed as a table column", 212, 29);
+                "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
+                                  "field 'xArr' of type 'xml[]' is not allowed as a table column", 212, 29);
         BAssertUtil.validateError(resultNegative, i++,
                                   "cannot infer table type", 223, 14);
         BAssertUtil.validateError(resultNegative, i++,
