@@ -37,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -248,8 +249,22 @@ public class ToolUtil {
     }
 
     public static void update(PrintStream printStream, String version) {
-        //TODO : Get available versions, find latest patch and install that version
-        install(printStream, version);
+        try {
+            List<String> versions = new ArrayList<>();
+            MapValue distributions = getDistributions();
+            for (int i = 0; i < distributions.getArrayValue("list").size(); i++) {
+                MapValue dist = (MapValue) distributions.getArrayValue("list").get(i);
+                versions.add(dist.getStringValue("version"));
+            }
+            Version currentVersion = new Version(version);
+            String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
+            if (!latestVersion.equals(version)) {
+                install(printStream, latestVersion);
+                use(printStream, latestVersion);
+            }
+        } catch (IOException | KeyManagementException | NoSuchAlgorithmException e) {
+            printStream.println("Cannot connect to the central server");
+        }
     }
 
     public static void remove(PrintStream outStream, String version) {
