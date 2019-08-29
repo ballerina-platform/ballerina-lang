@@ -247,7 +247,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     
         for (ImportResolveHolder importHolder : importPkgHolder.values()) {
             for (BLangImportPackage unresolvedPkg : importHolder.unresolved) {
-                BPackageSymbol pkgSymbol = importHolder.resolved.symbol;// get a copy of the package symbol, add compilation unit info to it,
+                BPackageSymbol pkgSymbol = importHolder.resolved.symbol; // get a copy of the package symbol, add
+                                                                         // compilation unit info to it,
                 unresolvedPkg.symbol = pkgSymbol;
                 // and define it in the current package scope
                 BPackageSymbol symbol = duplicatePackagSymbol(pkgSymbol);
