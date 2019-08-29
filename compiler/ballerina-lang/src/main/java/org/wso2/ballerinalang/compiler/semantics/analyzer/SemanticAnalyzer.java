@@ -877,7 +877,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (tupleTypeNode == null) {
         /*
           This switch block will resolve the tuple type of the tuple variable.
-          For example consider the following - (int, string)|(boolean, float) (a, b) = foo();
+          For example consider the following - [int, string]|[boolean, float] [a, b] = foo();
           Since the varNode type is a union, the types of 'a' and 'b' will be resolved as follows:
           Type of 'a' will be (int | boolean) while the type of 'b' will be (string | float).
           Consider anydata (a, b) = foo();
