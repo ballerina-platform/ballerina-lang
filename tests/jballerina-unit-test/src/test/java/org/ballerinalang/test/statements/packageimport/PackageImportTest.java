@@ -80,8 +80,8 @@ public class PackageImportTest {
                 1);
         BAssertUtil.validateError(result, i++, "undefined module 'http'", "src/file-negative2.bal", 3, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'Client'", "src/file-negative2.bal", 3, 5);
-        BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined function 'println'", "src/file-negative2.bal", 4, 5);
+        BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 5, 18);
     }
 

@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.object as lang;
+
+import ballerina/lang.'object as lang;
 
 # Represents the NATS Streaming Server connection, to which a subscription service should be bound to in order to receive messages
 # of the corresponding subscription.

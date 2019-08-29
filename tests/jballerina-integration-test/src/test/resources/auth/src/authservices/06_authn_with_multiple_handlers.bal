@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/http;
 import ballerina/jwt;
 
@@ -23,7 +24,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider06_1 = new({
     trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("truststore"),
             password: "ballerina"
         }
     }
@@ -35,7 +36,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider06_2 = new({
     trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("truststore"),
             password: "ballerina"
         }
     }
@@ -51,7 +52,7 @@ listener http:Listener listener06 = new(20007, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }

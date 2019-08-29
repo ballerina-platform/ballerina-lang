@@ -1466,7 +1466,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         // Check each LHS expression.
-        setTypeOfVarReferenceInAssignment(varRef);
+        setTypeOfVarRefInAssignment(varRef);
         expType = varRef.type;
 
         typeChecker.checkExpr(assignNode.expr, this.env, expType);
@@ -1478,7 +1478,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure tupleDeStmt) {
-        setTypeOfVarReferenceInAssignment(tupleDeStmt.varRef);
+        setTypeOfVarRefInBindingAssignment(tupleDeStmt.varRef);
         BType type = typeChecker.checkExpr(tupleDeStmt.expr, this.env, tupleDeStmt.varRef.type);
 
         if (tupleDeStmt.expr.type.tag == TypeTags.ARRAY) {
@@ -1496,7 +1496,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordDestructure recordDeStmt) {
         // recursively visit the var refs and create the record type
+        setTypeOfVarRefInBindingAssignment(recordDeStmt.varRef);
         typeChecker.checkExpr(recordDeStmt.varRef, env);
+
         if (recordDeStmt.expr.getKind() == RECORD_LITERAL_EXPR) {
             // TODO: 10/18/18 Need to support record literals as well
             dlog.error(recordDeStmt.expr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_BINDING_PATTERN);
@@ -1511,7 +1513,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangErrorDestructure errorDeStmt) {
         if (errorDeStmt.varRef.reason.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
                 names.fromIdNode(((BLangSimpleVarRef) errorDeStmt.varRef.reason).variableName) != Names.IGNORE) {
-            setTypeOfVarReferenceInAssignment(errorDeStmt.varRef.reason);
+            setTypeOfVarRefInBindingAssignment(errorDeStmt.varRef.reason);
         } else {
             // set reason var refs type to no type if the variable name is '_'
             errorDeStmt.varRef.reason.type = symTable.noType;
@@ -1602,28 +1604,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (variableReference.getKind() == NodeKind.RECORD_VARIABLE_REF) {
                 checkRecordVarRefEquivalency(variableReference.pos,
                         (BLangRecordVarRef) variableReference, rhsField.type, rhsPos);
-                continue;
-            }
-
-            if (variableReference.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+            } else if (variableReference.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
                 checkTupleVarRefEquivalency(pos, (BLangTupleVarRef) variableReference, rhsField.type, rhsPos);
-                continue;
-            }
-
-            if (variableReference.getKind() == NodeKind.ERROR_VARIABLE_REF) {
+            } else if (variableReference.getKind() == NodeKind.ERROR_VARIABLE_REF) {
                 checkErrorVarRefEquivalency(pos, (BLangErrorVarRef) variableReference, rhsField.type, rhsPos);
-                continue;
-            }
-
-            if (variableReference.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            } else if (variableReference.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 Name varName = names.fromIdNode(((BLangSimpleVarRef) variableReference).variableName);
                 if (varName == Names.IGNORE) {
                     continue;
                 }
+                types.checkType(variableReference.pos, rhsField.type,
+                        variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
+            } else {
+                dlog.error(variableReference.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN,
+                        variableReference);
             }
-
-            types.checkType(variableReference.pos,
-                    rhsField.type, variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
         }
 
         if (lhsVarRef.restParam != null) {
@@ -1719,18 +1714,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else if (NodeKind.ERROR_VARIABLE_REF == varRefExpr.getKind()) {
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRefExpr;
                 checkErrorVarRefEquivalency(pos, errorVarRef, sourceTypes.get(i), rhsPos);
-            } else {
-                if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
-                    Name varName = names.fromIdNode(simpleVarRef.variableName);
-                    if (varName == Names.IGNORE) {
-                        continue;
-                    }
+            } else if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
+                Name varName = names.fromIdNode(simpleVarRef.variableName);
+                if (varName == Names.IGNORE) {
+                    continue;
                 }
                 if (!types.isAssignable(sourceTypes.get(i), targetType)) {
                     dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, source);
                     break;
                 }
+            } else {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, varRefExpr);
             }
         }
     }
@@ -1833,7 +1828,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (detailItem.getKind() == NodeKind.SIMPLE_VARIABLE_REF && detailItem.name.value.equals(Names.IGNORE.value)) {
             return;
         }
-        setTypeOfVarReferenceInAssignment(detailItem.expr);
+
+        setTypeOfVarRefInBindingAssignment(detailItem.expr);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {
@@ -2487,17 +2483,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private void setTypeOfVarReferenceInAssignment(BLangExpression expr) {
-        // In assignment, lhs supports only simpleVarRef, indexBasedAccess, filedBasedAccess expressions.
-        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                expr.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR &&
-                expr.getKind() != NodeKind.TUPLE_VARIABLE_REF) {
+    private void setTypeOfVarRefInBindingAssignment(BLangExpression expr) {
+        // In binding assignments, lhs supports only simple, record, error, tuple varRefs.
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF
+                && expr.getKind() != NodeKind.RECORD_VARIABLE_REF
+                && expr.getKind() != NodeKind.ERROR_VARIABLE_REF
+                && expr.getKind() != NodeKind.TUPLE_VARIABLE_REF) {
+            dlog.error(expr.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, expr);
+            expr.type = symTable.semanticError;
+        }
+        setTypeOfVarRef(expr);
+    }
+
+    private void setTypeOfVarRefInAssignment(BLangExpression expr) {
+        // In assignments, lhs supports only simple, record, error, tuple
+        // varRefs and field, xml and index based access expressions.
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF
+                && expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR
+                && expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR
+                && expr.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR
+                && expr.getKind() != NodeKind.RECORD_VARIABLE_REF
+                && expr.getKind() != NodeKind.ERROR_VARIABLE_REF
+                && expr.getKind() != NodeKind.TUPLE_VARIABLE_REF) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, expr);
             expr.type = symTable.semanticError;
         }
+        setTypeOfVarRef(expr);
+    }
 
+    private void setTypeOfVarRef(BLangExpression expr) {
         BLangVariableReference varRefExpr = (BLangVariableReference) expr;
         varRefExpr.lhsVar = true;
         typeChecker.checkExpr(varRefExpr, env);

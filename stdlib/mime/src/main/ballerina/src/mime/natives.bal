@@ -13,8 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/io;
-import ballerina/'lang\.int as langint;
+import ballerina/lang.'int as langint;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
 public const string BOUNDARY = "boundary";
