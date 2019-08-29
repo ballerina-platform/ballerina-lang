@@ -472,7 +472,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             Map<String, Value> values = new HashMap<>();
             fieldValueMap.forEach((field, value1) -> {
                 // Filter out internal variables
-                if (!field.name().startsWith("$")) {
+                if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
                     values.put(field.name(), value1);
                 }
             });
