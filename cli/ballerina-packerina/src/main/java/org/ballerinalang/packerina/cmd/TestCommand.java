@@ -69,19 +69,24 @@ public class TestCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
     private boolean exitWhenFinish;
+    private boolean skipCopyLibsFromDist;
+
 
     public TestCommand() {
         this.userDir = Paths.get(System.getProperty("user.dir"));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
+        this.skipCopyLibsFromDist = false;
     }
 
-    public TestCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    public TestCommand(Path userDir, PrintStream outStream, PrintStream errStream,
+                       boolean exitWhenFinish, boolean skipCopyLibsFromDist) {
         this.userDir = userDir;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
     }
 
     @CommandLine.Option(names = {"--offline"})
@@ -119,7 +124,7 @@ public class TestCommand implements BLauncherCmd {
         if (argList != null && argList.size() > 1) {
             CommandUtil.printError(errStream,
                     "too many arguments.",
-                    "ballerina compile [<module-name>]",
+                    "ballerina test [<module-name>]",
                     true);
         }
 
@@ -134,7 +139,7 @@ public class TestCommand implements BLauncherCmd {
                     CommandUtil.printError(errStream,
                             "Please provide a Ballerina file as a " +
                                     "input or run build command inside a project",
-                            "ballerina build [<filename.bal>]",
+                            "ballerina test [<filename.bal>]",
                             false);
                     return;
                 }
@@ -162,9 +167,9 @@ public class TestCommand implements BLauncherCmd {
                     .addTask(new CompileTask())
                     .addTask(new CreateBaloTask())
                     .addTask(new CreateBirTask())
-                    .addTask(new CopyNativeLibTask())
+                    .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))
                     .addTask(new CreateJarTask(false))
-                    .addTask(new CopyModuleJarTask())
+                    .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                     .addTask(new RunTestsTask(), this.skipTests)
                     .build();
 
@@ -219,7 +224,7 @@ public class TestCommand implements BLauncherCmd {
                             .addTask(new CompileTask())
                             .addTask(new CreateBirTask())
                             .addTask(new CreateJarTask(false))
-                            .addTask(new CopyModuleJarTask())
+                            .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                             .addTask(new RunTestsTask(), this.skipTests)
                             .build();
 
@@ -248,9 +253,9 @@ public class TestCommand implements BLauncherCmd {
                         .addTask(new CompileTask())
                         .addTask(new CreateBaloTask())
                         .addTask(new CreateBirTask())
-                        .addTask(new CopyNativeLibTask())
+                        .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))
                         .addTask(new CreateJarTask(false))
-                        .addTask(new CopyModuleJarTask())
+                        .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                         .addTask(new RunTestsTask(), this.skipTests)
                         .build();
 
