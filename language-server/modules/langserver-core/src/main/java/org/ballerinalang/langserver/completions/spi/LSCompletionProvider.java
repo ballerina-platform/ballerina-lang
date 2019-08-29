@@ -192,8 +192,13 @@ public abstract class LSCompletionProvider {
         List<CompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            if (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol)) {
-                completionItems.add(BTypeCompletionItemBuilder.build(bSymbol, symbolInfo.getSymbolName()));
+            if (((bSymbol instanceof BConstructorSymbol && Names.ERROR.equals(bSymbol.name)))
+                    || (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol))) {
+                BSymbol symbol = bSymbol;
+                if (bSymbol instanceof BConstructorSymbol) {
+                    symbol = ((BConstructorSymbol) bSymbol).type.tsymbol;
+                }
+                completionItems.add(BTypeCompletionItemBuilder.build(symbol, symbolInfo.getSymbolName()));
             }
         });
 
@@ -613,6 +618,37 @@ public abstract class LSCompletionProvider {
                 .collect(Collectors.toList());
     }
 
+    protected boolean inFunctionReturnParameterContext(LSContext context) {
+        if (context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY) == null) {
+            return false;
+        }
+        List<Integer> defaultTokens = new ArrayList<>(context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY));
+        if (defaultTokens.isEmpty()) {
+            return false;
+        }
+        int tokenSize = defaultTokens.size();
+        if (defaultTokens.indexOf(BallerinaParser.ASSIGN) > 0) {
+            // check added to avoid the external function definition
+            // function xyz() returns int = external;
+            return false;
+        }
+        if (defaultTokens.get(0) == BallerinaParser.RETURNS) {
+            /*
+            Check for the following cases
+            Eg: function xyz() returns <cursor> {}
+                function xyz() returns in<cursor> {}
+             */
+            return true;
+        }
+
+        /*
+         Catches the following case
+         Eg: function xyz() re {}
+         */
+        return tokenSize > 2 && defaultTokens.contains(BallerinaParser.FUNCTION) &&
+                (defaultTokens.get(tokenSize - 1) == BallerinaParser.RIGHT_PARENTHESIS
+                || defaultTokens.get(tokenSize - 2) == BallerinaParser.RIGHT_PARENTHESIS);
+    }
     // Private Methods
 
     /**

@@ -57,20 +57,28 @@ public class StatementContextProvider extends LSCompletionProvider {
     @Override
     public List<CompletionItem> getCompletions(LSContext context) {
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
-        Optional<String> subRule = this.getSubRule(lhsTokens);
-        subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
-        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         Boolean inWorkerReturn = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         
         if (this.isAnnotationAccessExpression(context)) {
             return this.getProvider(AnnotationAccessExpressionContextProvider.class).getCompletions(context);
         }
+        
+        Optional<String> subRule = this.getSubRule(lhsTokens);
+        subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 
         if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
             return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
         }
-
+        if (inFunctionReturnParameterContext(context) && !(inWorkerReturn != null && inWorkerReturn)) {
+            /*
+             Check added before the invocation token check, since the return parameter context can also include the
+             following
+             Eg: function xyz() returns http:<cursor> {}
+             */
+            return this.getProvider(BallerinaParser.ReturnParameterContext.class).getCompletions(context);
+        }
         if (invocationOrDelimiterTokenType > -1) {
             /*
             Action invocation context
