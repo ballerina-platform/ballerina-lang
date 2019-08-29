@@ -21,7 +21,10 @@ package org.ballerinalang.test.parser;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
 
 /**
  * Test for using experimental features without enabling them.
@@ -35,13 +38,25 @@ public class ExperimentalFeaturesTest {
         int i = 0;
         BAssertUtil.validateError(result, i++, "using experimental feature 'stream'. " +
                 "use '--experimental' flag to enable the experimental features", 8, 1);
+        BAssertUtil.validateError(result, i++, "using experimental feature 'stream'. " +
+                "use '--experimental' flag to enable the experimental features", 9, 1);
         BAssertUtil.validateError(result, i++, "using experimental feature 'streaming queries'. " +
                 "use '--experimental' flag to enable the experimental features", 15, 5);
         BAssertUtil.validateError(result, i++, "using experimental feature 'stream'. " +
-                "use '--experimental' flag to enable the experimental features", 29, 5);
+                "use '--experimental' flag to enable the experimental features", 32, 5);
         BAssertUtil.validateError(result, i++, "using experimental feature 'table queries'. " +
-                "use '--experimental' flag to enable the experimental features", 33, 37);
+                "use '--experimental' flag to enable the experimental features", 43, 28);
         BAssertUtil.validateError(result, i++, "using experimental feature 'transaction'. " +
-                "use '--experimental' flag to enable the experimental features", 43, 5);
+                "use '--experimental' flag to enable the experimental features", 49, 5);
+        BAssertUtil.validateError(result, i++, "using experimental feature 'xml attribute expression'. " +
+                "use '--experimental' flag to enable the experimental features", 73, 20);
+        BAssertUtil.validateError(result, i++, "using experimental feature 'xml access expression'. " +
+                "use '--experimental' flag to enable the experimental features", 73, 20);
+        BAssertUtil.validateError(result, i++, "using experimental feature 'xml access expression'. " +
+                "use '--experimental' flag to enable the experimental features", 73, 20);
+        BAssertUtil.validateError(result, i++, "using experimental feature 'lock'. " +
+                "use '--experimental' flag to enable the experimental features", 79, 5);
+        Assert.assertEquals(result.getDiagnostics().length, i,
+                "Error count mismatch" + Arrays.toString(result.getDiagnostics()));
     }
 }
