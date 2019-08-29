@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.HomeBirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.PathBaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
@@ -186,6 +187,7 @@ public class PackageLoader {
         Repo remoteDryRepo = new RemoteRepo(new URIDryConverter(URI.create(RepoUtils.getRemoteRepoURL()),
                 this.dependencyManifests));
         Repo homeBaloCache = new HomeBaloRepo(this.dependencyManifests);
+        Repo homeBirRepo = new HomeBirRepo();
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir, compilerPhase) : new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir,
@@ -197,19 +199,21 @@ public class PackageLoader {
         RepoNode homeCacheNode;
 
         if (offline) {
-            homeCacheNode = node(homeBaloCache,
-                                node(homeCacheRepo,
-                                    node(systemBirRepo,
-                                        node(systemZipRepo))));
+            homeCacheNode = node(homeBirRepo,
+                                node(homeBaloCache,
+                                    node(homeCacheRepo,
+                                        node(systemBirRepo,
+                                            node(systemZipRepo)))));
         } else {
-            homeCacheNode = node(homeBaloCache,
-                                node(homeCacheRepo,
-                                    node (systemBirRepo,
-                                        node(systemZipRepo,
-                                            node(remoteRepo,
-                                                node(homeBaloCache,
-                                                    node(systemBirRepo,
-                                                        node(secondarySystemRepo))))))));
+            homeCacheNode = node(homeBirRepo,
+                                node(homeBaloCache,
+                                    node(homeCacheRepo,
+                                        node (systemBirRepo,
+                                            node(systemZipRepo,
+                                                node(remoteRepo,
+                                                    node(homeBaloCache,
+                                                        node(systemBirRepo,
+                                                            node(secondarySystemRepo)))))))));
         }
         
         // If lock file is not there, fist check in central.
