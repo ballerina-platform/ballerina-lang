@@ -18,19 +18,14 @@
 package org.wso2.transport.http.netty.contractimpl.listener.http2;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import io.netty.handler.codec.http2.Http2EventAdapter;
-import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2FrameListener;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
@@ -38,7 +33,6 @@ import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 
-import static io.netty.handler.codec.http2.Http2CodecUtil.getEmbeddedHttp2Exception;
 import static org.wso2.transport.http.netty.contract.Constants.ZERO_READABLE_BYTES;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemoveHandlers;
 
@@ -46,8 +40,6 @@ import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemov
  * {@code Http2SourceConnectionHandler} takes care of handling HTTP/2 source connections.
  */
 public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Http2SourceConnectionHandler.class);
 
     private Http2FrameListener http2FrameListener;
     private Http2ConnectionEncoder encoder;
@@ -81,24 +73,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
         Http2SourceHandler http2SourceHandler = new Http2SourceHandler(serverChannelInitializer, encoder, interfaceId,
                 connection(), serverConnectorFuture, serverName);
         ctx.pipeline().addLast(Constants.HTTP2_SOURCE_HANDLER, http2SourceHandler);
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (ctx != null && ctx.channel().isActive()) {
-            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-        }
-    }
-
-    @Override
-    public void onError(ChannelHandlerContext ctx, boolean outbound, Throwable cause) {
-        Http2Exception embedded = getEmbeddedHttp2Exception(cause);
-        if (embedded instanceof Http2Exception.ClosedStreamCreationException) {
-            // We will end up here if we try to write to a already rejected stream
-            LOG.warn("Stream creation failed, {}, {}", Constants.PROMISED_STREAM_REJECTED_ERROR, embedded.getMessage());
-        } else {
-            super.onError(ctx, outbound, cause);
-        }
+        ctx.pipeline().addLast(Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler(this));
     }
 
     @Override
