@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/config;
 import ballerina/http;
 import ballerina/jwt;
 
@@ -27,8 +28,8 @@ jwt:InboundJwtAuthProvider jwtAuthProvider19_1 = new({
     trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
+           path: config:getAsString("truststore"),
+           password: "ballerina"
         }
     }
 });
@@ -40,8 +41,8 @@ jwt:InboundJwtAuthProvider jwtAuthProvider19_2 = new({
     trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
+           path: config:getAsString("truststore"),
+           password: "ballerina"
         }
     }
 });
@@ -53,8 +54,8 @@ jwt:InboundJwtAuthProvider jwtAuthProvider19_3 = new({
     trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
+           path: config:getAsString("truststore"),
+           password: "ballerina"
         }
     }
 });
@@ -66,8 +67,8 @@ jwt:InboundJwtAuthProvider jwtAuthProvider19_4 = new({
     trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
+           path: config:getAsString("truststore"),
+           password: "ballerina"
         }
     }
 });
@@ -79,7 +80,7 @@ listener http:Listener listener19 = new(20025, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }

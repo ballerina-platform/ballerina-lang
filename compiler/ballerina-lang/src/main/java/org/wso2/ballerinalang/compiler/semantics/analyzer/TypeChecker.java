@@ -1282,12 +1282,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 continue;
             }
 
-            if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_FIELD_ACCESS);
-                unresolvedReference = true;
-                continue;
-            } else if (refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_INDEX_ACCESS);
+            if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                    || refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                dlog.error(refItem.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, refItem);
                 unresolvedReference = true;
                 continue;
             }
@@ -2849,7 +2846,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.pos)) {
+        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.name, iExpr.pos)) {
             return;
         }
 
@@ -2889,7 +2886,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         resultType = expectedError;
         if (iExpr.symbol == symTable.errorType.tsymbol) {
-            iExpr.symbol = expectedError.ctorSymbol;
+            iExpr.symbol = ((BErrorTypeSymbol) expectedError.tsymbol).ctorSymbol;
         }
     }
 
@@ -2952,10 +2949,9 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, DiagnosticPos pos) {
+    private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, BLangIdentifier name, DiagnosticPos pos) {
         if (errorType.reasonType.tag != TypeTags.FINITE) {
-            dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
-                    errorType.ctorSymbol.name);
+            dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON, name);
             resultType = symTable.semanticError;
             return true;
         } else {

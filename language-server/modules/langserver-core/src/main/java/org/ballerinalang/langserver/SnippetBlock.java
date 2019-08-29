@@ -116,7 +116,6 @@ public class SnippetBlock {
                 return CompletionItemKind.Keyword;
             case SNIPPET:
             case STATEMENT:
-                return CompletionItemKind.Snippet;
             default:
                 return CompletionItemKind.Snippet;
         }

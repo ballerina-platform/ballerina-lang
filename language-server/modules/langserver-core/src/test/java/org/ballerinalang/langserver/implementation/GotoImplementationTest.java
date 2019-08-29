@@ -50,7 +50,7 @@ public class GotoImplementationTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(dataProvider = "goto-impl-data-provider")
+    @Test(dataProvider = "goto-impl-data-provider", enabled = false)
     public void testGotoImplementation(String configPath, String source) {
         Path sourcePath = FileUtils.RES_DIR.resolve(source);
         try {

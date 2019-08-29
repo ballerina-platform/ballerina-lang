@@ -70,8 +70,8 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "invalid operation: type 'string' does not support field access",
                 49, 35);
         BAssertUtil.validateError(negative, index++, "too many arguments in call to 'length()'", 55, 9);
-        BAssertUtil.validateError(negative, index++, "not enough arguments in call to 'filter()'", 56, 5);
         BAssertUtil.validateError(negative, index++, "missing required parameter 'func' in call to 'filter'()", 56, 5);
+        BAssertUtil.validateError(negative, index++, "not enough arguments in call to 'filter()'", 56, 5);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 56, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
                 "returns ()', found 'int'", 58, 15);
@@ -79,27 +79,26 @@ public class IterableOperationsTests {
                 "'string'", 63, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error))" +
                 " returns ()', found 'function () returns ()'", 64, 15);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
-                        "(boolean)', found 'function (string) returns ([boolean,int])'", 65, 14);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 65, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
-                        "(boolean)', found 'function (string) returns ()'", 66, 14);
+                "(boolean)', found 'function (string) returns ([boolean,int])'", 65, 14);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 66, 5);
-        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 67, 24);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
-                        "(boolean)', found 'function (other) returns ()'", 67, 14);
+                "(boolean)', found 'function (string) returns ()'", 66, 14);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 67, 5);
-        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 47);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
+                "(boolean)', found 'function (other) returns ()'", 67, 14);
+        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 67, 24);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
                 "returns (boolean)', found 'function (string) returns (other)'", 68, 18);
+        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 47);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'", 73, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 80, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 89, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 99, 18);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'map'", 103, 16);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'boolean', found 'int'", 111, 20);
-        BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'float', found 'int'", 120, 39);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'float', found 'int'", 120, 39);
         BAssertUtil.validateError(negative, index, "incompatible types: expected 'float', found 'int'", 137, 42);
     }
 

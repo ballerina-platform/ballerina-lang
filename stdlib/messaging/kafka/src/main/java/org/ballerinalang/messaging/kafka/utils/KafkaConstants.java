@@ -44,6 +44,12 @@ public class KafkaConstants {
     public static final BPackage KAFKA_PROTOCOL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
             KAFKA_PACKAGE_NAME);
 
+    // Kafka log messages
+    public static final String SERVICE_STARTED = "[ballerina/kafka] started kafka listener";
+    public static final String SERVICE_STOPPED = "[ballerina/kafka] stopped kafka listener";
+    public static final String KAFKA_SERVERS = "[ballerina/kafka] kafka servers: ";
+    public static final String SUBSCRIBED_TOPICS = "[ballerina/kafka] subscribed topics: ";
+
     public static final String NATIVE_CONSUMER = "KafkaConsumer";
     public static final String NATIVE_PRODUCER = "KafkaProducer";
     public static final String NATIVE_PRODUCER_CONFIG = "KafkaProducerConfig";
@@ -61,7 +67,7 @@ public class KafkaConstants {
 
     public static final String CONSUMER_RECORD_STRUCT_NAME = "ConsumerRecord";
     public static final String CONSUMER_STRUCT_NAME = "Consumer";
-    public static final String CONSUMER_SERVER_CONNECTOR_NAME = "serverConnector";
+    public static final String SERVER_CONNECTOR = "serverConnector";
 
     public static final String CONSUMER_CONFIG_FIELD_NAME = "consumerConfig";
 
@@ -108,6 +114,7 @@ public class KafkaConstants {
     public static final String CONSUMER_CLIENT_ID_CONFIG = "clientId";
     public static final String CONSUMER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String CONSUMER_ISOLATION_LEVEL_CONFIG = "isolationLevel";
+    public static final String CONSUMER_TOPICS_CONFIG = "topics";
 
     public static final String CONSUMER_SESSION_TIMEOUT_MS_CONFIG = "sessionTimeoutInMillis";
     public static final String CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG = "heartBeatIntervalInMillis";

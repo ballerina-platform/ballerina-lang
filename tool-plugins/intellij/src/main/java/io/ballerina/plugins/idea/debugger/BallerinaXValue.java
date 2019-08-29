@@ -106,8 +106,8 @@ public class BallerinaXValue extends XNamedValue {
 
     @NotNull
     private XValuePresentation getPresentation() {
-        String value = variable.getValue();
-        String type = variable.getType();
+        String value = variable.getValue() != null ? variable.getValue() : "";
+        String type = variable.getType() != null ? variable.getType() : "";
 
         if (type.equalsIgnoreCase(BallerinaXValueType.STRING.getValue())) {
             return new XValuePresentation() {
