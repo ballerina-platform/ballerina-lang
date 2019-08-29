@@ -15,3 +15,11 @@
 // under the License.
 
 import ballerina/encoding;
+
+public function testEncodeBase64Url(byte[] input) returns string {
+    return encoding:encodeBase64Url(input);
+}
+
+public function testDecodeBase64Url(string input) returns byte[]|encoding:Error {
+    return encoding:decodeBase64Url(input);
+}
