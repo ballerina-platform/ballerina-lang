@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 # Configuration related to consumer endpoint.
 #
@@ -150,6 +150,9 @@ public type Consumer client object {
 
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
+    }
+
+    public function __detach(service s) returns error? {
     }
 
     function init(ConsumerConfig config) returns ConsumerError? {

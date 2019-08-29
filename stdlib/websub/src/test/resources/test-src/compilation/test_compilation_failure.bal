@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
-import ballerina/io;
+
+
 import ballerina/http;
 import ballerina/websub;
 
@@ -112,18 +112,6 @@ service {
 };
 
 service websubSubscriberEight =
-@websub:SubscriberServiceConfig {
-    path: "/websub",
-    subscribeOnStartUp: true,
-    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
-}
-service {
-    resource function onNotification (websub:Notification notification) returns int? {
-        return 10;
-    }
-};
-
-service websubSubscriberNine =
 service {
     resource function noSubscriberServiceConfig (websub:Notification notification) {
     }

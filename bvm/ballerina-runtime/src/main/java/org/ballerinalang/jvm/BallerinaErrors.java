@@ -32,7 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
@@ -126,10 +126,6 @@ public class BallerinaErrors {
         return createError(BallerinaErrors.NULL_REF_EXCEPTION);
     }
 
-    public static ErrorValue createUsageError(String errorMsg) {
-        return createError("ballerina: " + errorMsg);
-    }
-
     /**
      * Create ballerian error using java exception for interop.
      * @param e java exception
@@ -165,7 +161,7 @@ public class BallerinaErrors {
                 filteredStack.add(stackTraceElement.get());
             }
         }
-        BType recordType = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT).getType();
+        BType recordType = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT).getType();
         ArrayValue callStack = new ArrayValue(new BArrayType(recordType));
         for (int i = 0; i < filteredStack.size(); i++) {
             callStack.add(i, getStackFrame(filteredStack.get(i)));
@@ -223,8 +219,8 @@ public class BallerinaErrors {
         values[1] = stackTraceElement.getClassName();
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
-        return BallerinaValues.createRecord(
-                BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT), values);
+        return BallerinaValues.
+                createRecord(BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT), values);
     }
 
     private static String cleanupClassName(String className) {

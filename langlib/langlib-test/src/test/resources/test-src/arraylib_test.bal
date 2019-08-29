@@ -107,14 +107,14 @@ function testIterableOpChain() returns float {
 
 function gradeToValue([Grade, int] grade) returns [float, int] {
     match grade[0] {
-        "A+" => return [4.2, grade[1]];
-        "A" => return [4.0, grade[1]];
-        "A-" => return [3.7, grade[1]];
-        "B+" => return [3.3, grade[1]];
-        "B" => return [3.0, grade[1]];
-        "B-" => return [2.7, grade[1]];
-        "C" => return [2.0, grade[1]];
-        "F" => return [0.0, grade[1]];
+        "A+" => {return [4.2, grade[1]];}
+        "A" => {return [4.0, grade[1]];}
+        "A-" => {return [3.7, grade[1]];}
+        "B+" => {return [3.3, grade[1]];}
+        "B" => {return [3.0, grade[1]];}
+        "B-" => {return [2.7, grade[1]];}
+        "C" => {return [2.0, grade[1]];}
+        "F" => {return [0.0, grade[1]];}
     }
     error e = error("Invalid grade: " + <string>grade[0]);
     panic e;
@@ -248,4 +248,46 @@ function testRemoveAllFixedLengthArray() returns int[] {
     int[7] ar = [1, 2, 3, 4, 5, 6, 7];
     ar.removeAll();
     return ar;
+}
+
+function testTupleResize() returns [int, string] {
+    [int, string] t = [1, "hello"];
+    t.setLength(3);
+    return t;
+}
+
+function testTupleRemoveAll() returns [int, string] {
+    [int, string] t = [1, "hello"];
+    t.removeAll();
+    return t;
+}
+
+function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string] {
+    [int, string, boolean...] t = [1, "hello", true];
+    t.removeAll();
+    return t;
+}
+
+function testTupleRemoveAllForTupleWithJustRestMemberType() returns boolean {
+    [int...] t = [1, 2, 3];
+    t.removeAll();
+    return t.length() == 0;
+}
+
+function testTupleSetLengthLegal() returns boolean {
+    [int, int, int...] t = [1, 2, 3, 4];
+    t.setLength(2);
+    return t.length() == 2;
+}
+
+function testTupleSetLengthIllegal() returns boolean {
+    [int, int, int...] t = [1, 2, 3, 4];
+    t.setLength(1);
+    return t.length() == 1;
+}
+
+function testTupleSetLengthToSameAsOriginal() returns boolean {
+    [int, int] t = [1, 2];
+    t.setLength(2);
+    return t.length() == 2;
 }

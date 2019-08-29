@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.object as lang;
+
+import ballerina/lang.'object as lang;
 
 # Mock server endpoint which does not open a listening port.
 public type MockListener object {
@@ -37,6 +38,10 @@ public type MockListener object {
 
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
+    }
+
+    public function __detach(service s) returns error? {
+        return self.detach(s);
     }
 
     public function __init(int port, ListenerConfiguration? config = ()) {

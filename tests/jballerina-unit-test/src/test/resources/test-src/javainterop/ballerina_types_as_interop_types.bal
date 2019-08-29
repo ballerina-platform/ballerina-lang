@@ -44,6 +44,20 @@ public function acceptStringErrorReturn(string s) returns error = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+service testService = service {
+    resource function onMessage(string text) {
+        string a = text;
+    }
+};
+
+public function acceptServiceAndBooleanReturn() returns boolean {
+    return acceptServiceObjectAndReturnBoolean(testService);
+}
+
+public function acceptServiceObjectAndReturnBoolean(service s) returns boolean = @java:Method {
+    class: "org.ballerinalang.nativeimpl.jvm.tests.StaticMethods"
+} external;
+
 public function interopWithUnionReturn() returns boolean {
     var a = acceptIntUnionReturn(1);
     if (!(a is int)) {

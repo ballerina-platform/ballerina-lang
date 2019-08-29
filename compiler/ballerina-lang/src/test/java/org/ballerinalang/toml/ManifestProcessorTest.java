@@ -134,9 +134,9 @@ public class ManifestProcessorTest {
         
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = {path = \"" + baloPath + "\", version = \"1.1.5\"} \n");
-        Assert.assertEquals(manifest.getDependencies().get(0).getModuleName(), "string-utils");
+        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.1.5");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath(), baloPath.toString());
+        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(), baloPath.toString());
         
         Files.delete(baloPath);
         Files.delete(tmpDir);
@@ -146,7 +146,7 @@ public class ManifestProcessorTest {
     public void testSingleEmptyDependencies() throws TomlException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = {} \n");
-        Assert.assertEquals(manifest.getDependencies().get(0).getModuleName(), "string-utils");
+        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
     }
 
     @Test(description = "Multiple dependencies added to the dependencies section has an effect")
@@ -158,9 +158,9 @@ public class ManifestProcessorTest {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = { path = \"" + baloPath + "\", version = \"1.0.5\" } \n " +
                 "jquery = { version = \"2.2.3\" } \n");
-        Assert.assertEquals(manifest.getDependencies().get(0).getModuleName(), "string-utils");
+        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
-        Assert.assertEquals(manifest.getDependencies().get(1).getModuleName(), "jquery");
+        Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "jquery");
         Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
     
         Files.delete(baloPath);

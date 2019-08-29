@@ -63,7 +63,7 @@ public class DefaultMessageHandler implements MessageHandler {
     @Override
     public void onMessage(Message message) {
         ArrayValue msgData = new ArrayValue(message.getData());
-        ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
+        ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                 Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(), msgData, message.getReplyTo());
         AttachedFunction onMessage = getAttachedFunction(serviceObject, ON_MESSAGE_RESOURCE);
         BType[] parameterTypes = onMessage.getParameterType();

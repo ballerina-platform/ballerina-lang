@@ -1267,7 +1267,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
     // set system properties
-    setSystemProperties(mv);
+    initConfigurations(mv);
     // start all listeners
     startListeners(mv, serviceEPAvailable);
 
@@ -1311,8 +1311,10 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
+        bir:BType anyType = "any";
+        loadType(mv, anyType);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-            io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
+            io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
@@ -1348,8 +1350,9 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_CONSUMER_METHOD,
                 io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         } else {
+            loadType(mv, userMainFunc.typeValue?.retType);
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
+                io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
             mv.visitInsn(DUP);
         }
         mv.visitInsn(DUP);
@@ -1381,14 +1384,21 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     // stop all listeners
     stopListeners(mv, serviceEPAvailable);
-
+    if (!serviceEPAvailable) {
+        mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", io:sprintf("()L%s;", JAVA_RUNTIME), false);
+        mv.visitInsn(ICONST_0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "exit", "(I)V", false);
+    }
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
 }
 
-function setSystemProperties(jvm:MethodVisitor mv) {
-    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "setSystemProperties", "()V", false);
+function initConfigurations(jvm:MethodVisitor mv) {
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, 
+                "initConfigurations", io:sprintf("([L%s;)[L%s;", STRING_VALUE, STRING_VALUE), false);
+    mv.visitVarInsn(ASTORE, 0);
 }
 
 function startListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
@@ -1424,8 +1434,10 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
 
     // no parent strand
     mv.visitInsn(ACONST_NULL);
+    bir:BType anyType = "any";
+    loadType(mv, anyType);
     mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-        io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
+        io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
     
     
     mv.visitInsn(DUP);
@@ -2045,7 +2057,7 @@ function cleanupBalExt(string name) returns string {
 
 function cleanupPathSeperators(string name) returns string {
    //TODO: should use file_path:getPathSeparator();
-   return internal:replace(internal:replace(name, WINDOWS_PATH_SEPERATOR, "-"), UNIX_PATH_SEPERATOR, "-");
+   return internal:replace(name, WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
 }
 
 function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, boolean isPackage) {
@@ -2316,7 +2328,7 @@ function findBIRFunction(bir:Package|bir:TypeDef|bir:Function src, string name) 
     return ();
 }
 
-function generateModuleInitializer(jvm:ClassWriter cw, bir:Package module, string currentPackageName) {
+function generateModuleInitializer(jvm:ClassWriter cw, bir:Package module) {
     string orgName = module.org.value;
     string moduleName = module.name.value;
     string versionValue = module.versionValue.value;
@@ -2329,10 +2341,13 @@ function generateModuleInitializer(jvm:ClassWriter cw, bir:Package module, strin
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
     mv.visitVarInsn(ASTORE, 1);
-    mv.visitLdcInsn(currentPackageName == "" ? "." : cleanupPackageName(currentPackageName));
+    mv.visitLdcInsn(orgName);
+    mv.visitLdcInsn(moduleName);
+    mv.visitLdcInsn(versionValue);
     mv.visitVarInsn(ALOAD, 1);
     mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
-                       io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
+                       io:sprintf("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE, VALUE_CREATOR),
+                       false);
 
     mv.visitInsn(RETURN);
     mv.visitMaxs(0,0);
@@ -2361,6 +2376,10 @@ function generateExecutionStopMethod(jvm:ClassWriter cw, string initClass, bir:P
                                     name: { value: "schedulerVar" },
                                     kind: "ARG" };
     int schedulerIndex = indexMap.getIndex(argsVar);
+    bir:VariableDcl futureVar = { typeValue: "any",
+                                    name: { value: "futureVar" },
+                                    kind: "ARG" };
+    int futureIndex = indexMap.getIndex(futureVar);
 
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
@@ -2376,7 +2395,7 @@ function generateExecutionStopMethod(jvm:ClassWriter cw, string initClass, bir:P
     bir:ModuleID currentModId = packageToModuleId(module);
     string fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
 
-    scheduleMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex);
+    scheduleMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex, futureIndex);
 
     int i = imprtMods.length() - 1;
     while i >= 0 {
@@ -2384,7 +2403,7 @@ function generateExecutionStopMethod(jvm:ClassWriter cw, string initClass, bir:P
         i -= 1;
         fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
 
-        scheduleMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex);
+        scheduleMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex, futureIndex);
     }
     
     mv.visitInsn(RETURN);
@@ -2400,7 +2419,7 @@ function generateExecutionStopMethod(jvm:ClassWriter cw, string initClass, bir:P
 }
 
 function scheduleMethod(jvm:MethodVisitor mv, string initClass, string stopFuncName, ErrorHandlerGenerator errorGen,
-                            BalToJVMIndexMap indexMap, int schedulerIndex) {
+                            BalToJVMIndexMap indexMap, int schedulerIndex, int futureIndex) {
     string lambdaFuncName = "$lambda$" + stopFuncName;
     // Create a schedular. A new schedular is used here, to make the stop function to not to
     // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
@@ -2419,28 +2438,31 @@ function scheduleMethod(jvm:MethodVisitor mv, string initClass, string stopFuncN
     mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_CONSUMER_METHOD,
         io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
 
-    mv.visitInsn(DUP);
+    mv.visitVarInsn(ASTORE, futureIndex);
+
+    mv.visitVarInsn(ALOAD, futureIndex);
+
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
     mv.visitIntInsn(BIPUSH, 100);
     mv.visitTypeInsn(ANEWARRAY, OBJECT);
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
 
-    mv.visitInsn(DUP);
-    mv.visitInsn(DUP);
+    mv.visitVarInsn(ALOAD, futureIndex);
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
     mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
     mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+
+    mv.visitVarInsn(ALOAD, futureIndex);
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
 
     // handle any runtime errors
     jvm:Label labelIf = new;
     mv.visitJumpInsn(IFNULL, labelIf);
+
+    mv.visitVarInsn(ALOAD, futureIndex);
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
     mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, io:sprintf("(L%s;)V", THROWABLE),
                         false);
-    mv.visitInsn(RETURN);
     mv.visitLabel(labelIf);
-
-    mv.visitInsn(POP);
 }
 

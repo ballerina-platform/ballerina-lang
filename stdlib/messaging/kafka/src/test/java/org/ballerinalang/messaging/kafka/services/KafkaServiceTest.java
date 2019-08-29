@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SERVICES;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
@@ -53,8 +54,8 @@ public class KafkaServiceTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true).deleteDataUponShutdown(true)
-                .addBrokers(1).startup();
+        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-service-test");
+        kafkaCluster = createKafkaCluster(dataDir, 14010, 14110).addBrokers(1).startup();
     }
 
     @Test(description = "Test endpoint bind to a service")
@@ -123,14 +124,5 @@ public class KafkaServiceTest {
                 dataDir.deleteOnExit();
             }
         }
-    }
-
-    private static KafkaCluster kafkaCluster() {
-        if (kafkaCluster != null) {
-            throw new IllegalStateException();
-        }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-service-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14010, 14110);
-        return kafkaCluster;
     }
 }

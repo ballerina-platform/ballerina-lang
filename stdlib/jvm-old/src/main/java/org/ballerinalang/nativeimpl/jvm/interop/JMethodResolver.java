@@ -189,7 +189,7 @@ class JMethodResolver {
     private boolean isValidExpectedBType(Class<?> jParamType, BType bParamType, JMethodRequest jMethodRequest) {
         String jParamTypeName = jParamType.getTypeName();
         switch (bParamType.getTag()) {
-            case /*TypeTags.HANDLE_TAG*/ 36:
+            case TypeTags.HANDLE_TAG:
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
                 return !jParamType.isPrimitive();
@@ -236,6 +236,7 @@ class JMethodResolver {
             case TypeTags.JSON_TAG:
                 return MapValue.class.isAssignableFrom(jParamType);
             case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.SERVICE_TAG:
                 return ObjectValue.class.isAssignableFrom(jParamType);
             case TypeTags.ERROR_TAG:
                 return ErrorValue.class.isAssignableFrom(jParamType);

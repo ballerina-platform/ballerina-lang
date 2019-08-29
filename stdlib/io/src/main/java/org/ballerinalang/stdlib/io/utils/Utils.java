@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.io.utils;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -41,6 +42,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+
 /**
  * A util class for handling common functions across native implementation.
  *
@@ -49,11 +52,13 @@ import java.util.TimeZone;
 public class Utils {
 
     public static final String PACKAGE_TIME = "ballerina/time";
+    public static final BPackage PACKAGE_ID_TIME = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "time");
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
 
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina/mime";
+    public static final BPackage PACKAGE_ID_MIME = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "mime");
     public static final String MIME_ERROR_MESSAGE = "message";
     public static final String ERROR_RECORD_TYPE = "Detail";
     private static final String STRUCT_TYPE = "ReadableByteChannel";
@@ -83,11 +88,11 @@ public class Utils {
     }
 
     public static MapValue<String, Object> getTimeZoneStructInfo() {
-        return BallerinaValues.createRecordValue(PACKAGE_TIME, STRUCT_TYPE_TIMEZONE);
+        return BallerinaValues.createRecordValue(PACKAGE_ID_TIME, STRUCT_TYPE_TIMEZONE);
     }
 
     public static MapValue<String, Object> getTimeStructInfo() {
-        return BallerinaValues.createRecordValue(PACKAGE_TIME, STRUCT_TYPE_TIME);
+        return BallerinaValues.createRecordValue(PACKAGE_ID_TIME, STRUCT_TYPE_TIME);
     }
 
     private static ErrorValue createBase64Error(String reason, String msg, boolean isMimeSpecific) {
@@ -101,8 +106,7 @@ public class Utils {
     public static MapValue populateMimeErrorRecord(String msg) {
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(MIME_ERROR_MESSAGE, msg);
-        return BallerinaValues
-                .createRecordValue(PROTOCOL_PACKAGE_MIME, ERROR_RECORD_TYPE, valueMap);
+        return BallerinaValues.createRecordValue(PACKAGE_ID_MIME, ERROR_RECORD_TYPE, valueMap);
     }
 
     /**
@@ -237,7 +241,7 @@ public class Utils {
             }
             InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
             Base64ByteChannel decodedByteChannel = new Base64ByteChannel(encodedStream);
-            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE, STRUCT_TYPE);
+            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
             byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
             return byteChannelObj;
         } catch (IOException e) {
@@ -264,7 +268,7 @@ public class Utils {
             }
             InputStream decodedStream = new ByteArrayInputStream(decodedByteArray);
             Base64ByteChannel decodedByteChannel = new Base64ByteChannel(decodedStream);
-            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE, STRUCT_TYPE);
+            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
             byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
             return byteChannelObj;
         } catch (IOException e) {

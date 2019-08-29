@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.object as lang;
+
+import ballerina/lang.'object as lang;
 
 # Represents a ballerina task listener.
 public type Listener object {
@@ -41,6 +42,9 @@ public type Listener object {
         if (result is error) {
             panic result;
         }
+    }
+
+    public function __detach(service s) returns error? {
     }
 
     public function __start() returns error? {

@@ -382,7 +382,7 @@ public class ObjectInBaloTest {
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
                 "/object_with_interface_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cannot initialize abstract object 'testorg/foo:v1:Country'", 4, 21);
+        BAssertUtil.validateError(result, 0, "cannot initialize abstract object 'testorg/foo:1.0.0:Country'", 4, 21);
     }
 
     @Test (description = "Negative test to test uninitialized object variables")
@@ -391,24 +391,25 @@ public class ObjectInBaloTest {
                 "/object_with_non_defaultable_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object " +
-                "'testorg/foo:v1:Architect'", 7, 13);
+                "'testorg/foo:1.0.0:Architect'", 7, 13);
         BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 7, 13);
         BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 7, 35);
     }
 
-    @Test (description = "Negative test to test returning different type without type name")
+    @Test(description = "Negative test to test returning different type without type name")
     public void testObjectNegativeTestForReturnDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
                 "/object_new_in_return_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
-        BAssertUtil.validateError(result, 0, "cannot infer type of the object from 'testorg/foo:v1:Apartment?'", 8,
-                12);
-        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'testorg/foo:v1:Apartment?'", 12,
-                33);
-        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'other'", 13, 19);
-        BAssertUtil.validateError(result, 3, "invalid variable definition; can not infer the assignment type.",
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "not enough arguments in call to 'new()'", 8, 12);
+        BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new'()", 8, 12);
+        BAssertUtil.validateError(result, i++, "not enough arguments in call to 'new()'", 12, 33);
+        BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new'()", 12, 33);
+        BAssertUtil.validateError(result, i++, "cannot infer type of the object from 'other'", 13, 19);
+        BAssertUtil.validateError(result, i++, "invalid variable definition; can not infer the assignment type.",
                 13, 19);
-        BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'error'", 14, 21);
+        BAssertUtil.validateError(result, i++, "cannot infer type of the object from 'error'", 14, 21);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
 //    @Test (description = "Negative test to test returning different type without type name")

@@ -55,6 +55,8 @@ public abstract class LauncherImpl {
         boolean debugTests = args.get("debugTests") != null && (boolean) args.get("debugTests");
         if (debugTests) {
             command.add("test");
+            command.add("--debug");
+            command.add(debuggeePort);
         } else {
             command.add("run");
             command.add("--debug");

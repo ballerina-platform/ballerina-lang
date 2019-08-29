@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
@@ -51,6 +51,9 @@ public type Listener object {
     # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise.
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
+    }
+
+    public function __detach(service s) returns error? {
     }
 
     # Gets called when the endpoint is being initialize during module init time.

@@ -14,11 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
-import ballerina/'lang\.int as lint;
-import ballerina/internal;
+import ballerina/io;
+import ballerina/lang.'int as lint;
+import ballerina/mime;
 
 # This functions pulls a module from ballerina central.
 #
@@ -45,12 +44,12 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string or
         }
     } else {
         string statusCode = response.statusCode.toString();
-        if (internal:hasPrefix(statusCode, "5")) {
-            panic createError("error occured in remote registry. url: " + url);
+        if (statusCode.startsWith("5")) {
+            panic createError("error occured in remote repository. url: " + url);
         } else if (statusCode != "200") {
             json|error jsonResponse = response.getJsonPayload();
             if (jsonResponse is error) {
-                panic createError("invalid response json");
+                panic createError("unsupported response received from remote r.");
             } else {
                 string message = jsonResponse.message.toString();
                 panic createError(message);

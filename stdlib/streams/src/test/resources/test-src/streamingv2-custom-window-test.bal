@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/runtime;
 
 // Custom window implementation that injects status and phoneNo attributes to the stream.

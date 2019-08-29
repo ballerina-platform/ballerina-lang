@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 type Annot record {
     string foo;
@@ -138,8 +138,8 @@ service ser on lis {
     @v5 {
         val: "54"
     }
-    resource function res(@v6 { foo: "v64" } int intVal) returns @v7 string {
-        return "";
+    resource function res(@v6 { foo: "v64" } int intVal) returns @v7 () {
+        return;
     }
 }
 
@@ -170,8 +170,8 @@ service serTwo = @v8 {
     @v5 {
         val: "542"
     }
-    resource function res(@v6 { foo: "v642" } int intVal) returns @v7 int {
-        return 1;
+    resource function res(@v6 { foo: "v642" } int intVal) returns @v7 error? {
+        return;
     }
 };
 
@@ -201,6 +201,9 @@ type Listener object {
     }
 
     public function __attach(service s, string? name = ()) returns error? {
+    }
+
+    public function __detach(service s) returns error? {
     }
 
     public function __start() returns error? {

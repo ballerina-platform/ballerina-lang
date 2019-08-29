@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/io;
-import ballerina/internal;
 import ballerina/time;
 
 ////////////////////////////////
@@ -350,13 +348,13 @@ public type OutboundAuthConfig record {|
 function initialize(string serviceUrl, ClientEndpointConfig config) returns HttpClient|error {
     boolean httpClientRequired = false;
     string url = serviceUrl;
-    if (internal:hasSuffix(url, "/")) {
+    if (url.endsWith("/")) {
         int lastIndex = url.length() - 1;
         url = url.substring(0, lastIndex);
     }
     var cbConfig = config.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
-        if (internal:hasSuffix(url, "/")) {
+        if (url.endsWith("/")) {
             int lastIndex = url.length() - 1;
             url = url.substring(0, lastIndex);
         }

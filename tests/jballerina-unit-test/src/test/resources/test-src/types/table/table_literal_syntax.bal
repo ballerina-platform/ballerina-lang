@@ -881,6 +881,15 @@ function testRemoveOpAnonymousFilter() returns table<Order> {
     return orderTable;
 }
 
+function testTableAddOnConstrainedTableWithViolation3() {
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+
+    table<Person> t1 = table {
+        { key id, salary, name, age, married },
+        [p1, p2]
+    };
+}
 
 //function testEmptyTableCreate() returns [int, int] {
 //    table<Person> dt3 = table{};

@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.jvm.util;
 
+import org.ballerinalang.jvm.types.BPackage;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -39,6 +41,11 @@ public class BLangConstants {
     public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
     public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>"; 
     public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String BALLERINA_CONFIG_PREFIX = "--b7a.";
+    public static final String BALLERINA_ARGS_INIT_PREFIX = "--";
+    public static final int BALLERINA_ARGS_INIT_PREFIX_LENGTH = BALLERINA_ARGS_INIT_PREFIX.length();
+    public static final String CONFIG_SEPARATOR = "=";
+    public static final String INVALID_OPTION_ERROR_MESSAGE = "ballerina: unknown option: ";
 
     public static final String EMPTY = "";
     public static final String ANON_ORG = "$anon";
@@ -82,6 +89,11 @@ public class BLangConstants {
     public static final String BALLERINA_RUNTIME_PKG = BALLERINA_PACKAGE_PREFIX + "runtime";
     public static final String BALLERINA_LANG_ERROR_PKG = BALLERINA_PACKAGE_PREFIX + "lang_error";
     public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
+
+
+    public static final BPackage BALLERINA_BUILTIN_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "builtin");
+    public static final BPackage BALLERINA_RUNTIME_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "runtime");
+    public static final BPackage BALLERINA_LANG_ERROR_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "lang.error");
 
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;

@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -314,16 +315,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean privateFunc = ctx.PRIVATE() != null;
 
-        if (ctx.Identifier() != null) {
-            this.pkgBuilder.endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, privateFunc,
-                                                      remoteFunc, nativeFunc, bodyExists, ctx.Identifier().getText());
-            return;
-        }
-
-        boolean isReceiverAttached = ctx.typeName() != null;
-
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc, privateFunc,
-                                       bodyExists, isReceiverAttached, false);
+                                       bodyExists, false);
     }
 
     @Override
@@ -989,6 +982,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitErrorDetailBindingPattern(BallerinaParser.ErrorDetailBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
         String bindingVarName = null;
         if (ctx.bindingPattern() != null && ctx.bindingPattern().Identifier() != null) {
             bindingVarName = ctx.bindingPattern().Identifier().getText();
@@ -1852,8 +1849,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         String invocation = ctx.invocation().anyIdentifierName().getText();
-        boolean safeNavigate = ctx.invocation().NOT() != null;
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
     }
 
     @Override
@@ -1928,8 +1924,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         String invocation = ctx.invocation().anyIdentifierName().getText();
-        boolean safeNavigate = ctx.invocation().NOT() != null;
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
     }
 
     @Override
@@ -1940,8 +1935,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         String invocation = ctx.invocation().anyIdentifierName().getText();
-        boolean safeNavigate = ctx.invocation().NOT() != null;
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
     }
 
     /**
@@ -2419,7 +2413,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier().size() == 2) {
             String pkgName = ctx.Identifier(0).getText();
             String name = ctx.Identifier(1).getText();
-            this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), pkgName, name);
+            DiagnosticPos pos = getCurrentPos(ctx);
+            if (Names.IGNORE.value.equals(pkgName))  {
+                dlog.error(pos, DiagnosticCode.INVALID_PACKAGE_NAME_QUALIFER, pkgName);
+            }
+            this.pkgBuilder.addNameReference(pos, getWS(ctx), pkgName, name);
         } else {
             String name = ctx.Identifier(0).getText();
             this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), null, name);
@@ -2435,7 +2433,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier() != null) {
             String pkgName = ctx.Identifier().getText();
             String name = ctx.anyIdentifierName().getText();
-            this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), pkgName, name);
+            DiagnosticPos pos = getCurrentPos(ctx);
+            if (Names.IGNORE.value.equals(pkgName))  {
+                dlog.error(pos, DiagnosticCode.INVALID_PACKAGE_NAME_QUALIFER, pkgName);
+            }
+            this.pkgBuilder.addNameReference(pos, getWS(ctx), pkgName, name);
         } else {
             String name = ctx.anyIdentifierName().getText();
             this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), null, name);

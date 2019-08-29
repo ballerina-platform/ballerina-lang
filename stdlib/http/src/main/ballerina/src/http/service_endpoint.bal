@@ -14,12 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/cache;
 import ballerina/crypto;
-import ballerina/log;
+import ballerina/lang.'object as lang;
 import ballerina/runtime;
 import ballerina/system;
-import ballerina/'lang\.object as lang;
-import ballerina/cache;
 
 /////////////////////////////
 /// HTTP Listener Endpoint ///
@@ -50,6 +49,10 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+        return self.detach(s);
+    }
+
     public function __init(int port, public ListenerConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
@@ -64,12 +67,16 @@ public type Listener object {
         self.config = c;
         var auth = self.config["auth"];
         if (auth is ListenerAuth) {
-            var secureSocket = self.config.secureSocket;
-            if (secureSocket is ListenerSecureSocket) {
-                addAuthFilters(self.config);
+            if (auth.mandateSecureSocket) {
+                var secureSocket = self.config.secureSocket;
+                if (secureSocket is ListenerSecureSocket) {
+                    addAuthFilters(self.config);
+                } else {
+                    error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
+                    panic err;
+                }
             } else {
-                error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
-                panic err;
+                addAuthFilters(self.config);
             }
         }
         addAttributeFilter(self.config);
@@ -99,7 +106,7 @@ public type Listener object {
     #
     # + s - The service that needs to be detached
     # + return - An `error` if there is any error occurred during the service detachment process or else nil
-    public function detach(service s) returns error? = external;
+    function detach(service s) returns error? = external;
 };
 
 # Presents a read-only view of the remote address.
@@ -179,12 +186,14 @@ public type ListenerHttp1Settings record {|
 # should successfully be authorozed.
 # + positiveAuthzCache - The caching configurations for positive authorizations.
 # + negativeAuthzCache - The caching configurations for negative authorizations.
+# + mandateSecureSocket - Specify whether secure socket configurations are mandatory or not.
 # + position - The authn/authz filter position of the filter array. The position values starts from 0 and it is set to 0 implicitly.
 public type ListenerAuth record {|
     InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
     string[]|string[][] scopes?;
-    AuthCacheConfig positiveAuthzCache = {};
-    AuthCacheConfig negativeAuthzCache = {};
+    AuthzCacheConfig positiveAuthzCache = {};
+    AuthzCacheConfig negativeAuthzCache = {};
+    boolean mandateSecureSocket = true;
     int position = 0;
 |};
 
@@ -233,7 +242,7 @@ public type ListenerSecureSocket record {|
 # + expiryTimeInMillis - The number of milliseconds to keep an entry in the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
-public type AuthCacheConfig record {|
+public type AuthzCacheConfig record {|
     boolean enabled = true;
     int capacity = 100;
     int expiryTimeInMillis = 5 * 1000; // 5 seconds;
@@ -254,6 +263,8 @@ public const KEEPALIVE_NEVER = "NEVER";
 public const SERVICE_NAME = "SERVICE_NAME";
 # Constant for the resource name reference.
 public const RESOURCE_NAME = "RESOURCE_NAME";
+# Constant for the request method reference.
+public const REQUEST_METHOD = "REQUEST_METHOD";
 
 # Adds authentication and authorization filters.
 #
@@ -268,14 +279,20 @@ function addAuthFilters(ListenerConfiguration config) {
         InboundAuthHandler[]|InboundAuthHandler[][] authHandlers = auth.authHandlers;
         AuthnFilter authnFilter = new(authHandlers);
 
-        var scopes = auth["scopes"];
-        cache:Cache positiveAuthzCache = new(auth.positiveAuthzCache.expiryTimeInMillis,
-                                             auth.positiveAuthzCache.capacity,
-                                             auth.positiveAuthzCache.evictionFactor);
-        cache:Cache negativeAuthzCache = new(auth.negativeAuthzCache.expiryTimeInMillis,
-                                             auth.negativeAuthzCache.capacity,
-                                             auth.negativeAuthzCache.evictionFactor);
+        cache:Cache? positiveAuthzCache = ();
+        cache:Cache? negativeAuthzCache = ();
+        if (auth.positiveAuthzCache.enabled) {
+            positiveAuthzCache = new cache:Cache(auth.positiveAuthzCache.expiryTimeInMillis,
+                                     auth.positiveAuthzCache.capacity,
+                                     auth.positiveAuthzCache.evictionFactor);
+        }
+        if (auth.negativeAuthzCache.enabled) {
+            negativeAuthzCache = new cache:Cache(auth.negativeAuthzCache.expiryTimeInMillis,
+                                     auth.negativeAuthzCache.capacity,
+                                     auth.negativeAuthzCache.evictionFactor);
+        }
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
+        var scopes = auth["scopes"];
         AuthzFilter authzFilter = new(authzHandler, scopes);
 
         if (auth.position == 0) {
@@ -305,8 +322,10 @@ type AttributeFilter object {
     *RequestFilter;
 
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        runtime:getInvocationContext().attributes[SERVICE_NAME] = context.getServiceName();
-        runtime:getInvocationContext().attributes[RESOURCE_NAME] = context.getResourceName();
+        var ctx = runtime:getInvocationContext();
+        ctx.attributes[SERVICE_NAME] = context.getServiceName();
+        ctx.attributes[RESOURCE_NAME] = context.getResourceName();
+        ctx.attributes[REQUEST_METHOD] = request.method;
         return true;
     }
 };
@@ -315,41 +334,3 @@ function addAttributeFilter(ListenerConfiguration config) {
     AttributeFilter attributeFilter = new;
     config.filters.unshift(attributeFilter);
 }
-
-//////////////////////////////////
-/// WebSocket Service Endpoint ///
-//////////////////////////////////
-# Represents a WebSocket service endpoint.
-// public type WebSocketListener Listener;
-public type WebSocketListener object {
-
-    *lang:AbstractListener;
-
-    private Listener httpEndpoint;
-
-    public function __start() returns error? {
-        return self.httpEndpoint.start();
-    }
-
-    public function __gracefulStop() returns error? {
-        return ();
-    }
-
-    public function __immediateStop() returns error? {
-        return self.httpEndpoint.stop();
-    }
-
-    public function __attach(service s, string? name = ()) returns error? {
-        return self.httpEndpoint.register(s, name);
-    }
-
-
-    # Gets invoked during module initialization to initialize the endpoint.
-    #
-    # + port - The port of the endpoint
-    # + config - The `ServiceEndpointConfiguration` of the endpoint
-    public function __init(int port, ListenerConfiguration? config = ()) {
-        self.httpEndpoint = new(port, config);
-    }
-
-};

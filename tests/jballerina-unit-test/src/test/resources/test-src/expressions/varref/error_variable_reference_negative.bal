@@ -134,3 +134,19 @@ function testIndirectErrorRefMandatoryFields() {
     map<any> rest2;
     error(message=messageX, ...rest2) = e;
 }
+
+public function testOptionalDetailFields() {
+    error e = error("reasonPhrase", other = "other value");
+
+    string reason;
+    string message; // this should be `string?`
+    anydata|error other;
+
+    error(reason, message = message, other = other) = e;
+}
+
+function testDuplicateBinding() {
+    string? s;
+    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
+    error(s, message = s, detail = s) = err1;
+}

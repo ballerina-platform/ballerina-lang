@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "streams"
+    artifactId = "streams"
     version = "@project.version@"
     path = "./lib/ballerina-streams-@project.version@.jar"
     groupId = "ballerina"

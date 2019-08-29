@@ -15,10 +15,6 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/encoding;
-import ballerina/internal;
-import ballerina/log;
-import ballerina/runtime;
 
 # Defines the Basic Auth header handler for inbound and outbound HTTP traffic.
 #
@@ -41,7 +37,7 @@ public type BasicAuthHandler object {
     public function canProcess(Request req) returns @tainted boolean {
         if (req.hasHeader(AUTH_HEADER)) {
             string headerValue = extractAuthorizationHeaderValue(req);
-            return internal:hasPrefix(headerValue, auth:AUTH_SCHEME_BASIC);
+            return headerValue.startsWith(auth:AUTH_SCHEME_BASIC);
         }
         return false;
     }

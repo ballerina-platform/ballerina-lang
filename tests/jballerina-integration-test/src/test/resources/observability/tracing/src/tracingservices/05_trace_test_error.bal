@@ -30,7 +30,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/runtime;
 import ballerina/testobserve;
 
 @http:ServiceConfig {

@@ -643,7 +643,15 @@ public class TypeChecker extends BLangNodeVisitor {
                             actType = checkExpr(listConstructor.exprs.get(i), env, expType);
                             results.add(expType.tag != TypeTags.NONE ? expType : actType);
                         } else {
-                            restType = checkExpr(listConstructor.exprs.get(i), env, tupleType.restType);
+                            if (tupleType.restType != null) {
+                                restType = checkExpr(listConstructor.exprs.get(i), env, tupleType.restType);
+                            } else {
+                                // tuple type size != list constructor exprs
+                                dlog.error(listConstructor.pos, DiagnosticCode.SYNTAX_ERROR,
+                                        "tuple and expression size does not match");
+                                resultType = symTable.semanticError;
+                                return;
+                            }
                         }
                     }
                     actualType = new BTupleType(results);
@@ -1145,7 +1153,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 symResolver.resolvePrefixSymbol(env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
         if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
-            return;
         }
 
         if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
@@ -1673,7 +1680,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private List<BType> findMembersWithMatchingInitFunc(BLangTypeInit cIExpr, BUnionType lhsUnionType) {
-        cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
+        boolean containsSingleObject = lhsUnionType.getMemberTypes().stream()
+                .filter(x -> x.tag == TypeTags.OBJECT)
+                .count() == 1;
 
         List<BType> matchingLhsMemberTypes = new ArrayList<>();
         for (BType memberType : lhsUnionType.getMemberTypes()) {
@@ -1683,6 +1692,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             if ((memberType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
                 dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT, lhsUnionType.tsymbol);
+            }
+
+            if (containsSingleObject) {
+                return Collections.singletonList(memberType);
             }
 
             BAttachedFunction initializerFunc = ((BObjectTypeSymbol) memberType.tsymbol).initializerFunc;
@@ -1711,6 +1724,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isArgsMatchesFunction(List<BLangExpression> invocationArguments, BAttachedFunction function) {
+        invocationArguments.forEach(expr -> checkExpr(expr, env, symTable.noType));
+
         if (function == null) {
             return invocationArguments.isEmpty();
         }
@@ -1720,90 +1735,78 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
-        List<BLangExpression> unnamedArgs = new ArrayList<>();
+        List<BLangExpression> positionalArgs = new ArrayList<>();
         for (BLangExpression argument : invocationArguments) {
             if (argument.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                 namedArgs.add((BLangNamedArgsExpression) argument);
             } else {
-                unnamedArgs.add(argument);
+                positionalArgs.add(argument);
             }
         }
 
-        // All named arguments must be present in function as defaultable parameters.
-        if (!matchDefaultableParameters(function, namedArgs)) {
-            return false;
-        }
-
-        // Given arguments are less than required parameters.
         List<BVarSymbol> requiredParams = function.symbol.params.stream()
-                .filter(param -> !param.defaultableParam).collect(Collectors.toList());
-        if (requiredParams.size() > unnamedArgs.size()) {
+                .filter(param -> !param.defaultableParam)
+                .collect(Collectors.toList());
+        // Given named and positional arguments are less than required parameters.
+        if (requiredParams.size() > invocationArguments.size()) {
             return false;
         }
 
-        // No rest params, all (unnamed) args must match params.
-        if (function.symbol.restParam == null && requiredParams.size() != unnamedArgs.size()) {
-            return false;
-        }
-
-        // Match rest param type.
-        if (function.symbol.restParam != null) {
-            BType restParamType = ((BArrayType) function.symbol.restParam.type).eType;
-            if (!restArgTypesMatch(unnamedArgs, requiredParams.size(), restParamType)) {
-                return false;
-            }
-        }
-
-        // Each arguments must be assignable to required parameter at respective position.
-        for (int i = 0, paramsSize = requiredParams.size(); i < paramsSize; i++) {
-            BVarSymbol param = requiredParams.get(i);
-            BLangExpression argument = unnamedArgs.get(i);
-            if (!types.isAssignable(argument.type, param.type)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean restArgTypesMatch(List<BLangExpression> unnamedArgs, int requiredParamCount, BType restParamType) {
-        if (unnamedArgs.size() == requiredParamCount) {
-            return true;
-        }
-        List<BLangExpression> restArgs = unnamedArgs.subList(requiredParamCount, unnamedArgs.size());
-        for (BLangExpression restArg : restArgs) {
-            if (!types.isAssignable(restArg.type, restParamType)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean matchDefaultableParameters(BAttachedFunction function, List<BLangNamedArgsExpression> namedArgs) {
         List<BVarSymbol> defaultableParams = function.symbol.params.stream()
                 .filter(param -> param.defaultableParam)
                 .collect(Collectors.toList());
-        // More named args given than function can accept.
-        if (defaultableParams.size() < namedArgs.size()) {
+
+        int givenRequiredParamCount = 0;
+        for (int i = 0; i < positionalArgs.size(); i++) {
+            if (function.symbol.params.size() > i) {
+                givenRequiredParamCount++;
+                BVarSymbol functionParam = function.symbol.params.get(i);
+                // check the type compatibility of positional args against function params.
+                if (!types.isAssignable(positionalArgs.get(i).type, functionParam.type)) {
+                    return false;
+                }
+                requiredParams.remove(functionParam);
+                defaultableParams.remove(functionParam);
+                continue;
+            }
+
+            if (function.symbol.restParam != null) {
+                BType restParamType = ((BArrayType) function.symbol.restParam.type).eType;
+                if (!types.isAssignable(positionalArgs.get(i).type, restParamType)) {
+                    return false;
+                }
+                continue;
+            }
+
+            // additional positional args given for function with no rest param
             return false;
         }
 
-        int matchedParamterCount = 0;
-        for (BVarSymbol defaultableParam : defaultableParams) {
-            for (BLangNamedArgsExpression namedArg : namedArgs) {
-                if (!namedArg.name.value.equals(defaultableParam.name.value)) {
+        for (BLangNamedArgsExpression namedArg : namedArgs) {
+            boolean foundNamedArg = false;
+            // check the type compatibility of named args against function params.
+            List<BVarSymbol> params = function.symbol.params;
+            for (int i = givenRequiredParamCount; i < params.size(); i++) {
+                BVarSymbol functionParam = params.get(i);
+                if (!namedArg.name.value.equals(functionParam.name.value)) {
                     continue;
                 }
+                foundNamedArg = true;
                 BType namedArgExprType = checkExpr(namedArg.expr, env);
-                if (types.isAssignable(defaultableParam.type, namedArgExprType)) {
-                    matchedParamterCount++;
-                } else {
+                if (!types.isAssignable(functionParam.type, namedArgExprType)) {
                     // Name matched, type mismatched.
                     return false;
                 }
+                requiredParams.remove(functionParam);
+                defaultableParams.remove(functionParam);
+            }
+            if (!foundNamedArg) {
+                return false;
             }
         }
-        // All named arguments have their respective defaultable parameters.
-        return namedArgs.size() == matchedParamterCount;
+
+        // all required params are not given by positional or named args.
+        return requiredParams.size() <= 0;
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
@@ -2201,18 +2204,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = requireTypeInference(conversionExpr.expr) ? targetType : symTable.noType;
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
-        if (targetType.tag == TypeTags.FUTURE) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_CAST_NOT_YET_SUPPORTED, targetType);
-        } else {
-            BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr.expr, sourceType, targetType);
+        BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr.expr, sourceType, targetType);
 
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
-            } else {
-                conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
-                // We reach this block only if the cast is valid, so we set the target type as the actual type.
-                actualType = targetType;
-            }
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+        } else {
+            conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
+            // We reach this block only if the cast is valid, so we set the target type as the actual type.
+            actualType = targetType;
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
     }
@@ -2632,8 +2631,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.semanticError;
         BSymbol symbol =
                 this.symResolver.resolveAnnotation(annotAccessExpr.pos, env,
-                                                   names.fromString(annotAccessExpr.pkgAlias.getValue()),
-                                                   names.fromString (annotAccessExpr.annotationName.getValue()));
+                        names.fromString(annotAccessExpr.pkgAlias.getValue()),
+                        names.fromString(annotAccessExpr.annotationName.getValue()));
         if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annotAccessExpr.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                             annotAccessExpr.annotationName.getValue());
@@ -2726,7 +2725,8 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias);
         } else {
             if (funcSymbol == symTable.notFoundSymbol) {
-                funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+                funcSymbol =
+                        symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
             }
             if (funcSymbol == symTable.notFoundSymbol) {
                 funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.CONSTRUCTOR);
@@ -2849,7 +2849,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.pos)) {
+        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.name, iExpr.pos)) {
             return;
         }
 
@@ -2889,7 +2889,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         resultType = expectedError;
         if (iExpr.symbol == symTable.errorType.tsymbol) {
-            iExpr.symbol = expectedError.ctorSymbol;
+            iExpr.symbol = ((BErrorTypeSymbol) expectedError.tsymbol).ctorSymbol;
         }
     }
 
@@ -2952,10 +2952,9 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, DiagnosticPos pos) {
+    private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, BLangIdentifier name, DiagnosticPos pos) {
         if (errorType.reasonType.tag != TypeTags.FINITE) {
-            dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
-                    errorType.ctorSymbol.name);
+            dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON, name);
             resultType = symTable.semanticError;
             return true;
         } else {

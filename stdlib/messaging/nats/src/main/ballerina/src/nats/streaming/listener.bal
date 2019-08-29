@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.object as lang;
+
+import ballerina/lang.'object as lang;
 
 # Represents the NATS Streaming Server connection, to which a subscription service should be bound to in order to receive messages
 # of the corresponding subscription.
@@ -49,6 +50,9 @@ public type StreamingListener object {
     }
 
     function attach(service serviceType, Connection? conn) = external;
+
+    public function __detach(service s) returns error? {
+    }
 
     public function __start() returns error? {
          createStreamingConnection(self, self.connection, self.clusterId, self.clientId, self.streamingConfig);

@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "config-api"
+    artifactId = "config-api"
     version = "@project.version@"
     path = "./lib/ballerina-config-api-@project.version@.jar"
     groupId = "ballerina"

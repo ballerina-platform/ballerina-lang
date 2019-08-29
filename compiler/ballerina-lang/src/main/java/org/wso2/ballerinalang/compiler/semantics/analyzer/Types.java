@@ -1165,8 +1165,17 @@ public class Types {
                     return symbol;
             }
             symbol = createCastOperatorSymbol(symTable.anyType, expType, true, code);
+        } else if (expType.tag == TypeTags.ERROR
+                && (actualType.tag == TypeTags.UNION
+                && isAllErrorMembers((BUnionType) actualType))) {
+            symbol = createCastOperatorSymbol(symTable.anyType, symTable.errorType, true, InstructionCodes.ANY2E);
+
         }
         return symbol;
+    }
+
+    private boolean isAllErrorMembers(BUnionType actualType) {
+        return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
@@ -1742,7 +1751,15 @@ public class Types {
 
         @Override
         public Boolean visit(BObjectType t, BType s) {
-            return t == s;
+            if (t == s) {
+                return true;
+            }
+
+            if (s.tag != TypeTags.OBJECT) {
+                return false;
+            }
+
+            return t.tsymbol.pkgID.equals(s.tsymbol.pkgID) && t.tsymbol.name.equals(s.tsymbol.name);
         }
 
         @Override
@@ -1933,7 +1950,8 @@ public class Types {
 
     private boolean isInSameVisibilityRegion(BSymbol lhsSym, BSymbol rhsSym) {
         if (Symbols.isPrivate(lhsSym)) {
-            return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID) && lhsSym.name.equals(rhsSym.name);
+            return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID)
+                    && lhsSym.owner.name.equals(rhsSym.owner.name);
         } else if (Symbols.isPublic(lhsSym)) {
             return Symbols.isPublic(rhsSym);
         }

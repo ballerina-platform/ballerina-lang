@@ -6,7 +6,3 @@ type TestObj object {
 function TestObj.foo(int a) returns string {
     return <string>a;
 }
-
-function <TestObj t>bar(string a) returns int {
-    return 123;
-}

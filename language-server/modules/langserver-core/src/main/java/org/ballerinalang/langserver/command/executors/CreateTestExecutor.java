@@ -166,7 +166,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
         // Compile the source file
         BLangPackage builtSourceFile;
         try {
-            builtSourceFile = LSModuleCompiler.getBLangPackage(context, docManager, false, null, false);
+            builtSourceFile = LSModuleCompiler.getBLangPackage(context, docManager, null, false);
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }

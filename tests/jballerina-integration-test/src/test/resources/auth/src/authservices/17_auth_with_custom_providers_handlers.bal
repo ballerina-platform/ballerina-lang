@@ -16,10 +16,7 @@
 
 import ballerina/auth;
 import ballerina/crypto;
-import ballerina/encoding;
 import ballerina/http;
-import ballerina/internal;
-import ballerina/runtime;
 
 OutboundCustomAuthProvider outboundCustomAuthProvider = new;
 OutboundCustomAuthHandler outboundCustomAuthHandler = new(outboundCustomAuthProvider);
@@ -137,7 +134,7 @@ public type InboundCustomAuthHandler object {
 
     public function canProcess(http:Request req) returns @tainted boolean {
         var customAuthHeader = req.getHeader(http:AUTH_HEADER);
-        return internal:hasPrefix(customAuthHeader, "Custom");
+        return customAuthHeader.startsWith("Custom");
     }
 };
 

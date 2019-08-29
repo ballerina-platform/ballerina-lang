@@ -1,22 +1,22 @@
 import ballerina/io;
 
-// Defines an open record type named `Student`. The `{` and `}` delimiters indicate that in addition to the defined fields,
-// this record type allows additional fields with pure-typed (i.e., `anydata|error`) values.
-// The descriptor `record { }` is equivalent to `record {| (anydata|error)...; |}`.
+// Define an open record type named `Student`. The `{` and `}` delimiters indicate that in addition to the defined fields,
+// this record type allows additional fields with `anydata` values.
+// The descriptor `record { }` is equivalent to `record {| anydata...; |}`.
 type Student record {
     string name;
     int age;
     Grades grades;
 };
 
-// Defines a closed record type named `Address`. The `{|` and `|}` delimiters indicate that this record type
+// Define a closed record type named `Address`. The `{|` and `|}` delimiters indicate that this record type
 // allows mapping values, which contain only the described fields.
 type Address record {|
     string city;
     string country;
 |};
 
-// Defines an open record type named `Grades`. Although it is defined using the `{|` and `|}` delimiters, it has
+// Define an open record type named `Grades`. Although it is defined using the `{|` and `|}` delimiters, it has
 // an `int` rest field as well. Therefore, this is an open record type.
 type Grades record {|
     int maths;
@@ -31,34 +31,48 @@ public function main() {
     // This creates a `Student` record. Since all the fields are required and none of the fields
     // have explicit default values assigned to them, values must be specified for all the fields
     // when creating the record.
-    Student john = {name: "John Doe", age: 17,
-                    grades: {maths: 80, physics: 75, chemistry: 65}};
+    Student john = {
+        name: "John Doe",
+        age: 17,
+        grades: {
+            maths: 80,
+            physics: 75,
+            chemistry: 65
+        }
+    };
     io:println(john);
 
     // This is an example of field-based access of record fields. The return type of this expression is the
-    // type of the field. If it is an open record and the specified key is not present in the record at runtime,
-    // it will result in a `panic`. If it is a closed record, accessing an undefined key will result in a compilation error.
+    // type of the field. Field access is only allowed for required fields in a record.
     io:println(john.name);
 
-    // This is an example of index-based access of record fields. The return type of this expression is `T?`, in which
-    // `T` is the type of the field. If it is an open record and the specified key is not present in the record at runtime,
-    // `()` will be returned. If it is a closed record, accessing an undefined key will result in a compilation error.
+    // This is an example of member access of record fields. Where the type of the field is `T`, the type of
+    // this expression is `T` if the field is a required field or has a default value. If the field is an optional
+    // field or a rest field, the type of this expression is `T?`.
+    // If it is a closed record, accessing an undefined key will result in a compilation error.
     io:println(john["name"]);
 
     // This fetches a field of a nested record.
     io:println(john.grades.maths);
 
-    Student peter = {name: "Peter", age: 19,
-                     grades: {maths: 40, physics: 35, chemistry: 35}};
+    Student peter = {
+        name: "Peter",
+        age: 19,
+        grades: {
+            maths: 40,
+            physics: 35,
+            chemistry: 35
+        }
+    };
     // This modifies the value of the `age` field.
+    // Field access is allowed with assignment only for fields defined in the record type descriptor.
     peter.age = 16;
 
     io:println(peter);
     io:println(john);
 
-    // This adds an additional field, which is not defined in the record type descriptor above.
+    // Member access can be used to assign to fields that are not defined in the record type descriptor.
     // An attempt to add additional fields to a closed record results in compile errors.
-    // E.g., `peter.address.street = "Palm Grove";` will result in a compile error.
     peter["address"] = <Address>{ city: "Colombo", country: "Sri Lanka" };
     io:println(peter);
 

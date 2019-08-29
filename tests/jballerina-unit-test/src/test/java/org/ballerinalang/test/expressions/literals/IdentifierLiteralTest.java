@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 /**
  * Identifier literal test cases.
  */
+@Test(groups = { "brokenOnSpecDeviation" })
 public class IdentifierLiteralTest {
     private CompileResult result;
 
@@ -152,7 +153,7 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(actualString, "sample test");
     }
 
-    @Test(description = "Test connector name with identifier literal", enabled = false)
+    @Test(description = "Test connector name with identifier literal")
     public void testConnectorWithIdentifierLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorNameWithIL");
 
@@ -161,7 +162,7 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(((BString) returns[0]).stringValue(), "this is a sample");
     }
 
-    @Test(description = "Test connector action with identifier literal", enabled = false)
+    @Test(description = "Test connector action with identifier literal")
     public void testConnectorActionWithIdentifierLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorActionWithIL");
 

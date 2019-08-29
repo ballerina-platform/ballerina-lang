@@ -5047,10 +5047,10 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, SERVICE_DEFINITION, null);
     r = consumeToken(b, SERVICE);
-    p = r; // pin = 1
-    r = r && report_error_(b, ServiceDefinition_1(b, l + 1));
-    r = p && report_error_(b, consumeToken(b, ON)) && r;
-    r = p && report_error_(b, ExpressionList(b, l + 1)) && r;
+    r = r && ServiceDefinition_1(b, l + 1);
+    r = r && consumeToken(b, ON);
+    p = r; // pin = 3
+    r = r && report_error_(b, ExpressionList(b, l + 1));
     r = p && ServiceBody(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
