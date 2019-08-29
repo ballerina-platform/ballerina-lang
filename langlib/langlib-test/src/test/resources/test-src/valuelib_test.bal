@@ -57,7 +57,7 @@ function testToStringMethod() returns [string, string, string, string] {
 }
 
 /////////////////////////// Tests for `mergeJson()` ///////////////////////////
-const MERGE_JSON_ERROR_REASON = "{ballerina}MergeJsonError";
+const MERGE_JSON_ERROR_REASON = "{ballerina/lang.value}MergeJsonError";
 const MESSAGE = "message";
 
 function testNilAndNonNilJsonMerge() returns boolean {
