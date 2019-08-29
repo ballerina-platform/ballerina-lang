@@ -1162,15 +1162,15 @@ public class HttpUtil {
         return responseObj;
     }
 
-    public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, MapValue<String, Object>
-            clientEndpointConfig) {
+    public static void populateSenderConfigurations(SenderConfiguration senderConfiguration,
+            MapValue<String, Object> clientEndpointConfig, String scheme) {
         ProxyServerConfiguration proxyServerConfiguration;
         MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
 
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(senderConfiguration, secureSocket);
-        } else {
-            HttpUtil.setDefaultTrustStore(senderConfiguration);
+        } else if (scheme.equals(PROTOCOL_HTTPS)) {
+            throw createHttpError("To enable https you need to configure secureSocket record");
         }
         String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (HTTP_1_1_VERSION.equals(httpVersion)) {

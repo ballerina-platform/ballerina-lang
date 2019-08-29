@@ -13,19 +13,20 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/config;
 import ballerina/grpc;
 import ballerina/log;
 
 listener grpc:Listener ep9 = new (9099, {
     host:"localhost",
     secureSocket:{
-        keyStore:{
-            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password:"ballerina"
+        keyStore: {
+            path: config:getAsString("keystore"),
+            password: "ballerina"
         },
-        trustStore:{
-            path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password:"ballerina"
+        trustStore: {
+            path: config:getAsString("truststore"),
+            password: "ballerina"
         },
         protocol: {
             name: "TLSv1.2",
