@@ -63,7 +63,7 @@ function readAllCharacters() returns @tainted string|io:Error? {
             result = result + readResult;
         } else {
             error e = readResult;
-            if (e is io:EoFError) {
+            if (e is io:EofError) {
                 isDone = true;
             } else {
                 io:GenericError readError = error(io:GENERIC_ERROR, message = "Error while reading the content", cause = readResult);

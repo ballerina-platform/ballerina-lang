@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.io.channels;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,8 +45,7 @@ public class TempFileIOChannel extends FileIOChannel {
             File tempFile = new File(tempFilePath);
             boolean isFileDeleted = tempFile.delete();
             if (!isFileDeleted) {
-                throw new BallerinaException(
-                        "temporary file deletion failure occurred while closing TempFileIOChannel! ");
+                throw IOUtils.createError("temporary file deletion failure occurred while closing TempFileIOChannel! ");
             }
         }
     }

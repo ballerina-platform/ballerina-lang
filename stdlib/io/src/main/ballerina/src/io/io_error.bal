@@ -32,6 +32,6 @@ public const FILE_NOT_FOUND_ERROR = "{ballerina/io}FileNotFoundError";
 public type FileNotFoundError error<FILE_NOT_FOUND_ERROR, Detail>;
 
 public const END_OF_FILE_ERROR = "{ballerina/io}EoF";
-public type EoFError error<END_OF_FILE_ERROR, Detail>;
+public type EofError error<END_OF_FILE_ERROR, Detail>;
 
-public type Error GenericError|ConnectionTimedOutError|AccessDeniedError|FileNotFoundError|EoFError;
+public type Error GenericError|ConnectionTimedOutError|AccessDeniedError|FileNotFoundError|EofError;

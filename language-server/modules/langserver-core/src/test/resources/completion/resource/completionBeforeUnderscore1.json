@@ -340,11 +340,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "EoFError",
+      "label": "EofError",
       "kind": "Keyword",
       "detail": "Error",
       "sortText": "120",
-      "insertText": "EoFError",
+      "insertText": "EofError",
       "insertTextFormat": "Snippet"
     },
     {
