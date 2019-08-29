@@ -145,7 +145,7 @@ public class LangLibValueTest {
                             "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
                             "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
                             "</CATALOG> " +
-                            "varArr=(str 23 23.4 true) " +
+                            "varArr=str 23 23.4 true " +
                             "varErr=error Reason1 message=Test passing error union to a function " +
                             "varObj=object Student " +
                             "varObj2=Rola from MMV " +
