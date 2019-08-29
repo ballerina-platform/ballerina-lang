@@ -1,4 +1,4 @@
-import ballerina/'lang\.int as ints;
+import ballerina/lang.'int as ints;
 
 xmlns "http://sample.com/wso2/a1" as ns0;
 public function main (string... args) returns error? {

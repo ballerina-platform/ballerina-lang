@@ -234,7 +234,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
     private TextEdit addPackage(String pkgName, LSContext context) {
         DiagnosticPos pos = null;
         // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(context);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
         if (!imports.isEmpty()) {
             BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
             pos = lastImport.getPosition();

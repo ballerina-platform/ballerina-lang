@@ -520,8 +520,8 @@ public class CommandUtil {
             if (pkgId.equals(currentPkgId.toString())) {
                 foundType = typeName;
             } else {
-                List<BLangImportPackage> currentModuleImports = CommonUtil.getCurrentModuleImports(context);
-                boolean pkgAlreadyImported = currentModuleImports.stream()
+                List<BLangImportPackage> currentDocImports = CommonUtil.getCurrentFileImports(context);
+                boolean pkgAlreadyImported = currentDocImports.stream()
                         .anyMatch(importPkg -> importPkg.orgName.value.equals(orgName)
                                 && importPkg.alias.value.equals(alias));
                 if (!pkgAlreadyImported) {

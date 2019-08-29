@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
