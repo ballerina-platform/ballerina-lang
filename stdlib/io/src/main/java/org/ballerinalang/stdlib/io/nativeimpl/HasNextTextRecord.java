@@ -20,19 +20,16 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.records.HasNextDelimitedRecordEvent;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extern function ballerina/io#hasNextTextRecord.
@@ -50,33 +47,24 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class HasNextTextRecord {
 
+    private static final Logger log = LoggerFactory.getLogger(HasNextTextRecord.class);
+
     public static boolean hasNext(Strand strand, ObjectValue channel) {
         if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
             DelimitedRecordChannel textRecordChannel =
                     (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-            EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-            HasNextDelimitedRecordEvent hasNextEvent = new HasNextDelimitedRecordEvent(textRecordChannel,
-                                                                                       eventContext);
-            Register register = EventRegister.getFactory().register(hasNextEvent, HasNextTextRecord::getResponse);
-            eventContext.setRegister(register);
-            register.submit();
+            if (!textRecordChannel.hasReachedEnd()) {
+                try {
+                    return textRecordChannel.hasNext();
+                } catch (BallerinaIOException e) {
+                    String msg =
+                            "error occurred while checking hasNext on ReadableTextRecordChannel: " + e.getMessage();
+                    log.error(msg, e);
+                    throw IOUtils.createError(msg);
+                }
+            }
         }
         return false;
     }
 
-    /**
-     * Responds whether a next record exists.
-     *
-     * @param result the result processed.
-     * @return result context.
-     */
-    private static EventResult getResponse(EventResult<Boolean, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        Boolean response = result.getResponse();
-        callback.setReturnValues(response);
-        IOUtils.validateChannelState(eventContext);
-        callback.notifySuccess();
-        return result;
-    }
 }

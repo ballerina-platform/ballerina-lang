@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-
 /**
  * Will be used to throw Ballerina I/O related runtime exceptions.
  */
-public class BallerinaIOException extends BallerinaException {
+public class BallerinaIOException extends Exception {
+
+    private static final long serialVersionUID = 816072850401725144L;
 
     public BallerinaIOException(String message, Throwable cause) {
         super(message, cause);

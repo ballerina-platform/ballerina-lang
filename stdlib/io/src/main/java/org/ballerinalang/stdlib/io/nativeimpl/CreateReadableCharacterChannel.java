@@ -56,7 +56,7 @@ public class CreateReadableCharacterChannel {
             CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding);
             characterChannel.addNativeData(IOConstants.CHARACTER_CHANNEL_NAME, bCharacterChannel);
         } catch (Throwable e) {
-            String message = "Error occurred while converting byte channel to character channel:" + e.getMessage();
+            String message = "error occurred while converting byte channel to character channel:" + e.getMessage();
             log.error(message, e);
             throw new BallerinaException(message, e);
         }

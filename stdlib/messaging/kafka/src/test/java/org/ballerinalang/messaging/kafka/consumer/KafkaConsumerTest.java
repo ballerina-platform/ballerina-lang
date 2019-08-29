@@ -109,7 +109,7 @@ public class KafkaConsumerTest {
         Assert.assertTrue(returnBValues[0] instanceof BError);
         String errorReason = "{ballerina/kafka}ConsumerError";
         String errorMessage =
-                "{message:\"Cannot connect to the kafka server: Failed to construct kafka consumer\", cause:()}";
+                "{message:\"Cannot connect to the kafka server: Failed to construct kafka consumer\"}";
         Assert.assertEquals(((BError) returnBValues[0]).getReason(), errorReason);
         Assert.assertEquals(((BError) returnBValues[0]).getDetails().stringValue(), errorMessage);
     }
