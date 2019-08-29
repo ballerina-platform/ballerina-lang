@@ -172,7 +172,6 @@ public class SQLDataIterator extends TableIterator {
                             Time time = rs.getTime(index, utcCalendar);
                             handleDateValue(bStruct, fieldName, time, fieldType);
                             break;
-                        case microsoft.sql.Types.DATETIMEOFFSET:
                         case Types.TIMESTAMP:
                         case Types.TIMESTAMP_WITH_TIMEZONE:
                             Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
