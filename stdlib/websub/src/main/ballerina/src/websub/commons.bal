@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/encoding;
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
@@ -230,11 +229,9 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string generatedSignature = "";
 
     if (internal:equalsIgnoreCase(method, SHA1)) {
-        generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toBytes(),
-            secret.toBytes()));
+        generatedSignature = crypto:hmacSha1(stringPayload.toBytes(), secret.toBytes()).toBase16();
     } else if (internal:equalsIgnoreCase(method, SHA256)) {
-        generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toBytes(),
-            secret.toBytes()));
+        generatedSignature = crypto:hmacSha256(stringPayload.toBytes(), secret.toBytes()).toBase16();
     } else {
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Unsupported signature method: " + method);
         return webSubError;

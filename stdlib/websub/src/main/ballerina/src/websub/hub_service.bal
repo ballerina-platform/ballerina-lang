@@ -16,7 +16,6 @@
 
 import ballerina/config;
 import ballerina/crypto;
-import ballerina/encoding;
 import ballerina/http;
 import ballerina/internal;
 import ballerina/lang.'int as langint;
@@ -464,11 +463,11 @@ returns error? {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
             if (internal:equalsIgnoreCase(SHA1, hubSignatureMethod)) { //not recommended
-                generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toBytes(),
-                    subscriptionDetails.secret.toBytes()));
+                generatedSignature = crypto:hmacSha1(stringPayload.toBytes(),
+                    subscriptionDetails.secret.toBytes()).toBase16();
             } else if (internal:equalsIgnoreCase(SHA256, hubSignatureMethod)) {
-                generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toBytes(),
-                    subscriptionDetails.secret.toBytes()));
+                generatedSignature = crypto:hmacSha256(stringPayload.toBytes(),
+                    subscriptionDetails.secret.toBytes()).toBase16();
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(X_HUB_SIGNATURE, xHubSignature);
