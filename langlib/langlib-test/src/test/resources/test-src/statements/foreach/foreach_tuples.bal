@@ -155,7 +155,7 @@ function testContinue() returns string {
 }
 
 function testContinue1() returns string {
-    [[string, string], [string, string], [string, string]] sTuple = [["d0", "d1"], ["d2", "d1"], ["d2", "d1"]];
+    [[string, string], [string, string], [string, string]] sTuple = [["ddd", "d1"], ["rrr", "d1"], ["fef", "d1"]];
     output = "";
     int i = 0;
     foreach var [v, u] in sTuple {
@@ -164,7 +164,7 @@ function testContinue1() returns string {
             i += 1;
             continue;
         }
-        concatString(i, v.toString());
+        concatString(i, v);
         i += 1;
     }
     return output;

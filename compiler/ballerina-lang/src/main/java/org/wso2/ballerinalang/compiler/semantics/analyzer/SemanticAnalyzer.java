@@ -921,8 +921,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                     memberTupleTypes.add(varNode.type);
                                 }
                             }
-                            HashSet<BType> e = new HashSet<>(memberTypes);
-                            memberTupleTypes.add(BUnionType.create(null, memberTypes));
+
+                            if (memberTypes.size() > 1) {
+                                memberTupleTypes.add(BUnionType.create(null, memberTypes));
+                            } else {
+                                memberTupleTypes.addAll(memberTypes);
+                            }
                         }
                         tupleTypeNode = new BTupleType(memberTupleTypes);
                         break;
