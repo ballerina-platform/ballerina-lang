@@ -3300,21 +3300,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatementExpression desugarObjectTypeInit(BLangTypeInit typeInitExpr) {
         typeInitExpr.desugared = true;
-
-        // TODO: There seems to be a hidden error in object typeInit desugar that cause null to be passed in
-        // when anonymous object is provided as a argument. Fix the actual error and replace below block with
-        // typeInitExpr.argsExpr = rewriteExprs(typeInitExpr.argsExpr);
-        // Re-production: AnonymousObjectTest.testAnonObjectAsObjectField
-        List<BLangExpression> args = new ArrayList<>(typeInitExpr.argsExpr.size());
-        for (BLangExpression arg : typeInitExpr.argsExpr) {
-            if (arg.getKind() != NodeKind.TYPE_INIT_EXPR) {
-                args.add(rewriteExpr(arg));
-            } else {
-                args.add(arg);
-            }
-        }
-        typeInitExpr.argsExpr = args;
-
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
 
         // Person $obj$ = new;
@@ -3778,12 +3763,7 @@ public class Desugar extends BLangNodeVisitor {
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
         rewrite(lambdaFunction.function, env);
-
-        if (env.enclPkg.functions.stream()
-                .noneMatch(f -> f.name.value.equals(((BLangFunction) lambdaFunction.function).name.value))) {
-            env.enclPkg.addFunction(lambdaFunction.function);
-        }
-
+        env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
         result = rewriteExpr(lambdaFunction);
     }
