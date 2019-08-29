@@ -46,6 +46,7 @@ public enum DiagnosticCode {
     TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
     FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
     TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
+    TABLE_CONSTRAINT_MUST_BE_A_RECORD_TYPE("table.constraint.must.be.a.record"),
     CANNOT_INFER_TABLE_TYPE("cannot.infer.table.type"),
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),

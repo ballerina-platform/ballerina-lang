@@ -539,6 +539,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (tableConstraint.tag == TypeTags.NONE) {
             dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT);
             return;
+        } else if (tableConstraint.tag != TypeTags.RECORD) {
+            dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CONSTRAINT_MUST_BE_A_RECORD_TYPE);
+            return;
         }
         validateTableColumns(tableConstraint, tableLiteral);
         checkExprs(tableLiteral.tableDataRows, this.env, tableConstraint);

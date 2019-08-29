@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+    // Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -227,4 +227,14 @@ function testTableLiteralWithVar() {
         { 3, 320.5, "john",  33, true }
         ]
     };
+}
+
+public function testNonRecordAsTableConstraint(string... args) {
+    table<any> t = table {
+                { key id, name, salary },
+                [ { 1, "Mary",  300.5 },
+                  { 2, "John",  200.5 },
+                  { 3, "Jim", 330.5 }
+                ]
+            };
 }
