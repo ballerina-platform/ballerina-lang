@@ -21,9 +21,9 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.HttpConstants.PUSH_PROMISE;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
@@ -38,30 +38,30 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 public class ValueCreatorUtils {
 
     public static ObjectValue createRequestObject() {
-        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, REQUEST);
+        return BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, REQUEST);
     }
 
     public static ObjectValue createResponseObject() {
-        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, RESPONSE);
+        return BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, RESPONSE);
     }
 
     public static ObjectValue createEntityObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
     }
 
     public static ObjectValue createMediaTypeObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
     }
 
     public static ObjectValue createPushPromiseObject() {
-        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, PUSH_PROMISE, "/", "GET");
+        return BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, PUSH_PROMISE, "/", "GET");
     }
 
     public static ObjectValue createRequestCacheControlObject() {
-        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, REQUEST_CACHE_CONTROL);
+        return BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, REQUEST_CACHE_CONTROL);
     }
 
     public static ObjectValue createResponseCacheControlObject() {
-        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, RESPONSE_CACHE_CONTROL);
+        return BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, RESPONSE_CACHE_CONTROL);
     }
 }

@@ -107,7 +107,7 @@ public class TableLiteralSyntaxTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*", enabled = false)
+          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*")
     public void testTableAddOnConstrainedTableWithViolation() {
         BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation");
     }
@@ -116,6 +116,14 @@ public class TableLiteralSyntaxTest {
     public void testTableAddOnConstrainedTableWithViolation2() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation2");
         Assert.assertTrue((returns[0]).stringValue().contains("Unique index or primary key violation:"));
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp =
+                  ".*execute update failed: Unique index or primary key violation:.*")
+    public void testTableAddOnConstrainedTableWithViolation3() {
+        BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation3");
+        Assert.fail("Expected exception should have been thrown by this point");
     }
 
     @Test
@@ -503,9 +511,9 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, 15,
                                   "field 'bar' of type 'error' is not allowed as a table column", 196, 31);
         BAssertUtil.validateError(resultNegative, 16,
-                                  "field 'xArr' of type 'xml[]' is not allowed as a table column", 212, 29);
+                "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
         BAssertUtil.validateError(resultNegative, 17,
-                                  "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
+                                  "field 'xArr' of type 'xml[]' is not allowed as a table column", 212, 29);
         BAssertUtil.validateError(resultNegative, 18,
                                   "cannot infer table type", 223, 14);
     }

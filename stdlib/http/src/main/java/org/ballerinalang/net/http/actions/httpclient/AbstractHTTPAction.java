@@ -60,7 +60,7 @@ import java.util.Optional;
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
@@ -83,7 +83,7 @@ public abstract class AbstractHTTPAction {
     protected static HttpCarbonMessage createOutboundRequestMsg(String serviceUri, MapValue config, String path,
                                                                 ObjectValue request) {
         if (request == null) {
-            request = BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, REQUEST);
+            request = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, REQUEST);
         }
 
         HttpCarbonMessage requestMsg = HttpUtil.getCarbonMsg(request, HttpUtil.createHttpCarbonMessage(true));
@@ -425,7 +425,7 @@ public abstract class AbstractHTTPAction {
 
         @Override
         public void onResponseHandle(ResponseHandle responseHandle) {
-            ObjectValue httpFuture = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+            ObjectValue httpFuture = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                     HttpConstants.HTTP_FUTURE);
             httpFuture.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
             this.dataContext.notifyInboundResponseStatus(httpFuture, null);

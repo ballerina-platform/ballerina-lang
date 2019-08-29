@@ -23,6 +23,8 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.nativeimpl.OpenWritableFile;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 
+import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
+
 /**
  * <p>
  * For I/O APIs to work it requires each I/O source (file,tcp socket) to return a generic ByteChannel.
@@ -35,10 +37,6 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
  */
 public abstract class AbstractNativeChannel {
     /**
-     * The package path of the byte channel.
-     */
-    private static final String BYTE_CHANNEL_PACKAGE = "ballerina/io";
-    /**
      * The struct type of the byte channel.
      */
     private static final String READ_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
@@ -50,9 +48,9 @@ public abstract class AbstractNativeChannel {
     protected static ObjectValue createChannel(Channel channel) {
         ObjectValue channelObj;
         if (channel.isReadable()) {
-            channelObj = BallerinaValues.createObjectValue(BYTE_CHANNEL_PACKAGE, READ_BYTE_CHANNEL_STRUCT);
+            channelObj = BallerinaValues.createObjectValue(IO_PACKAGE_ID, READ_BYTE_CHANNEL_STRUCT);
         } else {
-            channelObj = BallerinaValues.createObjectValue(BYTE_CHANNEL_PACKAGE, WRITE_BYTE_CHANNEL_STRUCT);
+            channelObj = BallerinaValues.createObjectValue(IO_PACKAGE_ID, WRITE_BYTE_CHANNEL_STRUCT);
         }
         channelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, channel);
         return channelObj;

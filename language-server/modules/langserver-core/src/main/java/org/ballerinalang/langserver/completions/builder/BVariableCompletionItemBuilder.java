@@ -18,11 +18,9 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.util.Flags;
 
 /**
  * This class is being used to build variable type completion item.
@@ -52,22 +50,9 @@ public final class BVariableCompletionItemBuilder {
     }
 
     private static void setMeta(CompletionItem item, BVarSymbol bSymbol) {
+        item.setKind(CompletionItemKind.Variable);
         if (bSymbol == null) {
-            item.setKind(CompletionItemKind.Variable);
             return;
-        }
-        //Or, else
-        if ((bSymbol.flags & Flags.FINAL) == Flags.FINAL) {
-            if (bSymbol.type.tsymbol != null && TypeKind.STRING.typeName().equals(bSymbol.type.tsymbol.name.value)) {
-                // string final
-                item.setKind(CompletionItemKind.Text);
-            } else {
-                // non-string final
-                item.setKind(CompletionItemKind.Unit);
-            }
-        } else {
-            // variables
-            item.setKind(CompletionItemKind.Variable);
         }
         if (bSymbol.markdownDocumentation != null) {
             item.setDocumentation(bSymbol.markdownDocumentation.description);

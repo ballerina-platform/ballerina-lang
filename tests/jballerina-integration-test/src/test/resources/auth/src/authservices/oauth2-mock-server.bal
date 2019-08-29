@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
+import ballerina/config;
 import ballerina/encoding;
 import ballerina/http;
 import ballerina/internal;
@@ -53,7 +54,7 @@ string[] accessTokenStore = ["2YotnFZFEjr1zCsicMWpAA"];
 listener http:Listener oauth2Server = new(20102, {
         secureSocket: {
             keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                path: config:getAsString("keystore"),
                 password: "ballerina"
             }
         }
@@ -258,7 +259,7 @@ function getResponseForRefreshRequest(http:Request req, string authorizationHead
                     refreshToken = internal:split(param, "=")[1];
                     // If the refresh token contains the `=` symbol, then it is required to concatenate all the parts of the value since
                     // the String split breaks all those into separate parts.
-                    if (internal:hasSuffix(param, "==")) {
+                    if (param.endsWith("==")) {
                         refreshToken += "==";
                     }
                 } else if (internal:contains(param, "scope")) {
@@ -413,7 +414,7 @@ function addToAccessTokenStore(string accessToken) {
 listener http:Listener apiEndpoint = new(20101, {
         secureSocket: {
             keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                path: config:getAsString("keystore"),
                 password: "ballerina"
             }
         }

@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'object as lang;
 import ballerina/websub;
-import ballerina/'lang\.object as lang;
 
 public type MockActionEvent record {|
     string action;

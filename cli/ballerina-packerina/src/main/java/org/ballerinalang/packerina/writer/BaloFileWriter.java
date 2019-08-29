@@ -158,7 +158,10 @@ public class BaloFileWriter {
         addModuleSource(root, baloFS, moduleSourceDir, moduleName);
         addResources(root, baloFS, moduleSourceDir);
         addModuleDoc(root, moduleSourceDir);
-        addPlatformLibs(root, projectDirectory, moduleName);
+        // Add platform libs only if it is not a template module.
+        if (!this.manifest.isTemplateModule(moduleName)) {
+            addPlatformLibs(root, projectDirectory, moduleName);
+        }
     }
     
     private void addModuleDoc(Path root, Path moduleSourceDir) throws IOException {
@@ -217,6 +220,7 @@ public class BaloFileWriter {
         Files.createDirectory(srcInBalo);
         Path moduleDirInBalo = srcInBalo.resolve(moduleName);
         Files.createDirectory(moduleDirInBalo);
+        boolean isTemplate = this.manifest.isTemplateModule(moduleName);
 
         // copy only bal file from module directory path in to zip
         PathMatcher fileFilter = fs.getPathMatcher("glob:**/*" + ProjectDirConstants.BLANG_SOURCE_EXT);
@@ -232,8 +236,8 @@ public class BaloFileWriter {
             // Skip tests directory
             prefix = moduleDirInBalo
                     .resolve(ProjectDirConstants.TEST_DIR_NAME).toString();
-            // Skip resources directory
-            if (fs.getPathMatcher("glob:" + prefix + "**").matches(path)) {
+            // Skip test directory
+            if (!isTemplate && fs.getPathMatcher("glob:" + prefix + "**").matches(path)) {
                 return false;
             }
             return true;
@@ -263,7 +267,7 @@ public class BaloFileWriter {
         moduleObj.setModule_keywords(this.manifest.getProject().getKeywords());
         moduleObj.setModule_source_repository(this.manifest.getProject().getRepository());
         moduleObj.setModule_licenses(this.manifest.getProject().getLicense());
-        moduleObj.setPlatform(this.manifest.getTargetPlatform());
+        moduleObj.setPlatform(this.manifest.getTargetPlatform(moduleName));
         moduleObj.setBallerina_version(RepoUtils.getBallerinaVersion());
         moduleObj.setTemplate(String.valueOf(manifest.getProject().getTemplates().contains(moduleName)));
         String moduleToml = writer.write(moduleObj);

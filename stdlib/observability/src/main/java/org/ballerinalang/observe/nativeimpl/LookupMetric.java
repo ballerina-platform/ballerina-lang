@@ -45,7 +45,7 @@ import java.util.Set;
 import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.COUNTER;
 import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.GAUGE;
 import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY;
-import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH;
+import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.OBSERVE_PACKAGE_ID;
 
 /**
  * This is the lookupMetric function native implementation for the registered metrics.
@@ -71,20 +71,20 @@ public class LookupMetric {
         if (metric != null) {
             MetricId metricId = metric.getId();
             if (metric instanceof Counter) {
-                ObjectValue counter = BallerinaValues.createObjectValue(OBSERVE_PACKAGE_PATH, COUNTER,
+                ObjectValue counter = BallerinaValues.createObjectValue(OBSERVE_PACKAGE_ID, COUNTER,
                         metricId.getName(), metricId.getDescription(), getTags(metricId));
                 counter.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
                 return counter;
             } else if (metric instanceof Gauge) {
                 Gauge gauge = (Gauge) metric;
                 ArrayValue statisticConfigs = Utils.createBStatisticConfig(gauge.getStatisticsConfig());
-                ObjectValue bGauge = BallerinaValues.createObjectValue(OBSERVE_PACKAGE_PATH, GAUGE, metricId.getName(),
+                ObjectValue bGauge = BallerinaValues.createObjectValue(OBSERVE_PACKAGE_ID, GAUGE, metricId.getName(),
                         metricId.getDescription(), getTags(metricId), statisticConfigs);
                 bGauge.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
                 return bGauge;
             } else if (metric instanceof PolledGauge) {
                 ArrayValue statisticConfigs = Utils.createBStatisticConfig(null);
-                ObjectValue bGauge = BallerinaValues.createObjectValue(OBSERVE_PACKAGE_PATH, GAUGE, metricId.getName(),
+                ObjectValue bGauge = BallerinaValues.createObjectValue(OBSERVE_PACKAGE_ID, GAUGE, metricId.getName(),
                         metricId.getDescription(), getTags(metricId), statisticConfigs);
                 bGauge.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
                 return bGauge;

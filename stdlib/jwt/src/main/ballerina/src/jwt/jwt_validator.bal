@@ -19,8 +19,8 @@ import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/internal;
 import ballerina/io;
+import ballerina/lang.'int as langint;
 import ballerina/time;
-import ballerina/'lang\.int as langint;
 
 # Represents JWT validator configurations.
 # + issuer - Expected issuer

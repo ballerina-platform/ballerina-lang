@@ -35,7 +35,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.slf4j.Logger;
@@ -50,7 +49,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
@@ -164,7 +163,7 @@ public class WebSocketDispatcher {
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                         return new ArrayValue(
-                                aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
+                                aggregateString.getBytes(StandardCharsets.UTF_8));
                     }
                     break;
                 default:
@@ -299,7 +298,7 @@ public class WebSocketDispatcher {
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
-        //TODO this is temp fix till we get the service.start() API
+
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_CLOSE,
                 onCloseCallback, null, bValues);
     }
@@ -329,7 +328,6 @@ public class WebSocketDispatcher {
         }
         bValues[2] = WebSocketUtil.createWebSocketError(errMsg);
         bValues[3] = true;
-        //TODO Uncomment following once service.start() API is available
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -341,7 +339,7 @@ public class WebSocketDispatcher {
                 ErrorHandlerUtils.printError(error.getPrintableStackTrace());
             }
         };
-        //TODO this is temp fix till we get the service.start() API
+
         Executor.submit(webSocketService.getScheduler(), webSocketService.getBalService(),
                 WebSocketConstants.RESOURCE_NAME_ON_ERROR, onErrorCallback, null, bValues);
     }
@@ -363,7 +361,7 @@ public class WebSocketDispatcher {
         Object[] bValues = new Object[paramDetails.length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
-        //TODO Uncomment following once service.start() API is available
+
         CallableUnitCallback onIdleTimeoutCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -376,7 +374,7 @@ public class WebSocketDispatcher {
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
-        //TODO this is temp fix till we get the service.start() API
+
         Executor.submit(wsService.getScheduler(), wsService.getBalService(),
                 WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT, onIdleTimeoutCallback, null, bValues);
     }

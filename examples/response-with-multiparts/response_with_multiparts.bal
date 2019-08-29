@@ -2,7 +2,6 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/internal;
 
 // Creates an endpoint for the client.
 http:Client clientEP = new("http://localhost:9092");
@@ -89,7 +88,7 @@ service multipartResponseDecoder on multipartEP {
 // Gets the child parts that are nested within the parent.
 function handleNestedParts(mime:Entity parentPart) {
     string contentTypeOfParent = parentPart.getContentType();
-    if (internal:hasPrefix(contentTypeOfParent, "multipart/")) {
+    if (contentTypeOfParent.startsWith("multipart/")) {
         var childParts = parentPart.getBodyParts();
         if (childParts is mime:Entity[]) {
             log:printInfo("Nested Parts Detected!");

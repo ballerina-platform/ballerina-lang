@@ -16,7 +16,6 @@
 
 import ballerina/io;
 import ballerina/bir;
-import ballerina/jvm;
 import ballerina/internal;
 
 public type JarFile record {|
@@ -48,7 +47,7 @@ public function main(string... args) {
     var jarFile = generateJarBinary(pathToEntryBir, mapPath, dumpBir);
     if (dlogger.getErrorCount() > 0) {
         dlogger.printErrors();
-        jvm:systemExit(1);
+        exit(1);
         return;
     }
 

@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -85,7 +84,7 @@ public class TableUtils {
                     case TypeTags.UNION_TAG:
                         List<BType> members = ((BUnionType) sf.getFieldType()).getMemberTypes();
                         if (members.size() != 2) {
-                            throw new BallerinaException(
+                            throw createTableOperationError(
                                     "Corresponding Union type in the record is not an assignable nillable type");
                         }
                         if (members.get(0).getTag() == TypeTags.NULL_TAG) {
@@ -93,7 +92,7 @@ public class TableUtils {
                         } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
                             prepareAndExecuteStatement(stmt, data, index, sf, members.get(0).getTag(), fieldName);
                         } else {
-                            throw new BallerinaException(
+                            throw createTableOperationError(
                                     "Corresponding Union type in the record is not an assignable nillable type");
                         }
                         break;
@@ -102,7 +101,7 @@ public class TableUtils {
             }
             stmt.execute();
         } catch (SQLException e) {
-            throw new BallerinaException("execute update failed: " + e.getMessage(), e);
+            throw createTableOperationError("execute update failed: " + e.getMessage());
         }
     }
 
@@ -216,13 +215,18 @@ public class TableUtils {
                 }
                 break;
             default:
-                throw new BallerinaException("unsupported data type for array parameter");
+                throw createTableOperationError("unsupported data type for array parameter");
         }
         return arrayData;
     }
 
     public static ErrorValue createTableOperationError(Throwable throwable) {
         String detail = throwable.getMessage() != null ? throwable.getMessage() : DEFAULT_ERROR_DETAIL_MESSAGE;
+        return BallerinaErrors
+                .createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR, detail);
+    }
+
+    public static ErrorValue createTableOperationError(String detail) {
         return BallerinaErrors
                 .createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR, detail);
     }

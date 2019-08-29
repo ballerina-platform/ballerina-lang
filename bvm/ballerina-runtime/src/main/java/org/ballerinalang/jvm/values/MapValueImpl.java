@@ -507,8 +507,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BRecordType recordType = (BRecordType) type;
             MapValueImpl<String, Object> recordWithDefaults = (MapValueImpl<String, Object>)
-                    BallerinaValues.createRecordValue(getPackageForValueCreator(recordType.getPackage()),
-                                                      recordType.getName());
+                    BallerinaValues.createRecordValue(recordType.getPackage(), recordType.getName());
 
             for (Map.Entry valueEntry : recordWithDefaults.entrySet()) {
                 Object fieldName = valueEntry.getKey();
