@@ -87,7 +87,7 @@ public function main(string... args) {
         } else {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is error) {
-                panic createError("failed to resolve host of remote repository: " + host + " with port " + port.toString());
+                panic createError("failed to resolve host of remote repository: " + host + ":" + port.toString());
             } else {
                 httpEndpoint = result;
                 return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
@@ -131,7 +131,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
     } else {
         string statusCode = httpResponse.statusCode.toString();
         if (statusCode.startsWith("5")) {
-            panic createError("remote repository failed for url:" + url);
+            panic createError("unable to connect to remote repository: " + url);
         } else if (statusCode != "200") {
             var resp = httpResponse.getJsonPayload();
             if (resp is json) {
@@ -142,7 +142,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     panic createError(resp.message.toString());
                 }
             } else {
-                panic createError("error occurred when pulling the module from remote repository");
+                panic createError("failed to pull the module '" + modulePath + "' from the remote repository '" + url + "'");
             }
         } else {
             string contentLengthHeader;
