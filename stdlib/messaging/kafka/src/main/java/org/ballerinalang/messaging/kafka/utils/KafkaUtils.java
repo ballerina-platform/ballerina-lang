@@ -684,4 +684,8 @@ public class KafkaUtils {
         MapValue<String, Object> listenerConfigurations = listener.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         return (String) listenerConfigurations.get(CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
     }
+
+    public static String getTopicNamesString(ArrayList<String> topicsList) {
+        return String.join(", ", topicsList);
+    }
 }

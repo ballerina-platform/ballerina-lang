@@ -36,7 +36,6 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTO
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERVICE_STARTED;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getBrokerNames;
 
 /**
  * Start server connector.
@@ -60,7 +59,7 @@ public class Start {
         KafkaServerConnectorImpl serverConnector = (KafkaServerConnectorImpl) listener.getNativeData(SERVER_CONNECTOR);
         try {
             serverConnector.start();
-            console.println(SERVICE_STARTED + getBrokerNames(listener));
+            console.println(SERVICE_STARTED);
         } catch (KafkaConnectorException e) {
             return KafkaUtils.createKafkaError(e.getMessage(), CONSUMER_ERROR);
         }
