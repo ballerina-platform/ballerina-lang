@@ -25,3 +25,17 @@ public function encodeBase64Url(byte[] input) returns string = external;
 # + input - Value to be decoded
 # + return - Decoded output or `Error` if input is not a valid Base64 URL encoded value
 public function decodeBase64Url(string input) returns byte[]|Error = external;
+
+# Encodes the given URI component.
+#
+# + uriComponent - URI component to be encoded
+# + charset - Charactor set that URI to be encoded in
+# + return - The `string` Value of the encoded URI component or an `Error` that occurred during encoding
+public function encodeUriComponent(string uriComponent, string charset) returns string|Error = external;
+
+# Decodes the given URI component.
+#
+# + uriComponent - URI component to be decoded
+# + charset - Character set from which the URI is decoded
+# + return - The `string` Value of the decoded URI component or an `Error` that occurred during decoding
+public function decodeUriComponent(string uriComponent, string charset) returns string|Error = external;

@@ -16,37 +16,31 @@
  * under the License.
  */
 
-package org.ballerinalang.net.uri.nativeimpl;
+package org.ballerinalang.stdlib.encoding.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 /**
- * Extern function to decode URLs.
- * ballerina/http:decode
+ * Extern function to decode URI components.
+ * ballerina/encoding:decodeUriComponent
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "decode",
-        args = {@Argument(name = "url", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING),
-                      @ReturnType(type = TypeKind.RECORD, structType = "Error")},
-        isPublic = true
+        orgName = "ballerina", packageName = "encoding",
+        functionName = "decodeUriComponent", isPublic = true
 )
-public class Decode {
-    public static Object decode(Strand strand, String url, String charset) {
+public class DecodeUriComponent {
+
+    public static Object decodeUriComponent(Strand strand, String url, String charset) {
         try {
             return URLDecoder.decode(url, charset);
         } catch (UnsupportedEncodingException e) {
-            return HttpUtil.createHttpError("Error occurred while decoding the url. " + e.getMessage());
+            return EncodingUtil.createError("Error occurred while decoding the URI component. " + e.getMessage());
         }
     }
 }
