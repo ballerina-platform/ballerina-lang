@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.object as lang;
+
+import ballerina/lang.'object as lang;
 
 # Represents a connection which will be used for subscription.
 public type Listener object {

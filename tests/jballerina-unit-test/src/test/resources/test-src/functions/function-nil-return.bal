@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/'lang\.int as ints;
+import ballerina/lang.'int as ints;
 
 function testPrint1() {
     io:println("Hello");

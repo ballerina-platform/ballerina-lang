@@ -86,9 +86,12 @@ dependencies {
     dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
+    dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
+    dist 'commons-logging:commons-logging:1.1.1'
     dist 'io.opentracing:opentracing-api:0.31.0'
     dist 'io.opentracing:opentracing-util:0.31.0'
     dist 'org.awaitility:awaitility:3.1.6'
+    dist 'com.h2database:h2:1.4.199'
     
     // observability extensions
     //// metrics
@@ -105,7 +108,6 @@ dependencies {
 
     // Temporary adding . Need to Remove once fix #17878
     dist 'com.google.code.gson:gson:2.7'
-    dist 'com.h2database:h2:1.4.199'
 }
 
 jar {

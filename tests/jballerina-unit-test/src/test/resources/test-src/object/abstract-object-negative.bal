@@ -53,21 +53,6 @@ type Person4 abstract object {
     }
 };
 
-// Attach function to an abstract object
-type Person5 abstract object {
-    public int age = 0;
-    public string name = "";
-
-    int year = 0;
-    string month = "";
-
-    public function getName() returns string;
-};
-
-public function Person5.getName() returns string {
-    return "my name";
-}
-
 // Abstract object with private field
 type Person6 abstract object {
     private int age = 0;
@@ -82,11 +67,11 @@ type Foo abstract object {
 
 type Bar object {
     *Foo;
-};
 
-private function Bar.getName() returns string {
-    return "bar";
-}
+    private function getName() returns string {
+        return "bar";
+    }
+};
 
 // Abstract object with extern method
 type Person7 abstract object {

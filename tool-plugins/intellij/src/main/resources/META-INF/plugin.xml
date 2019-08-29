@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.0-alpha-2</version>
+    <version>1.0.0-alpha-3</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -109,9 +109,15 @@
         <quoteHandler fileType="Ballerina file"
                       className="io.ballerina.plugins.idea.editor.BallerinaQuoteHandler"/>
 
-        <enterHandlerDelegate implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
+        <!-- Enter Handlers-->
+        <enterHandlerDelegate order="last"
+                              implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
         <enterHandlerDelegate
                 implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterInDocumentationHandler"/>
+
+        <!-- Backspace Handlers-->
+        <backspaceHandlerDelegate id="BallerinaBackspaceHandler" order="first"
+                                  implementation="io.ballerina.plugins.idea.formatter.BallerinaIndentingBackspaceHandler"/>
 
         <!-- sdk -->
         <sdkType implementation="io.ballerina.plugins.idea.sdk.BallerinaSdkType"/>

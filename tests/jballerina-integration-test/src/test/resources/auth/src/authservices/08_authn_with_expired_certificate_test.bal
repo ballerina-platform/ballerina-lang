@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/http;
 import ballerina/jwt;
 
@@ -37,7 +38,7 @@ listener http:Listener listener08 = new(20009, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }
