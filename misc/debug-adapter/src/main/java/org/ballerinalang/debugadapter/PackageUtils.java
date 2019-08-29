@@ -67,6 +67,14 @@ public class PackageUtils {
         return packagePath;
     }
 
+    public static String getOrgName(String balFilePath) {
+        Path path = Paths.get(balFilePath);
+        Path projectRoot = findProjectRoot(path);
+        Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+
+        return manifest.getProject().getOrgName();
+    }
+
     public static String getModuleName(String balFilePath) {
         Path path = Paths.get(balFilePath);
         Path projectRoot = findProjectRoot(path);

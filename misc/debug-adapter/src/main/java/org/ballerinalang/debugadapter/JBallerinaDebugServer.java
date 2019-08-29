@@ -26,7 +26,6 @@ import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
-import com.sun.jdi.request.DuplicateRequestException;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import com.sun.tools.jdi.ObjectReferenceImpl;
@@ -47,6 +46,7 @@ import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.InitializeRequestArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
+import org.eclipse.lsp4j.debug.PauseArguments;
 import org.eclipse.lsp4j.debug.Scope;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
@@ -263,6 +263,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     @Override
+    public CompletableFuture<Void> pause(PauseArguments args) {
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         try {
@@ -340,7 +346,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                             }
                             String name = localVariableValueEntry.getKey() == null ? "" :
                                     localVariableValueEntry.getKey().name();
-                            if (name.startsWith("_$$_") || name.equals("__strand")) {
+                            if (name.equals("__strand")) {
                                 return null;
                             }
 
@@ -573,45 +579,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> next(NextArguments args) {
-        ThreadReference threadReference = eventBus.getThreadsMap().get(args.getThreadId());
-        try {
-            StepRequest request = debuggee.eventRequestManager().createStepRequest(threadReference,
-                    StepRequest.STEP_LINE, StepRequest.STEP_OVER);
-
-            request.addCountFilter(1); // next step only
-            request.enable();
-        } catch (DuplicateRequestException e) {
-
-        }
-        debuggee.resume();
+        eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepIn(StepInArguments args) {
-        ThreadReference thread = eventBus.getThreadsMap().get(args.getThreadId());
-        try {
-            StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
-                    StepRequest.STEP_LINE, StepRequest.STEP_INTO);
-
-            request.addCountFilter(1); // next step only
-            request.enable();
-        } catch (DuplicateRequestException e) {
-
-        }
-        debuggee.resume();
+        eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepOut(StepOutArguments args) {
-        ThreadReference thread = eventBus.getThreadsMap().get(args.getThreadId());
-        StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
-                StepRequest.STEP_LINE, StepRequest.STEP_OUT);
-
-        request.addCountFilter(1); // next step only
-        request.enable();
-        debuggee.resume();
+        eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_OUT);
         return CompletableFuture.completedFuture(null);
     }
 
