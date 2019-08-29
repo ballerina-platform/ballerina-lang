@@ -151,6 +151,22 @@ function testContinue() returns string {
         concatString(i, v);
         i += 1;
     }
+    return testContinue1();
+}
+
+function testContinue1() returns string {
+    [[string, string], [string, string], [string, string]] sTuple = [["d0", "d1"], ["d2", "d1"], ["d2", "d1"]];
+    output = "";
+    int i = 0;
+    foreach var [v, u] in sTuple {
+        if (i == 1) {
+            output = output + "continue ";
+            i += 1;
+            continue;
+        }
+        concatString(i, v.toString());
+        i += 1;
+    }
     return output;
 }
 
