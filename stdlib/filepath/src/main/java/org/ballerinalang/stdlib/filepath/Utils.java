@@ -68,7 +68,7 @@ public class Utils {
         } else {
             valueMap.put(Constants.ERROR_MESSAGE, UNKNOWN_MESSAGE);
         }
-        return BallerinaValues.createRecordValue(Constants.PACKAGE_PATH,
+        return BallerinaValues.createRecordValue(Constants.FILEPATH_PACKAGE_ID,
                 Constants.ERROR_DETAILS, valueMap);
     }
 

@@ -44,7 +44,7 @@ public class Utils {
 
     public static ErrorValue createNatsError(String nuid, String detailedErrorMessage) {
         MapValue<String, Object> errorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.NATS_PACKAGE, Constants.NATS_ERROR_DETAIL_RECORD);
+                .createRecordValue(Constants.NATS_PACKAGE_ID, Constants.NATS_ERROR_DETAIL_RECORD);
         MapValue<String, Object> populatedDetailRecord = BallerinaValues
                 .createRecord(errorDetailRecord, nuid, detailedErrorMessage);
         return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, populatedDetailRecord);
@@ -52,7 +52,7 @@ public class Utils {
 
     public static ErrorValue createNatsError(String detailedErrorMessage) {
         MapValue<String, Object> errorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.NATS_PACKAGE, Constants.NATS_ERROR_DETAIL_RECORD);
+                .createRecordValue(Constants.NATS_PACKAGE_ID, Constants.NATS_ERROR_DETAIL_RECORD);
         errorDetailRecord.put("message", detailedErrorMessage);
         return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorDetailRecord);
     }
@@ -97,11 +97,11 @@ public class Utils {
         ObjectValue msgObj;
         if (message != null) {
             ArrayValue msgData = new ArrayValue(message.getData());
-            msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
+            msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                     Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(), msgData, message.getReplyTo());
         } else {
             ArrayValue msgData = new ArrayValue(new byte[0]);
-            msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
+            msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                     Constants.NATS_MESSAGE_OBJ_NAME, "", msgData, "");
         }
         return msgObj;

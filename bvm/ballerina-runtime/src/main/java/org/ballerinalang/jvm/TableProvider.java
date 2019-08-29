@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableIterator;
@@ -130,7 +129,7 @@ public class TableProvider {
             itr = new TableIterator(rm, rs, type);
         } catch (SQLException e) {
             releaseResources(conn, stmt);
-            throw new BallerinaException("error in creating iterator for table : " + e.getMessage());
+            throw TableUtils.createTableOperationError("error in creating iterator for table : " + e.getMessage());
         }
         return itr;
     }
@@ -141,7 +140,7 @@ public class TableProvider {
             conn = DriverManager
                     .getConnection(TableConstants.DB_JDBC_URL, TableConstants.DB_USER_NAME, TableConstants.DB_PASSWORD);
         } catch (SQLException e) {
-            throw new BallerinaException("error in getting connection for table db : " + e.getMessage());
+            throw TableUtils.createTableOperationError("error in getting connection for table db : " + e.getMessage());
         }
         return conn;
     }
@@ -169,18 +168,19 @@ public class TableProvider {
                 case TypeTags.UNION_TAG:
                     List<BType> members = ((BUnionType) sf.getFieldType()).getMemberTypes();
                     if (members.size() != 2) {
-                        throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+                        throw TableUtils.createTableOperationError(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
                     }
                     if (members.get(0).getTag() == TypeTags.NULL_TAG) {
                         generateCreateTableStatement(members.get(1).getTag(), sf, sb);
                     } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
                         generateCreateTableStatement(members.get(0).getTag(), sf, sb);
                     } else {
-                        throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+                        throw TableUtils.createTableOperationError(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
                     }
                     break;
                 default:
-                    throw new BallerinaException("Unsupported column type for table : " + sf.getFieldType());
+                    throw TableUtils
+                            .createTableOperationError("Unsupported column type for table : " + sf.getFieldType());
             }
             seperator = ",";
         }
@@ -229,7 +229,8 @@ public class TableProvider {
                 }
                 break;
             default:
-                throw new BallerinaException("Unsupported nillable field for table : " + sf.getFieldType());
+                throw TableUtils
+                        .createTableOperationError("Unsupported nillable field for table : " + sf.getFieldType());
         }
     }
 
@@ -261,7 +262,7 @@ public class TableProvider {
             stmt = conn.createStatement();
             stmt.executeUpdate(queryStatement);
         } catch (SQLException e) {
-            throw new BallerinaException (
+            throw TableUtils.createTableOperationError(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());
         } finally {
             releaseResources(conn, stmt);
@@ -307,7 +308,7 @@ public class TableProvider {
             }
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new BallerinaException(
+            throw TableUtils.createTableOperationError(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());
         } finally {
             releaseResources(conn, stmt);
@@ -321,7 +322,7 @@ public class TableProvider {
             stmt = conn.prepareStatement(queryStatement);
             TableUtils.prepareAndExecuteStatement(stmt, constrainedType);
         } catch (SQLException e) {
-            throw new BallerinaException(
+            throw TableUtils.createTableOperationError(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());
         } finally {
             releaseResources(conn, stmt);
@@ -334,14 +335,16 @@ public class TableProvider {
                 stmt.close();
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in releasing table statement resource : " + e.getMessage());
+            throw TableUtils
+                    .createTableOperationError("error in releasing table statement resource : " + e.getMessage());
         }
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in releasing table connection resource : " + e.getMessage());
+            throw TableUtils
+                    .createTableOperationError("error in releasing table connection resource : " + e.getMessage());
         }
     }
 
@@ -357,8 +360,8 @@ public class TableProvider {
             }
             return rowCount;
         } catch (SQLException e) {
-            throw new BallerinaException("error in executing statement to get the count : " + stmt + " error:"
-                                         + e.getMessage());
+            throw TableUtils.createTableOperationError(
+                    "error in executing statement to get the count : " + stmt + " error:" + e.getMessage());
         } finally {
             releaseResources(conn, stmt);
         }

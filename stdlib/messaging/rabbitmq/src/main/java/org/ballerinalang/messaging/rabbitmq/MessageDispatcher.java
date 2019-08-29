@@ -179,7 +179,7 @@ public class MessageDispatcher {
      * @return Ballerina RabbitMQ message BValue.
      */
     private ObjectValue getMessageObjectValue(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
-        ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_RABBITMQ,
+        ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                 RabbitMQConstants.MESSAGE_OBJECT);
         messageObjectValue.addNativeData(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
         messageObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);

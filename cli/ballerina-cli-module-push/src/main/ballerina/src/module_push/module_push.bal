@@ -18,7 +18,6 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 import ballerina/'lang\.int as lint;
-import ballerina/internal;
 
 # This functions pulls a module from ballerina central.
 #
@@ -45,7 +44,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string or
         }
     } else {
         string statusCode = response.statusCode.toString();
-        if (internal:hasPrefix(statusCode, "5")) {
+        if (statusCode.startsWith("5")) {
             panic createError("error occured in remote registry. url: " + url);
         } else if (statusCode != "200") {
             json|error jsonResponse = response.getJsonPayload();

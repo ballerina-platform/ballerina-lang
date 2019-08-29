@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -629,8 +630,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (referencedType == symTable.noType) {
                     if (!this.unresolvedTypes.contains(typeDefinition)) {
                         this.unresolvedTypes.add(typeDefinition);
+                        return;
                     }
-                    return;
                 }
             }
         }
@@ -695,7 +696,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BErrorType errorType = (BErrorType) typeDefSymbol.type;
         BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
                 typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, errorType, typeDefSymbol.owner);
-        errorType.ctorSymbol = symbol;
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
         symbol.retType = errorType;
@@ -703,7 +703,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             env.scope.define(symbol.name, symbol);
         }
 
-        ((BErrorType) typeDefSymbol.type).ctorSymbol = symbol;
+        ((BErrorTypeSymbol) typeDefSymbol).ctorSymbol = symbol;
     }
 
     @Override
@@ -738,60 +738,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
         boolean remoteFlagSetOnNode = Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE);
-        if (funcNode.attachedOuterFunction) {
-            if (funcNode.receiver.type.tsymbol.kind == SymbolKind.RECORD) {
-                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_RECORDS, funcNode.name,
-                           funcNode.receiver.type.tsymbol.name);
-                createDummyFunctionSymbol(funcNode);
-                visitObjectAttachedFunction(funcNode);
-                return;
-            }
-
-            BSymbol funcSymbol = symTable.notFoundSymbol;
-            if (funcNode.receiver.type.tag == TypeTags.OBJECT) {
-                SymbolEnv objectEnv = SymbolEnv.createObjectMethodsEnv(null, (BObjectTypeSymbol) funcNode.receiver.type.
-                        tsymbol, env);
-                funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
-            }
-
-            if (funcSymbol == symTable.notFoundSymbol) {
-                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_FUNCTION, funcNode.name,
-                           funcNode.receiver.type.tsymbol.name);
-                createDummyFunctionSymbol(funcNode);
-                visitObjectAttachedFunction(funcNode);
-                return;
-            }
-
-            if (Symbols.isPublic(funcSymbol) ^ Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) {
-                dlog.error(funcNode.pos, DiagnosticCode.INVALID_VISIBILITY_ON_INTERFACE_FUNCTION_IMPL, funcNode.name,
-                           funcNode.receiver.type);
-                createDummyFunctionSymbol(funcNode);
-                visitObjectAttachedFunction(funcNode);
-                return;
-            }
-
-            if (Symbols.isPrivate(funcSymbol) ^ Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE)) {
-                dlog.error(funcNode.pos, DiagnosticCode.INVALID_VISIBILITY_ON_INTERFACE_FUNCTION_IMPL, funcNode.name,
-                           funcNode.receiver.type);
-                createDummyFunctionSymbol(funcNode);
-                visitObjectAttachedFunction(funcNode);
-                return;
-            }
-
-            funcNode.symbol = (BInvokableSymbol) funcSymbol;
-            if (funcNode.symbol.bodyExist) {
-                dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
-            }
-            if (remoteFlagSetOnNode && !Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
-                dlog.error(funcNode.pos, DiagnosticCode.REMOTE_ON_NON_REMOTE_FUNCTION, funcNode.name.value);
-            }
-            if (!remoteFlagSetOnNode && Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
-                dlog.error(funcNode.pos, DiagnosticCode.REMOTE_REQUIRED_ON_REMOTE_FUNCTION);
-            }
-            validateAttachedFunction(funcNode, funcNode.receiver.type.tsymbol.name);
-            visitObjectAttachedFunction(funcNode);
-            return;
-        }
 
         if (!funcNode.attachedFunction && Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE)) {
             dlog.error(funcNode.pos, DiagnosticCode.PRIVATE_FUNCTION_VISIBILITY, funcNode.name);
@@ -815,102 +761,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
-    }
-
-    private void createDummyFunctionSymbol(BLangFunction funcNode) {
-        // This is only to keep the flow running so that at the end there will be proper semantic errors
-        BInvokableType type = new BInvokableType(new ArrayList<>(), symTable.noType, null);
-        funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, type, env.scope.owner, true);
-        funcNode.symbol.scope = new Scope(funcNode.symbol);
-    }
-
-    private void visitObjectAttachedFunction(BLangFunction funcNode) {
-        //TODO check function parameters and return types
-        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-
-        invokableEnv.scope = funcNode.symbol.scope;
-        defineObjectAttachedInvokableSymbolParams(funcNode, invokableEnv);
-        if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
-            dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
-            return;
-        }
-
-        if (!funcNode.objInitFunction) {
-            env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
-        }
-        funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
-    }
-
-    private void validateAttachedFunction(BLangFunction funcNode, Name objName) {
-        SymbolEnv invokableEnv = SymbolEnv.createDummyEnv(funcNode, funcNode.symbol.scope, env);
-
-        boolean foundDefaultableParam = false;
-        List<BType> paramTypes = new ArrayList<>();
-        for (BLangSimpleVariable varNode : funcNode.requiredParams) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, invokableEnv);
-            if (varNode.expr != null) {
-                foundDefaultableParam = true;
-            }
-            if (varNode.expr == null && foundDefaultableParam) {
-                dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
-            }
-            BType type = varNode.type;
-            paramTypes.add(type);
-        }
-
-        if (!funcNode.desugaredReturnType) {
-            symResolver.resolveTypeNode(funcNode.returnTypeNode, invokableEnv);
-        }
-
-        if (funcNode.restParam != null) {
-            if (!funcNode.symbol.restParam.name.equals(names.fromIdNode(funcNode.restParam.name))) {
-                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
-                return;
-            }
-            BType restParamType = symResolver.resolveTypeNode(funcNode.restParam.typeNode, invokableEnv);
-            paramTypes.add(restParamType);
-        }
-
-        BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;
-
-        // If the function definition specifies the function to be an external function, but the function declaration
-        // does not, set the external flag for the declaration.
-        int flags = Flags.asMask(funcNode.flagSet);
-        if ((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE) &&
-                (flags & Flags.NATIVE) == Flags.NATIVE) {
-            Set<Flag> symFlags = funcNode.symbol.getFlags();
-            symFlags.add(Flag.NATIVE);
-            funcNode.symbol.flags = Flags.asMask(symFlags);
-        }
-        //this was used earlier to one to one match object declaration with definitions for attached functions
-        // keeping this commented as we may need uncomment this later.
-        //        int flags = Flags.asMask(funcNode.flagSet);
-        //        if (((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE))
-        //                || ((flags & Flags.PUBLIC) != (funcNode.symbol.flags & Flags.PUBLIC))) {
-        //            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
-        //            return;
-        //        }
-
-        if (typesMissMatch(paramTypes, sourceType.paramTypes)
-                || namesMissMatch(funcNode.requiredParams, funcNode.symbol.params)) {
-            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
-            return;
-        }
-
-        if (funcNode.returnTypeNode.type == null && sourceType.retType == null) {
-            return;
-        } else if (funcNode.returnTypeNode.type == null || sourceType.retType == null) {
-            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
-            return;
-        }
-
-        if (funcNode.returnTypeNode.type.tag != sourceType.retType.tag) {
-            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
-            return;
-        }
-        //Reset symbol flags to remove interface flag
-        funcNode.symbol.flags = funcNode.symbol.flags ^ Flags.INTERFACE;
     }
 
     private boolean typesMissMatch(List<BType> lhs, List<BType> rhs) {
@@ -952,42 +802,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         return false;
     }
 
-    private void defineObjectAttachedInvokableSymbolParams(BLangInvokableNode invokableNode, SymbolEnv invokableEnv) {
-        // visit required params of the function
-        invokableNode.clonedEnv = invokableEnv.shallowClone();
-        invokableNode.requiredParams.forEach(varNode -> visitObjectAttachedFunctionParam(varNode, invokableEnv));
-
-        if (invokableNode.returnTypeNode != null) {
-            invokableNode.returnTypeNode.type = symResolver.resolveTypeNode(invokableNode.returnTypeNode, env);
-        }
-
-        if (invokableNode.restParam != null) {
-            visitObjectAttachedFunctionParam(invokableNode.restParam, invokableEnv);
-        }
-    }
-
-    void visitObjectAttachedFunctionParam(BLangSimpleVariable variable, SymbolEnv invokableEnv) {
-        // assign the type to var type node
-        if (variable.type == null) {
-            variable.type = symResolver.resolveTypeNode(variable.typeNode, env);
-        }
-
-        visitObjectAttachedFunctionParamSymbol(variable, invokableEnv);
-    }
-
-    void visitObjectAttachedFunctionParamSymbol(BLangSimpleVariable variable, SymbolEnv invokableEnv) {
-        BSymbol varSymbol = symResolver.lookupSymbol(invokableEnv, names.fromIdNode(variable.name),
-                SymTag.VARIABLE);
-        if (varSymbol == symTable.notFoundSymbol) {
-            defineNode(variable, invokableEnv);
-        } else {
-            variable.symbol = (BVarSymbol) varSymbol;
-        }
-        if (variable.expr != null) {
-            variable.symbol.defaultableParam = true;
-        }
-    }
-
     @Override
     public void visit(BLangResource resourceNode) {
     }
@@ -998,6 +812,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (constant.typeNode != null) {
             staticType = symResolver.resolveTypeNode(constant.typeNode, env);
             if (staticType == symTable.noType) {
+                constant.symbol = getConstantSymbol(constant);
                 // This is to prevent concurrent modification exception.
                 if (!this.unresolvedTypes.contains(constant)) {
                     this.unresolvedTypes.add(constant);
@@ -1007,12 +822,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             staticType = symTable.semanticError;
         }
-
-        // Create a new constant symbol.
-        Name name = names.fromIdNode(constant.name);
-        PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                symTable.semanticError, symTable.noType, env.scope.owner);
+        BConstantSymbol constantSymbol = getConstantSymbol(constant);
         constant.symbol = constantSymbol;
 
         NodeKind nodeKind = constant.expr.getKind();
@@ -1055,8 +865,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        if (constant.symbol.name == Names.IGNORE) {
+            // Avoid symbol definition for constants with name '_'
+            return;
+        }
         // Add the symbol to the enclosing scope.
         env.scope.define(constantSymbol.name, constantSymbol);
+    }
+
+    private BConstantSymbol getConstantSymbol(BLangConstant constant) {
+        // Create a new constant symbol.
+        Name name = names.fromIdNode(constant.name);
+        PackageID pkgID = env.enclPkg.symbol.pkgID;
+        return new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
+                symTable.semanticError, symTable.noType, env.scope.owner);
     }
 
     @Override
@@ -1583,9 +1405,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Check whether there exists a struct field with the same name as the function name.
         if (isValidAttachedFunc) {
             if (typeSymbol.tag == SymTag.OBJECT) {
-                validateFunctionsAttachedToObject(funcNode, funcSymbol, invokableEnv);
+                validateFunctionsAttachedToObject(funcNode, funcSymbol);
             } else if (typeSymbol.tag == SymTag.RECORD) {
-                validateFunctionsAttachedToRecords(funcNode, funcSymbol, invokableEnv);
+                validateFunctionsAttachedToRecords(funcNode, funcSymbol);
             }
         }
 
@@ -1593,8 +1415,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         funcSymbol.receiverSymbol = funcNode.receiver.symbol;
     }
 
-    private void validateFunctionsAttachedToRecords(BLangFunction funcNode, BInvokableSymbol funcSymbol,
-                                                    SymbolEnv invokableEnv) {
+    private void validateFunctionsAttachedToRecords(BLangFunction funcNode, BInvokableSymbol funcSymbol) {
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) funcNode.receiver.type.tsymbol;
 
@@ -1602,19 +1423,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
     }
 
-    private void validateFunctionsAttachedToObject(BLangFunction funcNode, BInvokableSymbol funcSymbol,
-                                                   SymbolEnv invokableEnv) {
+    private void validateFunctionsAttachedToObject(BLangFunction funcNode, BInvokableSymbol funcSymbol) {
 
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) funcNode.receiver.type.tsymbol;
-        BSymbol symbol = symResolver.lookupMemberSymbol(funcNode.receiver.pos, objectSymbol.scope, invokableEnv,
-                names.fromIdNode(funcNode.name), SymTag.VARIABLE);
-        if (symbol != symTable.notFoundSymbol) {
-            dlog.error(funcNode.pos, DiagnosticCode.OBJECT_FIELD_AND_FUNC_WITH_SAME_NAME,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-            return;
-        }
-
         BAttachedFunction attachedFunc = new BAttachedFunction(
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
 
@@ -1627,27 +1439,26 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        validateObjectInitFnReturnSignature(funcNode);
+        validateErrorOrNilReturn(funcNode, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR);
         objectSymbol.initializerFunc = attachedFunc;
     }
 
-    private void validateObjectInitFnReturnSignature(BLangFunction objectInitFn) {
-        BType returnType = objectInitFn.returnTypeNode.type;
-
-        if (returnType.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
-            if (memberTypes.stream().noneMatch(type -> type.tag != TypeTags.NIL && type.tag != TypeTags.ERROR)
-                    && memberTypes.contains(symTable.nilType)) {
-                return;
-            }
-        }
+    private void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
+        BType returnType = function.returnTypeNode.type;
 
         if (returnType.tag == TypeTags.NIL) {
             return;
         }
 
-        dlog.error(objectInitFn.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR, objectInitFn.receiver.type.toString(),
-                   objectInitFn.returnTypeNode.type.toString());
+        if (returnType.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
+            if (returnType.isNullable() &&
+                    memberTypes.stream().allMatch(type -> type.tag == TypeTags.NIL || type.tag == TypeTags.ERROR)) {
+                return;
+            }
+        }
+
+        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.type.toString());
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
@@ -1675,6 +1486,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);
         }
+
+        validateErrorOrNilReturn(funcNode, DiagnosticCode.RESOURCE_FUNCTION_INVALID_RETURN_TYPE);
     }
 
     private StatementNode createAssignmentStmt(BLangSimpleVariable variable, BVarSymbol varSym, BSymbol fieldVar) {
