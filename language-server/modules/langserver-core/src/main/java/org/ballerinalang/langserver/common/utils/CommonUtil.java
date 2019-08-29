@@ -739,7 +739,7 @@ public class CommonUtil {
         if (pkgId.getName().getValue().startsWith("lang.")) {
             return nameComponents[nameComponents.length - 1];
         }
-        return pkgId.getName().getValue() + CommonKeys.PKG_DELIMITER_KEYWORD
+        return pkgId.getName().getValue().replaceAll(".*\\.","") + CommonKeys.PKG_DELIMITER_KEYWORD
                 + nameComponents[nameComponents.length - 1];
     }
 
@@ -1315,7 +1315,7 @@ public class CommonUtil {
         String pkgPrefix = "";
         if (!typePkgId.equals(currentPkgId) &&
                 !(typePkgId.orgName.value.equals("ballerina") && typePkgId.name.value.startsWith("lang."))) {
-            pkgPrefix = typePkgId.name.value + ":";
+            pkgPrefix = typePkgId.name.value.replaceAll(".*\\.", "") + ":";
             if (importsAcceptor != null) {
                 importsAcceptor.accept(typePkgId.orgName.value, typePkgId.name.value);
             }
