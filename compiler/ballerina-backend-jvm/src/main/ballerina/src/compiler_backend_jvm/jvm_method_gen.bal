@@ -309,6 +309,8 @@ function genJMethodForBFunc(bir:Function func,
 
     // Create Local Variable Table
     k = localVarOffset;
+    // Add strand variable to LVT
+    mv.visitLocalVariable("__strand", io:sprintf("L%s;", STRAND), methodStartLabel, methodEndLabel, 0);
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         jvm:Label startLabel = methodStartLabel;

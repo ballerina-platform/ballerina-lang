@@ -340,7 +340,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                             }
                             String name = localVariableValueEntry.getKey() == null ? "" :
                                     localVariableValueEntry.getKey().name();
-                            if (name.startsWith("_$$_")) {
+                            if (name.startsWith("_$$_") || name.equals("__strand")) {
                                 return null;
                             }
 
