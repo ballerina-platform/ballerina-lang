@@ -40,7 +40,7 @@ public class AttachPoints {
     public static final int EXTERNAL = ANNOTATION << 1;
     public static final int VAR = EXTERNAL << 1;
     public static final int CONST = VAR << 1;
-    public static final int CHANNEL = CONST << 1;
+    public static final int WORKER = CONST << 1;
 
     public static int asMask(Set<AttachPoint.Point> attachPoints) {
         int mask = 0;
@@ -85,8 +85,8 @@ public class AttachPoints {
                 case CONST:
                     mask |= CONST;
                     break;
-                case CHANNEL:
-                    mask |= CHANNEL;
+                case WORKER:
+                    mask |= WORKER;
                     break;
             }
         }

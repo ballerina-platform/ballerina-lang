@@ -357,4 +357,10 @@ public class ErrorTest {
         BValue[] args = new BValue[] { new BInteger(2) };
         BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
     }
+
+    @Test
+    public void testErrorUnionPassedToErrorParam() {
+        BValue[] result = BRunUtil.invoke(errorTestResult, "testErrorUnionPassedToErrorParam");
+        Assert.assertEquals(result[0].stringValue(), "a1");
+    }
 }
