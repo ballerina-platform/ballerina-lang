@@ -131,7 +131,7 @@ public class LangLibValueTest {
         Assert.assertEquals(array.getString(11), "Rola from MMV");
         Assert.assertEquals(array.getString(12), "object Student Rola from MMV");
         Assert.assertEquals(array.getString(13),
-                            "name=Gima address=(country=Sri Lanka city=Colombo street=Palm Grove) age=12");
+                            "name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
         Assert.assertEquals(array.getString(14),
                             "varInt=6 " +
                             "varFloat=6.0 " +
