@@ -739,7 +739,7 @@ public class CommonUtil {
         if (pkgId.getName().getValue().startsWith("lang.")) {
             return nameComponents[nameComponents.length - 1];
         }
-        return pkgId.getName().getValue().replaceAll(".*\\.","") + CommonKeys.PKG_DELIMITER_KEYWORD
+        return pkgId.getName().getValue().replaceAll(".*\\.", "") + CommonKeys.PKG_DELIMITER_KEYWORD
                 + nameComponents[nameComponents.length - 1];
     }
 
@@ -1141,7 +1141,7 @@ public class CommonUtil {
      * @param ctx LS Operation Context
      * @return {@link List}     List of imports in the current file
      */
-    private static List<BLangImportPackage> getCurrentModuleImports(LSContext ctx) {
+    public static List<BLangImportPackage> getCurrentModuleImports(LSContext ctx) {
         String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         BLangPackage ownerPkg = getSourceOwnerBLangPackage(relativePath, currentPkg);
