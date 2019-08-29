@@ -44,7 +44,7 @@ public class ErrorTest {
 
     @Test(description = "Test panic an error", expectedExceptions = RuntimeException.class, 
           expectedExceptionsMessageRegExp = "error: reason foo 2 message=int value\n\tat errors:foo\\(errors"
-                  + ".bal:47\\)\n\t   errors:testPanic\\(errors.bal:19\\)")
+                  + ".bal:48\\)\n\t   errors:testPanic\\(errors.bal:20\\)")
     public void testPanic() {
             BRunUtil.invoke(compileResult, "testPanic", new BValue[] { new BInteger(0) });
     }

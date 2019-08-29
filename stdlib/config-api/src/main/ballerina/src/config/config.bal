@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.int as langint;
-import ballerina/'lang\.float as langfloat;
 import ballerina/internal;
+import ballerina/lang.'float as langfloat;
+import ballerina/lang.'int as langint;
 import ballerina/system;
 
 type ValueType STRING|INT|FLOAT|BOOLEAN|MAP|ARRAY;

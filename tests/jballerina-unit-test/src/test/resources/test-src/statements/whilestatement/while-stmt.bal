@@ -1,4 +1,4 @@
-import ballerina/'lang\.float as floats;
+import ballerina/lang.'float as floats;
 
 function testWhileStmt(int x, int y) returns (int) {
     int z = 0;
