@@ -120,6 +120,7 @@ public type RedirectClient client object {
     # The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
     # only for HTTP methods.
     #
+    # + httpVerb - The HTTP verb value
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`

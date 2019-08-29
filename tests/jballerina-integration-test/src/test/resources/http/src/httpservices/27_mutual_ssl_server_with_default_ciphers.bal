@@ -14,17 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/io;
 import ballerina/http;
 
 http:ListenerConfiguration strongCipherConfig = {
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         },
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("truststore"),
             password: "ballerina"
         }
         // Service will start with the strong cipher suites. No need to specify.

@@ -54,7 +54,7 @@ public class HTTPClientActionsTestCase extends HttpBaseTest {
     @Test
     public void testPostAction() throws IOException {
         sendAndAssert("clientPostWithoutBody",
-                      "Error occurred while retrieving the text payload from the request");
+                      "Error occurred while retrieving the text payload from the response");
     }
 
     @Test

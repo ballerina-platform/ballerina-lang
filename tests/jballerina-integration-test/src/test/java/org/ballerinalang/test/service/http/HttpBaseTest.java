@@ -43,9 +43,16 @@ public class HttpBaseTest extends BaseTest {
         String balFile = Paths.get("src", "test", "resources", "http").toAbsolutePath().toString();
         String privateKey = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
                                                                    "private.key").toAbsolutePath().toString());
-        String publicCert = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
-                                                                   "public.crt").toAbsolutePath().toString());
-        String[] args = new String[] { "--certificate.key=" + privateKey, "--public.cert=" + publicCert};
+        String publicCert = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "public.crt").toAbsolutePath().toString());
+        String keyStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
+                        .toString());
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+        String[] args = new String[] { "--certificate.key=" + privateKey, "--public.cert=" + publicCert,
+                "--keystore=" + keyStore, "--truststore=" + trustStore };
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(balFile, "httpservices", null, args, requiredPorts);
     }

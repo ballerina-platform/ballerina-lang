@@ -49,4 +49,29 @@ public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
     public String getCompilationUnitName() {
         return cUnitName;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof BDiagnosticSource)) {
+            return false;
+        }
+        BDiagnosticSource diagnosticSource = (BDiagnosticSource) obj;
+        return pkgID.equals(diagnosticSource.pkgID) && cUnitName.equals(diagnosticSource.cUnitName);
+    }
+
+    @Override
+    public int hashCode() {
+        return pkgID.hashCode() + cUnitName.hashCode();
+    }
+
+    @Override
+    public int compareTo(Diagnostic.DiagnosticSource diagnosticSource) {
+        String thisDiagnosticSourceString = getPackageName() + getPackageVersion() + getCompilationUnitName();
+        String otherDiagnosticSourceString = diagnosticSource.getPackageName() + diagnosticSource.getPackageVersion() +
+                diagnosticSource.getCompilationUnitName();
+        return thisDiagnosticSourceString.compareTo(otherDiagnosticSourceString);
+    }
 }

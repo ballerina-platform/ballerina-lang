@@ -98,7 +98,7 @@ public class CreateSimpleHttpClient {
             senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
         }
 
-        populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
+        populateSenderConfigurations(senderConfiguration, clientEndpointConfig, scheme);
         ConnectionManager poolManager;
         MapValue<String, Long> userDefinedPoolConfig = (MapValue<String, Long>) clientEndpointConfig.get(
                 HttpConstants.USER_DEFINED_POOL_CONFIG);
