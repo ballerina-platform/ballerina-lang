@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/http;
-import ballerina/time;
+import ballerina/io;
+import ballerina/lang.'int as lint;
 import ballerina/math;
-import ballerina/'lang\.int as lint;
+import ballerina/time;
 
 # This function searches modules from ballerina central.
 #
