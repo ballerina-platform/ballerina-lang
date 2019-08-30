@@ -1,5 +1,5 @@
-import ballerina/'lang\.int as intlib;
 import ballerina/io;
+import ballerina/lang.'int as intlib;
 
 // Sample XML taken from: https://www.w3schools.com/xml/books.xml
 xml bookstore = xml `<bookstore>

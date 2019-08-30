@@ -30,7 +30,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -261,7 +260,7 @@ public class EntityBodyHandler {
     public static String constructStringDataSource(ObjectValue entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            throw new BallerinaIOException("String payload is null");
+            throw new BallerinaException("String payload is null");
         }
         try {
             return constructStringDataSource(entityObj, byteChannel.getInputStream());
@@ -364,16 +363,21 @@ public class EntityBodyHandler {
 
     /**
      * Decode a given entity body to get a set of child parts and set them to parent entity's multipart data field.
-     *  @param entityObj Parent entity that the nested parts reside
-     * @param byteChannel  Represent ballerina specific byte channel
+     *
+     * @param entityObj   Parent entity that the nested parts reside
+     * @param byteChannel Represent ballerina specific byte channel
+     * @throws IOException When an error occurs while getting inputstream
      */
-    public static void decodeEntityBody(ObjectValue entityObj, Channel byteChannel) {
+    public static void decodeEntityBody(ObjectValue entityObj, Channel byteChannel) throws IOException {
         String contentType = MimeUtil.getContentTypeWithParameters(entityObj);
         if (!isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             return;
         }
-
-        MultipartDecoder.parseBody(entityObj, contentType, byteChannel.getInputStream());
+        try {
+            MultipartDecoder.parseBody(entityObj, contentType, byteChannel.getInputStream());
+        } catch (IOException e) {
+            throw new IOException("Unable to get a byte channel input stream to decode entity body", e);
+        }
     }
 
     /**

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.error as errorLib;
+import ballerina/lang.'error as errorLib;
 
 type Detail record {|
     string message?;

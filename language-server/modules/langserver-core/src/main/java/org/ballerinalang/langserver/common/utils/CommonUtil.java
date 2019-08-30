@@ -375,7 +375,7 @@ public class CommonUtil {
             // If the annotation resides within the current package, no need to set the additional text edits
             return annotationItem;
         }
-        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(ctx);
+        List<BLangImportPackage> imports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
         Optional currentPkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
                     String pkgName = bLangImportPackage.orgName + "/"
@@ -916,19 +916,6 @@ public class CommonUtil {
      * @param ctx LS Operation Context
      * @return {@link List}     List of imports in the current file
      */
-    public static List<BLangImportPackage> getCurrentModuleImports(LSContext ctx) {
-        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        BLangPackage ownerPkg = getSourceOwnerBLangPackage(relativePath, currentPkg);
-        return ownerPkg.imports;
-    }
-
-    /**
-     * Get the current module's imports.
-     *
-     * @param ctx LS Operation Context
-     * @return {@link List}     List of imports in the current file
-     */
     public static List<BLangImportPackage> getCurrentFileImports(LSContext ctx) {
         return getCurrentModuleImports(ctx).stream()
                 .filter(importInCurrentFilePredicate(ctx))
@@ -1144,6 +1131,19 @@ public class CommonUtil {
         }
 
         return insertText.toString();
+    }
+
+    /**
+     * Get the current module's imports.
+     *
+     * @param ctx LS Operation Context
+     * @return {@link List}     List of imports in the current file
+     */
+    private static List<BLangImportPackage> getCurrentModuleImports(LSContext ctx) {
+        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        BLangPackage ownerPkg = getSourceOwnerBLangPackage(relativePath, currentPkg);
+        return ownerPkg.imports;
     }
 
     ///////////////////////////////
@@ -1409,7 +1409,7 @@ public class CommonUtil {
     }
 
     public static BPackageSymbolDTO getPackageSymbolDTO(LSContext ctx, String pkgName) {
-        Optional bLangImport = CommonUtil.getCurrentModuleImports(ctx).stream()
+        Optional bLangImport = getCurrentFileImports(ctx).stream()
                 .filter(importPkg -> importPkg.getAlias().getValue().equals(pkgName))
                 .findFirst();
         String realPkgName;

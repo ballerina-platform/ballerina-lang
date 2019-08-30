@@ -69,7 +69,7 @@ public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<Integer> lhsTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
-        Map<String, String> pkgAliasMap = CommonUtil.getCurrentModuleImports(ctx).stream()
+        Map<String, String> pkgAliasMap = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
                 .collect(Collectors.toMap(pkg -> pkg.alias.value, pkg -> pkg.symbol.pkgID.toString()));
         CommonToken pkgAlias = null;
         if (lhsTokenTypes == null) {

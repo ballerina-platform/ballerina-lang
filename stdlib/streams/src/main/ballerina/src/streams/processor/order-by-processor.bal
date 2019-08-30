@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/internal;
-import ballerina/'lang\.int as langint;
+import ballerina/lang.'int as langint;
 
 # The `OrderBy` object represents the desugared code of `order by` clause of a streaming query. This object takes 3
 # parameters to initialize itself. `nextProcessPointer` is the `process` method of the next processor. `fieldFuncs`

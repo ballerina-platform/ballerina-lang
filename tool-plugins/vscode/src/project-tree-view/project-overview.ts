@@ -66,10 +66,20 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
             if (overviewPanel && overviewPanel.active) {
                 return;
             }
+
+            this.sourceRoot = undefined;
+            const openFolders = vscode.workspace.workspaceFolders;
+            if (openFolders) {
+                if (fs.existsSync(path.join(openFolders[0].uri.path, "Ballerina.toml"))) {
+                    this.sourceRoot = openFolders[0].uri.path;
+                }
+            }
     
-            this.currentFilePath = document ? document.fileName: undefined;
-            this.sourceRoot = this.currentFilePath? this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root) : undefined;
-    
+            if (!this.sourceRoot) {
+                this.currentFilePath = document ? document.fileName: undefined;
+                this.sourceRoot = this.currentFilePath? this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root) : undefined;
+            }
+
             this._onDidChangeTreeData.fire();
         }, 0);
 	}
@@ -90,6 +100,13 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         return new Promise<any>((resolve, reject) => {
             this.ballerinaExtInstance.onReady().then(() => {
                 if (this.langClient) {
+                    const openFolders = vscode.workspace.workspaceFolders;
+                    if (openFolders) {
+                        if (fs.existsSync(path.join(openFolders[0].uri.path, "Ballerina.toml"))) {
+                            this.sourceRoot = openFolders[0].uri.path;
+                        }
+                    }
+
                     if(this.sourceRoot) {
                         this.langClient.getProjectAST(vscode.Uri.file(this.sourceRoot).toString()).then((result: any) => {
                             if (result.modules && (Object.keys(result.modules).length > 0)) {

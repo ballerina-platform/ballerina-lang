@@ -579,7 +579,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getWebSocketServiceDefSnippet() {
         ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
-        String snippet = "service ${1:serviceName} on new http:WebSocketListener(9090) {" + CommonUtil.LINE_SEPARATOR +
+        String snippet = "service ${1:serviceName} on new http:Listener(9090) {" + CommonUtil.LINE_SEPARATOR +
                 "\tresource function onOpen(http:WebSocketCaller caller) {"
                 + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR +
                 "\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {"

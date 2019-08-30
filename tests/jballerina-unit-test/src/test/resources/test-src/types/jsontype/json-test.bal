@@ -8,7 +8,7 @@ function remove () returns (json) {
 }
 
 function toString (json msg) returns (string?) {
-    return msg.toString();
+    return msg.toJsonString();
 }
 
 function testParse (string jsonStr) returns @tainted (json | error) {

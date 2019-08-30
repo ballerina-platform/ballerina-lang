@@ -20,6 +20,7 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -99,7 +100,11 @@ public class BallerinaValues {
         MapValue<String, Object> mapValue = new MapValueImpl<>(recordType);
         int i = 0;
         for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
-            mapValue.put(fieldEntry.getKey(), values[i++]);
+            Object value = values[i++];
+            if (Flags.isFlagOn(fieldEntry.getValue().flags, Flags.OPTIONAL) && value == null) {
+                continue;
+            }
+            mapValue.put(fieldEntry.getKey(), value);
         }
         return mapValue;
     }

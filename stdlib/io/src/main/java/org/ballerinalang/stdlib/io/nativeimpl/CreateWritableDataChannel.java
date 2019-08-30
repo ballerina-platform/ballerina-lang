@@ -79,7 +79,7 @@ public class CreateWritableDataChannel {
             DataChannel dataChannel = new DataChannel(channel, byteOrder);
             dataChannelObj.addNativeData(IOConstants.DATA_CHANNEL_NAME, dataChannel);
         } catch (Exception e) {
-            String message = "Error while creating data channel:" + e.getMessage();
+            String message = "error while creating data channel:" + e.getMessage();
             log.error(message, e);
             throw new BallerinaException(message, e);
         }

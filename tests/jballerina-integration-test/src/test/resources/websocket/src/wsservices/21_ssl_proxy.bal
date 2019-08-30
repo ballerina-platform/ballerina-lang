@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/http;
 
 @http:WebSocketServiceConfig {
@@ -21,10 +22,11 @@ import ballerina/http;
 service on new http:Listener(21021) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("wss://localhost:15400/websocket", { callbackService:
-            sslClientService, secureSocket: { trustStore: {
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password: "ballerina"
-            }
+            sslClientService, secureSocket: {
+                trustStore: {
+                    path: config:getAsString("truststore"),
+                    password: "ballerina"
+                }
             }, readyOnConnect: false });
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
