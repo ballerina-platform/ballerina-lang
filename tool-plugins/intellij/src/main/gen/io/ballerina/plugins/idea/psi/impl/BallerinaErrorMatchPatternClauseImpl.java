@@ -67,15 +67,15 @@ public class BallerinaErrorMatchPatternClauseImpl extends ASTWrapperPsiElement i
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+    return findNotNullChildByType(RIGHT_BRACE);
   }
 
   @Override

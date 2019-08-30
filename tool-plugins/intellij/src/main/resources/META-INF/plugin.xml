@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.0-alpha-3</version>
+    <version>1.0.0-beta</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -10,11 +10,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Fixed plugin compatibility issues with IDEA 2019.2 (diagnostics, code actions and renaming support.) </li>
-        <li>Fixed syntax highlighting issue with XML related syntax. </li>
-        <li>Added ballerina module creation action. </li>
-        <li>Added plugin setting to enable ballerina experimental features. </li>
-        <li>Fixed minor code completion related issues. </li>
+        <li> Added grammar fixes related to 2019R3 language specification compatibility. </li>
+        <li> Improved caret moving inside ballerina blocks. </li>
       </ul>
     ]]>
     </change-notes>
