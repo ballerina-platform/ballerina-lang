@@ -456,6 +456,7 @@ public class BLangPackageBuilder {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
 
         typeDef.typeNode = recordTypeNode;
         typeDef.pos = pos;
@@ -572,6 +573,7 @@ public class BLangPackageBuilder {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
 
         typeDef.typeNode = errorType;
         typeDef.pos = pos;
@@ -1076,6 +1078,7 @@ public class BLangPackageBuilder {
         lambdaFunction.setName(createIdentifier(lambdaFunction.pos,
                 anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);
+        lambdaFunction.addFlag(Flag.ANONYMOUS);
     }
 
     void addLambdaFunctionDef(DiagnosticPos pos,
@@ -1976,6 +1979,7 @@ public class BLangPackageBuilder {
             IdentifierNode anonTypeGenName = createIdentifier(identifierPos, genName);
             typeDef.setName(anonTypeGenName);
             typeDef.flagSet.add(Flag.PUBLIC);
+            typeDef.flagSet.add(Flag.ANONYMOUS);
             typeDef.typeNode = finiteTypeNode;
             typeDef.pos = pos;
 
@@ -2058,6 +2062,7 @@ public class BLangPackageBuilder {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
 
         typeDef.typeNode = objectTypeNode;
         typeDef.pos = pos;
@@ -2134,6 +2139,7 @@ public class BLangPackageBuilder {
                 IdentifierNode anonTypeGenName = createIdentifier(identifierPos, genName);
                 typeDef.setName(anonTypeGenName);
                 typeDef.flagSet.add(Flag.PUBLIC);
+                typeDef.flagSet.add(Flag.ANONYMOUS);
 
                 typeDef.typeNode = finiteTypeNode;
                 typeDef.pos = pos;
