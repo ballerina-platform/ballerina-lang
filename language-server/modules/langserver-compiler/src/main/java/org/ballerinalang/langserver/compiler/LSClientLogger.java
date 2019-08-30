@@ -133,25 +133,25 @@ public class LSClientLogger {
         String msg = error.getMessage();
         StringBuilder result = new StringBuilder("{");
         if (textDocument != null) {
-            result.append("uri: ").append(textDocument.getUri().replaceFirst("file://", ""));
+            result.append("uri: '").append(textDocument.getUri().replaceFirst("file://", "")).append("'");
         }
         if (position != null && position[0] != null) {
             if (position.length == 2) {
                 // Range
                 result.append(", line: ").append(position[0].getLine() + 1)
-                        .append(", col:").append(position[0].getCharacter() + 1);
+                        .append(", col: ").append(position[0].getCharacter() + 1);
                 result.append("- line: ").append(position[1].getLine() + 1)
-                        .append(", col:").append(position[1].getCharacter() + 1);
+                        .append(", col: ").append(position[1].getCharacter() + 1);
             } else {
                 // Position
                 result.append(", line: ").append(position[0].getLine() + 1)
-                        .append(", col:").append(position[0].getCharacter() + 1);
+                        .append(", col: ").append(position[0].getCharacter() + 1);
             }
         }
         if (msg != null && !msg.isEmpty()) {
-            result.append(", error: ").append(msg);
+            result.append(", error: '").append(msg);
         } else {
-            result.append(", error: ").append(error.toString());
+            result.append(", error: '").append(error.toString());
             for (StackTraceElement elm : error.getStackTrace()) {
                 if (elm.getClassName().startsWith("org.wso2.")) {
                     result.append(", ").append(elm.toString());
@@ -159,7 +159,7 @@ public class LSClientLogger {
                 }
             }
         }
-        result.append("}");
+        result.append("'}");
         return result.toString();
     }
 }

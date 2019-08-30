@@ -20,12 +20,14 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.freeze.Status;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -67,7 +69,14 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     @Override
     public String stringValue() {
-        return "error " + reason + Optional.ofNullable(details).map(details -> " " + details).orElse("");
+        return stringValue(null);
+    }
+
+    @Override
+    public String stringValue(Strand strand) {
+        BType type = TypeChecker.getType(details);
+        return "error " + reason + Optional.ofNullable(details).map(details -> " " + StringUtils.getStringValue(strand,
+                details, type)).orElse("");
     }
 
     @Override

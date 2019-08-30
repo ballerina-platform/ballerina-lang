@@ -211,7 +211,7 @@
     },
     {
       "label": "float",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Float",
       "sortText": "160",
       "insertText": "float",
@@ -219,7 +219,7 @@
     },
     {
       "label": "xml",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Xml",
       "sortText": "160",
       "insertText": "xml",
@@ -227,7 +227,7 @@
     },
     {
       "label": "byte",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Byte",
       "sortText": "160",
       "insertText": "byte",
@@ -235,7 +235,7 @@
     },
     {
       "label": "handle",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Handle",
       "sortText": "160",
       "insertText": "handle",
@@ -243,7 +243,7 @@
     },
     {
       "label": "ArgsData",
-      "kind": "Class",
+      "kind": "Struct",
       "detail": "Record",
       "documentation": {
         "left": "Defaultable argument names. This is for internal use.\n"
@@ -254,7 +254,7 @@
     },
     {
       "label": "null",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Nil",
       "sortText": "160",
       "insertText": "null",
@@ -262,7 +262,7 @@
     },
     {
       "label": "decimal",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Decimal",
       "sortText": "160",
       "insertText": "decimal",
@@ -270,15 +270,26 @@
     },
     {
       "label": "string",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "String",
       "sortText": "160",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "error",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
+      },
+      "sortText": "160",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "stream",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Stream",
       "sortText": "160",
       "insertText": "stream",
@@ -286,7 +297,7 @@
     },
     {
       "label": "json",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Json",
       "sortText": "160",
       "insertText": "json",
@@ -294,7 +305,7 @@
     },
     {
       "label": "map",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Map",
       "sortText": "160",
       "insertText": "map",
@@ -302,7 +313,7 @@
     },
     {
       "label": "table",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Table",
       "sortText": "160",
       "insertText": "table",
@@ -310,7 +321,7 @@
     },
     {
       "label": "anydata",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Anydata",
       "sortText": "160",
       "insertText": "anydata",
@@ -318,7 +329,7 @@
     },
     {
       "label": "any",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Any",
       "sortText": "160",
       "insertText": "any",
@@ -326,7 +337,7 @@
     },
     {
       "label": "int",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Int",
       "sortText": "160",
       "insertText": "int",
@@ -334,7 +345,7 @@
     },
     {
       "label": "boolean",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Boolean",
       "sortText": "160",
       "insertText": "boolean",
@@ -342,7 +353,7 @@
     },
     {
       "label": "future",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Future",
       "sortText": "160",
       "insertText": "future",
@@ -350,7 +361,7 @@
     },
     {
       "label": "service",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Service",
       "sortText": "160",
       "insertText": "service",
@@ -358,7 +369,7 @@
     },
     {
       "label": "typedesc",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Typedesc",
       "sortText": "160",
       "insertText": "typedesc",

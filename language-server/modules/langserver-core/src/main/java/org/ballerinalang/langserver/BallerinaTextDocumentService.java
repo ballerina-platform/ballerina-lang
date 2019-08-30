@@ -446,8 +446,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeAction' failed!";
                 Range range = params.getRange();
-                logError(msg, e, params.getTextDocument(), range.getStart(),
-                         range.getEnd());
+                logError(msg, e, params.getTextDocument(), range.getStart(), range.getEnd());
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
