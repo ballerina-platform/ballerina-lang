@@ -226,7 +226,7 @@ public class LSModuleCompiler {
             // to avoid issues of reusing it.
 //            LSContextManager.getInstance().removeCompilerContext(projectRoot);
             LSCompilerCache.markOutDated(key);
-            throw new CompilationFailedException("Compilation failed!", e);
+            throw new CompilationFailedException("Oh no, something really went wrong. Bad. Sad.", e);
         }
     }
 
@@ -284,7 +284,7 @@ public class LSModuleCompiler {
             // to avoid issues of reusing it.
 //            LSContextManager.getInstance().removeCompilerContext(projectRoot);
             LSCompilerCache.markOutDated(key);
-            throw new CompilationFailedException("Compilation failed!", e);
+            throw new CompilationFailedException("Oh no, something really went wrong. Bad. Sad.", e);
         }
     }
 
