@@ -49,7 +49,7 @@ public class LangLibErrorTest {
     @Test
     public void testTypeTestingErrorUnion() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testTypeTestingErrorUnion");
-        assertEquals(returns[0].stringValue(), "{ballerina/io}GenericError");
+        assertEquals(returns[0].stringValue(), "GenericError");
         assertEquals(returns[1].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(returns[1].stringValue(), "{message:\"Test union of errors with type test\"}");
     }

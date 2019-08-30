@@ -27,8 +27,15 @@ public type Detail record {|
 # A type parameter that is a subtype of error `Detail` record type.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
+#
+# + message - the error message
+# + cause - the error cause
 @typeParam
-type DetailType Detail;
+type DetailType record {|
+    string message?;
+    error cause?;
+    (anydata|error)...;
+|};
 
 # A type parameter that is a subtype of `string` type.
 # Has the special semantic that when used in a declaration
@@ -52,7 +59,7 @@ public function detail(error<string,DetailType> e) returns DetailType = external
 #
 # + e - the error value
 # + return - a new object representing the stack trace of the error value
-public function stackTrace(error e) returns object { } = external;
+public function stackTrace(error e) returns CallStack = external;
 
 # Representation of `CallStackElement`
 #
