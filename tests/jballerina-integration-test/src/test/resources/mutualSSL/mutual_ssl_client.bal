@@ -38,7 +38,8 @@ http:ClientEndpointConfig mutualSslClientConf = {
         ocspStapling: false,
         handshakeTimeoutInSeconds: 20,
         sessionTimeoutInSeconds: 30
-    }
+    },
+    httpVersion: "1.1"
 };
 
 public function main() {
