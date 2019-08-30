@@ -117,6 +117,7 @@ public enum DiagnosticCode {
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),
+    INVALID_FOR_JOIN_SYNTAX_EMPTY_FORK("fork.join.syntax.empty.fork"),
     UNREACHABLE_CODE("unreachable.code"),
     CONTINUE_CANNOT_BE_OUTSIDE_LOOP("continue.cannot.be.outside.loop"),
     BREAK_CANNOT_BE_OUTSIDE_LOOP("break.cannot.be.outside.loop"),

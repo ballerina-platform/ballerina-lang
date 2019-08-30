@@ -381,7 +381,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-         /* ignore */
+        if (forkJoin.workers.isEmpty()) {
+            dlog.error(forkJoin.pos, DiagnosticCode.INVALID_FOR_JOIN_SYNTAX_EMPTY_FORK);
+        }
     }
 
     @Override
