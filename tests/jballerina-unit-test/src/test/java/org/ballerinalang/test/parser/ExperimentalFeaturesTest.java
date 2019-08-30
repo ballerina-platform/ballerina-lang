@@ -48,11 +48,11 @@ public class ExperimentalFeaturesTest {
                 "use '--experimental' flag to enable the experimental features", 43, 28);
         BAssertUtil.validateError(result, i++, "using experimental feature 'transaction'. " +
                 "use '--experimental' flag to enable the experimental features", 49, 5);
+        BAssertUtil.validateError(result, i++, "using experimental feature 'xml access expression'. " +
+                "use '--experimental' flag to enable the experimental features", 73, 20);
+        BAssertUtil.validateError(result, i++, "using experimental feature 'xml access expression'. " +
+                "use '--experimental' flag to enable the experimental features", 73, 20);
         BAssertUtil.validateError(result, i++, "using experimental feature 'xml attribute expression'. " +
-                "use '--experimental' flag to enable the experimental features", 73, 20);
-        BAssertUtil.validateError(result, i++, "using experimental feature 'xml access expression'. " +
-                "use '--experimental' flag to enable the experimental features", 73, 20);
-        BAssertUtil.validateError(result, i++, "using experimental feature 'xml access expression'. " +
                 "use '--experimental' flag to enable the experimental features", 73, 20);
         BAssertUtil.validateError(result, i++, "using experimental feature 'lock'. " +
                 "use '--experimental' flag to enable the experimental features", 79, 5);
