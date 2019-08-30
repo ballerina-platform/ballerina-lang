@@ -828,7 +828,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleDeclaredWithVar(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
+    private void handleDeclaredWithVarInForeach(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
         switch (variable.getKind()) {
             case VARIABLE:
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
@@ -2456,7 +2456,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Check whether the foreach node's variables are declared with var.
         if (foreachStmt.isDeclaredWithVar) {
             // If the foreach node's variables are declared with var, type is `varType`.
-            handleDeclaredWithVar(variableNode, foreachStmt.varType, blockEnv);
+            handleDeclaredWithVarInForeach(variableNode, foreachStmt.varType, blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
@@ -2464,12 +2464,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Then we need to check whether the RHS type is assignable to LHS type.
         if (types.isAssignable(foreachStmt.varType, typeNodeType)) {
             // If assignable, we set types to the variables.
-            handleDeclaredWithVar(variableNode, foreachStmt.varType, blockEnv);
+            handleDeclaredWithVarInForeach(variableNode, foreachStmt.varType, blockEnv);
             return;
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
         dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, foreachStmt.varType, typeNodeType);
-        handleDeclaredWithVar(variableNode, typeNodeType, blockEnv);
+        handleDeclaredWithVarInForeach(variableNode, typeNodeType, blockEnv);
     }
 
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {
