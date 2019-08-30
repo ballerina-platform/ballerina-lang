@@ -160,7 +160,7 @@ function test13() {
 
 function test14() returns string {
     output = "";
-    json subjects =  <json>jdata.subjects;
+    json subjects = <json>jdata.subjects;
 
     int i = 0;
     if subjects is json[] {
