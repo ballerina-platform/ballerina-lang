@@ -145,7 +145,7 @@ public type ListenerConfiguration record {|
     string host = "0.0.0.0";
     ListenerHttp1Settings http1Settings = {};
     ListenerSecureSocket? secureSocket = ();
-    string httpVersion = "2.0";
+    string httpVersion = HTTP_2_0;
     //TODO: update as a optional field
     (RequestFilter | ResponseFilter)[] filters = [];
     int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
