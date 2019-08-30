@@ -271,6 +271,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
+        stackTraceResponse.setStackFrames(new StackFrame[0]);
+
         try {
             StackFrame[] stackFrames = eventBus.getThreadsMap().get(args.getThreadId())
                     .frames().stream()
