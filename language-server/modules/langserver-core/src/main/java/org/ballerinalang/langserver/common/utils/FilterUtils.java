@@ -155,7 +155,8 @@ public class FilterUtils {
         }
         BType symbolType = bSymbol instanceof BInvokableSymbol ? ((BInvokableSymbol) bSymbol).retType : bSymbol.type;
         BType modifiedSymbolBType = getModifiedBType(symbolType);
-        Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol, modifiedSymbolBType, context);
+        Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol, modifiedSymbolBType,
+                                                                                    context);
 
         for (int itr = 1; itr < invocationFieldList.size(); itr++) {
             ChainedFieldModel fieldModel = invocationFieldList.get(itr);
