@@ -53,6 +53,7 @@ public class Main {
 
     public static void main(String... args) {
         try {
+            ToolUtil.checkForUpdate(outStream, args);
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
         } catch (BLangRuntimeException e) {

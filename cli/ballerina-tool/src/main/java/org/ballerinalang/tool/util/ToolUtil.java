@@ -38,6 +38,7 @@ import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -399,6 +400,38 @@ public class ToolUtil {
     public static String getDistributionsPath() throws IOException {
         return OSUtils.getInstalltionPath() + File.separator
                 + BALLERINA_TOOL_NAME + "-" + getCurrentToolsVersion() + File.separator + "distributions";
+    }
+
+    /**
+     * Checks for update avaiable for current version.
+     * @param printStream stream which messages should be printed
+     * @param args current commands arguments
+     */
+    public static void checkForUpdate(PrintStream printStream, String[] args) {
+        try {
+            boolean isRunCommand = Arrays.stream(args).anyMatch("run"::equals);
+            if (!isRunCommand) {
+                String version = getCurrentBallerinaVersion();
+                if (OSUtils.updateNotice(version)) {
+                    Version currentVersion = new Version(version);
+                    List<String> versions = new ArrayList<>();
+                    MapValue distributions = getDistributions();
+                    for (int i = 0; i < distributions.getArrayValue("list").size(); i++) {
+                        MapValue dist = (MapValue) distributions.getArrayValue("list").get(i);
+                        versions.add(dist.getStringValue("version"));
+                    }
+                    String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
+                    if (!latestVersion.equals(version)) {
+                        printStream.println();
+                        printStream.println("New Ballerina " + latestVersion + " version is available");
+                        printStream.println("Please use \"ballerina dist update\" command to update");
+                        printStream.println();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // If any exception occurs we are not letting users know as check for update is optional
+        }
     }
 }
 
