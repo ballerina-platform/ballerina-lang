@@ -83,6 +83,16 @@ public class CopyModuleJarTask implements Task {
             } catch (IOException e) {
                 throw createLauncherException("unable to copy the module jar :" + e.getMessage());
             }
+            // copy testable jar
+            if (module.hasTestablePackage()) {
+                Path jarTestOutput = buildContext.getTestJarPathFromTargetCache(module.packageID);
+                Path jarTestTarget = tmpDir.resolve(jarOutput.getFileName());
+                try {
+                    Files.copy(jarTestOutput, jarTestTarget, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    throw createLauncherException("unable to copy the module jar :" + e.getMessage());
+                }
+            }
         }
     }
 

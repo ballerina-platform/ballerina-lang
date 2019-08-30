@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -87,8 +88,8 @@ public class Parser {
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.pkgCache.put(pkgId, pkgNode);
         for (CompilerInput sourceInput: pkgSource.getPackageSourceEntries()) {
-            if (ProjectDirs.isTestSource(((FileSystemSourceInput) sourceInput).getPath(), sourceRootPath,
-                                         pkgId.getName().value)) {
+            if (ProjectDirs.isTestSource(((FileSystemSourceInput) sourceInput).getPath(),
+                    sourceRootPath , pkgId.getName().value)) {
                 // This check is added to ensure that there is exactly one testable package per bLangPackage
                 if (!pkgNode.containsTestablePkg()) {
                     BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode();
