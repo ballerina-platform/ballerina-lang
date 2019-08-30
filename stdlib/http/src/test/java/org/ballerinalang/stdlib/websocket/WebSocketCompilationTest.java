@@ -167,7 +167,8 @@ public class WebSocketCompilationTest {
         CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "resource_return.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
-        BAssertUtil.validateError(compileResult, 0, "Invalid return type: expected error?", 21, 5);
+        BAssertUtil.validateError(compileResult, 0, "invalid resource function return type 'int', expected a subtype " +
+                "of 'error?' containing '()'", 21, 80);
     }
 
     private void assertExpectedDiagnosticsLength(CompileResult compileResult, int expectedLength) {

@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.io.utils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
@@ -28,18 +27,12 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.csv.Format;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventExecutor;
-import org.ballerinalang.stdlib.io.events.EventManager;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
-import org.ballerinalang.stdlib.io.events.bytes.WriteBytesEvent;
-import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -48,26 +41,19 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
+import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.AccessDeniedError;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.EoF;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.FileNotFoundError;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.GenericError;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 
 /**
  * Represents the util functions of IO operations.
  */
 public class IOUtils {
 
-    private static final String PACKAGE_IO = "ballerina/io";
-
-    /**
-     * Creates an error message.
-     *
-     * @param values  the error details
-     * @return an error which will be propagated to ballerina user
-     */
-    public static ErrorValue createError(Object... values) {
-        return BallerinaErrors.createError(GenericError.errorCode(), createDetailRecord(values));
+    private IOUtils() {
     }
 
     /**
@@ -81,6 +67,16 @@ public class IOUtils {
     }
 
     /**
+     * Creates an error message.
+     *
+     * @param error Java throwable instance
+     * @return an error which will be propagated to ballerina user
+     */
+    public static ErrorValue createError(Throwable error) {
+        return createError(error.getMessage());
+    }
+
+    /**
      * Creates an error message with given error code.
      *
      * @param code     the error code which represent the error type
@@ -91,9 +87,18 @@ public class IOUtils {
         return BallerinaErrors.createError(code.errorCode(), createDetailRecord(errorMsg, null));
     }
 
+    /**
+     * Create an EoF error instance.
+     *
+     * @return EoF Error
+     */
+    public static ErrorValue createEoFError() {
+        return IOUtils.createError(EoF, "EoF when reading from the channel");
+    }
+
     private static MapValue<String, Object> createDetailRecord(Object... values) {
-        MapValue<String, Object> detail = BallerinaValues
-                .createRecordValue(PACKAGE_IO, IOConstants.DETAIL_RECORD_TYPE_NAME);
+        MapValue<String, Object> detail = BallerinaValues.
+                createRecordValue(IO_PACKAGE_ID, IOConstants.DETAIL_RECORD_TYPE_NAME);
         return BallerinaValues.createRecord(detail, values);
     }
 
@@ -102,16 +107,13 @@ public class IOUtils {
      *
      * @param channel the channel the bytes should be written.
      * @param content content which should be written.
-     * @param context context of the extern function call.
      * @param offset  the start index of the bytes which should be written.
      * @return the number of bytes written to the channel.
-     * @throws ExecutionException   errors which occur during execution.
-     * @throws InterruptedException during interrupt error.
+     * @throws IOException   errors which occur during execution.
      */
-    public static int writeFull(Channel channel, byte[] content, int offset, EventContext context)
-            throws ExecutionException, InterruptedException {
+    public static int writeFull(Channel channel, byte[] content, int offset) throws IOException {
         do {
-            offset = offset + write(channel, content, offset, context);
+            offset = offset + write(channel, content, offset);
         } while (offset < content.length);
         return offset;
     }
@@ -127,45 +129,15 @@ public class IOUtils {
      * @param channel channel which should be used to write bytes.
      * @param content content which should be written.
      * @param offset  offset which should be set when writing bytes.
-     * @param context context obtained from the extern function call.
      * @return the number of bytes written.
-     * @throws InterruptedException if the thread is interrupted
-     * @throws ExecutionException   error while execution.
+     * @throws IOException   error while execution.
      */
-    private static int write(Channel channel, byte[] content, int offset, EventContext context)
-            throws InterruptedException, ExecutionException {
-        WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, offset, context);
-        CompletableFuture<EventResult> future = EventManager.getInstance().publish(writeBytesEvent);
-        EventResult eventResponse = future.get();
-        offset = offset + (Integer) eventResponse.getResponse();
-        Throwable error = ((EventContext) eventResponse.getContext()).getError();
-        if (null != error) {
-            throw new ExecutionException(error);
-        }
+    private static int write(Channel channel, byte[] content, int offset) throws IOException {
+        ByteBuffer writeBuffer = ByteBuffer.wrap(content);
+        writeBuffer.position(offset);
+        int write = channel.write(writeBuffer);
+        offset = offset + write;
         return offset;
-    }
-
-    /**
-     * <p>
-     * Validates whether the channel has reached it's end or the channel is closed.
-     * </p>
-     * <p>
-     * At an event the channel has reached it's end, the corresponding discard will be called.
-     * Discard will clean the existing state.
-     * </p>
-     *
-     * @param event the event which was executed.
-     * @return true if the channel has reached it's end.
-     */
-    public static boolean validateChannelState(EventContext event) {
-        Register register = event.getRegister();
-        EventExecutor exec = register.getExec();
-        Channel channel = exec.getChannel();
-        if (!channel.getByteChannel().isOpen()) {
-            register.discard();
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -175,29 +147,25 @@ public class IOUtils {
      *
      * @param characterChannel the character channel the payload should be written.
      * @param payload          the content.
-     * @param eventContext     the context of the event.
-     * @throws BallerinaException during i/o error.
+     * @throws BallerinaIOException during i/o error.
      */
-    public static void writeFull(CharacterChannel characterChannel, String payload, EventContext eventContext)
-            throws BallerinaException {
+    public static void writeFull(CharacterChannel characterChannel, String payload) throws BallerinaIOException {
         try {
             int totalNumberOfCharsWritten = 0;
             int numberOfCharsWritten;
             final int lengthOfPayload = payload.getBytes().length;
             do {
-                WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, payload, 0, eventContext);
-                CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
-                EventResult eventResult = future.get();
-                numberOfCharsWritten = (Integer) eventResult.getResponse();
+                numberOfCharsWritten = characterChannel.write(payload, 0);
                 totalNumberOfCharsWritten = totalNumberOfCharsWritten + numberOfCharsWritten;
             } while (totalNumberOfCharsWritten != lengthOfPayload && numberOfCharsWritten != 0);
             if (totalNumberOfCharsWritten != lengthOfPayload) {
-                String message = "JSON payload was partially written expected: " + lengthOfPayload + ", written : " +
-                        totalNumberOfCharsWritten;
-                throw new BallerinaException(message);
+                String message = String
+                        .format("JSON payload was partially written expected: %d, written : %d", lengthOfPayload,
+                                totalNumberOfCharsWritten);
+                throw new BallerinaIOException(message);
             }
-        } catch (InterruptedException | ExecutionException e) {
-            throw new BallerinaException(e);
+        } catch (IOException e) {
+            throw new BallerinaIOException("unable to write the content fully", e);
         }
     }
 
@@ -205,18 +173,16 @@ public class IOUtils {
      * Asynchronously reads bytes from the channel.
      *
      * @param content the initialized array which should be filled with the content.
-     * @param context context of the extern function call.
      * @param channel the channel the content should be read into.
      * @return the number of bytes read.
-     * @throws InterruptedException during interrupt error.
-     * @throws ExecutionException   errors which occurs while execution.
+     * @throws IOException   errors which occurs while execution.
+     * @throws ErrorValue instance of {ballerina/io}EoF when channel reach the EoF.
      */
-    public static int readFull(Channel channel, byte[] content, EventContext context)
-            throws InterruptedException, ExecutionException {
+    public static int readFull(Channel channel, byte[] content) throws IOException, ErrorValue {
         int numberOfBytesToRead = content.length;
         int nBytesRead = 0;
         do {
-            nBytesRead = nBytesRead + read(channel, content, context);
+            nBytesRead = nBytesRead + read(channel, content);
         } while (nBytesRead < numberOfBytesToRead && !channel.hasReachedEnd());
         return nBytesRead;
     }
@@ -231,22 +197,16 @@ public class IOUtils {
      *
      * @param channel channel the bytes should be read from.
      * @param content byte [] which will hold the content which is read.
-     * @param context context obtained from the extern function.
      * @return the number of bytes read.
-     * @throws InterruptedException errors which occur if the thread is interrupted.
-     * @throws ExecutionException   errors which occur during execution.
+     * @throws IOException   errors which occur during execution.
+     * @throws ErrorValue instance of {ballerina/io}EoF when channel reach the EoF.
      */
-    private static int read(Channel channel, byte[] content, EventContext context)
-            throws InterruptedException, ExecutionException {
-        ReadBytesEvent event = new ReadBytesEvent(channel, content, context);
-        CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
-        EventResult eventResponse = future.get();
-        int numberOfBytesRead = (Integer) eventResponse.getResponse();
-        Throwable error = ((EventContext) eventResponse.getContext()).getError();
-        if (null != error) {
-            throw new ExecutionException(error);
+    private static int read(Channel channel, byte[] content) throws IOException, ErrorValue {
+        if (channel.hasReachedEnd()) {
+            throw createEoFError();
+        } else {
+            return channel.read(ByteBuffer.wrap(content));
         }
-        return numberOfBytesRead;
     }
 
     /**
@@ -254,14 +214,10 @@ public class IOUtils {
      *
      * @param path the file location url
      */
-    private static void createDirsExtended(Path path) {
+    private static void createDirsExtended(Path path) throws IOException {
         Path parent = path.getParent();
-        if (parent != null && !Files.exists(parent)) {
-            try {
-                Files.createDirectories(parent);
-            } catch (IOException e) {
-                throw new BallerinaException("Error in creating directory.", e);
-            }
+        if (parent != null && !parent.toFile().exists()) {
+            Files.createDirectories(parent);
         }
     }
 
@@ -270,36 +226,44 @@ public class IOUtils {
      *
      * @param path       path to the file.
      * @param accessMode file access mode.
-     * @return the filechannel which will hold the reference.
-     * @throws IOException during i/o error.
+     * @return the file channel which will hold the reference.
+     * @throws BallerinaIOException during i/o error.
      */
-    public static FileChannel openFileChannelExtended(Path path, String accessMode) throws IOException {
+    public static FileChannel openFileChannelExtended(Path path, String accessMode) throws BallerinaIOException {
         String accessLC = accessMode.toLowerCase(Locale.getDefault());
         Set<OpenOption> opts = new HashSet<>();
         if (accessLC.contains("r")) {
-            if (!Files.exists(path)) {
-                throw new BallerinaException("file not found: " + path);
+            if (!path.toFile().exists()) {
+                String msg = "no such file or directory: " + path.toFile().getAbsolutePath();
+                throw createError(FileNotFoundError, msg);
             }
             if (!Files.isReadable(path)) {
-                throw new BallerinaException("file is not readable: " + path);
+                throw new BallerinaIOException("file is not readable: " + path);
             }
             opts.add(StandardOpenOption.READ);
         }
         boolean write = accessLC.contains("w");
         boolean append = accessLC.contains("a");
-        if (write || append) {
-            if (Files.exists(path) && !Files.isWritable(path)) {
-                throw new BallerinaException("file is not writable: " + path);
+        try {
+            if (write || append) {
+                if (path.toFile().exists() && !Files.isWritable(path)) {
+                    throw new BallerinaIOException("file is not writable: " + path);
+                }
+                createDirsExtended(path);
+                opts.add(StandardOpenOption.CREATE);
+                if (append) {
+                    opts.add(StandardOpenOption.APPEND);
+                } else {
+                    opts.add(StandardOpenOption.WRITE);
+                }
             }
-            createDirsExtended(path);
-            opts.add(StandardOpenOption.CREATE);
-            if (append) {
-                opts.add(StandardOpenOption.APPEND);
-            } else {
-                opts.add(StandardOpenOption.WRITE);
-            }
+            return FileChannel.open(path, opts);
+        } catch (AccessDeniedException e) {
+            String msg = "do not have necessary permissions to access: " + e.getMessage();
+            throw createError(AccessDeniedError, msg);
+        } catch (IOException | UnsupportedOperationException e) {
+            throw new BallerinaIOException("fail to open file: " + e.getMessage(), e);
         }
-        return FileChannel.open(path, opts);
     }
 
     /**
@@ -310,11 +274,11 @@ public class IOUtils {
      * @param mode     permission to access the file.
      * @param format   format of the CSV file.
      * @return delimited record channel to read from CSV.
-     * @throws IOException during I/O error.
+     * @throws BallerinaIOException during I/O error.
      */
     public static DelimitedRecordChannel createDelimitedRecordChannelExtended(String filePath, String encoding,
                                                                               String mode, Format format)
-            throws IOException {
+            throws BallerinaIOException {
         Path path = Paths.get(filePath);
         FileChannel sourceChannel = openFileChannelExtended(path, mode);
         FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);

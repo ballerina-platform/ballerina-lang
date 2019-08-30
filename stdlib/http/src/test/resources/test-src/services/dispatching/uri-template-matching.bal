@@ -1,7 +1,7 @@
 import ballerina/http;
-import ballerina/'lang\.int as langint;
-import ballerina/'lang\.float as langfloat;
 import ballerina/internal;
+import ballerina/lang.'float as langfloat;
+import ballerina/lang.'int as langint;
 
 listener http:MockListener testEP = new(9090);
 

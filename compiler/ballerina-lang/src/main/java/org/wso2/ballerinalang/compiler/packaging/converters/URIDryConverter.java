@@ -125,19 +125,22 @@ public class URIDryConverter extends URIConverter {
                         // get the version from the 'Location' header.
                         String location = conn.getHeaderField("Location");
                         String version = location.split("/")[location.split("/").length - 3];
-                        // update version
+                        // update version of moduleID
                         moduleID.version = new Name(version);
                         return Stream.empty();
                     } else if (statusCode == 400 && !loggedError) {
                         try (BufferedReader errorStream = new BufferedReader(
                                 new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()))) {
                             String errorContent = errorStream.lines().collect(Collectors.joining("\n"));
-                            this.errStream.println("invalid request sent to remote registry: " + errorContent);
+                            this.errStream.println("error: could not connect to remote repository to find the latest " +
+                                                   "version of module: " + moduleID.toString() + ". use '--off-line' " +
+                                                   "flag to build in offline mode. reason: " + errorContent);
                             setErrorLoggedStatusAsTrue();
                         }
                     } else if (statusCode == 500 && !loggedError) {
-                        this.errStream.println("could not connect to remote registry or unexpected response " +
-                                               "received. build offline to ignore this error.");
+                        this.errStream.println("error: could not connect to remote repository to find the latest " +
+                                               "version of module: " + moduleID.toString() + ". use '--off-line' " +
+                                               "flag to build in offline mode.");
                         setErrorLoggedStatusAsTrue();
                     }
                     conn.disconnect();

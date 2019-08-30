@@ -68,7 +68,7 @@ public function main() {
 
     var responsePayload = response.getJsonPayload();
     if (responsePayload is json) {
-        log:printInfo("Response : " + responsePayload.toString());
+        log:printInfo("Response : " + responsePayload.toJsonString());
     } else {
         log:printError("Expected response payload not received",
           err = responsePayload);
@@ -88,7 +88,7 @@ public function main() {
         }
         var promisedPayload = promisedResponse.getJsonPayload();
         if (promisedPayload is json) {
-            log:printInfo("Promised resource : " + promisedPayload.toString());
+            log:printInfo("Promised resource : " + promisedPayload.toJsonString());
         } else {
             log:printError("Expected promised response payload not received",
                 err = promisedPayload);

@@ -672,12 +672,12 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
-    @Test(dataProvider = "missingNativeImplFiles", groups = "brokenOnJBallerina")
+    @Test(dataProvider = "missingNativeImplFiles")
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
-            BCompileUtil.compile(filePath);
+            BCompileUtil.compileInProc(filePath);
         } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), "native function not available: Person.printName");
+            Assert.assertTrue(e.getMessage().contains("native function not available: Person.printName"));
             return;
         }
         Assert.fail("expected compilation to fail due to missing external implementation");
@@ -691,15 +691,54 @@ public class ObjectTest {
         Assert.assertEquals(((BMap) foo.get("bar")).get("p").stringValue(), "{name:\"John Doe\"}");
     }
 
+    @Test(description = "Test invoking object inits with union params in another object's function")
+    public void testObjectInitFunctionWithDefaultableParams() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        BValue[] result = BRunUtil.invoke(compileResult, "testObjectInitFunctionWithDefaultableParams");
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 900000);
+        Assert.assertEquals(((BInteger) result[1]).intValue(), 10000);
+        Assert.assertEquals(((BInteger) result[2]).intValue(), 20000);
+        Assert.assertEquals(((BInteger) result[3]).intValue(), 30000);
+        Assert.assertEquals(((BInteger) result[4]).intValue(), 40000);
+    }
+
+    @Test(description = "Test invoking object inits with union params in another object's function")
+    public void testObjectInitFunctionWithDefaultableParams2() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        BValue[] result = BRunUtil.invoke(compileResult, "testObjectInitFunctionWithDefaultableParams2");
+        Assert.assertEquals(((BFloat) result[0]).floatValue(), 1.1);
+        Assert.assertEquals(((BInteger) result[1]).intValue(), 1);
+    }
+
     @Test(description = "Negative test for object union type inference")
     public void testNegativeUnionTypeInit() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
-        BAssertUtil.validateError(resultNegative, 0, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 48, 25);
-        BAssertUtil.validateError(resultNegative, 1, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 49, 25);
-        BAssertUtil.validateError(resultNegative, 2, "cannot infer type of the object from '(Obj|Obj2|Obj3|Obj4)'",
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 48, 25);
+        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 49, 25);
+        BAssertUtil.validateError(resultNegative, i++, "cannot infer type of the object from '(Obj|Obj2|Obj3|Obj4)'",
                                   50, 46);
-        BAssertUtil.validateError(resultNegative, 3, "cannot infer type of the object from 'Bar?'", 71, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected '(PersonRec|EmployeeRec)', found 'string'", 71, 24);
+        BAssertUtil.validateError(resultNegative, i++,
+                "missing required parameter 'i' in call to 'new'()", 114, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 114, 53);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type of the object from '(InitObjOne|InitObjTwo|int)'", 119, 36);
+        BAssertUtil.validateError(resultNegative, i++,
+                "ambiguous type '(InitObjOne|InitObjTwo|float)'", 120, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type of the object from '(InitObjOne|InitObjTwo|float)'", 121, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int', found 'string'", 126, 51);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type of the object from '(InitObjOne|InitObjThree|boolean|string)'", 127, 50);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 128, 59);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type of the object from '(InitObjThree|InitObjOne|boolean|string)'", 129, 50);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @DataProvider

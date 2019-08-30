@@ -51,14 +51,14 @@ public class TupleRestDescriptorTest {
     public void testTupleAssignmentWithNilRestDescriptor() {
         BValue[] returns = BRunUtil.invoke(result, "tupleAssignmentWithNilRestDescriptor", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "1 s 1 s () 1 s () () () ()");
+        Assert.assertEquals(returns[0].stringValue(), "1 s 1 s  1 s    ");
     }
 
     @Test(description = "Test tuple assignment with only rest descriptor")
     public void testTupleAssignmentWithOnlyRestDescriptor() {
         BValue[] returns = BRunUtil.invoke(result, "tupleAssignmentWithOnlyRestDescriptor", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "1 2 s s () ()");
+        Assert.assertEquals(returns[0].stringValue(), "1 2 s s  ");
     }
 
     @Test(description = "Test tuple covariance with rest descriptor")
@@ -117,8 +117,10 @@ public class TupleRestDescriptorTest {
                 19, 24);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'int'",
                 19, 33);
-        BAssertUtil.validateError(resultNegative, i, "incompatible types: expected 'boolean', found 'string'",
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'string'",
                 19, 36);
+        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
+                24, 12);
     }
 
 }

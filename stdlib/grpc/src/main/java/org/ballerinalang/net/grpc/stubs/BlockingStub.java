@@ -36,7 +36,7 @@ import java.util.Arrays;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_GRPC_PKG_ID;
 
 /**
  * This class handles Blocking client connection.
@@ -109,7 +109,7 @@ public class BlockingStub extends AbstractStub {
                 } else {
                     Object responseBValue = value.getbMessage();
                     // Set response headers, when response headers exists in the message context.
-                    ObjectValue headerObject = BallerinaValues.createObjectValue(PROTOCOL_STRUCT_PACKAGE_GRPC, HEADERS);
+                    ObjectValue headerObject = BallerinaValues.createObjectValue(PROTOCOL_GRPC_PKG_ID, HEADERS);
                     headerObject.addNativeData(MESSAGE_HEADERS, value.getHeaders());
                     ArrayValue contentTuple =
                             new ArrayValue(

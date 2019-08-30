@@ -32,7 +32,9 @@ public enum  Priority {
     PRIORITY190(190),
     PRIORITY200(200),
     PRIORITY210(210),
-    PRIORITY220(220);
+    PRIORITY220(220),
+    PRIORITY230(230),
+    PRIORITY240(240);
 
     private int priority;
 

@@ -37,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,23 +78,28 @@ public class ToolUtil {
      */
     public static void listDistributions(PrintStream outStream, boolean isRemote) {
         try {
+            outStream.println("Distributions available locally: \n");
             String currentBallerinaVersion = getCurrentBallerinaVersion();
+            File folder = new File(getDistributionsPath());
+            File[] listOfFiles;
+            listOfFiles = folder.listFiles();
+            for (int i = 0; i < listOfFiles.length; i++) {
+                if (listOfFiles[i].isDirectory()) {
+                    outStream.println(markVersion(BALLERINA_TYPE + "-" + currentBallerinaVersion,
+                            listOfFiles[i].getName()));
+                }
+            }
+            outStream.println();
+
             if (isRemote) {
+                outStream.println("Distributions available remotely: \n");
                 MapValue distributions = getDistributions();
                 for (int i = 0; i < distributions.getArrayValue("list").size(); i++) {
                     MapValue dist = (MapValue) distributions.getArrayValue("list").get(i);
-                    outStream.println(markVersion(currentBallerinaVersion,
+                    outStream.println(markVersion(BALLERINA_TYPE + "-" + currentBallerinaVersion,
                             dist.getStringValue("type") + "-" + dist.getStringValue("version")));
                 }
-            } else {
-                File folder = new File(getDistributionsPath());
-                File[] listOfFiles;
-                listOfFiles = folder.listFiles();
-                for (int i = 0; i < listOfFiles.length; i++) {
-                    if (listOfFiles[i].isDirectory()) {
-                        outStream.println(markVersion(currentBallerinaVersion, listOfFiles[i].getName()));
-                    }
-                }
+                outStream.println();
             }
         } catch (IOException | KeyManagementException | NoSuchAlgorithmException e) {
             outStream.println("Ballerina Update service is not available");
@@ -112,13 +118,18 @@ public class ToolUtil {
         setVersion(OSUtils.getBallerinaVersionFilePath(), version);
     }
 
+    private static void clearCache(PrintStream outStream) throws IOException {
+        OSUtils.clearBirCacheLocation(outStream);
+        OSUtils.clearJarCacheLocation(outStream);
+    }
+
     /**
      * Provides used Ballerina tools version.
      * @return Used Ballerina tools version.
      */
     private static String getCurrentToolsVersion() {
         //TODO: Need to read folder
-        return "1.0.0-beta";
+        return "1.0.0-beta-SNAPSHOT";
     }
 
     private static String getVersion(String path) throws IOException {
@@ -161,6 +172,7 @@ public class ToolUtil {
                     return true;
                 } else {
                     setCurrentBallerinaVersion(distribution);
+                    clearCache(printStream);
                     printStream.println("Using " + distribution);
                     return true;
                 }
@@ -222,7 +234,7 @@ public class ToolUtil {
                 }
             }
             printStream.println();
-            unzip(zipFileLocation, getDistributionsPath());
+            unzip(zipFileLocation, getDistributionsPath(), distribution);
 
             if (conn.getResponseCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : "
@@ -237,8 +249,22 @@ public class ToolUtil {
     }
 
     public static void update(PrintStream printStream, String version) {
-        //TODO : Get available versions, find latest patch and install that version
-        install(printStream, version);
+        try {
+            List<String> versions = new ArrayList<>();
+            MapValue distributions = getDistributions();
+            for (int i = 0; i < distributions.getArrayValue("list").size(); i++) {
+                MapValue dist = (MapValue) distributions.getArrayValue("list").get(i);
+                versions.add(dist.getStringValue("version"));
+            }
+            Version currentVersion = new Version(version);
+            String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
+            if (!latestVersion.equals(version)) {
+                install(printStream, latestVersion);
+                use(printStream, latestVersion);
+            }
+        } catch (IOException | KeyManagementException | NoSuchAlgorithmException e) {
+            printStream.println("Cannot connect to the central server");
+        }
     }
 
     public static void remove(PrintStream outStream, String version) {
@@ -320,7 +346,7 @@ public class ToolUtil {
         return distributions;
     }
 
-    public static void unzip(String zipFilePath, String destDirectory) throws IOException {
+    public static void unzip(String zipFilePath, String destDirectory, String distribution) throws IOException {
         File destDir = new File(destDirectory);
         if (!destDir.exists()) {
             destDir.mkdir();
@@ -344,6 +370,15 @@ public class ToolUtil {
             zipIn.closeEntry();
             entry = zipIn.getNextEntry();
         }
+
+        final File file = new File(destDirectory
+                + File.separator + distribution
+                + File.separator + "bin"
+                + File.separator + OSUtils.getExecutableFileName());
+        file.setReadable(true, false);
+        file.setExecutable(true, false);
+        file.setWritable(true, false);
+
         zipIn.close();
         new File(zipFilePath).delete();
     }
@@ -355,7 +390,7 @@ public class ToolUtil {
      */
     public static String getDistributionsPath() throws IOException {
         return OSUtils.getInstalltionPath() + File.separator
-                + BALLERINA_TOOL_NAME + "-" + getCurrentBallerinaVersion() + File.separator + "distributions";
+                + BALLERINA_TOOL_NAME + "-" + getCurrentToolsVersion() + File.separator + "distributions";
     }
 }
 

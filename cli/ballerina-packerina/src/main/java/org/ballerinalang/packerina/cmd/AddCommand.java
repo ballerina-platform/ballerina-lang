@@ -44,6 +44,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -273,7 +274,11 @@ public class AddCommand implements BLauncherCmd {
                 Path moduleResources = modulePath.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
                 Files.createDirectories(moduleResources);
                 // We do a string comparison to be efficient.
-                Files.walkFileTree(resourcesDir, new Copy(resourcesDir, modulePath));
+                Files.walkFileTree(resourcesDir, new Copy(resourcesDir, moduleResources));
+                // Copy Module.md
+                Path moduleMd = zipfs.getPath("/docs").resolve(ProjectDirConstants.MODULE_MD_FILE_NAME);
+                Path toModuleMd = modulePath.resolve(ProjectDirConstants.MODULE_MD_FILE_NAME);
+                Files.copy(moduleMd, toModuleMd, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 CommandUtil.printError(errStream,
                         "Error while applying template : " + e.getMessage(),
@@ -314,6 +319,7 @@ public class AddCommand implements BLauncherCmd {
                     .filter(pathMatcher::matches)
                     .collect(Collectors.toList());
 
+            Collections.sort(baloList);
             // get the latest
             if (baloList.size() > 0) {
                 return baloList.get(baloList.size() - 1);

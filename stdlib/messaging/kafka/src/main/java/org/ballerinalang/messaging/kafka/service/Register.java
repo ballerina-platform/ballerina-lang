@@ -37,12 +37,12 @@ import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_SERVER_CONNECTOR_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 
 /**
@@ -75,7 +75,7 @@ public class Register {
             String serviceId = service.getType().getQualifiedName();
             KafkaServerConnector serverConnector = new KafkaServerConnectorImpl(serviceId, configs, kafkaListener,
                     kafkaConsumer);
-            listener.addNativeData(CONSUMER_SERVER_CONNECTOR_NAME, serverConnector);
+            listener.addNativeData(SERVER_CONNECTOR, serverConnector);
         } catch (KafkaConnectorException e) {
             return KafkaUtils.createKafkaError(e.getMessage(), CONSUMER_ERROR);
         }

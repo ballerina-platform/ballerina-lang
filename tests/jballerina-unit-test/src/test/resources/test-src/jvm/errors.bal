@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.error as lang;
+
+import ballerina/lang.'error as lang;
 
 function testPanic(int y) returns int|error {
     int|error x = foo(y);

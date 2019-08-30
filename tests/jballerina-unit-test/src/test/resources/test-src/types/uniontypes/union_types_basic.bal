@@ -38,7 +38,15 @@ function testNullableTypeBasics1() returns (int|json|string|float|map<any>|boole
     k = ();
     return k;
 
-}
+ }
+
+ function testNullableTypeArrayFill() returns (int|json|string|float|map<any>|boolean|()) {
+     (int|string|float|json|boolean)[] unionArr = [];
+     unionArr[5] = true;
+
+     (int|string|float|())[] unionArr2 = [];
+     unionArr2[5] = 6;
+ }
 
 
 function testNullableTypeBasics2() returns (int|boolean|()) {

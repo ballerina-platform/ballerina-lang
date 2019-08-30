@@ -140,3 +140,23 @@ function fn1(any t) returns [string, int, boolean, int, float, int] {
     return [s, i1, b, y, f, i2];
 }
 
+function testDuplicateBinding1() returns [int, int] {
+    [int, int] x = [1, 2];
+    int a;
+    [a, a] = x;
+    return [a, a];
+}
+
+function testDuplicateBinding2() returns [int, int, int] {
+    [int, [int, int]] x = [1, [2, 3]];
+    int a;
+    [a, [a, a]] = x;
+    return [a, a, a];
+}
+
+function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
+    [int, [string, boolean]] t1 = [2002, ["S1", true]];
+    map<anydata> m = {};
+    [m["var1"], [m["var2"], _]] = t1;
+    return [m["var1"], m["var2"]];
+}
