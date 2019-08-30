@@ -61,13 +61,13 @@ public function getNext(table<record {}> dt) returns record {} = external;
 #
 # + data - A record with data
 # + return - An `error` will be returned if there is any error occurred during adding data or else nil is returned
-public function add(table<record {}> dt, any data) returns error|() = external;
+public function add(table<record {}> dt, anydata data) returns error|() = external;
 
 # Remove data from the table.
 #
 # + func - The function pointer for delete crieteria
 # + return - An `int` the number of deleted record count or `error` if any error occurred during removing data
-public function remove(table<record {}> dt, function (any) returns (boolean) func) returns int|error = external;
+public function remove(table<record {}> dt, function (anydata) returns (boolean) func) returns int|error = external;
 
 # Execute the given sql query to fetch the records and return as a new in memory table.
 #
@@ -88,12 +88,3 @@ function queryTableWithJoinClause(string sqlQuery, table<record {}> fromTable, t
 function queryTableWithoutJoinClause(string sqlQuery, table<record {}> fromTable, any parameters,
                                      any retType) returns table<record {}> = external;
 
-# TableConfig represents properties used during table initialization.
-#
-# + primaryKey - An array of primary key columns
-# + index - An array of index columns
-# + data - An array of record data
-type TableConfig record {|
-    string[] primaryKey;
-    any[] data;
-|};

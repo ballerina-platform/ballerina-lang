@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                            @Argument(name = "dt",
                                      type = TypeKind.TABLE),
                            @Argument(name = "data",
-                                     type = TypeKind.ANY)
+                                     type = TypeKind.ANYDATA)
                    },
                    isPublic = true)
 public class Add {
