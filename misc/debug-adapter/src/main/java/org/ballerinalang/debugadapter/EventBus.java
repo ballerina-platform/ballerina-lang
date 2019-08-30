@@ -145,12 +145,17 @@ public class EventBus {
                             context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
                         } else if (event instanceof StepEvent) {
                             populateMaps();
-                            context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
-                            StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
-                            stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
-                            stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
-                            stoppedEventArguments.setAllThreadsStopped(true);
-                            context.getClient().stopped(stoppedEventArguments);
+                            if (((StepEvent) event).location().lineNumber() > 0) {
+                                context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
+                                StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
+                                stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
+                                stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
+                                stoppedEventArguments.setAllThreadsStopped(true);
+                                context.getClient().stopped(stoppedEventArguments);
+                            } else {
+                                long threadId = ((StepEvent) event).thread().uniqueID();
+                                this.createStepRequest(threadId, StepRequest.STEP_OVER);
+                            }
                         } else if (event instanceof VMDisconnectEvent
                                 || event instanceof VMDeathEvent
                                 || event instanceof VMDisconnectedException) {
@@ -211,6 +216,8 @@ public class EventBus {
         request.addClassExclusionFilter("com.*");
         request.addClassExclusionFilter("org.*");
         request.addClassExclusionFilter("ballerina.*");
+        request.addClassExclusionFilter("java.*");
+        request.addClassExclusionFilter("$lambda$main$");
 
         stepEventRequests.add(request);
         request.addCountFilter(1); // next step only
