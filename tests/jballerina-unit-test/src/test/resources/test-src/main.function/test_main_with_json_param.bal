@@ -16,5 +16,5 @@
 import ballerina/io;
 
 public function main(json j) {
-    io:print(j);
+    io:print(j.toJsonString());
 }

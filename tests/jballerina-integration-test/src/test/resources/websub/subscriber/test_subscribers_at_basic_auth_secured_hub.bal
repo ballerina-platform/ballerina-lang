@@ -47,7 +47,7 @@ http:BasicAuthHandler basicAuthHandler1 = new(basicAuthProvider1);
 service websubSubscriber on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by One: " + payload.toString());
+        io:println("WebSub Notification Received by One: " + payload.toJsonString());
     }
 }
 
@@ -76,7 +76,7 @@ http:BasicAuthHandler basicAuthHandler2 = new(basicAuthProvider2);
 service websubSubscriberTwo on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by Two: " + payload.toString());
+        io:println("WebSub Notification Received by Two: " + payload.toJsonString());
     }
 }
 
@@ -105,7 +105,7 @@ http:BasicAuthHandler basicAuthHandler3 = new(basicAuthProvider3);
 service websubSubscriberThree on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by Three: " + payload.toString());
+        io:println("WebSub Notification Received by Three: " + payload.toJsonString());
     }
 }
 
@@ -133,6 +133,6 @@ http:BasicAuthHandler basicAuthHandler4 = new(basicAuthProvider4);
 service websubSubscriberFour on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by Four: " + payload.toString());
+        io:println("WebSub Notification Received by Four: " + payload.toJsonString());
     }
 }

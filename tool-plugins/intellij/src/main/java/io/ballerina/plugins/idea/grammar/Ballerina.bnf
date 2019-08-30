@@ -99,9 +99,9 @@
         DECIMAL_INTEGER_LITERAL = "regexp:\d+"
   ]
 
-    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|TypeAccessExprInvocation|StringFunctionInvocation)Reference") = VariableReference
+    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|TypeDescExprInvocation|StringFunctionInvocation)Reference") = VariableReference
 
-    extends("((Simple|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Access|Test)|Group|Wait|WorkerSendSync|WorkerReceive|FlushWorker|TableQuery|Checked|CheckPanic|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ServiceConstructor|ListConstructor|BinaryRefEqual|Trap|AnnotationAction)Expression") = Expression
+    extends("((Simple|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Desc|Test)|Group|Wait|WorkerSendSync|WorkerReceive|FlushWorker|TableQuery|Checked|CheckPanic|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ServiceConstructor|ListConstructor|BinaryRefEqual|Trap|AnnotationAction)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
 
     extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
@@ -314,7 +314,7 @@ ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
 StreamTypeName ::= stream LT TypeName GT {pin=1}
 FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
 ServiceTypeName ::= service
-TypeDescReferenceTypeName ::=  typedesc LT TypeName GT {pin=1}
+TypeDescReferenceTypeName ::=  typedesc LT TypeName GT {pin=2}
 
 // Todo - Cache
 AnnotationAttachment ::= AT NameReference RecordLiteral? {pin=1}
@@ -422,9 +422,9 @@ MatchStatementBody ::= LEFT_BRACE MatchPatternClause+ RIGHT_BRACE
 
 MatchPatternClause ::= VarMatchPatternClause | StaticMatchPatternClause | ErrorMatchPatternClause
 
-VarMatchPatternClause ::= var BindingPattern (if Expression)? EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=1}
-StaticMatchPatternClause ::=  StaticMatchLiteral EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement)
-ErrorMatchPatternClause ::= ErrorMatchPattern (if Expression)? EQUAL_GT (Statement | (LEFT_BRACE Statement* RIGHT_BRACE))
+VarMatchPatternClause ::= var BindingPattern (if Expression)? EQUAL_GT LEFT_BRACE Block RIGHT_BRACE {pin=1}
+StaticMatchPatternClause ::=  StaticMatchLiteral EQUAL_GT LEFT_BRACE Block RIGHT_BRACE
+ErrorMatchPatternClause ::= ErrorMatchPattern (if Expression)? EQUAL_GT LEFT_BRACE Statement* RIGHT_BRACE
 
 StaticMatchLiteral ::= StaticMatchSimpleLiteral
                     |   StaticMatchRecordLiteral
@@ -486,6 +486,7 @@ ListRefRestPattern ::= ELLIPSIS VariableReference {pin=1}
 RecordRefBindingPattern ::= LEFT_BRACE EntryRefBindingPattern RIGHT_BRACE
 
 ErrorRefBindingPattern ::= (error LEFT_PARENTHESIS ((VariableReference (COMMA ErrorNamedArgRefPattern)*) | ErrorNamedArgRefPattern+) (COMMA ErrorRefRestPattern)? RIGHT_PARENTHESIS)
+                            | (error LEFT_PARENTHESIS ErrorRefRestPattern RIGHT_PARENTHESIS)
                             | (TypeName LEFT_PARENTHESIS ErrorNamedArgRefPattern (COMMA ErrorNamedArgRefPattern)*  (COMMA ErrorRefRestPattern)? RIGHT_PARENTHESIS)
 ErrorNamedArgRefPattern ::= identifier ASSIGN BindingRefPattern
 ErrorRefRestPattern::= ELLIPSIS VariableReference
@@ -554,7 +555,7 @@ VariableReference ::= MapArrayVariableReference
                       | XmlAttribVariableReference
                       | FunctionInvocationReference
                       | SimpleVariableReference
-                      | TypeAccessExprInvocationReference
+                      | TypeDescExprInvocationReference
 
 InvocationReference ::= VariableReference Invocation
 MapArrayVariableReference ::= VariableReference Index
@@ -562,7 +563,7 @@ FieldVariableReference ::= VariableReference Field
 XmlAttribVariableReference ::= VariableReference XmlAttrib
 FunctionInvocationReference ::= FunctionInvocation
 SimpleVariableReference ::=  NameReference
-TypeAccessExprInvocationReference ::=  TypeAccessExpression Invocation
+TypeDescExprInvocationReference ::=  TypeDescExpression Invocation
 StringFunctionInvocationReference ::= QUOTED_STRING_LITERAL Invocation
 
 // Todo - Adding pin will mess function invocation.
@@ -657,11 +658,11 @@ Expression
     |   TypeTestExpression
     |   BinaryRefEqualExpression
     |   TrapExpression
-    |   TypeAccessExpression
+    |   TypeDescExpression
     |   AnnotationActionExpression
     {recoverWhile=ExpressionRecover}
 
-TypeAccessExpression ::= TypeName
+TypeDescExpression ::= TypeName
 
 TypeTestExpression ::= Expression is TypeName
 

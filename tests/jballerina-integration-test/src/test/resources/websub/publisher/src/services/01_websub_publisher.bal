@@ -56,8 +56,10 @@ service publisher on publisherServiceEP {
     resource function notify(http:Caller caller, http:Request req, string subscriber) {
         remoteRegisterTopic();
         json jsonPayload = <json> req.getJsonPayload();
-        string mode = jsonPayload.mode.toString();
-        string contentType = jsonPayload.content_type.toString();
+        json jsonMode = <json>jsonPayload.mode;
+        string mode = jsonMode.toJsonString();
+        json jsonContentType = <json>jsonPayload.content_type;
+        string contentType = jsonContentType.toJsonString();
 
         var err = caller->accepted();
         if (err is error) {
@@ -147,8 +149,10 @@ service contentTypePublisher on publisherServiceEP {
     }
     resource function notify(http:Caller caller, http:Request req, string port) {
         json jsonPayload = <json> req.getJsonPayload();
-        string mode = jsonPayload.mode.toString();
-        string contentType = jsonPayload.content_type.toString();
+        json jsonMode = <json>jsonPayload.mode;
+        string mode = jsonMode.toJsonString();
+        json jsonContentType = <json>jsonPayload.content_type;
+        string contentType = jsonContentType.toJsonString();
 
         var err = caller->accepted();
         if (err is error) {
