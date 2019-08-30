@@ -360,18 +360,6 @@ public class TableValue implements RefValue, CollectionValue {
         return true;
     }
 
-    /**
-     * Returns the length or the number of rows of the table.
-     *
-     * @return number of rows of the table
-     */
-    public int size() {
-        if (tableName == null) {
-            return 0;
-        }
-        return tableProvider.getRowCount(tableName);
-    }
-
     public ArrayValue getPrimaryKeys() {
         return this.primaryKeys;
     }

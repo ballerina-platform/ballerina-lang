@@ -269,8 +269,8 @@
     <test name="ballerina-observability-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
-            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
-            <!--<class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>-->
+            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
         </classes>
     </test>
 
