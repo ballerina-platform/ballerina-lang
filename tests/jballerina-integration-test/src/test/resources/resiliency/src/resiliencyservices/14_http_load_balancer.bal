@@ -27,7 +27,8 @@ http:LoadBalanceClient lbBackendEP = new({
         { url: "http://localhost:8093/mock2" },
         { url: "http://localhost:8093/mock3" }
     ],
-    timeoutInMillis: 5000
+    timeoutInMillis: 5000,
+    httpVersion: "1.1"
 });
 
 http:LoadBalanceClient lbFailoverBackendEP = new({
@@ -37,7 +38,8 @@ http:LoadBalanceClient lbFailoverBackendEP = new({
         { url: "http://localhost:8093/mock3" }
     ],
     failover: true,
-    timeoutInMillis: 2000
+    timeoutInMillis: 2000,
+    httpVersion: "1.1"
 });
 
 http:LoadBalanceClient delayedBackendEP = new({

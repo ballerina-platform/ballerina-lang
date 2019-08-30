@@ -37,7 +37,8 @@ http:FailoverClient foBackendEP02 = new({
         { url: "http://localhost:8080/echo" },
         { url: "http://localhost:8080/mock" },
         { url: "http://localhost:8080/mock" }
-    ]
+    ],
+    httpVersion: "1.1"
 });
 
 http:FailoverClient foBackendFailureEP02 = new({

@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/mime;
 
-http:Client clientEP19 = new("http://localhost:9119");
+http:Client clientEP19 = new("http://localhost:9119", { httpVersion: "1.1"} );
 
 @http:ServiceConfig {
     basePath: "/test"

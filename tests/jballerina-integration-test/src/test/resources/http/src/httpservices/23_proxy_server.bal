@@ -47,7 +47,7 @@ service proxyService on new http:Listener(9219) {
 }
 
 function defineEndpointWithProxy (string url) returns http:Client {
-    http:Client httpEndpoint = new(url);
+    http:Client httpEndpoint = new(url, { httpVersion: "1.1"} );
     return httpEndpoint;
 }
 

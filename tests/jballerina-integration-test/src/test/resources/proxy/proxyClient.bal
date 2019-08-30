@@ -23,7 +23,8 @@ http:ClientEndpointConfig clientEPConfig  = {
             host:"localhost",
             port:9219
         }
-    }
+    },
+    httpVersion: "1.1"
 };
 
 public function main (string... args) {
