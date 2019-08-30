@@ -76,8 +76,8 @@ public class MetricsTestCase extends BaseTest {
     public void testMetrics() throws Exception {
         // Test Service
         await().atMost(20, TimeUnit.SECONDS)
-                .until(() -> HttpClientRequest.doGet("http://localhost:9090/test").getData()
-                        .equals("productId=1 productName=WSO2-IAM productId=3 productName=WSO2-EI"));
+                .ignoreExceptions().until(() -> HttpClientRequest.doGet("http://localhost:9090/test")
+                .getData().equals("productId=1 productName=WSO2-IAM productId=3 productName=WSO2-EI"));
 
         // Send some requests
         int i = 0;

@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
+
 /**
  * The {@code {@link TableValue}} represents a two dimensional data set in Ballerina.
  *
@@ -199,7 +201,7 @@ public class TableValue implements RefValue, CollectionValue {
     public Object performAddOperation(MapValueImpl<String, Object> data) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), TABLE_LANG_LIB);
             }
         }
 
@@ -227,7 +229,7 @@ public class TableValue implements RefValue, CollectionValue {
     public Object performRemoveOperation() {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), TABLE_LANG_LIB);
             }
         }
         return TableUtils.createTableOperationError(new Exception("Remove operation is not supported yet"));
