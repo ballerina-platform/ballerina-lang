@@ -24,6 +24,7 @@ import java.util.Objects;
  */
 public class DefaultMetricRegistry {
 
+    static boolean isNoOp;
     private static MetricRegistry instance;
 
     /**
@@ -41,7 +42,7 @@ public class DefaultMetricRegistry {
      * @param instance A new {@link MetricRegistry} instance.
      */
     public static void setInstance(MetricRegistry instance) {
-        if (DefaultMetricRegistry.instance != null) {
+        if (!isNoOp && DefaultMetricRegistry.instance != null) {
             throw new IllegalStateException("Default Metric Registry has already been set");
         }
         DefaultMetricRegistry.instance = Objects.requireNonNull(instance);

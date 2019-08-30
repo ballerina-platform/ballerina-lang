@@ -82,9 +82,9 @@ public enum Flag {
      */
     RECORD,
     /**
-     * Temporary indicator for compensation variables.
+     * Indicator for ANONYMOUS types.
      */
-    COMPENSATE,
+    ANONYMOUS,
     /**
      * Indicates Flagged node is a abstract node.
      */

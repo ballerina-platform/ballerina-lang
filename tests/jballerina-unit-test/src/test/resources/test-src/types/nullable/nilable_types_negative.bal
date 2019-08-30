@@ -17,7 +17,7 @@
 const NIL  = "()";
 const ANY = "any";
 
-type BType NIL | ANY;
+public type BType NIL | ANY;
 
 public type BUnionType record {|
    BType[]  members;

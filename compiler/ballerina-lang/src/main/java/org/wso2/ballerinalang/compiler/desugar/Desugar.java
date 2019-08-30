@@ -41,8 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
-import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
@@ -269,7 +267,6 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
-    private IterableCodeDesugar iterableCodeDesugar;
     private ClosureDesugar closureDesugar;
     private StreamingCodeDesugar streamingCodeDesugar;
     private AnnotationDesugar annotationDesugar;
@@ -315,7 +312,6 @@ public class Desugar extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
-        this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
         this.closureDesugar = ClosureDesugar.getInstance(context);
         this.streamingCodeDesugar = StreamingCodeDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
@@ -3174,10 +3170,6 @@ public class Desugar extends BLangNodeVisitor {
         if (iExpr.functionPointerInvocation) {
             visitFunctionPointerInvocation(iExpr);
             return;
-        } else if (iExpr.iterableOperationInvocation) {
-            // TODO : Fix this.
-            visitIterableOperationInvocation(iExpr);
-            return;
         }
         iExpr.expr = rewriteExpr(iExpr.expr);
         if (iExpr.builtinMethodInvocation) {
@@ -3186,8 +3178,9 @@ public class Desugar extends BLangNodeVisitor {
         }
         result = genIExpr;
 
-        // TODO : Remove this if block. Not needed.
+
         if (iExpr.expr == null) {
+            fixTypeCastInTypeParamInvocation(iExpr, genIExpr);
             if (iExpr.exprSymbol == null) {
                 return;
             }
@@ -3196,20 +3189,11 @@ public class Desugar extends BLangNodeVisitor {
         }
         switch (iExpr.expr.type.tag) {
             case TypeTags.OBJECT:
-                List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
-                argExprs.add(0, iExpr.expr);
-                BLangAttachedFunctionInvocation attachedFunctionInvocation =
-                        new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs,
-                                                            iExpr.symbol, iExpr.type, iExpr.expr, iExpr.async);
-                attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
-                attachedFunctionInvocation.name = iExpr.name;
-                result = genIExpr = attachedFunctionInvocation;
-                break;
             case TypeTags.RECORD:
                 if (!iExpr.langLibInvocation) {
-                    argExprs = new ArrayList<>(iExpr.requiredArgs);
+                    List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                     argExprs.add(0, iExpr.expr);
-                    attachedFunctionInvocation =
+                    BLangAttachedFunctionInvocation attachedFunctionInvocation =
                             new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs, iExpr.symbol,
                                                                 iExpr.type, iExpr.expr, iExpr.async);
                     attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
@@ -3218,6 +3202,11 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 break;
         }
+
+        fixTypeCastInTypeParamInvocation(iExpr, genIExpr);
+    }
+
+    private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
 
         if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
             BType originalInvType = genIExpr.type;
@@ -3232,7 +3221,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BOperatorSymbol conversionSymbol = Symbols
                     .createCastOperatorSymbol(genIExpr.type, originalInvType, symTable.errorType, false, true,
-                                              InstructionCodes.NOP, null, null);
+                            InstructionCodes.NOP, null, null);
             BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
             conversionExpr.expr = genIExpr;
             conversionExpr.targetType = originalInvType;
@@ -4752,22 +4741,6 @@ public class Desugar extends BLangNodeVisitor {
 
         result = new BFunctionPointerInvocation(iExpr, expr);
     }
-
-    private void visitIterableOperationInvocation(BLangInvocation iExpr) {
-        IterableContext iContext = iExpr.iContext;
-        if (iContext.operations.getLast().iExpr != iExpr) {
-            result = null;
-            return;
-        }
-        for (Operation operation : iContext.operations) {
-            if (operation.iExpr.argExprs.size() > 0) {
-                operation.argExpression = rewrite(operation.iExpr.argExprs.get(0), env);
-            }
-        }
-        iterableCodeDesugar.desugar(iContext);
-        result = rewriteExpr(iContext.iteratorCaller);
-    }
-
 
     @SuppressWarnings("unchecked")
     <E extends BLangNode> E rewrite(E node, SymbolEnv env) {

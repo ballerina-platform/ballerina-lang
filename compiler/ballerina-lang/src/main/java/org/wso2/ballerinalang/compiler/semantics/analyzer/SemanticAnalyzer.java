@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -162,6 +163,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
     private static final String NULL_LITERAL = "null";
+    private static final String LEFT_BRACE = "{";
+    private static final String RIGHT_BRACE = "}";
+    private static final String SPACE = " ";
+    public static final String COLON = ":";
 
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -436,6 +441,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (!types.isAssignable(reasonType, symTable.stringType)) {
             dlog.error(errorType.reasonType.pos, DiagnosticCode.INVALID_ERROR_REASON_TYPE, reasonType);
+        } else if (errorType.reasonType != null) {
+            validateModuleQualifiedReasons(errorType.reasonType.pos, reasonType);
         }
 
         if (errorType.detailType == null) {
@@ -455,6 +462,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return symTable.stringType;
         }
         return errorType.reasonType.type;
+    }
+
+    private void validateModuleQualifiedReasons(DiagnosticPos pos, BType reasonType) {
+        switch (reasonType.tag) {
+            case TypeTags.STRING:
+                return;
+            case TypeTags.FINITE:
+                BFiniteType finiteType = (BFiniteType) reasonType;
+                for (BLangExpression expr : finiteType.valueSpace) {
+                    validateModuleQualifiedReason(pos, (String) ((BLangLiteral) expr).value);
+                }
+                return;
+            case TypeTags.UNION:
+                ((BUnionType) reasonType).getMemberTypes().forEach(type -> validateModuleQualifiedReasons(pos, type));
+        }
+    }
+
+    private void validateModuleQualifiedReason(DiagnosticPos pos, String reason) {
+        if (!reason.startsWith(LEFT_BRACE)) {
+            return;
+        }
+
+        PackageID currentPackageId = env.enclPkg.packageID;
+        if (currentPackageId.isUnnamed || reason.contains(SPACE) ||
+                !reason.startsWith(LEFT_BRACE.concat(currentPackageId.toString().split(COLON)[0])
+                                           .concat(RIGHT_BRACE))) {
+            dlog.warning(pos, DiagnosticCode.NON_MODULE_QUALIFIED_ERROR_REASON, reason);
+        }
     }
 
     public void visit(BLangAnnotation annotationNode) {

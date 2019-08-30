@@ -19,20 +19,17 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.characters.ReadCharactersEvent;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extern function ballerina/io#readCharacters.
@@ -51,35 +48,21 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class ReadCharacters {
 
+    private static final Logger log = LoggerFactory.getLogger(ReadCharacters.class);
 
     public static Object read(Strand strand, ObjectValue channel, long numberOfCharacters) {
         CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(
                 IOConstants.CHARACTER_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, (int) numberOfCharacters, eventContext);
-        Register register = EventRegister.getFactory().register(event, ReadCharacters::readCharacterResponse);
-        eventContext.setRegister(register);
-        register.submit();
-        return null;
+        if (characterChannel.hasReachedEnd()) {
+            return IOUtils.createEoFError();
+        } else {
+            try {
+                return characterChannel.read((int) numberOfCharacters);
+            } catch (BallerinaIOException e) {
+                log.error("error occurred while reading characters.", e);
+                return IOUtils.createError(e);
+            }
+        }
     }
 
-    /**
-     * Callback method of the read characters response.
-     *
-     * @param result the result returned as the response.
-     * @return the processed event result.
-     */
-    private static EventResult readCharacterResponse(EventResult<String, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        Throwable error = eventContext.getError();
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
-        } else {
-            callback.setReturnValues(result.getResponse());
-        }
-        IOUtils.validateChannelState(eventContext);
-        callback.notifySuccess();
-        return result;
-    }
 }
