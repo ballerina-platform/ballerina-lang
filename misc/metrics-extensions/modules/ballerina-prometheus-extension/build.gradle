@@ -60,7 +60,6 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':lib-creator')
     implementation project(':ballerina-http')
-    implementation project(":ballerina-system")
     implementation project(':ballerina-observability')
     implementation project(":ballerina-config-api")
     implementation project(':ballerina-math')

@@ -20,6 +20,7 @@ type Person record {
     float salary;
     string name;
     boolean married;
+    decimal amount = 1000.45;
 };
 
 type Order record {

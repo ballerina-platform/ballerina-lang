@@ -36,12 +36,12 @@ class JValues {
 
     static void rangeCheck(long index, Object[] arr) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER,
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if (index < 0 || index >= arr.length) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER,
                     RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, arr.length);
         }
     }

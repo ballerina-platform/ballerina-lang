@@ -15,7 +15,7 @@ function concatIntString(int i, string s) {
 }
 
 function concatIntJson(int i, json j) {
-    output = output + i.toString() + ":" + j.toString() + " ";
+    output = output + i.toString() + ":" + j.toJsonString() + " ";
 }
 
 function concatIntStringAny(int i, anydata a) {
@@ -29,7 +29,7 @@ function testJsonWithoutType() returns string|error {
 
     int i = 0;
     foreach var v in <map<json>>jdata.cloneReadOnly() {
-        concatIntStringAny(i, v);
+        concatIntStringAny(i, v.toJsonString());
         i += 1;
     }
     return output;
@@ -40,7 +40,7 @@ function testJsonWithType() returns string|error {
 
     int i = 0;
     foreach json v in <map<json>>jdata.cloneReadOnly() {
-        concatIntStringAny(i, v);
+        concatIntStringAny(i, v.toJsonString());
         i += 1;
     }
     return output;
@@ -117,7 +117,7 @@ function testDirectAccessInvalidElementWithoutType() returns string|error {
 
     int i = 0;
     foreach var v in <map<json>>j {
-        concatIntStringAny(i, v);
+        concatIntStringAny(i, v.toJsonString());
         i += 1;
     }
     return output;
@@ -130,7 +130,7 @@ function testDirectAccessInvalidElementWithType() returns string|error {
 
     int i = 0;
     foreach json v in <map<json>>j {
-        concatIntStringAny(i, v);
+        concatIntStringAny(i, v.toJsonString());
         i += 1;
     }
     return output;
@@ -145,10 +145,10 @@ function testIteratingCompleteJsonWithoutType() returns string|error {
     foreach var v in <map<json>>jdata.cloneReadOnly() {
         if v is json[] {
             foreach var w in v {
-                concatIntStringAny(i, w);
+                concatIntStringAny(i, w.toJsonString());
             }
         } else {
-            concatIntStringAny(i, v);
+            concatIntStringAny(i, v.toJsonString());
         }
         i += 1;
     }
@@ -162,10 +162,10 @@ function testIteratingCompleteJsonWithType() returns string|error {
     foreach json v in <map<json>>jdata.cloneReadOnly() {
         if v is json[] {
             foreach json w in v {
-                concatIntStringAny(i, w);
+                concatIntStringAny(i, w.toJsonString());
             }
         } else {
-            concatIntStringAny(i, v);
+            concatIntStringAny(i, v.toJsonString());
         }
         i += 1;
     }
@@ -181,7 +181,7 @@ function testEmptyJsonIteration() returns string|error {
 
     int i = 0;
     foreach var v in <map<json>>j.cloneReadOnly() {
-        concatIntStringAny(i, v);
+        concatIntStringAny(i, v.toJsonString());
         i += 1;
     }
     return output;

@@ -377,7 +377,7 @@ public type FuncBodyParser object {
             params[i] = dcl;
             i += 1;
         }
-        FPLoad fpLoad = {pos:pos, kind:INS_KIND_FP_LOAD, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params, 
+        FPLoad fpLoad = {pos:pos, kind:INS_KIND_FP_LOAD, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params,
             closureMaps:maps, retType:retType};
         return fpLoad;
     }

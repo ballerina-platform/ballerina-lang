@@ -416,9 +416,9 @@ matchStatement
     ;
 
 matchPatternClause
-    :   staticMatchLiterals EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   errorMatchPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   staticMatchLiterals EQUAL_GT LEFT_BRACE statement* RIGHT_BRACE
+    |   VAR bindingPattern (IF expression)? EQUAL_GT LEFT_BRACE statement* RIGHT_BRACE
+    |   errorMatchPattern (IF expression)? EQUAL_GT LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 bindingPattern
@@ -520,6 +520,7 @@ recordRefBindingPattern
 
 errorRefBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS ((variableReference (COMMA errorNamedArgRefPattern)*) | errorNamedArgRefPattern+) (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
+    |   TYPE_ERROR LEFT_PARENTHESIS errorRefRestPattern RIGHT_PARENTHESIS
     |   typeName LEFT_PARENTHESIS errorNamedArgRefPattern (COMMA errorNamedArgRefPattern)*  (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
     ;
 
