@@ -17,10 +17,14 @@
 */
 package org.ballerinalang.langserver.completion.definitions;
 
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 /**
  * Completion item tests for Top Level Resolving.
@@ -28,6 +32,11 @@ import org.testng.annotations.DataProvider;
 public class TopLevelNodeCompletionTest extends CompletionTest {
 
     private static final Logger log = LoggerFactory.getLogger(TopLevelNodeCompletionTest.class);
+
+    @Test(dataProvider = "completion-data-provider")
+    public void test(String config, String configPath) throws IOException, WorkspaceDocumentException {
+        super.test(config, configPath);
+    }
 
     @DataProvider(name = "completion-data-provider")
     @Override
