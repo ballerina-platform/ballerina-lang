@@ -1282,12 +1282,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 continue;
             }
 
-            if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_FIELD_ACCESS);
-                unresolvedReference = true;
-                continue;
-            } else if (refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_INDEX_ACCESS);
+            if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                    || refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                dlog.error(refItem.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, refItem);
                 unresolvedReference = true;
                 continue;
             }

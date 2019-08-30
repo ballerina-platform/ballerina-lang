@@ -21,10 +21,6 @@ package org.ballerinalang.stdlib.io.characters;
 import org.ballerinalang.stdlib.io.MockByteChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
-import org.ballerinalang.stdlib.io.events.EventManager;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.characters.ReadCharactersEvent;
-import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.stdlib.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -33,8 +29,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Represents the framework for reading writing characters using async io framework.
@@ -44,11 +38,6 @@ public class AsyncReadWriteTest {
      * Specifies the default directory path.
      */
     private String currentDirectoryPath = "/tmp/";
-
-    /**
-     * Will be the I/O event handler.
-     */
-    private EventManager eventManager = EventManager.getInstance();
 
     @BeforeSuite
     public void setup() {
@@ -62,35 +51,19 @@ public class AsyncReadWriteTest {
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/longChars.txt");
         Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-
-        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharactersToRead);
-        Future<EventResult> future = eventManager.publish(event);
-        EventResult eventResult = future.get();
-        String content = (String) eventResult.getResponse();
-
-        Assert.assertEquals("Ǌa", content);
+        Assert.assertEquals("Ǌa", characterChannel.read(numberOfCharactersToRead));
 
         numberOfCharactersToRead = 3;
-        event = new ReadCharactersEvent(characterChannel, numberOfCharactersToRead);
-        future = eventManager.publish(event);
-        eventResult = future.get();
-        content = (String) eventResult.getResponse();
-
-        Assert.assertEquals("bcǊ", content);
+        Assert.assertEquals("bcǊ", characterChannel.read(numberOfCharactersToRead));
 
         numberOfCharactersToRead = 4;
-        event = new ReadCharactersEvent(characterChannel, numberOfCharactersToRead);
-        future = eventManager.publish(event);
-        eventResult = future.get();
-        content = (String) eventResult.getResponse();
-
-        Assert.assertEquals("ff", content);
+        Assert.assertEquals("ff", characterChannel.read(numberOfCharactersToRead));
 
         characterChannel.close();
     }
 
     @Test(description = "Test writing characters through async io framework")
-    public void writeCharacters() throws IOException, ExecutionException, InterruptedException {
+    public void writeCharacters() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(currentDirectoryPath + "write.txt");
         Channel channel = new MockByteChannel(byteChannel);
@@ -99,11 +72,7 @@ public class AsyncReadWriteTest {
         String text = "HelloǊ";
         int numberOfBytes = text.getBytes().length;
 
-        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, text, 0);
-        Future<EventResult> future = eventManager.publish(event);
-        EventResult eventResult = future.get();
-        int numberOfCharactersWritten = (int) eventResult.getResponse();
-        Assert.assertEquals(numberOfCharactersWritten, numberOfBytes);
+        Assert.assertEquals(characterChannel.write(text, 0), numberOfBytes);
         characterChannel.close();
     }
 }

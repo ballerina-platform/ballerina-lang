@@ -52,11 +52,7 @@ public class DefinitionContextProvider extends LSCompletionProvider {
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .map(CommonToken::getType)
                 .collect(Collectors.toList());
-        
-        if (lhsDefaultTokens.contains(BallerinaParser.FUNCTION)) {
-            // proxy to function definition context
-            return this.getProvider(BallerinaParser.FunctionDefinitionContext.class).getCompletions(context);
-        }
+
         switch (lhsDefaultTokens.get(0)) {
             case BallerinaParser.PUBLIC:
                 completionItems.addAll(this.getItemsAfterPublic(context));

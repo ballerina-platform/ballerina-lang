@@ -45,15 +45,6 @@ public interface IOChannel {
 
     /**
      * <p>
-     * Specifies whether the channel is selectable.
-     * </p>
-     *
-     * @return true if the channel is selectable.
-     */
-    boolean isSelectable();
-
-    /**
-     * <p>
      * Specifies the id of the channel.
      * </p>
      *

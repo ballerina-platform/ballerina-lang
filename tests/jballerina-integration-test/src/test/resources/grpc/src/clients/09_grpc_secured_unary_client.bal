@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/grpc;
 import ballerina/io;
 
@@ -22,15 +23,15 @@ import ballerina/io;
 //    io:println(resp);
 //}
 
-function testUnarySecuredBlocking() returns (string) {
+function testUnarySecuredBlocking(string keystorePath, string truststorePath) returns (string) {
     HelloWorldBlockingClient helloWorldBlockingEp = new ("https://localhost:9099", {
         secureSocket:{
             trustStore:{
-                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password:"ballerina"
+               path: truststorePath,
+               password: "ballerina"
             },
             keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                path: keystorePath,
                 password: "ballerina"
             },
             protocol: {

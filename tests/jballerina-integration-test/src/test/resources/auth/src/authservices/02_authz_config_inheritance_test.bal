@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/config;
 import ballerina/http;
 
 auth:InboundBasicAuthProvider basicAuthProvider02 = new;
@@ -28,7 +29,7 @@ listener http:Listener listener02_1 = new(20001, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }
@@ -42,7 +43,7 @@ listener http:Listener listener02_2 = new(20002, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }
@@ -55,7 +56,7 @@ listener http:Listener listener02_3 = new(20003, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }
