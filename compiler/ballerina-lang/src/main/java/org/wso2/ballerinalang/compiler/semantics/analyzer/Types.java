@@ -753,11 +753,24 @@ public class Types {
 
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
                                                      List<TypePair> unresolvedTypes) {
-        if (source.state == BArrayState.UNSEALED) {
-            if (target.restType == null) {
+        if (!target.tupleTypes.isEmpty()) {
+            if (source.state == BArrayState.UNSEALED) {
+                // [int, int, int...] = int[] || [int, int] = int[]
                 return false;
             }
-        } else if (target.restType != null || target.tupleTypes.size() != source.size) {
+
+            if (target.restType != null && target.tupleTypes.size() > source.size) {
+                // [int, int, int...] = int[1]
+                return false;
+            }
+
+            if (target.restType == null && target.tupleTypes.size() != source.size) {
+                // [int, int] = int[1], [int, int] = int[3]
+                return false;
+            }
+
+        } else if (target.restType != null && source.state != BArrayState.UNSEALED) {
+            // [int...] = int[1]
             return false;
         }
 
@@ -1803,14 +1816,6 @@ public class Types {
         }
 
         public Boolean visit(BTupleType t, BType s) {
-            // tuples of [string...], [string, string...] can be treated as string[]
-            if (s.tag == TypeTags.ARRAY && t.restType != null) {
-                Set<BType> types = new HashSet<>(t.tupleTypes);
-                types.add(t.restType);
-                if (types.size() == 1 && types.contains(((BArrayType) s).eType)) {
-                    return true;
-                }
-            }
             if (s.tag != TypeTags.TUPLE) {
                 return false;
             }
