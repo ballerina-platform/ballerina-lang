@@ -408,7 +408,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         newTable.lhsOp.accept(this);
         newTable.columnsOp.accept(this);
         newTable.dataOp.accept(this);
-        newTable.indexColOp.accept(this);
         newTable.keyColOp.accept(this);
     }
 

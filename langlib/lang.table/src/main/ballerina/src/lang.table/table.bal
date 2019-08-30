@@ -95,6 +95,5 @@ function queryTableWithoutJoinClause(string sqlQuery, table<record {}> fromTable
 # + data - An array of record data
 type TableConfig record {|
     string[] primaryKey;
-    string[] index;
     any[] data;
 |};

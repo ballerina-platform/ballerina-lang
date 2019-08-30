@@ -49,7 +49,6 @@ public class TableValue implements RefValue, CollectionValue {
     private String tableName;
     private BStructureType constraintType;
     private ArrayValue primaryKeys;
-    private ArrayValue indices;
     private boolean tableClosed;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType type;
@@ -96,15 +95,14 @@ public class TableValue implements RefValue, CollectionValue {
         this.type = new BTableType(constraintType);
     }
 
-    public TableValue(BType type, ArrayValue indexColumns, ArrayValue keyColumns, ArrayValue dataRows) {
+    public TableValue(BType type, ArrayValue keyColumns, ArrayValue dataRows) {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
         this.tableProvider = TableProvider.getInstance();
-        this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns);
         this.constraintType = (BStructureType) constrainedType;
         this.type = new BTableType(constraintType);
         this.primaryKeys = keyColumns;
-        this.indices = indexColumns;
         //Insert initial data
         if (dataRows != null) {
             insertInitialData(dataRows);
@@ -120,20 +118,19 @@ public class TableValue implements RefValue, CollectionValue {
         String constraint = constraintType != null ? "<" + constraintType.toString() + ">" : "";
         StringBuilder tableWrapper = new StringBuilder("table" + constraint + " ");
         StringJoiner tableContent = new StringJoiner(", ", "{", "}");
-        tableContent.add(createStringValueEntry("index", indices));
-        tableContent.add(createStringValueEntry("primaryKey", primaryKeys));
+        tableContent.add(createPrimaryKeyEntry(primaryKeys));
         tableContent.add(createStringValueDataEntry());
         tableWrapper.append(tableContent.toString());
 
         return tableWrapper.toString();
     }
 
-    private String createStringValueEntry(String key, ArrayValue contents) {
+    private String createPrimaryKeyEntry(ArrayValue contents) {
         String stringValue = "[]";
         if (contents != null) {
             stringValue = contents.toString();
         }
-        return key + ": " + stringValue;
+        return "primaryKey: " + stringValue;
     }
 
     private String createStringValueDataEntry() {
@@ -313,7 +310,7 @@ public class TableValue implements RefValue, CollectionValue {
             while (cloneIterator.next()) {
                 data.add(cursor++, cloneIterator.generateNext());
             }
-            TableValue table = new TableValue(new BTableType(constraintType), this.indices, this.primaryKeys, data);
+            TableValue table = new TableValue(new BTableType(constraintType), this.primaryKeys, data);
             refs.put(this, table);
             return table;
         } finally {

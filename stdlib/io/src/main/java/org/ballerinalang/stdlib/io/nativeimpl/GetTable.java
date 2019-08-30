@@ -116,7 +116,7 @@ public class GetTable {
     private static TableValue getTable(EventContext eventContext, List records) throws BallerinaException {
         TypedescValue type = (TypedescValue) eventContext.getProperties().get(TYPE_DESC_VALUE);
         BType describingType = type.getDescribingType();
-        TableValue table = new TableValue(new BTableType(describingType), null, null, null);
+        TableValue table = new TableValue(new BTableType(describingType), null, null);
         BStructureType structType = (BStructureType) describingType;
         for (Object obj : records) {
             String[] fields = (String[]) obj;

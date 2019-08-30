@@ -2105,13 +2105,12 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand dataOp = this.env.targetOperand;
 
         tableLiteral.indexColumnsArrayLiteral.accept(this);
-        BIROperand indexColOp = this.env.targetOperand;
 
         tableLiteral.keyColumnsArrayLiteral.accept(this);
         BIROperand keyColOp = this.env.targetOperand;
 
         emit(new BIRNonTerminator.NewTable(tableLiteral.pos, tableLiteral.type, toVarRef, columnsOp, dataOp,
-                indexColOp, keyColOp));
+                keyColOp));
 
         this.env.targetOperand = toVarRef;
     }
