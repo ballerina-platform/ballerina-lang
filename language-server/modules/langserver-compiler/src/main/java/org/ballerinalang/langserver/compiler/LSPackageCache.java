@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
 import java.util.Map;
@@ -128,14 +129,24 @@ public class LSPackageCache {
         public void remove(PackageID packageID) {
             if (packageID != null) {
                 this.packageMap.forEach((key, value) -> {
-                    String alias = packageID.getName().toString();
-                    if (key.contains(alias + ":") || key.contains(alias)) {
+                    String[] split = key.split("/");
+                    String alias = (split.length > 1) ? split[1] : key;
+                    String orgName = (split.length > 1) ? split[0] : "";
+                    String name = packageID.getName().value;
+                    boolean isLangLib = Names.BALLERINA_ORG.value.equals(orgName) &&
+                            alias.startsWith(Names.LANG.value + ".");
+                    if (!isLangLib && (alias.contains(name + ":") || alias.contains(name))) {
                         this.packageMap.remove(key);
                     }
                 });
                 this.packageSymbolMap.forEach((key, value) -> {
-                    String alias = packageID.getName().toString();
-                    if (key.contains(alias + ":") || key.contains(alias)) {
+                    String[] split = key.split("/");
+                    String alias = (split.length > 1) ? split[1] : key;
+                    String orgName = (split.length > 1) ? split[0] : "";
+                    String name = packageID.getName().value;
+                    boolean isLangLib = Names.BALLERINA_ORG.value.equals(orgName) &&
+                            alias.startsWith(Names.LANG.value + ".");
+                    if (!isLangLib && (alias.contains(name + ":") || alias.contains(name))) {
                         this.packageSymbolMap.remove(key);
                     }
                 });

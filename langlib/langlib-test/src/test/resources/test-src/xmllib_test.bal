@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.xml as xmllib;
+import ballerina/lang.'xml as xmllib;
 
 xml catalog = xml `<CATALOG>
                        <CD>

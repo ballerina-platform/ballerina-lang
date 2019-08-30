@@ -75,7 +75,7 @@ public function main() {
             if (values is json[]) {
                 var uuid = values[0].uuid;
                 if (uuid is json) {
-                    log:printInfo(uuid.toString());
+                    log:printInfo(uuid.toJsonString());
                 }
             }
         } else {
@@ -94,7 +94,7 @@ public function main() {
             if (values is json[]) {
                 var uuid = values[0].uuid;
                 if (uuid is json) {
-                    log:printInfo(uuid.toString());
+                    log:printInfo(uuid.toJsonString());
                 }
             }
         } else {

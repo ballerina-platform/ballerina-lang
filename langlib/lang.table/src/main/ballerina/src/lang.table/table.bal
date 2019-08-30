@@ -20,9 +20,6 @@
 @typeParam
 type RowType map<anydata|error>;
 
-# Returns the number of members in `tbl`.
-public function length(table<map<anydata|error>> tbl) returns int = external;
-
 type TableIterator object {
 
     private table <anydata|error> m;
@@ -58,7 +55,7 @@ public function hasNext(table<record {}> dt) returns boolean = external;
 # Retrives the current row and return a record with the data in the columns.
 #
 # + return - The resulting row as a record
-public function getNext(table<record {}> dt) returns any = external;
+public function getNext(table<record {}> dt) returns record {} = external;
 
 # Add record to the table.
 #

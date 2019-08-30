@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.services.nativeimpl.request;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -37,7 +38,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.ResponseReader;
@@ -665,7 +665,7 @@ public class RequestNativeFunctionSuccessTest {
             byteChannel.close();
             return jsonData;
         } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while closing connection", e);
+            throw new BallerinaException("Error occurred while closing connection", e);
         }
     }
 

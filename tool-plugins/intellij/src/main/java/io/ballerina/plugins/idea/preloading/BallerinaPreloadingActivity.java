@@ -152,12 +152,12 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             args.add("--experimental");
         }
 
+        // Adds ballerina-specific custom LSP extensions by creating a ballerina lsp extension manager.
+        IntellijLanguageClient.addExtensionManager("bal", new BallerinaLSPExtensionManager());
+
         // Registers language server definition in the lsp4intellij lang-client library.
         IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal",
                 args.toArray(new String[0])), project);
-
-        // Adds ballerina-specific custom LSP extensions by creating a ballerina lsp extension manager.
-        IntellijLanguageClient.addExtensionManager("bal", new BallerinaLSPExtensionManager());
 
         LOG.info("Registered language server definition using Sdk path: " + sdkPath);
         return true;

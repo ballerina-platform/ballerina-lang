@@ -18,11 +18,11 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
+import ballerina/internal;
+import ballerina/lang.'int as langint;
 import ballerina/log;
 import ballerina/system;
 import ballerina/time;
-import ballerina/'lang\.int as langint;
-import ballerina/internal;
 
 map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
@@ -253,7 +253,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
-        if (!internal:hasPrefix(callback, "http://") && !internal:hasPrefix(callback, "https://")) {
+        if (!callback.startsWith("http://") && !callback.startsWith("https://")) {
             error err = error(WEBSUB_ERROR_CODE, message = "Malformed URL specified as callback");
             return err;
         }

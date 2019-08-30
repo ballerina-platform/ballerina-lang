@@ -19,6 +19,8 @@
 package org.ballerinalang.packerina.cmd;
 
 
+import com.moandjiezana.toml.Toml;
+import org.ballerinalang.toml.model.Module;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -29,22 +31,26 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 import static org.ballerinalang.packerina.cmd.Constants.ADD_COMMAND;
 
@@ -58,6 +64,7 @@ public class AddCommand implements BLauncherCmd {
     private PrintStream errStream;
     private static FileSystem jarFs;
     private static Map<String, String> env;
+    private Path homeCache;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -74,13 +81,19 @@ public class AddCommand implements BLauncherCmd {
     public AddCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
+        homeCache = RepoUtils.createAndGetHomeReposPath();
         initJarFs();
     }
 
     public AddCommand(Path userDir, PrintStream errStream) {
+        this(userDir, errStream, RepoUtils.createAndGetHomeReposPath());
+    }
+
+    public AddCommand(Path userDir, PrintStream errStream, Path homeCache) {
         this.userDir = userDir;
         this.errStream = errStream;
         initJarFs();
+        this.homeCache = homeCache;
     }
 
     private void initJarFs() {
@@ -110,7 +123,11 @@ public class AddCommand implements BLauncherCmd {
 
         if (list) {
             errStream.println("Available templates:");
-            for (String template: getTemplates()) {
+            for (String template : getTemplates()) {
+                errStream.println("    - " + template);
+            }
+            // Get templates from balos
+            for (String template : getBaloTemplates()) {
                 errStream.println("    - " + template);
             }
             return;
@@ -150,8 +167,8 @@ public class AddCommand implements BLauncherCmd {
         if (!matches) {
             CommandUtil.printError(errStream,
                     "Invalid module name : '" + moduleName + "' :\n" +
-                         "Module name can only contain alphanumerics, underscores and periods " +
-                         "and the maximum length is 256 characters",
+                            "Module name can only contain alphanumerics, underscores and periods " +
+                            "and the maximum length is 256 characters",
                     null,
                     false);
             return;
@@ -161,15 +178,15 @@ public class AddCommand implements BLauncherCmd {
         if (ProjectDirs.isModuleExist(projectPath, moduleName)) {
             CommandUtil.printError(errStream,
                     "A module already exists with the given name : '" + moduleName + "' :\n" +
-                         "Existing module path "
-                         + projectPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(moduleName),
+                            "Existing module path "
+                            + projectPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(moduleName),
                     null,
                     false);
             return;
         }
 
         // Check if the template exists
-        if (!getTemplates().contains(template)) {
+        if (!getTemplates().contains(template) && findBaloTemplate(template) == null) {
             CommandUtil.printError(errStream,
                     "Template not found, use `ballerina add --list` to view available templates.",
                     null,
@@ -191,7 +208,6 @@ public class AddCommand implements BLauncherCmd {
                 .resolve(ProjectDirConstants.SOURCE_DIR_NAME)
                 .resolve(moduleName)) + "'");
     }
-
 
     @Override
     public String getName() {
@@ -227,14 +243,99 @@ public class AddCommand implements BLauncherCmd {
             // --- tests/         <- tests for this module (e.g. unit tests)
             // ---- main_test.bal  <- test file for main
             // ---- resources/    <- resources for these tests
-
-            applyTemplate(modulePath, template);
+            if (getTemplates().contains(template)) {
+                applyTemplate(modulePath, template);
+            } else {
+                applyBaloTemplate(modulePath, template);
+            }
 
         } catch (AccessDeniedException e) {
             throw new ModuleCreateException("Insufficient Permission");
         } catch (IOException | TemplateException e) {
             throw new ModuleCreateException(e.getMessage());
         }
+    }
+
+    private void applyBaloTemplate(Path modulePath, String template) {
+        // find all balos matching org and module name.
+        Path baloTemplate = findBaloTemplate(template);
+        if (baloTemplate != null) {
+            String moduleName = getModuleName(baloTemplate);
+
+            URI zipURI = URI.create("jar:file:" + baloTemplate.toString());
+            try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+                // Copy sources
+                Path srcDir = zipfs.getPath("/src").resolve(moduleName);
+                // We do a string comparison to be efficient.
+                Files.walkFileTree(srcDir, new Copy(srcDir, modulePath));
+
+                // Copy resources
+                Path resourcesDir = zipfs.getPath("/" + ProjectDirConstants.RESOURCE_DIR_NAME);
+                Path moduleResources = modulePath.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
+                Files.createDirectories(moduleResources);
+                // We do a string comparison to be efficient.
+                Files.walkFileTree(resourcesDir, new Copy(resourcesDir, moduleResources));
+                // Copy Module.md
+                Path moduleMd = zipfs.getPath("/docs").resolve(ProjectDirConstants.MODULE_MD_FILE_NAME);
+                Path toModuleMd = modulePath.resolve(ProjectDirConstants.MODULE_MD_FILE_NAME);
+                Files.copy(moduleMd, toModuleMd, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                CommandUtil.printError(errStream,
+                        "Error while applying template : " + e.getMessage(),
+                        null,
+                        false);
+                Runtime.getRuntime().exit(1);
+            }
+        }
+    }
+
+    private String getModuleName(Path baloTemplate) {
+        Path baloName = baloTemplate.getFileName();
+        if (baloName != null) {
+            String fileName = baloName.toString();
+            return fileName.split("-")[0];
+        }
+        return "";
+    }
+
+    private Path findBaloTemplate(String template) {
+        // Split the template in to parts
+        String[] orgSplit = template.split("/");
+        String orgName = orgSplit[0].trim();
+        String moduleName = "";
+        String version = "*";
+        String modulePart = (orgSplit.length > 1) ? orgSplit[1] : "";
+        String[] moduleSplit = modulePart.split(":");
+        moduleName = moduleSplit[0].trim();
+        version = (moduleSplit.length > 1) ? moduleSplit[1].trim() : version;
+
+        String baloGlob = "glob:**/" + orgName + "/" + moduleName + "/" + version + "/*.balo";
+        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(baloGlob);
+        Path baloCache = this.homeCache.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
+        // Iterate directories
+        try (Stream<Path> walk = Files.walk(baloCache)) {
+
+            List<Path> baloList = walk
+                    .filter(pathMatcher::matches)
+                    .collect(Collectors.toList());
+
+            Collections.sort(baloList);
+            // get the latest
+            if (baloList.size() > 0) {
+                return baloList.get(baloList.size() - 1);
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            CommandUtil.printError(errStream,
+                    "Unable to read home cache",
+                    null,
+                    false);
+            Runtime.getRuntime().exit(1);
+        }
+
+
+        return homeCache.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
     }
 
     private List<String> getTemplates() {
@@ -261,6 +362,70 @@ public class AddCommand implements BLauncherCmd {
             // we will return an empty list if error.
             return new ArrayList<String>();
         }
+    }
+
+    /**
+     * Iterate home cache and search for template balos.
+     *
+     * @return list of templates
+     */
+    private List<String> getBaloTemplates() {
+        List<String> templates = new ArrayList<>();
+        // get the path to home cache
+        Path baloCache = this.homeCache.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
+        final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.balo");
+        // Iterate directories
+        try (Stream<Path> walk = Files.walk(baloCache)) {
+
+            List<Path> baloList = walk
+                    .filter(pathMatcher::matches)
+                    .filter(this::isTemplateBalo)
+                    .collect(Collectors.toList());
+
+            // Convert the balo list to string list.
+            templates = baloList.stream()
+                    .map(this::getModuleToml)
+                    .filter(o -> o != null)
+                    .map(m -> {
+                        return m.getModule_organization() + "/" + m.getModule_name();
+                    })
+                    .distinct()
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            CommandUtil.printError(errStream,
+                    "Unable to read home cache",
+                    null,
+                    false);
+            Runtime.getRuntime().exit(1);
+        }
+        // filter template modules
+        return templates;
+    }
+
+    private Module getModuleToml(Path baloPath) {
+        URI zipURI = URI.create("jar:file:" + baloPath.toString());
+        try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+            Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
+            // We do a string comparison to be efficient.
+            String content = new String(Files.readAllBytes(metaDataToml), Charset.forName("UTF-8"));
+            Toml toml = new Toml().read(content);
+            return toml.to(Module.class);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private boolean isTemplateBalo(Path baloPath) {
+        URI zipURI = URI.create("jar:file:" + baloPath.toString());
+        try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+            Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
+            // We do a string comparison to be efficient.
+            return new String(Files.readAllBytes(metaDataToml), Charset.forName("UTF-8"))
+                    .contains("template = \"true\"");
+        } catch (IOException e) {
+            // we simply ignore the balo file
+        }
+        return false;
     }
 
     private Path getTemplatePath() throws TemplateException {
@@ -293,20 +458,19 @@ public class AddCommand implements BLauncherCmd {
         private StandardCopyOption copyOption;
 
 
-        public Copy (Path fromPath, Path toPath, StandardCopyOption copyOption) {
+        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
             this.fromPath = fromPath;
             this.toPath = toPath;
             this.copyOption = copyOption;
         }
 
-        public Copy (Path fromPath, Path toPath) {
+        public Copy(Path fromPath, Path toPath) {
             this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
         }
 
         @Override
-        public FileVisitResult preVisitDirectory (Path dir, BasicFileAttributes attrs)
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
                 throws IOException {
-
             Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
             if (!Files.exists(targetPath)) {
                 Files.createDirectory(targetPath);
@@ -315,7 +479,7 @@ public class AddCommand implements BLauncherCmd {
         }
 
         @Override
-        public FileVisitResult visitFile (Path file, BasicFileAttributes attrs)
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {
 
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);

@@ -19,7 +19,6 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
@@ -53,9 +52,12 @@ public class Substring {
         }
 
         if (startIndex < 0 || endIndex > value.length()) {
-            throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    "String index out of range. Actual:" + value.length() + " requested: " + startIndex + " to " +
-                            endIndex);
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    RuntimeErrors.STRING_INDEX_OUT_OF_RANGE, value.length(), startIndex, endIndex);
+        }
+        if (endIndex < startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    RuntimeErrors.INVALID_SUBSTRING_RANGE, value.length(), startIndex, endIndex);
         }
         return value.substring((int) startIndex, (int) endIndex);
     }

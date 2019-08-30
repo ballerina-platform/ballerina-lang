@@ -107,7 +107,7 @@ public class TableLiteralSyntaxTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*", enabled = false)
+          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*")
     public void testTableAddOnConstrainedTableWithViolation() {
         BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation");
     }
@@ -116,6 +116,14 @@ public class TableLiteralSyntaxTest {
     public void testTableAddOnConstrainedTableWithViolation2() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation2");
         Assert.assertTrue((returns[0]).stringValue().contains("Unique index or primary key violation:"));
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp =
+                  ".*execute update failed: Unique index or primary key violation:.*")
+    public void testTableAddOnConstrainedTableWithViolation3() {
+        BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation3");
+        Assert.fail("Expected exception should have been thrown by this point");
     }
 
     @Test
@@ -474,40 +482,45 @@ public class TableLiteralSyntaxTest {
 
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 19);
-        BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 39, 11);
-        BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 46, 42);
-        BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in record 'Person'", 47, 10);
-        BAssertUtil.validateError(resultNegative, 3, "undefined field 'married2' in record 'Person'", 48, 9);
-        BAssertUtil.validateError(resultNegative, 4, "undefined field 'married2' in record 'Person'", 49, 9);
-        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'Person', found 'int'", 66, 10);
-        BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'Person', found 'int'", 66, 13);
-        BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 81, 5);
-        BAssertUtil.validateError(resultNegative, 8, "unknown type 'Student'", 96, 11);
-        BAssertUtil.validateError(resultNegative, 9,
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "object type not allowed as the constraint", 39, 11);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined column 'married2' for table of type 'Person'", 46, 42);
+        BAssertUtil.validateError(resultNegative, i++, "undefined field 'married2' in record 'Person'", 47, 10);
+        BAssertUtil.validateError(resultNegative, i++, "undefined field 'married2' in record 'Person'", 48, 9);
+        BAssertUtil.validateError(resultNegative, i++, "undefined field 'married2' in record 'Person'", 49, 9);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Person', found 'int'", 66, 10);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Person', found 'int'", 66, 13);
+        BAssertUtil.validateError(resultNegative, i++, "object type not allowed as the constraint", 81, 5);
+        BAssertUtil.validateError(resultNegative, i++, "unknown type 'Student'", 96, 11);
+        BAssertUtil.validateError(resultNegative, i++, "table type constraint must be a record type", 96, 25);
+        BAssertUtil.validateError(resultNegative, i++,
                                   "incompatible types: expected 'function (any) returns (boolean)', found 'function " +
                                           "(Person) returns ()'",
                                   109, 25);
-        BAssertUtil.validateError(resultNegative, 10,
+        BAssertUtil.validateError(resultNegative, i++,
                                   "column 'name' of type 'float' is not allowed as key, use an 'int' or 'string' " +
                                           "column", 131, 11);
-        BAssertUtil.validateError(resultNegative, 11,
+        BAssertUtil.validateError(resultNegative, i++,
                                   "column 'name' of type 'json' is not allowed as key, use an 'int' or 'string' column",
                                   137, 11);
-        BAssertUtil.validateError(resultNegative, 12,
+        BAssertUtil.validateError(resultNegative, i++,
                                   "field 'salary' of type '(float|int)' is not allowed as a table column", 170, 28);
-        BAssertUtil.validateError(resultNegative, 13,
+        BAssertUtil.validateError(resultNegative, i++,
                                   "field 'bar' of type 'Bar' is not allowed as a table column", 179, 31);
-        BAssertUtil.validateError(resultNegative, 14,
+        BAssertUtil.validateError(resultNegative, i++,
                                   "field 'foo' of type 'Foo' is not allowed as a table column", 188, 31);
-        BAssertUtil.validateError(resultNegative, 15,
+        BAssertUtil.validateError(resultNegative, i++,
                                   "field 'bar' of type 'error' is not allowed as a table column", 196, 31);
-        BAssertUtil.validateError(resultNegative, 16,
+        BAssertUtil.validateError(resultNegative, i++,
+                "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
+        BAssertUtil.validateError(resultNegative, i++,
                                   "field 'xArr' of type 'xml[]' is not allowed as a table column", 212, 29);
-        BAssertUtil.validateError(resultNegative, 17,
-                                  "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
-        BAssertUtil.validateError(resultNegative, 18,
+        BAssertUtil.validateError(resultNegative, i++,
                                   "cannot infer table type", 223, 14);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "table type constraint must be a record type", 233, 20);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")

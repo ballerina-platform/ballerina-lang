@@ -104,6 +104,13 @@ service backEndService on new http:Listener(9097) {
             checkpanic caller->respond();
         }
     }
+
+    @http:ResourceConfig {
+            path: "_bulk"
+    }
+    resource function respond(http:Caller caller, http:Request request) {
+        checkpanic caller->respond(checkpanic <@untainted> request.getTextPayload());
+    }
 }
 
 @http:ServiceConfig {
@@ -213,7 +220,7 @@ service testService on new http:Listener(9098) {
         if (jsonResponse is http:Response) {
             var result = jsonResponse.getJsonPayload();
             if (result is json) {
-                value = value + result.toString();
+                value = value + result.toJsonString();
             } else {
                 error err = result;
                 value = value + err.reason();
@@ -241,6 +248,68 @@ service testService on new http:Listener(9098) {
             }
         }
         checkpanic caller->respond(<@untainted> value);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/handleStringJson"
+    }
+    resource function testPostWithStringJson(http:Caller caller, http:Request request) {
+      http:Request req = new;
+      string payload = "a" + "\n" + "b" + "\n";
+      req.setJsonPayload(payload);
+      http:Response response = checkpanic clientEP2->post("/test1/_bulk", req);
+      checkpanic caller->respond(checkpanic <@untainted> response.getTextPayload());
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/handleTextAndJsonContent"
+    }
+    resource function testPostWithTextAndJsonContent(http:Caller caller, http:Request request) {
+        http:Request req = new;
+        string payload = "a" + "\n" + "b" + "\n";
+        req.setTextPayload(payload, contentType = "application/json");
+        http:Response response = checkpanic clientEP2->post("/test1/_bulk", req);
+        checkpanic caller->respond(checkpanic <@untainted> response.getTextPayload());
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/handleTextAndXmlContent"
+    }
+    resource function testPostWithTextAndXmlContent(http:Caller caller, http:Request request) {
+        http:Request req = new;
+        string payload = "a" + "\n" + "b" + "\n";
+        req.setTextPayload(payload, contentType = "text/xml");
+        http:Response response = checkpanic clientEP2->post("/test1/_bulk", req);
+        checkpanic caller->respond(checkpanic <@untainted> response.getTextPayload());
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/handleTextAndJsonAlternateContent"
+    }
+    resource function testPostWithTextAndJsonAlternateContent(http:Caller caller, http:Request request) {
+        http:Request req = new;
+        string payload = "a" + "\n" + "b" + "\n";
+        req.setTextPayload(payload, contentType = "application/json");
+        req.setJsonPayload(payload);
+        http:Response response = checkpanic clientEP2->post("/test1/_bulk", req);
+        checkpanic caller->respond(checkpanic <@untainted> response.getTextPayload());
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/handleStringJsonAlternate"
+    }
+    resource function testPostWithStringJsonAlternate(http:Caller caller, http:Request request) {
+      http:Request req = new;
+      string payload = "a" + "\n" + "b" + "\n";
+      req.setJsonPayload(payload);
+      req.setTextPayload(payload, contentType = "application/json");
+      http:Response response = checkpanic clientEP2->post("/test1/_bulk", req);
+      checkpanic caller->respond(checkpanic <@untainted> response.getTextPayload());
     }
 
     @http:ResourceConfig {
@@ -294,7 +363,7 @@ service testService on new http:Listener(9098) {
                         if (mime:APPLICATION_JSON == baseType) {
                             var payload = bodyPart.getJson();
                             if (payload is json) {
-                                value = payload.toString();
+                                value = payload.toJsonString();
                             } else {
                                 error err = payload;
                                 value = err.reason();

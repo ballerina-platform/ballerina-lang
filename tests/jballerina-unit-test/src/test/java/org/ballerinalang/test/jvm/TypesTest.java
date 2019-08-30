@@ -342,7 +342,7 @@ public class TypesTest {
     public void testGetNonExistingElement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingElement");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "{ballerina}KeyNotFound");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "{ballerina/lang.map}KeyNotFound");
 
     }
 

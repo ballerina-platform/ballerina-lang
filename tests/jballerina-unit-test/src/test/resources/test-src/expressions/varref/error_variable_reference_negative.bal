@@ -144,3 +144,9 @@ public function testOptionalDetailFields() {
 
     error(reason, message = message, other = other) = e;
 }
+
+function testDuplicateBinding() {
+    string? s;
+    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
+    error(s, message = s, detail = s) = err1;
+}

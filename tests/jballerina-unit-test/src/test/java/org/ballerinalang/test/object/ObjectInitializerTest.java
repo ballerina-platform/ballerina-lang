@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.object;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -83,16 +84,14 @@ public class ObjectInitializerTest {
                       "object initializer function can not be declared as private", 27, 4);
         validateError(result, 2, "incompatible types: expected 'Person', found '(Person|error)'", 47, 17);
         validateError(result, 3, "incompatible types: expected 'Person', found '(Person|error)'", 48, 17);
-        validateError(result, 4,
-                      "invalid object constructor for 'Person2': expected sub-type of 'error?', but found 'string?'",
-                      54, 5);
+        validateError(result, 4, "invalid object constructor return type 'string?', " +
+                              "expected a subtype of 'error?' containing '()'", 54, 31);
         validateError(result, 5,
-                      "invalid object constructor for 'Person3': expected sub-type of 'error?', but found 'error'",
-                      63, 5);
+                      "invalid object constructor return type 'error', expected a subtype of 'error?' containing '()'",
+                      63, 31);
         validateError(result, 6,
-                      "invalid object constructor for 'Person4': expected sub-type of 'error?', but found " +
-                              "'(FooErr|BarErr)'",
-                      89, 5);
+                      "invalid object constructor return type '(FooErr|BarErr)', expected a subtype of 'error?' " +
+                              "containing '()'", 89, 31);
     }
 
     @Test(description = "Test object initializer invocation")
@@ -165,5 +164,30 @@ public class ObjectInitializerTest {
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
         Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{f:\"foo\"}");
+    }
+
+    @Test(description = "Test checkpanic expression in object init expr's argument")
+    public void testCheckPanicInObjectInitArg() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCheckPanicInObjectInitArg");
+
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "Panicked");
+    }
+
+    @Test(description = "Test checkpanic expression in object init expr's argument")
+    public void testCheckPanicObjectInit() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCheckPanicObjectInit", new BValue[]{new BBoolean(true)});
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "Foo Error {f:\"foo\"}");
+
+        returns = BRunUtil.invoke(compileResult, "testCheckPanicObjectInit", new BValue[]{new BBoolean(false)});
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "Bar Error {b:\"bar\"}");
+    }
+
+    @Test(description = "Test panic in object init function")
+    public void testObjectInitPanic() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInitPanic");
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "__init panicked {}");
     }
 }

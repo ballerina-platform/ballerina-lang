@@ -60,18 +60,20 @@ public class ObjectWithPrivateFieldsNegativeTest {
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
         int i = 0;
+        // First error is in a different package
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'ChildFoo'", 5, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.__init'", 4, 32);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo'", 4, 32);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.__init'", 4, 32);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo'", 4, 32);
+
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ParentFoo.__init'", 4, 24);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo'", 4, 32);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo'", 4, 32);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.__init'", 4, 32);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.__init'", 4, 32);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 8, 13);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.__init'", 12, 43);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 12, 43);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.__init'", 16, 47);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 16, 47);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.__init'", 12, 43);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 16, 13);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 16, 47);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.__init'", 16, 47);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(compileResult, i++, "unknown type 'PrivatePerson'", 20, 5);
     }

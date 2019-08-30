@@ -32,31 +32,19 @@ import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
-import org.ballerinalang.persistence.store.StorageProvider;
 import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.ballerinalang.test.serializer.json.JsonSerializerTest;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.debug.TestDebugger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.net.URISyntaxException;
-import java.nio.channels.ByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -230,36 +218,4 @@ public class SerializationTest {
         getSRefTypesMap(serializableState).put(BMAP_KEY, value);
     }
 
-    /**
-     * Class implements @{@link StorageProvider} use as storage provider for test cases.
-     */
-    public class TestStorageProvider implements StorageProvider {
-
-        private final Logger log = LoggerFactory.getLogger(TestStorageProvider.class);
-
-        @Override
-        public void persistState(String instanceId, String stateString) {
-            serializedString = stateString;
-        }
-
-        @Override
-        public void removeActiveState(String instanceId) {
-            // nothing to do
-        }
-
-        @Override
-        public List<String> getAllSerializedStates() {
-            List<String> stateList = new LinkedList<>();
-            try {
-                ByteChannel byteChannel = TestUtil.openForReading("datafiles/checkpointing/state.json");
-                Channel channel = new MockByteChannel(byteChannel);
-                CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-                String state = characterChannel.readAll();
-                stateList.add(state);
-            } catch (IOException | URISyntaxException e) {
-                log.error(e.getMessage(), e);
-            }
-            return stateList;
-        }
-    }
 }

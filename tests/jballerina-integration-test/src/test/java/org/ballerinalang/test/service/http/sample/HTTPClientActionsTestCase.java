@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -34,42 +35,37 @@ import java.util.Map;
  */
 @Test(groups = "http-test")
 public class HTTPClientActionsTestCase extends HttpBaseTest {
+    private static final String RESPONSE_CODE_MISMATCHED = "Response code mismatched";
+    private static final String MESSAGE_CONTENT_MISMATCHED = "Message content mismatched";
+    private static final String SERVICE_URL_PART = "test2/";
     private final int servicePort = 9098;
 
     @Test
     public void testGetAction() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "test2/clientGet"));
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+                                                                                         SERVICE_URL_PART +
+                                                                                                 "clientGet"));
+        Assert.assertEquals(response.getResponseCode(), 200, RESPONSE_CODE_MISMATCHED);
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
                 TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        Assert.assertEquals(response.getData(), "HelloHelloHello", "Message content mismatched");
+        Assert.assertEquals(response.getData(), "HelloHelloHello", MESSAGE_CONTENT_MISMATCHED);
     }
 
     @Test
     public void testPostAction() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "test2/clientPostWithoutBody"));
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Error occurred while retrieving the text payload from the request",
-                            "Message content mismatched");
+        sendAndAssert("clientPostWithoutBody",
+                      "Error occurred while retrieving the text payload from the response");
     }
 
     @Test
     public void testPostActionWithBody() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "test2/clientPostWithBody"));
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Sample TextSample Xml{\"name\":\"apple\", \"color\":\"red\"}",
-                "Message content mismatched");
+        sendAndAssert("clientPostWithBody",
+                      "Sample TextSample Xml{\"name\":\"apple\", \"color\":\"red\"}");
     }
 
     @Test
     public void testPostWithBlob() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "test2/handleBinary"));
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Sample Text", "Message content mismatched");
+        sendAndAssert("handleBinary", "Sample Text");
     }
 
     @Test
@@ -77,16 +73,49 @@ public class HTTPClientActionsTestCase extends HttpBaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(servicePort,
-                "test2/handleByteChannel"), "Sample Text", headers);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Sample Text", "Message content mismatched");
+                                                                                          SERVICE_URL_PART +
+                                                                                                  "handleByteChannel"),
+                                                         "Sample Text", headers);
+        Assert.assertEquals(response.getResponseCode(), 200, RESPONSE_CODE_MISMATCHED);
+        Assert.assertEquals(response.getData(), "Sample Text", MESSAGE_CONTENT_MISMATCHED);
     }
 
     @Test
     public void testPostWithBodyParts() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "test2/handleMultiparts"));
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"name\":\"wso2\"}Hello", "Message content mismatched");
+        sendAndAssert("handleMultiparts", "{\"name\":\"wso2\"}Hello");
+    }
+
+    @Test(description = "Tests when the call to setJsonPayload is made with a string having a new line")
+    public void testPostWithStringJson() throws IOException {
+        sendAndAssert("handleStringJson", "\"a\\nb\\n\"");
+    }
+
+    @Test(description = "Tests when a call to setTextPayload is made with a string having a new line while setting " +
+            "the contentType header to application/json")
+    public void testPostWithTextAndJsonContent() throws IOException {
+        // The new line is removed by the test parser
+        sendAndAssert("handleTextAndJsonContent", "ab");
+    }
+
+    @Test(description = "Call setTextPayload with text/xml contentType for invalid xml")
+    public void testPostWithTextAndXmlContent() throws IOException {
+        sendAndAssert("handleTextAndXmlContent", "ab");
+    }
+
+    @Test(description = "Tests setTextPayload call followed by setJsonPayload call for payload string having new lines")
+    public void testPostWithTextAndJsonAlternateContent() throws IOException {
+        sendAndAssert("handleTextAndJsonAlternateContent", "\"a\\nb\\n\"");
+    }
+
+    @Test(description = "Call setJsonPayload followed by setTextPayload for payload string with new lines")
+    public void testPostWithStringJsonAlternate() throws IOException {
+        sendAndAssert("handleStringJsonAlternate", "ab");
+    }
+
+    private void sendAndAssert(String path, String expectedResponse) throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, SERVICE_URL_PART + path));
+        Assert.assertEquals(response.getResponseCode(), 200, RESPONSE_CODE_MISMATCHED);
+        Assert.assertEquals(response.getData(), expectedResponse, MESSAGE_CONTENT_MISMATCHED);
     }
 }

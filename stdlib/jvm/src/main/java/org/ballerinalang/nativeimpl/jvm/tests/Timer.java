@@ -32,9 +32,9 @@ public class Timer {
         BRuntime runtime = BRuntime.getCurrentRuntime();
 
         new Thread(() -> {
-            for (int i = 0; i <= count; i++) {
+            for (int i = 0; i < count; i++) {
                 sleep(interval);
-                runtime.invokeMethod(object, "exec");
+                runtime.invokeMethodAsync(object, "exec");
             }
         }).start();
     }

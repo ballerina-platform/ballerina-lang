@@ -1874,8 +1874,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      * @return if the invocation is blocked due to an unanalyzed invocation
      */
     private boolean visitInvokable(BLangInvokableNode invNode, SymbolEnv symbolEnv) {
-        if (analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS || invNode.symbol.taintTable == null
-                || (invNode.getKind() == NodeKind.FUNCTION && ((BLangFunction) invNode).attachedOuterFunction)) {
+        if (analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS || invNode.symbol.taintTable == null) {
             if (Symbols.isNative(invNode.symbol)
                     || (invNode.getKind() == NodeKind.FUNCTION && ((BLangFunction) invNode).interfaceFunction)) {
                 attachNativeFunctionTaintTable(invNode);

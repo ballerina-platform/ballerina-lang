@@ -23,12 +23,10 @@ import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -46,6 +44,7 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.stdlib.common.CommonTestUtils.getAbsoluteFilePath;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.EoF;
 
 /**
  * Tests I/O related functions.
@@ -203,7 +202,7 @@ public class IOTest {
 
         returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
         BError error = (BError) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(((BMap) error.getDetails()).getMap().get("message").toString()));
+        Assert.assertEquals(error.getReason(), EoF.errorCode());
         returns = BRunUtil.invoke(recordsInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");

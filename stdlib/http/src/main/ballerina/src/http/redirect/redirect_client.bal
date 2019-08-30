@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/log;
-import ballerina/internal;
 
 # Provides redirect functionality for HTTP client remote functions.
 #
@@ -121,6 +120,7 @@ public type RedirectClient client object {
     # The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
     # only for HTTP methods.
     #
+    # + httpVerb - The HTTP verb value
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
@@ -393,7 +393,7 @@ function createRedirectRequest(int statusCode, Request request) returns Request 
 }
 
 function isAbsolute(string locationUrl) returns boolean {
-    return (internal:hasPrefix(locationUrl, HTTP_SCHEME) || internal:hasPrefix(locationUrl, HTTPS_SCHEME));
+    return (locationUrl.startsWith(HTTP_SCHEME) || locationUrl.startsWith(HTTPS_SCHEME));
 }
 
 //Reset the current redirect count to 0 and set the resolved requested URI.

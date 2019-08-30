@@ -156,7 +156,7 @@ public abstract class LSCompletionProvider {
             } else if (bSymbol instanceof BConstantSymbol) {
                 completionItems.add(BConstantCompletionItemBuilder.build((BConstantSymbol) bSymbol, context));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
-                String typeName = CommonUtil.getBTypeName(symbol.type, context);
+                String typeName = CommonUtil.getBTypeName(symbol.type, context, false);
                 completionItems.add(
                         BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol, symbolInfo.getSymbolName(), typeName)
                 );
@@ -192,8 +192,13 @@ public abstract class LSCompletionProvider {
         List<CompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            if (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol)) {
-                completionItems.add(BTypeCompletionItemBuilder.build(bSymbol, symbolInfo.getSymbolName()));
+            if (((bSymbol instanceof BConstructorSymbol && Names.ERROR.equals(bSymbol.name)))
+                    || (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol))) {
+                BSymbol symbol = bSymbol;
+                if (bSymbol instanceof BConstructorSymbol) {
+                    symbol = ((BConstructorSymbol) bSymbol).type.tsymbol;
+                }
+                completionItems.add(BTypeCompletionItemBuilder.build(symbol, symbolInfo.getSymbolName()));
             }
         });
 
@@ -282,7 +287,7 @@ public abstract class LSCompletionProvider {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
         BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        List<BLangImportPackage> currentModuleImports = CommonUtil.getCurrentModuleImports(ctx);
+        List<BLangImportPackage> currentModuleImports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
         List<CompletionItem> completionItems = currentModuleImports.stream()
                 .map(pkg -> {
                     PackageID pkgID = pkg.symbol.pkgID;
@@ -613,6 +618,37 @@ public abstract class LSCompletionProvider {
                 .collect(Collectors.toList());
     }
 
+    protected boolean inFunctionReturnParameterContext(LSContext context) {
+        if (context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY) == null) {
+            return false;
+        }
+        List<Integer> defaultTokens = new ArrayList<>(context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY));
+        if (defaultTokens.isEmpty()) {
+            return false;
+        }
+        int tokenSize = defaultTokens.size();
+        if (defaultTokens.indexOf(BallerinaParser.ASSIGN) > 0) {
+            // check added to avoid the external function definition
+            // function xyz() returns int = external;
+            return false;
+        }
+        if (defaultTokens.get(0) == BallerinaParser.RETURNS) {
+            /*
+            Check for the following cases
+            Eg: function xyz() returns <cursor> {}
+                function xyz() returns in<cursor> {}
+             */
+            return true;
+        }
+
+        /*
+         Catches the following case
+         Eg: function xyz() re {}
+         */
+        return tokenSize > 2 && defaultTokens.contains(BallerinaParser.FUNCTION) &&
+                (defaultTokens.get(tokenSize - 1) == BallerinaParser.RIGHT_PARENTHESIS
+                || defaultTokens.get(tokenSize - 2) == BallerinaParser.RIGHT_PARENTHESIS);
+    }
     // Private Methods
 
     /**
@@ -712,7 +748,7 @@ public abstract class LSCompletionProvider {
         signature.append(this.getDynamicParamsSnippet(paramTypes, true, context));
         if (!(returnType.type instanceof BNilType)) {
             signature.append("returns (")
-                    .append(CommonUtil.getBTypeName(returnType.type, context))
+                    .append(CommonUtil.getBTypeName(returnType.type, context, false))
                     .append(") ");
         }
 
@@ -798,7 +834,7 @@ public abstract class LSCompletionProvider {
                     String paramPlaceHolder = "${" + paramIndex + ":" + paramName + paramIndex + "}";
                     if (withType) {
                         BType paramType = paramTypes.get(index).getTypeNode().type;
-                        paramPlaceHolder = CommonUtil.getBTypeName(paramType, context) + " " + paramPlaceHolder;
+                        paramPlaceHolder = CommonUtil.getBTypeName(paramType, context, true) + " " + paramPlaceHolder;
                     }
                     return paramPlaceHolder;
                 })
@@ -839,6 +875,9 @@ public abstract class LSCompletionProvider {
         // Add the check keyword
         CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(context);
         completionItems.add(checkKeyword);
+        // Add the checkpanic keyword
+        CompletionItem checkPanicKeyword = Snippet.KW_CHECK_PANIC.get().build(context);
+        completionItems.add(checkPanicKeyword);
         // Add the wait keyword
         CompletionItem waitKeyword = Snippet.KW_WAIT.get().build(context);
         completionItems.add(waitKeyword);

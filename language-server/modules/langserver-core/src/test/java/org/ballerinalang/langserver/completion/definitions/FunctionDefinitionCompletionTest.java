@@ -82,9 +82,6 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinWhile.json", "function"},
                 {"completionWithinTransaction.json", "function"},
                 {"completionWithinTransactionOnRetry.json", "function"},
-                {"objectAttachFunctionImpl1.json", "function"},
-                {"objectAttachFunctionImpl2.json", "function"},
-                {"objectAttachFunctionImpl3.json", "function"},
                 {"completionAfterReturn.json", "function"},
                 {"functionCompletionWithMissingImport.json", "function"},
                 {"completionWithinRecord1.json", "function"},
@@ -147,7 +144,13 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"assignmentStmt5.json", "function"},
                 {"assignmentStmt6.json", "function"},
                 {"typeofKWSuggestion.json", "function"},
-                {"typeofKWSuggestion2.json", "function"}
+                {"typeofKWSuggestion2.json", "function"},
+                {"forkJoinCompletion1.json", "function"},
+                {"forkJoinCompletion2.json", "function"},
+                {"forkJoinCompletion3.json", "function"},
+                {"forkJoinCompletion4.json", "function"},
+                {"packageContentSuggestionInvalid1.json", "function"},
+                {"errorUnionSuggestion1.json", "function"},
         };
     }
 }

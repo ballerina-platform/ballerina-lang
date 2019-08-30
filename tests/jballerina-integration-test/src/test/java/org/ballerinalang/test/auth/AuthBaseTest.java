@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.auth;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
@@ -26,6 +27,7 @@ import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Base test class for Auth integration test cases which starts/stops the Auth services as ballerina packages before
@@ -44,12 +46,20 @@ public class AuthBaseTest extends BaseTest {
         embeddedDirectoryServer = new EmbeddedDirectoryServer();
         embeddedDirectoryServer.startLdapServer(20100);
 
+        String keyStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
+                        .toString());
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "auth").getAbsolutePath();
         String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
-        String[] args = new String[]{"--config", ballerinaConfPath};
+        String[] args = new String[] { "--config", ballerinaConfPath, "--keystore=" + keyStore,
+                "--truststore=" + trustStore };
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(basePath, "authservices", args, requiredPorts);
+        serverInstance.startServer(basePath, "authservices", null, args, requiredPorts);
     }
 
     @AfterGroups(value = "auth-test", alwaysRun = true)

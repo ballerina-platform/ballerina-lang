@@ -25,4 +25,13 @@ public type ConnectionTimedOutError error<CONNECTION_TIMED_OUT, Detail>;
 public const GENERIC_ERROR = "{ballerina/io}GenericError";
 public type GenericError error<GENERIC_ERROR, Detail>;
 
-public type Error GenericError|ConnectionTimedOutError;
+public const ACCESS_DENIED_ERROR = "{ballerina/io}AccessDeniedError";
+public type AccessDeniedError error<ACCESS_DENIED_ERROR, Detail>;
+
+public const FILE_NOT_FOUND_ERROR = "{ballerina/io}FileNotFoundError";
+public type FileNotFoundError error<FILE_NOT_FOUND_ERROR, Detail>;
+
+public const END_OF_FILE_ERROR = "{ballerina/io}EoF";
+public type EofError error<END_OF_FILE_ERROR, Detail>;
+
+public type Error GenericError|ConnectionTimedOutError|AccessDeniedError|FileNotFoundError|EofError;

@@ -17,7 +17,13 @@
 package org.ballerinalang.tool.util;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.util.Comparator;
 import java.util.Locale;
+import java.util.Properties;
 
 /**
  * Utility functions used by tools.
@@ -26,26 +32,97 @@ public class OSUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
     private static final String BALLERINA_HOME_DIR = ".ballerina";
-    private static final String TOOLS_DIR = "tools";
+    private static final String BALLERINA_CONFIG = "ballerina-version";
+    private static final String BIR_CACHE = "bir_cache";
+    private static final String JAR_CACHE = "jar_cache";
 
     /**
      * Provide the path of configuration file.
      * @return File path
      */
-    public static String getToolPath() {
-        String home = System.getProperty("user.home");
+    public static String getInstalltionPath() {
+       // String home = System.getProperty("user.home");
         if (OSUtils.isWindows()) {
-            return home + File.separator + BALLERINA_HOME_DIR + File.separator + TOOLS_DIR;
+            return System.getenv("ProgramFiles") + File.separator + "Ballerina";
         } else if (OSUtils.isUnix() || OSUtils.isSolaris()) {
-            return home + File.separator + BALLERINA_HOME_DIR + File.separator + TOOLS_DIR;
+            return File.separator + "usr" + File.separator + "lib" + File.separator + "ballerina";
         } else if (OSUtils.isMac()) {
-            return home + File.separator + BALLERINA_HOME_DIR + File.separator + TOOLS_DIR;
+            return File.separator + "Library" + File.separator + "Ballerina";
         }
         return null;
     }
 
-    public static String getDistributionsPath() {
-        return getToolPath() + File.separator + "distributions";
+    /**
+     * Provide file name of executable for current operating system.
+     * @return name of the file
+     */
+    public static String getExecutableFileName() {
+        if (OSUtils.isWindows()) {
+            return "ballerina.bat";
+        } else if (OSUtils.isUnix() || OSUtils.isSolaris()) {
+            return "ballerina";
+        } else if (OSUtils.isMac()) {
+            return "ballerina";
+        }
+        return null;
+    }
+
+    public static String getBallerinaVersionFilePath() throws IOException {
+
+        String userHome = System.getProperty("user.home");
+        File file = new File(userHome + File.separator
+                + BALLERINA_HOME_DIR + File.separator + BALLERINA_CONFIG);
+
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+            InputStream inputStream = OSUtils.class.getResourceAsStream("/META-INF/tool.properties");
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            ToolUtil.setVersion(file.getPath(), properties.getProperty("ballerina.version"));
+        }
+        return System.getProperty("user.home") + File.separator
+                + BALLERINA_HOME_DIR + File.separator + BALLERINA_CONFIG;
+    }
+
+    /**
+     * Delete BIR cache directory.
+     * @param outStream output stream to indicate errors
+     * @throws IOException could occur accessing the file
+     */
+    public static void clearBirCacheLocation(PrintStream outStream) throws IOException {
+        deleteDirectory(new File(System.getProperty("user.home") + File.separator
+                + BALLERINA_HOME_DIR + File.separator + BIR_CACHE), outStream);
+    }
+
+    /**
+     * Delete jar cache directory.
+     * @param outStream output stream to indicate errors
+     * @throws IOException could occur accessing the file
+     */
+    public static void clearJarCacheLocation(PrintStream outStream) throws IOException {
+        deleteDirectory(new File(System.getProperty("user.home") + File.separator
+                + BALLERINA_HOME_DIR + File.separator + JAR_CACHE), outStream);
+    }
+
+    /**
+     * Delete provided file.
+     * @param file file needs to be deleted
+     * @param outStream output stream to indicate errors
+     * @throws IOException could occur accessing the file
+     */
+    private static void deleteDirectory(File file, PrintStream outStream) throws IOException {
+        if (file.exists()) {
+            Files.walk(file.toPath())
+                    .sorted(Comparator.reverseOrder())
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            outStream.println(file.getPath() + " cannot remove");
+                        }
+                    });
+        }
     }
 
     public static String getUserAgent(String ballerinaVersion, String toolVersion, String distributionType) {

@@ -46,7 +46,7 @@ public class BObjectType extends BStructureType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) BallerinaValues.createObjectValue(this.pkg.toString(), this.typeName);
+        return (V) BallerinaValues.createObjectValue(this.pkg, this.typeName);
     }
 
     @Override

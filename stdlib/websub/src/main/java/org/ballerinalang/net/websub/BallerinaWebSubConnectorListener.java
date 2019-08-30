@@ -23,13 +23,11 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
@@ -41,6 +39,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
+import org.ballerinalang.langlib.typedesc.ConstructFrom;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
@@ -59,7 +58,7 @@ import static org.ballerinalang.jvm.BallerinaErrors.ERROR_MESSAGE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.BALLERINA;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
@@ -79,7 +78,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATIO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_INTENT_VERIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_NOTIFICATION_REQUEST;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_ID;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_CALLER;
 import static org.ballerinalang.net.websub.WebSubUtils.getHttpRequest;
 import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
@@ -173,8 +172,14 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                         intentVerificationRequest.set(VERIFICATION_REQUEST_LEASE_SECONDS, leaseSec);
                     }
                 } catch (UnsupportedEncodingException e) {
-                    throw new BallerinaException("Error populating query map for intent verification request received: "
-                                                         + e.getMessage());
+                    log.error("Error populating query map for intent verification request received: "
+                                      + e.getMessage());
+                    HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
+                    response.waitAndReleaseAllEntities();
+                    response.setHttpStatusCode(HttpResponseStatus.NOT_FOUND.code());
+                    response.addHttpContent(new DefaultLastHttpContent());
+                    HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
+                    return;
                 }
             }
             intentVerificationRequest.set(REQUEST, httpRequest);
@@ -193,7 +198,13 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
             signatureParams[paramIndex++] = createNotification(httpRequest);
             signatureParams[paramIndex++] = true;
             if (!RESOURCE_NAME_ON_NOTIFICATION.equals(balResource.getName())) {
-                signatureParams[paramIndex++] = createCustomNotification(httpCarbonMessage, balResource, httpRequest);
+                Object customRecordOrError = createCustomNotification(httpCarbonMessage, balResource, httpRequest);
+                if (TypeChecker.getType(customRecordOrError).getTag() == TypeTags.ERROR_TAG) {
+                    log.error("Data binding failed: " + ((ErrorValue) customRecordOrError).getPrintableStackTrace());
+                    return;
+                }
+
+                signatureParams[paramIndex++] = customRecordOrError;
                 signatureParams[paramIndex] = true;
             }
         }
@@ -238,14 +249,14 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
      */
     private ObjectValue getWebSubCaller(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                         MapValue endpointConfig) {
-        ObjectValue httpServiceServer = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT,
+        ObjectValue httpServiceServer = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, HTTP_LISTENER_ENDPOINT,
                           9090, endpointConfig); // sending a dummy port here as it gets initialized later - fix
-        ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, CALLER);
+        ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, CALLER);
 
         HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
         httpServiceServer.addNativeData(HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
-        return BallerinaValues.createObjectValue(WEBSUB_PACKAGE, WEBSUB_SERVICE_CALLER, httpCaller);
+        return BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID, WEBSUB_SERVICE_CALLER, httpCaller);
     }
 
     /**
@@ -253,14 +264,14 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
      * verification request received.
      */
     private ObjectValue createIntentVerificationRequest() {
-        return BallerinaValues.createObjectValue(WEBSUB_PACKAGE, WEBSUB_INTENT_VERIFICATION_REQUEST);
+        return BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID, WEBSUB_INTENT_VERIFICATION_REQUEST);
     }
 
     /**
      * Method to create the notification request representing WebSub notifications received.
      */
     private ObjectValue createNotification(ObjectValue httpRequest) {
-        ObjectValue notification = BallerinaValues.createObjectValue(WEBSUB_PACKAGE, WEBSUB_NOTIFICATION_REQUEST);
+        ObjectValue notification = BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID, WEBSUB_NOTIFICATION_REQUEST);
         notification.set(REQUEST, httpRequest);
         return notification;
     }
@@ -268,19 +279,12 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
     /**
      * Method to create the notification request struct representing WebSub notifications received.
      */
-    private MapValue createCustomNotification(HttpCarbonMessage inboundRequest, AttachedFunction resource,
+    private Object createCustomNotification(HttpCarbonMessage inboundRequest, AttachedFunction resource,
                                               ObjectValue httpRequest) {
         BRecordType recordType = webSubServicesRegistry.getResourceDetails().get(resource.getName());
-        MapValue<String, Object> customNotification =
-                BallerinaValues.createRecordValue(recordType.getPackage().getName(), recordType.getName());
         MapValue<String, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
-        if (jsonBody != null) {
-            return JSONUtils.convertJSONToRecord(jsonBody, (BStructureType) customNotification.getType());
-        } else {
-            throw new BallerinaException("JSON payload: null. Cannot create custom notification record: "
-                                                 + recordType.getQualifiedName());
-        }
+        return ConstructFrom.convert(recordType, jsonBody);
     }
 
     /**

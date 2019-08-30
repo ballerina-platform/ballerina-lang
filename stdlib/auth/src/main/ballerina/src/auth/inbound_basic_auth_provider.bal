@@ -53,18 +53,18 @@ public type InboundBasicAuthProvider object {
         string passwordFromConfig = readPassword(username);
         boolean authenticated = false;
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
-        if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX)) {
-            if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA256)) {
+        if (passwordFromConfig.startsWith(CONFIG_PREFIX)) {
+            if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA256)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha256(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                encoding:encodeHex(crypto:hashSha256(password.toBytes())),
                                 extractHash(passwordFromConfig));
-            } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA384)) {
+            } else if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA384)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha384(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                encoding:encodeHex(crypto:hashSha384(password.toBytes())),
                                 extractHash(passwordFromConfig));
-            } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA512)) {
+            } else if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA512)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha512(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                encoding:encodeHex(crypto:hashSha512(password.toBytes())),
                                 extractHash(passwordFromConfig));
             } else {
                 authenticated = password == passwordFromConfig;

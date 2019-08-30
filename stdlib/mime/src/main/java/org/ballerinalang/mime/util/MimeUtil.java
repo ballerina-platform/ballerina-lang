@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayOutputStream;
@@ -40,7 +41,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
-import java.util.Locale;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
@@ -59,8 +59,6 @@ import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_SUB_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.MimeConstants.FORM_DATA_PARAM;
-import static org.ballerinalang.mime.util.MimeConstants.JSON_SUFFIX;
-import static org.ballerinalang.mime.util.MimeConstants.JSON_TYPE_IDENTIFIER;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
@@ -69,7 +67,7 @@ import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.MimeConstants.ONE_BYTE;
 import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PRIMARY_TYPE_FIELD;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BUFFER_SIZE;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 import static org.ballerinalang.mime.util.MimeConstants.SIZE_FIELD;
@@ -230,7 +228,7 @@ public class MimeUtil {
     }
 
     public static void setMediaTypeToEntity(ObjectValue entityStruct, String contentType) {
-        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
         MimeUtil.setContentType(mediaType, entityStruct, contentType);
         HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
     }
@@ -458,20 +456,6 @@ public class MimeUtil {
         return BallerinaErrors.createError(reason, populateMimeErrorRecord(errMsg));
     }
 
-    public static boolean isJSONContentType(ObjectValue entityStruct) {
-        String baseType;
-        try {
-            baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType == null) {
-                return false;
-            }
-            return baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_TYPE_IDENTIFIER) ||
-                    baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_SUFFIX);
-        } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
-        }
-    }
-
     public static boolean isJSONCompatible(org.ballerinalang.jvm.types.BType type) {
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
@@ -499,24 +483,35 @@ public class MimeUtil {
             return new String(((ArrayValue) dataSource).getBytes(), StandardCharsets.UTF_8);
         }
 
-        return dataSource.toString();
+        return StringUtils.getJsonString(dataSource);
     }
 
     /**
      * Check whether a given value should be serialized specifically as a JSON.
      *
      * @param value        Value to serialize
-     * @param entityRecord Entity record
+     * @param entity Entity record
      * @return flag indicating whether the given value should be serialized specifically as a JSON
      */
-    public static boolean generateAsJSON(Object value, ObjectValue entityRecord) {
+    public static boolean generateAsJSON(Object value, ObjectValue entity) {
         if (value instanceof StreamingJsonValue) {
-            // Streaming JSON should be serialized using the serialize() method.
-            // Hence returning false.
+            /* Streaming JSON should be serialized using the serialize() method. This is because there are two types
+            of JSON in Ballerina namely internally built and custom built. The custom built needs to be parsed
+            differently than the internally built. StreamingJsonValue being the custom built type it is parsed in the
+             serialize method.
+            Hence returning false.*/
             return false;
         }
 
-        return isJSONContentType(entityRecord) && isJSONCompatible(TypeChecker.getType(value));
+        return parseAsJson(entity) && isJSONCompatible(
+                TypeChecker.getType(value));
+    }
+
+    private static boolean parseAsJson(ObjectValue entity) {
+        Object parseAsJson = entity.getNativeData(MimeConstants.PARSE_AS_JSON);
+        // A data source might not exist for multipart and byteChannel. Hence the null check. If PARSE_AS_JSON is
+        // true then it indicates that the data source need to be parsed as JSON.
+        return parseAsJson != null && (boolean) entity.getNativeData(MimeConstants.PARSE_AS_JSON);
     }
 
     /**

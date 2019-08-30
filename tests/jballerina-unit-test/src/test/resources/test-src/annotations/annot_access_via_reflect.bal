@@ -13,9 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/http;
+import ballerina/lang.'object as lang;
 import ballerina/reflect;
-import ballerina/'lang\.object as lang;
 
 type Annot record {
     string foo;
@@ -46,8 +47,8 @@ service ser on lis {
         path: "testPath"
     }
     resource function res(@v2 int intVal, string strVal) returns
-                            @v3 { foo: "v41" }  @v3 { foo: "v42", bar: 2 } string {
-        return "";
+                            @v3 { foo: "v41" }  @v3 { foo: "v42", bar: 2 } () {
+        return;
     }
 }
 
