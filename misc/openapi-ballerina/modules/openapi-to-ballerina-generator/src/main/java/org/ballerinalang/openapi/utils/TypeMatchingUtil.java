@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.ballerinalang.openapi.OpenApiMesseges.BAL_KEYWORDS;
+
 /**
  * This Class will handle the type matching of a given OpenApi Object.
  */
@@ -156,15 +158,18 @@ public class TypeMatchingUtil {
                         propertyType.setPropertyType("string");
                         break;
                     case "array":
-                        ArraySchema arrayObj = (ArraySchema) schema;
-                        if (arrayObj.getItems() != null) {
-                            final Schema<?> items = arrayObj.getItems();
-                            propertyType.setIsArray(true);
-                            if (items.getType() != null) {
-                                propertyType.setPropertyType(delimeterizeUnescapedIdentifires(items.getType()));
-                            } else if (items.get$ref() != null) {
-                                final String[] referenceType = items.get$ref().split("/");
-                                propertyType.setPropertyType(delimeterizeUnescapedIdentifires(referenceType[referenceType.length - 1]));
+                        if (schema instanceof  ArraySchema) {
+                            ArraySchema arrayObj = (ArraySchema) schema;
+                            if (arrayObj.getItems() != null) {
+                                final Schema<?> items = arrayObj.getItems();
+                                propertyType.setIsArray(true);
+                                if (items.getType() != null) {
+                                    propertyType.setPropertyType(delimeterizeUnescapedIdentifires(items.getType()));
+                                } else if (items.get$ref() != null) {
+                                    final String[] referenceType = items.get$ref().split("/");
+                                    propertyType.setPropertyType(
+                                            delimeterizeUnescapedIdentifires(referenceType[referenceType.length - 1]));
+                                }
                             }
                         }
                         break;
@@ -179,7 +184,8 @@ public class TypeMatchingUtil {
                         Schema schemaObj = (Schema) schema;
                         if (schemaObj.get$ref() != null && schemaObj.get$ref().startsWith("#")) {
                             String[] ref = schemaObj.get$ref().split("/");
-                            propertyType.setPropertyType(delimeterizeUnescapedIdentifires(StringUtils.capitalize(ref[ref.length - 1])));
+                            propertyType.setPropertyType(
+                                    delimeterizeUnescapedIdentifires(StringUtils.capitalize(ref[ref.length - 1])));
                         }
                         break;
                     default:
@@ -380,10 +386,11 @@ public class TypeMatchingUtil {
 
     public static String delimeterizeUnescapedIdentifires(String identifier) {
         //check if identifier starts with a number or contains spaces in between
-        if (Character.isDigit(identifier.charAt(0)) || identifier.indexOf(".") > -1) {
+        if (Character.isDigit(identifier.charAt(0)) || identifier.indexOf(".") > -1
+                || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
             identifier = "'" + identifier;
             if (identifier.contains(".")) {
-                identifier = identifier.replaceAll("\\.","\\\\.");
+                identifier = identifier.replaceAll("\\.", "\\\\.");
             }
         }
         return identifier;
