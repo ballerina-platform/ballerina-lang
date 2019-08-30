@@ -58,7 +58,7 @@ dependencies {
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.2.1'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.2.11'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
@@ -84,7 +84,7 @@ dependencies {
     dist 'io.netty:netty-handler-proxy:4.1.39.Final'
     dist 'io.netty:netty-handler:4.1.39.Final'
     dist 'io.netty:netty-resolver:4.1.39.Final'
-    dist 'io.netty:netty-tcnative-boringssl-static:2.0.23.Final'
+    dist 'io.netty:netty-tcnative-boringssl-static:2.0.25.Final'
     dist 'io.netty:netty-transport:4.1.39.Final'
     dist 'commons-pool.wso2:commons-pool:1.5.6.wso2v1'
     dist 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'

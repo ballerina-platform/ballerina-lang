@@ -120,6 +120,6 @@ target = "java"
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static"
     version = "2.0.25.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.23.Final.jar"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.25.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
