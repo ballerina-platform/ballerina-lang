@@ -814,6 +814,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         symbolEnter.defineNode(simpleVariable, blockEnv);
                     }
                 }
+                recursivelySetFinalFlag(simpleVariable);
                 break;
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
@@ -836,11 +837,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
 
                 symbolEnter.defineNode(tupleVariable, blockEnv);
+                recursivelySetFinalFlag(tupleVariable);
                 break;
             case RECORD_VARIABLE:
                 BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
                 recordVariable.type = rhsType;
                 validateRecordVariable(recordVariable, blockEnv);
+                recursivelySetFinalFlag(recordVariable);
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
@@ -851,6 +854,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 errorVariable.type = rhsType;
                 validateErrorVariable(errorVariable);
+                recursivelySetFinalFlag(errorVariable);
                 break;
         }
     }
@@ -872,6 +876,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case RECORD_VARIABLE:
                 ((BLangRecordVariable) variable).variableList.forEach(value ->
                         recursivelyDefineVariables(value.valueBindingPattern, blockEnv));
+                break;
+        }
+    }
+
+    private void recursivelySetFinalFlag(BLangVariable variable) {
+        switch (variable.getKind()) {
+            case VARIABLE:
+                variable.symbol.flags |= Flags.FINAL;
+                break;
+            case TUPLE_VARIABLE:
+                ((BLangTupleVariable) variable).memberVariables.forEach(this::recursivelySetFinalFlag);
+                break;
+            case RECORD_VARIABLE:
+                ((BLangRecordVariable) variable).variableList.forEach(value ->
+                        recursivelySetFinalFlag(value.valueBindingPattern));
                 break;
         }
     }
