@@ -1302,9 +1302,9 @@ public class Types {
         if (type.tag != TypeTags.OBJECT) {
             return false;
         }
-        final BSymbol bSymbol = symTable.langObjectModuleSymbol.scope.lookup(Names.ABSTRACT_LISTENER).symbol;
+        final BSymbol bSymbol = symTable.langObjectModuleSymbol.scope.lookup(Names.LISTENER).symbol;
         if (bSymbol == symTable.notFoundSymbol || bSymbol.type.tag != TypeTags.OBJECT) {
-            throw new AssertionError("AbstractListener object not defined.");
+            throw new AssertionError("Listener object not defined.");
         }
         BObjectType rhsType = (BObjectType) type;
         BObjectType lhsType = (BObjectType) bSymbol.type;
