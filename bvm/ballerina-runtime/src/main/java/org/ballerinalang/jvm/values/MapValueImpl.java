@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BPackage;
@@ -41,6 +42,7 @@ import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -454,25 +456,19 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String stringValue() {
+        return stringValue(null);
+    }
+
+    @Override
+    public String stringValue(Strand strand) {
         readLock.lock();
         StringJoiner sj = new StringJoiner(" ");
         try {
-            switch (type.getTag()) {
-                case TypeTags.JSON_TAG:
-                    return getJSONString();
-                case TypeTags.MAP_TAG:
-                    // Map<json> is json.
-                    if (((BMapType) type).getConstrainedType().getTag() == TypeTags.JSON_TAG) {
-                        return getJSONString();
-                    }
-                    // Fallthrough
-                default:
-                    for (Map.Entry<K, V> kvEntry : this.entrySet()) {
-                        K key = kvEntry.getKey();
-                        V value = kvEntry.getValue();
-                        sj.add(key + "=" + getStringValue(value));
-                    }
-                    break;
+            for (Map.Entry<K, V> kvEntry : this.entrySet()) {
+                K key = kvEntry.getKey();
+                V value = kvEntry.getValue();
+                BType type = TypeChecker.getType(value);
+                sj.add(key + "=" + StringUtils.getStringValue(strand, value, type));
             }
             return sj.toString();
         } finally {

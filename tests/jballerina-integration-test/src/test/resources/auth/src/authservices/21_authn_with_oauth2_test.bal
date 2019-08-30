@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/config;
 import ballerina/oauth2;
 import ballerina/http;
 
@@ -29,6 +30,12 @@ oauth2:IntrospectionServerConfig introspectionServerConfig = {
     clientConfig: {
         auth: {
             authHandler: basicAuthHandler
+        },
+        secureSocket: {
+           trustStore: {
+               path: config:getAsString("truststore"),
+               password: "ballerina"
+           }
         }
     }
 };
@@ -41,7 +48,7 @@ listener http:Listener listener21 = new(20027, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }

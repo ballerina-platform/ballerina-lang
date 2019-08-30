@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/config;
 import ballerina/http;
 import ballerina/jwt;
 
@@ -28,14 +29,20 @@ listener http:Listener listener10_1 = new(20011, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }
 });
 
 // client will not propagate JWT
-http:Client nyseEP = new("https://localhost:20012");
+http:Client nyseEP = new("https://localhost:20012", {
+                            secureSocket: {
+                               trustStore: {
+                                   path: config:getAsString("truststore"),
+                                   password: "ballerina"
+                               }
+                            } });
 
 @http:ServiceConfig { basePath: "/passthrough" }
 service passthroughService10 on listener10_1 {
@@ -64,8 +71,8 @@ jwt:InboundJwtAuthProvider jwtAuthProvider10 = new({
     trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
+           path: config:getAsString("truststore"),
+           password: "ballerina"
         }
     }
 });
@@ -78,7 +85,7 @@ listener http:Listener listener10_2 = new(20012, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }

@@ -58,7 +58,7 @@ public class LoggerTest {
         System.setErr(original);
     }
 
-    @Test(description = "Test case for error level logging through the log API", enabled = false)
+    @Test(description = "Test case for error level logging through the log API")
     public void testLogError() throws IOException {
         consoleOutput.reset();
         final String logMsg = "Test error log";

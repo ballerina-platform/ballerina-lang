@@ -409,9 +409,9 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 242, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 256, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 257, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 258, 9);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid key: only identifiers and strings are allowed as record literal keys", 258, 10);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 258, 9);
         BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 270, 9);
         BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 274, 1);
         BAssertUtil.validateError(resultNegative, ++i,

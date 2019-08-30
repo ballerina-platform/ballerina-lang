@@ -53,18 +53,7 @@ public class IOConstants {
      */
     public static final int CHANNEL_BUFFER_SIZE = 16384;
 
-    /**
-     * Specifies the io package information.
-     */
-    public static final String IO_PACKAGE = "ballerina/io";
-
-
     public static final BPackage IO_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "io");
-
-    /**
-     * Error flag to indicate when file reaches it's end.
-     */
-    public static final String IO_EOF = "io.EOF";
 
     /**
      * Represents the base number of proto-buf.
@@ -91,7 +80,11 @@ public class IOConstants {
      */
     public enum ErrorCode {
 
-        GenericError("{ballerina/io}GenericError"), ConnectionTimedOut("{ballerina/io}ConnectionTimedOut");
+        GenericError("{ballerina/io}GenericError"),
+        ConnectionTimedOut("{ballerina/io}ConnectionTimedOut"),
+        AccessDeniedError("{ballerina/io}AccessDeniedError"),
+        FileNotFoundError("{ballerina/io}FileNotFoundError"),
+        EoF("{ballerina/io}EoF");
 
         private String errorCode;
 

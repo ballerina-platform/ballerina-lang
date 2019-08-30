@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.websub.advanced;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -26,6 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE_JSON;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE_XML;
@@ -77,6 +79,10 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+        String[] args = new String[] { "--truststore=" + trustStore };
         webSubSubscriber = new BServerInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
                                                 File.separator + "websub" + File.separator + "subscriber" +
@@ -89,7 +95,7 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
 
-        webSubSubscriber.startServer(subscriberBal, new String[0], new String[0], new int[]{WEBSUB_PORT});
+        webSubSubscriber.startServer(subscriberBal, new String[0], args, new int[]{WEBSUB_PORT});
     }
 
     @Test
