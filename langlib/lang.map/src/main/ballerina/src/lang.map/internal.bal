@@ -14,9 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Requests cancellation of a future.
-# + f - the future to be cancelled
-# This sets the cancellation flag in the strand corresponding to `f`.
-# Each time that a strand yields, it will check the cancellation flag
-# and terminate abnormally if the flag is set.
-public function cancel(future<any|error> f) returns () = external;
+# Represent the iterator type returned when `iterator` method is invoked.
+type MapIterator object {
+
+    private map<Type> m;
+
+    public function __init(map<Type> m) {
+        self.m = m;
+    }
+
+    # Return the next member in map iterator, nil if end of iterator is reached.
+    # + return - iterator result
+    public function next() returns record {|
+        Type value;
+    |}? = external;
+};

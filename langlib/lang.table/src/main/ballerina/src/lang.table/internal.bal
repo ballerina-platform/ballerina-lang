@@ -14,9 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Requests cancellation of a future.
-# + f - the future to be cancelled
-# This sets the cancellation flag in the strand corresponding to `f`.
-# Each time that a strand yields, it will check the cancellation flag
-# and terminate abnormally if the flag is set.
-public function cancel(future<any|error> f) returns () = external;
+# Represent the iterator type returned when `iterator` method is invoked.
+type TableIterator object {
+
+    private table <anydata|error> m;
+
+    public function __init(table<anydata|error> m) {
+        self.m = m;
+    }
+
+    public function next() returns record {|
+        RowType value;
+    |}? = external;
+};
