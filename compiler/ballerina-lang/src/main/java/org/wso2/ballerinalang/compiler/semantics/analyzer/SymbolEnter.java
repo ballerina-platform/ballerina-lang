@@ -256,7 +256,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 symbol.scope = pkgSymbol.scope;
                 unresolvedPkg.symbol = symbol;
                 Name pkgAlias = names.fromIdNode(unresolvedPkg.alias);
-                this.env.scope.define(pkgAlias, symbol);
+                pkgEnv.scope.define(pkgAlias, symbol);
             }
         }
 

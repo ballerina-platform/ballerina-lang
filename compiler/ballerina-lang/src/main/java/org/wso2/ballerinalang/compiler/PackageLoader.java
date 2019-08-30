@@ -199,23 +199,34 @@ public class PackageLoader {
         RepoNode homeCacheNode;
 
         if (offline) {
-            homeCacheNode = node(homeBirRepo,
-                                node(homeBaloCache,
-                                    node(homeCacheRepo,
-                                        node(systemBirRepo,
-                                            node(systemZipRepo)))));
+            homeCacheNode = node(homeBaloCache,
+                                node(homeCacheRepo,
+                                    node(systemBirRepo,
+                                        node(systemZipRepo))));
         } else {
-            homeCacheNode = node(homeBirRepo,
-                                node(homeBaloCache,
-                                    node(homeCacheRepo,
-                                        node (systemBirRepo,
-                                            node(systemZipRepo,
-                                                node(remoteRepo,
-                                                    node(homeBaloCache,
-                                                        node(systemBirRepo,
-                                                            node(secondarySystemRepo)))))))));
+            homeCacheNode = node(homeBaloCache,
+                                node(homeCacheRepo,
+                                    node (systemBirRepo,
+                                        node(systemZipRepo,
+                                            node(remoteRepo,
+                                                node(homeBaloCache,
+                                                    node(systemBirRepo,
+                                                        node(secondarySystemRepo))))))));
         }
         
+        if (null != this.manifest) {
+            // Skip checking home bir cache if there are dependencies to be resolved by path. This is because when a
+            // module is resolved by BIR, it cannot resolve it's imports using BALO source. This happens when replacing
+            // transitive dependencies using balo path.
+            Optional<Dependency> pathDependency = this.manifest.getDependencies().stream()
+                    .filter(dep -> null != dep.getMetadata())
+                    .filter(dep -> null != dep.getMetadata().getPath())
+                    .findAny();
+            if (!pathDependency.isPresent()) {
+                homeCacheNode = node(homeBirRepo, homeCacheNode);
+            }
+        }
+    
         // If lock file is not there, fist check in central.
         if (!this.offline && this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
             homeCacheNode = node(remoteDryRepo, homeCacheNode);
