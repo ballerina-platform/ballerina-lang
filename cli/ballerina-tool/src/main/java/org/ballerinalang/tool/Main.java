@@ -109,6 +109,11 @@ public class Main {
             cmdParser.addSubcommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
             encryptCmd.setParentCmdParser(cmdParser);
 
+            // Ballerina Self Update Command
+            SelfUpdateCmd selfUpdateCmd = new SelfUpdateCmd();
+            cmdParser.addSubcommand(BallerinaCliCommands.SELF_UPDATE, selfUpdateCmd);
+            selfUpdateCmd.setParentCmdParser(cmdParser);
+
             //DistCmd Command
             DistCmd distCmd = new DistCmd();
             CommandLine distCmdParser = new CommandLine(distCmd);
@@ -383,6 +388,63 @@ public class Main {
         }
     }
 
+
+    /**
+     * This class represents the "self-update" command and it holds arguments and flags specified by the user.
+     *
+     * @since 1.0.0
+     */
+    @CommandLine.Command(name = "self-update", description = "Updates Ballerina tool itself")
+    private static class SelfUpdateCmd implements BLauncherCmd {
+
+        @CommandLine.Parameters(description = "Command name")
+        private List<String> selfUpdateCommands;
+
+        @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
+        private boolean helpFlag;
+
+        private CommandLine parentCmdParser;
+
+        public void execute() {
+            if (helpFlag) {
+                printUsageInfo(BallerinaCliCommands.SELF_UPDATE);
+                return;
+            }
+
+            if (selfUpdateCommands == null) {
+                ToolUtil.selfUpdate(outStream);
+                return;
+            } else if (selfUpdateCommands.size() > 1) {
+                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
+            }
+
+            String userCommand = selfUpdateCommands.get(0);
+            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
+            }
+        }
+
+        @Override
+        public String getName() {
+            return BallerinaCliCommands.SELF_UPDATE;
+        }
+
+        @Override
+        public void printLongDesc(StringBuilder out) {
+
+        }
+
+        @Override
+        public void printUsage(StringBuilder out) {
+            out.append("  ballerina self-update\n");
+        }
+
+        @Override
+        public void setParentCmdParser(CommandLine parentCmdParser) {
+            this.parentCmdParser = parentCmdParser;
+        }
+    }
+
     /**
      * Represents the encrypt command which can be used to make use of the AES cipher tool. This is for the users to be
      * able to encrypt sensitive values before adding them to config files.
@@ -564,7 +626,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina list\n");
+            out.append("  ballerina dist list\n");
         }
 
         @Override
@@ -622,7 +684,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  install update\n");
+            out.append("  ballerina dist pull\n");
         }
 
         @Override
@@ -680,7 +742,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  install update\n");
+            out.append("  ballerina dist use\n");
         }
 
         @Override
@@ -712,7 +774,7 @@ public class Main {
             }
 
             if (updateCommands == null) {
-                ToolUtil.update(outStream, BallerinaCliCommands.VERSION);
+                ToolUtil.update(outStream);
                 return;
             } else if (updateCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
@@ -736,7 +798,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina update\n");
+            out.append("  ballerina dist update\n");
         }
 
         @Override
@@ -794,7 +856,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina remove\n");
+            out.append("  ballerina dist remove\n");
         }
 
         @Override

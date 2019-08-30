@@ -248,8 +248,9 @@ public class ToolUtil {
         }
     }
 
-    public static void update(PrintStream printStream, String version) {
+    public static void update(PrintStream printStream) {
         try {
+            String version = getCurrentBallerinaVersion();
             List<String> versions = new ArrayList<>();
             MapValue distributions = getDistributions();
             for (int i = 0; i < distributions.getArrayValue("list").size(); i++) {
@@ -259,12 +260,19 @@ public class ToolUtil {
             Version currentVersion = new Version(version);
             String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
             if (!latestVersion.equals(version)) {
-                install(printStream, latestVersion);
+                install(printStream, BALLERINA_TYPE + "-" + latestVersion);
                 use(printStream, latestVersion);
+            } else {
+                printStream.println("No update found");
             }
         } catch (IOException | KeyManagementException | NoSuchAlgorithmException e) {
             printStream.println("Cannot connect to the central server");
         }
+    }
+
+    public static void selfUpdate(PrintStream printStream) {
+        printStream.println("Self update service is not availalble. " +
+                "Please visit https://ballerina.io/downloads/ to get latest tools");
     }
 
     public static void remove(PrintStream outStream, String version) {
