@@ -15,21 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.ballerinalang.jvm.services;
 
-package org.ballerinalang.cli.utils;
-
-import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.jvm.annotation.JavaSPIService;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.services.spi.EmbeddedExecutor;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.ArgumentParser;
 import org.ballerinalang.jvm.util.RuntimeUtils;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.spi.EmbeddedExecutor;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -41,9 +40,9 @@ import java.util.function.Function;
  *
  * @since 0.964
  */
-@JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
+@JavaSPIService("org.ballerinalang.jvm.services.spi.EmbeddedExecutor")
 public class JVMEmbeddedExecutor implements EmbeddedExecutor {
-
+    
     /**
      * {@inheritDoc}
      */
@@ -60,7 +59,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             return Optional.of(e);
         }
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -77,7 +76,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             return Optional.of(e);
         }
     }
-
+    
     /**
      * Executes the __start_ function of the module.
      *
@@ -93,7 +92,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             Function<Object[], Object> func = objects -> {
                 try {
                     return initMethod.invoke(null, objects[0]);
-
+                
                 } catch (InvocationTargetException e) {
                     throw (RuntimeException) e.getTargetException();
                 } catch (IllegalAccessException e) {
@@ -121,7 +120,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             throw new RuntimeException("Error while invoking main function: " + moduleName, e);
         }
     }
-
+    
     /**
      * Executes the <module_name>.main function of a module.
      *
@@ -142,12 +141,12 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                                     "%1",
                                     new BArrayType(BTypes.typeString, stringArgs.length))
                     }, stringArgs, true);
-
+            
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
                 try {
                     return mainMethod.invoke(null, entryFuncArgs);
-
+                    
                 } catch (InvocationTargetException e) {
                     throw (RuntimeException) e.getTargetException();
                 } catch (IllegalAccessException e) {
@@ -175,7 +174,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             throw new RuntimeException("Error while invoking main function: " + moduleName, e);
         }
     }
-
+    
     /**
      * Executes the __init_ function of the module.
      *
@@ -191,7 +190,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             Function<Object[], Object> func = objects -> {
                 try {
                     return initMethod.invoke(null, objects[0]);
-
+                
                 } catch (InvocationTargetException e) {
                     throw (RuntimeException) e.getTargetException();
                 } catch (IllegalAccessException e) {
