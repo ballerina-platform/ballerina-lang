@@ -1715,7 +1715,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        /* ignore */
         analyzeExpr(fieldAccessExpr.expr);
         if (fieldAccessExpr.expr.type.tag == TypeTags.XML) {
             checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, fieldAccessExpr.pos);
