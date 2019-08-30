@@ -1242,12 +1242,16 @@ public class CommonUtil {
      * @return random argument name
      */
     public static String generateVariableName(BType bType, Set<String> names) {
-        return generateVariableName(1, bType.name.getValue(), names);
+        String value = bType.name.getValue();
+        if (value.isEmpty() && bType.tsymbol != null) {
+            value = bType.tsymbol.name.value;
+        }
+        return generateVariableName(1, value, names);
     }
 
     private static String generateVariableName(int value, String name, Set<String> names) {
         String newName = generateName(value, names);
-        if (value == 1) {
+        if (value == 1 && !name.isEmpty()) {
             newName = name;
             BiFunction<String, String, String> replacer = (search, text) ->
                     (text.startsWith(search)) ? text.replaceFirst(search, "") : text;
