@@ -23,6 +23,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,9 +77,11 @@ public class EntityBodyReceived implements ListenerState {
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        listenerReqRespStateManager.state
-                = new SendingHeaders(listenerReqRespStateManager, outboundResponseListener);
-        listenerReqRespStateManager.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
+        if (outboundResponseMsg.getHttpStatusCode() != HttpResponseStatus.CONTINUE.code()) {
+            listenerReqRespStateManager.state
+                    = new SendingHeaders(listenerReqRespStateManager, outboundResponseListener);
+            listenerReqRespStateManager.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
+        }
     }
 
     @Override

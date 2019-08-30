@@ -24,6 +24,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,9 +112,11 @@ public class ReceivingEntityBody implements ListenerState {
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // If this method is called, it's an application error. Connection needs to be closed once the response is sent.
-        respondToIncompleteRequest(sourceHandler.getInboundChannelContext().channel(), outboundResponseListener,
-                                   listenerReqRespStateManager, outboundResponseMsg, httpContent,
-                                   REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
+        if (outboundResponseMsg.getHttpStatusCode() != HttpResponseStatus.CONTINUE.code()) {
+            respondToIncompleteRequest(sourceHandler.getInboundChannelContext().channel(), outboundResponseListener,
+                                       listenerReqRespStateManager, outboundResponseMsg, httpContent,
+                                       REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
+        }
     }
 
     @Override
