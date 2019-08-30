@@ -347,23 +347,4 @@ public class TableProvider {
                     .createTableOperationError("error in releasing table connection resource : " + e.getMessage());
         }
     }
-
-    public int getRowCount(String tableName) {
-        Statement stmt = null;
-        Connection conn = this.getConnection();
-        try {
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(TableConstants.SQL_COUNT + tableName);
-            int rowCount = 0;
-            if (rs.next()) {
-                rowCount = rs.getInt(1);
-            }
-            return rowCount;
-        } catch (SQLException e) {
-            throw TableUtils.createTableOperationError(
-                    "error in executing statement to get the count : " + stmt + " error:" + e.getMessage());
-        } finally {
-            releaseResources(conn, stmt);
-        }
-    }
 }

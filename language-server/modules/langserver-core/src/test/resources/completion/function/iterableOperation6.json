@@ -38,20 +38,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "length()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns the number of members in `tbl`.  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "length()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "hasNext()(boolean)",
       "kind": "Function",
       "detail": "Function",
