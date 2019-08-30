@@ -66,7 +66,7 @@ type Baz record {|
 function testAmbiguousTargetType() returns boolean {
     Foo f = { s: "test string" };
     Bar|Baz|error bbe = (Bar|Baz).constructFrom(f);
-    return bbe is error && bbe.reason() == "{ballerina}ConversionError" &&
+    return bbe is error && bbe.reason() == "{ballerina/lang.typedesc}ConversionError" &&
             bbe.detail()?.message == "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type";
 }
 
@@ -144,7 +144,7 @@ function testConstructFromSuccessWithMoreThanOneNumericTarget() returns boolean 
 function testConstructFromFailureWithAmbiguousNumericConversionTarget() returns boolean {
     int[] i = [1, 2];
     (float|decimal|boolean)[]|error j = (float|decimal|boolean)[].constructFrom(i); // two possible conversion types
-    return j is error && j.reason() == "{ballerina}ConversionError" &&
+    return j is error && j.reason() == "{ballerina/lang.typedesc}ConversionError" &&
             j.detail()?.message == "'int[]' value cannot be converted to 'float|decimal|boolean[]'";
 }
 
