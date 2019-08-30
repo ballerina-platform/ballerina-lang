@@ -99,7 +99,8 @@ public class Manifest {
             }
             // Check if it is a valid platform
             if (!(Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS).anyMatch(platform.getTarget()::equals))) {
-                throw new BLangCompilerException("Platform target is not supported by installed Ballerina distribution." +
+                throw new BLangCompilerException("Platform target is not " +
+                        "supported by installed Ballerina distribution." +
                         "\nSupported platforms : " + supportedPlatforms());
             }
             // Check if module have platform specific libraries
