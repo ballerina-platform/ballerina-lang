@@ -135,7 +135,7 @@ public class LockFileTestCase extends BaseTest {
         String module2PushMsg = orgName + "/" + module2Name + ":1.0.0 [project repo -> central]";
         LogLeecher module1PushLeecher = new LogLeecher(module1PushMsg);
         LogLeecher module2PushLeecher = new LogLeecher(module2PushMsg);
-        balClient.runMain("push", new String[]{}, envVariables, new String[]{},
+        balClient.runMain("push", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{module1PushLeecher, module2PushLeecher}, testProj1Path.toString());
         module1PushLeecher.waitForText(5000);
         module2PushLeecher.waitForText(5000);
@@ -241,7 +241,7 @@ public class LockFileTestCase extends BaseTest {
         String module2PushMsg = orgName + "/" + module2Name + ":1.2.0 [project repo -> central]";
         LogLeecher module1PushLeecher = new LogLeecher(module1PushMsg);
         LogLeecher module2PushLeecher = new LogLeecher(module2PushMsg);
-        balClient.runMain("push", new String[]{}, envVariables, new String[]{},
+        balClient.runMain("push", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{module1PushLeecher, module2PushLeecher}, testProj1Path.toString());
         module1PushLeecher.waitForText(5000);
         module2PushLeecher.waitForText(5000);

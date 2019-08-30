@@ -113,7 +113,7 @@ public class PushCommand implements BLauncherCmd {
             PushUtils.pushModules(Collections.singletonList(moduleName), sourceRootPath);
         } else if (argList == null || argList.size() == 0) {
             CommandUtil.printError(errStream,
-                    "Push command requires the name of a module. To push all modules use '-a' or '--all' flag.",
+                    "Push command requires the name of the module. To push all modules use '-a' or '--all' flag.",
                     "ballerina push {<module-name> | -a | --all}",
                     false);
             Runtime.getRuntime().exit(1);
