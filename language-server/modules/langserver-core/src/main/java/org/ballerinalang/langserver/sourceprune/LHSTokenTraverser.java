@@ -170,7 +170,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             this.processToken(token);
             this.forcedProcessedToken = true;
             // If we return true, then always we need to check the right parenthesis count and the right braces count
-            return !this.capturedAssignToken && this.rightParenthesisCount == 0 && this.rightBraceCount == 0;
+            return !this.removeFunctionSignatureOnReturnKWMatch(tokenStream) && this.rightParenthesisCount == 0
+                    && this.rightBraceCount == 0;
         }
         // Handle the ON token replacing since this is used in both service and JSON streaming input
         boolean onServiceRule = CommonUtil.getNDefaultTokensToLeft(tokenStream, 2, token.getTokenIndex()).stream()
@@ -183,5 +184,44 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         }
         
         return rightParenthesisCount == 0 && this.rightBraceCount == 0 && rightBracketCount == 0;
+    }
+    
+    private boolean removeFunctionSignatureOnReturnKWMatch(TokenStream tokenStream) {
+        List<CommonToken> processedDefaultTokens = this.processedTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        int processedTokenSize = processedDefaultTokens.size();
+        if (this.capturedAssignToken) {
+            return true;
+        }
+        if (processedTokenSize <= 2) {
+            /*
+            Captures the following
+            Eg: function hello() returns
+                function hello() returns a
+                tokens upto returns keyword removed from RHS
+                Same applies for worker
+             */
+            Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream,
+                    processedDefaultTokens.get(0).getTokenIndex());
+            return nextDefaultToken.isPresent() && nextDefaultToken.get().getType() != BallerinaParser.ASSIGN
+                    && nextDefaultToken.get().getType() != BallerinaParser.LEFT_BRACE;
+        }
+        if (processedTokenSize <= 4) {
+            /*
+            Captures the following
+            Eg: function hello() returns
+                function hello() returns a
+                tokens upto returns keyword removed from RHS
+                Same applies for worker
+             */
+
+            Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream,
+                    processedDefaultTokens.get(0).getTokenIndex());
+            return nextDefaultToken.isPresent() && nextDefaultToken.get().getType() != BallerinaParser.ASSIGN
+                    && nextDefaultToken.get().getType() != BallerinaParser.LEFT_BRACE;
+        }
+        
+        return false;
     }
 }
