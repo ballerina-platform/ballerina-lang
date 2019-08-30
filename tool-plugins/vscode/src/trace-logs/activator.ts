@@ -38,7 +38,7 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
     // Create and show a new webview
     traceLogsPanel = window.createWebviewPanel(
         'ballerinaNetworkLogs',
-        "Ballerina Network logs",
+        "Ballerina HTTP Trace Logs",
         { viewColumn: ViewColumn.Two, preserveFocus: true } ,
         getCommonWebViewOptions()
     );
@@ -127,7 +127,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         });
     })
     .catch((e) => {
-        window.showErrorMessage('Could not start network logs feature',e.message);
+        window.showErrorMessage('Could not start HTTP logs feature', e.message);
     });
 
     const traceRenderer = commands.registerCommand('ballerina.showTraces', () => {
@@ -147,6 +147,6 @@ function updateStatus() {
         return;
     }
     const count = traces.getTraces().length;
-    status!.text = `$(mirror) ${count} Ballerina network logs`;
+    status!.text = `$(mirror) ${count} Ballerina HTTP Trace Logs`;
     status!.show();
 }

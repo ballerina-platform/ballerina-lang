@@ -31,6 +31,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
+
 /**
  * Perform deep modification of the clone of input value so it will be look like target type.
  *
@@ -50,7 +52,7 @@ public class SimpleValueConvert {
         org.ballerinalang.jvm.types.BType targetType = typedescValue.getDescribingType();
         if (inputValue == null && targetType.getTag() != TypeTags.STRING_TAG) {
             return BallerinaErrors
-                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
+                    .createError(BALLERINA_PREFIXED_CONVERSION_ERROR,
                                  org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
                                          .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
                                                                   .CANNOT_CONVERT_NIL, targetType));

@@ -111,7 +111,7 @@ public class Scheduler {
     }
 
     public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
-        return schedule(params, fp.getConsumer(), parent);
+        return schedule(params, fp.getConsumer(), parent, null);
     }
 
     /**
@@ -149,10 +149,11 @@ public class Scheduler {
      * @param params   - parameters to be passed to the function
      * @param consumer - consumer to be executed
      * @param parent   - parent strand that makes the request to schedule another
+     * @param callback - to notify any listener when ever the execution of the given function is finished
      * @return - Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent) {
-        FutureValue future = createFuture(parent, null, null, BTypes.typeNull);
+    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback) {
+        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;

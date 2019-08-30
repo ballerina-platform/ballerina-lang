@@ -22,14 +22,14 @@ import { getLibraryWebViewContent, getComposerWebViewOptions } from '../utils';
 import { ConstructIdentifier } from 'src/core';
 
 export function render (context: ExtensionContext, langClient: ExtendedLangClient,
-    options: {currentUri: string, sourceRootUri?: string, construct?: ConstructIdentifier},
+    options: {currentUri?: string, sourceRootUri?: string, construct?: ConstructIdentifier},
     retries: number = 1)
         : string {
    return renderDiagram(context, options);
 }
 
 function renderDiagram(context: ExtensionContext,
-    constructIdentifier: {currentUri: string, sourceRootUri?: string, construct?: ConstructIdentifier}): string {
+    constructIdentifier: {currentUri?: string, sourceRootUri?: string, construct?: ConstructIdentifier}): string {
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"></div>
     `;

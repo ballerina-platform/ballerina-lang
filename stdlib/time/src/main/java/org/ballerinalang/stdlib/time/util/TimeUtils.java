@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.time.util;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -28,6 +29,7 @@ import java.time.zone.ZoneRulesException;
 import java.util.Date;
 import java.util.TimeZone;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
@@ -37,6 +39,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
  */
 public class TimeUtils {
     private static final String TIME_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "time";
+    private static final BPackage TIME_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "time");
     private static final String STRUCT_TYPE_TIME = "Time";
     private static final String STRUCT_TYPE_TIMEZONE = "TimeZone";
 
@@ -68,11 +71,11 @@ public class TimeUtils {
     }
 
     public static MapValue<String, Object> getTimeZoneRecord() {
-        return BallerinaValues.createRecordValue(TIME_PACKAGE_PATH, STRUCT_TYPE_TIMEZONE);
+        return BallerinaValues.createRecordValue(TIME_PACKAGE_ID, STRUCT_TYPE_TIMEZONE);
     }
 
     public static MapValue<String, Object> getTimeRecord() {
-        return BallerinaValues.createRecordValue(TIME_PACKAGE_PATH, STRUCT_TYPE_TIME);
+        return BallerinaValues.createRecordValue(TIME_PACKAGE_ID, STRUCT_TYPE_TIME);
     }
 
     public static ErrorValue getTimeError(String message) {

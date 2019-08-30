@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
@@ -29,8 +29,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
-import org.ballerinalang.openapi.utils.GeneratorConstants;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.util.TesterinaUtils;
@@ -68,6 +66,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         String moduleName = ctx.getStringArgument(0);
         String openApiFilePath = ctx.getStringArgument(1);
+        String userDir = System.getProperty("user.dir");
 
         //TODO : validate for duplicate module in the source which can conflict with mock module
         String sourceRoot = System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT);
@@ -77,10 +76,10 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
         generator.setSrcPackage(moduleName);
 
         try {
-            generator.generate(GeneratorConstants.GenType.GEN_SERVICE, openApiFilePath, rootDir.toString());
-
+            // TODO: find how to give the service name in to service generation function.
+            generator.generateService(userDir, openApiFilePath, "", "", rootDir.toString());
         } catch (IOException | BallerinaOpenApiException e) {
-            throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to generate the "
+            throw new BallerinaException(String.format("Service skeleton creation failed. Failed to generate the "
                     + "service from the [OpenApi file] %s [cause] %s", openApiFilePath, e.getMessage()), e);
         }
 
@@ -111,8 +110,8 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
             try {
                 Files.createDirectories(projectRoot);
             } catch (IOException e) {
-                throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to create " +
-                               "[.ballerina] %s [cause] %s", projectRoot.toString(), e.getMessage()), e);
+                throw new BallerinaException(String.format("Service skeleton creation failed. Failed to create " +
+                        "[.ballerina] %s [cause] %s", projectRoot.toString(), e.getMessage()), e);
             }
         }
     }

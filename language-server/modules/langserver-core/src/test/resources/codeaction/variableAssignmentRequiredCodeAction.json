@@ -1,26 +1,20 @@
 {
-  "range": {
-    "start": {
-      "line": 3,
-      "character": 3
-    },
-    "end": {
-      "line": 3,
-      "character": 3
-    }
-  },
+  "line": 3,
+  "character": 4,
   "expected": {
     "title": "Create Local Variable",
-    "command": "CREATE_VAR",
-    "arguments": [
-      {
-        "argumentK":"node.line",
-        "argumentV":"3"
+    "edit": {
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 3
+        },
+        "end": {
+          "line": 3,
+          "character": 3
+        }
       },
-      {
-        "argumentK":"node.column",
-        "argumentV":"3"
-      }
-    ]
+      "newText": "int twoIntegers = "
+    }
   }
 }

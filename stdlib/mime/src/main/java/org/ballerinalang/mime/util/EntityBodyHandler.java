@@ -30,7 +30,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.jvnet.mimepull.MIMEPart;
 
 import java.io.ByteArrayInputStream;
@@ -104,14 +103,33 @@ public class EntityBodyHandler {
     }
 
     /**
+     * Since JSON is a union of multiple data types. There is no specific data source for JSON. Hence use this method to
+     * add JSON data source which tracks the JSON type using a flag.
+     *
+     * @param entityObj         Represent the ballerina entity
+     * @param messageDataSource which represent the entity body in memory
+     */
+    public static void addJsonMessageDataSource(ObjectValue entityObj, Object messageDataSource) {
+        setParseJsonAndDataSource(entityObj, messageDataSource, true);
+    }
+
+    /**
      * Associate a given message data source with a given entity.
      *
      * @param entityObj      Represent the ballerina entity
      * @param messageDataSource which represent the entity body in memory
      */
     public static void addMessageDataSource(ObjectValue entityObj, Object messageDataSource) {
+        setParseJsonAndDataSource(entityObj, messageDataSource, false);
+    }
+
+    private static void setParseJsonAndDataSource(ObjectValue entityObj, Object messageDataSource, boolean json) {
+        /* specifies whether the type of the datasource is json. This is necessary because json is a union of
+         * different data types and is not a single data type.*/
+        entityObj.addNativeData(MimeConstants.PARSE_AS_JSON, json);
         entityObj.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
+
 
     /**
      * Construct BlobDataSource from the underneath byte channel which is associated with the entity object.
@@ -163,7 +181,7 @@ public class EntityBodyHandler {
             byteChannel.close();
             return jsonData;
         } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while closing connection", e);
+            throw new BallerinaException("Error occurred while closing connection", e);
         }
     }
 
@@ -200,13 +218,13 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityObj);
             if (byteChannel == null) {
-                throw new BallerinaIOException("Empty xml payload");
+                throw new BallerinaException("Empty xml payload");
             }
             XMLValue xmlContent = constructXmlDataSource(entityObj, byteChannel.getInputStream());
             byteChannel.close();
             return xmlContent;
         } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while closing the channel", e);
+            throw new BallerinaException("Error occurred while closing the channel", e);
         }
     }
 
@@ -243,13 +261,13 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityObj);
             if (byteChannel == null) {
-                throw new BallerinaIOException("String payload is null");
+                throw new BallerinaException("String payload is null");
             }
             String textContent = constructStringDataSource(entityObj, byteChannel.getInputStream());
             byteChannel.close();
             return textContent;
         } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while closing the channel", e);
+            throw new BallerinaException("Error occurred while closing the channel", e);
         }
     }
 
@@ -347,16 +365,21 @@ public class EntityBodyHandler {
 
     /**
      * Decode a given entity body to get a set of child parts and set them to parent entity's multipart data field.
-     *  @param entityObj Parent entity that the nested parts reside
-     * @param byteChannel  Represent ballerina specific byte channel
+     *
+     * @param entityObj   Parent entity that the nested parts reside
+     * @param byteChannel Represent ballerina specific byte channel
+     * @throws IOException When an error occurs while getting inputstream
      */
-    public static void decodeEntityBody(ObjectValue entityObj, Channel byteChannel) {
+    public static void decodeEntityBody(ObjectValue entityObj, Channel byteChannel) throws IOException {
         String contentType = MimeUtil.getContentTypeWithParameters(entityObj);
         if (!isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             return;
         }
-
-        MultipartDecoder.parseBody(entityObj, contentType, byteChannel.getInputStream());
+        try {
+            MultipartDecoder.parseBody(entityObj, contentType, byteChannel.getInputStream());
+        } catch (IOException e) {
+            throw new IOException("Unable to get a byte channel input stream to decode entity body", e);
+        }
     }
 
     /**

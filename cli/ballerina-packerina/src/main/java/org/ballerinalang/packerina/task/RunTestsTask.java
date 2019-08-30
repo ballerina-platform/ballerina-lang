@@ -41,26 +41,23 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  * Task for executing tests.
  */
 public class RunTestsTask implements Task {
-    private Path configPath = null;
+    private String configPath = null;
     
     public RunTestsTask() {}
     
     public RunTestsTask(Path configPath) {
         if (null != configPath) {
-            this.configPath = configPath;
+            this.configPath = configPath.toAbsolutePath().toString();
         }
     }
     
     @Override
     public void execute(BuildContext buildContext) {
         // load configurations
-        if (null != this.configPath) {
-            Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-            loadConfigurations(sourceRootPath, this.configPath);
-        }
+        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+        loadConfigurations(sourceRootPath, this.configPath);
     
         Map<BLangPackage, JBallerinaInMemoryClassLoader> programFileMap = new HashMap<>();
-        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
@@ -78,7 +75,7 @@ public class RunTestsTask implements Task {
                 // }
                 Path jarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
                 JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(jarPath,
-                        Paths.get(System.getProperty("ballerina.home"), "bre", "lib").toFile());
+                        Paths.get(sourceRootPath.toString(), "target", "tmp").toFile());
                 programFileMap.put(bLangPackage, classLoader);
             });
         // Create a class loader to
@@ -94,10 +91,10 @@ public class RunTestsTask implements Task {
      * @param sourceRootPath source directory
      * @param configFilePath config file path
      */
-    public static void loadConfigurations(Path sourceRootPath, Path configFilePath) {
+    public static void loadConfigurations(Path sourceRootPath, String configFilePath) {
         Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
-            ConfigRegistry.getInstance().initRegistry(new LinkedHashMap<>(), configFilePath.toAbsolutePath().toString(),
+            ConfigRegistry.getInstance().initRegistry(new LinkedHashMap<>(), configFilePath,
                     ballerinaConfPath);
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
         } catch (IOException e) {

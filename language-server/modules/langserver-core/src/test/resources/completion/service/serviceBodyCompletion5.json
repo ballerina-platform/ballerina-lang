@@ -2092,6 +2092,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "REQUEST_METHOD",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the request method reference."
+        }
+      },
+      "sortText": "221",
+      "insertText": "REQUEST_METHOD",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "CONNECTION_CLOSURE_ERROR",
       "kind": "Variable",
       "detail": "string",
@@ -3369,7 +3383,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AuthCacheConfig",
+      "label": "AuthzCacheConfig",
       "kind": "Class",
       "detail": "Record",
       "documentation": {

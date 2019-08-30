@@ -181,7 +181,7 @@ function handleResponse(http:Response|error response) {
             } else if (mime:APPLICATION_JSON == baseType) {
                 var payload = response.getJsonPayload();
                 if (payload is json) {
-                    log:printInfo("Json data: " + payload.toString());
+                    log:printInfo("Json data: " + payload.toJsonString());
                 } else {
                     log:printError("Error in parsing json data", err = payload);
                 }
@@ -243,7 +243,7 @@ function handleBodyParts(mime:Entity[] bodyParts) {
         if (mime:APPLICATION_JSON == baseType) {
             var payload = bodyPart.getJson();
             if (payload is json) {
-                log:printInfo("Json Part: " + payload.toString());
+                log:printInfo("Json Part: " + payload.toJsonString());
             } else {
                 log:printError(payload.reason(), err = payload);
             }

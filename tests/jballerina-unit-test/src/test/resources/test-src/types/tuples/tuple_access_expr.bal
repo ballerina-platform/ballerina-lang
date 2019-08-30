@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/'lang\.int as ints;
+import ballerina/lang.'int as ints;
 
 function tupleAccessTest() returns string {
     [int, string, boolean, ()] tuple = [100, "string_value", true, ()];
@@ -166,8 +166,8 @@ function testConstTupleIndex(int index) returns anydata {
             Foo x = tuple[INDEX_ZERO];
             return x.y;
         }
-        1 => return tuple[INDEX_ONE];
-        _ => return false;
+        1 => {return tuple[INDEX_ONE];}
+        _ => {return false;}
     }
 }
 

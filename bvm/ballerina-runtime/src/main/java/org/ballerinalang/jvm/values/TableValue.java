@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
@@ -34,6 +35,8 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
 
 /**
  * The {@code {@link TableValue}} represents a two dimensional data set in Ballerina.
@@ -116,36 +119,17 @@ public class TableValue implements RefValue, CollectionValue {
         return stringValue();
     }
 
-    public String stringValue() {
-        String constraint = constraintType != null ? "<" + constraintType.toString() + ">" : "";
-        StringBuilder tableWrapper = new StringBuilder("table" + constraint + " ");
-        StringJoiner tableContent = new StringJoiner(", ", "{", "}");
-        tableContent.add(createStringValueEntry("index", indices));
-        tableContent.add(createStringValueEntry("primaryKey", primaryKeys));
-        tableContent.add(createStringValueDataEntry());
-        tableWrapper.append(tableContent.toString());
-
-        return tableWrapper.toString();
+    public String stringValue(Strand strand) {
+        return createStringValueDataEntry(strand);
     }
 
-    private String createStringValueEntry(String key, ArrayValue contents) {
-        String stringValue = "[]";
-        if (contents != null) {
-            stringValue = contents.toString();
-        }
-        return key + ": " + stringValue;
-    }
-
-    private String createStringValueDataEntry() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("data: ");
-        StringJoiner sj = new StringJoiner(", ", "[", "]");
+    private String createStringValueDataEntry(Strand strand) {
+        StringJoiner sj = new StringJoiner(" ");
         while (hasNext()) {
             MapValueImpl<?, ?> struct = getNext();
-            sj.add(struct.toString());
+            sj.add(struct.stringValue(strand));
         }
-        sb.append(sj.toString());
-        return sb.toString();
+        return sj.toString();
     }
 
     @Override
@@ -217,13 +201,15 @@ public class TableValue implements RefValue, CollectionValue {
     public Object performAddOperation(MapValueImpl<String, Object> data) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), TABLE_LANG_LIB);
             }
         }
 
         try {
             this.addData(data);
             return null;
+        } catch (ErrorValue e) {
+            return e;
         } catch (Throwable e) {
             return TableUtils.createTableOperationError(e);
         }
@@ -243,7 +229,7 @@ public class TableValue implements RefValue, CollectionValue {
     public Object performRemoveOperation() {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), TABLE_LANG_LIB);
             }
         }
         return TableUtils.createTableOperationError(new Exception("Remove operation is not supported yet"));
@@ -374,18 +360,6 @@ public class TableValue implements RefValue, CollectionValue {
      */
     public boolean isInMemoryTable() {
         return true;
-    }
-
-    /**
-     * Returns the length or the number of rows of the table.
-     *
-     * @return number of rows of the table
-     */
-    public int size() {
-        if (tableName == null) {
-            return 0;
-        }
-        return tableProvider.getRowCount(tableName);
     }
 
     public ArrayValue getPrimaryKeys() {

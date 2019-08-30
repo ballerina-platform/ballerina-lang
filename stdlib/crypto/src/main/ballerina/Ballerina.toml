@@ -6,7 +6,7 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "crypto"
+    artifactId = "crypto"
     version = "@project.version@"
     path = "./lib/ballerina-crypto-@project.version@.jar"
     groupId = "ballerina"

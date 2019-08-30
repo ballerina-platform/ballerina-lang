@@ -70,7 +70,7 @@ public class TupleMutabilityTest {
     @Test(description = "Test mutation of record type using covariant tuple",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}InherentTypeViolation message=incompatible types: expected " +
+                    "error: \\{ballerina/lang.array\\}InherentTypeViolation message=incompatible types: expected " +
                             "'Employee', found 'Person'.*")
     public void testAssignmentOfSuperTypeMember() {
         BRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
@@ -79,7 +79,7 @@ public class TupleMutabilityTest {
     @Test(description = "Test mutation of record type by assigning invalid record type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}InherentTypeViolation message=incompatible types: expected " +
+                    "error: \\{ballerina/lang.array\\}InherentTypeViolation message=incompatible types: expected " +
                             "'Employee', found 'Student'.*")
     public void testInvalidAssignment() {
         BRunUtil.invoke(compileResult, "testInvalidAssignment");
@@ -88,7 +88,7 @@ public class TupleMutabilityTest {
     @Test(description = "Test mutation of int by inserting nil value to int? covariant tuple",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}InherentTypeViolation message=incompatible types: expected " +
+                    "error: \\{ballerina/lang.array\\}InherentTypeViolation message=incompatible types: expected " +
                             "'int', found '\\(\\)'.*")
     public void testCovarianceIntOrNilArray() {
         BRunUtil.invoke(compileResult, "testCovarianceIntOrNilTuple");
@@ -103,7 +103,7 @@ public class TupleMutabilityTest {
     @Test(description = "Test mutation of tuple which include structural and simple values",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}InherentTypeViolation message=incompatible types: expected " +
+                    "error: \\{ballerina/lang.array\\}InherentTypeViolation message=incompatible types: expected " +
                             "'boolean\\|float', found 'Person'.*")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
         BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordTuple");

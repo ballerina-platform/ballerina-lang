@@ -254,11 +254,11 @@ function testDynamicIndexAccessTypesWithOpenRecord() returns string {
 
 function getIndex(int index) returns string {
     match index {
-        1 => return "fieldOne";
-        2 => return "fieldTwo";
-        3 => return "fieldThree";
-        4 => return "fieldFour";
-        _ => return "fieldFive";
+        1 => {return "fieldOne";}
+        2 => {return "fieldTwo";}
+        3 => {return "fieldThree";}
+        4 => {return "fieldFour";}
+        _ => {return "fieldFive";}
     }
 }
 

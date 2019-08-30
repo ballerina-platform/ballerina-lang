@@ -152,6 +152,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get checkpanic Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getCheckPanicKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CHECKPANIC_KEYWORD, "checkpanic ",
+                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Wait Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -217,7 +227,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getUntaintKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.UNTAINT_KEYWORD, "untiant ",
+        return new SnippetBlock(ItemResolverConstants.UNTAINTED_KEYWORD, "untainted ",
                 ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
     }
 
@@ -431,11 +441,10 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getCommonResourceDefinitionSnippet() {
-        ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
         String snippet = "resource function ${1:newResource}(${2}) {"
                 + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET, httpImport);
+                                SnippetType.SNIPPET);
     }
 
     /**
@@ -570,7 +579,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getWebSocketServiceDefSnippet() {
         ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
-        String snippet = "service ${1:serviceName} on new http:WebSocketListener(9090) {" + CommonUtil.LINE_SEPARATOR +
+        String snippet = "service ${1:serviceName} on new http:Listener(9090) {" + CommonUtil.LINE_SEPARATOR +
                 "\tresource function onOpen(http:WebSocketCaller caller) {"
                 + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR +
                 "\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {"
@@ -984,6 +993,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Remote function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRemoteFunctionSnippet() {
+        String snippet = "public remote function ${1:name}(${2}) {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.REMOTE_FUNCTION_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+    }
+
+    /**
      * Get Object Initializer Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1001,7 +1022,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getAttachFunctionSnippet() {
-        String snippet = "function __attach(service ${1:s}, string? ${2:name} = ()) returns error? {"
+        String snippet = "public function __attach(service ${1:s}, string? ${2:name} = ()) returns error? {"
                 + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.ATTACH_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 SnippetType.SNIPPET);
@@ -1013,21 +1034,45 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getStartFunctionSnippet() {
-        String snippet = "function __start() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "public function __start() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.START_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 SnippetType.SNIPPET);
     }
 
     /**
-     * Get Stop Function Snippet Block.
+     * Get Graceful Stop Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getStopFunctionSnippet() {
-        String snippet = "function __stop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    public static SnippetBlock getGracefulStopFunctionSnippet() {
+        String snippet = "public function __gracefulStop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.STOP_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.GRACEFUL_STOP_FUNCTION_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Immediate Stop Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getImmediateStopFunctionSnippet() {
+        String snippet = "public function __immediateStop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.IMMEDIATE_STOP_FUNCTION_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get detach Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDetachFunctionSnippet() {
+        String snippet = "public function __detach(service ${1:s}) returns error? {"
+                + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.DETACH_FUNCTION_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
     }
 }

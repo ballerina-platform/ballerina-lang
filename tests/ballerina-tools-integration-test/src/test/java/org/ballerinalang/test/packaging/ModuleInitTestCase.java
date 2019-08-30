@@ -449,7 +449,7 @@ public class ModuleInitTestCase extends BaseTest {
      */
     private void runService(Path serviceBalPath) throws BallerinaTestException, IOException {
         BServerInstance ballerinaServerForService = new BServerInstance(balServer);
-        ballerinaServerForService.startServer(serviceBalPath.toString());
+        ballerinaServerForService.startServer(serviceBalPath.toString(), true);
         HttpResponse response = HttpClientRequest.doGet(ballerinaServerForService
                 .getServiceURLHttp(9090, "hello/sayHello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");

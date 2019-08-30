@@ -109,6 +109,48 @@ public class LangLibValueTest {
         assertEquals(array.getRefValue(1).stringValue(), "4");
         assertEquals(array.getRefValue(2).stringValue(), "4");
         assertEquals(array.getRefValue(3).stringValue(), "4");
+
+        returns = BRunUtil.invokeFunction(compileResult, "testToString");
+        array = (BValueArray) returns[0];
+        Assert.assertEquals(array.getString(0), "6");
+        Assert.assertEquals(array.getString(1), "6.0");
+        Assert.assertEquals(array.getString(2), "toString");
+        Assert.assertEquals(array.getString(3), "");
+        Assert.assertEquals(array.getString(4), "true");
+        Assert.assertEquals(array.getString(5), "345.2425341");
+        Assert.assertEquals(array.getString(6), "a=STRING b=12 c=12.4 d=true e=x=x y=");
+        Assert.assertEquals(array.getString(7),
+                "<CATALOG>" +
+                "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
+                "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
+                "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
+                "</CATALOG>");
+        Assert.assertEquals(array.getString(8), "str 23 23.4 true");
+        Assert.assertEquals(array.getString(9), "error Reason1 message=Test passing error union to a function");
+        Assert.assertEquals(array.getString(10), "object Student");
+        Assert.assertEquals(array.getString(11), "Rola from MMV");
+        Assert.assertEquals(array.getString(12), "object Student Rola from MMV");
+        Assert.assertEquals(array.getString(13),
+                            "name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
+        Assert.assertEquals(array.getString(14),
+                            "varInt=6 " +
+                            "varFloat=6.0 " +
+                            "varStr=toString " +
+                            "varNil= " +
+                            "varBool=true " +
+                            "varDecimal=345.2425341 " +
+                            "varjson=a=STRING b=12 c=12.4 d=true e=x=x y= " +
+                            "varXml=<CATALOG>" +
+                            "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
+                            "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
+                            "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
+                            "</CATALOG> " +
+                            "varArr=str 23 23.4 true " +
+                            "varErr=error Reason1 message=Test passing error union to a function " +
+                            "varObj=object Student " +
+                            "varObj2=Rola from MMV " +
+                            "varObjArr=object Student Rola from MMV " +
+                            "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
     }
 
     @Test(dataProvider = "mergeJsonFunctions")

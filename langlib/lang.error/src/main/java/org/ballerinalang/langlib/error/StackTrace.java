@@ -41,7 +41,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Collections;
 
 import static org.ballerinalang.jvm.BallerinaErrors.CALL_STACK_ELEMENT;
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
 
 /**
  * Get the stackTrace of an error value.
@@ -69,7 +69,7 @@ public class StackTrace {
     }
 
     private static ArrayValue getCallStackArray(StackTraceElement[] stackTrace) {
-        BType recordType = BallerinaValues.createRecordValue(BALLERINA_LANG_ERROR_PKG, CALL_STACK_ELEMENT).getType();
+        BType recordType = BallerinaValues.createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT).getType();
         Object[] array = new Object[stackTrace.length];
         for (int i = 0; i < stackTrace.length; i++) {
             array[i] = getStackFrame(stackTrace[i]);
@@ -84,7 +84,7 @@ public class StackTrace {
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
         return BallerinaValues.createRecord(
-                BallerinaValues.createRecordValue(BALLERINA_LANG_ERROR_PKG, CALL_STACK_ELEMENT), values);
+                BallerinaValues.createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT), values);
     }
 
     /**

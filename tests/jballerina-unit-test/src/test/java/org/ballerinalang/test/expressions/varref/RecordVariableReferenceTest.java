@@ -126,14 +126,6 @@ public class RecordVariableReferenceTest {
         Assert.assertEquals(returns[3].stringValue(), "Z");
     }
 
-    @Test(description = "Test record var ref with index based and field based var refs")
-    public void testFieldAndIndexBasedVarRefs() {
-        BValue[] returns = BRunUtil.invoke(result, "testFieldAndIndexBasedVarRefs");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "D");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2002);
-    }
-
     @Test(description = "Test record var ref rest parameter types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
@@ -217,6 +209,16 @@ public class RecordVariableReferenceTest {
                                   "incompatible types: expected 'map<int>', found 'map<anydata>'", 161, 16);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<error>', found 'map'",
                                   164, 16);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'x'",  180, 16);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'x'",  186, 21);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'x'",  186, 27);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference 'm[var1]' cannot " +
+                "be used with binding pattern",  198, 12);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference 'm[var2]' cannot " +
+                "be used with binding pattern",  198, 36);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

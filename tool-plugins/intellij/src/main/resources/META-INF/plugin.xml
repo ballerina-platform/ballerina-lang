@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.0-beta-SNAPSHOT</version>
+    <version>1.0.0-beta</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -10,15 +10,11 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Added ballerina sequence diagram view and editing support. </li>
-        <li>Added ballerina home auto detection. </li>
-        <li>Added language server based in-place renaming support. </li>
-        <li>Added language server based signature-help. </li>
-        <li>Added Debugger Adaptor Protocol support. </li>
+        <li> Added grammar fixes related to 2019R3 language specification compatibility. </li>
+        <li> Improved caret moving inside ballerina blocks. </li>
       </ul>
     ]]>
     </change-notes>
-
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
     <idea-version since-build="182"/>
 
@@ -47,8 +43,8 @@
         <completion.contributor implementationClass="org.wso2.lsp4intellij.contributors.LSPCompletionContributor"
                                 id="LSPCompletionContributor" language="Ballerina"/>
 
-        <localInspection displayName="LSP" shortName="LSP" enabledByDefault="true"
-                         implementationClass="org.wso2.lsp4intellij.contributors.inspection.DummyLSPInspection"/>
+        <externalAnnotator implementationClass="org.wso2.lsp4intellij.contributors.annotator.LSPAnnotator"
+                           id="BallerinaLSPAnnotator" language="Ballerina"/>
 
         <renameHandler implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameHandler"
                        id="LSPRenameHandler" order="first"/>
@@ -110,9 +106,15 @@
         <quoteHandler fileType="Ballerina file"
                       className="io.ballerina.plugins.idea.editor.BallerinaQuoteHandler"/>
 
-        <enterHandlerDelegate implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
+        <!-- Enter Handlers-->
+        <enterHandlerDelegate order="last"
+                              implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
         <enterHandlerDelegate
                 implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterInDocumentationHandler"/>
+
+        <!-- Backspace Handlers-->
+        <backspaceHandlerDelegate id="BallerinaBackspaceHandler" order="first"
+                                  implementation="io.ballerina.plugins.idea.formatter.BallerinaIndentingBackspaceHandler"/>
 
         <!-- sdk -->
         <sdkType implementation="io.ballerina.plugins.idea.sdk.BallerinaSdkType"/>

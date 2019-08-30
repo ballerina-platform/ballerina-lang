@@ -454,6 +454,7 @@ function testTupleMatchWithObjectEquivalency() returns string {
             return "ERROR";
         }
     }
+    return "ERROR";
 }
 
 function getPerson() returns [Foo, Person] | () | error {

@@ -41,7 +41,7 @@ http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 service websubSubscriber on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by One: " + payload.toString());
+        io:println("WebSub Notification Received by One: " + payload.toJsonString());
     }
 }
 
@@ -57,6 +57,6 @@ service websubSubscriber on websubEP {
 service websubSubscriberTwo on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by Two: " + payload.toString());
+        io:println("WebSub Notification Received by Two: " + payload.toJsonString());
     }
 }

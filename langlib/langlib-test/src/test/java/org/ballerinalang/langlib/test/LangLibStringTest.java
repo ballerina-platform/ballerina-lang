@@ -29,6 +29,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -226,4 +227,32 @@ public class LangLibStringTest {
                 {"a👻cd".codePoints().asLongStream().toArray(), "a👻cd"},
         };
     }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.string\\}StringOperationError " +
+                    "message=string index out of range. Length:'6' requested: '7' to '9'.*")
+    public void testSubstringOutRange() {
+        BRunUtil.invoke(compileResult, "testSubstringOutRange");
+        Assert.fail();
+    }
+
+    @Test(dataProvider = "testSubstringDataProvider")
+    public void testSubstring(String str, int start, int end, String result) {
+        BValue[] args = {new BString(str), new BInteger(start), new BInteger(end)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSubstring", args);
+        Assert.assertEquals(returns[0].stringValue(),
+                            "{ballerina/lang.string}StringOperationError {message:\"" + result + "\"}");
+    }
+
+    @DataProvider(name = "testSubstringDataProvider")
+    public Object[][] testSubstringDataProvider() {
+        return new Object[][]{
+                {"abcdef", -2, -1, "string index out of range. Length:'6' requested: '-2' to '-1'"},
+                {"abcdef", -2, -5, "string index out of range. Length:'6' requested: '-2' to '-5'"},
+                {"abcdef",  0, -1, "invalid substring range. Length:'6' requested: '0' to '-1'"},
+                {"",        0, -1, "invalid substring range. Length:'0' requested: '0' to '-1'"},
+                {"abcdef",  3,  2, "invalid substring range. Length:'6' requested: '3' to '2'"},
+        };
+    }
+
 }

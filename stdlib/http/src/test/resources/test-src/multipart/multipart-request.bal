@@ -1,7 +1,6 @@
 import ballerina/encoding;
 import ballerina/http;
 import ballerina/mime;
-import ballerina/internal;
 
 function setErrorResponse(http:Response response,  error err) {
     response.statusCode = 500;
@@ -157,7 +156,7 @@ service test on mockEP {
 function handleNestedParts(mime:Entity parentPart) returns @tainted string {
     string content = "";
     string contentTypeOfParent = parentPart.getContentType();
-    if (internal:hasPrefix(contentTypeOfParent, "multipart/")) {
+    if (contentTypeOfParent.startsWith("multipart/")) {
         var childParts = parentPart.getBodyParts();
         if (childParts is mime:Entity[]) {
             int i = 0;

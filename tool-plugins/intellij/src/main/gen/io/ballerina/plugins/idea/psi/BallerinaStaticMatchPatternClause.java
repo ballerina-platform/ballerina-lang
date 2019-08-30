@@ -23,11 +23,8 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaStaticMatchPatternClause extends PsiElement {
 
-  @Nullable
+  @NotNull
   BallerinaBlock getBlock();
-
-  @Nullable
-  BallerinaStatement getStatement();
 
   @NotNull
   BallerinaStaticMatchLiteral getStaticMatchLiteral();
@@ -35,10 +32,10 @@ public interface BallerinaStaticMatchPatternClause extends PsiElement {
   @NotNull
   PsiElement getEqualGt();
 
-  @Nullable
+  @NotNull
   PsiElement getLeftBrace();
 
-  @Nullable
+  @NotNull
   PsiElement getRightBrace();
 
 }
