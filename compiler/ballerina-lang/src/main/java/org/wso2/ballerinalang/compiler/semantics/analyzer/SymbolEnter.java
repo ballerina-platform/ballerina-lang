@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -1040,7 +1041,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-        defineAnonRecordInitFunction(recordTypeNode, env);
+        defineRecordInitFunction(recordTypeNode, recordTypeNode.pos, recordTypeNode.symbol.name.value, env);
         defineRecordTypeNode(recordTypeNode, typeDefEnv);
     }
 
@@ -1370,7 +1371,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // Create typeDef type
                 BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
                 SymbolEnv typeDefEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, typeDef.symbol.scope, pkgEnv);
-                defineRecordInitFunction(typeDef, typeDefEnv);
+                defineRecordInitFunction((BLangRecordTypeNode) typeDef.typeNode, typeDef.pos, typeDef.name.value,
+                                         typeDefEnv);
             }
         }
     }
@@ -1546,30 +1548,24 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(initFunction, conEnv);
     }
 
-    private void defineRecordInitFunction(BLangTypeDefinition typeDef, SymbolEnv conEnv) {
-        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(typeDef.pos, "",
+    private void defineRecordInitFunction(BLangRecordTypeNode recordTypeNode, DiagnosticPos pos, String typeName,
+                                          SymbolEnv conEnv) {
+        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(pos, "",
                                                                                      Names.INIT_FUNCTION_SUFFIX);
 
-        recordTypeNode.initFunction.receiver = createReceiver(typeDef.pos, typeDef.name);
+        TypeNode receiverTypeNode = recordTypeNode;
+        if (!recordTypeNode.isAnonymous || !recordTypeNode.isLocal) {
+            BLangUserDefinedType userDefinedTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+            userDefinedTypeNode.pkgAlias = new BLangIdentifier();
+            userDefinedTypeNode.typeName = new BLangIdentifier(typeName);
+            receiverTypeNode = userDefinedTypeNode;
+        }
+
+        recordTypeNode.initFunction.receiver = createReceiver(receiverTypeNode, pos);
         recordTypeNode.initFunction.attachedFunction = true;
         recordTypeNode.initFunction.flagSet.add(Flag.ATTACHED);
 
         // Adding record level variables to the init function is done at desugar phase
-
-        defineNode(recordTypeNode.initFunction, conEnv);
-    }
-
-    private void defineAnonRecordInitFunction(BLangRecordTypeNode recordTypeNode, SymbolEnv conEnv) {
-        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(recordTypeNode.pos, "",
-                                                                                     Names.INIT_FUNCTION_SUFFIX);
-
-        recordTypeNode.initFunction.receiver = createAnonRecordInitReceiver(recordTypeNode);
-        recordTypeNode.initFunction.attachedFunction = true;
-        recordTypeNode.initFunction.flagSet.add(Flag.ATTACHED);
-
-        // Adding record level variables to the init function is done at desugar phase
-
         defineNode(recordTypeNode.initFunction, conEnv);
     }
 
@@ -1672,23 +1668,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private BLangSimpleVariable createReceiver(DiagnosticPos pos, BLangIdentifier name) {
+    private BLangSimpleVariable createReceiver(TypeNode node, DiagnosticPos pos) {
         BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         receiver.pos = pos;
         BLangIdentifier identifier = (BLangIdentifier) createIdentifier(Names.SELF.getValue());
         identifier.pos = pos;
-        receiver.setName(identifier);
-        BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        structTypeNode.pkgAlias = new BLangIdentifier();
-        structTypeNode.typeName = name;
-        receiver.setTypeNode(structTypeNode);
-        return receiver;
-    }
-
-    private BLangSimpleVariable createAnonRecordInitReceiver(BLangRecordTypeNode node) {
-        BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        receiver.pos = node.pos;
-        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
         receiver.setName(identifier);
         receiver.setTypeNode(node);
         return receiver;
