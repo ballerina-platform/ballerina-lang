@@ -211,14 +211,15 @@ public class BallerinaEditorEventManager extends EditorEventManager {
             }
         } catch (InterruptedException ignored) {
             // can be ignored
-        } catch (TimeoutException | JsonRpcException | ExecutionException e) {
+        } catch (TimeoutException e) {
+            wrapper.notifyFailure(COMPLETION);
+        } catch (JsonRpcException | ExecutionException e) {
             LOG.warn(e);
             wrapper.crashed(e);
         } finally {
             return lookupItems;
         }
     }
-
 
     public LookupElement createLookupItem(CompletionItem item, Position position) {
         Command command = item.getCommand();
