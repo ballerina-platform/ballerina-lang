@@ -166,7 +166,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 32);
+        Assert.assertEquals(resultNegative.getErrorCount(), 30);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "tuple and expression size does not match", 18, 25);
@@ -196,8 +196,6 @@ public class BasicTupleTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected '[int,int,int]', found 'int[2]'", 79, 25);
         BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected '[int...]', found 'int[2]'", 85, 18);
-        BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected '[int,int,int...]', found 'int[]'", 91, 28);
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected '[int,int,int]', found 'int[]'", 93, 25);
@@ -207,13 +205,11 @@ public class BasicTupleTest {
                 resultNegative, i++, "incompatible types: expected '[int,int]', found 'int[1]'", 98, 20);
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected '[int,int]', found 'int[3]'", 101, 20);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[int...]', found 'int[1]'", 103,
-                18);
     }
 
     @Test(description = "Test negatives of index based access of tuple type")
     public void testNegativesOfTupleType() {
-        int i = 18;
+        int i = 16;
         BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match", 114, 30);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '-1'", 119, 16);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 120, 16);

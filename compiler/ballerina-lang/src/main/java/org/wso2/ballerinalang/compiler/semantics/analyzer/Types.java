@@ -769,9 +769,6 @@ public class Types {
                 return false;
             }
 
-        } else if (target.restType != null && source.state != BArrayState.UNSEALED) {
-            // [int...] = int[1]
-            return false;
         }
 
         List<BType> targetTypes = new ArrayList<>(target.tupleTypes);
