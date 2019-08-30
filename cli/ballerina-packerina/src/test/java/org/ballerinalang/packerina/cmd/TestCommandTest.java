@@ -54,13 +54,14 @@ public class TestCommandTest extends CommandTest {
             Assert.fail("error loading resources");
         }
     }
-    
-    @Test(description = "Test Test Command in a Project", enabled = false)
+
+    // Following test is disabled due to system exit issue
+    @Test(description = "Test Test Command in a Project", enabled = true)
     public void testTestCommand() throws IOException {
         // Build the project
-        String[] compileArgs = {};
+        String[] compileArgs = {"mymodule"};
         TestCommand testCommand = new TestCommand(this.testResources.resolve("valid-test-project"), printStream,
-                printStream, true, true);
+                printStream, false, true);
         new CommandLine(testCommand).parse(compileArgs);
         testCommand.execute();
 
