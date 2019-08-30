@@ -228,3 +228,13 @@ function testTableLiteralWithVar() {
         ]
     };
 }
+
+public function testNonRecordAsTableConstraint(string... args) {
+    table<any> t = table {
+                { key id, name, salary },
+                [ { 1, "Mary",  300.5 },
+                  { 2, "John",  200.5 },
+                  { 3, "Jim", 330.5 }
+                ]
+            };
+}

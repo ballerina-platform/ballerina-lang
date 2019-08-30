@@ -29,7 +29,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.util.TesterinaUtils;
@@ -80,7 +79,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
             // TODO: find how to give the service name in to service generation function.
             generator.generateService(userDir, openApiFilePath, "", "", rootDir.toString());
         } catch (IOException | BallerinaOpenApiException e) {
-            throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to generate the "
+            throw new BallerinaException(String.format("Service skeleton creation failed. Failed to generate the "
                     + "service from the [OpenApi file] %s [cause] %s", openApiFilePath, e.getMessage()), e);
         }
 
@@ -111,7 +110,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
             try {
                 Files.createDirectories(projectRoot);
             } catch (IOException e) {
-                throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to create " +
+                throw new BallerinaException(String.format("Service skeleton creation failed. Failed to create " +
                         "[.ballerina] %s [cause] %s", projectRoot.toString(), e.getMessage()), e);
             }
         }

@@ -18,11 +18,11 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
+import ballerina/internal;
+import ballerina/lang.'int as langint;
 import ballerina/log;
 import ballerina/system;
 import ballerina/time;
-import ballerina/'lang\.int as langint;
-import ballerina/internal;
 
 map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
@@ -62,7 +62,7 @@ service {
 
         var topicFromParams = params[HUB_TOPIC];
         if topicFromParams is string {
-            var decodedValue = http:decode(topicFromParams, "UTF-8");
+            var decodedValue = encoding:decodeUriComponent(topicFromParams, "UTF-8");
             topic = decodedValue is string ? decodedValue : topicFromParams;
         }
 
@@ -71,7 +71,7 @@ service {
             // TODO: check the non-existing key at this point and return the 400
             var result = params[HUB_CALLBACK];
             string callbackFromParams = params[HUB_CALLBACK] ?: "";
-            var decodedCallbackFromParams = http:decode(callbackFromParams, "UTF-8");
+            var decodedCallbackFromParams = encoding:decodeUriComponent(callbackFromParams, "UTF-8");
             string callback = decodedCallbackFromParams is string ? decodedCallbackFromParams : callbackFromParams;
             var validationStatus = validateSubscriptionChangeRequest(mode, topic, callback);
             if (validationStatus is error) {
@@ -148,7 +148,7 @@ service {
             if (mode != MODE_PUBLISH) {
                 mode = request.getQueryParamValue(HUB_MODE) ?: "";
                 string topicValue = request.getQueryParamValue(HUB_TOPIC) ?: "";
-                var decodedTopic = http:decode(topicValue, "UTF-8");
+                var decodedTopic = encoding:decodeUriComponent(topicValue, "UTF-8");
                 topic = decodedTopic is string ? decodedTopic : topicValue;
             }
 
@@ -289,7 +289,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 
     http:Request request = new;
 
-    var decodedCallback = http:decode(callback, "UTF-8");
+    var decodedCallback = encoding:decodeUriComponent(callback, "UTF-8");
     string callbackToCheck = decodedCallback is error ? callback : decodedCallback;
 
     string queryParams = (internal:contains(callbackToCheck, ("?")) ? "&" : "?")
@@ -464,11 +464,11 @@ returns error? {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
             if (internal:equalsIgnoreCase(SHA1, hubSignatureMethod)) { //not recommended
-                generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toBytes(),
-                    subscriptionDetails.secret.toBytes()));
+                generatedSignature = crypto:hmacSha1(stringPayload.toBytes(),
+                    subscriptionDetails.secret.toBytes()).toBase16();
             } else if (internal:equalsIgnoreCase(SHA256, hubSignatureMethod)) {
-                generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toBytes(),
-                    subscriptionDetails.secret.toBytes()));
+                generatedSignature = crypto:hmacSha256(stringPayload.toBytes(),
+                    subscriptionDetails.secret.toBytes()).toBase16();
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(X_HUB_SIGNATURE, xHubSignature);

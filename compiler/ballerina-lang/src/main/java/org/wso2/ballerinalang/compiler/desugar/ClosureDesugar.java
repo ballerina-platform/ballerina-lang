@@ -674,7 +674,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
-        typeInitExpr.argsExpr.forEach(argExpr -> rewrite(argExpr, env));
         typeInitExpr.initInvocation = rewriteExpr(typeInitExpr.initInvocation);
         result = typeInitExpr;
     }

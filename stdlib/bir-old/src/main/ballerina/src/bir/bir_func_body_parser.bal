@@ -17,15 +17,13 @@
 public type FuncBodyParser object {
     BirChannelReader reader;
     map<VariableDcl> localVarMap;
-    map<VariableDcl> globalVarMap;
     TypeDef?[] typeDefs;
     VariableDcl? receiver;
 
-    public function __init(BirChannelReader reader, map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap,
+    public function __init(BirChannelReader reader, map<VariableDcl> localVarMap,
                            TypeDef?[] typeDefs, VariableDcl? receiver) {
         self.reader = reader;
         self.localVarMap = localVarMap;
-        self.globalVarMap = globalVarMap;
         self.typeDefs = typeDefs;
         self.receiver = receiver;
     }
@@ -379,7 +377,7 @@ public type FuncBodyParser object {
             params[i] = dcl;
             i += 1;
         }
-        FPLoad fpLoad = {pos:pos, kind:INS_KIND_FP_LOAD, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params, 
+        FPLoad fpLoad = {pos:pos, kind:INS_KIND_FP_LOAD, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params,
             closureMaps:maps, retType:retType};
         return fpLoad;
     }
@@ -602,7 +600,7 @@ public type FuncBodyParser object {
                 j += 1;
             }
 
-            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars, 
+            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars,
                 localLocks:localLocks, unlockBB:self.parseBBRef()};
             return unlockIns;
         }
@@ -699,10 +697,11 @@ public type FuncBodyParser object {
 
     private function getDecl(VarScope varScope, string varName, VarKind kind) returns VariableDcl {
         if (varScope == VAR_SCOPE_GLOBAL) {
+            ModuleID pkgId = self.reader.readModuleIDCpRef();
+
+            var bType = self.reader.readTypeCpRef();
             if (kind == VAR_KIND_CONSTANT) {
-                var bType = self.reader.readTypeCpRef();
-                ModuleID pkgId = self.reader.readModuleIDCpRef();
-                VariableDcl varDecl = { kind : kind, 
+                VariableDcl varDecl = { kind : kind,
                                         varScope : varScope, 
                                         name : {value : varName},
                                         typeValue : bType,
@@ -711,13 +710,8 @@ public type FuncBodyParser object {
                 return varDecl;
             }
 
-            var possibleDcl = self.globalVarMap[varName];
-            if (possibleDcl is GlobalVariableDcl) {
-                return possibleDcl;
-            } else {
-                error err = error("global var missing " + varName);
-                panic err;
-            }
+            GlobalVariableDcl globalVar = {name: {value:varName}, typeValue : bType, moduleId:pkgId};
+            return globalVar;
         }
 
         // for self referrence, return the receiver

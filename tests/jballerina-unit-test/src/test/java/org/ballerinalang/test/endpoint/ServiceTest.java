@@ -60,6 +60,15 @@ public class ServiceTest {
     }
 
     @Test
+    public void testUsingListenerFromDepModule() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/proj1", "c");
+        final BValue[] result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
+        Assert.assertEquals(result.length, 1, "expected one return type");
+        Assert.assertNotNull(result[0]);
+        Assert.assertEquals(result[0].stringValue(), "2_1");
+    }
+
+    @Test
     public void testServiceBasicsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_basic_negative.bal");
         int errIdx = 0;

@@ -97,3 +97,10 @@ service PizzaService on new http:MockListener(9090) {
 # + testConstd - abc description
 # + return - description
 final string testConsts = "TestConstantDocumentation";
+
+
+# Documentation for load function.
+#
+public function load(string filePath) {
+
+}

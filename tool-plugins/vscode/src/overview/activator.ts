@@ -76,23 +76,41 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 }
 
 function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, construct?: ConstructIdentifier) {
-	if (!window.activeTextEditor) {
+	let sourceRoot: string|undefined;
+	let currentFilePath: string|undefined;
+
+	const openFolders = workspace.workspaceFolders;
+	if (openFolders) {
+		if (fs.existsSync(path.join(openFolders[0].uri.path, "Ballerina.toml"))) {
+			sourceRoot = openFolders[0].uri.path;
+		}
+	}
+
+	if (!sourceRoot) {
+		if (window.activeTextEditor) {
+			currentFilePath = window.activeTextEditor.document.fileName;
+			sourceRoot = getSourceRoot(currentFilePath, path.parse(currentFilePath).root);
+		}
+	}
+
+	if (!currentFilePath && !sourceRoot) {
 		return;
 	}
-	let currentFilePath = window.activeTextEditor.document.fileName;
-	let sourceRoot = getSourceRoot(currentFilePath, path.parse(currentFilePath).root);
 
 	const options : {
-		currentUri: string,
+		currentUri?: string,
 		sourceRootUri?: string,
 		construct?: ConstructIdentifier
 	} = {
-		currentUri: Uri.file(currentFilePath).toString(),
 		construct,
 	};
 
 	if (sourceRoot) {
 		options.sourceRootUri = Uri.file(sourceRoot).toString();
+	}
+
+	if (currentFilePath) {
+		options.currentUri = Uri.file(currentFilePath).toString();
 	}
 
 	const didChangeDisposable = workspace.onDidChangeTextDocument(
@@ -143,11 +161,6 @@ function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, 
 		);
 
 		ballerinaExtInstance.addWebviewPanel("overview", overviewPanel);
-	}
-
-	const editor = window.activeTextEditor;
-	if(!editor) {
-		return;
 	}
 
 	rpcHandler = WebViewRPCHandler.create(overviewPanel, langClient);

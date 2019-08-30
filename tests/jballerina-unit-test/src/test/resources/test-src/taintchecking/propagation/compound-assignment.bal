@@ -1,4 +1,5 @@
-import ballerina/'lang\.int as landlib;
+import ballerina/lang.'int as landlib;
+
 public function main (string... args) returns error? {
     string x = "static";
     x += "static";

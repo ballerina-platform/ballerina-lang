@@ -15,7 +15,7 @@
 // under the License.
 
 // Decimal to other types (int, float, string, boolean, any, json) conversion.
-import ballerina/'lang\.decimal as decimals;
+import ballerina/lang.'decimal as decimals;
 
 function testDecimalToOtherTypesConversion() returns [int, float, string, any, json] {
     decimal d = 23.456;

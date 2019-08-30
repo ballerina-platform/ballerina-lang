@@ -284,10 +284,10 @@ public interface BallerinaTypes {
   IElementType TRY_CATCH_STATEMENT = new BallerinaCompositeElementType("TRY_CATCH_STATEMENT");
   IElementType TUPLE_REST_DESCRIPTOR = new BallerinaCompositeElementType("TUPLE_REST_DESCRIPTOR");
   IElementType TUPLE_TYPE_NAME = new BallerinaCompositeElementType("TUPLE_TYPE_NAME");
-  IElementType TYPE_ACCESS_EXPRESSION = new BallerinaCompositeElementType("TYPE_ACCESS_EXPRESSION");
-  IElementType TYPE_ACCESS_EXPR_INVOCATION_REFERENCE = new BallerinaCompositeElementType("TYPE_ACCESS_EXPR_INVOCATION_REFERENCE");
   IElementType TYPE_CONVERSION_EXPRESSION = new BallerinaCompositeElementType("TYPE_CONVERSION_EXPRESSION");
   IElementType TYPE_DEFINITION = new BallerinaCompositeElementType("TYPE_DEFINITION");
+  IElementType TYPE_DESC_EXPRESSION = new BallerinaCompositeElementType("TYPE_DESC_EXPRESSION");
+  IElementType TYPE_DESC_EXPR_INVOCATION_REFERENCE = new BallerinaCompositeElementType("TYPE_DESC_EXPR_INVOCATION_REFERENCE");
   IElementType TYPE_DESC_REFERENCE_TYPE_NAME = new BallerinaCompositeElementType("TYPE_DESC_REFERENCE_TYPE_NAME");
   IElementType TYPE_DESC_TYPE_NAME = new BallerinaCompositeElementType("TYPE_DESC_TYPE_NAME");
   IElementType TYPE_INIT_EXPRESSION = new BallerinaCompositeElementType("TYPE_INIT_EXPRESSION");
@@ -1329,17 +1329,17 @@ public interface BallerinaTypes {
       else if (type == TUPLE_TYPE_NAME) {
         return new BallerinaTupleTypeNameImpl(node);
       }
-      else if (type == TYPE_ACCESS_EXPRESSION) {
-        return new BallerinaTypeAccessExpressionImpl(node);
-      }
-      else if (type == TYPE_ACCESS_EXPR_INVOCATION_REFERENCE) {
-        return new BallerinaTypeAccessExprInvocationReferenceImpl(node);
-      }
       else if (type == TYPE_CONVERSION_EXPRESSION) {
         return new BallerinaTypeConversionExpressionImpl(node);
       }
       else if (type == TYPE_DEFINITION) {
         return new BallerinaTypeDefinitionImpl(node);
+      }
+      else if (type == TYPE_DESC_EXPRESSION) {
+        return new BallerinaTypeDescExpressionImpl(node);
+      }
+      else if (type == TYPE_DESC_EXPR_INVOCATION_REFERENCE) {
+        return new BallerinaTypeDescExprInvocationReferenceImpl(node);
       }
       else if (type == TYPE_DESC_REFERENCE_TYPE_NAME) {
         return new BallerinaTypeDescReferenceTypeNameImpl(node);

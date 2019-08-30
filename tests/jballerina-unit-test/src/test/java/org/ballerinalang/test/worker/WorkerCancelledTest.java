@@ -48,7 +48,7 @@ public class WorkerCancelledTest {
             System.setOut(new PrintStream(tempOutStream));
             BRunUtil.invoke(result, "workerCancelledBeforeSend");
             String msg = new String(tempOutStream.toByteArray());
-            Assert.assertTrue(msg.contains("{ballerina}FutureAlreadyCancelled"));
+            Assert.assertTrue(msg.contains("{ballerina/lang.future}FutureAlreadyCancelled"));
         } catch (RuntimeException e) {
             //ignore
         } finally {

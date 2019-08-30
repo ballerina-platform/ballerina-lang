@@ -37,8 +37,8 @@ public class RecordFieldsAccessNegativeTest {
         BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'ChildFoo'", 4, 33);
         BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 8, 13);
         BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 12, 43);
-        BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 16, 47);
         BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 16, 13);
+        BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 16, 47);
         BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(result, i++, "invalid literal for type 'other'", 20, 27);

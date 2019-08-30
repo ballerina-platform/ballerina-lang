@@ -19,6 +19,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,8 +39,8 @@ public class CollectDiagnosticListener implements DiagnosticListener {
     }
 
     public synchronized List<Diagnostic> getDiagnostics() {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        diagnostics.addAll(this.diagnostics);
+        List<Diagnostic> diagnostics = new ArrayList<>(this.diagnostics);
+        Collections.sort(diagnostics);
         return diagnostics;
     }
 

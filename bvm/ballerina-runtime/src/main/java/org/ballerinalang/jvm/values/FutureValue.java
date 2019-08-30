@@ -51,7 +51,7 @@
      }
 
      @Override
-     public String stringValue() {
+     public String stringValue(Strand strand) {
          StringJoiner sj = new StringJoiner(",", "{", "}");
          sj.add("isDone:" + isDone);
          if (isDone) {

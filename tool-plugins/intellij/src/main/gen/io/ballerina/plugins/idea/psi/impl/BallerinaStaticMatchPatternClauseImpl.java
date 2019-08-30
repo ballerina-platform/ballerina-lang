@@ -43,15 +43,9 @@ public class BallerinaStaticMatchPatternClauseImpl extends ASTWrapperPsiElement 
   }
 
   @Override
-  @Nullable
+  @NotNull
   public BallerinaBlock getBlock() {
-    return findChildByClass(BallerinaBlock.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaStatement getStatement() {
-    return findChildByClass(BallerinaStatement.class);
+    return findNotNullChildByClass(BallerinaBlock.class);
   }
 
   @Override
@@ -67,15 +61,15 @@ public class BallerinaStaticMatchPatternClauseImpl extends ASTWrapperPsiElement 
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+    return findNotNullChildByType(RIGHT_BRACE);
   }
 
 }

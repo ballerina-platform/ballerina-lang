@@ -1,4 +1,4 @@
-import ballerina/'lang\.int as ints;
+import ballerina/lang.'int as ints;
 
 function testMapElementIncrement()  returns int|error {
     map<any> namesMap = { fname: 1 };
