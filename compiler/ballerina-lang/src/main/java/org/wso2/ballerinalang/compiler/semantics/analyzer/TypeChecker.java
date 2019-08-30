@@ -3079,6 +3079,15 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             iExpr.symbol = funcSymbol;
         }
+
+        // __init method can be called in a method-call-expr only when the expression
+        // preceding the . is self
+        if (iExpr.name.value.equals(Names.USER_DEFINED_INIT_SUFFIX.value) &&
+                !(iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                (Names.SELF.equals(((BLangSimpleVarRef) iExpr.expr).symbol.name)))) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_INIT_INVOCATION);
+        }
+
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
         }

@@ -92,3 +92,16 @@ type Person4 object {
         return e;
     }
 };
+
+type Too object {
+    public function __init() {
+    }
+    function name() {
+        self.__init(); // valid
+    }
+};
+
+function callInitFunction() {
+    Too t = new;
+    t.__init(); // invalid
+}

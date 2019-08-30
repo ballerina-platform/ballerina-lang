@@ -163,6 +163,7 @@ public enum DiagnosticCode {
 
     ENDPOINT_NOT_SUPPORT_REGISTRATION("endpoint.not.support.registration"),
     INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
+    INVALID_INIT_INVOCATION("invalid.init.invocation"),
     INVALID_RESOURCE_FUNCTION_INVOCATION("invalid.resource.function.invocation"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     UNDEFINED_ACTION("undefined.action"),
