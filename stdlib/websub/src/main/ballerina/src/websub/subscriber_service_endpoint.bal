@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 import ballerina/log;
 
 //////////////////////////////////////////

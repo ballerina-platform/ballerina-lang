@@ -20,9 +20,6 @@
 package org.ballerinalang.stdlib.io;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.channels.base.readers.ChannelReader;
-import org.ballerinalang.stdlib.io.channels.base.writers.ChannelWriter;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
 import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -33,25 +30,20 @@ import java.nio.channels.WritableByteChannel;
 public class MockByteChannel extends Channel {
 
     public MockByteChannel(ByteChannel channel) {
-        super(channel, new ChannelReader(), new ChannelWriter());
+        super(channel);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Channel getChannel() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isSelectable() {
-        return false;
     }
 
     public boolean remaining() {

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
@@ -40,7 +41,7 @@ public class HandleValue implements RefValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(Strand strand) {
         return String.valueOf(value);
     }
 

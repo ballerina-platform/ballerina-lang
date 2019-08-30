@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
@@ -116,36 +117,17 @@ public class TableValue implements RefValue, CollectionValue {
         return stringValue();
     }
 
-    public String stringValue() {
-        String constraint = constraintType != null ? "<" + constraintType.toString() + ">" : "";
-        StringBuilder tableWrapper = new StringBuilder("table" + constraint + " ");
-        StringJoiner tableContent = new StringJoiner(", ", "{", "}");
-        tableContent.add(createStringValueEntry("index", indices));
-        tableContent.add(createStringValueEntry("primaryKey", primaryKeys));
-        tableContent.add(createStringValueDataEntry());
-        tableWrapper.append(tableContent.toString());
-
-        return tableWrapper.toString();
+    public String stringValue(Strand strand) {
+        return createStringValueDataEntry(strand);
     }
 
-    private String createStringValueEntry(String key, ArrayValue contents) {
-        String stringValue = "[]";
-        if (contents != null) {
-            stringValue = contents.toString();
-        }
-        return key + ": " + stringValue;
-    }
-
-    private String createStringValueDataEntry() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("data: ");
-        StringJoiner sj = new StringJoiner(", ", "[", "]");
+    private String createStringValueDataEntry(Strand strand) {
+        StringJoiner sj = new StringJoiner(" ");
         while (hasNext()) {
             MapValueImpl<?, ?> struct = getNext();
-            sj.add(struct.toString());
+            sj.add(struct.stringValue(strand));
         }
-        sb.append(sj.toString());
-        return sb.toString();
+        return sj.toString();
     }
 
     @Override

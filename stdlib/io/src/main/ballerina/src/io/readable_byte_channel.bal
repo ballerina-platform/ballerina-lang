@@ -25,8 +25,11 @@ public type ReadableByteChannel object {
     # This operation will be asynchronous, where the total number of required bytes might not be returned at a given
     # time.
     #
+    # `io:EofError` will return once channel reach to it end.
+    #
     # + nBytes - Positive integer. Represents the number of bytes which should be read
-    # + return - Content, the number of bytes read or `Error` if any error occurred
+    # + return - Content, the number of bytes read or `EofError` once channel reach to it end.
+    #            `Error` if any error occurred.
     public function read(@untainted int nBytes) returns @tainted [byte[], int]|Error = external;
 
     # Encodes a given ReadableByteChannel with Base64 encoding scheme.

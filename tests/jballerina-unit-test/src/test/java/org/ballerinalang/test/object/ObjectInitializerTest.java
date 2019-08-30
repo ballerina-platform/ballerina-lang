@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.object;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -163,5 +164,30 @@ public class ObjectInitializerTest {
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
         Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{f:\"foo\"}");
+    }
+
+    @Test(description = "Test checkpanic expression in object init expr's argument")
+    public void testCheckPanicInObjectInitArg() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCheckPanicInObjectInitArg");
+
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "Panicked");
+    }
+
+    @Test(description = "Test checkpanic expression in object init expr's argument")
+    public void testCheckPanicObjectInit() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCheckPanicObjectInit", new BValue[]{new BBoolean(true)});
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "Foo Error {f:\"foo\"}");
+
+        returns = BRunUtil.invoke(compileResult, "testCheckPanicObjectInit", new BValue[]{new BBoolean(false)});
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "Bar Error {b:\"bar\"}");
+    }
+
+    @Test(description = "Test panic in object init function")
+    public void testObjectInitPanic() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInitPanic");
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "__init panicked {}");
     }
 }

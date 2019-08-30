@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -144,11 +145,13 @@ public class TableUtils {
                 }
                 break;
             case TypeTags.XML_TAG:
+                stmt.setString(index, data.get(fieldName).toString());
+                break;
             case TypeTags.JSON_TAG:
                 if (value == null) {
                     stmt.setNull(index, Types.VARCHAR);
                 } else {
-                    stmt.setString(index, data.get(fieldName).toString());
+                    stmt.setString(index, StringUtils.getJsonString(data.get(fieldName)));
                 }
                 break;
             case TypeTags.ARRAY_TAG:

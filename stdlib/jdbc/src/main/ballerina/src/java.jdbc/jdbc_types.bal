@@ -104,13 +104,6 @@ public type GlobalPoolConfigContainer object {
 // of connection pools.
 final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 
-# Retrieves the `final` `GlobalPoolConfigContainer` object.
-#
-# + return - The `final` `GlobalPoolConfigContainer` object
-public function getGlobalPoolConfigContainer() returns GlobalPoolConfigContainer {
-    return globalPoolConfigContainer;
-}
-
 # The SQL Datatype of the parameter.
 #
 # `VARCHAR` - Small, variable length character string

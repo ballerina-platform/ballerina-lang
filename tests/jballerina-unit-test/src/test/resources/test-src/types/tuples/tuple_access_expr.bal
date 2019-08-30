@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/'lang\.int as ints;
+import ballerina/lang.'int as ints;
 
 function tupleAccessTest() returns string {
     [int, string, boolean, ()] tuple = [100, "string_value", true, ()];

@@ -1,6 +1,6 @@
 import ballerina/http;
+import ballerina/lang.'object as lang;
 import ballerina/reflect;
-import ballerina/'lang\.object as lang;
 
 type Annot record {
     string foo;  

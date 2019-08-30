@@ -1165,8 +1165,17 @@ public class Types {
                     return symbol;
             }
             symbol = createCastOperatorSymbol(symTable.anyType, expType, true, code);
+        } else if (expType.tag == TypeTags.ERROR
+                && (actualType.tag == TypeTags.UNION
+                && isAllErrorMembers((BUnionType) actualType))) {
+            symbol = createCastOperatorSymbol(symTable.anyType, symTable.errorType, true, InstructionCodes.ANY2E);
+
         }
         return symbol;
+    }
+
+    private boolean isAllErrorMembers(BUnionType actualType) {
+        return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {

@@ -129,6 +129,7 @@ public type RetryClient client object {
     # underlying HTTP remote function in a way to provide retrying functionality for a given endpoint to recover
     # from network level failures.
     #
+    # + httpVerb - The HTTP verb value
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`

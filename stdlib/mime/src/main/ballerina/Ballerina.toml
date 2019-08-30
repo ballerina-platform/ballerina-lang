@@ -15,7 +15,7 @@ target = "java"
     [[platform.libraries]]
     artifactId = "org.wso2.transport.http.netty"
     version = "6.0.294"
-    path = "./lib/org.wso2.transport.http.netty-6.2.5.jar"
+    path = "./lib/org.wso2.transport.http.netty-6.2.11.jar"
     groupId = "org.wso2.transport.http"
     modules = ["mime"]
 
@@ -24,20 +24,6 @@ target = "java"
     version = "1.9.11"
     path = "./lib/mimepull-1.9.7.jar"
     groupId = "org.jvnet.mimepull"
-    modules = ["mime"]
-
-    [[platform.libraries]]
-    artifactId = "axiom-api"
-    version = "1.2.20"
-    path = "./lib/axiom-api-1.2.20.jar"
-    groupId = "org.apache.ws.commons.axiom"
-    modules = ["mime"]
-
-    [[platform.libraries]]
-    artifactId = "commons-logging"
-    version = "1.1.1"
-    path = "./lib/commons-logging-1.1.1.jar"
-    groupId = "commons-logging"
     modules = ["mime"]
 
     [[platform.libraries]]

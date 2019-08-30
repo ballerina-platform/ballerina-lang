@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/http;
-import ballerina/time;
+import ballerina/io;
+import ballerina/lang.'int as lint;
 import ballerina/math;
-import ballerina/'lang\.int as lint;
+import ballerina/time;
 
 # This function searches modules from ballerina central.
 #
@@ -40,7 +40,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     }
     string statusCode = httpResponse.statusCode.toString();
     if (statusCode.startsWith("5")) {
-        io:println("remote registry failed for url : " + url + "/" + querySearched);
+        io:println("remote repository failed for url : " + url + "/" + querySearched);
     } else if (statusCode != "200") {
         var resp = httpResponse.getJsonPayload();
         if (resp is json) {

@@ -672,12 +672,12 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
-    @Test(dataProvider = "missingNativeImplFiles", groups = "brokenOnJBallerina")
+    @Test(dataProvider = "missingNativeImplFiles")
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
-            BCompileUtil.compile(filePath);
+            BCompileUtil.compileInProc(filePath);
         } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), "native function not available: Person.printName");
+            Assert.assertTrue(e.getMessage().contains("native function not available: Person.printName"));
             return;
         }
         Assert.fail("expected compilation to fail due to missing external implementation");
@@ -721,9 +721,9 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '(PersonRec|EmployeeRec)', found 'string'", 71, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "positional argument not allowed after named arguments", 114, 53);
-        BAssertUtil.validateError(resultNegative, i++,
                 "missing required parameter 'i' in call to 'new'()", 114, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "positional argument not allowed after named arguments", 114, 53);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjTwo|int)'", 119, 36);
         BAssertUtil.validateError(resultNegative, i++,
