@@ -323,7 +323,7 @@ public class FileTest {
         }
     }
 
-    @Test(description = "Test for copying a file to new location")
+    @Test(description = "Test for copying a file to new location", enabled = false)
     public void testCopyFile() throws IOException, InterruptedException {
         try {
             BValue[] args = {new BString(srcFilePath.toString()), new BString(tempDestPath.toString()),
