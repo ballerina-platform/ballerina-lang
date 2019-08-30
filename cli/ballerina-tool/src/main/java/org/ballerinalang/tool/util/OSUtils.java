@@ -98,6 +98,7 @@ public class OSUtils {
      * @throws IOException occurs when reading files
      */
     public static boolean updateNotice(String version) throws IOException {
+        boolean showNotice = false;
         String userHome = System.getProperty("user.home");
         LocalDate today = LocalDate.now();
         File file = new File(userHome + File.separator
@@ -105,14 +106,19 @@ public class OSUtils {
         if (!file.exists()) {
             file.getParentFile().mkdirs();
             file.createNewFile();
+            showNotice = true;
+        } else {
+            BufferedReader br = Files.newBufferedReader(Paths.get(file.getPath()));
+            showNotice = today.minusDays(2)
+                    .isAfter(LocalDate.parse(br.lines().collect(Collectors.toList()).get(0)));
+
+        }
+        if (showNotice) {
             PrintWriter writer = new PrintWriter(file.getPath(), "UTF-8");
             writer.println(today.toString());
             writer.close();
-            return true;
         }
-
-        BufferedReader br = Files.newBufferedReader(Paths.get(file.getPath()));
-        return today.minusDays(2).isAfter(LocalDate.parse(br.lines().collect(Collectors.toList()).get(0)));
+        return showNotice;
     }
 
     /**
