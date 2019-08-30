@@ -130,6 +130,7 @@ public class RuntimeUtils {
             silentlyLogBadSad(throwable);
         }
 
+        Runtime.getRuntime().exit(1);
     }
 
     public static void handleRuntimeReturnValues(Object returnValue) {
