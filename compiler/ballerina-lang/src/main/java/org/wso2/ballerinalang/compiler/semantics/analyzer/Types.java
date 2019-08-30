@@ -739,7 +739,7 @@ public class Types {
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
                                                      List<TypePair> unresolvedTypes) {
         if (target.state != BArrayState.UNSEALED
-                && (source.restType != null || source.tupleTypes.size() > target.size)) {
+                && (source.restType != null || source.tupleTypes.size() != target.size)) {
             return false;
         }
 
