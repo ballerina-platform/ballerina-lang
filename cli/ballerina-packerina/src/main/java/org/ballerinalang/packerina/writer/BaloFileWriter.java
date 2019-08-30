@@ -22,16 +22,20 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.BaloToml;
+import org.ballerinalang.toml.exceptions.TomlException;
+import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Module;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -49,6 +53,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -154,7 +159,7 @@ public class BaloFileWriter {
         //    └─ MODULE-DESC.md
         //    └─ api-docs/
 
-        addMetaData(root, moduleName, manifest);
+        addMetaData(root, module, manifest);
         addModuleSource(root, baloFS, moduleSourceDir, moduleName);
         addResources(root, baloFS, moduleSourceDir);
         addModuleDoc(root, moduleSourceDir);
@@ -162,6 +167,37 @@ public class BaloFileWriter {
         if (!this.manifest.isTemplateModule(moduleName)) {
             addPlatformLibs(root, projectDirectory, moduleName);
         }
+    }
+    
+    private byte[] populateTomlWithProjectModules(BLangPackage module, byte[] manifestBytes) {
+        try (ByteArrayInputStream tomlStream = new ByteArrayInputStream(manifestBytes)) {
+            Manifest manifest = ManifestProcessor.parseTomlContentAsStream(tomlStream);
+            for (BLangImportPackage importz : module.imports) {
+                // if import is from the same org as parent
+                if (importz.symbol.pkgID.orgName.value.equals(module.packageID.orgName.value)) {
+                    // if its from the same project
+                    if (ProjectDirs.isModuleExist(this.sourceDirectory.getPath(), importz.symbol.pkgID.name.value)) {
+                        // check if its not already there as an import.
+                        Optional<Dependency> manifestDependency = manifest.getDependencies().stream()
+                                .filter(dep -> dep.getOrgName().equals(importz.symbol.pkgID.orgName.value))
+                                .filter(dep -> dep.getModuleName().equals(importz.symbol.pkgID.name.value))
+                                .findAny();
+                        
+                        // if dependency is not mentioned in toml
+                        if (!manifestDependency.isPresent()) {
+                            // update manifest
+                            try (ByteArrayInputStream tomlStreamToUpdate = new ByteArrayInputStream(manifestBytes)) {
+                                return ManifestProcessor.addDependencyToManifest(tomlStreamToUpdate,
+                                        importz.symbol.pkgID);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (TomlException | IOException e) {
+            // ignore
+        }
+        return manifestBytes;
     }
     
     private void addModuleDoc(Path root, Path moduleSourceDir) throws IOException {
@@ -245,7 +281,7 @@ public class BaloFileWriter {
         Files.walkFileTree(moduleSourceDir, new Copy(moduleSourceDir, moduleDirInBalo, fileFilter, dirFilter));
     }
 
-    private void addMetaData(Path root, String moduleName, Path manifestPath) throws IOException {
+    private void addMetaData(Path root, BLangPackage module, Path manifestPath) throws IOException {
         Path metaDir = root.resolve(ProjectDirConstants.BALO_METADATA_DIR_NAME);
         Path baloMetaFile = metaDir.resolve(ProjectDirConstants.BALO_METADATA_FILE);
         Path moduleMetaFile = metaDir.resolve(ProjectDirConstants.BALO_MODULE_METADATA_FILE);
@@ -260,22 +296,26 @@ public class BaloFileWriter {
 
         // Write to MODULE.toml
         Module moduleObj = new Module();
-        moduleObj.setModule_name(moduleName);
+        moduleObj.setModule_name(module.packageID.name.value);
         moduleObj.setModule_organization(this.manifest.getProject().getOrgName());
         moduleObj.setModule_version(this.manifest.getProject().getVersion());
         moduleObj.setModule_authors(this.manifest.getProject().getAuthors());
         moduleObj.setModule_keywords(this.manifest.getProject().getKeywords());
         moduleObj.setModule_source_repository(this.manifest.getProject().getRepository());
         moduleObj.setModule_licenses(this.manifest.getProject().getLicense());
-        moduleObj.setPlatform(this.manifest.getTargetPlatform(moduleName));
+        moduleObj.setPlatform(this.manifest.getTargetPlatform(module.packageID.name.value));
         moduleObj.setBallerina_version(RepoUtils.getBallerinaVersion());
-        moduleObj.setTemplate(String.valueOf(manifest.getProject().getTemplates().contains(moduleName)));
+        moduleObj.setTemplate(String.valueOf(
+                manifest.getProject().getTemplates().contains(module.packageID.name.value)));
         String moduleToml = writer.write(moduleObj);
         Files.write(moduleMetaFile, moduleToml.getBytes(Charset.defaultCharset()));
         
         // Write Ballerina.toml
         byte[] manifestBytes = Files.readAllBytes(manifestPath);
-        Files.write(baloManifest, manifestBytes);
+        byte[] tomlBytes = populateTomlWithProjectModules(module, manifestBytes);
+        if (null != tomlBytes) {
+            Files.write(baloManifest, tomlBytes);
+        }
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

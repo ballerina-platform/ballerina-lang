@@ -219,7 +219,7 @@ public class PathDependencyTestCase extends BaseTest {
         // Push bee module of TestProject1
         String beePushMsg = orgName + "/" + beeModuleName + ":1.2.0 [project repo -> central]";
         LogLeecher beePushLeecher = new LogLeecher(beePushMsg);
-        balClient.runMain("push", new String[]{}, envVariables, new String[]{},
+        balClient.runMain("push", new String[]{"--all"}, envVariables, new String[]{},
                 new LogLeecher[]{beePushLeecher}, caseResources.resolve("TestProject1").toString());
         beePushLeecher.waitForText(5000);
     
@@ -254,7 +254,7 @@ public class PathDependencyTestCase extends BaseTest {
         // Push fee module of TestProject2
         String feePushMsg = orgName + "/" + feeModuleName + ":2.0.0 [project repo -> central]";
         LogLeecher feePushLeecher = new LogLeecher(feePushMsg);
-        balClient.runMain("push", new String[]{}, envVariables, new String[]{},
+        balClient.runMain("push", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{feePushLeecher}, caseResources.resolve("TestProject2").toString());
         feePushLeecher.waitForText(5000);
 
@@ -355,7 +355,7 @@ public class PathDependencyTestCase extends BaseTest {
         // Push baz module of TestProject2
         String bazPushMsg = "[project repo -> central]";
         LogLeecher bazPushLeecher = new LogLeecher(bazPushMsg);
-        balClient.runMain("push", new String[]{}, envVariables, new String[]{},
+        balClient.runMain("push", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{bazPushLeecher}, caseResources.resolve("TestProject2").toString());
         bazPushLeecher.waitForText(5000);
     }
