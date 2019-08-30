@@ -61,10 +61,10 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'reason'", 146, 9);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'fatal'", 147, 9);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'message'", 148, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'id'", 155, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'name'", 156, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'salary'", 157, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 168, 13);
-        BAssertUtil.validateError(compile, index, "cannot assign a value to final 'v'", 182, 13);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'id'", 156, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'name'", 157, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'salary'", 158, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 169, 13);
+        BAssertUtil.validateError(compile, index, "cannot assign a value to final 'v'", 183, 13);
     }
 }
