@@ -1,26 +1,20 @@
 {
-  "range": {
-    "start": {
-      "line": 3,
-      "character": 3
-    },
-    "end": {
-      "line": 3,
-      "character": 3
-    }
-  },
+  "line": 3,
+  "character": 4,
   "expected": {
-    "title": "Ignore Return Value",
-    "command": "IGNORE_RETURN",
-    "arguments": [
-      {
-        "argumentK":"node.line",
-        "argumentV":"3"
+    "title": "Create Local Variable",
+    "edit": {
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 3
+        },
+        "end": {
+          "line": 3,
+          "character": 3
+        }
       },
-      {
-        "argumentK":"node.column",
-        "argumentV":"3"
-      }
-    ]
+      "newText": "int twoIntegers = "
+    }
   }
 }

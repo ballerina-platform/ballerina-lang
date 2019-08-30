@@ -976,20 +976,20 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTypeName(o);
   }
 
-  public void visitTypeAccessExprInvocationReference(@NotNull BallerinaTypeAccessExprInvocationReference o) {
-    visitVariableReference(o);
-  }
-
-  public void visitTypeAccessExpression(@NotNull BallerinaTypeAccessExpression o) {
-    visitExpression(o);
-  }
-
   public void visitTypeConversionExpression(@NotNull BallerinaTypeConversionExpression o) {
     visitExpression(o);
   }
 
   public void visitTypeDefinition(@NotNull BallerinaTypeDefinition o) {
     visitTopLevelDefinition(o);
+  }
+
+  public void visitTypeDescExprInvocationReference(@NotNull BallerinaTypeDescExprInvocationReference o) {
+    visitVariableReference(o);
+  }
+
+  public void visitTypeDescExpression(@NotNull BallerinaTypeDescExpression o) {
+    visitExpression(o);
   }
 
   public void visitTypeDescReferenceTypeName(@NotNull BallerinaTypeDescReferenceTypeName o) {

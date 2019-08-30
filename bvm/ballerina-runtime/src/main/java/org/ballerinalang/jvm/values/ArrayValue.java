@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
@@ -38,6 +39,7 @@ import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -499,6 +501,11 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     @Override
     public String stringValue() {
+        return stringValue(null);
+    }
+
+    @Override
+    public String stringValue(Strand strand) {
         if (elementType != null) {
             StringJoiner sj = new StringJoiner(" ");
             if (elementType.getTag() == TypeTags.INT_TAG) {
@@ -529,10 +536,6 @@ public class ArrayValue implements RefValue, CollectionValue {
             }
         }
 
-        if (getElementType(arrayType).getTag() == TypeTags.JSON_TAG) {
-            return getJSONString();
-        }
-
         StringJoiner sj;
         if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
             sj = new StringJoiner(" ");
@@ -541,12 +544,8 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
 
         for (int i = 0; i < size; i++) {
-            if (refValues[i] != null) {
-                sj.add((refValues[i] instanceof RefValue) ? ((RefValue) refValues[i]).stringValue() :
-                        (refValues[i] instanceof String) ? (String) refValues[i] :  refValues[i].toString());
-            } else {
-                sj.add("()");
-            }
+            BType type = TypeChecker.getType(refValues[i]);
+            sj.add(StringUtils.getStringValue(strand, refValues[i], type));
         }
         return sj.toString();
     }

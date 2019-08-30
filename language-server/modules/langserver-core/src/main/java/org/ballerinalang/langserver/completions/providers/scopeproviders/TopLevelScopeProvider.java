@@ -49,6 +49,11 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
     @Override
     public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        
+        if (this.inFunctionReturnParameterContext(ctx)) {
+            return this.getProvider(BallerinaParser.ReturnParameterContext.class).getCompletions(ctx);
+        }
+
         Optional<LSCompletionProvider> contextProvider = this.getContextProvider(ctx);
         List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);

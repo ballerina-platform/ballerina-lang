@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayOutputStream;
@@ -482,7 +483,7 @@ public class MimeUtil {
             return new String(((ArrayValue) dataSource).getBytes(), StandardCharsets.UTF_8);
         }
 
-        return dataSource.toString();
+        return StringUtils.getJsonString(dataSource);
     }
 
     /**
