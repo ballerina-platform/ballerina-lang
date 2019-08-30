@@ -196,6 +196,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet BAD_CHARACTER = TokenSet.create(TokenType.BAD_CHARACTER);
 
+    public static final TokenSet ERROR_ELEMENT = TokenSet.create(TokenType.ERROR_ELEMENT);
+
     @NotNull
     @Override
     public Lexer createLexer(Project project) {

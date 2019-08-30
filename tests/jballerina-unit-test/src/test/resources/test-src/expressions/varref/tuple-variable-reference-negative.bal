@@ -153,3 +153,10 @@ function testDuplicateBinding2() returns [int, int, int] {
     [a, [a, a]] = x;
     return [a, a, a];
 }
+
+function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
+    [int, [string, boolean]] t1 = [2002, ["S1", true]];
+    map<anydata> m = {};
+    [m["var1"], [m["var2"], _]] = t1;
+    return [m["var1"], m["var2"]];
+}

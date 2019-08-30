@@ -15,7 +15,7 @@ LINE_COMMENT ('// single implicit default worker. The default worker in each fun
 WHITE_SPACE ('\n')
 LINE_COMMENT ('// executed in the same strand as the caller function.')
 WHITE_SPACE ('\n')
-PUBLIC ('public')
+public ('public')
 WHITE_SPACE (' ')
 function ('function')
 WHITE_SPACE (' ')
