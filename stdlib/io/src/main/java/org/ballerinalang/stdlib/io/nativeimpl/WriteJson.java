@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -50,7 +51,7 @@ public class WriteJson {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj.getNativeData(
                     IOConstants.CHARACTER_CHANNEL_NAME);
-            IOUtils.writeFull(characterChannel, content.toString());
+            IOUtils.writeFull(characterChannel, StringUtils.getJsonString(content));
         } catch (BallerinaIOException e) {
             return IOUtils.createError(e);
         }
