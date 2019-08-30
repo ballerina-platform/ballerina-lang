@@ -140,7 +140,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         DiagnosticPos pos = null;
 
         // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(context);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
 
         if (!imports.isEmpty()) {
             BLangImportPackage lastImport = CommonUtil.getLastItem(imports);

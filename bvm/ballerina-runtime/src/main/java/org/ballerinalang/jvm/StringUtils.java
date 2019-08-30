@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
@@ -26,6 +25,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+
+import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for String manipulation.
@@ -93,7 +96,8 @@ public class StringUtils {
 
     public static String getStringAt(String s, long index) {
         if (index < 0 || index >= s.length()) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+            throw BallerinaErrors.createError(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                      INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                                               "string index out of range: index: " + index + ", size: " + s.length());
         }
 

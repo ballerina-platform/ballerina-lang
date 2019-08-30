@@ -177,7 +177,7 @@ function testUpdateInMemory(string jdbcURL) returns @tainted [int, string] {
     if (x is table<Customer>) {
         var res = typedesc<json>.constructFrom(x);
         if (res is json) {
-            s = res.toString();
+            s = res.toJsonString();
         }
     }
 
@@ -281,7 +281,7 @@ function testH2MemDBUpdate() returns [int, string] {
     if (dt is table<record {}>) {
         var j = typedesc<json>.constructFrom(dt);
         if (j is json) {
-            data = io:sprintf("%s", j);
+            data = io:sprintf("%s", j.toJsonString());
         }
     }
     int insertCount = 0;

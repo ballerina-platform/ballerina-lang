@@ -539,6 +539,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (tableConstraint.tag == TypeTags.NONE) {
             dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT);
             return;
+        } else if (tableConstraint.tag != TypeTags.RECORD) {
+            dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CONSTRAINT_MUST_BE_A_RECORD_TYPE);
+            return;
         }
         validateTableColumns(tableConstraint, tableLiteral);
         checkExprs(tableLiteral.tableDataRows, this.env, tableConstraint);
@@ -3073,6 +3076,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = symTable.semanticError;
                 return;
             }
+        } else {
+            iExpr.symbol = funcSymbol;
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -3080,7 +3085,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
-        iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
 

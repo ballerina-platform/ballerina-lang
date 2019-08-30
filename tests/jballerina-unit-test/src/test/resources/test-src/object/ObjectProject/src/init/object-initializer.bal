@@ -200,3 +200,37 @@ function testMultipleErrorReturn() returns [Person4|FooErr|BarErr, Person4|FooEr
     Person4|FooErr|BarErr p2 = new(false);
     return [p1, p2];
 }
+
+function panicTheStr() returns error|string {
+    return error("Panicked");
+}
+
+type PanicReceiver object {
+
+    public int age = 0;
+    public string name = "A";
+
+    function __init (string name, int a = 30) {
+        self.name = self.name + name;
+        self.age = a;
+        panic error("__init panicked");
+    }
+};
+
+function panicWrapper() {
+    PanicReceiver r = new(checkpanic panicTheStr());
+}
+
+function testCheckPanicObjectInit(boolean b) returns error|Person4 {
+    Person4 r = check new(b);
+    return r;
+}
+
+function testCheckPanicInObjectInitArg() returns error {
+    error|() p = trap panicWrapper();
+    return <error>p;
+}
+
+function testObjectInitPanic() returns error|PanicReceiver {
+    return trap new PanicReceiver("Mr. Panic");
+}

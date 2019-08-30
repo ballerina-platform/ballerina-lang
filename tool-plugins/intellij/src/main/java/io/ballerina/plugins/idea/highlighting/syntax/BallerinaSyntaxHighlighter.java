@@ -40,7 +40,11 @@ public class BallerinaSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ATTRIBUTES, BallerinaParserDefinition.OPERATORS, BallerinaSyntaxHighlightingColors.KEYWORD);
         fillMap(ATTRIBUTES, BallerinaParserDefinition.STRINGS, BallerinaSyntaxHighlightingColors.STRING);
         fillMap(ATTRIBUTES, BallerinaParserDefinition.NUMBERS, BallerinaSyntaxHighlightingColors.NUMBER);
-        fillMap(ATTRIBUTES, BallerinaParserDefinition.BAD_CHARACTER, BallerinaSyntaxHighlightingColors.BAD_CHARACTER);
+
+        // Since we are using language server based diagnostics, we can ignore error syntax highlighting provided by
+        // the plugin grammar.
+        fillMap(ATTRIBUTES, BallerinaParserDefinition.ERROR_ELEMENT, BallerinaSyntaxHighlightingColors.DEFAULT);
+        fillMap(ATTRIBUTES, BallerinaParserDefinition.BAD_CHARACTER, BallerinaSyntaxHighlightingColors.DEFAULT);
     }
 
     @NotNull

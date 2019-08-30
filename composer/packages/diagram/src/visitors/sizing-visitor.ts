@@ -47,13 +47,15 @@ class SizingVisitor implements Visitor {
     }
 
     public beginVisitIf(node: If) {
-        if (!node.viewState.hidden) {
+        if (!node.viewState.hidden && !node.viewState.hiddenBlock) {
             node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
         }
     }
 
     public beginVisitWhile(node: While) {
-        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        if (!node.viewState.hidden && !node.viewState.hiddenBlock) {
+            node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        }
     }
 
     public beginVisitForeach(node: Foreach) {
@@ -209,11 +211,11 @@ class SizingVisitor implements Visitor {
     public endVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
 
-        if (node.viewState.hidden) {
-            viewState.bBox.w = 0;
-            viewState.bBox.h = 0;
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
             return;
         }
+
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
         viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
@@ -232,9 +234,8 @@ class SizingVisitor implements Visitor {
     public endVisitForeach(node: Foreach) {
         const viewState: ViewState = node.viewState;
 
-        if (node.viewState.hidden) {
-            viewState.bBox.w = 0;
-            viewState.bBox.h = 0;
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
             return;
         }
 
@@ -256,14 +257,8 @@ class SizingVisitor implements Visitor {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
-        if (node.viewState.hidden) {
-            viewState.bBox.w = 0;
-            viewState.bBox.h = 0;
-            return;
-        }
-
-        if (node.viewState.hiddenBlock) {
-            this.sizeHiddenBlock(node.viewState);
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
             return;
         }
 
@@ -355,6 +350,12 @@ class SizingVisitor implements Visitor {
 
     public endVisitMatchStaticPatternClause(node: MatchStaticPatternClause) {
         const viewState: ViewState = node.viewState;
+
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
+            return;
+        }
+
         viewState.bBox.w = node.statement.viewState.bBox.w;
         viewState.bBox.h = node.statement.viewState.bBox.h
             + config.statement.height; // To print literal
@@ -363,6 +364,12 @@ class SizingVisitor implements Visitor {
 
     public endVisitMatch(node: Match) {
         const viewState: ViewState = node.viewState;
+
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
+            return;
+        }
+
         let height = config.frame.topMargin + config.frame.header.height;
         let width = 0;
         node.patternClauses.forEach((element) => {
@@ -371,7 +378,7 @@ class SizingVisitor implements Visitor {
                 width : element.viewState.bBox.w;
         });
         viewState.bBox.h = height;
-        viewState.bBox.w = width;
+        viewState.bBox.w = width + config.flowCtrl.rightMargin;
         viewState.bBox.leftMargin = 60;
     }
 
@@ -382,7 +389,11 @@ class SizingVisitor implements Visitor {
 
         const actualEpName = (endpoint.viewState as EndpointViewState).actualEpName;
         if (actualEpName) {
-            return this.findActualEP(this.soroundingEndpoints.find((el: VisibleEndpoint) => el.name === actualEpName));
+            const actualEP = this.soroundingEndpoints.find((el: VisibleEndpoint) => el.name === actualEpName);
+            if (actualEP === endpoint) {
+                return endpoint;
+            }
+            return this.findActualEP(actualEP);
         } else {
             return endpoint;
         }
@@ -436,10 +447,24 @@ class SizingVisitor implements Visitor {
             // add space for the expander
             viewState.bBox.w += 10;
             if (!viewState.expandContext.collapsed && !viewState.hidden && !viewState.hiddenBlock) {
-                viewState.expandContext.labelText = source;
-                viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(source, {bold: true});
+                const labelText = viewState.expandContext.expandedSubTree.name.value;
+                viewState.expandContext.labelText = labelText;
+                viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(labelText, {bold: true});
                 this.handleExpandedFn(viewState.expandContext.expandedSubTree, viewState);
             }
+        }
+    }
+
+    private checkHiddenState(viewState: ViewState) {
+        if (viewState.hidden) {
+            viewState.bBox.w = 0;
+            viewState.bBox.h = 0;
+            return;
+        }
+
+        if (viewState.hiddenBlock) {
+            this.sizeHiddenBlock(viewState as StmntViewState);
+            return;
         }
     }
 
@@ -459,7 +484,7 @@ class SizingVisitor implements Visitor {
                     hiddenBlockWidth = hiddenNode.viewState.bBox.w;
                 }
                 if (hiddenBlockLeftMargin < hiddenNode.viewState.bBox.leftMargin) {
-                    hiddenBlockLeftMargin = hiddenNode.viewState.bBox.leftMargin;
+                    hiddenBlockLeftMargin = hiddenNode.viewState.bBox.leftMargin + config.statement.expanded.margin;
                 }
             });
             viewState.bBox.h = hiddenBlockHeight + 2 * config.statement.expanded.bottomMargin;

@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -362,7 +363,7 @@ public class Util {
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
         Object jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
         Assert.assertNotNull(jsonData);
-        Assert.assertEquals(jsonData.toString(), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
+        Assert.assertEquals(StringUtils.getJsonString(jsonData), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
         XMLValue xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);

@@ -1094,10 +1094,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangForeach foreach) {
         this.loopWithintransactionCheckStack.push(true);
+        boolean statementReturns = this.statementReturns;
         this.checkStatementExecutionValidity(foreach);
         this.loopCount++;
         analyzeNode(foreach.body, env);
         this.loopCount--;
+        this.statementReturns = statementReturns;
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
@@ -1106,10 +1108,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         this.loopWithintransactionCheckStack.push(true);
+        boolean statementReturns = this.statementReturns;
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
         analyzeNode(whileNode.body, env);
         this.loopCount--;
+        this.statementReturns = statementReturns;
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
         analyzeExpr(whileNode.expr);
