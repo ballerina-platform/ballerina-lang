@@ -19,9 +19,7 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.EventLoop;
@@ -180,14 +178,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 LOG.error("Couldn't close target channel socket connections", e);
             }
         });
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (ctx != null && ctx.channel().isActive()) {
-            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-        }
-        LOG.warn("Exception occurred in SourceHandler : {}", cause.getMessage());
     }
 
     @Override

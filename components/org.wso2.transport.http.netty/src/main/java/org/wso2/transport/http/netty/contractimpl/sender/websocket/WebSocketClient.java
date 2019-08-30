@@ -116,7 +116,12 @@ public class WebSocketClient {
                                                                          webSocketMessageQueueHandler, ssl, autoRead,
                                                                          url, handshakeFuture);
             Bootstrap clientBootstrap = initClientBootstrap(host, port, handshakeFuture);
-            clientBootstrap.connect(uri.getHost(), port).sync();
+            clientBootstrap.connect(uri.getHost(), port).addListener(future -> {
+                Throwable cause = future.cause();
+                if (!future.isSuccess() && cause != null) {
+                    handshakeFuture.notifyError(cause, null);
+                }
+            });
         } catch (Exception throwable) {
             handleHandshakeError(handshakeFuture, throwable);
         }

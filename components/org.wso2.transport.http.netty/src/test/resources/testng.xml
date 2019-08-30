@@ -129,6 +129,8 @@
 <!--            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringResponseDataWrite"/>-->
 <!--            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringResponseDataWrite2"/>-->
             <class name="org.wso2.transport.http.netty.http2.clientchannelclose.RemoteChannelCloseWithSSLError"/>
+            <class name="org.wso2.transport.http.netty.http2.compression.ResponseBodyCompressionTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.expect100continue.Abnormal100ContinueTestCase"/>
         </classes>
     </test>
     <test name="Transport Security Tests" parallel="false">
@@ -136,7 +138,7 @@
             <class name="org.wso2.transport.http.netty.certificatevalidation.RevocationVerificationTest"/>
             <class name="org.wso2.transport.http.netty.certificatevalidation.CRLVerifierTest"/>
             <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPVerifierTest"/>
-            <class name="org.wso2.transport.http.netty.https.HttpSClientTestCase"/>
+            <class name="org.wso2.transport.http.netty.https.HttpsInvalidServerCertificateTest"/>
             <class name="org.wso2.transport.http.netty.https.SSLProtocolsTest"/>
             <class name="org.wso2.transport.http.netty.https.MutualSSLTestCase"/>
             <class name="org.wso2.transport.http.netty.https.CipherSuitesTest"/>

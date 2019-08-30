@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -24,25 +24,31 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.initializers.MockServerInitializer;
 
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.TEXT_PLAIN;
 
 /**
- * Tests for HTTPS client connector
+ * Tests a scenario where the http client not having the server certificate.
  */
-public class HttpSClientTestCase {
+public class HttpsInvalidServerCertificateTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HttpSClientTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpsInvalidServerCertificateTest.class);
 
     private HttpsServer httpsServer;
     private HttpClientConnector httpClientConnector;
@@ -52,10 +58,12 @@ public class HttpSClientTestCase {
     @BeforeClass
     public void setup() {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        String trustStoreFilePath = "/simple-test-config/cacerts.p12";
+        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
+        String trustStorePassword = "cacertspassword";
+        senderConfiguration.setTrustStorePass(trustStorePassword);
+        senderConfiguration.setHostNameVerificationEnabled(false);
         senderConfiguration.setScheme(HTTPS_SCHEME);
-
         httpsServer = TestUtil.startHttpsServer(TestUtil.HTTPS_SERVER_PORT,
                 new MockServerInitializer(testValue, TEXT_PLAIN, 200));
         connectorFactory = new DefaultHttpWsConnectorFactory();
@@ -63,8 +71,21 @@ public class HttpSClientTestCase {
     }
 
     @Test
-    public void testHttpsGet() {
-        TestUtil.testHttpsPost(httpClientConnector, TestUtil.HTTPS_SERVER_PORT);
+    public void testInvalidCertificate() {
+        try {
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTPS_SERVER_PORT, testValue, "");
+            CountDownLatch latch = new CountDownLatch(1);
+            SSLConnectorListener listener = new SSLConnectorListener(latch);
+            HttpResponseFuture responseFuture = httpClientConnector.send(msg);
+            responseFuture.setHttpConnectorListener(listener);
+            latch.await(5, TimeUnit.SECONDS);
+            assertNotNull(listener.getThrowables());
+            assertEquals(listener.getThrowables().get(0).getMessage(),
+                    "SSL connection failed:unable to find valid certification path to requested "
+                            + "targetlocalhost/127.0.0.1:9004");
+        } catch (Exception e) {
+            TestUtil.handleException("Exception occurred while running HttpsCertificateInvalid test case", e);
+        }
     }
 
     @AfterClass

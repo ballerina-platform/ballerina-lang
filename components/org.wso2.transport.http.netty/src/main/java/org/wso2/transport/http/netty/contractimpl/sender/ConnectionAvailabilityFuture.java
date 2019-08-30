@@ -134,7 +134,7 @@ public class ConnectionAvailabilityFuture {
                 channelFuture.cause() == null)) {
             connectorException = new ConnectionTimedOutException("Connection timeout: " + socketAddress,
                     HttpResponseStatus.BAD_GATEWAY.code());
-        } else if (cause.toString().contains("javax.net.ssl") || cause.toString().contains("java.security")) {
+        } else if (cause.toString().contains("javax.net.ssl") || cause.toString().contains("security")) {
             connectorException = new SslException(
                     SSL_CONNECTION_ERROR + COLON + cause.getMessage() + socketAddress,
                     HttpResponseStatus.BAD_GATEWAY.code());

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.util.server.initializers;
+package org.wso2.transport.http.netty.util.server.initializers.http2;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -74,10 +74,11 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
      */
     private void configureClearText(SocketChannel ch) {
         final HttpServerCodec sourceCodec = new HttpServerCodec();
-        final HttpServerUpgradeHandler upgradeHandler = new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory);
+        final HttpServerUpgradeHandler upgradeHandler = new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory,
+                                                                                     Integer.MAX_VALUE);
         final CleartextHttp2ServerUpgradeHandler cleartextHttp2ServerUpgradeHandler =
-            new CleartextHttp2ServerUpgradeHandler(sourceCodec, upgradeHandler,
-                                                   getBusinessLogicHandler());
+                new CleartextHttp2ServerUpgradeHandler(sourceCodec, upgradeHandler,
+                                                       getBusinessLogicHandler());
         final ChannelPipeline channelPipeline = ch.pipeline();
         channelPipeline.addLast(cleartextHttp2ServerUpgradeHandler);
     }
