@@ -271,32 +271,6 @@ public class LengthOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test length of table")
-    public void lengthOfTable() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "lengthOfTable", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
-        Assert.assertEquals(actual, expected);
-    }
-
-    @Test(description = "Test length of empty table")
-    public void lengthOfEmptyTable() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "lengthOfEmptyTable", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 0;
-        Assert.assertEquals(actual, expected);
-    }
-
     @Test(description = "Test length of record")
     public void lengthOfRecord() {
         BValue[] args = new BValue[0];

@@ -20,9 +20,6 @@
 @typeParam
 type RowType map<anydata|error>;
 
-# Returns the number of members in `tbl`.
-public function length(table<map<anydata|error>> tbl) returns int = external;
-
 type TableIterator object {
 
     private table <anydata|error> m;
