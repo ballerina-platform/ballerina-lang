@@ -159,7 +159,7 @@ public class StatementContextProvider extends LSCompletionProvider {
                         paramCounter++;
                     } else if (errorTypes.size() == 1) {
                         snippet.append("if (").append(symbolName).append(" is ")
-                                .append(CommonUtil.getBTypeName(errorTypes.get(0), ctx)).append(") {")
+                                .append(CommonUtil.getBTypeName(errorTypes.get(0), ctx, true)).append(") {")
                                 .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
                                 .append("}");
                         paramCounter++;
@@ -169,7 +169,7 @@ public class StatementContextProvider extends LSCompletionProvider {
                     restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
                         BType bType = members.get(value);
                         String placeHolder = "\t${" + (value + finalParamCounter) + "}";
-                        return "if (" + symbolName + " is " + CommonUtil.getBTypeName(bType, ctx) + ") {"
+                        return "if (" + symbolName + " is " + CommonUtil.getBTypeName(bType, ctx, true) + ") {"
                                 + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";
                     }).collect(Collectors.joining(" else ")) + " else {" + CommonUtil.LINE_SEPARATOR + "\t${"
                             + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";

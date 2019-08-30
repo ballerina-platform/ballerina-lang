@@ -30,6 +30,8 @@ import com.sun.jdi.event.StepEvent;
 import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
+import com.sun.jdi.request.EventRequest;
+import com.sun.jdi.request.StepRequest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
@@ -40,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +61,7 @@ public class EventBus {
     private Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
     AtomicInteger nextVariableReference = new AtomicInteger();
+    private List<EventRequest> stepEventRequests = new ArrayList<>();
 
     private Path projectRoot;
 
@@ -137,8 +141,11 @@ public class EventBus {
                             stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
                             stoppedEventArguments.setAllThreadsStopped(true);
                             context.getClient().stopped(stoppedEventArguments);
+                            List<EventRequest> stepEventRequests = new ArrayList<>();
+                            context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
                         } else if (event instanceof StepEvent) {
                             populateMaps();
+                            context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
                             StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
                             stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
                             stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
@@ -189,5 +196,25 @@ public class EventBus {
         } catch (AbsentInformationException e) {
 
         }
+    }
+
+    public void createStepRequest(long threadId, int stepType) {
+        // Make sure there are no existing step events
+        context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
+
+        ThreadReference threadReference = getThreadsMap().get(threadId);
+        StepRequest request = context.getDebuggee().eventRequestManager().createStepRequest(threadReference,
+                StepRequest.STEP_LINE, stepType);
+
+        // TODO change this to a class inclusion filter
+        request.addClassExclusionFilter("io.*");
+        request.addClassExclusionFilter("com.*");
+        request.addClassExclusionFilter("org.*");
+        request.addClassExclusionFilter("ballerina.*");
+
+        stepEventRequests.add(request);
+        request.addCountFilter(1); // next step only
+        request.enable();
+        context.getDebuggee().resume();
     }
 }
