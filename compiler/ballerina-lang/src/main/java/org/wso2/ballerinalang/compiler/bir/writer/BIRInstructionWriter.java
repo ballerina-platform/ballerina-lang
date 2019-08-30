@@ -445,7 +445,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         // TODO use the integer index of the variable.
         addCpAndWriteString(birOperand.variableDcl.name.value);
 
-        if (birOperand.variableDcl.kind == VarKind.GLOBAL) {
+        if (birOperand.variableDcl.kind == VarKind.GLOBAL || birOperand.variableDcl.kind == VarKind.CONSTANT) {
             int pkgIndex = addPkgCPEntry(((BIRGlobalVariableDcl) birOperand.variableDcl).pkgId);
             buf.writeInt(pkgIndex);
 
