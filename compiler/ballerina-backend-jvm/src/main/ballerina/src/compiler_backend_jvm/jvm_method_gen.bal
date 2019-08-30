@@ -309,6 +309,8 @@ function genJMethodForBFunc(bir:Function func,
 
     // Create Local Variable Table
     k = localVarOffset;
+    // Add strand variable to LVT
+    mv.visitLocalVariable("__strand", io:sprintf("L%s;", STRAND), methodStartLabel, methodEndLabel, 0);
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         jvm:Label startLabel = methodStartLabel;
@@ -328,7 +330,11 @@ function genJMethodForBFunc(bir:Function func,
                 }
             }
             string metaVarName = localVar.meta.name;
-            if (metaVarName != "") {
+            if (metaVarName != "" &&
+                      // filter out compiler added vars
+                      !((metaVarName.startsWith("$") && metaVarName.endsWith("$"))
+                        || (metaVarName.startsWith("$$") && metaVarName.endsWith("$$"))
+                        || metaVarName.startsWith("_$$_"))) {
                 mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.typeValue),
                                 startLabel, endLabel, indexMap.getIndex(localVar));
             }
