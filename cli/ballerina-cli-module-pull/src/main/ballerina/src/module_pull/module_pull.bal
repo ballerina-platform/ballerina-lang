@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/filepath;
 import ballerina/http;
-import ballerina/io;
-import ballerina/file;
-import ballerina/'lang\.int as lint;
 import ballerina/internal;
+import ballerina/io;
+import ballerina/lang.'int as lint;
 
 const int MAX_INT_VALUE = 2147483647;
 const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";

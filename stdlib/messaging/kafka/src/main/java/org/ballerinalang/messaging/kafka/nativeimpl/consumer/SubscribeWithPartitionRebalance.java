@@ -116,7 +116,7 @@ public class SubscribeWithPartitionRebalance {
         @Override
         public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
             Object[] inputArgs = {null, consumer, true, getPartitionsArray(partitions), true};
-            this.scheduler.schedule(inputArgs, onPartitionsRevoked.getConsumer(), strand);
+            this.scheduler.schedule(inputArgs, onPartitionsRevoked.getConsumer(), strand, null);
         }
 
         /**
@@ -125,7 +125,7 @@ public class SubscribeWithPartitionRebalance {
         @Override
         public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
             Object[] inputArgs = {null, consumer, true, getPartitionsArray(partitions), true};
-            this.scheduler.schedule(inputArgs, onPartitionsAssigned.getConsumer(), strand);
+            this.scheduler.schedule(inputArgs, onPartitionsAssigned.getConsumer(), strand, null);
         }
 
         private ArrayValue getPartitionsArray(Collection<TopicPartition> partitions) {

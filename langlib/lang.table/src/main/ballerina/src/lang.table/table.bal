@@ -67,7 +67,7 @@ public function add(table<record {}> dt, anydata data) returns error|() = extern
 #
 # + func - The function pointer for delete crieteria
 # + return - An `int` the number of deleted record count or `error` if any error occurred during removing data
-public function remove(table<record {}> dt, function (anydata) returns (boolean) func) returns int|error = external;
+public function remove(table<record {}> dt, function (any) returns (boolean) func) returns int|error = external;
 
 # Execute the given sql query to fetch the records and return as a new in memory table.
 #

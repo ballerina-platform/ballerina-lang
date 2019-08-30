@@ -67,6 +67,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCachingTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>
         </classes>
     </test>
 
@@ -268,8 +269,8 @@
     <test name="ballerina-observability-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
-            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
-            <!--<class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>-->
+            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
         </classes>
     </test>
 
@@ -282,6 +283,7 @@
             <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
             <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
+            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
         </classes>
     </test>
 

@@ -50,7 +50,7 @@ public class ErrorServiceTestCase extends BaseTest {
         CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
                 "service_without_port.bal", false, false);
         Assert.assertEquals(result.getErrorCount(), 2);
-        Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "not enough arguments in call to 'new()'");
+        Assert.assertEquals(result.getDiagnostics()[1].getMessage(), "not enough arguments in call to 'new()'");
     }
 
     @Test(description = "Test case for running unary service with same port", enabled = false)

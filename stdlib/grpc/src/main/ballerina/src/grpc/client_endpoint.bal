@@ -41,6 +41,7 @@ public type Client client object {
 
     # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #
+    # + clientEndpoint -  Client endpoint
     # + stubType - Service Stub type. possible values: blocking, nonblocking.
     # + descriptorKey - Proto descriptor key. Key of proto descriptor.
     # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.

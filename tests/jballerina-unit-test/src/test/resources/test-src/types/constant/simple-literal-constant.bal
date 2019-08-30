@@ -1,4 +1,5 @@
-import ballerina/'lang\.string as strings;
+import ballerina/lang.'string as strings;
+
 const nameWithoutType = "Ballerina";
 const string nameWithType = "Ballerina";
 

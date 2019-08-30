@@ -152,10 +152,21 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         this.panZoomComp = panzoom(this.panZoomRootRef.current, {
             beforeWheel: (e) => {
                 // allow wheel-zoom only if ctrl is down.
-                return !e.ctrlKey;
+                if (e.ctrlKey) {
+                    return false;
+                }
+                // use scroll to pan
+                if (this.panZoomComp) {
+                    this.panZoomComp.moveBy(-e.deltaX, -e.deltaY, false);
+                }
+                return true;
             },
+            maxZoom: 8,
+            minZoom: 0.1,
             smoothScroll: false,
+            zoomSpeed: 0.165,
         });
+        this.panZoomComp.zoomAbs(0, 0, 1);
         if (this.props.setPanZoomComp) {
             this.props.setPanZoomComp(this.panZoomComp, this.panZoomRootRef.current);
         }

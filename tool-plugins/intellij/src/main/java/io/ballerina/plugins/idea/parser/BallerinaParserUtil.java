@@ -340,6 +340,10 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                     if (prev3Element == null || isWhiteSpaceOrComment(prev3Element)) {
                         continue;
                     }
+                    // Eg: x is () ? 1 : 2;
+                    if (prev3Element == BallerinaTypes.IS) {
+                        return false;
+                    }
                     IElementType prev4Element;
                     do {
                         prev4Element = builder.rawLookup(steps--);

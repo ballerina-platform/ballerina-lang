@@ -4,6 +4,7 @@ import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model/index";
+import { HiddenBlock } from "./hidden-block";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -13,12 +14,17 @@ export const Match: React.StatelessComponent<{
         model
     }) => {
         const viewState: ViewState = model.viewState;
+
+        if (viewState.hiddenBlock) {
+            return <HiddenBlock model={ model }/>;
+        }
+
         const frameBorder = {x: 0, y: 0, width: 0, height: 0, className: "frame-border"};
         const p = { x1: 0, y1: 0 , x2: 0, y2: 0, x3: 0, y3: 0, x4: 0, y4: 0};
 
         frameBorder.x = viewState.bBox.x - viewState.bBox.leftMargin;
         frameBorder.y = viewState.bBox.y + config.frame.topMargin;
-        frameBorder.width = viewState.bBox.w + viewState.bBox.leftMargin;
+        frameBorder.width = viewState.bBox.w + viewState.bBox.leftMargin - config.flowCtrl.rightMargin;
         frameBorder.height = viewState.bBox.h - config.frame.topMargin;
 
         const expression = DiagramUtils.getTextWidth("match " + ASTUtil.genSource(model.expression).trim());

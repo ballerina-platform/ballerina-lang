@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
@@ -47,8 +48,8 @@ public final class XMLAttributes implements RefValue {
     }
 
     @Override
-    public String stringValue() {
-        return value.stringValue();
+    public String stringValue(Strand strand) {
+        return value.stringValue(strand);
     }
 
     @Override

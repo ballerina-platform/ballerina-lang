@@ -761,11 +761,11 @@ function testTableAddAndAccess() returns [string, string]|error {
     checkpanic dt.add(p2);
 
     json j1 = check typedesc<json>.constructFrom(dt);
-    string s1 = j1.toString();
+    string s1 = j1.toJsonString();
 
     checkpanic dt.add(p3);
     json j2 = check typedesc<json>.constructFrom(dt);
-    string s2 = j2.toString();
+    string s2 = j2.toJsonString();
 
     return [s1, s2];
 }

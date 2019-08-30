@@ -71,7 +71,7 @@ public class CreateWritableDelimitedRecordChannel {
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
         } catch (Throwable e) {
             String message =
-                    "Error occurred while converting character channel to textRecord channel:" + e.getMessage();
+                    "error occurred while converting character channel to textRecord channel:" + e.getMessage();
             log.error(message, e);
             throw new BallerinaException(message, e);
         }

@@ -1,4 +1,4 @@
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 public listener Listener lis = new();
 

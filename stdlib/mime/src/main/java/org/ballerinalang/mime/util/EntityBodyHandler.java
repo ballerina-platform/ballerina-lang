@@ -30,7 +30,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.jvnet.mimepull.MIMEPart;
 
 import java.io.ByteArrayInputStream;
@@ -182,7 +181,7 @@ public class EntityBodyHandler {
             byteChannel.close();
             return jsonData;
         } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while closing connection", e);
+            throw new BallerinaException("Error occurred while closing connection", e);
         }
     }
 
@@ -219,13 +218,13 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityObj);
             if (byteChannel == null) {
-                throw new BallerinaIOException("Empty xml payload");
+                throw new BallerinaException("Empty xml payload");
             }
             XMLValue xmlContent = constructXmlDataSource(entityObj, byteChannel.getInputStream());
             byteChannel.close();
             return xmlContent;
         } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while closing the channel", e);
+            throw new BallerinaException("Error occurred while closing the channel", e);
         }
     }
 
@@ -262,13 +261,13 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityObj);
             if (byteChannel == null) {
-                throw new BallerinaIOException("String payload is null");
+                throw new BallerinaException("String payload is null");
             }
             String textContent = constructStringDataSource(entityObj, byteChannel.getInputStream());
             byteChannel.close();
             return textContent;
         } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while closing the channel", e);
+            throw new BallerinaException("Error occurred while closing the channel", e);
         }
     }
 
@@ -366,16 +365,21 @@ public class EntityBodyHandler {
 
     /**
      * Decode a given entity body to get a set of child parts and set them to parent entity's multipart data field.
-     *  @param entityObj Parent entity that the nested parts reside
-     * @param byteChannel  Represent ballerina specific byte channel
+     *
+     * @param entityObj   Parent entity that the nested parts reside
+     * @param byteChannel Represent ballerina specific byte channel
+     * @throws IOException When an error occurs while getting inputstream
      */
-    public static void decodeEntityBody(ObjectValue entityObj, Channel byteChannel) {
+    public static void decodeEntityBody(ObjectValue entityObj, Channel byteChannel) throws IOException {
         String contentType = MimeUtil.getContentTypeWithParameters(entityObj);
         if (!isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             return;
         }
-
-        MultipartDecoder.parseBody(entityObj, contentType, byteChannel.getInputStream());
+        try {
+            MultipartDecoder.parseBody(entityObj, contentType, byteChannel.getInputStream());
+        } catch (IOException e) {
+            throw new IOException("Unable to get a byte channel input stream to decode entity body", e);
+        }
     }
 
     /**

@@ -63,7 +63,7 @@ public class Executor {
 
         Function<Object[], Object> func = objects -> {
             Strand strand = (Strand) objects[0];
-            if (ObserveUtils.isObservabilityEnabled() &&
+            if (ObserveUtils.isObservabilityEnabled() && properties != null &&
                     properties.containsKey(ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
                 strand.observerContext =
                         (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);

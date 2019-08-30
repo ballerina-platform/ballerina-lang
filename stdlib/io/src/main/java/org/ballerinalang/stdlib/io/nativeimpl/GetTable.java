@@ -30,23 +30,19 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadAllEvent;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,52 +66,29 @@ public class GetTable {
 
     private static final Logger log = LoggerFactory.getLogger(GetTable.class);
     private static final String CSV_CHANNEL_DELIMITED_STRUCT_FIELD = "dc";
-    private static final String TYPE_DESC_VALUE = "TypedescValue";
 
     public static Object getTable(Strand strand, ObjectValue csvChannel, TypedescValue typedescValue) {
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             final ObjectValue delimitedObj = (ObjectValue) csvChannel.get(CSV_CHANNEL_DELIMITED_STRUCT_FIELD);
             DelimitedRecordChannel delimitedChannel = (DelimitedRecordChannel) delimitedObj
                     .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-            EventContext eventContext = new EventContext(callback);
-            eventContext.getProperties().put(TYPE_DESC_VALUE, typedescValue);
-            DelimitedRecordReadAllEvent event = new DelimitedRecordReadAllEvent(delimitedChannel, eventContext);
-            Register register = EventRegister.getFactory().register(event, GetTable::getResponse);
-            eventContext.setRegister(register);
-            register.submit();
-        } catch (Exception e) {
-            String msg = "Failed to process the delimited file: " + e.getMessage();
-            log.error(msg, e);
-            callback.setReturnValues(IOUtils.createError(msg));
-            callback.notifySuccess();
-        }
-        return null;
-    }
-
-    private static EventResult getResponse(EventResult<List, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        Throwable error = eventContext.getError();
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
-        } else {
-            try {
-                List records = result.getResponse();
-                TableValue table = getTable(eventContext, records);
-                callback.setReturnValues(table);
-            } catch (Throwable e) {
-                callback.setReturnValues(IOUtils.createError(e.getMessage()));
+            if (delimitedChannel.hasReachedEnd()) {
+                return IOUtils.createEoFError();
             }
+            List<String[]> records = new ArrayList<>();
+            while (delimitedChannel.hasNext()) {
+                records.add(delimitedChannel.read());
+            }
+            return getTable(typedescValue, records);
+        } catch (BallerinaIOException e) {
+            String msg = "failed to process the delimited file: " + e.getMessage();
+            log.error(msg, e);
+            return IOUtils.createError(msg);
         }
-        IOUtils.validateChannelState(eventContext);
-        callback.notifySuccess();
-        return result;
     }
 
-    private static TableValue getTable(EventContext eventContext, List records) throws BallerinaException {
-        TypedescValue type = (TypedescValue) eventContext.getProperties().get(TYPE_DESC_VALUE);
-        BType describingType = type.getDescribingType();
+    private static TableValue getTable(TypedescValue typedescValue, List records) throws BallerinaException {
+        BType describingType = typedescValue.getDescribingType();
         TableValue table = new TableValue(new BTableType(describingType), null, null);
         BStructureType structType = (BStructureType) describingType;
         for (Object obj : records) {
@@ -155,12 +128,12 @@ public class GetTable {
                             } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
                                 populateRecord(members.get(0).getTag(), struct, fieldName, value);
                             } else {
-                                throw new BallerinaException("Unsupported nillable field for value: " + value);
+                                throw IOUtils.createError("unsupported nillable field for value: " + value);
                             }
                             break;
                         default:
-                            throw new BallerinaException(
-                                    "Type casting support only for int, float, boolean and string. "
+                            throw IOUtils.createError(
+                                    "type casting support only for int, float, boolean and string. "
                                             + "Invalid value for the struct field: " + value);
                     }
                 } else {
@@ -186,7 +159,7 @@ public class GetTable {
                 struct.put(fieldName, value == null ? null : (Boolean.parseBoolean(value)));
                 break;
             default:
-                throw new BallerinaException("Type casting support only for int, float, boolean and string. "
+                throw IOUtils.createError("type casting support only for int, float, boolean and string. "
                         + "Invalid value for the struct field: " + value);
         }
     }

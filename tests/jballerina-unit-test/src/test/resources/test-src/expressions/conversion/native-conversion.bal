@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.int as ints;
+
+import ballerina/lang.'int as ints;
 
 type Person record {|
     string name = "";
