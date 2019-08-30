@@ -79,13 +79,14 @@ public abstract class AbstractGetPayloadHandler {
                     }
                     updateDataSourceAndNotify(callback, entity, dataSource);
                 } catch (Exception e) {
+                    createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
+                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + e.getMessage());
+                } finally {
                     try {
                         inputStream.close();
                     } catch (IOException ex) {
                         log.error("Error occurred while closing the inbound data stream", ex);
                     }
-                    createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
-                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + e.getMessage());
                 }
             }
 
