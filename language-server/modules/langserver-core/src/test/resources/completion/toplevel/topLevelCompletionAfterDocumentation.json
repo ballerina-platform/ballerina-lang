@@ -51,7 +51,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "service ${1:serviceName} on new http:WebSocketListener(9090) {\n\tresource function onOpen(http:WebSocketCaller caller) {\n\t\t\n\t}\n\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {\n\t\t\n\t}\n\tresource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
+      "insertText": "service ${1:serviceName} on new http:Listener(9090) {\n\tresource function onOpen(http:WebSocketCaller caller) {\n\t\t\n\t}\n\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {\n\t\t\n\t}\n\tresource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },

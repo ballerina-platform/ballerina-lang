@@ -121,17 +121,17 @@ public class IterableArrowExprTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'int[]', found 'map<string>'", 22, 21);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 23, 34);
-        BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'string[]', found 'map<other>'", 23, 24);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 23, 34);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 25, 28);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'string', found 'int'", 26, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "undefined function 'toUpperAscii'", 27, 40);
-        BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'string', found 'int'", 27, 19);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined function 'toUpperAscii'", 27, 40);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'string', found 'string[]'", 28, 19);
         BAssertUtil.validateError(resultNegative, i++,

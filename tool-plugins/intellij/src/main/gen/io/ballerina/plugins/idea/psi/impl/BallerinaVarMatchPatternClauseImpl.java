@@ -62,12 +62,6 @@ public class BallerinaVarMatchPatternClauseImpl extends ASTWrapperPsiElement imp
 
   @Override
   @Nullable
-  public BallerinaStatement getStatement() {
-    return findChildByClass(BallerinaStatement.class);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getEqualGt() {
     return findChildByType(EQUAL_GT);
   }

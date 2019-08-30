@@ -58,6 +58,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_AU
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CHECK_CRCS_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CLIENT_ID_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONNECTIONS_MAX_IDLE_MS_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_DEFAULT_API_TIMEOUT_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ENABLE_AUTO_COMMIT_CONFIG;
@@ -677,5 +678,14 @@ public class KafkaUtils {
         KafkaProducer<byte[], byte[]> kafkaProducer = new KafkaProducer<>(producerProperties);
         producerObject.addNativeData(NATIVE_PRODUCER, kafkaProducer);
         producerObject.addNativeData(NATIVE_PRODUCER_CONFIG, producerProperties);
+    }
+
+    public static String getBrokerNames(ObjectValue listener) {
+        MapValue<String, Object> listenerConfigurations = listener.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
+        return (String) listenerConfigurations.get(CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
+    }
+
+    public static String getTopicNamesString(ArrayList<String> topicsList) {
+        return String.join(", ", topicsList);
     }
 }
