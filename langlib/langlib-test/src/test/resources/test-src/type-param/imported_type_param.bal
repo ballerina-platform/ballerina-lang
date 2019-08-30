@@ -14,22 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const NIL  = "()";
-const ANY = "any";
+import ballerina/lang.array as arrs;
 
-public type BType NIL | ANY;
+public function testImportedModuleTypeParam1() returns int[]{
+    int[] arr = [10, 20, 30, 40];
+    return arrs:map(arr, function (int value) returns int { return value * 2; });
+}
 
-public type BUnionType record {|
-   BType[]  members;
-|};
-
-function testNilableTypeArrayIteration() {
-    BType[*] tarr = [NIL, ANY];
-    BUnionType ut = {members: tarr};
-
-    BType?[] types = ut.members;
-
-    foreach var v in types {
-        BType x = v;
-    }
+function testImportedModuleTypeParam2() returns int {
+    int[] arr = [10, 20, 30, 40];
+    return arrs:reduce(arr, function (int acc, int val) returns int { return acc + val; }, 0);
 }

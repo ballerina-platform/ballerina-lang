@@ -14,7 +14,7 @@ public function secureFunction (@untainted string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
 
-type Rec record {
+public type Rec record {
     string field;
 };
 
