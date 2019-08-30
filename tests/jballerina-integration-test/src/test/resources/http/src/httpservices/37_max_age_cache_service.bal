@@ -16,12 +16,12 @@
 
 import ballerina/http;
 
-http:Client maxAgeCacheEp = new("http://localhost:9244", { cache: { isShared: true } });
+http:Client maxAgeCacheEp = new("http://localhost:9246", { cache: { isShared: true } });
 
 @http:ServiceConfig {
     basePath: "/maxAge"
 }
-service maxAgeProxyService on new http:Listener(9243) {
+service maxAgeProxyService on new http:Listener(9245) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
@@ -45,7 +45,7 @@ int maxAgehitcount = 0;
 @http:ServiceConfig {
     basePath: "/maxAgeBackend"
 }
-service maxAgeBackend on new http:Listener(9244) {
+service maxAgeBackend on new http:Listener(9246) {
 
     @http:ResourceConfig { path: "/" }
     resource function sayHello(http:Caller caller, http:Request req) {

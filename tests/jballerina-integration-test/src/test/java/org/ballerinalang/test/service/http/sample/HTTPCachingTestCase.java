@@ -63,24 +63,24 @@ public class HTTPCachingTestCase extends HttpBaseTest {
 
     @Test(description = "Test no-cache cache control")
     public void testNoCacheCacheControl() throws IOException, InterruptedException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9242, "nocache"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9244, "nocache"));
         assertEquals(response.getData(), "{\"message\":\"1st request\"}");
 
-        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9242, "nocache"));
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9244, "nocache"));
         assertEquals(response.getData(), "{\"message\":\"2nd request\"}");
     }
 
     @Test(description = "Test max-age cache control")
     public void testMaxAgeCacheControl() throws IOException, InterruptedException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9243, "maxAge"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9245, "maxAge"));
         assertEquals(response.getData(), "{\"message\":\"before cache expiration\"}");
 
-        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9243, "maxAge"));
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9245, "maxAge"));
         assertEquals(response.getData(), "{\"message\":\"before cache expiration\"}");
 
         Thread.sleep(5000);
 
-        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9243, "maxAge"));
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9245, "maxAge"));
         assertEquals(response.getData(), "{\"message\":\"after cache expiration\"}");
     }
 }
