@@ -144,6 +144,7 @@ function test12() {
     string result1 = "";
     foreach var error(reason, message = message, fatal = fatal) in errorArray {
         reason = "updated reason";
+        fatal = false;
         message = "msgNew";
     }
 }

@@ -33,7 +33,7 @@ public class ForeachNegativeTests {
     @Test
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 20);
+        Assert.assertEquals(compile.getErrorCount(), 23);
         int index = 0;
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'string' in type definition", 37, 17);
@@ -58,6 +58,9 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'string' in type definition", 117, 17);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 127, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'reason'", 146, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'fatal'", 147, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'message'", 148, 9);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'id'", 155, 9);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'name'", 156, 9);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'salary'", 157, 9);

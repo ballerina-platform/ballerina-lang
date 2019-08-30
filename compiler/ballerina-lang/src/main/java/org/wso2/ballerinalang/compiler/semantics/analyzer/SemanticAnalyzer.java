@@ -891,6 +891,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 ((BLangRecordVariable) variable).variableList.forEach(value ->
                         recursivelySetFinalFlag(value.valueBindingPattern));
                 break;
+            case ERROR_VARIABLE:
+                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                recursivelySetFinalFlag(errorVariable.reason);
+                if (errorVariable.restDetail != null) {
+                    recursivelySetFinalFlag(errorVariable.restDetail);
+                }
+                errorVariable.detail.forEach(bLangErrorDetailEntry ->
+                        recursivelySetFinalFlag(bLangErrorDetailEntry.valueBindingPattern));
+                break;
         }
     }
 
