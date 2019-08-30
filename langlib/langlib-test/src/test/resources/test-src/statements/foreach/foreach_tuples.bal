@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+
 
 [int, string, boolean, (), float, decimal] data = [20, "string", true, (), 15.5, 20.2];
 string output = "";
@@ -62,7 +62,7 @@ function testTupleWithBasicTypes() returns string {
         if i is () {
             result += "()";
         }
-        result += io:sprintf("%s", i);
+        result += i.toString();
     }
     return result;
 }
