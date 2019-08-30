@@ -182,6 +182,8 @@ public class EntityBodyHandler {
         }
         try {
             return constructJsonDataSource(entityObj, byteChannel.getInputStream());
+        } catch (IOException e) {
+            throw new BallerinaException(e.getMessage());
         } finally {
             closeByteChannel(byteChannel);
         }
@@ -219,10 +221,12 @@ public class EntityBodyHandler {
     public static XMLValue constructXmlDataSource(ObjectValue entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            throw new BallerinaIOException("Empty xml payload");
+            throw new BallerinaException("Empty xml payload");
         }
         try {
             return constructXmlDataSource(entityObj, byteChannel.getInputStream());
+        } catch (IOException e) {
+            throw new BallerinaException(e.getMessage());
         } finally {
             closeByteChannel(byteChannel);
         }
@@ -264,6 +268,8 @@ public class EntityBodyHandler {
         }
         try {
             return constructStringDataSource(entityObj, byteChannel.getInputStream());
+        } catch (IOException e) {
+            throw new BallerinaException(e.getMessage());
         } finally {
             closeByteChannel(byteChannel);
         }

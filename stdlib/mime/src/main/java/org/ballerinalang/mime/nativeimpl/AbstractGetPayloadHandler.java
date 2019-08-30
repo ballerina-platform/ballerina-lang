@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.FullHttpMessageListener;
@@ -80,14 +79,13 @@ public abstract class AbstractGetPayloadHandler {
                     }
                     updateDataSourceAndNotify(callback, entity, dataSource);
                 } catch (Exception e) {
-                    createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
-                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + e.getMessage());
-                } finally {
                     try {
                         inputStream.close();
-                    } catch (IOException e) {
-                        log.error("Error occurred while closing the inbound data stream", e);
+                    } catch (IOException ex) {
+                        log.error("Error occurred while closing the inbound data stream", ex);
                     }
+                    createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
+                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + e.getMessage());
                 }
             }
 
