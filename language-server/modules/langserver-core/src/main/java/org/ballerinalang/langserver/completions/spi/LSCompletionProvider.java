@@ -156,7 +156,7 @@ public abstract class LSCompletionProvider {
             } else if (bSymbol instanceof BConstantSymbol) {
                 completionItems.add(BConstantCompletionItemBuilder.build((BConstantSymbol) bSymbol, context));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
-                String typeName = CommonUtil.getBTypeName(symbol.type, context);
+                String typeName = CommonUtil.getBTypeName(symbol.type, context, false);
                 completionItems.add(
                         BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol, symbolInfo.getSymbolName(), typeName)
                 );
@@ -712,7 +712,7 @@ public abstract class LSCompletionProvider {
         signature.append(this.getDynamicParamsSnippet(paramTypes, true, context));
         if (!(returnType.type instanceof BNilType)) {
             signature.append("returns (")
-                    .append(CommonUtil.getBTypeName(returnType.type, context))
+                    .append(CommonUtil.getBTypeName(returnType.type, context, false))
                     .append(") ");
         }
 
@@ -798,7 +798,7 @@ public abstract class LSCompletionProvider {
                     String paramPlaceHolder = "${" + paramIndex + ":" + paramName + paramIndex + "}";
                     if (withType) {
                         BType paramType = paramTypes.get(index).getTypeNode().type;
-                        paramPlaceHolder = CommonUtil.getBTypeName(paramType, context) + " " + paramPlaceHolder;
+                        paramPlaceHolder = CommonUtil.getBTypeName(paramType, context, true) + " " + paramPlaceHolder;
                     }
                     return paramPlaceHolder;
                 })
