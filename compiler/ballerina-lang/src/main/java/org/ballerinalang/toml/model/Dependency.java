@@ -65,7 +65,10 @@ public class Dependency {
     
     @Override
     public String toString() {
-        return metadata.getVersion().isEmpty() ? getModuleID() : getModuleID() + ":" + metadata.getVersion();
+        return null != this.metadata &&
+               null != this.metadata.getVersion() &&
+               !"".equals(this.metadata.getVersion().trim()) ?
+               getModuleID() + ":" + this.metadata.getVersion() : getModuleID();
     }
     
     @Override

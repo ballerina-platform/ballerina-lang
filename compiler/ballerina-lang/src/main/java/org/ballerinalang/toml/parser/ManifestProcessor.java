@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -209,9 +210,9 @@ public class ManifestProcessor {
         if (toml.containsKey("dependencies")) {
             Object tomlDepsAsObject = toml.get("dependencies");
             Map<String, Object> updatedDependencies = new HashMap<>();
-            if (tomlDepsAsObject instanceof Map) {
+            if (tomlDepsAsObject instanceof HashMap) {
                 // taking care of double quoted dependency names
-                HashMap<String, Object> tomlDeps = (HashMap<String, Object>) tomlDepsAsObject;
+                Map<String, Object> tomlDeps = (HashMap<String, Object>) tomlDepsAsObject;
                 for (Map.Entry<String, Object> dep : tomlDeps.entrySet()) {
                     updatedDependencies.put(dep.getKey().replaceAll("^\"|\"$", ""), dep.getValue());
                 }
@@ -223,6 +224,6 @@ public class ManifestProcessor {
         toml.put("dependencies", dependencies);
         TomlWriter writer = new TomlWriter();
         String tomlContent = writer.write(toml);
-        Files.write(manifestPath, tomlContent.getBytes());
+        Files.write(manifestPath, tomlContent.getBytes(Charset.defaultCharset()));
     }
 }
