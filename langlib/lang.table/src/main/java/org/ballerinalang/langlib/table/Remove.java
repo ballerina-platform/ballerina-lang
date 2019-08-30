@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                    functionName = "remove",
                    args = {
                            @Argument(name = "dt", type = TypeKind.TABLE),
-                           @Argument(name = "func", type = TypeKind.ANYDATA)
+                           @Argument(name = "func", type = TypeKind.ANY)
                    })
 public class Remove {
 
