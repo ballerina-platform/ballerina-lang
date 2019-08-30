@@ -112,6 +112,11 @@ public class TableProvider {
         prepareAndExecuteStatement(sqlStmt, constrainedType);
     }
 
+    public void deleteData(String tableName, MapValueImpl<String, Object> constrainedType) {
+        String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, constrainedType);
+        prepareAndExecuteStatement(sqlStmt, constrainedType);
+    }
+
     public void dropTable(String tableName) {
         String sqlStmt = TableConstants.SQL_DROP + tableName;
         executeStatement(sqlStmt);
