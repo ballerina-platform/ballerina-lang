@@ -20,14 +20,14 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-toml-parser-test-suite">
-    <test name="ballerina-toml-parser-test-suite" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.toml.*"/>
-        </packages>
-    </test>
-    <test name="ballerina-compiler-util-test-suite" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.wso2.ballerinalang.compiler.util"/>
-        </packages>
-    </test>
+<!--    <test name="ballerina-toml-parser-test-suite" preserve-order="true" parallel="false">-->
+<!--        <packages>-->
+<!--            <package name="org.ballerinalang.toml.*"/>-->
+<!--        </packages>-->
+<!--    </test>-->
+<!--    <test name="ballerina-compiler-util-test-suite" preserve-order="true" parallel="false">-->
+<!--        <packages>-->
+<!--            <package name="org.wso2.ballerinalang.compiler.util"/>-->
+<!--        </packages>-->
+<!--    </test>-->
 </suite>
