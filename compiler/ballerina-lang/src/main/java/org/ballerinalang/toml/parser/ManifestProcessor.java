@@ -27,11 +27,11 @@ import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
@@ -204,8 +204,8 @@ public class ManifestProcessor {
         return content.substring(0, 1).toLowerCase(Locale.getDefault()) + content.substring(1);
     }
     
-    public static void addDependencyToManifest(Path manifestPath, PackageID moduleID) throws IOException {
-        Map<String, Object> toml = new Toml().read(manifestPath.toFile()).toMap();
+    public static byte[] addDependencyToManifest(ByteArrayInputStream manifestStream, PackageID moduleID) {
+        Map<String, Object> toml = new Toml().read(manifestStream).toMap();
         Map<String, Object> dependencies = new HashMap<>();
         if (toml.containsKey("dependencies")) {
             Object tomlDepsAsObject = toml.get("dependencies");
@@ -224,6 +224,6 @@ public class ManifestProcessor {
         toml.put("dependencies", dependencies);
         TomlWriter writer = new TomlWriter();
         String tomlContent = writer.write(toml);
-        Files.write(manifestPath, tomlContent.getBytes(Charset.defaultCharset()));
+        return tomlContent.getBytes(Charset.defaultCharset());
     }
 }

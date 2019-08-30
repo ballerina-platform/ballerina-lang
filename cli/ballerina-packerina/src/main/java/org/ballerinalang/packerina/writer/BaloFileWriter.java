@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -145,7 +146,6 @@ public class BaloFileWriter {
                 .resolve(module.packageID.name.value);
         String moduleName = module.packageID.name.value;
         Path manifest = projectDirectory.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
-        populateTomlWithProjectModules(module, manifest);
         // Now lets put stuff in according to spec
         // /
         // └─ metadata/
@@ -159,7 +159,7 @@ public class BaloFileWriter {
         //    └─ MODULE-DESC.md
         //    └─ api-docs/
 
-        addMetaData(root, moduleName, manifest);
+        addMetaData(root, module, manifest);
         addModuleSource(root, baloFS, moduleSourceDir, moduleName);
         addResources(root, baloFS, moduleSourceDir);
         addModuleDoc(root, moduleSourceDir);
@@ -169,9 +169,9 @@ public class BaloFileWriter {
         }
     }
     
-    private void populateTomlWithProjectModules(BLangPackage module, Path manifestPath) {
-        try {
-            Manifest manifest = ManifestProcessor.parseTomlContentFromFile(manifestPath);
+    private byte[] populateTomlWithProjectModules(BLangPackage module, byte[] manifestBytes) {
+        try (ByteArrayInputStream tomlStream = new ByteArrayInputStream(manifestBytes)) {
+            Manifest manifest = ManifestProcessor.parseTomlContentAsStream(tomlStream);
             for (BLangImportPackage importz : module.imports) {
                 // if import is from the same org as parent
                 if (importz.symbol.pkgID.orgName.value.equals(module.packageID.orgName.value)) {
@@ -186,14 +186,18 @@ public class BaloFileWriter {
                         // if dependency is not mentioned in toml
                         if (!manifestDependency.isPresent()) {
                             // update manifest
-                            ManifestProcessor.addDependencyToManifest(manifestPath, importz.symbol.pkgID);
+                            try (ByteArrayInputStream tomlStreamToUpdate = new ByteArrayInputStream(manifestBytes)) {
+                                return ManifestProcessor.addDependencyToManifest(tomlStreamToUpdate,
+                                        importz.symbol.pkgID);
+                            }
                         }
                     }
                 }
             }
-        } catch (IOException | TomlException e) {
+        } catch (TomlException | IOException e) {
             // ignore
         }
+        return manifestBytes;
     }
     
     private void addModuleDoc(Path root, Path moduleSourceDir) throws IOException {
@@ -277,7 +281,7 @@ public class BaloFileWriter {
         Files.walkFileTree(moduleSourceDir, new Copy(moduleSourceDir, moduleDirInBalo, fileFilter, dirFilter));
     }
 
-    private void addMetaData(Path root, String moduleName, Path manifestPath) throws IOException {
+    private void addMetaData(Path root, BLangPackage module, Path manifestPath) throws IOException {
         Path metaDir = root.resolve(ProjectDirConstants.BALO_METADATA_DIR_NAME);
         Path baloMetaFile = metaDir.resolve(ProjectDirConstants.BALO_METADATA_FILE);
         Path moduleMetaFile = metaDir.resolve(ProjectDirConstants.BALO_MODULE_METADATA_FILE);
@@ -292,22 +296,26 @@ public class BaloFileWriter {
 
         // Write to MODULE.toml
         Module moduleObj = new Module();
-        moduleObj.setModule_name(moduleName);
+        moduleObj.setModule_name(module.packageID.name.value);
         moduleObj.setModule_organization(this.manifest.getProject().getOrgName());
         moduleObj.setModule_version(this.manifest.getProject().getVersion());
         moduleObj.setModule_authors(this.manifest.getProject().getAuthors());
         moduleObj.setModule_keywords(this.manifest.getProject().getKeywords());
         moduleObj.setModule_source_repository(this.manifest.getProject().getRepository());
         moduleObj.setModule_licenses(this.manifest.getProject().getLicense());
-        moduleObj.setPlatform(this.manifest.getTargetPlatform(moduleName));
+        moduleObj.setPlatform(this.manifest.getTargetPlatform(module.packageID.name.value));
         moduleObj.setBallerina_version(RepoUtils.getBallerinaVersion());
-        moduleObj.setTemplate(String.valueOf(manifest.getProject().getTemplates().contains(moduleName)));
+        moduleObj.setTemplate(String.valueOf(
+                manifest.getProject().getTemplates().contains(module.packageID.name.value)));
         String moduleToml = writer.write(moduleObj);
         Files.write(moduleMetaFile, moduleToml.getBytes(Charset.defaultCharset()));
         
         // Write Ballerina.toml
         byte[] manifestBytes = Files.readAllBytes(manifestPath);
-        Files.write(baloManifest, manifestBytes);
+        byte[] tomlBytes = populateTomlWithProjectModules(module, manifestBytes);
+        if (null != tomlBytes) {
+            Files.write(baloManifest, tomlBytes);
+        }
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

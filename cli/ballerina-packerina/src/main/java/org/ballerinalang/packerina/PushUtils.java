@@ -119,7 +119,7 @@ public class PushUtils {
      * @param moduleNames List of modules to push to remote
      * @param sourceRootPath Path to the directory containing the Ballerina.toml
      */
-    public static void pushPackages(List<String> moduleNames, Path sourceRootPath) {
+    public static void pushModules(List<String> moduleNames, Path sourceRootPath) {
         try {
             Map<Path, List<Dependency>> balosWithDependencies = validateBalos(moduleNames, sourceRootPath);
             recursivelyPushBalos(balosWithDependencies);
@@ -167,7 +167,7 @@ public class PushUtils {
                     errorMessage = errorMessage.replaceAll("error: ", "");
     
                     throw createLauncherException("unexpected error occurred while pushing module '" + moduleName +
-                                                  "' to remote repository('" + getRemoteRepoURL() + "'): " +
+                                                  "' to remote repository(" + getRemoteRepoURL() + "): " +
                                                   errorMessage);
                 }
             }
@@ -253,8 +253,8 @@ public class PushUtils {
             moduleAsDependency.setMetadata(depMetadata);
             if (isDependencyAvailableInRemote(moduleAsDependency)) {
                 throw createLauncherException("module '" + moduleAsDependency.toString() + "' already exists in " +
-                                              "remote repository: " + getRemoteRepoURL() + ". update the version in " +
-                                              "the Ballerina.toml and build and push.");
+                                              "remote repository(" + getRemoteRepoURL() + "). build and push after " +
+                                              "update the version in the Ballerina.toml.");
             }
     
             balos.put(baloFilePath, manifest.getDependencies());
@@ -274,11 +274,11 @@ public class PushUtils {
                     // 2. If dependency has same org as manifest but the dependency name is not from the project.
                     if (!dependency.getOrgName().equals(manifest.getProject().getOrgName()) ||
                         (dependency.getOrgName().equals(manifest.getProject().getOrgName()) &&
-                         ProjectDirs.isModuleExist(sourceRootPath, dependency.getModuleName()))) {
+                         !ProjectDirs.isModuleExist(sourceRootPath, dependency.getModuleName()))) {
                         if (!isDependencyAvailableInRemote(dependency)) {
                             throw createLauncherException("'" + dependency.toString() + "' which is a dependency of " +
                                                           "module '" + moduleName + "' cannot be found in remote " +
-                                                          "repository: " + RepoUtils.getRemoteRepoURL());
+                                                          "repository(" + RepoUtils.getRemoteRepoURL() + ")");
                         } else {
                             // remove from list if deps are available in central.
                             dependencies.remove();
@@ -302,14 +302,26 @@ public class PushUtils {
         if (balos.size() == 0) {
             return;
         }
+    
+        // go through the dependencies of balos and see if they are available in remote repository. if they are
+        // available remove them from the list.
+        for (List<Dependency> deps : balos.values()) {
+            Iterator<Dependency> depsIterator = deps.iterator();
+            while (depsIterator.hasNext()) {
+                Dependency dep = depsIterator.next();
+                if (isDependencyAvailableInRemote(dep)) {
+                    depsIterator.remove();
+                }
+            }
+        }
         
         // check if there are balos where their dependencies are already available in remote repository
-        Optional<List<Dependency>> baloWithAllDependenciesAvailable = balos.values().stream()
+        Optional<List<Dependency>> baloWithAllDependenciesAvailableInCentral = balos.values().stream()
                 .filter(depList -> depList.size() == 0)
                 .findAny();
     
         // if there isn't any balos where dependencies are resolved, then throw an error.
-        if (!baloWithAllDependenciesAvailable.isPresent()) {
+        if (!baloWithAllDependenciesAvailableInCentral.isPresent()) {
             Set<String> unresolvedDependencies = balos.values().stream()
                     .flatMap(List::stream)
                     .map(Dependency::toString)
@@ -328,35 +340,26 @@ public class PushUtils {
             }
         }
     
-        // go through the dependencies of balos and see if they are available in remote repository. if they are
-        // available remove them from the list.
-        for (List<Dependency> deps : balos.values()) {
-            Iterator<Dependency> depsIterator = deps.iterator();
-            while (depsIterator.hasNext()) {
-                Dependency dep = depsIterator.next();
-                if (isDependencyAvailableInRemote(dep)) {
-                    depsIterator.remove();
-                }
-            }
-        }
-    
         recursivelyPushBalos(balos);
     }
     
     private static boolean isDependencyAvailableInRemote(Dependency dep) throws IOException {
-        URI remoteURI = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/")
-                .resolve(dep.getOrgName())
-                .resolve(dep.getModuleName());
-        if (null != dep.getMetadata() && !dep.getMetadata().getVersion().isEmpty()) {
-            remoteURI = remoteURI.resolve(dep.getMetadata().getVersion());
+        URI baseURI = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/");
+        String moduleUrl = baseURI.toString() + dep.getOrgName() + "/" + dep.getModuleName();
+        
+        // append version to url if available
+        if (null != dep.getMetadata() && null != dep.getMetadata().getVersion() &&
+            !dep.getMetadata().getVersion().isEmpty()) {
+            moduleUrl = moduleUrl + "/" + dep.getMetadata().getVersion();
         }
+        
         for (String supportedPlatform : supportedPlatforms) {
             HttpURLConnection conn;
             // set proxy if exists.
             if (null == proxy) {
-                conn = (HttpURLConnection) remoteURI.toURL().openConnection();
+                conn = (HttpURLConnection) URI.create(moduleUrl).toURL().openConnection();
             } else {
-                conn = (HttpURLConnection) remoteURI.toURL().openConnection(proxy);
+                conn = (HttpURLConnection) URI.create(moduleUrl).toURL().openConnection(proxy);
             }
             conn.setInstanceFollowRedirects(false);
             conn.setRequestMethod("GET");
@@ -482,9 +485,8 @@ public class PushUtils {
      * Push all modules to central.
      *
      * @param sourceRootPath source root or project root
-     * @return status of the modules pushed
      */
-    public static boolean pushAllPackages(Path sourceRootPath) {
+    public static void pushAllModules(Path sourceRootPath) {
         try {
             List<String> fileList = Files.list(sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME))
                                          .filter(path -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
@@ -495,12 +497,11 @@ public class PushUtils {
                 throw createLauncherException("no modules found to push in " + sourceRootPath.toString());
             }
             
-            pushPackages(fileList, sourceRootPath);
+            pushModules(fileList, sourceRootPath);
         } catch (IOException ex) {
             throw createLauncherException("error occurred while pushing modules from " + sourceRootPath.toString()
                                                      + " " + ex.getMessage());
         }
-        return true;
     }
 
     /**
