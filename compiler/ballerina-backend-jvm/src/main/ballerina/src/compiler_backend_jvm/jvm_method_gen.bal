@@ -674,7 +674,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:NewTable) {
                 instGen.generateTableNewIns(inst);
             } else if (inst is bir:NewStream) {
-                instGen.generateStreamNewIns(inst);
+                 instGen.generateStreamNewIns(inst);
             } else if (inst is bir:NewError) {
                 instGen.generateNewErrorIns(inst);
             } else if (inst is bir:NewInstance) {

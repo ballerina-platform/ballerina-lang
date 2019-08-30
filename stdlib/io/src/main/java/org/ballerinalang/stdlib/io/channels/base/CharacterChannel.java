@@ -17,6 +17,7 @@
 
 package org.ballerinalang.stdlib.io.channels.base;
 
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,12 +89,6 @@ public class CharacterChannel implements IOChannel {
      */
     private static final int MINIMUM_BYTE_BUFFER_SIZE = 0;
 
-    /**
-     * Maximum number of characters which should be read per single read.
-     */
-    private static final int MAX_CHAR_COUNT_PER_READ = 1024;
-
-
     public CharacterChannel(Channel channel, String encoding) {
         this.channel = channel;
         bytesDecoder = Charset.forName(encoding).newDecoder();
@@ -134,7 +129,7 @@ public class CharacterChannel implements IOChannel {
         charBuffer.get(remainingChars, indexCharacterOffset, characterCount);
         content.append(remainingChars);
         if (log.isTraceEnabled()) {
-            log.trace("Characters appended to the string," + content);
+            log.trace(String.format("characters appended to the string,%s", content));
         }
     }
 
@@ -161,7 +156,7 @@ public class CharacterChannel implements IOChannel {
             int numberOfCharsRequired = content.capacity();
             final int minimumCharacterCount = 0;
             if (log.isDebugEnabled()) {
-                log.debug("Number of characters requested = " + numberOfCharsRequired + ",characters remaining in " +
+                log.debug("number of characters requested = " + numberOfCharsRequired + ",characters remaining in " +
                         "buffer= " + numberOfCharactersRemaining);
             }
             if (numberOfCharsRequired < numberOfCharactersRemaining) {
@@ -170,13 +165,14 @@ public class CharacterChannel implements IOChannel {
             }
             if (numberOfCharactersRemaining > minimumCharacterCount) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Appending " + numberOfCharactersRemaining + " to the string.");
+                    log.debug(String.format("appending %d to the string.", numberOfCharactersRemaining));
                 }
                 appendCharsToString(content, numberOfCharactersRemaining);
             }
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Character buffer has not being initialized yet for channel " + channel.hashCode());
+                log.debug(String.format("character buffer has not being initialized yet for channel %d",
+                        channel.hashCode()));
             }
         }
     }
@@ -215,17 +211,25 @@ public class CharacterChannel implements IOChannel {
      *
      * @param numberOfBytesRequired number of bytes required from the channel.
      * @param numberOfCharsRequired number of characters required.
-     * @throws IOException errors occur while reading and encoding characters.
+     * @throws BallerinaIOException errors occur while processing character buffer.
      */
     private void asyncReadBytesFromChannel(int numberOfBytesRequired, int numberOfCharsRequired)
-            throws IOException {
+            throws BallerinaIOException {
         ByteBuffer buffer;
         int numberOfCharsProcessed = 0;
         CharBuffer intermediateCharacterBuffer;
         //Provided at this point any remaining character left in the buffer is copied
         charBuffer = CharBuffer.allocate(numberOfBytesRequired);
-        buffer = contentBuffer.get(numberOfBytesRequired, channel);
-        intermediateCharacterBuffer = bytesDecoder.decode(buffer);
+        try {
+            buffer = contentBuffer.get(numberOfBytesRequired, channel);
+        } catch (IOException e) {
+            throw new BallerinaIOException("error occurred while reading from channel: " + e.getMessage(), e);
+        }
+        try {
+            intermediateCharacterBuffer = bytesDecoder.decode(buffer);
+        } catch (CharacterCodingException e) {
+            throw new BallerinaIOException("character decoding error while reading from buffer: " + e.getMessage(), e);
+        }
         numberOfCharsProcessed = numberOfCharsProcessed + intermediateCharacterBuffer.limit();
         charBuffer.put(intermediateCharacterBuffer);
         //We make the char buffer ready to read
@@ -268,7 +272,8 @@ public class CharacterChannel implements IOChannel {
      * @param buffer                 the buffer which will hold the content.
      * @param numberOfCharsProcessed number of characters processed.
      */
-    private void processChars(int numberOfCharsRequired, ByteBuffer buffer, int numberOfCharsProcessed) {
+    private void processChars(int numberOfCharsRequired, ByteBuffer buffer, int numberOfCharsProcessed)
+            throws BallerinaIOException {
         final int minimumNumberOfCharsRequired = 0;
         if (numberOfCharsProcessed > minimumNumberOfCharsRequired) {
             int lastCharacterIndex = numberOfCharsProcessed - 1;
@@ -286,38 +291,34 @@ public class CharacterChannel implements IOChannel {
      *
      * @param numberOfCharacters number of characters which needs to be read.
      * @return characters which were read.
-     * @throws IOException during I/O error.
+     * @throws BallerinaIOException during I/O error.
      */
-    public String read(int numberOfCharacters) throws IOException {
-        StringBuilder content;
-        try {
-            //Will identify the number of characters required
-            int charsRequiredToBeReadFromChannel;
-            content = new StringBuilder(numberOfCharacters);
-            int numberOfBytesRequired = numberOfCharacters * MAX_BYTES_PER_CHAR;
-            //First the remaining buffer would be get and the characters remaining in the buffer will be written
-            appendRemainingCharacters(content);
-            //Content capacity would give the total size of the string builder (number of chars)
-            //Content length will give the number of characters appended to the builder through the function
-            //call appendRemainingCharacters(..)
-            charsRequiredToBeReadFromChannel = content.capacity() - content.length();
-            if (charsRequiredToBeReadFromChannel == 0) {
-                //This means there's no requirement to get the characters from channel
-                return content.toString();
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Number of chars required to be get from the channel " + charsRequiredToBeReadFromChannel);
-            }
-            asyncReadBytesFromChannel(numberOfBytesRequired, numberOfCharacters);
-            //We need to ensure that the required amount of characters are available in the buffer
-            if (charBuffer.limit() < charsRequiredToBeReadFromChannel) {
-                //This means the amount of chars required are not available
-                charsRequiredToBeReadFromChannel = charBuffer.limit();
-            }
-            appendCharsToString(content, charsRequiredToBeReadFromChannel);
-        } catch (IOException e) {
-            throw new IOException("Error occurred while reading characters from buffer", e);
+    public String read(int numberOfCharacters) throws BallerinaIOException {
+        //Identify the number of characters required
+        int charsRequiredToBeReadFromChannel;
+        StringBuilder content = new StringBuilder(numberOfCharacters);
+        int numberOfBytesRequired = numberOfCharacters * MAX_BYTES_PER_CHAR;
+        //Initially the remaining buffer would be obtained and the characters remaining in the buffer will be written
+        appendRemainingCharacters(content);
+        //Content capacity would give the total size of the string builder (number of chars)
+        //Content length will give the number of characters appended to the builder through the function
+        //call appendRemainingCharacters(..)
+        charsRequiredToBeReadFromChannel = content.capacity() - content.length();
+        if (charsRequiredToBeReadFromChannel == 0) {
+            //This means there's no requirement to get the characters from channel
+            return content.toString();
         }
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("number of chars required to be get from the channel %d",
+                    charsRequiredToBeReadFromChannel));
+        }
+        asyncReadBytesFromChannel(numberOfBytesRequired, numberOfCharacters);
+        //Ensure that the required amount of characters are available in the buffer
+        if (charBuffer.limit() < charsRequiredToBeReadFromChannel) {
+            //This means the amount of chars required are not available
+            charsRequiredToBeReadFromChannel = charBuffer.limit();
+        }
+        appendCharsToString(content, charsRequiredToBeReadFromChannel);
         return content.toString();
     }
 
@@ -331,23 +332,6 @@ public class CharacterChannel implements IOChannel {
      */
     String readAllChars(int nBytes) throws IOException {
         return asyncReadBytesFromChannel(nBytes);
-    }
-
-    /**
-     * Reads all content from the I/O source.
-     *
-     * @return all content which is read.
-     * @throws IOException during I/O error.
-     */
-    @Deprecated
-    public String readAll() throws IOException {
-        StringBuilder response = new StringBuilder();
-        String value;
-        do {
-            value = read(MAX_CHAR_COUNT_PER_READ);
-            response.append(value);
-        } while (!value.isEmpty());
-        return response.toString();
     }
 
     /**
@@ -370,23 +354,13 @@ public class CharacterChannel implements IOChannel {
                     numberOfBytesWritten = numberOfBytesWritten + channel.write(encodedBuffer);
                 } while (encodedBuffer.hasRemaining());
             } else {
-                log.warn("The channel has already being closed");
+                log.warn("channel has already being closed");
             }
             return numberOfBytesWritten;
         } catch (CharacterCodingException e) {
-            String message = "Error occurred while writing bytes to the channel " + channel.hashCode();
+            String message = "error occurred while writing bytes to the channel: " + e.getMessage();
             throw new IOException(message, e);
         }
-    }
-
-    /**
-     * Specified whether the channel is selectable.
-     *
-     * @return true if the channel is selectable.
-     */
-    @Override
-    public boolean isSelectable() {
-        return channel.isSelectable();
     }
 
     /**
