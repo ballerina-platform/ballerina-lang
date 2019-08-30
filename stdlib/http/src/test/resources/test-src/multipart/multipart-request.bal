@@ -1,5 +1,5 @@
-import ballerina/encoding;
 import ballerina/http;
+import ballerina/lang.'string as strings;
 import ballerina/mime;
 
 function setErrorResponse(http:Response response,  error err) {
@@ -200,7 +200,12 @@ function handleContent(mime:Entity bodyPart) returns @tainted string {
         } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
             var payload = bodyPart.getByteArray();
             if (payload is byte[]) {
-                return encoding:byteArrayToString(payload, mime:DEFAULT_CHARSET);
+                var stringPayload = strings:fromBytes(payload);
+                if (stringPayload is error) {
+                    return "Error occurred while byte array to string conversion";
+                } else {
+                    return stringPayload;
+                }
             } else {
                 return "Error in getting byte[] payload";
             }

@@ -16,7 +16,6 @@
 
 import ballerina/crypto;
 import ballerina/config;
-import ballerina/encoding;
 import ballerina/http;
 import ballerina/internal;
 
@@ -45,7 +44,7 @@ const string UNAUTHORIZED_CLIENT = "unauthorized_client";
 const string AUTHORIZATION_HEADER_NOT_PROVIDED = "authorization_header_not_provided";
 
 string refreshTokenString = CLIENT_ID + CLIENT_SECRET;
-string refreshTokenHash = encoding:encodeBase64(crypto:hashMd5(refreshTokenString.toBytes()));
+string refreshTokenHash = crypto:hashMd5(refreshTokenString.toBytes()).toBase64();
 
 string[] accessTokenStore = ["2YotnFZFEjr1zCsicMWpAA"];
 
@@ -270,7 +269,7 @@ function getResponseForRefreshRequest(http:Request req, string authorizationHead
             if (grantType == GRANT_TYPE_REFRESH_TOKEN) {
                 if (refreshToken == refreshTokenHash) {
                     string input = CLIENT_ID + CLIENT_SECRET + refreshToken + scopes;
-                    string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
+                    string accessToken = crypto:hashMd5(input.toBytes()).toBase64();
                     addToAccessTokenStore(accessToken);
                     json response = {
                         "access_token": accessToken,
@@ -348,7 +347,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
                          string bearer) returns http:Response {
     if (grantType == GRANT_TYPE_CLIENT_CREDENTIALS) {
         string input = CLIENT_ID + CLIENT_SECRET + scopes;
-        string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
+        string accessToken =crypto:hashMd5(input.toBytes()).toBase64();
         addToAccessTokenStore(accessToken);
         json response = {
             "access_token": accessToken,
@@ -361,7 +360,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
         if (username == USERNAME && password == PASSWORD) {
             if (bearer == NO_BEARER) {
                 string input = username + password + scopes;
-                string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
+                string accessToken = crypto:hashMd5(input.toBytes()).toBase64();
                 addToAccessTokenStore(accessToken);
                 json response = {
                     "access_token": accessToken,
@@ -372,7 +371,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
                 res.setPayload(response);
             } else {
                 string input = CLIENT_ID + CLIENT_SECRET + username + password + scopes;
-                string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
+                string accessToken = crypto:hashMd5(input.toBytes()).toBase64();
                 addToAccessTokenStore(accessToken);
                 json response = {
                     "access_token": accessToken,
@@ -398,7 +397,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
 
 function isAuthorizedClient(string authorizationHeader) returns boolean {
     string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
-    string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toBytes());
+    string expectedAuthorizationHeader = "Basic " + clientIdSecret.toBytes().toBase64();
     return authorizationHeader == expectedAuthorizationHeader;
 }
 
