@@ -39,6 +39,7 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION_IN_OBJECT("undefined.function.in.object"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
+    NON_MODULE_QUALIFIED_ERROR_REASON("non.module.qualified.error.reason"),
     INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
     ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED("missing.error.reason"),

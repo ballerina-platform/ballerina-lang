@@ -58,6 +58,10 @@ import static org.ballerinalang.jvm.TypeChecker.anyToDecimal;
 import static org.ballerinalang.jvm.TypeChecker.anyToFloat;
 import static org.ballerinalang.jvm.TypeChecker.anyToInt;
 import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
+import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Represent an array in ballerina.
@@ -457,7 +461,8 @@ public class ArrayValue implements RefValue, CollectionValue {
         Object arr = getArrayFromType(elementType.getTag());
 
         if (index > lastIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                                                            RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
 
@@ -821,27 +826,32 @@ public class ArrayValue implements RefValue, CollectionValue {
         rangeCheck(index, size);
         if (index < 0 || index >= size) {
             if (arrayType != null && arrayType.getTag() == TypeTags.TUPLE_TAG) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                throw BLangExceptionHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                         RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
             }
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
     private void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
         if (arrayType != null && arrayType.getTag() == TypeTags.TUPLE_TAG) {
             if ((((BTupleType) arrayType).getRestType() == null && index >= maxArraySize) || (int) index < 0) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                throw BLangExceptionHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                         RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
             }
         } else {
             if ((int) index < 0 || index >= maxArraySize) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                throw BLangExceptionHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                         RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
             }
         }
@@ -900,7 +910,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         synchronized (this) {
             try {
                 if (this.freezeStatus.getState() != State.UNFROZEN) {
-                    FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                    FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), ARRAY_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
                 throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
@@ -1185,14 +1195,17 @@ public class ArrayValue implements RefValue, CollectionValue {
         if (arrayType.getTag() == TypeTags.TUPLE_TAG) {
             BTupleType tupleType = (BTupleType) this.arrayType;
             if (tupleType.getRestType() == null) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                throw BLangExceptionHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         RuntimeErrors.ILLEGAL_TUPLE_SIZE, size, length);
             } else if (tupleType.getTupleTypes().size() > length) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                throw BLangExceptionHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         RuntimeErrors.ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE, tupleType.getTupleTypes().size(), length);
             }
         } else if (((BArrayType) this.arrayType).getState() == ArrayState.CLOSED_SEALED) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     RuntimeErrors.ILLEGAL_ARRAY_SIZE, size, length);
         }
     }

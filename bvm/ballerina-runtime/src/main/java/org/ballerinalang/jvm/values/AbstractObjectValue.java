@@ -25,11 +25,14 @@ import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.jvm.util.BLangConstants.OBJECT_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Abstract class to be extended by all the ballerina objects.
@@ -155,7 +158,8 @@ public abstract class AbstractObjectValue implements ObjectValue {
             return;
         }
 
-        throw BallerinaErrors.createError(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+        throw BallerinaErrors.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
+                                                                  INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                 "invalid value for object field '" + fieldName + "': expected value of type '" + fieldType +
                         "', found '" + TypeChecker.getType(value) + "'");
     }
