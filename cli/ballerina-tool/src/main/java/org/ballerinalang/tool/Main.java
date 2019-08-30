@@ -95,6 +95,9 @@ public class Main {
                 bCmd.setParentCmdParser(cmdParser);
             }
 
+            // set stop at positional to run command
+            cmdParser.getSubcommands().get("run").setStopAtPositional(true);
+
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
             cmdParser.addSubcommand(BallerinaCliCommands.VERSION, versionCmd);
