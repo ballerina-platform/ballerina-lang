@@ -23,8 +23,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
 /**
  * Negative test cases for checking rules on private types/fields access in ballerina.
  */
@@ -36,7 +34,6 @@ public class AccessLevelsNegativeTest {
 
         String expectedErrMsg = "attempt to expose non-public symbol ";
         int i = 0;
-        Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 11, 1);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'ChildFoo'", 23, 5);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 24, 5);
@@ -60,12 +57,12 @@ public class AccessLevelsNegativeTest {
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'ChildRecord'", 134, 5);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 135, 5);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 136, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 154, 1);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 154, 1);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 154, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 154, 1);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 163, 33);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 163, 33);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 163, 33);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 163, 33);
 //        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 165, 37);
 //        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 166, 37);
 //        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 167, 37);
