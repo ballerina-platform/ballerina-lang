@@ -62,7 +62,7 @@ public class StubGeneratorTestCase {
         outputDirPath = Paths.get(TMP_DIRECTORY_PATH, "grpc");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testUnaryHelloWorld() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorld.proto", "helloWorld_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
@@ -95,7 +95,7 @@ public class StubGeneratorTestCase {
                 "ERROR: .::helloWorldWithDependency_pb.bal:35:86:: unknown type 'ByeResponse'");
     }
 
-    @Test(description = "Test service stub generation for service definition with enum messages")
+    @Test(description = "Test service stub generation for service definition with enum messages", enabled = false)
     public void testUnaryHelloWorldWithEnum() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithEnum.proto", "helloWorldWithEnum_pb.bal");
@@ -110,7 +110,8 @@ public class StubGeneratorTestCase {
         validateConstantNode(compileResult, "SENTIMENT_NEUTRAL");
     }
 
-    @Test(description = "Test service stub generation for service definition with nested enum messages")
+    @Test(description = "Test service stub generation for service definition with nested enum messages",
+            enabled = false)
     public void testUnaryHelloWorldWithNestedEnum() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithNestedEnum.proto",
@@ -126,7 +127,7 @@ public class StubGeneratorTestCase {
         validateConstantNode(compileResult, "SENTIMENT_NEUTRAL");
     }
 
-    @Test(description = "Test service stub generation for service definition with nested messages")
+    @Test(description = "Test service stub generation for service definition with nested messages",enabled = false)
     public void testUnaryHelloWorldWithNestedMessage() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithNestedMessage.proto",
@@ -136,7 +137,7 @@ public class StubGeneratorTestCase {
                 "Expected type definitions not found in compile results.");
     }
 
-    @Test(description = "Test service stub generation for service definition with reserved names")
+    @Test(description = "Test service stub generation for service definition with reserved names", enabled = false)
     public void testUnaryHelloWorldWithReservedNames() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithReservedNames.proto",
@@ -156,7 +157,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 1);
     }
 
-    @Test(description = "Test service stub generation tool for package service")
+    @Test(description = "Test service stub generation tool for package service", enabled = false)
     public void testUnaryHelloWorldWithPackage() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithPackage.proto",
@@ -175,7 +176,8 @@ public class StubGeneratorTestCase {
                 "Expected imports not found in compile results.");
     }
 
-    @Test(description = "Test service stub generation tool command without specifying output directory path")
+    @Test(description = "Test service stub generation tool command without specifying output directory path",
+            enabled = false)
     public void testUnaryHelloWorldWithoutOutputPath() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
@@ -223,7 +225,7 @@ public class StubGeneratorTestCase {
                 "Expected imports not found in compile results.");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testServerStreamingHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldServerStreaming.proto",
@@ -258,7 +260,7 @@ public class StubGeneratorTestCase {
                 "Expected imports not found in compile results.");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testDifferentOutputPath() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
@@ -317,7 +319,7 @@ public class StubGeneratorTestCase {
         assertTrue(Files.exists(sampleServiceFile));
     }
 
-    @Test(description = "Test case for oneof field record generation")
+    @Test(description = "Test case for oneof field record generation", enabled = false)
     public void testOneofFieldRecordGeneration() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("oneof_field_service.proto",

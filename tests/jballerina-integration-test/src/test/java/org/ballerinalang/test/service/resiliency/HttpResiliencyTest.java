@@ -76,7 +76,8 @@ public class HttpResiliencyTest extends BaseTest {
         String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "resiliency").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(sourcePath, "resiliencyservices", requiredPorts);
+        serverInstance.startServer(sourcePath, "resiliencyservices", new String[]{"--experimental"},
+                                   new String[]{}, requiredPorts);
     }
 
     @Test(description = "Test basic failover functionality")
