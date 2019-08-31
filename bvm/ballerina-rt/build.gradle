@@ -81,8 +81,8 @@ dependencies {
     dist 'com.moandjiezana.toml:toml4j:0.7.2'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     dist 'org.apache.commons:commons-lang3:3.8.1'
-    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
-    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
+//    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
+//    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
 
     // runtime
     dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
