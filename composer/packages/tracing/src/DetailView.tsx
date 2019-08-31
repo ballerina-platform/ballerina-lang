@@ -42,10 +42,36 @@ export default class DetailView extends React.Component<DetailViewProps> {
     constructor(props: DetailViewProps) {
         super(props);
     }
+    renderPayload(trace: any) {
+        const payload = trace.message.payload;
+        const contentType = trace.message.contentType;
+        if (contentType.indexOf("application/json") && isJson(payload)) {
+            return (
+                <ReactJson
+                    src={JSON.parse(payload)}
+                    theme="eighties"
+                    name={false}
+                    displayDataTypes={false}
+                    collapsed={1}
+                    displayObjectSize={false}
+                    style={{ marginTop: 10, background: "inherit" }}
+                /> 
+            );
+        } else if (contentType.indexOf("application/octet-stream")) {
+            return (
+                <code><pre>Unable to parse Payload : application/octet-stream </pre></code>
+            );
+        } else {
+            return (
+                <code><pre>{trace.message.payload}</pre></code>
+            );
+        }
+
+        
+    }
     public render() {
         const trace = this.props.trace;
         const headers = trace.message.headers || "";
-        const payload = trace.message.payload;
         const headersArray = headers.split("\n");
         if (payload.trim() ===  "" && headers.trim() === "") {
             return (
@@ -78,16 +104,7 @@ export default class DetailView extends React.Component<DetailViewProps> {
                 </code>
                 }
                 {
-                    trace.message.contentType.indexOf("application/json") > -1 && isJson(payload) ?
-                        <ReactJson
-                            src={JSON.parse(payload)}
-                            theme="eighties"
-                            name={false}
-                            displayDataTypes={false}
-                            collapsed={1}
-                            displayObjectSize={false}
-                            style={{ marginTop: 10, background: "inherit" }}
-                        /> : <code><pre>{trace.message.payload}</pre></code>
+                    this.renderPayload(trace)
                 }
 
             </Segment>
