@@ -127,7 +127,7 @@ public class StubGeneratorTestCase {
         validateConstantNode(compileResult, "SENTIMENT_NEUTRAL");
     }
 
-    @Test(description = "Test service stub generation for service definition with nested messages",enabled = false)
+    @Test(description = "Test service stub generation for service definition with nested messages", enabled = false)
     public void testUnaryHelloWorldWithNestedMessage() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithNestedMessage.proto",
