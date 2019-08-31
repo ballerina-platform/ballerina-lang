@@ -14,11 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# The type to which error detail records must belong.
+#
+# + message - the error message
+# + cause - the error cause
+public type Detail record {|
+    string message?;
+    error cause?;
+    (anydata|error)...;
+|};
+
 # A type parameter that is a subtype of error `Detail` record type.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
+#
+# + message - the error message
+# + cause - the error cause
 @typeParam
-type RecordType record {|
+type DetailType record {|
     string message?;
     error cause?;
     (anydata|error)...;
@@ -36,24 +49,17 @@ type StringType string;
 # + return - error reason
 public function reason(error<StringType> e) returns StringType = external;
 
-# Returns the error's detail record as an immutable mapping.
-#
+# Returns the error's detail record.
+# The returned value will be immutable.
 # + e - the error value
 # + return - error detail value
-public function detail(error<string,RecordType> e) returns RecordType = external;
+public function detail(error<string,DetailType> e) returns DetailType = external;
 
 # Returns an object representing the stack trace of the error.
 #
 # + e - the error value
-# + return - stack trace of the error value
+# + return - a new object representing the stack trace of the error value
 public function stackTrace(error e) returns CallStack = external;
-
-# Default error detail record.
-public type Detail record {|
-    string message?;
-    error cause?;
-    (anydata|error)...;
-|};
 
 # Representation of `CallStackElement`
 #

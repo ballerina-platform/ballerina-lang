@@ -151,6 +151,15 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"forkJoinCompletion4.json", "function"},
                 {"packageContentSuggestionInvalid1.json", "function"},
                 {"errorUnionSuggestion1.json", "function"},
+                {"returnParameterContextSuggestion1.json", "function"},
+                {"returnParameterContextSuggestion2.json", "function"},
+                {"returnParameterContextSuggestion3.json", "function"},
+                {"returnParameterContextSuggestion4.json", "function"},
+                {"returnParameterContextSuggestion5.json", "function"},
+                {"returnParameterContextSuggestion6.json", "function"},
+                {"returnParameterContextSuggestion7.json", "function"},
+                {"returnParameterContextSuggestion8.json", "function"},
+                {"returnParameterContextSuggestion9.json", "function"},
         };
     }
 }

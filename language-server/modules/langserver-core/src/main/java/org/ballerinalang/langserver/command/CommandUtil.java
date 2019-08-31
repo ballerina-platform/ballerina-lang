@@ -294,12 +294,20 @@ public class CommandUtil {
 
                 boolean isInvocation = symbolAtCursor instanceof BInvokableSymbol;
                 boolean isRemoteInvocation = (symbolAtCursor.flags & Flags.REMOTE) == Flags.REMOTE;
-                boolean isInitInvocation = symbolAtCursor instanceof BObjectTypeSymbol &&
-                        refAtCursor.getbLangNode() instanceof BLangInvocation;
+
+                boolean hasDefaultInitFunction = false;
+                boolean hasCustomInitFunction = false;
+                if (refAtCursor.getbLangNode() instanceof BLangInvocation) {
+                    hasDefaultInitFunction = symbolAtCursor instanceof BObjectTypeSymbol;
+                    hasCustomInitFunction = symbolAtCursor instanceof BInvokableSymbol &&
+                            symbolAtCursor.name.value.endsWith("__init");
+                }
+                boolean isInitInvocation = hasDefaultInitFunction || hasCustomInitFunction;
 
                 String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
                 CodeAction action = new CodeAction(commandTitle);
-                List<TextEdit> edits = getCreateVariableCodeActionEdits(context, uri, refAtCursor, isInitInvocation);
+                List<TextEdit> edits = getCreateVariableCodeActionEdits(context, uri, refAtCursor,
+                                                                        hasDefaultInitFunction, hasCustomInitFunction);
                 action.setKind(CodeActionKind.QuickFix);
                 action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                         new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
@@ -308,10 +316,12 @@ public class CommandUtil {
 
                 if (isInvocation || isInitInvocation) {
                     BType returnType;
-                    if (!isInitInvocation) {
-                        returnType = ((BInvokableSymbol) symbolAtCursor).retType;
-                    } else {
+                    if (hasDefaultInitFunction) {
                         returnType = symbolAtCursor.type;
+                    } else if (hasCustomInitFunction) {
+                        returnType = symbolAtCursor.owner.type;
+                    } else {
+                        returnType = ((BInvokableSymbol) symbolAtCursor).retType;
                     }
                     boolean hasError = false;
                     if (returnType instanceof BErrorType) {
@@ -524,21 +534,17 @@ public class CommandUtil {
 
     private static List<TextEdit> getCreateVariableCodeActionEdits(LSContext context, String uri,
                                                                    SymbolReferencesModel.Reference referenceAtCursor,
-                                                                   boolean isInitInvocation) {
+                                                                   boolean hasDefaultInitFunction,
+                                                                   boolean hasCustomInitFunction) {
         BLangNode bLangNode = referenceAtCursor.getbLangNode();
         List<TextEdit> edits = new ArrayList<>();
-        BLangPackage packageNode = CommonUtil.getPackageNode(bLangNode);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
         String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
 
-        if (packageNode == null) {
-            return edits;
-        }
-
-        PackageID currentPkgId = packageNode.packageID;
+        PackageID currentPkgId = bLangNode.pos.src.pkgID;
         BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
-            boolean notFound = packageNode.getImports().stream().noneMatch(
+            boolean notFound = CommonUtil.getCurrentModuleImports(context).stream().noneMatch(
                     pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
             );
             if (notFound) {
@@ -547,10 +553,14 @@ public class CommandUtil {
             }
         };
         String variableType;
-        if (isInitInvocation && referenceAtCursor.getSymbol() instanceof BObjectTypeSymbol) {
-            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                    referenceAtCursor.getSymbol().type);
-            variableName = CommonUtil.generateVariableName(referenceAtCursor.getSymbol().type, nameEntries);
+        if (hasDefaultInitFunction) {
+            BType bType = referenceAtCursor.getSymbol().type;
+            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+            variableName = CommonUtil.generateVariableName(bType, nameEntries);
+        } else if (hasCustomInitFunction) {
+            BType bType = referenceAtCursor.getSymbol().owner.type;
+            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+            variableName = CommonUtil.generateVariableName(bType, nameEntries);
         } else {
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
         }

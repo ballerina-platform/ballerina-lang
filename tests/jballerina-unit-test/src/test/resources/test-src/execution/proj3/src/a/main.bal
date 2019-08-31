@@ -10,7 +10,7 @@ public function main() {
 
 public type ABC object {
 
-    *'object:AbstractListener;
+    *'object:Listener;
     private string name = "";
 
     public function __init(string name){

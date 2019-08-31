@@ -142,6 +142,9 @@ public class TesterinaFunction {
             if (result instanceof ErrorValue) {
                 throw new BallerinaException((ErrorValue) result);
             }
+            if (result instanceof Exception) {
+                throw new BallerinaException((Exception) result);
+            }
             if (t != null) {
                 throw new BallerinaException("Error while invoking function '" + funcName + "'", t.getMessage());
             }

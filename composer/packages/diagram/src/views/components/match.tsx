@@ -5,6 +5,7 @@ import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model/index";
 import { HiddenBlock } from "./hidden-block";
+import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -39,7 +40,11 @@ export const Match: React.StatelessComponent<{
             <g className="match">
                 <rect {...frameBorder} />
                 <polygon points={`${p.x1},${p.y1} ${p.x2},${p.y2} ${p.x3},${p.y3} ${p.x4},${p.y4}`} />
-                <text x={p.x1 + 5} y={p.y1 + (config.statement.height / 2) }>{expression.text}</text>
+                {<SourceLinkedLabel x={p.x1 + 5}
+                                    y={p.y1 + (config.statement.height / 2)}
+                                    target={model}
+                                    text={expression.text} className="label"
+                />}
                 {model.patternClauses.map((element) => {
                     const cmp = DiagramUtils.getComponents(element.statement);
 

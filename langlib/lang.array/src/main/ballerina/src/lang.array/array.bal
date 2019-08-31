@@ -32,117 +32,98 @@ type Type1 any|error;
 @typeParam
 type PureType anydata|error;
 
-# Represent the iterator type returned when `iterator` method is invoked.
-type ArrayIterator object {
-
-    private Type[] m;
-
-    public function __init(Type[] m) {
-        self.m = m;
-    }
-
-    # Return next member or nil if end of iteration is reached.
-    public function next() returns record {|
-        Type value;
-    |}? = external;
-};
-
-# Returns the number of members contained in `arr`.
+# Returns the number of members of an array.
 #
 # + arr - the array
-# + return - number of members in the array
+# + return - number of members in `arr`
 public function length((any|error)[] arr) returns int = external;
 
-# Returns an iterator over the members of `arr`
+# Returns an iterator over an array.
 #
 # + arr - the array
-# + return - iterator object
+# + return - a new iterator object that will iterate over the members of `arr`.
 public function iterator(Type[] arr) returns abstract object {
     public function next() returns record {|
         Type value;
     |}?;
-    } {
+} {
     ArrayIterator arrIterator = new(arr);
     return arrIterator;
 }
 
-# Returns a new array comprising of position and member pairs.
+# Returns a new array consisting of index and member pairs.
 #
 # + arr - the array
-# + return - array of position, member pair
+# + return - array of index, member pairs
 public function enumerate(Type[] arr) returns [int, Type][] = external;
 
-# Returns a new array applying function `func` to each member of array `arr`.
+// Functional iteration
+
+# Applies a function to each member of an array and returns an array of the results.
 #
 # + arr - the array
 # + func - a function to apply to each member
-# + return - new array containing result of applying function `func` to each member
+# + return - new array containing result of applying `func` to each member of `arr` in order
 public function 'map(Type[] arr, function(Type val) returns Type1 func) returns Type1[] = external;
 
-# Apply function `func` to each member of array `arr`.
+# Applies a function to each member of an array.
+# The function `func` is applied to each member of array `arr` in order.
 #
 # + arr - the array
 # + func - a function to apply to each member
 public function forEach(Type[] arr, function(Type val) returns () func) returns () = external;
 
-# Returns a new array constructed from those elements of 'arr' for which `func` returns true.
+# Selects the members from an array for which a function returns true.
 #
 # + arr - the array
-# + func - a predicate to apply to each element to determine if it should be included
-# + return - new array only containig members which evaluate function 'func' to true
+# + func - a predicate to apply to each member to test whether it should be selected
+# + return - new array only containing members of `arr` for which `func` evaluates to true
 public function filter(Type[] arr, function(Type val) returns boolean func) returns Type[] = external;
 
-# Reduce operate on each member of `arr` using combining function `func` to produce
-# a new value combining all members of `arr`.
+# Combines the members of an array using a combining function.
+# The combining function takes the combined value so far and a member of the array,
+# and returns a new combined value.
 #
 # + arr - the array
 # + func - combining function
-# + initial - initial value to first evaluation of combining function `func`
-# + return - result of applying combining function to each member of the array
+# + initial - initial value for the first argument of combining function `func`
+# + return - result of combining the members of `arr` using `func`
 #
-# Example: Emulating sum function.
+# For example
 # ```
-# var ar = [1, 2, 3];
-# var a = ar.reduce(function (int i, int j) returns int { return i + j; }, 0);
+# reduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)
 # ```
-#
-# Example: Emulating map behavior.
-# ```
-# var ar = [1, 2, 3];
-# int[] newArr = [];
-# int[] a = ar.reduce(function (int[] a, int j) returns int[] { a.push(j*2); return a; }, newArr);
-# ```
+# is the same as `sum(1, 2, 3)`.
 public function reduce(Type[] arr, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
 
-// TODO: Add default arg for `endIndex`
-# Returns a sub array starting from `startIndex` (inclusive) to `endIndex` (exclusive).
+# Returns a subarray starting from `startIndex` (inclusive) to `endIndex` (exclusive).
 #
 # + arr - the array
 # + startIndex - index of first member to include in the slice
 # + endIndex - index of first member not to include in the slice
 # + return - array slice within specified range
-public function slice(Type[] arr, int startIndex, int endIndex) returns Type[] = external;
+public function slice(Type[] arr, int startIndex, int endIndex) returns Type[] = external; // TODO: #17395
 
-# Removes the member of `arr` and index `i` and returns it.
-# Panics if `i` is out of range.
+# Removes a member of an array.
 #
 # + arr - the array
-# + i - index of member to be removed
-# + return - removed member
-public function remove(Type[] arr, int i) returns Type = external;
+# + index - index of member to be removed from `arr`
+# + return - the member of `arr` that was at `index`
+# This removes the member of `arr` with index `index` and returns it.
+# It panics if there is no such member.
+public function remove(Type[] arr, int index) returns Type = external;
 
-# Removes all members of `arr`.
-# Panics if any member cannot be removed.
-#
+# Removes all members of an array.
 # + arr - the array
+#  Panics if any member cannot be removed.
 public function removeAll((any|error)[] arr) returns () = external;
 
-# Increase or decrease the length.
-# `setLength(arr, 0)` is equivalent to `removeAll(arr)`.
+# Changes the length of an array.
 #
-# + arr - the array
-# + i - new length
-public function setLength((any|error)[] arr, int i) returns () = external;
+# + arr - the array of which to change the length
+# + length - new length
+# `setLength(arr, 0)` is equivalent to `removeAll(arr)`.
+public function setLength((any|error)[] arr, int length) returns () = external;
 
 # Returns the index of first member of `arr` that is equal to `val` if there is one.
 # Returns `()` if not found
@@ -154,32 +135,33 @@ public function setLength((any|error)[] arr, int i) returns () = external;
 # + return - index of the member if found, else `()`
 public function indexOf(PureType[] arr, PureType val, int startIndex = 0) returns int? = external;
 
-# Reverse the order of the members of `arr`.
-# Returns `arr`.
+# Reverses the order of the members of an array.
 #
 # + arr - the array to be reversed
-# + return - reversed `arr`
+# + return - `arr` with its members in reverse order
 public function reverse(Type[] arr) returns Type[] = external;
 
-# Sort `arr` using `func` to order members.
-# Returns `arr`.
+# Sorts an array using a comparator function.
+# The comparator function must return a value less than, equal to or greater than zero
+# according as its first argument is to be ordered before, equal to or after its second argument.
 #
-# + arr - the array
+# + arr - the array to be sorted
 # + func - comparator function
-# + return - sorted `arr`
+# + return - `arr` with its members sorted
 public function sort(Type[] arr, function(Type val1, Type val2) returns int func) returns Type[] = external;
 
 // Stack-like methods (JavaScript, Perl)
 // panic on fixed-length array
 // compile-time error if known to be fixed-length
 
-# Remove and return the last member of the `arr`.
+# Removes and returns the last member of an array.
+# The array must not be empty.
 #
 # + arr - the array
 # + return - removed member
 public function pop(Type[] arr) returns Type = external;
 
-# Add `vals` to end of the `arr` array.
+# Adds values to the end of an array.
 #
 # + arr - the array
 # + vals - values to add to the end of the array
@@ -189,13 +171,16 @@ public function push(Type[] arr, Type... vals) returns () = external;
 // panic on fixed-length array
 // compile-time error if known to be fixed-length
 
-# Remove and return first element of the array `arr`.
+# Removes and returns first member of an array.
+# The array must not be empty.
 #
 # + arr - the array
-# + return - removed member
+# + return - the value that was the first member of the array
 public function shift(Type[] arr) returns Type = external;
 
-# Add `vals` to beginig of the array `arr`.
+# Adds values to the start of an array.
+# The values newly added to the array will be in the same order
+# as they are in `vals`.
 #
 # + arr - the array
 # + vals - values to add to the start of the array
@@ -203,7 +188,7 @@ public function unshift(Type[] arr, Type... vals) returns () = external;
 
 // Conversion
 
-# Returns the string representing `arr` using Base64 encoding.
+# Returns the string that is the Base64 representation of an array of bytes.
 # The representation is the same as used by a Ballerina Base64Literal.
 # The result will contain only characters  `A..Z`, `a..z`, `0..9`, `+`, `/` and `=`.
 # There will be no whitespace in the returned string.
@@ -212,7 +197,7 @@ public function unshift(Type[] arr, Type... vals) returns () = external;
 # + return - Base64 string representation
 public function toBase64(byte[] arr) returns string = external;
 
-# Returns the byte array that `str` represents in Base64 encoding.
+# Returns the byte array that a string represents in Base64.
 # `str` must consist of the characters `A..Z`, `a..z`, `0..9`, `+`, `/`, `=`
 # and whitespace as allowed by a Ballerina Base64Literal.
 #
@@ -220,7 +205,7 @@ public function toBase64(byte[] arr) returns string = external;
 # + return - the byte array or error
 public function fromBase64(string str) returns byte[]|error = external;
 
-# Returns the string representing `arr` using Base16.
+# Returns the string that is the Base16 representation of an array of bytes.
 # The representation is the same as used by a Ballerina Base16Literal.
 # The result will contain only characters  `0..9`, `a..f`.
 # There will be no whitespace in the returned string.
@@ -229,7 +214,7 @@ public function fromBase64(string str) returns byte[]|error = external;
 # + return - Base16 string representation
 public function toBase16(byte[] arr) returns string = external;
 
-# Returns the byte array that `str` represents in Base16.
+# Returns the byte array that a string represents in Base16.
 # `str` must consist of the characters `0..9`, `A..F`, `a..f`
 # and whitespace as allowed by a Ballerina Base16Literal.
 #

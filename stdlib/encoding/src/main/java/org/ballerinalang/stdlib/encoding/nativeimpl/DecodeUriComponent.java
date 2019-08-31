@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -19,27 +19,28 @@
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 /**
- * Extern function ballerina.encoding:decodeHex.
- *
- * @since 0.990.3
+ * Extern function to decode URI components.
+ * ballerina/encoding:decodeUriComponent
  */
+
 @BallerinaFunction(
         orgName = "ballerina", packageName = "encoding",
-        functionName = "decodeHex", isPublic = true
+        functionName = "decodeUriComponent", isPublic = true
 )
-public class DecodeHex {
+public class DecodeUriComponent {
 
-    public static Object decodeHex(Strand strand, String input) {
+    public static Object decodeUriComponent(Strand strand, String url, String charset) {
         try {
-            byte[] output = EncodingUtil.decodeHex(input);
-            return new ArrayValue(output);
-        } catch (IllegalArgumentException e) {
-            return EncodingUtil.createError("Input is not a valid Hex value");
+            return URLDecoder.decode(url, charset);
+        } catch (UnsupportedEncodingException e) {
+            return EncodingUtil.createError("Error occurred while decoding the URI component. " + e.getMessage());
         }
     }
 }

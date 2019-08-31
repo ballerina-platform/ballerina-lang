@@ -76,16 +76,11 @@ public class TableProvider {
         return this.indexID++;
     }
 
-    public String createTable(BType constrainedType, ArrayValue primaryKeys, ArrayValue indexedColumns) {
+    public String createTable(BType constrainedType, ArrayValue primaryKeys) {
         String tableName = TableConstants.TABLE_PREFIX + constrainedType.getName()
                 .toUpperCase() + "_" + getTableID();
         String sqlStmt = generateCreateTableStatement(tableName, constrainedType, primaryKeys);
         executeStatement(sqlStmt);
-
-        //Add Index Data
-        if (indexedColumns != null) {
-            generateIndexesForTable(tableName, indexedColumns);
-        }
         return tableName;
     }
 
@@ -109,6 +104,11 @@ public class TableProvider {
 
     public void insertData(String tableName, MapValueImpl<String, Object> constrainedType) {
         String sqlStmt = TableUtils.generateInsertDataStatement(tableName, constrainedType);
+        prepareAndExecuteStatement(sqlStmt, constrainedType);
+    }
+
+    public void deleteData(String tableName, MapValueImpl<String, Object> constrainedType) {
+        String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
     }
 
@@ -239,20 +239,6 @@ public class TableProvider {
         sb.append(TableConstants.SQL_CREATE).append(newTableName).append(" ").append(TableConstants.SQL_AS);
         sb.append(query);
         return sb.toString();
-    }
-
-    private void generateIndexesForTable(String tableName, ArrayValue indexColumns) {
-        int indexCount = indexColumns.size();
-        if (indexCount > 0) {
-            for (int i = 0; i < indexCount; i++) {
-                StringBuilder sb = new StringBuilder();
-                String columnName = indexColumns.getString(i);
-                sb.append(TableConstants.SQL_CREATE_INDEX).append(TableConstants.INDEX).append(columnName)
-                        .append(getIndexID()).append(TableConstants.SQL_ON).append(tableName).append("(")
-                        .append(columnName).append(")");
-                executeStatement(sb.toString());
-            }
-        }
     }
 
     private void executeStatement(String queryStatement) {

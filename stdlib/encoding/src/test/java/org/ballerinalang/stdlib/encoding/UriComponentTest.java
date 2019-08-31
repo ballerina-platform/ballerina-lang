@@ -15,28 +15,27 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.test.nativeimpl.functions;
+package org.ballerinalang.stdlib.encoding;
 
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * TestCases for package ballerina/http.
+ * TestCases for package ballerina/encoding:encodeUriComponent and ballerina/encoding:decodeUriComponent.
  */
-public class NetURITest {
+public class UriComponentTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/net-uri.bal");
+        compileResult = BCompileUtil.compile("test-src/uri-component-test.bal");
     }
 
     @Test
@@ -56,7 +55,7 @@ public class NetURITest {
         for (BValue arg : args) {
             BValue[] inputArg = {arg};
             BValue[] returnVals = BRunUtil.invoke(compileResult, "testEncode", inputArg);
-            Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+            Assert.assertFalse(isTestResultEmpty(returnVals),
                     "Invalid Return Values for " + arg.stringValue());
             Assert.assertFalse(returnVals[0].stringValue().contains(" "), "Encoded valued can't contain space.");
             Assert.assertFalse(returnVals[0].stringValue().contains("*"), "Encoded valued can't contain *.");
@@ -65,125 +64,114 @@ public class NetURITest {
         }
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
-    public void testEncodeNegative() {
-        BValue[] inputArg = { new BString(null) };
-        BRunUtil.invoke(compileResult, "testEncode", inputArg);
-    }
-
-    @Test(description = "Test url encode function with invalid character set in ballerina/http package")
+    @Test(description = "Test url encode function with invalid character set")
     public void testUrlEncodeWithInvalidCharset() {
         BString url = new BString("http://localhost:9090/echoService#abc");
-        BString expected = new BString("Error occurred while encoding the url. abc");
+        BString expected = new BString("Error occurred while encoding the URI component.");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testInvalidEncode", inputArg);
         Assert.assertTrue(returnVals[0].stringValue().contains(expected.stringValue()),
                 "Error message is not propagated.");
     }
 
-    @Test(description = "Test url decode function against simple url in ballerina/http package")
+    @Test(description = "Test url decode function against simple url")
     public void testSimpleUrlDecode() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090");
         BString expected = new BString("http://localhost:9090");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testDecode", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values for " + url.stringValue());
+        Assert.assertFalse(isTestResultEmpty(returnVals), "Invalid Return Values for " + url.stringValue());
         Assert.assertEquals(returnVals[0].stringValue(), expected.stringValue(), "Decoded url string is not correct.");
     }
 
-    @Test(description = "Test url decode function against url with spaces in ballerina/http package")
+    @Test(description = "Test url decode function against url with spaces")
     public void testUrlDecodeWithSpaces() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%2Fhello%20world%2F");
         BString expected = new BString("http://localhost:9090/echoService/hello world/");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testDecode", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values for " + url.stringValue());
+        Assert.assertFalse(isTestResultEmpty(returnVals), "Invalid Return Values for " + url.stringValue());
         Assert.assertEquals(returnVals[0].stringValue(), expected.stringValue(), "Decoded url string is not correct.");
         Assert.assertTrue(returnVals[0].stringValue().contains(" "), "Decoded url string doesn't contain spaces.");
     }
 
-    @Test(description = "Test url decode function against url with # in ballerina/http package")
+    @Test(description = "Test url decode function against url with #")
     public void testUrlDecodeWithHashSign() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%23abc");
         BString expected = new BString("http://localhost:9090/echoService#abc");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testDecode", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values for " + url.stringValue());
+        Assert.assertFalse(isTestResultEmpty(returnVals), "Invalid Return Values for " + url.stringValue());
         Assert.assertEquals(returnVals[0].stringValue(), expected.stringValue(), "Decoded url string is not correct.");
         Assert.assertTrue(returnVals[0].stringValue().contains("#"), "Decoded url string doesn't contain # character.");
     }
 
-    @Test(description = "Test url decode function against url with colon(:) in ballerina/http package")
+    @Test(description = "Test url decode function against url with colon(:)")
     public void testUrlDecodeWithColon() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%3Aabc");
         BString expected = new BString("http://localhost:9090/echoService:abc");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testDecode", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values for " + url.stringValue());
+        Assert.assertFalse(isTestResultEmpty(returnVals), "Invalid Return Values for " + url.stringValue());
         Assert.assertEquals(returnVals[0].stringValue(), expected.stringValue(), "Decoded url string is not correct.");
         Assert.assertTrue(returnVals[0].stringValue().contains(":"), "Decoded url string doesn't contain : character.");
     }
 
-    @Test(description = "Test url decode function against url with plus(+) in ballerina/http package")
+    @Test(description = "Test url decode function against url with plus(+)")
     public void testUrlDecodeWithPlusSign() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%2Babc");
         BString expected = new BString("http://localhost:9090/echoService+abc");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testDecode", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values for " + url.stringValue());
+        Assert.assertFalse(isTestResultEmpty(returnVals), "Invalid Return Values for " + url.stringValue());
         Assert.assertEquals(returnVals[0].stringValue(), expected.stringValue(), "Decoded url string is not correct.");
         Assert.assertTrue(returnVals[0].stringValue().contains(":"), "Decoded url string doesn't contain + character.");
     }
 
-    @Test(description = "Test url decode function against url with asterisk(*) in ballerina/http package")
+    @Test(description = "Test url decode function against url with asterisk(*)")
     public void testUrlDecodeWithAsterisk() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%2Aabc");
         BString expected = new BString("http://localhost:9090/echoService*abc");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testDecode", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values for " + url.stringValue());
+        Assert.assertFalse(isTestResultEmpty(returnVals), "Invalid Return Values for " + url.stringValue());
         Assert.assertEquals(returnVals[0].stringValue(), expected.stringValue(), "Decoded url string is not correct.");
         Assert.assertTrue(returnVals[0].stringValue().contains(":"), "Decoded url string doesn't contain * character.");
     }
 
-    @Test(description = "Test url decode function against url with percentage(%) in ballerina/http package")
+    @Test(description = "Test url decode function against url with percentage(%)")
     public void testUrlDecodeWithPercentageMark() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%25abc");
         BString expected = new BString("http://localhost:9090/echoService%abc");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testDecode", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values for " + url.stringValue());
+        Assert.assertFalse(isTestResultEmpty(returnVals), "Invalid Return Values for " + url.stringValue());
         Assert.assertEquals(returnVals[0].stringValue(), expected.stringValue(), "Decoded url string is not correct.");
         Assert.assertTrue(returnVals[0].stringValue().contains(":"), "Decoded url string doesn't contain % mark.");
     }
 
-    @Test(description = "Test url decode function against url with tilde(~) in ballerina/http package")
+    @Test(description = "Test url decode function against url with tilde(~)")
     public void testUrlDecodeWithTilde() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService~abc");
         BString expected = new BString("http://localhost:9090/echoService~abc");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testDecode", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values for " + url.stringValue());
+        Assert.assertFalse(isTestResultEmpty(returnVals), "Invalid Return Values for " + url.stringValue());
         Assert.assertEquals(returnVals[0].stringValue(), expected.stringValue(), "Decoded url string is not correct.");
         Assert.assertTrue(returnVals[0].stringValue().contains(":"), "Decoded url string doesn't contain ~ character.");
     }
 
-    @Test(description = "Test url decode function with invalid character set in ballerina/http package")
+    @Test(description = "Test url decode function with invalid character set")
     public void testUrlDecodeWithInvalidCharset() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService~abc");
-        BString expected = new BString("Error occurred while decoding the url. abc");
+        BString expected = new BString("Error occurred while decoding the URI component.");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testInvalidDecode", inputArg);
         Assert.assertTrue(returnVals[0].stringValue().contains(expected.stringValue()),
                 "Error message is not propagated.");
     }
 
+    private boolean isTestResultEmpty(BValue[] returnVals) {
+        return returnVals == null || returnVals.length == 0 || returnVals[0] == null;
+    }
 }

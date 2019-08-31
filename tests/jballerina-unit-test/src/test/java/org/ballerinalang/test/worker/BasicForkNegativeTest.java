@@ -43,6 +43,6 @@ public class BasicForkNegativeTest {
         BAssertUtil.validateError(result, 0,
                 "worker send/receive interactions are invalid; worker(s) cannot move onwards from the state: " +
                         "'[a -> default, b -> default, FINISHED]'", 22, 9);
-        BAssertUtil.validateError(result, 1, "empty fork statement is not allowed", 43, 6);
+        BAssertUtil.validateError(result, 1, "empty fork statement is not allowed", 43, 5);
     }
 }

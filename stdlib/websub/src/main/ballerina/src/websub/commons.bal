@@ -165,7 +165,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     returns http:Response {
 
     http:Response response = new;
-    var decodedTopic = http:decode(intentVerificationRequest.topic, "UTF-8");
+    var decodedTopic = encoding:decodeUriComponent(intentVerificationRequest.topic, "UTF-8");
     string reqTopic = decodedTopic is string ? decodedTopic : topic;
 
     string reqMode = intentVerificationRequest.mode;
@@ -230,11 +230,9 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string generatedSignature = "";
 
     if (internal:equalsIgnoreCase(method, SHA1)) {
-        generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toBytes(),
-            secret.toBytes()));
+        generatedSignature = crypto:hmacSha1(stringPayload.toBytes(), secret.toBytes()).toBase16();
     } else if (internal:equalsIgnoreCase(method, SHA256)) {
-        generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toBytes(),
-            secret.toBytes()));
+        generatedSignature = crypto:hmacSha256(stringPayload.toBytes(), secret.toBytes()).toBase16();
     } else {
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Unsupported signature method: " + method);
         return webSubError;

@@ -22,7 +22,7 @@ import ballerina/lang.'object as lang;
 # + amqpChannel - Reference to a Ballerina RabbitMQ Channel.
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private Channel? amqpChannel;
 

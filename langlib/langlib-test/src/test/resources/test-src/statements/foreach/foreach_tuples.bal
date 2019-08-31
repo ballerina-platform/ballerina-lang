@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+
 [int, string, boolean, (), float, decimal] data = [20, "string", true, (), 15.5, 20.2];
 string output = "";
 int sum = 0;

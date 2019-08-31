@@ -16,14 +16,19 @@
 
 package org.ballerinalang.tool.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Utility functions used by tools.
@@ -33,6 +38,7 @@ public class OSUtils {
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
     private static final String BALLERINA_HOME_DIR = ".ballerina";
     private static final String BALLERINA_CONFIG = "ballerina-version";
+    private static final String UPDATE_NOTICE = "update-notice";
     private static final String BIR_CACHE = "bir_cache";
     private static final String JAR_CACHE = "jar_cache";
 
@@ -83,6 +89,36 @@ public class OSUtils {
         }
         return System.getProperty("user.home") + File.separator
                 + BALLERINA_HOME_DIR + File.separator + BALLERINA_CONFIG;
+    }
+
+    /**
+     * Check file and specify notice needs to be shown.
+     * @param version current version
+     * @return needs to be shown
+     * @throws IOException occurs when reading files
+     */
+    public static boolean updateNotice(String version) throws IOException {
+        boolean showNotice = false;
+        String userHome = System.getProperty("user.home");
+        LocalDate today = LocalDate.now();
+        File file = new File(userHome + File.separator
+                + BALLERINA_HOME_DIR + File.separator + UPDATE_NOTICE);
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+            showNotice = true;
+        } else {
+            BufferedReader br = Files.newBufferedReader(Paths.get(file.getPath()));
+            showNotice = today.minusDays(2)
+                    .isAfter(LocalDate.parse(br.lines().collect(Collectors.toList()).get(0)));
+
+        }
+        if (showNotice) {
+            PrintWriter writer = new PrintWriter(file.getPath(), "UTF-8");
+            writer.println(today.toString());
+            writer.close();
+        }
+        return showNotice;
     }
 
     /**
