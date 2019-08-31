@@ -48,30 +48,69 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 
-public class Continue100TestCase {
+/**
+ * The responsibility of this tescase it validate the listener side implementation related to handling Expect-Continue
+ * header
+ */
+public class ListenerContinue100TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Continue100TestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ListenerContinue100TestCase.class);
 
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
 
     @BeforeClass
     public void setup() throws InterruptedException {
+        givenNormalListener();
+    }
+
+    @Test
+    public void test100Continue() {
+        List<FullHttpResponse> responses = whenReqSentWithExpectContinue();
+        thenFirstRespShouldBe100Continue(responses);
+        thenSecondRespShouldBeNormalResponse(responses);
+    }
+
+    @Test
+    public void test100ContinueNegative() {
+        List<FullHttpResponse> responses = whenNegativeReqSentWithExpectContinue();
+        thenRespShouldBeWithMessage("Do not send me any payload", responses);
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        serverConnector.stop();
+        try {
+            httpWsConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+        }
+    }
+
+    private void givenNormalListener() throws InterruptedException {
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
-
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
-        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
-
         serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(new Continue100Listener());
         serverConnectorFuture.sync();
     }
 
-    @Test
-    public void test100Continue() {
+    private void thenSecondRespShouldBeNormalResponse(List<FullHttpResponse> responses) {
+        // Actual response
+        String responsePayload = TestUtil.getEntityBodyFrom(responses.get(1));
+        Assert.assertEquals(responses.get(1).status(), HttpResponseStatus.OK);
+        Assert.assertEquals(responsePayload, TestUtil.largeEntity);
+        Assert.assertEquals(responsePayload.getBytes().length, TestUtil.largeEntity.getBytes().length);
+        Assert.assertEquals((responses.get(1).headers().get(HttpHeaderNames.TRANSFER_ENCODING)),
+                            Constants.CHUNKED);
+    }
+
+    private List<FullHttpResponse> whenReqSentWithExpectContinue() {
         HttpClient httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
 
         DefaultHttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/");
@@ -84,21 +123,27 @@ public class Continue100TestCase {
         List<FullHttpResponse> responses = httpClient.sendExpectContinueRequest(httpRequest, reqPayload);
 
         Assert.assertFalse(httpClient.waitForChannelClose());
-
-        // 100-continue response
-        Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.CONTINUE);
-
-        // Actual response
-        String responsePayload = TestUtil.getEntityBodyFrom(responses.get(1));
-        Assert.assertEquals(responses.get(1).status(), HttpResponseStatus.OK);
-        Assert.assertEquals(responsePayload, TestUtil.largeEntity);
-        Assert.assertEquals(responsePayload.getBytes().length, TestUtil.largeEntity.getBytes().length);
-        Assert.assertEquals((responses.get(1).headers().get(HttpHeaderNames.TRANSFER_ENCODING)),
-                Constants.CHUNKED);
+        return responses;
     }
 
-    @Test
-    public void test100ContinueNegative() {
+    private void thenFirstRespShouldBe100Continue(List<FullHttpResponse> responses) {
+        // 100-continue response
+        Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.CONTINUE);
+    }
+
+    private void thenRespShouldBeWithMessage(String msg, List<FullHttpResponse> responses) {
+        // 417 Expectation Failed response
+        Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.EXPECTATION_FAILED);
+        int length = Integer.valueOf(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH));
+        Assert.assertEquals(length, 26);
+        Assert.assertEquals(responses.get(0).content()
+                                    .readCharSequence(length, Charset.defaultCharset()).toString(), msg);
+        // Actual response
+        Assert.assertEquals(responses.size(), 1,
+                            "Multiple responses received when only a 417 response was expected");
+    }
+
+    private List<FullHttpResponse> whenNegativeReqSentWithExpectContinue() {
         HttpClient httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
 
         DefaultHttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/");
@@ -111,26 +156,6 @@ public class Continue100TestCase {
         List<FullHttpResponse> responses = httpClient.sendExpectContinueRequest(httpRequest, reqPayload);
 
         Assert.assertFalse(httpClient.waitForChannelClose());
-
-        // 417 Expectation Failed response
-        Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.EXPECTATION_FAILED);
-        int length = Integer.valueOf(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH));
-        Assert.assertEquals(length, 26);
-        Assert.assertEquals(responses.get(0).content()
-                                    .readCharSequence(length, Charset.defaultCharset()).toString(),
-                            "Do not send me any payload");
-        // Actual response
-        Assert.assertEquals(responses.size(), 1,
-                            "Multiple responses received when only a 417 response was expected");
-    }
-
-    @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-        serverConnector.stop();
-        try {
-            httpWsConnectorFactory.shutdown();
-        } catch (InterruptedException e) {
-            LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
-        }
+        return responses;
     }
 }

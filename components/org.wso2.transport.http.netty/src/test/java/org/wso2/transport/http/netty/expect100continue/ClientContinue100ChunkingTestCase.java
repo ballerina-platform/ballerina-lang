@@ -46,6 +46,7 @@ import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.listeners.Continue100Listener;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -65,50 +66,16 @@ public class ClientContinue100ChunkingTestCase {
 
     @BeforeClass
     public void setup() throws InterruptedException {
-        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
-        listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
-
-        ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
-
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setChunkingConfig(ChunkConfig.ALWAYS);
-        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
-
-        serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
-        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(new Continue100Listener());
-        serverConnectorFuture.sync();
+        givenNormalHttpServer();
+        givenChunkingAlwaysClient();
     }
 
     @Test
     public void test100Continue() {
         try {
-            HttpCarbonMessage requestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                                                                                        HttpMethod.POST, ""));
-
-            requestMsg.setProperty(Constants.HTTP_PORT, TestUtil.SERVER_CONNECTOR_PORT);
-            requestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
-            requestMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
-            requestMsg.setHttpMethod(Constants.HTTP_POST_METHOD);
-            requestMsg.setHeader(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE);
-            requestMsg.setHeader("X-Status", "Positive");
-
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            httpClientConnector.send(requestMsg).setHttpConnectorListener(listener);
-
-            HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(requestMsg);
-            httpMessageDataStreamer.getOutputStream().write(TestUtil.largeEntity.getBytes());
-            httpMessageDataStreamer.getOutputStream().close();
-
-            latch.await(10, TimeUnit.SECONDS);
-
-            String responseBody = TestUtil.getStringFromInputStream(
-                    new HttpMessageDataStreamer(listener.getHttpResponseMessage()).getInputStream());
-
-            assertEquals(responseBody, TestUtil.largeEntity);
+            DefaultHttpConnectorListener listener = whenReqSentForPositiveResponse();
+            thenRespShouldBeNormalResponse(listener);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
         }
@@ -117,22 +84,8 @@ public class ClientContinue100ChunkingTestCase {
     @Test
     public void test100ContinueNegative() {
         try {
-            HttpCarbonMessage msg = TestUtil
-                    .createHttpsPostReq(TestUtil.SERVER_CONNECTOR_PORT, TestUtil.largeEntity, "");
-            msg.setHeader(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE);
-            msg.setHeader("X-Status", "Negative");
-
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = httpClientConnector.send(msg);
-            responseFuture.setHttpConnectorListener(listener);
-
-            latch.await(6, TimeUnit.SECONDS);
-
-            String responseBody = TestUtil.getStringFromInputStream(
-                    new HttpMessageDataStreamer(listener.getHttpResponseMessage()).getInputStream());
-
-            assertEquals(responseBody, "Do not send me any payload");
+            DefaultHttpConnectorListener listener = whenRespSentForNegativeResponse();
+            thenRespShouldBeStatus417(listener);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
         }
@@ -146,5 +99,72 @@ public class ClientContinue100ChunkingTestCase {
         } catch (InterruptedException e) {
             LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
+    }
+
+    private void thenRespShouldBeStatus417(DefaultHttpConnectorListener listener) {
+        String responseBody = TestUtil.getStringFromInputStream(
+                new HttpMessageDataStreamer(listener.getHttpResponseMessage()).getInputStream());
+
+        assertEquals(responseBody, "Do not send me any payload");
+    }
+
+    private DefaultHttpConnectorListener whenRespSentForNegativeResponse() throws InterruptedException {
+        HttpCarbonMessage msg = TestUtil
+                .createHttpsPostReq(TestUtil.SERVER_CONNECTOR_PORT, TestUtil.largeEntity, "");
+        msg.setHeader(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE);
+        msg.setHeader("X-Status", "Negative");
+
+        CountDownLatch latch = new CountDownLatch(1);
+        DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
+        HttpResponseFuture responseFuture = httpClientConnector.send(msg);
+        responseFuture.setHttpConnectorListener(listener);
+        latch.await(6, TimeUnit.SECONDS);
+        return listener;
+    }
+
+    private void givenNormalHttpServer() throws InterruptedException {
+        ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
+        listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
+        serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        serverConnectorFuture.setHttpConnectorListener(new Continue100Listener());
+        serverConnectorFuture.sync();
+    }
+
+    private void givenChunkingAlwaysClient() {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setChunkingConfig(ChunkConfig.ALWAYS);
+        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
+    }
+
+    private void thenRespShouldBeNormalResponse(DefaultHttpConnectorListener listener) {
+        String responseBody = TestUtil.getStringFromInputStream(
+                new HttpMessageDataStreamer(listener.getHttpResponseMessage()).getInputStream());
+
+        assertEquals(responseBody, TestUtil.largeEntity);
+    }
+
+    private DefaultHttpConnectorListener whenReqSentForPositiveResponse() throws IOException, InterruptedException {
+        HttpCarbonMessage requestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                                                                                    HttpMethod.POST, ""));
+
+        requestMsg.setProperty(Constants.HTTP_PORT, TestUtil.SERVER_CONNECTOR_PORT);
+        requestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
+        requestMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+        requestMsg.setHttpMethod(Constants.HTTP_POST_METHOD);
+        requestMsg.setHeader(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE);
+        requestMsg.setHeader("X-Status", "Positive");
+
+        CountDownLatch latch = new CountDownLatch(1);
+        DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
+        httpClientConnector.send(requestMsg).setHttpConnectorListener(listener);
+
+        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(requestMsg);
+        httpMessageDataStreamer.getOutputStream().write(TestUtil.largeEntity.getBytes());
+        httpMessageDataStreamer.getOutputStream().close();
+        latch.await(10, TimeUnit.SECONDS);
+        return listener;
     }
 }

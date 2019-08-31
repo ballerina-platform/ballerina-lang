@@ -41,7 +41,8 @@ import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
- * An initializer class for HTTP Server
+ * An initializer class for HTTP Server. The responsibility of this class is to send-back 100 continue response
+ * regardless of the inbound request.
  */
 public class Abnormal100ContinueServerInitializer extends HttpServerInitializer {
 

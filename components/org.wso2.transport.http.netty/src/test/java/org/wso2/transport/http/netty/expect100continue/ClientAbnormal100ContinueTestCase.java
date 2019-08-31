@@ -45,7 +45,7 @@ import static org.wso2.transport.http.netty.util.TestUtil.sendRequestAsync;
  * no such header is sent in the request but back-end is responding with 100 continue response. This is an abnormal
  * scenario.
  */
-public class Abnormal100ContinueTestCase {
+public class ClientAbnormal100ContinueTestCase {
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
@@ -54,21 +54,14 @@ public class Abnormal100ContinueTestCase {
 
     @BeforeClass
     public void setup() {
-        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT,
-                                   new Abnormal100ContinueServerInitializer(responseContent, TEXT_PLAIN, 200));
-
-        connectorFactory = new DefaultHttpWsConnectorFactory();
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
+        givenAbnormal100ContinueServer();
+        givenNormalHttpClient();
     }
 
     @Test
     public void testAbnormal100continueResponse() {
         try {
-            CountDownLatch waitForResponseLatch = new CountDownLatch(1);
-            DefaultHttpConnectorListener responseListener = sendRequestAsync(waitForResponseLatch, httpClientConnector);
-            String responseOne = TestUtil.waitAndGetStringEntity(waitForResponseLatch, responseListener);
-
+            String responseOne = whenRequestSentWithoutExpectContinue();
             assertEquals(responseOne, responseContent);
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running testConnectionReuseForMain", e);
@@ -78,5 +71,22 @@ public class Abnormal100ContinueTestCase {
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         TestUtil.cleanUp(new ArrayList<>(), httpServer, connectorFactory);
+    }
+
+    private void givenNormalHttpClient() {
+        connectorFactory = new DefaultHttpWsConnectorFactory();
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
+    }
+
+    private void givenAbnormal100ContinueServer() {
+        httpServer = TestUtil.startHTTPServer(
+                TestUtil.HTTP_SERVER_PORT, new Abnormal100ContinueServerInitializer(responseContent, TEXT_PLAIN, 200));
+    }
+
+    private String whenRequestSentWithoutExpectContinue() throws InterruptedException {
+        CountDownLatch waitForResponseLatch = new CountDownLatch(1);
+        DefaultHttpConnectorListener responseListener = sendRequestAsync(waitForResponseLatch, httpClientConnector);
+        return TestUtil.waitAndGetStringEntity(waitForResponseLatch, responseListener);
     }
 }

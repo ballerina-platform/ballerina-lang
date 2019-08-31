@@ -61,41 +61,19 @@ public class ClientContinue100AfterSendingReqTestCase {
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
+    private DefaultHttpConnectorListener listener;
 
     @BeforeClass
     public void setup() throws InterruptedException {
-        httpServer = TestUtil
-                .startHTTPServer(TestUtil.HTTP_SERVER_PORT, new Send100ContinueAfterReceivingEntityBodyInitializer());
-
-        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setSocketIdleTimeout(10000);
-        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
+        givenServerSimulating100AfterFullRespReceived();
+        givenNormalHttpClient();
     }
 
     @Test
     public void test100Continue() {
         try {
-            HttpCarbonMessage requestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                                                                                        HttpMethod.POST, ""));
-
-            requestMsg.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
-            requestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
-            requestMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
-            requestMsg.setHttpMethod(Constants.HTTP_POST_METHOD);
-            requestMsg.setHeader(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE);
-            requestMsg.addHttpContent(
-                    new DefaultLastHttpContent(Unpooled.wrappedBuffer(TestUtil.smallEntity.getBytes())));
-
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            httpClientConnector.send(requestMsg).setHttpConnectorListener(listener);
-
-            latch.await(30, TimeUnit.SECONDS);
-
-            String responseBody = TestUtil.getStringFromInputStream(
-                    new HttpMessageDataStreamer(listener.getHttpResponseMessage()).getInputStream());
-            assertEquals(responseBody, "inbound response entity body");
+            whenReqSentWithExpectContinue();
+            thenRespShouldBeNormalResponse();
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
         }
@@ -109,5 +87,42 @@ public class ClientContinue100AfterSendingReqTestCase {
         } catch (InterruptedException e) {
             LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
+    }
+
+
+    private void givenNormalHttpClient() {
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setSocketIdleTimeout(10000);
+        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
+    }
+
+    private void givenServerSimulating100AfterFullRespReceived() {
+        httpServer = TestUtil
+                .startHTTPServer(TestUtil.HTTP_SERVER_PORT, new Send100ContinueAfterReceivingEntityBodyInitializer());
+    }
+
+    private void thenRespShouldBeNormalResponse() {
+        String responseBody = TestUtil.getStringFromInputStream(
+                new HttpMessageDataStreamer(listener.getHttpResponseMessage()).getInputStream());
+        assertEquals(responseBody, "inbound response entity body");
+    }
+
+    private void whenReqSentWithExpectContinue() throws InterruptedException {
+        HttpCarbonMessage requestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                                                                                    HttpMethod.POST, ""));
+
+        requestMsg.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
+        requestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
+        requestMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+        requestMsg.setHttpMethod(Constants.HTTP_POST_METHOD);
+        requestMsg.setHeader(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE);
+        requestMsg.addHttpContent(
+                new DefaultLastHttpContent(Unpooled.wrappedBuffer(TestUtil.smallEntity.getBytes())));
+
+        CountDownLatch latch = new CountDownLatch(1);
+        listener = new DefaultHttpConnectorListener(latch);
+        httpClientConnector.send(requestMsg).setHttpConnectorListener(listener);
+        latch.await(30, TimeUnit.SECONDS);
     }
 }
