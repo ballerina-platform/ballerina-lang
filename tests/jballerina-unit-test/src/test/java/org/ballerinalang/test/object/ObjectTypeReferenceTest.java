@@ -44,7 +44,7 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testSimpleObjectTypeReferenceNegative_1() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 22);
+        Assert.assertEquals(negativeResult.getErrorCount(), 23);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
@@ -72,7 +72,8 @@ public class ObjectTypeReferenceTest {
                 "function through referenced type 'ObjectWithRedeclaredFunction_1'", 125, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'x'", 134, 6);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 142, 6);
-        BAssertUtil.validateError(negativeResult, i, "unknown type 'Tar'", 146, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 146, 6);
+        BAssertUtil.validateError(negativeResult, i, "redeclared symbol 'xyz'", 167, 6);
     }
 
     @Test

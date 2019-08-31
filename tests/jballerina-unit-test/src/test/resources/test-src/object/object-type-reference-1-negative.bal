@@ -151,3 +151,30 @@ type Too object {
         self.s = s;
     }
 };
+
+type ObjWithSameFunc1 abstract object {
+    function abc();
+    function xyz(int i);
+};
+
+type ObjWithSameFunc2 abstract object {
+    function xyz(int i);
+    function def(string s) returns string;
+};
+
+type ObjWithRedeclaredFuncsViaRefs object {
+    *ObjWithSameFunc1;
+    *ObjWithSameFunc2;
+
+    function xyz(int i) {
+
+    }
+
+    function abc() {
+
+    }
+
+    function def(string s) returns string {
+        return s;
+    }
+};
