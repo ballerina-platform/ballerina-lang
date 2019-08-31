@@ -66,6 +66,8 @@
             <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100ResponseTimeoutTestCase"/>
             <class name="org.wso2.transport.http.netty.expect100continue.Continue100AfterRespReceivedTestCase"/>
             <class name="org.wso2.transport.http.netty.expect100continue.Continue100WhileRespReceivingTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100WhileSendingReqTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100AfterSendingReqTestCase"/>
 
             <class name="org.wso2.transport.http.netty.unitfunction.CommonUtilTestCase" />
             <class name="org.wso2.transport.http.netty.unitfunction.HttpCarbonMessageTestCase" />

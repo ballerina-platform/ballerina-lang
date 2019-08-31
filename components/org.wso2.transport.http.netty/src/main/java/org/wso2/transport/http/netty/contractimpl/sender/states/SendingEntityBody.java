@@ -87,9 +87,11 @@ public class SendingEntityBody implements SenderState {
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
         // If this method is called, it is an application error. Inbound response is receiving before the completion
         // of request body write.
-        targetHandler.getOutboundRequestMsg().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
-        senderReqRespStateManager.state = new ReceivingHeaders(senderReqRespStateManager);
-        senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
+        if (httpInboundResponse.status().code() != HttpResponseStatus.CONTINUE.code()) {
+            targetHandler.getOutboundRequestMsg().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
+            senderReqRespStateManager.state = new ReceivingHeaders(senderReqRespStateManager);
+            senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
+        }
     }
 
     @Override

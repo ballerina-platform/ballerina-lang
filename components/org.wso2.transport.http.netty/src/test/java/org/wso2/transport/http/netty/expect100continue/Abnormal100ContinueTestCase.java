@@ -40,7 +40,10 @@ import static org.wso2.transport.http.netty.contract.Constants.TEXT_PLAIN;
 import static org.wso2.transport.http.netty.util.TestUtil.sendRequestAsync;
 
 /**
- * Tests for connection pool implementation.
+ * This class is responsible for testing 100 continue response scenario. Ideally 100 continue response should only
+ * receive when request headers contain expect continue header. In this case, testcase is testing for scenario in which
+ * no such header is sent in the request but back-end is responding with 100 continue response. This is an abnormal
+ * scenario.
  */
 public class Abnormal100ContinueTestCase {
 
