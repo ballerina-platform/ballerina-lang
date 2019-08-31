@@ -62,7 +62,7 @@ public class Names {
     public static final Name CAST_OP = new Name("<type>");
     public static final Name CONVERSION_OP = new Name("convert");
     public static final Name SERVICE = new Name("service");
-    public static final Name ABSTRACT_LISTENER = new Name("AbstractListener");
+    public static final Name LISTENER = new Name("Listener");
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
     public static final Name START_FUNCTION_SUFFIX = new Name(".<start>");
     public static final Name STOP_FUNCTION_SUFFIX = new Name(".<stop>");

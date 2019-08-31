@@ -21,7 +21,7 @@ import ballerina/lang.'object as lang;
 # service through this listener.
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private int port = 0;
     private ListenerConfiguration config = {};

@@ -27,7 +27,7 @@ public type MockDomainEvent record {|
 
 public type WebhookServerForPayload object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private websub:Listener websubListener;
 

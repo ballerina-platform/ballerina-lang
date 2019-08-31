@@ -9,7 +9,7 @@ public function getStartAndAttachCount() returns string {
 
 public type ABC object {
 
-    *'object:AbstractListener;
+    *'object:Listener;
 
     public function __init(){
     }

@@ -17,34 +17,33 @@
 // XXX this will panic for the most negative value (-2^63 is an int but +2^63 isn't)
 // consistent with policy on integer overflow
 
-# Return absolute value of `n`.
+# Returns absolute value of an int.
 #
-# + n - int value
+# + n - int value to be operated on
 # + return - absolute value of `n`
 public function abs(int n) returns int = external;
 
-# Sum of all the arguments.
-# 0 if no args
+# Returns sum of zero or more int values.
 #
 # + ns - int values to sum
-# + return - sum of arguments
+# + return - sum of all the `ns`; 0 is `ns` is empty
 public function sum(int... ns) returns int = external;
 
-# Maximum of all the arguments.
+# Maximum of one or more int values.
 #
-# + n - first argument to check for max value
-# + ns - rest of the argument to check for max value
-# + return - maximum value of all provided values
+# + n - first int value
+# + ns - other int values
+# + return - maximum value of value of `x` and all the `xs`
 public function max(int n, int... ns) returns int = external;
 
-# Minimum of all the arguments.
+# Minimum of one or more int values
 #
-# + n - first argument to check for min value
-# + ns - rest of the argument to check for min value
-# + return - min value of all provided values
+# + n - first int value
+# + ns - other int values
+# + return - minimum value of `n` and all the `ns`
 public function min(int n, int... ns) returns int = external;
 
-# Return the integer that `s` represents in decimal.
+# Returns the integer that `s` represents in decimal.
 # Returns error if `s` is not the decimal representation of an integer.
 # The first character may be `+` or `-`.
 # This is the inverse of `value:toString` applied to an `int`.
@@ -58,7 +57,7 @@ public function fromString(string s) returns int|error = external;
 # Negative numbers will have a `-` prefix. No sign for
 # non-negative numbers.
 #
-# + x - int value
+# + n - int value
 # + return - hexadecimal string representation of int value
 public function toHexString(int n) returns string = external;
 

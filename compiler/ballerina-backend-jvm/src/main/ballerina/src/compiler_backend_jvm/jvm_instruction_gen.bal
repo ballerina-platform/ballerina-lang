@@ -24,7 +24,7 @@ type InstructionGenerator object {
     string currentPackageName;
     bir:Package currentPackage;
 
-    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:Package moduleId) {
+    function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:Package moduleId) {
         self.mv = mv;
         self.indexMap = indexMap;
         self.currentPackage = moduleId;

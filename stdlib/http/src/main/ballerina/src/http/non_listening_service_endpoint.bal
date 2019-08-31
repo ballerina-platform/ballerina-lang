@@ -19,7 +19,7 @@ import ballerina/lang.'object as lang;
 # Mock server endpoint which does not open a listening port.
 public type MockListener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private int port = 0;
     private ListenerConfiguration config = {};

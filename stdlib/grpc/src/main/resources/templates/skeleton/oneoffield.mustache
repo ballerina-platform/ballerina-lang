@@ -1,6 +1,6 @@
 public type {{camelcase @key}} {{#each this}}{{this.messageName}}{{#unless @last}}|{{/unless}}{{/each}};
 {{#each this}}
-type {{this.messageName}} record {|
+public type {{this.messageName}} record {|
     {{#this.fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
     {{/this.fieldList}}
 |};
