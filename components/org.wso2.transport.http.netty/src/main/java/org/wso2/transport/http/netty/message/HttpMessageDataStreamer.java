@@ -73,6 +73,7 @@ public class HttpMessageDataStreamer {
         private int limit;
         private ByteBuffer byteBuffer;
         private HttpContent httpContent;
+        private int referenceCount = 0;
 
         @Override
         public int read() {
@@ -80,6 +81,7 @@ public class HttpMessageDataStreamer {
                 return -1;
             } else if (chunkFinished) {
                 httpContent = httpCarbonMessage.getHttpContent();
+                referenceCount++;
                 validateHttpContent();
                 byteBuffer = httpContent.content().nioBuffer();
                 count = 0;
@@ -115,9 +117,10 @@ public class HttpMessageDataStreamer {
             super.close();
         }
 
-        private synchronized void releaseHttpContent() {
-            if (httpContent != null && httpContent.refCnt() > 0) {
+        private void releaseHttpContent() {
+            if (httpContent != null && referenceCount > 0) {
                 httpContent.release();
+                referenceCount--;
             }
         }
     }
