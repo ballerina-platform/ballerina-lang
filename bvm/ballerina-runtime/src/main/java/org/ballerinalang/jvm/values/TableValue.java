@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
@@ -223,14 +224,28 @@ public class TableValue implements RefValue, CollectionValue {
         reset();
     }
 
-    //TODO : to be implemented
-    public Object performRemoveOperation() {
+    public Object performRemoveOperation(Strand strand, FPValue<Object, Boolean> func) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), TABLE_LANG_LIB);
             }
         }
-        return TableUtils.createTableOperationError(new Exception("Remove operation is not supported yet"));
+
+        if (((BFunctionType) func.type).paramTypes[0] != this.constraintType) {
+            return TableUtils.createTableOperationError(new Exception(
+                    "incompatible types: function with record type:" + ((BFunctionType) func.type).paramTypes[0]
+                            .getName() + " cannot be used to remove records from a table with type:"
+                            + this.constraintType.getName()));
+        }
+        int deletedCount = 0;
+        while (this.hasNext()) {
+            MapValueImpl<String, Object> row = this.getNext();
+            if (func.apply(new Object[] { strand, row, true })) {
+                tableProvider.deleteData(this.tableName, row);
+                ++deletedCount;
+            }
+        }
+        return deletedCount;
     }
 
     public String getString(int columnIndex) {
