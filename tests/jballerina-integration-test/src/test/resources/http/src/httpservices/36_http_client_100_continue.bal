@@ -27,8 +27,7 @@ public function main() {
     if (response is http:Response) {
         var payload = response.getTextPayload();
         if (payload is string) {
-            io:print(payload);
-            io:print(response.statusCode);
+            io:print("Payload: " + payload + " Statuscode" + response.statusCode.toString());
         } else {
             io:println(<string>payload.detail()["message"]);
         }
