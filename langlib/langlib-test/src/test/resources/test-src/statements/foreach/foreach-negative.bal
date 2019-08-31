@@ -186,6 +186,19 @@ function test15() returns string {
     return output;
 }
 
+function test17() {
+    output = "";
+    int i = 0;
+    Employee d1 = { id: 1, name: "Abu", salary: 1000.0, "married": false };
+    Employee d2 = { id: 2, name: "Tharek", salary: 1000.0, "married": false };
+    Employee d3 = { id: 3, name: "Kanaka", salary: 1000.0, "married": false };
+    Employee[] data = [d1, d2, d3];
+
+    foreach var {id, name, salary, ...status} in data {
+        status = {};
+    }
+}
+
 public function main () {
     println("done");
 }

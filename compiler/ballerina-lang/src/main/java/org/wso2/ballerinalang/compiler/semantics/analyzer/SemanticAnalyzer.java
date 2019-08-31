@@ -915,23 +915,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void recursivelySetFinalFlag(BLangVariable variable) {
+        if (variable == null) {
+            return;
+        }
+
         switch (variable.getKind()) {
             case VARIABLE:
                 variable.symbol.flags |= Flags.FINAL;
                 break;
             case TUPLE_VARIABLE:
-                ((BLangTupleVariable) variable).memberVariables.forEach(this::recursivelySetFinalFlag);
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+                tupleVariable.memberVariables.forEach(this::recursivelySetFinalFlag);
+                recursivelySetFinalFlag(tupleVariable.restVariable);
                 break;
             case RECORD_VARIABLE:
-                ((BLangRecordVariable) variable).variableList.forEach(value ->
-                        recursivelySetFinalFlag(value.valueBindingPattern));
+                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+                recordVariable.variableList.forEach(value -> recursivelySetFinalFlag(value.valueBindingPattern));
+                recursivelySetFinalFlag((BLangVariable) recordVariable.restParam);
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
                 recursivelySetFinalFlag(errorVariable.reason);
-                if (errorVariable.restDetail != null) {
-                    recursivelySetFinalFlag(errorVariable.restDetail);
-                }
+                recursivelySetFinalFlag(errorVariable.restDetail);
                 errorVariable.detail.forEach(bLangErrorDetailEntry ->
                         recursivelySetFinalFlag(bLangErrorDetailEntry.valueBindingPattern));
                 break;
