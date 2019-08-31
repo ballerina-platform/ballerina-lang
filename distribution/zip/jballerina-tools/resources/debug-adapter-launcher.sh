@@ -27,6 +27,13 @@
 # NOTE: Borrowed generously from Apache Tomcat startup scripts.
 # ----------------------------------------------------------------------------
 
+# ---------------------- Override JAVA_HOME for Installers -------------------
+DIR="$(cd "$(dirname "$0")" && pwd)"
+JAVA_PATH="$DIR/../../../../../../dependencies/jdk8u202-b08-jre"
+if test -d "$JAVA_PATH"; then
+  JAVA_HOME=$JAVA_PATH
+fi
+
 # ---------------------- Developer Configurations ---------------------------
 BALLERINA_DEBUG_LOG=false;
 DEBUG_MODE=false;
@@ -104,11 +111,6 @@ if $os400; then
   # Enable multi threading
   QIBM_MULTI_THREADED=Y
   export QIBM_MULTI_THREADED
-fi
-
-# If the jre is found inside BALLERINA_HOME, override JAVA_HOME
-if [ -x "$BALLERINA_HOME/bre/lib/jre1.8.0_172" ] ; then
-  JAVA_HOME="$BALLERINA_HOME/bre/lib/jre1.8.0_172"
 fi
 
 if [ -z "$JAVACMD" ] ; then
