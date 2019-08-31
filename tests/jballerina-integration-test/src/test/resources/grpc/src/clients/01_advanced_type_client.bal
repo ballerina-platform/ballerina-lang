@@ -290,7 +290,7 @@ public type Person record {
 
 };
 
-type Address record {
+public type Address record {
     int postalCode = 0;
     string state = "";
     string country = "";
