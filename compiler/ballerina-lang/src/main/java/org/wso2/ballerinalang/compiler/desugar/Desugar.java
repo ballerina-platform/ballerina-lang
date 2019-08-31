@@ -366,9 +366,11 @@ public class Desugar extends BLangNodeVisitor {
                     pkgNode.topLevelNodes.add(objectTypeNode.initFunction);
                 }
             } else if (typeDef.symbol.tag == SymTag.RECORD) {
-                BLangRecordTypeNode recordTypeNod = (BLangRecordTypeNode) typeDef.typeNode;
-                pkgNode.functions.add(recordTypeNod.initFunction);
-                pkgNode.topLevelNodes.add(recordTypeNod.initFunction);
+                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
+                recordTypeNode.initFunction = createInitFunctionForStructureType(recordTypeNode, env,
+                                                                                 Names.INIT_FUNCTION_SUFFIX);
+                pkgNode.functions.add(recordTypeNode.initFunction);
+                pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
             }
         }
     }
@@ -707,6 +709,14 @@ public class Desugar extends BLangNodeVisitor {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
         }
 
+        // Will be null only for locally defined anonymous types
+        if (recordTypeNode.initFunction == null) {
+            recordTypeNode.initFunction = createInitFunctionForStructureType(recordTypeNode, env,
+                                                                             Names.INIT_FUNCTION_SUFFIX);
+            env.enclPkg.addFunction(recordTypeNode.initFunction);
+            env.enclPkg.topLevelNodes.add(recordTypeNode.initFunction);
+        }
+
         // Add struct level variables to the init function.
         recordTypeNode.fields.stream()
                 // Only add a field if it is required. Checking if it's required is enough since non-defaultable
@@ -734,7 +744,6 @@ public class Desugar extends BLangNodeVisitor {
         if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(recordTypeNode);
             createTypeDefinition(recordTypeNode.type, recordTypeNode.type.tsymbol, recordTypeNode);
-            env.enclPkg.functions.add(recordTypeNode.initFunction);
             recordTypeNode.desugared = true;
             result = userDefinedType;
             return;
