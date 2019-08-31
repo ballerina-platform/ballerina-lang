@@ -608,19 +608,16 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewTable extends BIRNonTerminator {
         public BIROperand columnsOp;
         public BIROperand dataOp;
-        public BIROperand indexColOp;
         public BIROperand keyColOp;
         public BType type;
 
         public NewTable(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand columnsOp,
-                        BIROperand dataOp, BIROperand indexColOp,
-                        BIROperand keyColOp) {
+                        BIROperand dataOp, BIROperand keyColOp) {
             super(pos, InstructionKind.NEW_TABLE);
             this.type = type;
             this.lhsOp = lhsOp;
             this.columnsOp = columnsOp;
             this.dataOp = dataOp;
-            this.indexColOp = indexColOp;
             this.keyColOp = keyColOp;
         }
 

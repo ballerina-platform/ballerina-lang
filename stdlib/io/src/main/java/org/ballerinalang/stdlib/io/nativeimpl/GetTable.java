@@ -89,7 +89,7 @@ public class GetTable {
 
     private static TableValue getTable(TypedescValue typedescValue, List records) throws BallerinaException {
         BType describingType = typedescValue.getDescribingType();
-        TableValue table = new TableValue(new BTableType(describingType), null, null, null);
+        TableValue table = new TableValue(new BTableType(describingType), null, null);
         BStructureType structType = (BStructureType) describingType;
         for (Object obj : records) {
             String[] fields = (String[]) obj;
