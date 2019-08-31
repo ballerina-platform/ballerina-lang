@@ -20,8 +20,8 @@ package org.ballerinalang.toml.parser;
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.exceptions.TomlException;
+import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -34,6 +34,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -204,9 +206,9 @@ public class ManifestProcessor {
         return content.substring(0, 1).toLowerCase(Locale.getDefault()) + content.substring(1);
     }
     
-    public static byte[] addDependencyToManifest(ByteArrayInputStream manifestStream, PackageID moduleID) {
+    public static byte[] addDependenciesToManifest(ByteArrayInputStream manifestStream, List<Dependency> deps) {
         Map<String, Object> toml = new Toml().read(manifestStream).toMap();
-        Map<String, Object> dependencies = new HashMap<>();
+        Map<String, Object> dependencies = new LinkedHashMap<>();
         if (toml.containsKey("dependencies")) {
             Object tomlDepsAsObject = toml.get("dependencies");
             Map<String, Object> updatedDependencies = new HashMap<>();
@@ -219,8 +221,10 @@ public class ManifestProcessor {
                 dependencies = updatedDependencies;
             }
         }
-        
-        dependencies.put(moduleID.orgName.value + "/" + moduleID.name.value, moduleID.version.value);
+    
+        for (Dependency dep : deps) {
+            dependencies.put(dep.getOrgName() + "/" + dep.getModuleName(), dep.getMetadata().getVersion());
+        }
         toml.put("dependencies", dependencies);
         TomlWriter writer = new TomlWriter();
         String tomlContent = writer.write(toml);

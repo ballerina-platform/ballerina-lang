@@ -227,8 +227,9 @@ public class PackageLoader {
             }
         }
     
-        // If lock file is not there, fist check in central.
-        if (!this.offline && this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
+        // If lock file is not there, first check in central.
+        if (!this.offline && this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR))) &&
+            this.lockFile.getImports().size() > 0) {
             homeCacheNode = node(remoteDryRepo, homeCacheNode);
         }
         
@@ -329,14 +330,9 @@ public class PackageLoader {
         if (enclPackageId != null && moduleID.version.value.isEmpty() &&
             this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
             // Not a top level package or bal
-            Optional<LockFileImport> foundBaseImport = lockFile.getImports()
-                                                                .stream()
-                                                                .filter(baseImport ->
-                                                enclPackageId.orgName.value.equals(baseImport.getOrgName()) &&
-                                                enclPackageId.name.value.equals(baseImport.getName()))
-                                                                .findFirst();
-            if (foundBaseImport.isPresent()) {
-                Optional<LockFileImport> foundNestedImport = foundBaseImport.get().getImports()
+            if (lockFile.getImports().containsKey(enclPackageId.toString())) {
+                List<LockFileImport> foundBaseImport = lockFile.getImports().get(enclPackageId.toString());
+                Optional<LockFileImport> foundNestedImport = foundBaseImport
                                                                       .stream()
                                                                       .filter(nestedImport ->
                                                       moduleID.orgName.value.equals(nestedImport.getOrgName()) &&
@@ -358,7 +354,7 @@ public class PackageLoader {
             dependency.ifPresent(value -> moduleID.version = new Name(value.getMetadata().getVersion()));
         }
         
-        // Set the version from Ballerina.toml found in a path dependency(balo).
+        // Set the version from Ballerina.toml found in dependent balos.
         if (null != enclPackageId && moduleID.version.value.isEmpty() && this.dependencyManifests.size() > 0 &&
             this.dependencyManifests.containsKey(enclPackageId)) {
             
@@ -557,7 +553,6 @@ public class PackageLoader {
      * @return True if lock file is valid, else false.
      */
     public boolean hasLockFile(Path sourceRoot) {
-        return RepoUtils.isBallerinaProject(sourceRoot) &&
-               (null == this.lockFile || this.lockFile.getImports().size() > 0);
+        return RepoUtils.isBallerinaProject(sourceRoot) && null != this.lockFile;
     }
 }
