@@ -284,7 +284,7 @@ public type HelloWorldClient client object {
 };
 
 
-type Person record {
+public type Person record {
     string name = "";
     Address address = {};
 
@@ -297,12 +297,12 @@ type Address record {
 
 };
 
-type StockRequest record {
+public type StockRequest record {
     string name = "";
 
 };
 
-type StockQuote record {
+public type StockQuote record {
     string symbol = "";
     string name = "";
     float last = 0.0;
@@ -320,7 +320,7 @@ type StockNames record {
 
 };
 
-type Empty record {
+public type Empty record {
 
 };
 
