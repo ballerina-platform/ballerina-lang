@@ -19,6 +19,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -36,12 +37,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                            @Argument(name = "dt",
                                      type = TypeKind.TABLE),
                            @Argument(name = "data",
-                                     type = TypeKind.ANY)
+                                     type = TypeKind.RECORD)
                    },
                    isPublic = true)
 public class Add {
 
-    public static Object add(Strand strand, TableValue table, Object data) {
+    public static Object add(Strand strand, TableValue table, MapValue<String, Object> data) {
         try {
             return table.performAddOperation((MapValueImpl<String, Object>) data);
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {

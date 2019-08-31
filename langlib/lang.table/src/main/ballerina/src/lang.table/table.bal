@@ -61,7 +61,7 @@ public function getNext(table<record {}> dt) returns record {} = external;
 #
 # + data - A record with data
 # + return - An `error` will be returned if there is any error occurred during adding data or else nil is returned
-public function add(table<record {}> dt, any data) returns error|() = external;
+public function add(table<record {}> dt, record {} data) returns error|() = external;
 
 # Remove data from the table.
 #
@@ -88,13 +88,3 @@ function queryTableWithJoinClause(string sqlQuery, table<record {}> fromTable, t
 function queryTableWithoutJoinClause(string sqlQuery, table<record {}> fromTable, any parameters,
                                      any retType) returns table<record {}> = external;
 
-# TableConfig represents properties used during table initialization.
-#
-# + primaryKey - An array of primary key columns
-# + index - An array of index columns
-# + data - An array of record data
-type TableConfig record {|
-    string[] primaryKey;
-    string[] index;
-    any[] data;
-|};

@@ -513,6 +513,8 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, i++,
                                   "field 'bar' of type 'error' is not allowed as a table column", 196, 31);
         BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'record {| anydata...; |}', found 'ErrorInRecord'", 202, 23);
+        BAssertUtil.validateError(resultNegative, i++,
                 "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
         BAssertUtil.validateError(resultNegative, i++,
                                   "field 'xArr' of type 'xml[]' is not allowed as a table column", 212, 29);

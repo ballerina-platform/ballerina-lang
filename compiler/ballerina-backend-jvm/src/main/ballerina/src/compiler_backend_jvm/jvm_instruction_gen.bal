@@ -613,11 +613,10 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, TABLE_VALUE);
         self.mv.visitInsn(DUP);
         loadType(self.mv, tableNewIns.typeValue);
-        self.loadVar(tableNewIns.indexColOp.variableDcl);
         self.loadVar(tableNewIns.keyColOp.variableDcl);
         self.loadVar(tableNewIns.dataOp.variableDcl);
-        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", BTYPE,
-                ARRAY_VALUE, ARRAY_VALUE, ARRAY_VALUE), false);
+        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;)V", BTYPE,
+                ARRAY_VALUE, ARRAY_VALUE), false);
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
