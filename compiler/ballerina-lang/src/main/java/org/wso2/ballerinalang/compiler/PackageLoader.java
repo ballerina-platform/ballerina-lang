@@ -227,9 +227,9 @@ public class PackageLoader {
             }
         }
     
-        // If lock file is not there, first check in central.
-        if (!this.offline && this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR))) &&
-            this.lockFile.getImports().size() > 0) {
+        // check latest in central if not offline. if a module's gets resolved by toml or lock then remote is not
+        // checked for latest version.
+        if (!this.offline) {
             homeCacheNode = node(remoteDryRepo, homeCacheNode);
         }
         
@@ -330,7 +330,7 @@ public class PackageLoader {
         if (enclPackageId != null && moduleID.version.value.isEmpty() &&
             this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
             // Not a top level package or bal
-            if (lockFile.getImports().containsKey(enclPackageId.toString())) {
+            if (this.lockFile.getImports().containsKey(enclPackageId.toString())) {
                 List<LockFileImport> foundBaseImport = lockFile.getImports().get(enclPackageId.toString());
                 Optional<LockFileImport> foundNestedImport = foundBaseImport
                                                                       .stream()
@@ -553,6 +553,9 @@ public class PackageLoader {
      * @return True if lock file is valid, else false.
      */
     public boolean hasLockFile(Path sourceRoot) {
-        return RepoUtils.isBallerinaProject(sourceRoot) && null != this.lockFile;
+        return RepoUtils.isBallerinaProject(sourceRoot) &&
+               null != this.lockFile &&
+               null != this.lockFile.getImports() &&
+               this.lockFile.getImports().size() > 0;
     }
 }

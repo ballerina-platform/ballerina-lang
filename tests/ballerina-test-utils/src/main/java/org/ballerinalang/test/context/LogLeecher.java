@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.test.context;
 
+import java.io.PrintStream;
+
 /**
  * A Leecher can attach to a {@link ServerLogReader} and wait until a specific text is printed in the log.
  */
