@@ -1,8 +1,7 @@
 import TelemetryReporter from "vscode-extension-telemetry";
 import { BallerinaExtension } from "../core";
 
-// TODO generate a instrumentation key from azure with a production account
-const INSTRUMENTATION_KEY = "d1155177-d396-4504-ad0f-c3570da84c3e";
+const INSTRUMENTATION_KEY = "3a82b093-5b7b-440c-9aa2-3b8e8e5704e7";
 
 export function createTelemetryReporter(ext: BallerinaExtension): TelemetryReporter {
     const reporter = new TelemetryReporter(ext.getID(), ext.getVersion(), INSTRUMENTATION_KEY); 

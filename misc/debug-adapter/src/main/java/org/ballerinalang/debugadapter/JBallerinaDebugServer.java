@@ -271,6 +271,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
+        stackTraceResponse.setStackFrames(new StackFrame[0]);
+
         try {
             StackFrame[] stackFrames = eventBus.getThreadsMap().get(args.getThreadId())
                     .frames().stream()
@@ -472,7 +474,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             Map<String, Value> values = new HashMap<>();
             fieldValueMap.forEach((field, value1) -> {
                 // Filter out internal variables
-                if (!field.name().startsWith("$")) {
+                if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
                     values.put(field.name(), value1);
                 }
             });
@@ -496,7 +498,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             String stringValue = value.toString();
             dapVariable.setValue(stringValue);
             return dapVariable;
-        } else if (varType.startsWith("$value$")) {
+        } else if (varType.contains("$value$")) {
             // Record type
             String stringValue = value.type().name();
 
@@ -535,6 +537,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             dapVariable.setVariablesReference(variableReference);
             stringValue = stringValue.replace("$value$", "");
             dapVariable.setType(stringValue);
+            dapVariable.setValue(stringValue);
+            return dapVariable;
+        } else if ("org.ballerinalang.jvm.types.BObjectType".equalsIgnoreCase(varType)) {
+            Value typeName = ((ObjectReferenceImpl) value)
+                    .getValue(((ObjectReferenceImpl) value).referenceType().fieldByName("typeName"));
+            dapVariable.setType(varType);
+            String stringValue = typeName.toString();
             dapVariable.setValue(stringValue);
             return dapVariable;
         } else {
