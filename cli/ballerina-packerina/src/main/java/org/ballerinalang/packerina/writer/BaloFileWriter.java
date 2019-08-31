@@ -24,8 +24,12 @@ import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.BaloToml;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Dependency;
+import org.ballerinalang.toml.model.DependencyMetadata;
+import org.ballerinalang.toml.model.LockFile;
+import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Module;
+import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -51,6 +55,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -169,8 +174,33 @@ public class BaloFileWriter {
         }
     }
     
-    private byte[] populateTomlWithProjectModules(BLangPackage module, byte[] manifestBytes) {
+    /**
+     * Populate a toml with lock file dependencies and project module dependencies.
+     *
+     * @param module        The module with dependencies to add to toml.
+     * @param manifestBytes The bytes of the manifest file.
+     * @return The updated manifest bytes.
+     */
+    private byte[] populateTomlWithDependencies(BLangPackage module, byte[] manifestBytes) {
         try (ByteArrayInputStream tomlStream = new ByteArrayInputStream(manifestBytes)) {
+            List<Dependency> dependenciesToAdd = new LinkedList<>();
+            
+            // collect dependencies from lock file
+            LockFile lockFile = LockFileProcessor.parseTomlContentAsStream(this.sourceDirectory.getLockFileContent());
+            if (null != lockFile && null != lockFile.getImports() && lockFile.getImports().size() > 0) {
+                for (List<LockFileImport> imports : lockFile.getImports().values()) {
+                    for (LockFileImport lockImport : imports) {
+                        Dependency dependency = new Dependency();
+                        dependency.setModuleID(lockImport.getOrgName() + "/" + lockImport.getName());
+                        DependencyMetadata depMeta = new DependencyMetadata();
+                        depMeta.setVersion(lockImport.getVersion());
+                        dependency.setMetadata(depMeta);
+                        dependenciesToAdd.add(dependency);
+                    }
+                }
+            }
+            
+            // collect dependencies from project dependencies
             Manifest manifest = ManifestProcessor.parseTomlContentAsStream(tomlStream);
             for (BLangImportPackage importz : module.imports) {
                 // if import is from the same org as parent
@@ -186,12 +216,51 @@ public class BaloFileWriter {
                         // if dependency is not mentioned in toml
                         if (!manifestDependency.isPresent()) {
                             // update manifest
-                            try (ByteArrayInputStream tomlStreamToUpdate = new ByteArrayInputStream(manifestBytes)) {
-                                return ManifestProcessor.addDependencyToManifest(tomlStreamToUpdate,
-                                        importz.symbol.pkgID);
-                            }
+                            Dependency dependency = new Dependency();
+                            dependency.setModuleID(importz.symbol.pkgID.orgName.value + "/" +
+                                                   importz.symbol.pkgID.name.value);
+                            DependencyMetadata depMeta = new DependencyMetadata();
+                            depMeta.setVersion(importz.symbol.pkgID.version.value);
+                            dependency.setMetadata(depMeta);
+                            dependenciesToAdd.add(dependency);
+                        } else if (null != manifestDependency.get().getMetadata() &&
+                                   null != manifestDependency.get().getMetadata().getVersion() &&
+                                   !importz.symbol.pkgID.version.value.equals(
+                                           manifestDependency.get().getMetadata().getVersion())) {
+                            throw new BLangCompilerException("version specified for '" +
+                                                             manifestDependency.get().toString() +
+                                                             "' in Ballerina.toml should be '" +
+                                                             importz.symbol.pkgID.toString() + "'.");
                         }
                     }
+                }
+            }
+            
+            // validate dependencies already in toml
+            for (Dependency dependencyToAdd : dependenciesToAdd) {
+                for (Dependency dependencyInManifest : manifest.getDependencies()) {
+                    // if org name and module names are equal but versions are different, then throw an error.
+                    if (dependencyToAdd.getOrgName().equals(dependencyInManifest.getOrgName()) &&
+                        dependencyToAdd.getModuleName().equals(dependencyInManifest.getModuleName()) &&
+                        null != dependencyToAdd.getMetadata() &&
+                        null != dependencyInManifest.getMetadata() &&
+                        null != dependencyToAdd.getMetadata().getVersion() &&
+                        null != dependencyInManifest.getMetadata().getVersion() &&
+                        !dependencyToAdd.getMetadata().getVersion().equals(
+                                dependencyInManifest.getMetadata().getVersion())) {
+                        throw new BLangCompilerException("version specified for '" +
+                                                         dependencyInManifest.toString() +
+                                                         "' in Ballerina.toml should be '" +
+                                                         dependencyToAdd.getMetadata().getVersion() + "'. you can " +
+                                                         "either update the Ballerina.toml or remove the " +
+                                                         "Ballerina.lock file.");
+                    }
+                }
+            }
+    
+            if (dependenciesToAdd.size() > 0) {
+                try (ByteArrayInputStream tomlStreamToUpdate = new ByteArrayInputStream(manifestBytes)) {
+                    return ManifestProcessor.addDependenciesToManifest(tomlStreamToUpdate, dependenciesToAdd);
                 }
             }
         } catch (TomlException | IOException e) {
@@ -312,7 +381,7 @@ public class BaloFileWriter {
         
         // Write Ballerina.toml
         byte[] manifestBytes = Files.readAllBytes(manifestPath);
-        byte[] tomlBytes = populateTomlWithProjectModules(module, manifestBytes);
+        byte[] tomlBytes = populateTomlWithDependencies(module, manifestBytes);
         if (null != tomlBytes) {
             Files.write(baloManifest, tomlBytes);
         }

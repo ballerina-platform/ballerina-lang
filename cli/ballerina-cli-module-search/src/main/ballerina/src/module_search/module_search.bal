@@ -35,7 +35,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
         httpResponse = result;
     } else {
         error e = result;
-        io:println("Connection to the remote host failed : " + e.reason());
+        io:println("Connection to the remote host failed : " + <string>e.detail()["message"]);
         return;
     }
     string statusCode = httpResponse.statusCode.toString();

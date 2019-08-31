@@ -127,7 +127,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
     http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, req);
     if (httpResponse is error) {
         error e = httpResponse;
-        panic createError("connection to the remote repository host failed : " + e.reason());
+        panic createError("connection to the remote repository host failed: " + <string>e.detail()["message"]);
     } else {
         string statusCode = httpResponse.statusCode.toString();
         if (statusCode.startsWith("5")) {
@@ -200,12 +200,12 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                 var destChannelClose = wch.close();
                 if (destChannelClose is error) {
                     error e = destChannelClose;
-                    panic createError("error occurred while closing the channel: " + e.reason());
+                    panic createError("error occurred while closing the channel: " + <string>e.detail()["message"]);
                 } else {
                     var srcChannelClose = sourceChannel.close();
                     if (srcChannelClose is error) {
                         error e = srcChannelClose;
-                        panic createError("error occurred while closing the channel: " + e.reason());
+                        panic createError("error occurred while closing the channel: " + <string>e.detail()["message"]);
                     } else {
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
@@ -382,7 +382,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
             error e = channelCloseError;
-            io:println(logFormatter.formatLog("Error occured while closing the channel: " + e.reason()));
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + <string>e.detail()["message"]));
         } else {
             return;
         }
@@ -390,7 +390,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
             error e = channelCloseError;
-            io:println(logFormatter.formatLog("Error occured while closing the channel: " + e.reason()));
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + <string>e.detail()["message"]));
         } else {
             return;
         }
