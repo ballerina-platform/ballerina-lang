@@ -18,7 +18,10 @@
 
 package org.wso2.transport.http.netty.expect100continue;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
@@ -30,11 +33,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
@@ -44,9 +45,8 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
-import org.wso2.transport.http.netty.util.server.listeners.Continue100Listener;
+import org.wso2.transport.http.netty.util.server.listeners.Continue100AfterRespReceivedListener;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -54,38 +54,31 @@ import java.util.concurrent.TimeUnit;
 import static org.testng.Assert.assertEquals;
 
 /**
- * This class test client 100-continue implementation with content-length request.
+ * This test is responsible for testing the listener side implementation of Expect Continue request. In this case,
+ * Listener is being tested for the scenario in which 100-continue response is executed while receiving inbound request
+ * payload. In other words, this test is for an abnormal 100-Continue scenario.
  */
-public class ClientContinue100ContentLengthTestCase {
+public class ListenerContinue100WhileRespReceivingTestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientContinue100ContentLengthTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ListenerContinue100WhileRespReceivingTestCase.class);
 
     private ServerConnector serverConnector;
     private HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
+    private DefaultHttpConnectorListener listener;
 
     @BeforeClass
     public void setup() throws InterruptedException {
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
-        givenChunkingNeverClient();
-        givenNormalHttpServer();
+        givenAbnormalClient();
+        givenNormalListener();
     }
 
     @Test
     public void test100Continue() {
         try {
-            DefaultHttpConnectorListener listener = whenReqSentForNormal100Response();
-            thenRespShouldBeNormalResponse(listener);
-        } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running httpsGetTest", e);
-        }
-    }
-
-    @Test
-    public void test100ContinueNegative() {
-        try {
-            DefaultHttpConnectorListener listener = whenReqSentFor417Response();
-            thenRespShouldBeWithMessage("Do not send me any payload", listener);
+            whenReqSentWithSlowEntityPayload();
+            thenRespShouldBeNormal();
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
         }
@@ -101,53 +94,14 @@ public class ClientContinue100ContentLengthTestCase {
         }
     }
 
-    private void thenRespShouldBeWithMessage(String msg, DefaultHttpConnectorListener listener) {
+    private void thenRespShouldBeNormal() {
         String responseBody = TestUtil.getStringFromInputStream(
                 new HttpMessageDataStreamer(listener.getHttpResponseMessage()).getInputStream());
 
-        assertEquals(responseBody, msg);
+        assertEquals(responseBody, "First halfLast half");
     }
 
-    private DefaultHttpConnectorListener whenReqSentFor417Response() throws InterruptedException {
-        HttpCarbonMessage msg = TestUtil
-                .createHttpsPostReq(TestUtil.SERVER_CONNECTOR_PORT, TestUtil.largeEntity, "");
-        msg.setHeader(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE);
-        msg.setHeader("X-Status", "Negative");
-
-        CountDownLatch latch = new CountDownLatch(1);
-        DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-        HttpResponseFuture responseFuture = httpClientConnector.send(msg);
-        responseFuture.setHttpConnectorListener(listener);
-
-        latch.await(6, TimeUnit.SECONDS);
-        return listener;
-    }
-
-    private void givenNormalHttpServer() throws InterruptedException {
-        ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
-        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
-        listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
-        serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
-        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(new Continue100Listener());
-        serverConnectorFuture.sync();
-    }
-
-    private void givenChunkingNeverClient() {
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setChunkingConfig(ChunkConfig.NEVER);
-        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
-    }
-
-    private void thenRespShouldBeNormalResponse(DefaultHttpConnectorListener listener) {
-        String responseBody = TestUtil.getStringFromInputStream(
-                new HttpMessageDataStreamer(listener.getHttpResponseMessage()).getInputStream());
-
-        assertEquals(responseBody, TestUtil.largeEntity);
-    }
-
-    private DefaultHttpConnectorListener whenReqSentForNormal100Response() throws IOException, InterruptedException {
+    private void whenReqSentWithSlowEntityPayload() throws InterruptedException {
         HttpCarbonMessage requestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
                                                                                     HttpMethod.POST, ""));
 
@@ -159,14 +113,30 @@ public class ClientContinue100ContentLengthTestCase {
         requestMsg.setHeader("X-Status", "Positive");
 
         CountDownLatch latch = new CountDownLatch(1);
-        DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
+        listener = new DefaultHttpConnectorListener(latch);
         httpClientConnector.send(requestMsg).setHttpConnectorListener(listener);
+        requestMsg.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer("First half".getBytes())));
 
-        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(requestMsg);
-        httpMessageDataStreamer.getOutputStream().write(TestUtil.largeEntity.getBytes());
-        httpMessageDataStreamer.getOutputStream().close();
+        Thread.sleep(10000);
+        requestMsg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer("Last half".getBytes())));
 
-        latch.await(10, TimeUnit.SECONDS);
-        return listener;
+        latch.await(30, TimeUnit.SECONDS);
+    }
+
+    private void givenNormalListener() throws InterruptedException {
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
+        listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
+        ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
+        serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        serverConnectorFuture.setHttpConnectorListener(new Continue100AfterRespReceivedListener());
+        serverConnectorFuture.sync();
+    }
+
+    private void givenAbnormalClient() {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setSocketIdleTimeout(15000);
+        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 }

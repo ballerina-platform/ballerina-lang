@@ -26,6 +26,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -41,45 +42,55 @@ import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
- * An initializer class for HTTP Server. The responsibility of this class is to send-back 100 continue response
- * regardless of the inbound request.
+ * An initializer class for HTTP Server. The responsibility of this class is to simulate an abnormal 100 continue
+ * scenario. In this case, it is responsible for sending a 100 continue after first part of the entity body is
+ * received.
  */
-public class Abnormal100ContinueServerInitializer extends HttpServerInitializer {
+public class Send100ContinueWhileReceivingEntityBodyInitializer extends HttpServerInitializer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Abnormal100ContinueServerInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Send100ContinueWhileReceivingEntityBodyInitializer.class);
 
     private String stringContent;
     private String contentType;
     private int responseStatusCode;
     private HttpRequest req;
+    private boolean continueSent;
 
-    public Abnormal100ContinueServerInitializer(String stringContent, String contentType, int responseStatusCode) {
-        this.stringContent = stringContent;
-        this.contentType = contentType;
-        this.responseStatusCode = responseStatusCode;
+    public Send100ContinueWhileReceivingEntityBodyInitializer() {
+        this.stringContent = "inbound response entity body";
+        this.contentType = "text/plain";
+        this.responseStatusCode = HttpResponseStatus.OK.code();
+        this.continueSent = false;
     }
 
     protected void addBusinessLogicHandler(Channel channel) {
-        channel.pipeline().addLast("handler", new Abnormal100ContinueServerHandler());
+        channel.pipeline().addLast("handler", new Send100ContinueWhileReceivingEntityBodyHandler());
     }
 
-    private class Abnormal100ContinueServerHandler extends ChannelInboundHandlerAdapter {
+    private class Send100ContinueWhileReceivingEntityBodyHandler extends ChannelInboundHandlerAdapter {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+
             if (stringContent != null) {
-                ByteBuf content = Unpooled.wrappedBuffer(stringContent.getBytes("UTF-8"));
                 if (msg instanceof HttpRequest) {
                     req = (HttpRequest) msg;
-                } else if (msg instanceof LastHttpContent) {
-                    ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
-                    writeResponse(ctx, content);
+                } else if (msg instanceof HttpContent) {
+                    if (!continueSent) {
+                        continueSent = true;
+                        ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
+                    }
+                    if (msg instanceof LastHttpContent) {
+                        ByteBuf content = Unpooled.wrappedBuffer(stringContent.getBytes("UTF-8"));
+                        respond(ctx, content);
+                    }
                 }
             }
         }
 
-        private void writeResponse(ChannelHandlerContext ctx, ByteBuf content) {
-            FullHttpResponse response = makeOutboundResponse(content);
+        private void respond(ChannelHandlerContext ctx, ByteBuf content) {
+            FullHttpResponse response = getFullHttpResponse(content);
+
             boolean keepAlive = HttpUtil.isKeepAlive(req);
             if (!keepAlive) {
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
@@ -92,9 +103,9 @@ public class Abnormal100ContinueServerInitializer extends HttpServerInitializer 
             }
         }
 
-        private FullHttpResponse makeOutboundResponse(ByteBuf content) {
+        private FullHttpResponse getFullHttpResponse(ByteBuf content) {
             HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
-                                                      HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
+                                                  HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
             FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
             response.headers().set(CONTENT_TYPE, contentType);
             response.headers().set(CONTENT_LENGTH, content.readableBytes());

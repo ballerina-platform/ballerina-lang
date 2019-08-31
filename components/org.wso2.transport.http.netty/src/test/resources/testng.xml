@@ -57,13 +57,17 @@
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkEnableClientTestCase" />
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkDisableClientTestCase" />
 
-            <class name="org.wso2.transport.http.netty.expect100continue.Continue100TestCase" />
-            <class name="org.wso2.transport.http.netty.expect100continue.Abnormal100ContinueTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ListenerContinue100TestCase" />
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientAbnormal100ContinueTestCase"/>
             <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100ChunkingTestCase"/>
             <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100ContentLengthTestCase"/>
             <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100ClosureTestCase"/>
             <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100TimeoutTestCase"/>
             <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100ResponseTimeoutTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ListenerContinue100AfterRespReceivedTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ListenerContinue100WhileRespReceivingTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100WhileSendingReqTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100AfterSendingReqTestCase"/>
 
             <class name="org.wso2.transport.http.netty.unitfunction.CommonUtilTestCase" />
             <class name="org.wso2.transport.http.netty.unitfunction.HttpCarbonMessageTestCase" />

@@ -57,34 +57,19 @@ public class ClientContinue100ClosureTestCase {
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
+    private DefaultHttpConnectorListener listener;
 
     @BeforeClass
     public void setup() throws InterruptedException {
-        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new CloseWithoutRespondingInitializer());
-
-        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setChunkingConfig(ChunkConfig.NEVER);
-        senderConfiguration.setSocketIdleTimeout(3000);
-        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
+        givenServerClosingWithoutResponding();
+        givenChunkingNeverClient();
     }
 
     @Test
     public void test100Continue() {
         try {
-            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, TestUtil.largeEntity, "");
-            msg.setHeader(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE);
-
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = httpClientConnector.send(msg);
-            responseFuture.setHttpConnectorListener(listener);
-
-            latch.await(6, TimeUnit.SECONDS);
-
-            Throwable error = listener.getHttpErrorMessage();
-
-            assertEquals(error.getLocalizedMessage(), REMOTE_SERVER_CLOSED_BEFORE_READING_100_CONTINUE_RESPONSE);
+            whenReqSentWithExpectContinue();
+            thenRespShouldBeWithMessage(REMOTE_SERVER_CLOSED_BEFORE_READING_100_CONTINUE_RESPONSE);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
         }
@@ -98,5 +83,34 @@ public class ClientContinue100ClosureTestCase {
         } catch (InterruptedException e) {
             LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
+    }
+
+    private void thenRespShouldBeWithMessage(String msg) {
+        Throwable error = listener.getHttpErrorMessage();
+        assertEquals(error.getLocalizedMessage(), msg);
+    }
+
+    private void whenReqSentWithExpectContinue() throws InterruptedException {
+        HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, TestUtil.largeEntity, "");
+        msg.setHeader(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE);
+
+        CountDownLatch latch = new CountDownLatch(1);
+        listener = new DefaultHttpConnectorListener(latch);
+        HttpResponseFuture responseFuture = httpClientConnector.send(msg);
+        responseFuture.setHttpConnectorListener(listener);
+
+        latch.await(6, TimeUnit.SECONDS);
+    }
+
+    private void givenChunkingNeverClient() {
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setChunkingConfig(ChunkConfig.NEVER);
+        senderConfiguration.setSocketIdleTimeout(3000);
+        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
+    }
+
+    private void givenServerClosingWithoutResponding() {
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new CloseWithoutRespondingInitializer());
     }
 }

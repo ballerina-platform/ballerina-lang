@@ -49,6 +49,7 @@ public class EchoStreamingMessageListener implements HttpConnectorListener {
             try {
                 HttpCarbonMessage httpResponse = new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
                                                                                                 HttpResponseStatus.OK));
+                httpResponse.setHttpStatusCode(HttpResponseStatus.OK.code());
                 httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
 
                 HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpResponse);
