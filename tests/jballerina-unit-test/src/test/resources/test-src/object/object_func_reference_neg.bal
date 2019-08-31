@@ -42,6 +42,8 @@ public type Foo abstract object {
 
     function test7() returns Status;
 
+    function test8(public string s, int i);
+
 };
 
 public type FooImpl1 object {
@@ -76,5 +78,10 @@ public type FooImpl1 object {
     // param count mismatch
     function test7(int x = 0) returns Status {
         return "ON";
+    }
+
+    //param visibility modifier mismatch
+    function test8(string s, public int i) {
+
     }
 };

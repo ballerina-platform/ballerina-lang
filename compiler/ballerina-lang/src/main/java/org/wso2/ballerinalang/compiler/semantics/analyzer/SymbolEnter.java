@@ -1720,7 +1720,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         List<BVarSymbol> params = referencedFuncSym.params;
         for (int i = 0; i < params.size(); i++) {
-            if (!params.get(i).name.value.equals(attachedFuncSym.params.get(i).name.value)) {
+            BVarSymbol referencedFuncParam = params.get(i);
+            BVarSymbol attachedFuncParam = attachedFuncSym.params.get(i);
+            if (!referencedFuncParam.name.value.equals(attachedFuncParam.name.value) ||
+                    !hasSameVisibilityModifier(referencedFuncParam.flags, attachedFuncParam.flags)) {
                 return false;
             }
         }
@@ -1751,7 +1754,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         signatureBuilder.append(visibilityModifier).append("function ")
                 .append(funcSymbol.name.value.split("\\.")[1]);
 
-        funcSymbol.params.forEach(param -> paramListBuilder.add(param.type.toString() + " " + param.name.value));
+        funcSymbol.params.forEach(param -> paramListBuilder.add(((param.flags & Flags.PUBLIC) == Flags.PUBLIC ?
+                                                                        "public " : "") + param.type.toString() +
+                                                                        " " + param.name.value));
 
         if (funcSymbol.restParam != null) {
             paramListBuilder.add(((BArrayType) funcSymbol.restParam.type).eType.toString() + "... " +
