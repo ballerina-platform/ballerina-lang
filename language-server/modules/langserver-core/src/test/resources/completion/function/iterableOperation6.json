@@ -6,7 +6,7 @@
   "source": "function/source/iterableOperation6.bal",
   "items": [
     {
-      "label": "add(anydata data)((()|error))",
+      "label": "add(record {\n\n} data)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

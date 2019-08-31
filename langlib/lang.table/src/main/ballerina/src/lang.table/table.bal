@@ -61,7 +61,7 @@ public function getNext(table<record {}> dt) returns record {} = external;
 #
 # + data - A record with data
 # + return - An `error` will be returned if there is any error occurred during adding data or else nil is returned
-public function add(table<record {}> dt, anydata data) returns error|() = external;
+public function add(table<record {}> dt, record {} data) returns error|() = external;
 
 # Remove data from the table.
 #
