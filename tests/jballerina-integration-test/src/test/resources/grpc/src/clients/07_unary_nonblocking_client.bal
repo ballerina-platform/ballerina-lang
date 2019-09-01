@@ -207,12 +207,12 @@ function getDescriptorMap() returns map<string> {
     };
 }
 
-type Request record {
+public type Request record {
     string name = "";
     string message = "";
     int age = 0;
 };
 
-type Response record {
+public type Response record {
     string resp = "";
 };

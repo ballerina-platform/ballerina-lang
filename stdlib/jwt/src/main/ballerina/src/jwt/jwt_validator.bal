@@ -20,6 +20,7 @@ import ballerina/encoding;
 import ballerina/internal;
 import ballerina/io;
 import ballerina/lang.'int as langint;
+import ballerina/lang.'string as strings;
 import ballerina/time;
 
 # Represents JWT validator configurations.
@@ -110,14 +111,14 @@ function getDecodedJwtComponents(string[] encodedJwtComponents) returns @tainted
 
     var decodeResult = encoding:decodeBase64Url(encodedJwtComponents[0]);
     if (decodeResult is byte[]) {
-        jwtHeader = encoding:byteArrayToString(decodeResult);
+        jwtHeader = check strings:fromBytes(decodeResult);
     } else {
         return prepareError("Base64 url decode failed for JWT header.", decodeResult);
     }
 
     decodeResult = encoding:decodeBase64Url(encodedJwtComponents[1]);
     if (decodeResult is byte[]) {
-        jwtPayload = encoding:byteArrayToString(decodeResult);
+        jwtPayload = check strings:fromBytes(decodeResult);
     } else {
         return prepareError("Base64 url decode failed for JWT payload.", decodeResult);
     }

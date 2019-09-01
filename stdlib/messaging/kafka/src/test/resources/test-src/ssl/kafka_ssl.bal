@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/encoding;
 import ballerina/filepath;
 import ballerina/kafka;
+import ballerina/lang.'string as strings;
 
 string topic = "test-topic-ssl";
 
@@ -100,7 +100,7 @@ function funcKafkaPollWithSSL() returns string|error {
         if (results.length() == 1) {
             var kafkaRecord = results[0];
             byte[] serializedMsg = kafkaRecord.value;
-            return encoding:byteArrayToString(serializedMsg, "utf-8");
+            return strings:fromBytes(serializedMsg);
         } else if (results.length() > 1) {
             return "More than one message received";
         } else {

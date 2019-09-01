@@ -110,7 +110,7 @@ service headerAndPayloadWebhook on new WebhookServerForHeaderAndPayload(23597) {
 /////////////////// Specific Webhook for dispatching by key ///////////////////
 public type WebhookServerForPayload object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private websub:Listener websubListener;
 
@@ -160,7 +160,7 @@ public type WebhookServerForPayload object {
 /////////////////// Specific Webhook for dispatching by header ///////////////////
 public type WebhookServerForHeader object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private websub:Listener websubListener;
 
@@ -205,7 +205,7 @@ public type WebhookServerForHeader object {
 /////////////////// Specific Webhook for dispatching by header and payload ///////////////////
 public type WebhookServerForHeaderAndPayload object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private websub:Listener websubListener;
 

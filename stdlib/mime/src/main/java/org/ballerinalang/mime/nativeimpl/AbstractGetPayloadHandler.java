@@ -24,10 +24,13 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
@@ -46,6 +49,8 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
  */
 
 public abstract class AbstractGetPayloadHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractGetPayloadHandler.class);
 
     static void constructNonBlockingDataSource(NonBlockingCallback callback, ObjectValue entity,
                                                SourceType sourceType) {
@@ -76,6 +81,12 @@ public abstract class AbstractGetPayloadHandler {
                 } catch (Exception e) {
                     createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
                             sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + e.getMessage());
+                } finally {
+                    try {
+                        inputStream.close();
+                    } catch (IOException ex) {
+                        log.error("Error occurred while closing the inbound data stream", ex);
+                    }
                 }
             }
 

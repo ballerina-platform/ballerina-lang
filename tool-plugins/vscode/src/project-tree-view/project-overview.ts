@@ -275,6 +275,13 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         return this.getSourceRoot(path.dirname(currentPath), root);
     }
     
+    getParent(element: ProjectTreeElement): vscode.ProviderResult<ProjectTreeElement> {
+        // This is implemented in-order to make treeView#reveal api work.
+        // returns undefined for the moment, indicates no parent. It won't be a problem
+        // as we only use reveal api to reveal root element
+        return undefined;
+    }
+    
 }
 
 interface TreeStructure {

@@ -60,13 +60,22 @@ public class ServiceTest {
     }
 
     @Test
+    public void testUsingListenerFromDepModule() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/proj1", "c");
+        final BValue[] result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
+        Assert.assertEquals(result.length, 1, "expected one return type");
+        Assert.assertNotNull(result[0]);
+        Assert.assertEquals(result[0].stringValue(), "2_1");
+    }
+
+    @Test
     public void testServiceBasicsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_basic_negative.bal");
         int errIdx = 0;
         validateError(compileResult, errIdx++, "resource function can not be invoked with in a service", 9, 9);
         validateError(compileResult, errIdx++, "redeclared symbol 'name1'", 19, 9);
         validateError(compileResult, errIdx++,
-                "incompatible types: expected 'AbstractListener', found 'string'", 19, 18);
+                "incompatible types: expected 'Listener', found 'string'", 19, 18);
         validateError(compileResult, errIdx++, "invalid listener attachment", 19, 18);
         validateError(compileResult, errIdx++, "redeclared symbol 'MyService$$service$2.foo'", 30, 14);
         validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 58, 12);

@@ -32,7 +32,7 @@ const DETACH_METHOD_INCREMENT_VALUE = 5;
 //    function __immediateStop() returns error?;
 // }
 type CustomListener object {
-    *'object:AbstractListener;
+    *'object:Listener;
 
     private string listenerName;
 

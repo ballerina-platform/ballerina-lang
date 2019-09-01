@@ -53,7 +53,7 @@ public class SocketBaseTest extends BaseTest {
                 .getAbsolutePath();
         String[] args = new String[] { "--certificate.key=" + privateKey, "--public.cert=" + publicCert };
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFile, "services", null, args, requiredPorts);
+        serverInstance.startServer(balFile, "services", new String[]{"--experimental"}, args, requiredPorts);
         executor.execute(mockSocketServer);
     }
 

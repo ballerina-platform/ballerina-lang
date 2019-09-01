@@ -333,7 +333,7 @@ public type OneofFieldServiceClient client object {
     }
 };
 
-type Request1 record {
+public type Request1 record {
     Other other;
     Name name;
 };
@@ -388,7 +388,7 @@ type Response1 record {
 
 };
 
-type ZZZ record {
+public type ZZZ record {
     float aa = 1.2345;
     float bb = 1.23;
     int cc = 10;
@@ -460,7 +460,7 @@ type ZZZ_OneK record {
 
 };
 
-type AAA record {
+public type AAA record {
     string aaa = "aaa";
 };
 
