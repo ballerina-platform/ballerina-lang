@@ -72,6 +72,7 @@ public enum DiagnosticCode {
     ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY("abstract.object.function.cannot.have.body"),
     PRIVATE_OBJECT_CONSTRUCTOR("private.object.constructor"),
     PRIVATE_FIELD_ABSTRACT_OBJECT("private.field.abstract.object"),
+    FIELD_WITH_DEFAULT_VALUE_ABSTRACT_OBJECT("field.with.default.value.abstract.object"),
     PRIVATE_FUNC_ABSTRACT_OBJECT("private.function.abstract.object"),
     EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
     RESOURCE_FUNCTION_CANNOT_BE_EXTERN("resource.function.cannot.be.extern"),

@@ -10,20 +10,20 @@ public function testInitAbstractObjectWithNew () {
 }
 
 type Person1 abstract object {
-    public int age = 0;
-    public string name = "";
+    public int age;
+    public string name;
 
-    int year = 0;
-    string month = "";
+    int year;
+    string month;
 };
 
 // Abstract object with constructor method
 type Person2 abstract object {
-    public int age = 0;
-    public string name = "";
+    public int age;
+    public string name;
 
-    int year = 50;
-    string month = "february";
+    int year;
+    string month;
 
     function __init () {
     }
@@ -42,21 +42,21 @@ type Person3 object {
 
 // Abstract object with method definition
 type Person4 abstract object {
-    public int age = 0;
-    public string name = "";
+    public int age;
+    public string name;
 
-    int year = 0;
-    string month = "";
+    int year;
+    string month;
 
     public function getName() returns string {
-        return self.name;
+        return "name";
     }
 };
 
 // Abstract object with private field
 type Person6 abstract object {
-    private int age = 0;
-    public string name = "";
+    private int age;
+    public string name;
 
     private function getName() returns string;
 };
@@ -76,4 +76,9 @@ type Bar object {
 // Abstract object with extern method
 type Person7 abstract object {
     public function getName() returns string = external;
+};
+
+// Abstract object with field with default value.
+type Baz abstract object {
+    string xyz = "xyz";
 };

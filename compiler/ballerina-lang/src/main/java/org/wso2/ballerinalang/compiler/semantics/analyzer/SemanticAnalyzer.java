@@ -377,8 +377,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         boolean isAbstract = objectTypeNode.flagSet.contains(Flag.ABSTRACT);
         objectTypeNode.fields.forEach(field -> {
             analyzeDef(field, objectEnv);
-            if (isAbstract && field.flagSet.contains(Flag.PRIVATE)) {
-                this.dlog.error(field.pos, DiagnosticCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
+            if (isAbstract) {
+                if (field.flagSet.contains(Flag.PRIVATE)) {
+                    this.dlog.error(field.pos, DiagnosticCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
+                }
+
+                if (field.expr != null) {
+                    this.dlog.error(field.expr.pos, DiagnosticCode.FIELD_WITH_DEFAULT_VALUE_ABSTRACT_OBJECT);
+                }
             }
         });
 

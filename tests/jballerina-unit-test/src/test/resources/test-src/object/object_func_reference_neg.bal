@@ -80,7 +80,7 @@ public type FooImpl1 object {
         return "ON";
     }
 
-    //param visibility modifier mismatch
+    // param visibility modifier mismatch
     function test8(string s, public int i) {
 
     }
