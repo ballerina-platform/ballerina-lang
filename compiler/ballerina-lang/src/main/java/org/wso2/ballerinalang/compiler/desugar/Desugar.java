@@ -798,8 +798,8 @@ public class Desugar extends BLangNodeVisitor {
         trxMainWrapperFunc.cachedEnv = trxMainFunc.function.clonedEnv;
         commitFunc.cachedEnv = env.createClone();
         abortFunc.cachedEnv = env.createClone();
-        BVarSymbol wrapperSym = new BVarSymbol(0, names
-                .fromString("$wrapper$1"), this.env.scope.owner.pkgID, trxMainWrapperFunc.type, trxMainFunc.function.symbol);
+        BVarSymbol wrapperSym = new BVarSymbol(0, names.fromString("$wrapper$1"), this.env.scope.owner.pkgID,
+                                               trxMainWrapperFunc.type, trxMainFunc.function.symbol);
         BLangSimpleVariable wrapperFuncVar = ASTBuilderUtil.createVariable(funcNode.pos, "$wrapper$1",
                                                                            trxMainWrapperFunc.type, trxMainWrapperFunc,
                                                                            wrapperSym);
