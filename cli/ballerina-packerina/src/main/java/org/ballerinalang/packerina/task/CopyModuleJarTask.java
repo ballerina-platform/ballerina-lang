@@ -86,7 +86,7 @@ public class CopyModuleJarTask implements Task {
             // copy testable jar
             if (module.hasTestablePackage()) {
                 Path jarTestOutput = buildContext.getTestJarPathFromTargetCache(module.packageID);
-                Path jarTestTarget = tmpDir.resolve(jarOutput.getFileName());
+                Path jarTestTarget = tmpDir.resolve(jarTestOutput.getFileName());
                 try {
                     Files.copy(jarTestOutput, jarTestTarget, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
