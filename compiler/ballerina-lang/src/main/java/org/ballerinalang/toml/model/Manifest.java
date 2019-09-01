@@ -99,7 +99,9 @@ public class Manifest {
             }
             // Check if it is a valid platform
             if (!(Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS).anyMatch(platform.getTarget()::equals))) {
-                throw new BLangCompilerException("Platform target is not supported by installed Ballerina SDK");
+                throw new BLangCompilerException("Platform target is not " +
+                        "supported by installed Ballerina distribution." +
+                        "\nSupported platforms : " + supportedPlatforms());
             }
             // Check if module have platform specific libraries
             List<Library> deps = platform.libraries.stream().filter(library -> {
@@ -113,6 +115,11 @@ public class Manifest {
         }
         // return any if not
         return ProgramFileConstants.ANY_PLATFORM;
+    }
+
+    private String supportedPlatforms() {
+        String platforms = String.join(",", ProgramFileConstants.SUPPORTED_PLATFORMS);
+        return platforms;
     }
 
     public boolean isTemplateModule(String moduleName) {

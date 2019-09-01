@@ -13,7 +13,7 @@ templates = ["mytemplate"]
 
 
 [platform]
-target = "java"
+target = "java8"
 
   [[platform.libraries]]
   artifactId = "toml4j"
