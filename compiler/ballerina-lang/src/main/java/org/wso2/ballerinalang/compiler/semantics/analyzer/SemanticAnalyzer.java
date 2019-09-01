@@ -915,13 +915,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void recursivelySetFinalFlag(BLangVariable variable) {
-        if (variable == null) {
+        if (variable == null || variable.symbol == null) {
             return;
         }
 
         switch (variable.getKind()) {
             case VARIABLE:
                 variable.symbol.flags |= Flags.FINAL;
+
                 break;
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
