@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -1610,6 +1611,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveReferencedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
         List<BSymbol> referencedTypes = new ArrayList<>();
+        List<BLangType> invalidTypeRefs = new ArrayList<>();
         // Get the inherited fields from the type references
         structureTypeNode.referencedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
@@ -1620,13 +1622,28 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Check for duplicate type references
             if (referencedTypes.contains(referredType.tsymbol)) {
                 dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_TYPE_REFERENCE, typeRef);
+                invalidTypeRefs.add(typeRef);
                 return Stream.empty();
             }
 
-            if (structureTypeNode.type.tag == TypeTags.OBJECT && (referredType.tag != TypeTags.OBJECT || !Symbols
-                    .isFlagOn(referredType.tsymbol.flags, Flags.ABSTRACT))) {
-                dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
-                return Stream.empty();
+            if (structureTypeNode.type.tag == TypeTags.OBJECT) {
+                if (referredType.tag != TypeTags.OBJECT ||
+                        !Symbols.isFlagOn(referredType.tsymbol.flags, Flags.ABSTRACT)) {
+                    dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
+                    invalidTypeRefs.add(typeRef);
+                    return Stream.empty();
+                }
+
+                BObjectType objectType = (BObjectType) referredType;
+                if (structureTypeNode.type.tsymbol.owner != referredType.tsymbol.owner) {
+                    if (objectType.fields.stream().anyMatch(field -> !Symbols.isPublic(field.symbol)) ||
+                            ((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs.stream()
+                                    .anyMatch(func -> !Symbols.isPublic(func.symbol))) {
+                        dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS, typeRef);
+                        invalidTypeRefs.add(typeRef);
+                        return Stream.empty();
+                    }
+                }
             }
 
             if (structureTypeNode.type.tag == TypeTags.RECORD && referredType.tag != TypeTags.RECORD) {
@@ -1646,6 +1663,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return var;
             });
         }).collect(Collectors.toList());
+        structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
     }
 
     private void defineReferencedFunction(BLangTypeDefinition typeDef, SymbolEnv objEnv, BLangType typeRef,
@@ -1754,9 +1772,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         signatureBuilder.append(visibilityModifier).append("function ")
                 .append(funcSymbol.name.value.split("\\.")[1]);
 
-        funcSymbol.params.forEach(param -> paramListBuilder.add(((param.flags & Flags.PUBLIC) == Flags.PUBLIC ?
-                                                                        "public " : "") + param.type.toString() +
-                                                                        " " + param.name.value));
+        funcSymbol.params.forEach(param -> paramListBuilder.add(
+                (Symbols.isPublic(param) ? "public " : "") + param.type.toString() + " " + param.name.value));
 
         if (funcSymbol.restParam != null) {
             paramListBuilder.add(((BArrayType) funcSymbol.restParam.type).eType.toString() + "... " +

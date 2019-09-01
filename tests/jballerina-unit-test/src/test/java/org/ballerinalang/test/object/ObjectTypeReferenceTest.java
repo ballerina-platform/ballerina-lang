@@ -182,4 +182,21 @@ public class ObjectTypeReferenceTest {
                                   "mismatched function signatures: expected 'function test8(public string s, int i)'," +
                                           " found 'function test8(string s, public int i)'", 84, 5);
     }
+
+    @Test
+    public void testInvalidTypeReferenceAcrossModules() {
+        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject", "object_reference_negative");
+        int index = 0;
+
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, index++,
+                                  "incompatible type reference 'abc:Foo': a referenced object cannot have non-public " +
+                                          "fields or methods", 20, 6);
+        BAssertUtil.validateError(result, index++,
+                                  "incompatible type reference 'abc:Bar': a referenced object cannot have non-public " +
+                                          "fields or methods", 21, 6);
+        BAssertUtil.validateError(result, index,
+                                  "incompatible type reference 'abc:Baz': a referenced object cannot have non-public " +
+                                          "fields or methods", 22, 6);
+    }
 }
