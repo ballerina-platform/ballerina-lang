@@ -237,6 +237,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -244,6 +245,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
@@ -367,8 +369,7 @@ public class Desugar extends BLangNodeVisitor {
                 }
             } else if (typeDef.symbol.tag == SymTag.RECORD) {
                 BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-                recordTypeNode.initFunction = createInitFunctionForStructureType(recordTypeNode, env,
-                                                                                 Names.INIT_FUNCTION_SUFFIX);
+                recordTypeNode.initFunction = createRecordInitFunction(recordTypeNode, env, Names.INIT_FUNCTION_SUFFIX);
                 pkgNode.functions.add(recordTypeNode.initFunction);
                 pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
             }
@@ -711,11 +712,13 @@ public class Desugar extends BLangNodeVisitor {
 
         // Will be null only for locally defined anonymous types
         if (recordTypeNode.initFunction == null) {
-            recordTypeNode.initFunction = createInitFunctionForStructureType(recordTypeNode, env,
-                                                                             Names.INIT_FUNCTION_SUFFIX);
+            recordTypeNode.initFunction = createRecordInitFunction(recordTypeNode, env, Names.INIT_FUNCTION_SUFFIX);
             env.enclPkg.addFunction(recordTypeNode.initFunction);
             env.enclPkg.topLevelNodes.add(recordTypeNode.initFunction);
         }
+
+        Map<Name, BVarSymbol> params = recordTypeNode.initFunction.requiredParams.stream()
+                .map(param -> param.symbol).collect(Collectors.toMap(paramSym -> paramSym.name, Function.identity()));
 
         // Add struct level variables to the init function.
         recordTypeNode.fields.stream()
@@ -725,6 +728,14 @@ public class Desugar extends BLangNodeVisitor {
                         !Symbols.isOptional(field.symbol))
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
+                    // Replace the var ref to the var in enclosing function with a var ref to the corresponding param
+                    // added to the init function
+                    if (field.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                            !(((BLangSimpleVarRef) field.expr).symbol.owner instanceof BPackageSymbol)) {
+                        BSymbol originalVarRef = ((BLangSimpleVarRef) field.expr).symbol;
+                        field.expr = ASTBuilderUtil.createVariableRef(null, params.get(originalVarRef.name));
+                    }
+
                     recordTypeNode.initFunction.initFunctionStmts
                             .put(field.symbol, createStructFieldUpdate(recordTypeNode.initFunction, field,
                                                                        recordTypeNode.initFunction.receiver.symbol));
@@ -6267,6 +6278,76 @@ public class Desugar extends BLangNodeVisitor {
         typeSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFunction.symbol,
                 (BInvokableType) initFunction.type);
         structureTypeNode.initFunction = initFunction;
+        return rewrite(initFunction, env);
+    }
+
+    private BLangFunction createRecordInitFunction(BLangRecordTypeNode recordTypeNode, SymbolEnv env, Name suffix) {
+        BLangFunction initFunction = ASTBuilderUtil
+                .createInitFunctionWithNilReturn(recordTypeNode.pos, Names.EMPTY.value, suffix);
+
+        // Create the receiver
+        initFunction.receiver = ASTBuilderUtil.createReceiver(recordTypeNode.pos, recordTypeNode.type);
+        BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
+                                                   names.fromIdNode(initFunction.receiver.name),
+                                                   env.enclPkg.symbol.pkgID, recordTypeNode.type, null);
+        initFunction.receiver.symbol = receiverSymbol;
+        initFunction.attachedFunction = true;
+        initFunction.flagSet.add(Flag.ATTACHED);
+
+        // Create function type
+        BInvokableType initFnType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        initFunction.type = initFnType;
+
+        // Create function symbol
+        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(
+                recordTypeNode.type.tsymbol.name.value, Names.USER_DEFINED_INIT_SUFFIX.value));
+        initFunction.symbol = Symbols
+                .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
+                                      initFunction.type, recordTypeNode.symbol.scope.owner,
+                                      initFunction.body != null);
+        initFunction.symbol.scope = new Scope(initFunction.symbol);
+        initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
+        initFunction.symbol.receiverSymbol = receiverSymbol;
+        receiverSymbol.owner = initFunction.symbol;
+
+        // Create the params
+        Set<BSymbol> symbolsReferred = new HashSet<>();
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            if (field.expr != null && field.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                    !(((BLangSimpleVarRef) field.expr).symbol.owner instanceof BPackageSymbol)) {
+                BSymbol localVarSym = ((BLangSimpleVarRef) field.expr).symbol;
+
+                // Avoid creating multiple params for same var ref
+                if (symbolsReferred.contains(localVarSym)) {
+                    continue;
+                }
+
+                BVarSymbol paramSym = new BVarSymbol(0, localVarSym.name, this.env.scope.owner.pkgID, localVarSym.type,
+                                                     initFunction.symbol);
+                BLangSimpleVariable param = ASTBuilderUtil.createVariable(recordTypeNode.pos, localVarSym.name.value,
+                                                                          localVarSym.type, null, paramSym);
+                initFunction.symbol.scope.define(paramSym.name, paramSym);
+                initFunction.symbol.params.add(paramSym);
+                initFnType.paramTypes.add(param.type);
+                initFunction.requiredParams.add(param);
+
+                symbolsReferred.add(localVarSym);
+            }
+        }
+
+        // Add return type as nil to the symbol
+        initFunction.symbol.retType = symTable.nilType;
+
+        // Set the taint information to the constructed init function
+        initFunction.symbol.taintTable = new HashMap<>();
+        TaintRecord taintRecord = new TaintRecord(TaintRecord.TaintedStatus.UNTAINTED, new ArrayList<>());
+        initFunction.symbol.taintTable.put(TaintAnalyzer.ALL_UNTAINTED_TABLE_ENTRY_INDEX, taintRecord);
+
+        // Update Object type with attached function details
+        BRecordTypeSymbol typeSymbol = (BRecordTypeSymbol) recordTypeNode.type.tsymbol;
+        typeSymbol.initializerFunc = new BAttachedFunction(suffix, initFunction.symbol,
+                                                           (BInvokableType) initFunction.type);
+        recordTypeNode.initFunction = initFunction;
         return rewrite(initFunction, env);
     }
 

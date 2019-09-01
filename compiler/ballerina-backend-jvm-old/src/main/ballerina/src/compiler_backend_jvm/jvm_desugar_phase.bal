@@ -180,11 +180,18 @@ function rewriteRecordInitFunction(bir:Function func, bir:BRecordType recordType
                                   };
 
     func.typeValue = func.typeValue.clone();
-    func.typeValue.paramTypes = [receiver.typeValue];
+    bir:BType?[] paramTypes = func.typeValue.paramTypes;
+    bir:BType?[] updatedParamTypes = [receiver.typeValue];
+    int index = 0;
+    while (index < paramTypes.length()) {
+        updatedParamTypes[index + 1] = paramTypes[index];
+        index += 1;
+    }
+    func.typeValue.paramTypes = updatedParamTypes;
 
     bir:VariableDcl?[] localVars = func.localVars;
     bir:VariableDcl?[] updatedLocalVars = [localVars[0], selfParam];
-    int index = 1;
+    index = 1;
     while (index < localVars.length()) {
         updatedLocalVars[index + 1] = localVars[index];
         index += 1;
