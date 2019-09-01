@@ -3,7 +3,7 @@ org-name = "bcintegrationtest"
 version = "0.7.2"
 
 [platform]
-target = "java"
+target = "java8"
 
   [[platform.libraries]]
   artifactId = "toml4j"

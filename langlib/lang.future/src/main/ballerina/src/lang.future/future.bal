@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,7 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Cancels the given future.
+# Requests cancellation of a future.
+# This sets the cancellation flag in the strand corresponding to `f`.
+# Each time that a strand yields, it will check the cancellation flag
+# and terminate abnormally if the flag is set.
 #
-# + f - The future to test
-public function cancel(future<any> f) = external;
+# + f - the future to be cancelled
+public function cancel(future<any|error> f) returns () = external;

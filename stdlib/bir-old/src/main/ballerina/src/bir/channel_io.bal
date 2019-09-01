@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/encoding;
+import ballerina/lang.'string as strings;
 
 // TODO: move to DataChannel native impl
 public type ChannelReader object {
@@ -62,7 +62,7 @@ public type ChannelReader object {
         var stringLen = <@untainted> self.readInt32();
         if (stringLen > 0){
             var [strBytes, strLen] = check self.byteChannel.read(<@untainted> stringLen);
-            return encoding:byteArrayToString(strBytes, "utf-8");
+            return checkpanic <@untainted> strings:fromBytes(strBytes);
         } else {
             return "";
         }

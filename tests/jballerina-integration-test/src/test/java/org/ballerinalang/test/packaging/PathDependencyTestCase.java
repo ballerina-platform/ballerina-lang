@@ -160,7 +160,7 @@ public class PathDependencyTestCase extends BaseTest {
     public void testBaloPathCase3() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case3");
         // Build bee module of TestProject1
-        String toml4jModuleBaloFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java-0.7.2"
+        String toml4jModuleBaloFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.7.2"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String toml4jBuildMsg = "target" + File.separator + "balo" + File.separator + toml4jModuleBaloFileName;

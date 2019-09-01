@@ -1,5 +1,5 @@
-import ballerina/encoding;
 import ballerina/http;
+import ballerina/lang.'string as strings;
 
 listener http:MockListener testEP = new(9090);
 
@@ -60,8 +60,15 @@ service echo on testEP {
         body: "person"
     }
     resource function body5(http:Caller caller, http:Request req, byte[] person) {
-        string name = <@untainted> encoding:byteArrayToString(person, "UTF-8");
-        checkpanic caller->respond({ Key: name });
+        http:Response res = new;
+        var name = <@untainted> strings:fromBytes(person);
+        if (name is string) {
+            res.setJsonPayload({ Key: name });
+        } else {
+            res.setTextPayload("Error occurred while byte array to string conversion");
+            res.statusCode = 500;
+        }
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {

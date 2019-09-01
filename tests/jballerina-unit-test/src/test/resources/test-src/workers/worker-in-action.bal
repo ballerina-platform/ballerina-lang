@@ -1,6 +1,6 @@
 import ballerina/runtime;
 
-type ClientEndpointConfiguration record {
+public type ClientEndpointConfiguration record {
 
 };
 

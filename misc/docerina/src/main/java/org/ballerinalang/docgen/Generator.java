@@ -339,7 +339,7 @@ public class Generator {
         AtomicBoolean isListener = new AtomicBoolean(false);
         objectType.typeRefs.forEach((type) -> {
             isListener.set((type instanceof BLangUserDefinedType)
-                    && ((BLangUserDefinedType) type).typeName.value.equals("AbstractListener"));
+                    && ((BLangUserDefinedType) type).typeName.value.equals("Listener"));
         });
         return isListener.get();
     }

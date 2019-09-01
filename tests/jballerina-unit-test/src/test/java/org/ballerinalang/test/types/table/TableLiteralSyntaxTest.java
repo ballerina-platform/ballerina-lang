@@ -285,7 +285,7 @@ public class TableLiteralSyntaxTest {
                 + "<element>true</element></booleanArrData></result></results>");
     }
 
-    @Test(description = "Test add data with  mismatched types", enabled = false)
+    @Test(description = "Test add data with  mismatched types")
     public void testTableAddInvalid() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
         Assert.assertEquals((returns[0]).stringValue(),
@@ -403,7 +403,7 @@ public class TableLiteralSyntaxTest {
                 + "\"salary\":100.5, \"name\":\"john\", \"married\":false}]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableRemoveSuccess() {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveSuccess");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
@@ -411,7 +411,7 @@ public class TableLiteralSyntaxTest {
                 "[{\"id\":1, \"age\":35, \"salary\":300.5, \"name\":\"jane\", \"married\":true}]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableRemoveSuccessMultipleMatch() {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveSuccessMultipleMatch");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
@@ -419,7 +419,7 @@ public class TableLiteralSyntaxTest {
                 "[{\"id\":2, \"age\":20, \"salary\":200.5, \"name\":\"martin\", \"married\":true}]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableRemoveFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
@@ -429,7 +429,7 @@ public class TableLiteralSyntaxTest {
                 + "\"name\":\"john\", \"married\":false}]");
     }
 
-    @Test(description = "Test remove data with mismatched record types", enabled = false)
+    @Test(description = "Test remove data with mismatched record types")
     public void testRemoveWithInvalidRecordType() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidRecordType");
         Assert.assertEquals((returns[0]).stringValue(),
@@ -437,7 +437,7 @@ public class TableLiteralSyntaxTest {
                         + " from a table with type:Person");
     }
 
-    @Test(description = "Test remove data with mismatched input parameter types", enabled = false)
+    @Test(description = "Test remove data with mismatched input parameter types")
     public void testRemoveWithInvalidParamType() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidParamType");
         Assert.assertEquals((returns[0]).stringValue(),
@@ -445,7 +445,7 @@ public class TableLiteralSyntaxTest {
                         + "table with type:Person");
     }
 
-    @Test(description = "Test removing data from a table using a given lambda as a filter", enabled = false)
+    @Test(description = "Test removing data from a table using a given lambda as a filter")
     public void testRemoveOpAnonymousFilter() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveOpAnonymousFilter");
         Assert.assertEquals(returns[0].stringValue(), "table<Order> {index: [], primaryKey: [], data: []}");
@@ -512,6 +512,8 @@ public class TableLiteralSyntaxTest {
                                   "field 'foo' of type 'Foo' is not allowed as a table column", 188, 31);
         BAssertUtil.validateError(resultNegative, i++,
                                   "field 'bar' of type 'error' is not allowed as a table column", 196, 31);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'record {| anydata...; |}', found 'ErrorInRecord'", 202, 23);
         BAssertUtil.validateError(resultNegative, i++,
                 "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
         BAssertUtil.validateError(resultNegative, i++,

@@ -54,7 +54,7 @@ type IntRange object {
 # + s - The lower bound of the integer range inclusive
 # + e - The upper bound if the integer range inclusive
 # + return - `IntRange` object
-function createIntRange(int s, int e) returns
+public function createIntRange(int s, int e) returns
         abstract object {public function next() returns record {|int value;|}?;} {
     IntRange intRange = new(s, e);
     return intRange;
