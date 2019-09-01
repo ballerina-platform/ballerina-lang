@@ -132,6 +132,7 @@ service hello on new http:Listener(8889) {
     }
 }
 
+// Todo : Move this logic under if condition after fixing issue #17288
 function nestedTrxInRemoteFunction(string s) returns string {
     string temp = "";
     transaction {
