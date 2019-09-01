@@ -15,8 +15,8 @@
 // under the License.
 
 type Person1 abstract object {
-    public int age = 10;
-    public string name = "sample name";
+    public int age;
+    public string name;
 };
 
 type Employee1 object {
@@ -33,11 +33,11 @@ type Manager1 object {
 };
 
 type EmployeeWithSalary abstract object {
-    public float salary = 0.0;
+    public float salary;
 };
 
 type AnotherEmployeeWithSalary abstract object {
-    public int salary = 0;
+    public int salary;
 };
 
 type ManagerWithTwoSalaries object {
@@ -77,8 +77,8 @@ type E abstract object {
 
 // Test errors for unimplemented methods
 type Person2 abstract object {
-    public int age = 10;
-    public string name = "sample name";
+    public int age;
+    public string name;
 
     // Unimplemented function at the nested referenced type.
     public function getName(string? title) returns string;
@@ -86,7 +86,7 @@ type Person2 abstract object {
 
 type Employee2 abstract object {
     *Person2;
-    public float salary = 0.0;
+    public float salary;
 
     // Unimplemented function at the referenced type.
     public function getSalary() returns float;
@@ -126,11 +126,11 @@ type ObjectWithRedeclaredFunction_2 abstract object {
 };
 
 type RedecalredFieldObject_1 abstract object {
-    int x = 0;
+    int x;
 };
 
 type RedecalredFieldObject_2 abstract object {
-    int x = 0;
+    int x;
     *RedecalredFieldObject_1;
 };
 
