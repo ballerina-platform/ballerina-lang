@@ -199,8 +199,8 @@
         ],
         "commands": [
             {
-                "command": "ballerina.showProjectOverview",
-                "title": "Project Overview",
+                "command": "ballerina.showFileOverview",
+                "title": "Show File Overview",
                 "icon": {
                     "dark": "./resources/images/icons/design-view-inverse.svg",
                     "light": "./resources/images/icons/design-view.svg"
@@ -257,6 +257,11 @@
             "editor/title": [
                 {
                     "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showFileOverview",
+                    "group": "navigation"
+                },
+                {
+                    "when": "resourceLangId == ballerina",
                     "command": "ballerina.showDocs",
                     "group": "navigation"
                 }
@@ -264,7 +269,7 @@
             "editor/context": [
                 {
                     "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showProjectOverview",
+                    "command": "ballerina.showFileOverview",
                     "group": "navigation"
                 },
                 {
