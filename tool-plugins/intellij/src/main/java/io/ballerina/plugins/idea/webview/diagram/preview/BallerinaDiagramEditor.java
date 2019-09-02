@@ -130,6 +130,10 @@ public class BallerinaDiagramEditor extends UserDataHolderBase implements FileEd
 
             @Override
             public void componentHidden(ComponentEvent e) {
+                if (mySwingAlarm.isDisposed()) {
+                    LOG.warn("Swing Alarm is already disposed. Unable to detach Ballerina Diagram HTML panel");
+                    return;
+                }
                 mySwingAlarm.addRequest(() -> {
                     if (myPanel == null) {
                         return;

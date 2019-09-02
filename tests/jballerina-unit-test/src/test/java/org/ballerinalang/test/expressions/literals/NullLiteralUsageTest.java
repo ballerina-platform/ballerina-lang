@@ -104,13 +104,13 @@ public class NullLiteralUsageTest {
     @Test
     public void testNullStringRepresentation3() {
         BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation3");
-        assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\", \"age\":25, \"location\":null}");
+        assertEquals(returns[0].stringValue(), "name=John Doe age=25 location=");
     }
 
     @Test
     public void testNullStringRepresentation4() {
         BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation4");
-        assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\", \"age\":25, \"location\":null}");
+        assertEquals(returns[0].stringValue(), "name=John Doe age=25 location=");
     }
 
     @Test

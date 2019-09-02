@@ -21,9 +21,12 @@ package org.ballerinalang.packerina.cmd;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,7 +40,7 @@ public class AddCommandTest extends CommandTest {
 
     private Path projectPath;
     private Path srcPath;
-    private Path homeCache = Paths.get("src", "test", "resources", "dot-ballerina").toAbsolutePath();
+    private Path homeCache;
 
     @BeforeClass
     public void setup() throws IOException {
@@ -48,7 +51,39 @@ public class AddCommandTest extends CommandTest {
         newCommand.execute();
         projectPath = tmpDir.resolve("project-name");
         srcPath = projectPath.resolve("src");
-        readOutput(true);
+
+
+        // Lets create a template
+        try {
+            Path templateProject = super.tmpDir.resolve("template-project");
+            URI testResourcesURI = getClass().getClassLoader().getResource("test-resources").toURI();
+            Path validProject = Paths.get(testResourcesURI).resolve("valid-project");
+            Files.walkFileTree(validProject, new BuildCommandTest.Copy(validProject, templateProject));
+
+            // Build the project
+            String[] compileArgs = {"mytemplate", "-c", "--skip-tests"};
+            BuildCommand buildCommand = new BuildCommand(templateProject, printStream,
+                    printStream, false, true);
+            new CommandLine(buildCommand).parse(compileArgs);
+            buildCommand.execute();
+            readOutput(false);
+
+            Path baloFile = templateProject.resolve("target")
+                    .resolve("balo").resolve("mytemplate-2019r3-any-0.1.0.balo");
+
+            homeCache = this.tmpDir.resolve("home-cache");
+            Path baloDir = homeCache.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME)
+                    .resolve("testOrg").resolve("mytemplate");
+            Files.createDirectories(baloDir);
+            Files.createDirectories(baloDir.resolve("0.1.0"));
+            Files.createDirectories(baloDir.resolve("0.2.0"));
+            Files.createDirectories(baloDir.resolve("0.2.1"));
+            Files.copy(baloFile, baloDir.resolve("0.2.1").resolve("mytemplate-2019r3-any-0.2.1.balo"));
+            Files.copy(baloFile, baloDir.resolve("0.1.0").resolve("mytemplate-2019r3-any-0.1.0.balo"));
+            Files.copy(baloFile, baloDir.resolve("0.2.0").resolve("mytemplate-2019r3-any-0.2.0.balo"));
+        } catch (URISyntaxException e) {
+            Assert.fail("error loading resources");
+        }
     }
 
 
@@ -183,7 +218,7 @@ public class AddCommandTest extends CommandTest {
         Assert.assertTrue(output.contains("Available templates:"));
         Assert.assertTrue(output.contains("main"));
         Assert.assertTrue(output.contains("service"));
-        Assert.assertTrue(output.contains("testOrg/mytpl"));
+        Assert.assertTrue(output.contains("testOrg/mytemplate"));
         Assert.assertFalse(output.contains("testOrg/another"));
     }
 
@@ -212,11 +247,11 @@ public class AddCommandTest extends CommandTest {
     @Test(description = "Test add command with balo template")
     public void testAddCommandWithBaloTemplate() throws IOException {
         // Test if no arguments was passed in
-        String[] args = {"balomod", "-t testOrg/mytpl"};
+        String[] args = {"balomod", "-t testOrg/mytemplate"};
         AddCommand addCommand = new AddCommand(projectPath, printStream, homeCache);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
-        // Validate against spec
+        // Validate if all the files have copied from template
         // -- balomod/
         // --- Module.md      <- module level documentation
         // --- main.bal       <- Contains default main method.
@@ -230,15 +265,19 @@ public class AddCommandTest extends CommandTest {
         Assert.assertTrue(Files.isDirectory(moduleDir));
         Assert.assertTrue(Files.exists(moduleDir.resolve("main.bal")));
         Assert.assertTrue(Files.exists(moduleDir.resolve("resources")));
-        Assert.assertTrue(Files.isDirectory(moduleDir.resolve("resources")));
-        //Assert.assertTrue(Files.exists(moduleDir.resolve("Module.md")));
+        Assert.assertTrue(Files.exists(moduleDir.resolve("Module.md")));
 
-        // Path moduleTests = moduleDir.resolve("tests");
-        // Assert.assertTrue(Files.exists(moduleTests));
-        // Assert.assertTrue(Files.isDirectory(moduleTests));
-        // Assert.assertTrue(Files.exists(moduleTests.resolve("main_test.bal")));
-        // Assert.assertTrue(Files.exists(moduleTests.resolve("resources")));
-        // Assert.assertTrue(Files.isDirectory(moduleTests.resolve("resources")));
+        Path moduleTests = moduleDir.resolve("tests");
+        Assert.assertTrue(Files.exists(moduleTests));
+        Assert.assertTrue(Files.isDirectory(moduleTests));
+        Assert.assertTrue(Files.exists(moduleTests.resolve("main_test.bal")));
+        Assert.assertTrue(Files.exists(moduleTests.resolve("resources")));
+        Assert.assertTrue(Files.isDirectory(moduleTests.resolve("resources")));
+
+        Path moduleResources = moduleDir.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
+        Assert.assertTrue(Files.exists(moduleResources));
+        Assert.assertTrue(Files.isDirectory(moduleResources));
+        Assert.assertTrue(Files.exists(moduleResources.resolve("resource.txt")));
 
         Assert.assertTrue(readOutput().contains("Added new ballerina module"));
 

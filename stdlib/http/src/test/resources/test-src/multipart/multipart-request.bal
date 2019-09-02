@@ -1,7 +1,6 @@
-import ballerina/encoding;
 import ballerina/http;
+import ballerina/lang.'string as strings;
 import ballerina/mime;
-import ballerina/internal;
 
 function setErrorResponse(http:Response response,  error err) {
     response.statusCode = 500;
@@ -157,7 +156,7 @@ service test on mockEP {
 function handleNestedParts(mime:Entity parentPart) returns @tainted string {
     string content = "";
     string contentTypeOfParent = parentPart.getContentType();
-    if (internal:hasPrefix(contentTypeOfParent, "multipart/")) {
+    if (contentTypeOfParent.startsWith("multipart/")) {
         var childParts = parentPart.getBodyParts();
         if (childParts is mime:Entity[]) {
             int i = 0;
@@ -201,7 +200,12 @@ function handleContent(mime:Entity bodyPart) returns @tainted string {
         } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
             var payload = bodyPart.getByteArray();
             if (payload is byte[]) {
-                return encoding:byteArrayToString(payload, mime:DEFAULT_CHARSET);
+                var stringPayload = strings:fromBytes(payload);
+                if (stringPayload is error) {
+                    return "Error occurred while byte array to string conversion";
+                } else {
+                    return stringPayload;
+                }
             } else {
                 return "Error in getting byte[] payload";
             }

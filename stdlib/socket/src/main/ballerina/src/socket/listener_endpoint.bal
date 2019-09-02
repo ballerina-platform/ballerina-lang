@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 # Represents service endpoint where socket server service registered and start.
 #
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public function __init(int port, ListenerConfig? config = ()) {
         var result = self.initServer(port, config ?: {});

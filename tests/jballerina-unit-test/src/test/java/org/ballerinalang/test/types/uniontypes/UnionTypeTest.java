@@ -125,4 +125,13 @@ public class UnionTypeTest {
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|OpenBar)'", 44, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 47, 31);
     }
+
+    @Test(description = "Test nullable check")
+    public void testNullableCheck() {
+        try {
+            BRunUtil.invoke(result, "testNullableTypeArrayFill");
+        } catch (Throwable e) {
+            Assert.fail("Nullable check in Union type failed");
+        }
+    }
 }

@@ -68,7 +68,7 @@ public class BytesInputOutputBufferTest {
         int totalNumberOfBytesRead = 0;
         do {
             numberOfBytesRead = channel.read(buffer);
-            numberOfBytesRead = numberOfBytesRead > 0 ? numberOfBytesRead : 0;
+            numberOfBytesRead = Math.max(numberOfBytesRead, 0);
             totalNumberOfBytesRead = totalNumberOfBytesRead + numberOfBytesRead;
         } while (numberOfBytesRead > 0 && buffer.hasRemaining());
         return totalNumberOfBytesRead;
@@ -135,36 +135,6 @@ public class BytesInputOutputBufferTest {
         Assert.assertEquals(numberOfReadBytes, thirdLapReadLimitExpected);
     }
 
-/*
-    @Test(description = "Read all bytes from file with larger buffer size")
-    public void excessBufferAllocation() throws IOException, URISyntaxException {
-        int initialReadLimit = 3;
-        int secondLapReadLimit = 3;
-        int thirdLapReadLimit = 3;
-        //During the 3rd lap all the bytes were get
-        int thirdLapReadLimitExpected = 0;
-
-        //Number of characters in this file would be 6
-        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        Channel channel = new MockByteChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
-        byte[] readBytes = channel.readFull(initialReadLimit);
-
-        //This should hold the number of bytes get
-        Assert.assertEquals(readBytes.length, initialReadLimit);
-
-        readBytes = channel.readFull(secondLapReadLimit);
-
-        //This should hold the number of bytes get
-        Assert.assertEquals(readBytes.length, secondLapReadLimit);
-
-        readBytes = channel.readFull(thirdLapReadLimit);
-
-        channel.close();
-        //This should hold the number of bytes get
-        Assert.assertEquals(readBytes.length, thirdLapReadLimitExpected);
-    }
-*/
-
     @Test(description = "Reads file which has varying buffer sizes")
     public void varyingBufferSizeTest() throws IOException, URISyntaxException {
         final int numberOfBytesInFile = 7;
@@ -199,7 +169,7 @@ public class BytesInputOutputBufferTest {
     }
 
     @Test(expectedExceptions = BallerinaIOException.class)
-    public void reverseFromNonExistingBuffer() {
+    public void reverseFromNonExistingBuffer() throws BallerinaIOException {
         final int fixedBufferSize = 15;
         Buffer buffer = new Buffer(fixedBufferSize);
         buffer.reverse(2);
@@ -294,7 +264,7 @@ public class BytesInputOutputBufferTest {
     }
 
     @Test(description = "Validate getting InputStream from closed channel",
-            expectedExceptions = BallerinaIOException.class,
+            expectedExceptions = IOException.class,
             expectedExceptionsMessageRegExp = "Channel is already closed.")
     public void checkChannelCloseStatus() throws IOException, URISyntaxException {
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");

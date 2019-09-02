@@ -32,11 +32,43 @@ public class AccessLevelsNegativeTest {
     public void testPrivateAccessLevel() {
         CompileResult compileResult = BCompileUtil.compile("test-src/access/private_access_negative.bal");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
         String expectedErrMsg = "attempt to expose non-public symbol ";
-
-        BAssertUtil.validateError(compileResult, 0, expectedErrMsg + "'ChildFoo'", 23, 5);
-        BAssertUtil.validateError(compileResult, 1, expectedErrMsg + "'ChildFoo'", 133, 5);
+        int i = 0;
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 11, 1);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'ChildFoo'", 23, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 24, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 25, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'ChildFoo'", 28, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Bar'", 44, 1);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 44, 55);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 44, 76);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Bar'", 49, 1);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 49, 55);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 49, 76);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 54, 1);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 59, 26);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 59, 48);
+//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 76, 45);
+//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 77, 45);
+//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 126, 6);
+//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 127, 6);
+//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 128, 6);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'ChildFoo'", 133, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'ChildRecord'", 134, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 135, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 136, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 154, 1);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 154, 1);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 154, 1);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 163, 33);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 163, 33);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 163, 33);
+//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 165, 37);
+//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 166, 37);
+//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 167, 37);
+//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'FooTypeObj'", 191, 1);
+//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarTypeRecord'", 193, 1);
+        Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
     @Test

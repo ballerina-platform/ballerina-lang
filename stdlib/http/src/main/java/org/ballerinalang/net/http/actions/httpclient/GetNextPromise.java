@@ -66,7 +66,7 @@ public class GetNextPromise extends AbstractHTTPAction {
 
         @Override
         public void onPushPromise(Http2PushPromise pushPromise) {
-            ObjectValue pushPromiseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+            ObjectValue pushPromiseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                     HttpConstants.PUSH_PROMISE, pushPromise.getPath(), pushPromise.getMethod());
             HttpUtil.populatePushPromiseStruct(pushPromiseObj, pushPromise);
             dataContext.notifyInboundResponseStatus(pushPromiseObj, null);

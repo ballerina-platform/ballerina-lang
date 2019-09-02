@@ -159,6 +159,9 @@ public class CompilerDriver {
 
         // Loading lang modules from source. At a given time there is only one module.
         PackageID langLib = pkgIdList.get(0);
+        if (!PackageID.isLangLibPackageID(langLib)) {
+            return;
+        }
         if (langLib.equals(ANNOTATIONS)) {
             symbolTable.langAnnotationModuleSymbol = getLangModuleFromSource(ANNOTATIONS);
             return; // Nothing else to load.
@@ -181,60 +184,7 @@ public class CompilerDriver {
         symResolver.reloadIntRangeType();
 
         // Now load each module.
-        if (langLib.equals(ARRAY)) {
-            symbolTable.langArrayModuleSymbol = getLangModuleFromSource(ARRAY);
-            return;
-        }
-        if (langLib.equals(DECIMAL)) {
-            symbolTable.langDecimalModuleSymbol = getLangModuleFromSource(DECIMAL);
-            return;
-        }
-        if (langLib.equals(ERROR)) {
-            symbolTable.langErrorModuleSymbol = getLangModuleFromSource(ERROR);
-            return;
-        }
-        if (langLib.equals(FLOAT)) {
-            symbolTable.langFloatModuleSymbol = getLangModuleFromSource(FLOAT);
-            return;
-        }
-        if (langLib.equals(FUTURE)) {
-            symbolTable.langFutureModuleSymbol = getLangModuleFromSource(FUTURE);
-            return;
-        }
-        if (langLib.equals(INT)) {
-            symbolTable.langIntModuleSymbol = getLangModuleFromSource(INT);
-            return;
-        }
-        if (langLib.equals(MAP)) {
-            symbolTable.langMapModuleSymbol = getLangModuleFromSource(MAP);
-            return;
-        }
-        if (langLib.equals(OBJECT)) {
-            symbolTable.langObjectModuleSymbol = getLangModuleFromSource(OBJECT);
-            return;
-        }
-        if (langLib.equals(STREAM)) {
-            symbolTable.langStreamModuleSymbol = getLangModuleFromSource(STREAM);
-            return;
-        }
-        if (langLib.equals(STRING)) {
-            symbolTable.langStringModuleSymbol = getLangModuleFromSource(STRING);
-            return;
-        }
-        if (langLib.equals(TABLE)) {
-            symbolTable.langTableModuleSymbol = getLangModuleFromSource(TABLE);
-            return;
-        }
-        if (langLib.equals(TYPEDESC)) {
-            symbolTable.langTypedescModuleSymbol = getLangModuleFromSource(TYPEDESC);
-            return;
-        }
-        if (langLib.equals(VALUE)) {
-            symbolTable.langValueModuleSymbol = getLangModuleFromSource(VALUE);
-        }
-        if (langLib.equals(XML)) {
-            symbolTable.langXmlModuleSymbol = getLangModuleFromSource(XML);
-        }
+        getLangModuleFromSource(langLib);
     }
     // Private methods
 
@@ -356,7 +306,8 @@ public class CompilerDriver {
 
     private BPackageSymbol getLangModuleFromSource(PackageID modID) {
 
-        BLangPackage pkg = taintAnalyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID))));
+        BLangPackage pkg = taintAnalyze(
+                documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
         if (dlog.errorCount > 0) {
             return null;
         }

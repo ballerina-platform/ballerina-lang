@@ -15,13 +15,13 @@
 // under the License.
 
 import ballerina/config;
+import ballerina/file;
 import ballerina/filepath;
 import ballerina/io;
+import ballerina/lang.'int as langint;
 import ballerina/log;
 import ballerina/task;
 import ballerina/time;
-import ballerina/file;
-import ballerina/'lang\.int as langint;
 
 # Abstract Snapshotable to be referenced by all snapshotable objects.
 public type Snapshotable abstract object {
@@ -76,7 +76,7 @@ function readAllCharacters(io:ReadableCharacterChannel rch) returns @tainted str
         if (readResult is string) {
             result = result + readResult;
         } else {
-            if (<string>readResult.detail()["message"] == "io.EOF") {
+            if (readResult is io:EofError) {
                 isDone = true;
             } else {
                 return readResult;

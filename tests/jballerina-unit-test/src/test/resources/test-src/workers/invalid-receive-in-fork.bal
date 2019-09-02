@@ -12,7 +12,8 @@ public function main() {
                     l -> w4;
                 }
                 worker w4 {
-                    foreach var i in 1... 10 {
+                    foreach var j in 1... 10 {
+                        var i = j;
                         sum = sum + i;
                         if (true) {
                            i = <- w3;

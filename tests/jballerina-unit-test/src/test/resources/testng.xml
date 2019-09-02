@@ -33,6 +33,7 @@
             <run>
                 <exclude name="brokenOnJBallerina"/>
                 <exclude name="brokenOnLangLibChange"/>
+                <exclude name="brokenOnSpecDeviation"/>
             </run>
         </groups>
         <packages>
@@ -120,6 +121,7 @@
             <package name="org.ballerinalang.test.statements.transaction.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.javainterop.*"/>
+            <package name="org.ballerinalang.test.execution.*" />
         </packages>
 
         <classes>

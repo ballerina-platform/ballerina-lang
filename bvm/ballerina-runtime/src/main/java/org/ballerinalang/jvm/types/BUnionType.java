@@ -47,7 +47,7 @@ public class BUnionType extends BType {
     public BUnionType(List<BType> memberTypes) {
         super(null, null, Object.class);
         this.memberTypes = memberTypes;
-        this.nullable = memberTypes.contains(BTypes.typeNull);
+        this.nullable = checkNillable(memberTypes);
     }
 
     public BUnionType(BType[] memberTypes) {
@@ -116,5 +116,16 @@ public class BUnionType extends BType {
 
     public boolean isNilable() {
         return nullable;
+    }
+
+    private boolean checkNillable(List<BType> memberTypes) {
+        boolean nillable = false;
+        for (BType t : memberTypes) {
+            if (t.isNilable()) {
+                nillable = true;
+                break;
+            }
+        }
+        return nillable;
     }
 }

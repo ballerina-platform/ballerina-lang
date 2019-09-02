@@ -28,13 +28,16 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import java.io.PrintStream;
 import java.util.Objects;
 import java.util.Properties;
 
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_SERVERS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
@@ -56,6 +59,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.processKafkaCon
         isPublic = true
 )
 public class Connect {
+    private static final PrintStream console = System.out;
 
     public static Object connect(Strand strand, ObjectValue consumerObject) {
         // Check whether already native consumer is attached to the struct.
@@ -73,6 +77,7 @@ public class Connect {
         } catch (KafkaException e) {
             return createKafkaError("Cannot connect to the kafka server: " + e.getMessage(), CONSUMER_ERROR);
         }
+        console.println(KAFKA_SERVERS + configs.get(CONSUMER_BOOTSTRAP_SERVERS_CONFIG));
         return null;
     }
 }

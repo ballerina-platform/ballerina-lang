@@ -206,11 +206,11 @@ function testArrayUnion() returns [boolean[][], string[][]] {
 }
 
 type Foo1 abstract object {
-    string fooId1 = "";
+    string fooId1;
 };
 
 type Foo2 abstract object {
-    string fooId2 = "";
+    string fooId2;
 };
 
 type Bar object {

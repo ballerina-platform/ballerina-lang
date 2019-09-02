@@ -39,10 +39,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                    })
 public class Remove {
 
-    public static Object remove(Strand strand, TableValue table, FPValue fpValue) {
+    public static Object remove(Strand strand, TableValue table, FPValue<Object, Boolean> func) {
         try {
-            table.performRemoveOperation();
-            return null;
+            return table.performRemoveOperation(strand, func);
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
             throw BallerinaErrors.createError(e.getMessage(),
                                               "Failed to remove data from the table: " + e.getDetail());

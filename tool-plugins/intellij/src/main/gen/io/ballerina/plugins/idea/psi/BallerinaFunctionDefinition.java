@@ -25,9 +25,6 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 public interface BallerinaFunctionDefinition extends BallerinaTopLevelDefinition {
 
   @Nullable
-  BallerinaAttachedObject getAttachedObject();
-
-  @Nullable
   BallerinaCallableUnitBody getCallableUnitBody();
 
   @Nullable
@@ -35,12 +32,6 @@ public interface BallerinaFunctionDefinition extends BallerinaTopLevelDefinition
 
   @Nullable
   BallerinaExternalFunctionBody getExternalFunctionBody();
-
-  @Nullable
-  BallerinaTypeName getTypeName();
-
-  @Nullable
-  PsiElement getDot();
 
   @Nullable
   PsiElement getSemicolon();

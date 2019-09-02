@@ -61,9 +61,9 @@ public class BallerinaServiceDefinitionImpl extends ASTWrapperPsiElement impleme
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getOn() {
-    return findChildByType(ON);
+    return findNotNullChildByType(ON);
   }
 
   @Override

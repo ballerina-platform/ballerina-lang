@@ -77,7 +77,7 @@ public class BTableType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new TableValue(this, null, null, null);
+        return (V) new TableValue(this, null, null);
     }
 
     @Override

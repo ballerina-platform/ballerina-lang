@@ -25,10 +25,11 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -63,6 +64,19 @@ public class TableUtils {
         return sbSql.toString();
     }
 
+    public static String generateDeleteDataStatment(String tableName, MapValueImpl<?, ?> constrainedType) {
+        StringBuilder sbSql = new StringBuilder();
+        sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
+        Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
+        String sep = "";
+        for (BField sf : structFields) {
+            String name = sf.getFieldName();
+            sbSql.append(sep).append(name).append(" = ? ");
+            sep = TableConstants.SQL_AND;
+        }
+        return sbSql.toString();
+    }
+
     public static void prepareAndExecuteStatement(PreparedStatement stmt, MapValueImpl<?, ?> data) {
         try {
             Collection<BField> structFields = ((BStructureType) data.getType()).getFields().values();
@@ -84,7 +98,7 @@ public class TableUtils {
                     case TypeTags.UNION_TAG:
                         List<BType> members = ((BUnionType) sf.getFieldType()).getMemberTypes();
                         if (members.size() != 2) {
-                            throw new BallerinaException(
+                            throw createTableOperationError(
                                     "Corresponding Union type in the record is not an assignable nillable type");
                         }
                         if (members.get(0).getTag() == TypeTags.NULL_TAG) {
@@ -92,7 +106,7 @@ public class TableUtils {
                         } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
                             prepareAndExecuteStatement(stmt, data, index, sf, members.get(0).getTag(), fieldName);
                         } else {
-                            throw new BallerinaException(
+                            throw createTableOperationError(
                                     "Corresponding Union type in the record is not an assignable nillable type");
                         }
                         break;
@@ -101,7 +115,7 @@ public class TableUtils {
             }
             stmt.execute();
         } catch (SQLException e) {
-            throw new BallerinaException("execute update failed: " + e.getMessage(), e);
+            throw createTableOperationError("execute update failed: " + e.getMessage());
         }
     }
 
@@ -134,7 +148,7 @@ public class TableUtils {
                 if (value == null) {
                     stmt.setNull(index, Types.DOUBLE);
                 } else {
-                    stmt.setDouble(index, (Double) data.get(fieldName));
+                    stmt.setDouble(index, ((DecimalValue) data.get(fieldName)).floatValue());
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
@@ -145,11 +159,13 @@ public class TableUtils {
                 }
                 break;
             case TypeTags.XML_TAG:
+                stmt.setString(index, data.get(fieldName).toString());
+                break;
             case TypeTags.JSON_TAG:
                 if (value == null) {
                     stmt.setNull(index, Types.VARCHAR);
                 } else {
-                    stmt.setString(index, data.get(fieldName).toString());
+                    stmt.setString(index, StringUtils.getJsonString(data.get(fieldName)));
                 }
                 break;
             case TypeTags.ARRAY_TAG:
@@ -213,13 +229,18 @@ public class TableUtils {
                 }
                 break;
             default:
-                throw new BallerinaException("unsupported data type for array parameter");
+                throw createTableOperationError("unsupported data type for array parameter");
         }
         return arrayData;
     }
 
     public static ErrorValue createTableOperationError(Throwable throwable) {
         String detail = throwable.getMessage() != null ? throwable.getMessage() : DEFAULT_ERROR_DETAIL_MESSAGE;
+        return BallerinaErrors
+                .createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR, detail);
+    }
+
+    public static ErrorValue createTableOperationError(String detail) {
         return BallerinaErrors
                 .createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR, detail);
     }

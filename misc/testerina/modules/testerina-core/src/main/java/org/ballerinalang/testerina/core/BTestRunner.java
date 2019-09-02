@@ -376,7 +376,7 @@ public class BTestRunner {
     }
 
     private String getClassName(BLangFunction function) {
-        return function.pos.src.cUnitName.replace(".bal", "").replace("/", "-");
+        return function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
     }
 
     private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
@@ -624,7 +624,16 @@ public class BTestRunner {
 
             // Initialize the test suite.
             // This will init and start the test module.
-            suite.start();
+            String suiteError;
+            try {
+                suite.start();
+            } catch (Throwable e) {
+                shouldSkip.set(true);
+                suiteError = "\t[fail] Error while initializing test suite: "
+                        + formatErrorMessage(e);
+                errStream.println(suiteError);
+                shouldSkip.set(true);
+            }
 
             suite.getBeforeSuiteFunctions().forEach(test -> {
                 String errorMsg;
@@ -633,7 +642,7 @@ public class BTestRunner {
                 } catch (Throwable e) {
                     shouldSkip.set(true);
                     errorMsg = "\t[fail] " + test.getName() + " [before test suite function]" + ":\n\t    "
-                            + TesterinaUtils.formatError(e.getMessage());
+                            + formatErrorMessage(e);
                     errStream.println(errorMsg);
                 }
             });
@@ -651,7 +660,7 @@ public class BTestRunner {
                             errorMsg = String.format("\t[fail] " + beforeEachTest.getName() +
                                             " [before each test function for the test %s] :\n\t    %s",
                                     test.getTestFunction().getName(),
-                                    TesterinaUtils.formatError(e.getMessage()));
+                                    formatErrorMessage(e));
                             errStream.println(errorMsg);
                         }
                     });
@@ -668,7 +677,7 @@ public class BTestRunner {
                         errorMsg = String.format("\t[fail] " + test.getBeforeTestFunctionObj().getName() +
                                         " [before test function for the test %s] :\n\t    %s",
                                 test.getTestFunction().getName(),
-                                TesterinaUtils.formatError(e.getMessage()));
+                                formatErrorMessage(e));
                         errStream.println(errorMsg);
                     }
                 }
@@ -727,7 +736,7 @@ public class BTestRunner {
                     error = String.format("\t[fail] " + test.getAfterTestFunctionObj().getName() +
                                     " [after test function for the test %s] :\n\t    %s",
                             test.getTestFunction().getName(),
-                            TesterinaUtils.formatError(e.getMessage()));
+                            formatErrorMessage(e));
                     errStream.println(error);
                 }
 
@@ -740,7 +749,7 @@ public class BTestRunner {
                         errorMsg2 = String.format("\t[fail] " + afterEachTest.getName() +
                                         " [after each test function for the test %s] :\n\t    %s",
                                 test.getTestFunction().getName(),
-                                TesterinaUtils.formatError(e.getMessage()));
+                                formatErrorMessage(e));
                         errStream.println(errorMsg2);
                     }
                 });
@@ -754,7 +763,7 @@ public class BTestRunner {
                     func.invoke();
                 } catch (Throwable e) {
                     errorMsg = String.format("\t[fail] " + func.getName() + " [after test suite function] :\n\t    " +
-                            "%s", TesterinaUtils.formatError(e.getMessage()));
+                            "%s", formatErrorMessage(e));
                     errStream.println(errorMsg);
                 }
             });
@@ -767,12 +776,13 @@ public class BTestRunner {
     }
 
     private String formatErrorMessage(Throwable e) {
-        String message = e.getMessage();
+        String message;
         if (e.getCause() instanceof ErrorValue) {
             try {
                 message = ((ErrorValue) e.getCause()).getPrintableStackTrace();
             } catch (ClassCastException castException) {
-                //do nothing this is to avoid spot bug
+                // throw the exception to top
+                throw new BallerinaException(e);
             }
         } else {
             throw new BallerinaException(e);
