@@ -249,14 +249,30 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BLangImportPackage unresolvedPkg : importHolder.unresolved) {
                 BPackageSymbol pkgSymbol = importHolder.resolved.symbol; // get a copy of the package symbol, add
                                                                          // compilation unit info to it,
+    
+                BPackageSymbol importSymbol = importHolder.resolved.symbol;
+                Name resolvedPkgAlias = names.fromIdNode(importHolder.resolved.alias);
+                Name unresolvedPkgAlias = names.fromIdNode(unresolvedPkg.alias);
+    
+                // check if its the same import or has the same alias.
+                if (!Names.IGNORE.equals(unresolvedPkgAlias) && unresolvedPkgAlias.equals(resolvedPkgAlias)
+                    && importSymbol.compUnit.equals(names.fromIdNode(unresolvedPkg.compUnit))) {
+                    if (isSameImport(unresolvedPkg, importSymbol)) {
+                        dlog.error(unresolvedPkg.pos, DiagnosticCode.REDECLARED_IMPORT_MODULE,
+                                unresolvedPkg.getQualifiedPackageName());
+                    } else {
+                        dlog.error(unresolvedPkg.pos, DiagnosticCode.REDECLARED_SYMBOL, unresolvedPkgAlias);
+                    }
+                    continue;
+                }
+                
                 unresolvedPkg.symbol = pkgSymbol;
                 // and define it in the current package scope
                 BPackageSymbol symbol = duplicatePackagSymbol(pkgSymbol);
                 symbol.compUnit = names.fromIdNode(unresolvedPkg.compUnit);
                 symbol.scope = pkgSymbol.scope;
                 unresolvedPkg.symbol = symbol;
-                Name pkgAlias = names.fromIdNode(unresolvedPkg.alias);
-                pkgEnv.scope.define(pkgAlias, symbol);
+                pkgEnv.scope.define(unresolvedPkgAlias, symbol);
             }
         }
 
