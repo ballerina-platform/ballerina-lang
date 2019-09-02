@@ -58,17 +58,6 @@ function testObjectInitializerOrder() returns [int, string]{
     return [p.age, p.name];
 }
 
-function testObjectInitializerUsedAsAFunction() returns [int, string, int, string] {
-    person p = new(n = "Peter");
-    int age1 = p.age;
-    string name1 = p.name;
-    p.age = 15;
-    p.name = "Jack";
-
-    p.__init(a = 20, n = "James");
-    return [p.age, p.name, age1, name1];
-}
-
 type Person object {
     string name;
     int age;
@@ -199,6 +188,24 @@ function testMultipleErrorReturn() returns [Person4|FooErr|BarErr, Person4|FooEr
     Person4|FooErr|BarErr p1 = new(true);
     Person4|FooErr|BarErr p2 = new(false);
     return [p1, p2];
+}
+
+type Too object {
+    public string name;
+
+    public function __init(string name) {
+        self.name = name;
+    }
+
+    function updateName(string name) {
+        self.__init(name);
+    }
+};
+
+function testInitActionInsideObjectDescriptor() returns string {
+    Too t = new("Java");
+    t.updateName("Ballerina");
+    return t.name;
 }
 
 function panicTheStr() returns error|string {

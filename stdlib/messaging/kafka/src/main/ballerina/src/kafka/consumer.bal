@@ -124,7 +124,7 @@ public type ConsumerRecord record {|
 #
 # + consumerConfig - Used to store configurations related to a Kafka connection.
 public type Consumer client object {
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public ConsumerConfig? consumerConfig = ();
 

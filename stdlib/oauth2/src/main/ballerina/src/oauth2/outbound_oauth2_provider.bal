@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/encoding;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
@@ -563,8 +562,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
     if (config.credentialBearer == http:AUTH_HEADER_BEARER) {
         if (clientId is string && clientSecret is string) {
             string clientIdSecret = clientId + ":" + clientSecret;
-            req.addHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BASIC +
-                    encoding:encodeBase64(clientIdSecret.toBytes()));
+            req.addHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BASIC + clientIdSecret.toBytes().toBase64());
         } else {
             return prepareError("Client ID or client secret is not provided for client authentication.");
         }

@@ -423,37 +423,37 @@ public type HelloWorldClient client object {
 };
 
 
-type TestInt record {
+public type TestInt record {
     int[] values = [];
 
 };
 
-type TestString record {
+public type TestString record {
     string[] values = [];
 
 };
 
-type TestFloat record {
+public type TestFloat record {
     float[] values = [];
 
 };
 
-type TestBoolean record {
+public type TestBoolean record {
     boolean[] values = [];
 
 };
 
-type TestStruct record {
+public type TestStruct record {
     A[] values = [];
 
 };
 
-type A record {
+public type A record {
     string name = "";
 
 };
 
-type Empty record {
+public type Empty record {
 
 };
 

@@ -17,32 +17,31 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -84,7 +83,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
@@ -154,22 +152,23 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.util.Flags;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -198,6 +197,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  * (*) Loop continuation statement validation.
  * (*) Function return path existence and unreachable code validation.
  * (*) Worker send/receive validation.
+ * (*) Experimental feature usage.
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
 
@@ -227,6 +227,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean withinAbortedBlock;
     private boolean withinCommittedBlock;
     private boolean isJSONContext;
+    private boolean enableExperimentalFeatures;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -244,6 +245,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.typeChecker = TypeChecker.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.enableExperimentalFeatures = Boolean.parseBoolean(
+                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
     }
 
     private void resetFunction() {
@@ -291,36 +294,40 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
+    private void analyzeTypeNode(BLangType node, SymbolEnv env) {
+
+        if (node == null) {
+            return;
+        }
+        analyzeNode(node, env);
+    }
+
     @Override
     public void visit(BLangCompilationUnit compUnitNode) {
         compUnitNode.topLevelNodes.forEach(e -> analyzeNode((BLangNode) e, env));
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
-        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-            analyzeNode(typeDefinition.typeNode, this.env);
-        }
-        if (!Symbols.isPublic(typeDefinition.symbol) ||
-                typeDefinition.symbol.type != null && TypeKind.FINITE.equals(typeDefinition.symbol.type.getKind())) {
-            return;
-        }
-        analyseType(typeDefinition.symbol.type, typeDefinition.pos);
+
+        analyzeTypeNode(typeDefinition.typeNode, this.env);
     }
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        // ignore
+
+        analyzeNode(bLangTupleVariableDef.var, this.env);
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        // ignore
+
+        analyzeNode(bLangRecordVariableDef.var, this.env);
     }
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        // ignore
+
+        analyzeNode(bLangErrorVariableDef.errorVariable, this.env);
     }
 
     @Override
@@ -329,7 +336,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isLambda) {
             return;
         }
-
+        if (Symbols.isPublic(funcNode.symbol)) {
+            funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
+                    true,
+                    funcNode.pos));
+            if (funcNode.symbol.restParam != null) {
+                analyzeExportableTypeRef(funcNode.symbol, funcNode.symbol.restParam.type.tsymbol, true,
+                        funcNode.restParam.pos);
+            }
+            analyzeExportableTypeRef(funcNode.symbol, funcNode.symbol.retType.tsymbol, true,
+                    funcNode.returnTypeNode.pos);
+        }
         this.validateMainFunction(funcNode);
         this.validateModuleInitFunction(funcNode);
         try {
@@ -381,7 +398,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-         /* ignore */
+        if (forkJoin.workers.isEmpty()) {
+            dlog.error(forkJoin.pos, DiagnosticCode.INVALID_FOR_JOIN_SYNTAX_EMPTY_FORK);
+        }
     }
 
     @Override
@@ -395,6 +414,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+
+        checkExperimentalFeatureValidity(ExperimentalFeatures.TRANSACTIONS, transactionNode.pos);
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction is within a handler function or retry block. This can check for single level only.
         // We need data flow analysis to check for further levels.
@@ -1121,6 +1142,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLock lockNode) {
+
+        checkExperimentalFeatureValidity(ExperimentalFeatures.LOCK, lockNode.pos);
         this.checkStatementExecutionValidity(lockNode);
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
     }
@@ -1161,72 +1184,76 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
+
+        checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMING_QUERIES, foreverStatement.pos);
         this.checkStatementExecutionValidity(foreverStatement);
         this.lastStatement = true;
     }
 
-    public void visit(BLangObjectTypeNode objectTypeNode) {
-        SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
-        if (objectTypeNode.isFieldAnalyseRequired) {
-            objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
-        }
+    private void analyzeExportableTypeRef(BSymbol owner, BTypeSymbol symbol, boolean inFuncSignature,
+                                          DiagnosticPos pos) {
 
-        // To ensure the order of the compile errors
-        Stream.concat(objectTypeNode.functions.stream(),
-                      Optional.ofNullable(objectTypeNode.initFunction).map(Stream::of).orElseGet(Stream::empty))
-                .sorted(Comparator.comparingInt(fn -> fn.pos.sLine))
-                .forEachOrdered(fn -> this.analyzeNode(fn, objectEnv));
-    }
-
-    private void analyseType(BType type, DiagnosticPos pos) {
-        if (type == null || type.tsymbol == null) {
+        if (!inFuncSignature && Symbols.isFlagOn(owner.flags, Flags.ANONYMOUS)) {
+            // Specially validate function signatures.
             return;
         }
-        BTypeSymbol symbol = type.tsymbol;
-        if (!isExportable(symbol)) {
+        if (Symbols.isPublic(owner)) {
+            checkForExportableType(symbol, pos);
+        }
+    }
+
+    private void checkForExportableType(BTypeSymbol symbol, DiagnosticPos pos) {
+
+        if (symbol == null || symbol.type == null || Symbols.isFlagOn(symbol.flags, Flags.TYPE_PARAM)) {
+            // This is a built-in symbol or a type Param.
+            return;
+        }
+        switch (symbol.type.tag) {
+            case TypeTags.ARRAY:
+                checkForExportableType(((BArrayType) symbol.type).eType.tsymbol, pos);
+                return;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) symbol.type;
+                tupleType.tupleTypes.forEach(t -> checkForExportableType(t.tsymbol, pos));
+                if (tupleType.restType != null) {
+                    checkForExportableType(tupleType.restType.tsymbol, pos);
+                }
+                return;
+            case TypeTags.MAP:
+                checkForExportableType(((BMapType) symbol.type).constraint.tsymbol, pos);
+                return;
+            case TypeTags.RECORD:
+                if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+                    BRecordType recordType = (BRecordType) symbol.type;
+                    recordType.fields.forEach(f -> checkForExportableType(f.type.tsymbol, pos));
+                    if (recordType.restFieldType != null) {
+                        checkForExportableType(recordType.restFieldType.tsymbol, pos);
+                    }
+                    return;
+                }
+                break;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) symbol.type;
+                if (tableType.constraint != null) {
+                    checkForExportableType(tableType.constraint.tsymbol, pos);
+                }
+                return;
+            case TypeTags.STREAM:
+                BStreamType streamType = (BStreamType) symbol.type;
+                if (streamType.constraint != null) {
+                    checkForExportableType(streamType.constraint.tsymbol, pos);
+                }
+                return;
+            // TODO : Add support for other types. such as union and objects
+        }
+        if (!Symbols.isPublic(symbol)) {
             dlog.error(pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
 
-    private boolean isExportable(BTypeSymbol symbol) {
-        if (Symbols.isPublic(symbol)) {
-            return true;
-        }
-        BType type = symbol.getType();
-        if (type.tag == SymTag.UNION_TYPE) {
-            return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isExportableType);
-        }
-        return isExportableType(type);
-    }
-
-    private boolean isExportableType(BType type) {
-        if (type.tag == TypeTags.OBJECT) {
-            // All fields and methods need to be public in order for a object to qualify to be exportable
-            // (When not specified to be public)
-            for (BField field : ((BObjectType) type).fields) {
-                if (!Symbols.isPublic(field.symbol)) {
-                    return false;
-                }
-                for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) type.tsymbol).attachedFuncs) {
-                    if (!Symbols.isPublic(attachedFunc.symbol)) {
-                        return false;
-                    }
-                }
-            }
-        } else if (type.tag == TypeTags.TYPEDESC) {
-            return isExportableType(((BTypedescType) type).constraint);
-        }
-        return true;
-    }
-
-    public void visit(BLangRecordTypeNode recordTypeNode) {
-        SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-        if (recordTypeNode.isFieldAnalyseRequired) {
-            recordTypeNode.fields.forEach(field -> analyzeNode(field, recordEnv));
-        }
-    }
-
     public void visit(BLangSimpleVariable varNode) {
+
+        analyzeTypeNode(varNode.typeNode, this.env);
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol)) {
@@ -1237,21 +1264,40 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (varNode.parent != null &&
-                (varNode.parent.getKind() == NodeKind.RECORD_TYPE ||
-                        varNode.parent.getKind() == NodeKind.OBJECT_TYPE)) {
-            BLangStructureTypeNode structTypeNode = (BLangStructureTypeNode) varNode.parent;
-            if (Symbols.isPublic(structTypeNode.symbol)) {
-                analyseType(varNode.type, varNode.pos);
-            }
-            return;
-        }
-
         int ownerSymTag = this.env.scope.owner.tag;
-        if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null && varNode.parent != null &&
-                NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
-            analyseType(varNode.type, varNode.pos);
+        if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD || (ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
+            analyzeExportableTypeRef(this.env.scope.owner, varNode.type.tsymbol, false, varNode.pos);
+        } else if ((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
+            // Only global level simpleVarRef, listeners etc.
+            analyzeExportableTypeRef(varNode.symbol, varNode.type.tsymbol, false, varNode.pos);
         }
+    }
+
+    @Override
+    public void visit(BLangTupleVariable bLangTupleVariable) {
+
+        if (bLangTupleVariable.typeNode != null) {
+            analyzeNode(bLangTupleVariable.typeNode, this.env);
+        }
+        analyzeExpr(bLangTupleVariable.expr);
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+
+        if (bLangRecordVariable.typeNode != null) {
+            analyzeNode(bLangRecordVariable.typeNode, this.env);
+        }
+        analyzeExpr(bLangRecordVariable.expr);
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+
+        if (bLangErrorVariable.typeNode != null) {
+            analyzeNode(bLangErrorVariable.typeNode, this.env);
+        }
+        analyzeExpr(bLangErrorVariable.expr);
     }
 
     private BType getNilableType(BType type) {
@@ -1675,12 +1721,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        /* ignore */
+        analyzeExpr(fieldAccessExpr.expr);
+        if (fieldAccessExpr.expr.type.tag == TypeTags.XML) {
+            checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, fieldAccessExpr.pos);
+        }
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
+        if (indexAccessExpr.expr.type.tag == TypeTags.XML) {
+            checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, indexAccessExpr.pos);
+        }
     }
 
     public void visit(BLangInvocation invocationExpr) {
@@ -1959,10 +2011,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        /* ignore */
+
+        analyzeExpr(bLangArrowFunction.expression);
     }
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+
+        checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ATTRIBUTES_ACCESS, xmlAttributeAccessExpr.pos);
         analyzeExpr(xmlAttributeAccessExpr.expr);
         analyzeExpr(xmlAttributeAccessExpr.indexExpr);
     }
@@ -1972,12 +2027,42 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(intRangeExpression.endExpr);
     }
 
+
+    /* Type Nodes */
+
+    @Override
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+
+        SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
+        if (recordTypeNode.isFieldAnalyseRequired) {
+            recordTypeNode.fields.forEach(field -> analyzeNode(field, recordEnv));
+        }
+    }
+
+    @Override
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+
+        SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
+        if (objectTypeNode.isFieldAnalyseRequired) {
+            objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
+        }
+
+        // To ensure the order of the compile errors
+        Stream.concat(objectTypeNode.functions.stream(),
+                Optional.ofNullable(objectTypeNode.initFunction).map(Stream::of).orElseGet(Stream::empty))
+                .sorted(Comparator.comparingInt(fn -> fn.pos.sLine))
+                .forEachOrdered(fn -> this.analyzeNode(fn, objectEnv));
+    }
+
+    @Override
     public void visit(BLangValueType valueType) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangArrayType arrayType) {
-        /* ignore */
+
+        analyzeTypeNode(arrayType.elemtype, env);
     }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
@@ -1985,108 +2070,66 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangConstrainedType constrainedType) {
-        /* ignore */
+
+        if (constrainedType.type.type.tag == TypeTags.STREAM) {
+            checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMS, constrainedType.pos);
+        }
+        analyzeTypeNode(constrainedType.constraint, env);
     }
 
     public void visit(BLangErrorType errorType) {
-        /* ignore */
+
+        analyzeTypeNode(errorType.reasonType, env);
+        analyzeTypeNode(errorType.detailType, env);
     }
 
     public void visit(BLangUserDefinedType userDefinedType) {
-        analyseType(userDefinedType.type, userDefinedType.pos);
+        /* Ignore */
     }
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeNode(memberType, env));
+
+        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, env));
+        analyzeTypeNode(tupleTypeNode.restParamType, env);
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeNode(memberType, env));
+
+        unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, env));
     }
 
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        analyseType(functionTypeNode.type, functionTypeNode.pos);
+
+        functionTypeNode.params.forEach(node -> analyzeNode(node, env));
+        analyzeTypeNode(functionTypeNode.returnTypeNode, env);
+    }
+
+    @Override
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+
+        /* Ignore */
     }
 
     @Override
     public void visit(BLangTableQueryExpression tableQueryExpression) {
-        /* ignore */
+
+        checkExperimentalFeatureValidity(ExperimentalFeatures.TABLE_QUERIES, tableQueryExpression.pos);
     }
 
     @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
-        /* ignore */
+
+        analyzeExpr(bLangVarArgsExpression.expr);
     }
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        /* ignore */
+
+        analyzeExpr(bLangNamedArgsExpression.expr);
     }
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
-        analyzeExpr(bLangMatchExpression.expr);
-        List<BType> exprTypes;
-
-        if (bLangMatchExpression.expr.type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) bLangMatchExpression.expr.type;
-            exprTypes = new ArrayList<>(unionType.getMemberTypes());
-        } else {
-            exprTypes = Lists.of(bLangMatchExpression.expr.type);
-        }
-
-        List<BType> unmatchedExprTypes = new ArrayList<>();
-        for (BType exprType : exprTypes) {
-            boolean assignable = false;
-            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
-                BType patternType = pattern.variable.type;
-                if (exprType.tag == TypeTags.SEMANTIC_ERROR || patternType.tag == TypeTags.SEMANTIC_ERROR) {
-                    return;
-                }
-
-                assignable = this.types.isAssignable(exprType, patternType);
-                if (assignable) {
-                    pattern.matchedTypesDirect.add(exprType);
-                    break;
-                } else if (exprType.tag == TypeTags.ANY) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.JSON && this.types.isAssignable(patternType, exprType)) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
-                        && this.types.isAssignable(patternType, exprType)) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.BYTE && patternType.tag == TypeTags.INT) {
-                    pattern.matchedTypesDirect.add(exprType);
-                    break;
-                } else {
-                    // TODO Support other assignable types
-                }
-            }
-
-            // check if the exprType can be added to implicit default pattern
-            if (!assignable && !this.types.isAssignable(exprType, bLangMatchExpression.type)) {
-                unmatchedExprTypes.add(exprType);
-            }
-        }
-
-        if (!unmatchedExprTypes.isEmpty()) {
-            dlog.error(bLangMatchExpression.pos, DiagnosticCode.MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN,
-                    unmatchedExprTypes);
-        }
-
-        boolean matchedPatternsAvailable = false;
-        for (int i = bLangMatchExpression.patternClauses.size() - 1; i >= 0; i--) {
-            BLangMatchExprPatternClause pattern = bLangMatchExpression.patternClauses.get(i);
-            if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
-                if (matchedPatternsAvailable) {
-                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
-                } else {
-                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
-                }
-            } else {
-                matchedPatternsAvailable = true;
-            }
-        }
     }
 
     @Override
@@ -2198,7 +2241,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        /* ignore */
+
+        analyzeTypeNode(constant.typeNode, env);
+        analyzeNode(constant.expr, env);
+        analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
     }
 
     /**
@@ -2523,4 +2569,42 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
     }
+
+    private void checkExperimentalFeatureValidity(ExperimentalFeatures constructName, DiagnosticPos pos) {
+
+        if (enableExperimentalFeatures) {
+            return;
+        }
+
+        dlog.error(pos, DiagnosticCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, constructName.value);
+    }
+
+    /**
+     * Experimental feature list for JBallerina 1.0.0.
+     *
+     * @since JBallerina 1.0.0
+     */
+    private enum ExperimentalFeatures {
+        STREAMS("stream"),
+        TABLE_QUERIES("table queries"),
+        STREAMING_QUERIES("streaming queries"),
+        TRANSACTIONS("transaction"),
+        LOCK("lock"),
+        XML_ACCESS("xml access expression"),
+        XML_ATTRIBUTES_ACCESS("xml attribute expression"),
+        ;
+        private String value;
+
+        private ExperimentalFeatures(String value) {
+
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+
+            return value;
+        }
+    }
+
 }

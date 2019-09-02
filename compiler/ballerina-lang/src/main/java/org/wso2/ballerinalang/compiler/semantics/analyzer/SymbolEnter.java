@@ -128,6 +128,20 @@ import java.util.stream.Stream;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.DECIMAL;
+import static org.ballerinalang.model.elements.PackageID.ERROR;
+import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUTURE;
+import static org.ballerinalang.model.elements.PackageID.INT;
+import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.OBJECT;
+import static org.ballerinalang.model.elements.PackageID.STREAM;
+import static org.ballerinalang.model.elements.PackageID.STRING;
+import static org.ballerinalang.model.elements.PackageID.TABLE;
+import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
+import static org.ballerinalang.model.elements.PackageID.VALUE;
+import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 
@@ -210,6 +224,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable, Flags.asMask(pkgNode.flagSet));
         } else {
             pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
+        }
+        if (PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
+            populateLangLibInSymTable(pkgSymbol);
         }
 
         pkgNode.symbol = pkgSymbol;
@@ -1007,6 +1024,68 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     // Private methods
+
+    private void populateLangLibInSymTable(BPackageSymbol packageSymbol) {
+
+        PackageID langLib = packageSymbol.pkgID;
+        if (langLib.equals(ARRAY)) {
+            symTable.langArrayModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(DECIMAL)) {
+            symTable.langDecimalModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(ERROR)) {
+            symTable.langErrorModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(FLOAT)) {
+            symTable.langFloatModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(FUTURE)) {
+            symTable.langFutureModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(INT)) {
+            symTable.langIntModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(MAP)) {
+            symTable.langMapModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(OBJECT)) {
+            symTable.langObjectModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(STREAM)) {
+            symTable.langStreamModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(STRING)) {
+            symTable.langStringModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(TABLE)) {
+            symTable.langTableModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(TYPEDESC)) {
+            symTable.langTypedescModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(VALUE)) {
+            symTable.langValueModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(XML)) {
+            symTable.langXmlModuleSymbol = packageSymbol;
+            return;
+        }
+    }
+    
     private boolean isValidAnnotationType(BType type) {
         if (type == symTable.semanticError) {
             return false;

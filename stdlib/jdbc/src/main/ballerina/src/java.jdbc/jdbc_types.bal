@@ -229,4 +229,4 @@ public type BatchUpdateResult record {|
 |};
 
 # The parameter passed into the operations.
-type Param string|int|boolean|float|decimal|byte[]|Parameter;
+public type Param string|int|boolean|float|decimal|byte[]|Parameter;
