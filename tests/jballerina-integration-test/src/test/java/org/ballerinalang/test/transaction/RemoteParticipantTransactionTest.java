@@ -81,7 +81,6 @@ public class RemoteParticipantTransactionTest extends BaseTest {
     }
 
     @Test
-    @Ignore
     public void remoteParticipantTransactionSuccessTest() throws IOException {
         String url = serverInstance.getServiceURLHttp(initiatorServicePort,
                 "remoteParticipantTransactionSuccessTest");

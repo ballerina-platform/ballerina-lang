@@ -17,6 +17,7 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/transactions;
+import ballerina/runtime;
 
 http:Client separateRMParticipant01 = new("http://localhost:8890");
 
@@ -170,10 +171,11 @@ function localParticipant() returns string {
 
 
 string S1 = "";
-
+boolean resourceCommited = false;
 function baz(string id) {
     log:printInfo("exe-baz-oncommittedFunc");
     S1 = S1 + " in-baz[oncommittedFunc]";
+    resourceCommited = true;
 }
 
 function bar(string id) {
@@ -272,7 +274,12 @@ function initiatorFunc(boolean throw1, boolean throw2,
         trx_ran_once = true;
     } committed {
         log:printInfo("commited block ran");
-
+        boolean waitResult = waitForCondition(2000, 10, function () returns boolean { return resourceCommited; });
+        if (!waitResult) {
+              error err = error("Participants failed to commit");
+              panic err;
+        }
+        resourceCommited = false;
         S1 = S1 + " committed-block";
     } aborted {
         log:printInfo("aborted ran");
@@ -543,4 +550,18 @@ service initiatorService on new http:Listener(8888) {
         var stt = res.setTextPayload(<@untainted> s);
         checkpanic ep->respond(res);
     }
+}
+
+function waitForCondition(int maxWaitInMillySeconds, int noOfRounds, function() returns boolean conditionFunc)
+                            returns boolean {
+    int sleepTimePerEachRound = maxWaitInMillySeconds/noOfRounds;
+    int count = 0;
+    while (count < noOfRounds) {
+        if (conditionFunc()){
+            return true;
+        }
+        count = count + 1;
+        runtime:sleep(sleepTimePerEachRound);
+    }
+    return false;
 }
