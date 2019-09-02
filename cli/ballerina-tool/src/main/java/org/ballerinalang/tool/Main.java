@@ -661,7 +661,7 @@ public class Main {
             if (pullCommands == null) {
                 throw LauncherUtils.createUsageExceptionWithHelp("distribution is not provided");
             } else if (pullCommands.size() == 1) {
-                ToolUtil.install(outStream, pullCommands.get(0), false);
+                ToolUtil.install(outStream, pullCommands.get(0), true);
                 return;
             } else if (pullCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");

@@ -204,9 +204,9 @@ public class ToolUtil {
                     String newUrl = conn.getHeaderField("Location");
                     conn = (HttpURLConnection) new URL(newUrl).openConnection();
                     conn.setRequestProperty("content-type", "binary/data");
-                    download(printStream, conn, distribution, true);
+                    download(printStream, conn, distribution, manualUpdate);
                 } else if (conn.getResponseCode() == 200) {
-                    download(printStream, conn, distribution, true);
+                    download(printStream, conn, distribution, manualUpdate);
                 } else {
                     printStream.println(distribution + " is not found ");
                 }
