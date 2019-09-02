@@ -24,9 +24,11 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -163,6 +165,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -1521,6 +1524,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     // Asynchronous Send Statement
     public void visit(BLangWorkerSend workerSendNode) {
+        BSymbol receiver = symResolver.lookupSymbol(env,
+                names.fromIdNode(workerSendNode.workerIdentifier), SymTag.VARIABLE);
+        verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value);
+
         this.checkStatementExecutionValidity(workerSendNode);
         if (workerSendNode.isChannel) {
             analyzeExpr(workerSendNode.expr);
@@ -1582,6 +1589,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        BSymbol receiver = symResolver.lookupSymbol(env,
+                names.fromIdNode(syncSendExpr.workerIdentifier), SymTag.VARIABLE);
+        verifyPeerCommunication(syncSendExpr.pos, receiver, syncSendExpr.workerIdentifier.value);
+
         // Validate worker synchronous send
         validateActionParentNode(syncSendExpr.pos, syncSendExpr);
         String workerName = syncSendExpr.workerIdentifier.getValue();
@@ -1605,6 +1616,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWorkerReceive workerReceiveNode) {
         // Validate worker receive
         validateActionParentNode(workerReceiveNode.pos, workerReceiveNode);
+        BSymbol sender = symResolver.lookupSymbol(env,
+                names.fromIdNode(workerReceiveNode.workerIdentifier), SymTag.VARIABLE);
+        verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value);
 
         if (workerReceiveNode.isChannel) {
             if (workerReceiveNode.keyExpr != null) {
@@ -1629,6 +1643,40 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(workerReceiveNode);
 
         was.addWorkerAction(workerReceiveNode);
+    }
+
+    private void verifyPeerCommunication(DiagnosticPos pos, BSymbol otherWorker, String otherWorkerName) {
+        if (env.enclEnv.node.getKind() != NodeKind.FUNCTION) {
+            return;
+        }
+        BLangFunction funcNode = (BLangFunction) env.enclEnv.node;
+
+        Set<Flag> flagSet = funcNode.flagSet;
+        // Analyze worker interactions inside workers
+        Name workerDerivedName = names.fromString("0" + otherWorker.name.value);
+        if (flagSet.contains(Flag.WORKER)) {
+            // Interacting with default worker from a worker within a fork.
+            if (otherWorkerName.equals(DEFAULT_WORKER_NAME)) {
+                if (flagSet.contains(Flag.FORKED)) {
+                    dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
+                }
+                return;
+            }
+
+            Scope enclFunctionScope = env.enclEnv.enclEnv.scope;
+            BInvokableSymbol wLambda = (BInvokableSymbol) enclFunctionScope.lookup(workerDerivedName).symbol;
+            // Interactions across fork
+            if (wLambda != null && funcNode.anonForkName != null
+                    && !funcNode.anonForkName.equals(wLambda.enclForkName)) {
+                dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
+            }
+        } else {
+            // Worker interactions outside of worker constructs (in default worker)
+            BInvokableSymbol wLambda = (BInvokableSymbol) env.scope.lookup(workerDerivedName).symbol;
+            if (wLambda != null && wLambda.enclForkName != null) {
+                dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
+            }
+        }
     }
 
     public BType createAccumulatedErrorTypeForMatchingSyncSend(BLangWorkerReceive workerReceiveNode) {
