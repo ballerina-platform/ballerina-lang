@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.BufferedReader;
@@ -40,6 +41,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,6 +64,7 @@ public class URIDryConverter extends URIConverter {
      * This is to keep track that an error has already been logged so that it doesn't repeatedly log the same error.
      */
     private static boolean loggedError = false;
+    private static final Pattern semVerPatchPattern = Pattern.compile("(\\d+)\\.(\\d+)");
     private PrintStream errStream = System.err;
     private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
     private Proxy proxy;
@@ -98,9 +102,10 @@ public class URIDryConverter extends URIConverter {
     
     public Stream<CompilerInput> finalize(URI remoteURI, PackageID moduleID) {
         try {
-            // only continue if module version is not set. a module version may be set through Ballerina.toml or
+            // only continue if a fixed module version is not set. a module version may be set through Ballerina.toml or
             // Ballerina.lock already.
-            if ("".equals(moduleID.version.value) || "*".equals(moduleID.version.value)) {
+            Matcher matcher = semVerPatchPattern.matcher(moduleID.version.value);
+            if ("".equals(moduleID.version.value) || "*".equals(moduleID.version.value) || matcher.matches()) {
                 for (String supportedPlatform : supportedPlatforms) {
                     HttpURLConnection conn;
                     // set proxy if exists.
