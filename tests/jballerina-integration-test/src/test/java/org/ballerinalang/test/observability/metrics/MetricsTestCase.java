@@ -38,9 +38,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 
 /**
@@ -70,11 +72,12 @@ public class MetricsTestCase extends BaseTest {
         addMetrics();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMetrics() throws Exception {
         // Test Service
-        Assert.assertEquals(HttpClientRequest.doGet("http://localhost:9090/test").getData(),
-                "[{\"PRODUCTID\":1, \"PRODUCTNAME\":\"WSO2-IAM\"}, {\"PRODUCTID\":3, \"PRODUCTNAME\":\"WSO2-EI\"}]");
+        await().atMost(20, TimeUnit.SECONDS)
+                .ignoreExceptions().until(() -> HttpClientRequest.doGet("http://localhost:9090/test")
+                .getData().equals("productId=1 productName=WSO2-IAM productId=3 productName=WSO2-EI"));
 
         // Send some requests
         int i = 0;

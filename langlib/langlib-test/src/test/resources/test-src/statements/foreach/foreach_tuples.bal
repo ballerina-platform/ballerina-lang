@@ -15,7 +15,6 @@
 // under the License.
 
 
-
 [int, string, boolean, (), float, decimal] data = [20, "string", true, (), 15.5, 20.2];
 string output = "";
 int sum = 0;
@@ -30,11 +29,11 @@ function addNeg(int i) {
 }
 
 function concatInt(int index, int value) {
-    output = output + index + ":" + value + " ";
+    output = output + index.toString() + ":" + value.toString() + " ";
 }
 
 function concatString(int index, string value) {
-    output = output + index + ":" + value + " ";
+    output = output + index.toString() + ":" + value + " ";
 }
 
 type Person record {
@@ -182,7 +181,7 @@ function testNestedWithBreakContinue() returns string {
             } else if (j == 2) {
                 continue;
             }
-            output = output + j;
+            output = output + j.toString();
         }
         output = output + " ";
         i += 1;
@@ -196,9 +195,9 @@ function testTupleWithNullElements() returns string {
     int i = 0;
     foreach var v in sTuple {
         if v is string {
-            output = output + i + ":" + v + " ";
+            output = output + i.toString() + ":" + v + " ";
         } else {
-           output = output + i + ": ";
+           output = output + i.toString() + ": ";
         }
         i += 1;
     }
