@@ -326,10 +326,9 @@ public type FuncBodyParser object {
         var lhsOp = self.parseVarRef();
         var columnsOp = self.parseVarRef();
         var dataOp = self.parseVarRef();
-        var indexColOp = self.parseVarRef();
         var keyColOp = self.parseVarRef();
-        NewTable newTable = { pos: pos, kind: INS_KIND_NEW_TABLE, lhsOp: lhsOp, columnsOp: columnsOp, dataOp: dataOp, indexColOp:
-        indexColOp, keyColOp: keyColOp, typeValue: bType };
+        NewTable newTable = { pos: pos, kind: INS_KIND_NEW_TABLE, lhsOp: lhsOp, columnsOp: columnsOp, dataOp: dataOp,
+            keyColOp: keyColOp, typeValue: bType };
         return newTable;
     }
 

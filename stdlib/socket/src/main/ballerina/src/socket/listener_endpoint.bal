@@ -20,7 +20,7 @@ import ballerina/lang.'object as lang;
 #
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public function __init(int port, ListenerConfig? config = ()) {
         var result = self.initServer(port, config ?: {});

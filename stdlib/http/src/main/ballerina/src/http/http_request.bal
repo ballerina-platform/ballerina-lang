@@ -475,8 +475,8 @@ public type Request object {
         string cacheControl = self.getHeader(CACHE_CONTROL);
         string[] directives = internal:split(cacheControl, ",");
 
-        foreach var directive in directives {
-            directive = directive.trim();
+        foreach var dir in directives {
+            var directive = dir.trim();
             if (directive == NO_CACHE) {
                 reqCC.noCache = true;
             } else if (directive == NO_STORE) {

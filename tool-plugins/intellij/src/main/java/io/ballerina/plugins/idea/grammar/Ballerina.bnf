@@ -166,13 +166,11 @@ WorkerWithStatementsBlock ::= WorkerDefinition+ Statement*
 Block ::= Statement* {methods=[processDeclarations]}
 
 // Todo - Need getIdentifier?
-FunctionDefinition ::= (public|private)? remote? function ((AttachedObject|TypeName) DOT)? CallableUnitSignature (CallableUnitBody | ExternalFunctionBody SEMICOLON) {
+FunctionDefinition ::= (public|private)? remote? function CallableUnitSignature (CallableUnitBody | ExternalFunctionBody SEMICOLON) {
     pin=3 methods=[getIdentifier getName]
 }
 
 ExternalFunctionBody ::= ASSIGN AnnotationAttachment* external {pin=3}
-
-AttachedObject ::= identifier
 
 LambdaFunction ::= function LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS (returns LambdaReturnParameter)? CallableUnitBody {pin(".*")=1}
 
@@ -211,14 +209,11 @@ ConstantExpression ::=  SimpleLiteral | RecordLiteral
 
 GlobalVariableDefinition ::= varDefinition
                             | listenerDefinition
-                            | channelDefinition
                             | typedVariableDefinition
 
 private typedVariableDefinition ::= final? TypeName identifier ASSIGN Expression SEMICOLON {pin=2}
 private varDefinition ::= final? var identifier ASSIGN Expression SEMICOLON {pin=2}
 private listenerDefinition ::=  public? listener TypeName identifier ASSIGN Expression SEMICOLON {pin=2}
-private channelDefinition ::= channelType identifier ASSIGN Expression SEMICOLON
-channelType ::= channel LT TypeName GT {pin=1}
 
 AttachmentPoint ::=   DualAttachPoint | SourceOnlyAttachPoint
 
@@ -233,7 +228,7 @@ DualAttachPointIdent ::= object? type
 
 SourceOnlyAttachPoint ::= source SourceOnlyAttachPointIdent {pin=1}
 
-SourceOnlyAttachPointIdent ::=  annotation | external | var | const | listener
+SourceOnlyAttachPointIdent ::=  annotation | external | var | const | listener | worker
 
 // Todo - Rename as declaration
 WorkerDefinition ::= AnnotationAttachment* worker identifier ReturnParameter? WorkerBody {
@@ -567,7 +562,7 @@ TypeDescExprInvocationReference ::=  TypeDescExpression Invocation
 StringFunctionInvocationReference ::= QUOTED_STRING_LITERAL Invocation
 
 // Todo - Adding pin will mess function invocation.
-Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
+Invocation ::= DOT AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
 Index ::= LEFT_BRACKET Expression RIGHT_BRACKET /*{pin=1}*/
 Field ::= (DOT | OPTIONAL_FIELD_ACCESS) (identifier | MUL) /*{pin=1}*/
 XmlAttrib ::= AT (LEFT_BRACKET Expression RIGHT_BRACKET)? {pin=1}

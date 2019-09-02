@@ -155,7 +155,8 @@ public class FilterUtils {
         }
         BType symbolType = bSymbol instanceof BInvokableSymbol ? ((BInvokableSymbol) bSymbol).retType : bSymbol.type;
         BType modifiedSymbolBType = getModifiedBType(symbolType);
-        Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(modifiedSymbolBType, context);
+        Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol, modifiedSymbolBType,
+                                                                                    context);
 
         for (int itr = 1; itr < invocationFieldList.size(); itr++) {
             ChainedFieldModel fieldModel = invocationFieldList.get(itr);
@@ -169,7 +170,7 @@ public class FilterUtils {
             bSymbol = entry.get().symbol;
             symbolType = bSymbol instanceof BInvokableSymbol ? ((BInvokableSymbol) bSymbol).retType : bSymbol.type;
             modifiedSymbolBType = getModifiedBType(symbolType);
-            scopeEntries = getInvocationsAndFieldsForSymbol(modifiedSymbolBType, context);
+            scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol, modifiedSymbolBType, context);
         }
         if (scopeEntries == null) {
             return new ArrayList<>();
@@ -299,11 +300,13 @@ public class FilterUtils {
      * Analyze the given symbol type and extracts the invocations and fields from the scope entries.
      * When extracting the invocations, extract the type attached functions
      *
+     * @param bSymbol bSymbol to evaluate
      * @param symbolType BType to evaluate
      * @param context Language Server Operation Context
      * @return {@link Map} Scope Entry Map
      */
-    private static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForSymbol(BType symbolType, LSContext context) {
+    private static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForSymbol(BSymbol bSymbol, BType symbolType,
+                                                                                LSContext context) {
         Integer invocationToken = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
@@ -316,7 +319,11 @@ public class FilterUtils {
          */
         if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
-            entries.putAll(objectTypeSymbol.methodScope.entries);
+            Map<Name, Scope.ScopeEntry> methodEntries = objectTypeSymbol.methodScope.entries.entrySet().stream()
+                    .filter(entry -> !(entry.getValue().symbol.getName().getValue().contains(".__init")
+                            && !bSymbol.getName().getValue().equals("self")))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            entries.putAll(methodEntries);
             entries.putAll(objectTypeSymbol.scope.entries);
             return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BInvokableSymbol))
                     || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))

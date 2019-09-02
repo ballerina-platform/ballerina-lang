@@ -136,12 +136,12 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-transaction-tests" parallel="false">-->
-<!--        <classes>-->
-<!--             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="ballerina-transaction-tests" parallel="false">
+        <classes>
+             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
+        </classes>
+    </test>
 
     <test name="ballerina-websocket-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>

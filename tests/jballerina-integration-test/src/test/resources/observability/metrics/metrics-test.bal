@@ -18,24 +18,31 @@ import ballerina/http;
 import ballerinax/java.jdbc;
 import ballerina/io;
 
+jdbc:Client testDB = new({
+        url: "jdbc:h2:file:../../tempdb/TEST_DB",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 },
+        dbOptions: { IFEXISTS: true }
+    });
+
+type Product record {
+    int productId;
+    string productName;
+};
+
 @http:ServiceConfig {
     basePath:"/test"
 }
-service metricsTest on new http:Listener(9090){
+service metricsTest on new http:Listener(9090) {
     @http:ResourceConfig {
         path: "/"
     }
     resource function getProduct (http:Caller caller, http:Request req) {
-        jdbc:Client testDB =  new({
-            url: "jdbc:h2:file:../../tempdb/TEST_DB",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 10 }
-        });
-        var dbResult = testDB -> select("SELECT * FROM Products", ());
-        io:println(dbResult);
-        if (dbResult is table<record {}>) {
+        var dbResult = testDB->select("SELECT * FROM Products", Product);
+        if (dbResult is table<Product>) {
             var jData = json.constructFrom(dbResult);
+	    io:println(jData);
             if (jData is json) {
                 string result = jData.toString();
                 http:Response resp = new;

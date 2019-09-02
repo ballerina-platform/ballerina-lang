@@ -18,6 +18,7 @@
  package org.ballerinalang.jvm.values;
 
  import org.ballerinalang.jvm.scheduling.Strand;
+ import org.ballerinalang.jvm.transactions.TransactionLocalContext;
  import org.ballerinalang.jvm.types.BFutureType;
  import org.ballerinalang.jvm.types.BType;
  import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
@@ -41,6 +42,8 @@
      public Throwable panic;
 
      public CallableUnitCallback callback;
+
+     public TransactionLocalContext transactionLocalContext;
 
      BType type;
 

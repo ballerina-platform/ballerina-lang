@@ -17,12 +17,15 @@
  */
 package org.ballerinalang.langlib.test;
 
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
 
 /**
  * Test cases for the type_params library.
@@ -61,6 +64,20 @@ public class TypeParamTest {
         Assert.assertEquals(result.getErrorCount(), 0);
         BRunUtil.invoke(result, "testArrayFunctionInfer");
         BRunUtil.invoke(result, "testMapFunctionInfer");
+    }
+
+    @Test
+    public void testLangLibImports() {
+
+        CompileResult result = BCompileUtil.compile("test-src/type-param/imported_type_param.bal");
+        Assert.assertEquals(result.getErrorCount(), 0, "compilation contains error\n"
+                + Arrays.toString(result.getDiagnostics()));
+        BValue[] ret1 = BRunUtil.invoke(result, "testImportedModuleTypeParam1");
+        Assert.assertEquals(ret1.length, 1);
+        Assert.assertEquals(ret1[0].stringValue(), "[20, 40, 60, 80]");
+        BValue[] ret2 = BRunUtil.invoke(result, "testImportedModuleTypeParam2");
+        Assert.assertEquals(ret2.length, 1);
+        Assert.assertEquals(ret2[0].stringValue(), "100");
     }
 
 }

@@ -27,7 +27,7 @@ import ballerina/log;
 # + config - The configuration for the endpoint
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public SubscriberListenerConfiguration? config = ();
 

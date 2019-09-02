@@ -35,12 +35,12 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
         httpResponse = result;
     } else {
         error e = result;
-        io:println("Connection to the remote host failed : " + e.reason());
+        io:println("Connection to the remote host failed : " + <string>e.detail()["message"]);
         return;
     }
     string statusCode = httpResponse.statusCode.toString();
     if (statusCode.startsWith("5")) {
-        io:println("remote repository failed for url : " + url + "/" + querySearched);
+        io:println("unable to connect to remote repository: " + url + "/" + querySearched);
     } else if (statusCode != "200") {
         var resp = httpResponse.getJsonPayload();
         if (resp is json) {
