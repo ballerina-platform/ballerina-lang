@@ -25,6 +25,7 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -80,6 +81,7 @@ public class RemoteParticipantTransactionTest extends BaseTest {
     }
 
     @Test
+    @Ignore
     public void remoteParticipantTransactionSuccessTest() throws IOException {
         String url = serverInstance.getServiceURLHttp(initiatorServicePort,
                 "remoteParticipantTransactionSuccessTest");

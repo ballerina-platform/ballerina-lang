@@ -33,7 +33,7 @@ function getCoordinationTypeToProtocolsMap() returns map<string[]> {
 }
 
 @http:ServiceConfig {
-    basePath:initiatorCoordinatorBasePath
+    basePath:"/balcoordinator/initiator"
 }
 //# Service on the initiator which is independent from the coordination type and handles registration of remote
 //# participants.
@@ -68,7 +68,7 @@ service InitiatorService on coordinatorListener {
     # Micro-Transaction-Unknown
     @http:ResourceConfig {
         methods:["POST"],
-        path:registrationPathPattern,
+        path:"/{transactionBlockId}/register",
         body:"regReq",
         consumes:["application/json"]
     }

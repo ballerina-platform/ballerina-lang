@@ -57,13 +57,14 @@ service InitiatorService on new http:Listener(8080) {
 function callBusinessService() returns boolean {
     http:Client participantEP = new("http://localhost:8889/stockquote/update");
 
-    float price = math:randomInRange(200, 250) + math:random();
+    float price = <int>math:randomInRange(200, 250) + math:random();
     json bizReq = { symbol: "GOOG", price: price };
     http:Request req = new;
     req.setJsonPayload(bizReq);
     var result = participantEP->post("", req);
     log:printInfo("Got response from bizservice");
     if (result is error) {
+	log:printInfo(result.toString());
         return false;
     }  else {
         return (result.statusCode == http:STATUS_OK);
