@@ -2229,7 +2229,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangForkJoin forkJoin) {
         for (BLangSimpleVariableDef worker : forkJoin.workers) {
             BLangFunction function = ((BLangLambdaFunction) worker.var.expr).function;
-            function.symbol.flags |= Flags.FORKED;
             function.symbol.enclForkName = function.anonForkName;
             ((BInvokableSymbol) worker.var.symbol).enclForkName = function.anonForkName;
         }
