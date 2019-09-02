@@ -130,7 +130,7 @@ public class ToolUtil {
      */
     private static String getCurrentToolsVersion() {
         //TODO: Need to read folder
-        return "1.0.0-beta-SNAPSHOT";
+        return "1.0.0-beta";
     }
 
     private static String getVersion(String path) throws IOException {
