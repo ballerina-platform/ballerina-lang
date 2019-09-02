@@ -263,8 +263,9 @@ public class ToolUtil {
             Version currentVersion = new Version(version);
             String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
             if (!latestVersion.equals(version)) {
-                install(printStream, BALLERINA_TYPE + "-" + latestVersion, false);
-                use(printStream, latestVersion);
+                String distribution = BALLERINA_TYPE + "-" + latestVersion;
+                install(printStream, distribution, false);
+                use(printStream, distribution);
             } else {
                 printStream.println("No update found");
             }
