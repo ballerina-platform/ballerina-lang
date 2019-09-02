@@ -916,7 +916,6 @@ type InstructionGenerator object {
         string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
                                     lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
         self.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
-        self.mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
         self.mv.visitLdcInsn(inst.name.value);
         self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processFPValueAnnotations",
             io:sprintf("(L%s;L%s;L%s;)V", FUNCTION_POINTER, MAP_VALUE, STRING_VALUE), false);
