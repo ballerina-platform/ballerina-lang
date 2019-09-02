@@ -165,6 +165,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -1644,46 +1645,36 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         was.addWorkerAction(workerReceiveNode);
     }
 
-    private void verifyPeerCommunication(DiagnosticPos pos, BSymbol otherEnd, String value) {
-        BLangNode thisNode = env.enclEnv.node;
-        if (thisNode.getKind() != NodeKind.FUNCTION) {
+    private void verifyPeerCommunication(DiagnosticPos pos, BSymbol otherWorker, String otherWorkerName) {
+        if (env.enclEnv.node.getKind() != NodeKind.FUNCTION) {
             return;
         }
+        BLangFunction funcNode = (BLangFunction) env.enclEnv.node;
 
-        BLangFunction funcNode = (BLangFunction) thisNode;
         Set<Flag> flagSet = funcNode.flagSet;
-        // Analyze worker interactions inside works
+        // Analyze worker interactions inside workers
+        Name workerDerivedName = names.fromString("0" + otherWorker.name.value);
         if (flagSet.contains(Flag.WORKER)) {
-            if (value.equals(DEFAULT_WORKER_NAME)) {
+            // Interacting with default worker from a worker within a fork.
+            if (otherWorkerName.equals(DEFAULT_WORKER_NAME)) {
                 if (flagSet.contains(Flag.FORKED)) {
                     dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
                 }
                 return;
             }
-            Scope outerFunctionScope = env.enclEnv.enclEnv.scope;
-            if (outerFunctionScope.lookup(otherEnd.name).symbol != null
-                    && outerFunctionScope.lookup(otherEnd.name).symbol != otherEnd) {
-                dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
-            }
-            BInvokableSymbol wLambda = (BInvokableSymbol)
-                    outerFunctionScope.lookup(names.fromString("0" + otherEnd.name.value)).symbol;
 
-            if (wLambda != null
-                    && funcNode.anonForkName != null && !funcNode.anonForkName.equals(wLambda.enclForkName)) {
+            Scope enclFunctionScope = env.enclEnv.enclEnv.scope;
+            BInvokableSymbol wLambda = (BInvokableSymbol) enclFunctionScope.lookup(workerDerivedName).symbol;
+            // Interactions across fork
+            if (wLambda != null && funcNode.anonForkName != null
+                    && !funcNode.anonForkName.equals(wLambda.enclForkName)) {
                 dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
             }
         } else {
             // Worker interactions outside of worker constructs (in default worker)
-            BSymbol symbol = env.scope.lookup(otherEnd.name).symbol;
-            if (symbol != null && symbol != otherEnd
-                    || symbol != null && (symbol.flags & Flags.FORKED) == Flags.FORKED) {
+            BInvokableSymbol wLambda = (BInvokableSymbol) env.scope.lookup(workerDerivedName).symbol;
+            if (wLambda != null && wLambda.enclForkName != null) {
                 dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
-            } else {
-                BInvokableSymbol wLambda =
-                        (BInvokableSymbol) env.scope.lookup(names.fromString("0" + otherEnd.name.value)).symbol;
-                if (wLambda != null && wLambda.enclForkName != null) {
-                    dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
-                }
             }
         }
     }
