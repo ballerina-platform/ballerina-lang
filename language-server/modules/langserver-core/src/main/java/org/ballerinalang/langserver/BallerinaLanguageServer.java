@@ -126,7 +126,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         res.getCapabilities().setDocumentSymbolProvider(false);
         res.getCapabilities().setDefinitionProvider(false);
         res.getCapabilities().setReferencesProvider(false);
-        res.getCapabilities().setCodeActionProvider(false);
+        res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setRenameProvider(false);

@@ -29,7 +29,7 @@ service onTextString on new http:Listener(21003) {
 service onTextJSON on new http:Listener(21023) {
 
 resource function onText(http:WebSocketCaller caller, json data) {
-        var returnVal = caller->pushText(data);
+        var returnVal = caller->pushText(data.toJsonString());
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
         }
@@ -57,7 +57,7 @@ service onTextRecord on new http:Listener(21025) {
         if (personData is error) {
             panic personData;
         } else {
-             var returnVal = caller->pushText(personData);
+             var returnVal = caller->pushText(personData.toJsonString());
              if (returnVal is http:WebSocketError) {
                 panic <error> returnVal;
              }

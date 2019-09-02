@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.jvm.interop;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -43,6 +44,7 @@ class JInterop {
     static final String MODULE_NAME = "jvm";
     static final String JAVA_MODULE_NAME = "java";
     static final String JVM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + MODULE_NAME;
+    static final BPackage JVM_PACKAGE_ID = new BPackage(ORG_NAME, MODULE_NAME);
     static final String ERROR_REASON_PREFIX = "{" + BALLERINA_X_ORG_NAME + "/" + JAVA_MODULE_NAME + "}";
     static final String PARAM_TYPE_CONSTRAINTS_FIELD = "paramTypeConstraints";
     static final String CLASS_FIELD = "class";
@@ -100,7 +102,7 @@ class JInterop {
     static final String J_VOID_TNAME = void.class.getTypeName();
 
     static MapValue<String, Object> createRecordBValue(String typeName) {
-        return BallerinaValues.createRecordValue(JVM_PACKAGE_PATH, typeName);
+        return BallerinaValues.createRecordValue(JVM_PACKAGE_ID, typeName);
     }
 
     static MapValue<String, Object> createJMethodTypeBValue(JMethod jMethod) {

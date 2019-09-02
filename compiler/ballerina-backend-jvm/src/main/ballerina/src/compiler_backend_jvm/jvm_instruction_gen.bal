@@ -24,7 +24,7 @@ type InstructionGenerator object {
     string currentPackageName;
     bir:Package currentPackage;
 
-    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:Package moduleId) {
+    function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:Package moduleId) {
         self.mv = mv;
         self.indexMap = indexMap;
         self.currentPackage = moduleId;
@@ -474,13 +474,20 @@ type InstructionGenerator object {
     }
 
     function generateBitwiseAndIns(bir:BinaryOp binaryIns) {
-        self.loadVar(binaryIns.rhsOp1.variableDcl);
-        self.loadVar(binaryIns.rhsOp2.variableDcl);
-
-        bir:BType opType = binaryIns.rhsOp1.typeValue;
-        if (opType is bir:BTypeInt) {
+        bir:BType opType1 = binaryIns.rhsOp1.typeValue;
+        bir:BType opType2 = binaryIns.rhsOp2.typeValue;
+        
+        if (opType1 is bir:BTypeInt && opType2 is bir:BTypeInt) {
+            self.loadVar(binaryIns.rhsOp1.variableDcl);
+            self.loadVar(binaryIns.rhsOp2.variableDcl);
             self.mv.visitInsn(LAND);
         } else {
+            self.loadVar(binaryIns.rhsOp1.variableDcl);
+            generateCheckCastToByte(self.mv, opType1);
+            
+            self.loadVar(binaryIns.rhsOp2.variableDcl);
+            generateCheckCastToByte(self.mv, opType2);
+            
             self.mv.visitInsn(IAND);
         }
         self.storeToVar(binaryIns.lhsOp.variableDcl);
@@ -606,11 +613,10 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, TABLE_VALUE);
         self.mv.visitInsn(DUP);
         loadType(self.mv, tableNewIns.typeValue);
-        self.loadVar(tableNewIns.indexColOp.variableDcl);
         self.loadVar(tableNewIns.keyColOp.variableDcl);
         self.loadVar(tableNewIns.dataOp.variableDcl);
-        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", BTYPE,
-                ARRAY_VALUE, ARRAY_VALUE, ARRAY_VALUE), false);
+        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;)V", BTYPE,
+                ARRAY_VALUE, ARRAY_VALUE), false);
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
@@ -793,6 +799,8 @@ type InstructionGenerator object {
             string? targetTypeClass = getTargetClass(varRefType, bType);
             if (targetTypeClass is string) {
                 self.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+            } else {
+                addUnboxInsn(self.mv, bType);
             }
         }
         self.storeToVar(inst.lhsOp.variableDcl);
@@ -875,7 +883,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
 
         string lambdaName = inst.name.value + "$lambda$";
-        string lookupKey = getPackageName(inst.pkgID.org, inst.pkgID.name) + inst.name.value;
+        string pkgName = getPackageName(inst.pkgID.org, inst.pkgID.name);
+        string lookupKey = pkgName + inst.name.value;
         string methodClass = lookupFullQualifiedClassName(lookupKey);
 
         bir:BType returnType = inst.lhsOp.typeValue;
@@ -901,6 +910,15 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
                                     io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
         }
+
+        // Set annotations if available.
+        self.mv.visitInsn(DUP);
+        string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
+                                    lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+        self.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
+        self.mv.visitLdcInsn(inst.name.value);
+        self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processFPValueAnnotations",
+            io:sprintf("(L%s;L%s;L%s;)V", FUNCTION_POINTER, MAP_VALUE, STRING_VALUE), false);
 
         self.storeToVar(inst.lhsOp.variableDcl);
         lambdas[lambdaName] = inst;
@@ -1108,8 +1126,13 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     bir:BType bType = varDcl.typeValue;
 
     if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
+        bir:GlobalVariableDcl globalVar = <bir:GlobalVariableDcl> varDcl;
+        bir:ModuleID modId = <bir:ModuleID> globalVar?.moduleId;
+        string moduleName = getPackageName(modId.org, modId.name);
+
         string varName = varDcl.name.value;
-        string className = lookupGlobalVarClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(moduleName + varName);
+
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
         return;

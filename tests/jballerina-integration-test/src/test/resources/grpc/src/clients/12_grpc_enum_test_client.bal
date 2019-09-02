@@ -87,7 +87,7 @@ public type testEnumServiceClient client object {
 };
 
 
-type orderInfo record {
+public type orderInfo record {
     string id = "";
     Mode mode = r;
 

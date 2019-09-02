@@ -20,7 +20,7 @@ LINE_COMMENT ('// it is required to give the PKCS12 keystore file location and i
 WHITE_SPACE ('\n')
 identifier ('http')
 : (':')
-identifier ('ServiceEndpointConfiguration')
+identifier ('ListenerConfiguration')
 WHITE_SPACE (' ')
 identifier ('helloWorldEPConfig')
 WHITE_SPACE (' ')

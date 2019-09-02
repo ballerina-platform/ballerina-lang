@@ -54,7 +54,7 @@ import java.util.UUID;
 import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_ENCODER;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_IO_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEMP_FILE_EXTENSION;
@@ -319,6 +319,6 @@ public class MultipartUtils {
     }
 
     public static ObjectValue getByteChannelStruct() {
-        return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_IO, READABLE_BYTE_CHANNEL_STRUCT);
+        return BallerinaValues.createObjectValue(PROTOCOL_IO_PKG_ID, READABLE_BYTE_CHANNEL_STRUCT);
     }
 }

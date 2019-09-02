@@ -46,7 +46,7 @@ function testNullStringRepresentation3() returns string|error {
 
 function testNullStringRepresentation4() returns string {
     json j = {name:"John Doe", age:25, location:null};
-    return io:sprintf("%s", j);
+    return io:sprintf("%s", j.toString());
 }
 
 function testNullReturn() returns json {
@@ -89,8 +89,8 @@ function testNullWithMatch() returns string {
     anydata ad = j;
 
     match j {
-        0 => return "0";
-        null => return "null";
+        0 => {return "0";}
+        null => {return "null";}
     }
 
     return "";

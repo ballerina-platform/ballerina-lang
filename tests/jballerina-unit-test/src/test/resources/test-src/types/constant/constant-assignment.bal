@@ -1,5 +1,5 @@
+import ballerina/lang.'string as strings;
 import ballerina/system;
-import ballerina/'lang\.string as strings;
 
 final string envVar = system:getEnv("env_var");
 final string varFunc = dummyStringFunction();

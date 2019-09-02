@@ -97,8 +97,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
                 project.getBasePath());
         // if no ballerina project is found.
         if (projectRoot.isEmpty()) {
-            projectRoot = projectPath;
-            filePath = Paths.get(file.getVirtualFile().getPath()).toString().replace(projectRoot, "").substring(1);
+            filePath = Paths.get(file.getVirtualFile().getPath()).toString();
         } else {
             String relativeFilePath =
                     Paths.get(file.getVirtualFile().getPath()).toString().replace(projectRoot, "").substring(1);

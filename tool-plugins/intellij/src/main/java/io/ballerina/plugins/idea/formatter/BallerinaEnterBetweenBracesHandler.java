@@ -16,11 +16,14 @@
 
 package io.ballerina.plugins.idea.formatter;
 
-import com.intellij.codeInsight.editorActions.enter.EnterBetweenBracesHandler;
+import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
+import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -32,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Handles the enter key press in braces.
  */
-public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandler {
+public class BallerinaEnterBetweenBracesHandler extends EnterHandlerDelegateAdapter {
 
     @Override
     public Result postProcessEnter(@NotNull PsiFile file, @NotNull Editor editor, @NotNull DataContext dataContext) {
@@ -69,6 +72,19 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
             // Commit the document.
             PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
         }
+
+        Document doc = editor.getDocument();
+        LogicalPosition position = editor.getCaretModel().getLogicalPosition();
+        int lineStartOff = doc.getLineStartOffset(position.line - 1);
+        int lineEndOff = doc.getLineEndOffset(position.line - 1);
+        // If the previous line ends with left brace.
+        if (doc.getText(new TextRange(lineStartOff, lineEndOff)).trim().endsWith("{")) {
+            // Adds indentation to the caret.
+            EditorModificationUtil.insertStringAtCaret(editor, "    ", false, 4);
+            // Commit the document.
+            PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
+        }
+
         return Result.Continue;
     }
 
@@ -77,11 +93,5 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         BallerinaTypeDefinition typeDefinition = PsiTreeUtil.getParentOfType(element, BallerinaTypeDefinition.class);
         // Check whether the type definition has a semicolon.
         return typeDefinition != null && typeDefinition.getSemicolon() == null;
-
-    }
-
-    @Override
-    protected boolean isBracePair(char c1, char c2) {
-        return c1 == '{' && c2 == '}';
     }
 }

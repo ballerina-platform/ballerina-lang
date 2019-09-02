@@ -710,8 +710,14 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTypeInit typeInit) {
-        if (typeInit.initInvocation != null && typeInit.initInvocation.name.value.equals(this.tokenName)) {
-            this.addSymbol(typeInit.initInvocation, typeInit.initInvocation.symbol, false, typeInit.initInvocation.pos);
+        if (typeInit.initInvocation != null &&
+                (typeInit.initInvocation.name.value.equals(this.tokenName) ||
+                (typeInit.type.tsymbol != null && typeInit.type.tsymbol.name.value.equals(this.tokenName)))) {
+            BSymbol symbol = typeInit.initInvocation.symbol;
+            if (symbol == null) {
+                symbol = typeInit.type.tsymbol;
+            }
+            this.addSymbol(typeInit.initInvocation, symbol, false, typeInit.initInvocation.pos);
         } else if (typeInit.userDefinedType != null) {
             this.acceptNode(typeInit.userDefinedType);
         }

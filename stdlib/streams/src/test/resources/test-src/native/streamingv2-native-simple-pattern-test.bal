@@ -55,7 +55,7 @@ stream<DInfo> dStream = new;
 stream<ABCDInfo> abcdStream = new;
 
 // (A || B) => (C && D)
-public function startPatternQuery() returns (ABCDInfo[]) {
+function startPatternQuery() returns (ABCDInfo[]) {
     runPatternQuery();
 
     AInfo a1 = {id:11, name:"a1"};

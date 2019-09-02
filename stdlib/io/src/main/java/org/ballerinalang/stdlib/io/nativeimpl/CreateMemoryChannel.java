@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -51,21 +50,16 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
         try {
             Channel channel = inFlow(content);
             return createChannel(channel);
-        } catch (BallerinaException e) {
-            return IOUtils.createError(e.getMessage());
+        } catch (Exception e) {
+            return IOUtils.createError(e);
         }
     }
 
     private static Channel inFlow(ArrayValue contentArr) {
-        try {
-            byte[] content = shrink(contentArr);
-            ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
-            ReadableByteChannel readableByteChannel = Channels.newChannel(contentStream);
-            return new BlobIOChannel(new BlobChannel(readableByteChannel));
-        } catch (Throwable e) {
-            String message = "Error occurred while obtaining channel";
-            throw new BallerinaException(message, e);
-        }
+        byte[] content = shrink(contentArr);
+        ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
+        ReadableByteChannel readableByteChannel = Channels.newChannel(contentStream);
+        return new BlobIOChannel(new BlobChannel(readableByteChannel));
     }
 
     /**

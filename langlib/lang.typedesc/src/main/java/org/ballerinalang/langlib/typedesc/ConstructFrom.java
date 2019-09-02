@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.typedesc;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
@@ -28,9 +27,9 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -43,7 +42,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.ballerinalang.jvm.BallerinaErrors.createError;
 import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * Extern function lang.typedesc:constructFrom.
@@ -81,9 +83,8 @@ public class ConstructFrom {
             if (convertType.isNilable()) {
                 return null;
             }
-            return BallerinaErrors
-                    .createError(BallerinaErrorReasons.CONVERSION_ERROR,
-                                 BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, convertType));
+            return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
+                               BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, convertType));
         }
 
         BType inputValType = TypeChecker.getType(inputValue);
@@ -104,9 +105,9 @@ public class ConstructFrom {
                 }
             }
 
-            return BallerinaErrors.createConversionError(inputValue, convertType);
+            return createConversionError(inputValue, convertType);
         } else if (convertibleTypes.size() > 1) {
-            return BallerinaErrors.createConversionError(inputValue, convertType, AMBIGUOUS_TARGET);
+            return createConversionError(inputValue, convertType, AMBIGUOUS_TARGET);
         }
 
         BType targetType = convertibleTypes.get(0);
@@ -130,7 +131,20 @@ public class ConstructFrom {
             convertedValue.stamp(targetType, new ArrayList<>());
             return convertedValue;
         } catch (BallerinaException e) {
-            return BallerinaErrors.createError(BallerinaErrorReasons.CONVERSION_ERROR, e.getDetail());
+            return createError(CONSTRUCT_FROM_CONVERSION_ERROR, e.getDetail());
         }
+    }
+
+    private static ErrorValue createConversionError(Object inputValue, BType targetType) {
+        return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
+                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                                                                TypeChecker.getType(inputValue), targetType));
+    }
+
+    private static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
+        return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
+                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                                                                TypeChecker.getType(inputValue), targetType)
+                                   .concat(": ".concat(detailMessage)));
     }
 }

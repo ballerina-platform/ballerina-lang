@@ -2,14 +2,10 @@ function test0 (){
     break;
 }
 
-function AbstractListener (string x, AbstractListener e){
+function Listener (string x, Listener e){
     e.message = x;
 }
 
 function test1(){
-    int AbstractListener = 10;
-}
-
-function AbstractListener.getMessage() returns (string){
-    return e.message;
+    int Listener = 10;
 }

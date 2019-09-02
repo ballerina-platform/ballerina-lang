@@ -15,14 +15,14 @@
 // under the License.
 
 type Person1 abstract object {
-    public int age = 10;
-    public string name = "sample name";
+    public int age;
+    public string name;
 
     public function getName() returns string;
 };
 
 type Employee1 abstract object {
-    public float salary = 0.0;
+    public float salary;
 
     public function getSalary() returns float; 
 };
@@ -102,7 +102,7 @@ type Manager3 object {
 };
 
 type Employee2 abstract object {
-    public float salary = 0.0;
+    public float salary;
     *Person1;
 
     public function getSalary() returns float; 
@@ -136,15 +136,15 @@ type Manager4 object {
 };
 
 type Employee3 abstract object {
-    public float salary = 0.0;
+    public float salary;
     *Person3;
 
     public function getBonus(float ratio, int months=12) returns float;
 };
 
 type Person3 abstract object {
-    public int age = 10;
-    public string name = "sample name";
+    public int age;
+    public string name;
 
     public function getName(string greeting = "Hi") returns string;
 };

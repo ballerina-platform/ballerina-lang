@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'object as lang;
 import ballerina/websub;
-import ballerina/'lang\.object as lang;
 
 public type MockActionEvent record {|
     string action;
@@ -27,7 +27,7 @@ public type MockDomainEvent record {|
 
 public type WebhookServerForPayload object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private websub:Listener websubListener;
 

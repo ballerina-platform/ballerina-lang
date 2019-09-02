@@ -6,86 +6,7 @@
   "source": "function/source/iterableOperation6.bal",
   "items": [
     {
-      "label": "remove(function (any) returns (boolean) func)((int|error))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nRemove data from the table.\n  \n  \n  \n**Returns** `(int|error)`   \n- An `int` the number of deleted record count or `error` if any error occurred during removing data  \n  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "remove(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "TableIterator",
-      "kind": "Class",
-      "detail": "Object",
-      "sortText": "120",
-      "insertText": "TableIterator",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "iterator()()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns an iterator over the members of `tbl`.  \n  \n  \n**Returns** ``   \n  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "iterator()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isReadOnly()(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "isReadOnly()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TableConfig",
-      "kind": "Class",
-      "detail": "Record",
-      "documentation": {
-        "left": "TableConfig represents properties used during table initialization.\n"
-      },
-      "sortText": "120",
-      "insertText": "TableConfig",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "close()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "close();",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "add(any data)((()|error))",
+      "label": "add(record {\n\n} data)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -117,20 +38,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "length()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns the number of members in `tbl`.  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "length()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "hasNext()(boolean)",
       "kind": "Function",
       "detail": "Function",
@@ -159,6 +66,52 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "remove(function (any) returns (boolean) func)((int|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.table_  \n  \nRemove data from the table.\n  \n  \n  \n**Returns** `(int|error)`   \n- An `int` the number of deleted record count or `error` if any error occurred during removing data  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "remove(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "iterator()()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns an iterator over the members of `tbl`.  \n  \n  \n**Returns** ``   \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isReadOnly()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "clone()(anydata)",
       "kind": "Function",
       "detail": "Function",
@@ -184,6 +137,20 @@
       },
       "sortText": "130",
       "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "close()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.table_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "close();",
       "insertTextFormat": "Snippet"
     }
   ]

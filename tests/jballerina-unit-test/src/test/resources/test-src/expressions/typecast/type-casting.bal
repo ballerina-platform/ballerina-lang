@@ -1,5 +1,5 @@
-import ballerina/'lang\.int as ints;
-import ballerina/'lang\.float as floats;
+import ballerina/lang.'float as floats;
+import ballerina/lang.'int as ints;
 
 function floattoint(float value) returns (int) {
     int result;
@@ -70,9 +70,10 @@ function booleanappendtostring(boolean value) returns (string) {
 
 function anyjsontostring() returns (string) {
     json j = {"a":"b"};
-    any value = j;
+    // TODO: calling toJsonString on any is not allowed
+    //any value = j;
     string result;
-    result = value.toString();
+    result = j.toJsonString();
     return result;
 }
 
@@ -85,7 +86,7 @@ function testJsonToStringCast() returns string|error {
 
 function testJSONObjectToStringCast() returns string|error {
     json j = {"foo":"bar"};
-    var value = j.toString();
+    var value = j.toJsonString();
     //TODO : Handle error
 
     return value;
@@ -207,21 +208,21 @@ function testMapToAny() returns (any) {
 function testIncompatibleJsonToInt() returns int|error {
     json j = "hello";
     int value;
-    value = check ints:fromString(j.toString());
+    value = check ints:fromString(j.toJsonString());
     return value;
 }
 
 function testIntInJsonToFloat() returns float|error {
     json j = 7;
     float value;
-    value = check floats:fromString(j.toString());
+    value = check floats:fromString(j.toJsonString());
     return value;
 }
 
 function testIncompatibleJsonToFloat() returns float|error {
     json j = "hello";
     float value;
-    value = check floats:fromString(j.toString());
+    value = check floats:fromString(j.toJsonString());
     return value;
 }
 

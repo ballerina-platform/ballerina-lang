@@ -5,6 +5,7 @@ export const TM_EVENT_OPEN_EXAMPLES = "open.examples";
 export const TM_EVENT_OPEN_DIAGRAM = "open.diagram";
 export const TM_EVENT_OPEN_PROJECT_OVERVIEW_VIA_CMD = "open.project.overview.via.cmd";
 export const TM_EVENT_OPEN_PROJECT_OVERVIEW_VIA_TREE_VIEW = "open.project.overview.via.tree.view";
+export const TM_EVENT_OPEN_FILE_OVERVIEW = "open.file.overview";
 export const TM_EVENT_OPEN_NETWORK_LOGS = "open.network.logs";
 export const TM_EVENT_OPEN_DOC_PREVIEW = "open.doc.preview";
 export const TM_EVENT_OPEN_API_DESIGNER = "open.api.designer";

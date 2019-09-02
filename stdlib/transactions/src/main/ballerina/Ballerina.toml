@@ -3,10 +3,10 @@ org-name = "ballerina"
 version = "0.0.0"
 
 [platform]
-target = "java"
+target = "java8"
 
     [[platform.libraries]]
-    artafactId = "transactions"
+    artifactId = "transactions"
     version = "@project.version@"
     path = "./lib/ballerina-transactions-@project.version@.jar"
     groupId = "ballerina"

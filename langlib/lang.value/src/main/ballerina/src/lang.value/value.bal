@@ -14,102 +14,107 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# A type parameter that is a subtype of `anydata`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+@typeParam
+type AnydataType anydata;
 
-# Returns a simple, human-readable representation of `value` as a string.
+# Returns a clone of `v`.
+# A clone is a deep copy that does not copy immutable subtrees.
+# A clone can therefore safely be used concurrently with the original.
+# It corresponds to the Clone(v) abstract operation,
+# defined in the Ballerina Language Specification.
 #
-# + value - source value
-# + return - simple, human-readable string representation of `value`
+# + v - source value
+# + return - clone of `v`
+public function clone(AnydataType v) returns AnydataType = external;
+
+# Returns a clone of `v` that is read-only, i.e. immutable.
+# It corresponds to the ImmutableClone(v) abstract operation,
+# defined in the Ballerina Language Specification.
 #
-# - if `value` is a string, then returns `value`
-# - if `value` is `()`, then returns an empty string
-# - if `value` is boolean, then the string `true` or `false`
-# - if `value` is an int, then return `value` represented as a decimal string
-# - if `value` is a float or decimal, then return `value` represented as a decimal string,
-#   with a decimal point only if necessary, but without any suffix indicating the type of `value`
+# + v - source value
+# + return - immutable clone of `v`
+public function cloneReadOnly(AnydataType v) returns AnydataType = external;
+
+# Tests whether `v` is read-only, i.e. immutable
+# Returns true if read-only, false otherwise.
+#
+# + v - source value
+# + return - true if read-only, false otherwise
+public function isReadOnly(anydata v) returns boolean = external;
+
+# Performs a minimal conversion of a value to a string.
+# The conversion is minimal in particular in the sense
+# that the conversion applied to a value that is already
+# a string does nothing.
+# + v - the value to be converted to a string
+# + return - a string resulting from the conversion
+#
+# The result of `toString(v)` is as follows:
+#
+# - if `v` is a string, then returns `v`
+# - if `v` is `()`, then returns an empty string
+# - if `v` is boolean, then the string `true` or `false`
+# - if `v` is an int, then return `v` represented as a decimal string
+# - if `v` is a float or decimal, then return `v` represented as a decimal string,
+#   with a decimal point only if necessary, but without any suffix indicating the type of `v`;
 #   return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity
-# - if `value` is a list, then returns the results toString on each member of the list
+# - if `v` is a list, then returns the results toString on each member of the list
 #   separated by a space character
-# - if `value` is a map, then returns key=value for each member separated by a space character
-# - if `value` is xml, then returns `value` in XML format (as if it occurred within an XML element)
-# - if `value` is table, TBD
-# - if `value` is an error, then a string consisting of the following in order
+# - if `v` is a map, then returns key=value for each member separated by a space character
+# - if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)
+# - if `v` is table, TBD
+# - if `v` is an error, then a string consisting of the following in order
 #     1. the string `error`
 #     2. a space character
 #     3. the reason string
 #     4. if the detail record is non-empty
 #         1. a space character
 #         2. the result of calling toString on the detail record
-# - if `value` is an object, then
-#     - if `value` provides a `toString` method with a string return type and no required methods,
-#       then the result of calling that method on `value`
+# - if `v` is an object, then
+#     - if `v` provides a `toString` method with a string return type and no required methods,
+#       then the result of calling that method on `v`
 #     - otherwise, `object` followed by some implementation-dependent string
-# - if `value` is any other behavioral type, then the identifier for the behavioral type
+# - if `v` is any other behavioral type, then the identifier for the behavioral type
 #   (`function`, `future`, `service`, `typedesc` or `handle`)
 #   followed by some implementation-dependent string
 #
 # Note that `toString` may produce the same string for two Ballerina values
 # that are not equal (in the sense of the `==` operator).
-public function toString (any|error value) returns string = external;
+public function toString((any|error) v) returns string = external;
 
-# A type parameter that is a subtype of `anydata`.
-# Has the special semantic that when used in a declaration
-# all uses in the declaration must refer to same type.
-@typeParam
-type anydataType anydata;
+// JSON conversion
 
-# Returns a clone of `value`.
-# A clone is a deep copy that does not copy immutable subtrees.
-# A clone can therefore safely be used concurrently with the original.
-# It corresponds to the Clone(v) abstract operation,
-# defined in the Ballerina Language Specification.
+# Returns the string that represents `v` in JSON format.
 #
-# + value - source value
-# + return - clone of `value`
-public function clone(anydataType value) returns anydataType = external;
-
-# Returns a clone of `value` that is read-only, i.e. immutable.
-# It corresponds to the ImmutableClone(v) abstract operation,
-# defined in the Ballerina Language Specification.
-#
-# + value - source value
-# + return - immutable clone of `value`
-public function cloneReadOnly(anydataType value) returns anydataType = external;
-
-# Tests whether `v` is read-only, i.e. immutable
-# Returns true if read-only, false otherwise.
-#
-# + value - source value
-# + return - true if read-only, false otherwise
-public function isReadOnly(anydataType value) returns boolean = external;
-
-# Return the string that represents `v` in JSON format.
-#
-# + value - json value
+# + v - json value
 # + return - string representation of json
 public function toJsonString(json v) returns string = external;
 
-# Parse a string in JSON format and return the the value that it represents.
+# Parses a string in JSON format and returns the the value that it represents.
 # All numbers in the JSON will be represented as float values.
 # Returns an error if the string cannot be parsed.
 #
-# + value - string representation of json
-# + return - `value` parsed to json or error
+# + str - string representation of json
+# + return - `str` parsed to json or error
 public function fromJsonString(string str) returns json|error = external;
 
-# Return the result of merging json value `j1` with `j2`.
+# Merges two json values.
 #
 # + j1 - json value
 # + j2 - json value
-# + return - merged json value or error
+# + return - the merge of `j1` with `j2` or an error if the merge fails
 #
-# If the merge fails, then return an error.
-# The merge of j1 with j2 is defined as follows:
-# - if j1 is (), then the result is j2
-# - if j2 is nil, then the result is j1
-# - if j1 is a mapping and j2 is a mapping, then for each entry [k, j] in j2,
-#   set j1[k] to the merge of j1[k] with j
-#     - if j1[k] is undefined, then set j1[k] to j
-#     - if any merge fails, then the merge of j1 with j2 fails
-#     - otherwise, the result is j1.
+# The merge of `j1` with `j2` is defined as follows:
+# - if `j1` is `()`, then the result is `j2`
+# - if `j2` is `()`, then the result is `j1`
+# - if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,
+#   set `j1[k]` to the merge of `j1[k]` with `j`
+#     - if `j1[k]` is undefined, then set `j1[k]` to `j`
+#     - if any merge fails, then the merge of `j1` with `j2` fails
+#     - otherwise, the result is `j1`.
 # - otherwise, the merge fails
+# If the merge fails, then `j1` is unchanged.
 public function mergeJson(json j1, json j2) returns json|error = external;

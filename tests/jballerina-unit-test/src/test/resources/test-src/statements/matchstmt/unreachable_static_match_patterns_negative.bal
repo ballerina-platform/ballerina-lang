@@ -21,14 +21,14 @@ type Rec1 record {
 function recordTypes() returns string {
     Rec1 r1 = {a: 200};
     match r1 {
-        {a: 200, b: "A"} => return "A";
-        {a: 200, b: "A"} => return "A"; // unreachable pattern
-        {b: "A", a: 200} => return "A"; // unreachable pattern
-        {a: 100, b: "A"} => return "A";
-        {a: 200, b: "B"} => return "A";
-        {a: 150, b: "A", c: true} => return "A";
-        {a: 150, b: "A"} => return "A";
-        {a: 150, b: "A", c: false} => return "A"; // unreachable pattern
+        {a: 200, b: "A"} => {return "A";}
+        {a: 200, b: "A"} => {return "A";} // unreachable pattern
+        {b: "A", a: 200} => {return "A";} // unreachable pattern
+        {a: 100, b: "A"} => {return "A";}
+        {a: 200, b: "B"} => {return "A";}
+        {a: 150, b: "A", c: true} => {return "A";}
+        {a: 150, b: "A"} => {return "A";}
+        {a: 150, b: "A", c: false} => {return "A";} // unreachable pattern
     }
 
     return "Fail";
@@ -37,10 +37,10 @@ function recordTypes() returns string {
 function tupleTypes() returns string {
     [string, int] t1 = ["A", 12];
     match t1 {
-        ["A", 15] => return "T";
-        ["A", 15] => return "T"; // unreachable pattern
-        ["B", 15] => return "T";
-        ["B", 15] => return "T"; // unreachable pattern
+        ["A", 15] => {return "T";}
+        ["A", 15] => {return "T";}// unreachable pattern
+        ["B", 15] => {return "T";}
+        ["B", 15] => {return "T";} // unreachable pattern
     }
 
     return "Fail";
@@ -49,12 +49,12 @@ function tupleTypes() returns string {
 function simpleTypes() returns string {
     anydata k = 10;
     match k {
-        15 => return "T";
-        [12, 15] => return "T";
-        20 => return "T";
-        20 => return "T"; // unreachable pattern
-        15 => return "T"; // unreachable pattern
-        [12, 15] => return "T"; // unreachable pattern
+        15 => {return "T";}
+        [12, 15] => {return "T";}
+        20 => {return "T";}
+        20 => {return "T";} // unreachable pattern
+        15 => {return "T";} // unreachable pattern
+        [12, 15] => {return "T";} // unreachable pattern
     }
 
     return "Fail";
@@ -63,9 +63,9 @@ function simpleTypes() returns string {
 function unreachableCode() returns string {
     anydata k = 10;
     match k {
-        15 => return "T";
-        [12, 15] => return "T";
-        _ => return "T";
+        15 => {return "T";}
+        [12, 15] => {return "T";}
+        _ => {return "T";}
     }
 
     return "Fail"; // unreachable
@@ -76,23 +76,23 @@ const CONST_2 = "B";
 
 function invalidConstPatterns(any a) returns string {
     match a {
-        CONST_1 => return "B";
-        CONST_2 => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+        CONST_1 => {return "B";}
+        CONST_2 => {return "B";} // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
     }
 
     match a {
-        "B" => return "B";
-        CONST_2 => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+        "B" => {return "B";}
+        CONST_2 => {return "B";} // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
     }
 
     match a {
-        CONST_2 => return "B";
-        "B" => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+        CONST_2 => {return "B";}
+        "B" => {return "B";}// unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
     }
 
     match a {
-        _ => return "Default";
-        CONST_1 => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+        _ => {return "Default";}
+        CONST_1 => {return "B";} // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
     }
     return "Default";
 }
@@ -100,43 +100,43 @@ function invalidConstPatterns(any a) returns string {
 function testUnreachableUnionStaticPatterns() returns string {
     any a = 10;
     match a {
-        15 => return "1";
-        10 => return "2";
-        10|11 => return "3"; // unreachable
+        15 => {return "1";}
+        10 => {return "2";}
+        10|11 => {return "3";} // unreachable
     }
 
     match a {
-        10|11 => return "1";
-        15 => return "2";
-        11 => return "3"; // unreachable
+        10|11 => {return "1";}
+        15 => {return "2";}
+        11 => {return "3";} // unreachable
     }
 
     match a {
-        10|11 => return "1";
-        15 => return "2";
-        12|11 => return "3"; // unreachable
+        10|11 => {return "1";}
+        15 => {return "2";}
+        12|11 => {return "3";} // unreachable
     }
 
     match a {
-        10|11|"Ballerina" => return "1";
-        15 => return "2";
-        12 => return "3";
-        "Ballerina" => return "4"; // unreachable
+        10|11|"Ballerina" => {return "1";}
+        15 => {return "2";}
+        12 => {return "3";}
+        "Ballerina" => {return "4";} // unreachable
     }
 
     match a {
-        10|11|"Ballerina" => return "1";
-        15 => return "2";
-        "Ballerina"|"Lang" => return "4"; // unreachable
-        12|11 => return "3"; // unreachable
+        10|11|"Ballerina" => {return "1";}
+        15 => {return "2";}
+        "Ballerina"|"Lang" => {return "4";} // unreachable
+        12|11 => {return "3";} // unreachable
     }
 
     match a {
-        "Ballerina"|true|["Ballerina", true] => return "1";
-        { x: "Ballerina", y: true }|["Bal", "Lang"] => return "2";
-        { x: "Ballerina", y: false } => return "3";
-        false|["Ballerina", true] => return "4"; // unreachable
-        12|{ x: "Ballerina", y: true } => return "3"; // unreachable
+        "Ballerina"|true|["Ballerina", true] => {return "1";}
+        { x: "Ballerina", y: true }|["Bal", "Lang"] => {return "2";}
+        { x: "Ballerina", y: false } => {return "3";}
+        false|["Ballerina", true] => {return "4";} // unreachable
+        12|{ x: "Ballerina", y: true } => {return "3";} // unreachable
     }
 
     return "4";

@@ -62,7 +62,7 @@ public class CreateJarTask implements Task {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
 
-            BootstrapRunner.generateJarBinaryViaCompiledBackend(tmpDir,
+            BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir,
                     entryBir.toString(), jarOutput.toString(), this.dumpBir,
                     projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
         }
@@ -89,7 +89,7 @@ public class CreateJarTask implements Task {
                 birFilePath = buildContext.getBirPathFromHomeCache(id);
             }
             if (!Files.exists(jarFilePath)) {
-                BootstrapRunner.generateJarBinaryViaCompiledBackend(tmpDir,
+                BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir,
                         birFilePath.toString(), jarFilePath.toString(), this.dumpBir, reps);
             }
             writeImportJar(tmpDir, bimport.imports, sourceRoot, buildContext, reps);
