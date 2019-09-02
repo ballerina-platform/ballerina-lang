@@ -1,5 +1,5 @@
-// import testOrg/myimport;
+import ballerina/io;
 
 public function main(string... args) {
-    // int x = myimport:foo();
+    io:println("test print");
 }
