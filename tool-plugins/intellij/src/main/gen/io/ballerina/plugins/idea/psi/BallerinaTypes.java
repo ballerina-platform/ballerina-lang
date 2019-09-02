@@ -40,7 +40,6 @@ public interface BallerinaTypes {
   IElementType ARROW_FUNCTION_EXPRESSION = new BallerinaCompositeElementType("ARROW_FUNCTION_EXPRESSION");
   IElementType ARROW_PARAM = new BallerinaCompositeElementType("ARROW_PARAM");
   IElementType ASSIGNMENT_STATEMENT = new BallerinaCompositeElementType("ASSIGNMENT_STATEMENT");
-  IElementType ATTACHED_OBJECT = new BallerinaCompositeElementType("ATTACHED_OBJECT");
   IElementType ATTACHMENT_POINT = new BallerinaCompositeElementType("ATTACHMENT_POINT");
   IElementType BACKTICKED_BLOCK = new BallerinaCompositeElementType("BACKTICKED_BLOCK");
   IElementType BINARY_ADD_SUB_EXPRESSION = new BallerinaCompositeElementType("BINARY_ADD_SUB_EXPRESSION");
@@ -62,7 +61,6 @@ public interface BallerinaTypes {
   IElementType CALLABLE_UNIT_SIGNATURE = new BallerinaCompositeElementType("CALLABLE_UNIT_SIGNATURE");
   IElementType CATCH_CLAUSE = new BallerinaCompositeElementType("CATCH_CLAUSE");
   IElementType CATCH_CLAUSES = new BallerinaCompositeElementType("CATCH_CLAUSES");
-  IElementType CHANNEL_TYPE = new BallerinaCompositeElementType("CHANNEL_TYPE");
   IElementType CHECKED_EXPRESSION = new BallerinaCompositeElementType("CHECKED_EXPRESSION");
   IElementType CHECK_PANIC_EXPRESSION = new BallerinaCompositeElementType("CHECK_PANIC_EXPRESSION");
   IElementType CLOSED_RECORD_BINDING_PATTERN = new BallerinaCompositeElementType("CLOSED_RECORD_BINDING_PATTERN");
@@ -600,9 +598,6 @@ public interface BallerinaTypes {
       else if (type == ASSIGNMENT_STATEMENT) {
         return new BallerinaAssignmentStatementImpl(node);
       }
-      else if (type == ATTACHED_OBJECT) {
-        return new BallerinaAttachedObjectImpl(node);
-      }
       else if (type == ATTACHMENT_POINT) {
         return new BallerinaAttachmentPointImpl(node);
       }
@@ -665,9 +660,6 @@ public interface BallerinaTypes {
       }
       else if (type == CATCH_CLAUSES) {
         return new BallerinaCatchClausesImpl(node);
-      }
-      else if (type == CHANNEL_TYPE) {
-        return new BallerinaChannelTypeImpl(node);
       }
       else if (type == CHECKED_EXPRESSION) {
         return new BallerinaCheckedExpressionImpl(node);
