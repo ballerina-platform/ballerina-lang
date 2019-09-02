@@ -16,18 +16,18 @@
 
 import ballerina/http;
 
-http:Client maxAgeCacheEp = new("http://localhost:9246", { cache: { isShared: true } });
+http:Client cachingEP1 = new("http://localhost:9243", { cache: { isShared: true } });
 
 @http:ServiceConfig {
-    basePath: "/maxAge"
+    basePath: "/nocache"
 }
-service maxAgeProxyService on new http:Listener(9245) {
+service cachingProxyService on new http:Listener(9244) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    resource function maxAgeProxyResource(http:Caller caller, http:Request req) {
-        var response = maxAgeCacheEp->forward("/maxAgeBackend", req);
+    resource function cacheableProxyResource(http:Caller caller, http:Request req) {
+        var response = cachingEP1->forward("/nocachebackend", req);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -39,31 +39,29 @@ service maxAgeProxyService on new http:Listener(9245) {
     }
 }
 
-json maxAgePayload = {};
-int maxAgehitcount = 0;
+int nocachehitcount = 0;
 
 @http:ServiceConfig {
-    basePath: "/maxAgeBackend"
+    basePath: "/nocachebackend"
 }
-service maxAgeBackend on new http:Listener(9246) {
+service nocacheBackend on new http:Listener(9243) {
 
     @http:ResourceConfig { path: "/" }
     resource function sayHello(http:Caller caller, http:Request req) {
-        if (maxAgehitcount < 1) {
-            maxAgePayload = { "message": "before cache expiration" };
-        } else {
-            maxAgePayload = { "message": "after cache expiration" };
-        }
+        json nocachePayload = {};
         http:Response res = new;
         http:ResponseCacheControl resCC = new;
-        resCC.maxAge = 5;
-
-        res.cacheControl = resCC;
-        res.setETag(maxAgePayload);
-        res.setLastModified();
-
-        maxAgehitcount += 1;
-        res.setPayload(maxAgePayload);
+        if (nocachehitcount < 1) {
+            nocachePayload = { "message": "1st response" };
+            res.cacheControl = resCC;
+        } else {
+            nocachePayload = { "message": "2nd response" };
+        }
+        resCC.noCache = true;
+        res.setETag(nocachePayload);
+        nocachehitcount += 1;
+        res.setHeader("x-service-hit-count", nocachehitcount.toString());
+        res.setPayload(nocachePayload);
 
         checkpanic caller->respond(res);
     }

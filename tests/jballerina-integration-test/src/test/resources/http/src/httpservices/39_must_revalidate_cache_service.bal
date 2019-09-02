@@ -16,18 +16,18 @@
 
 import ballerina/http;
 
-http:Client cachingEP1 = new("http://localhost:9243", { cache: { isShared: true } });
+http:Client cachingEP3 = new("http://localhost:9248", { cache: { isShared: true } });
 
 @http:ServiceConfig {
-    basePath: "/nocache"
+    basePath: "/mustRevalidate"
 }
-service cachingProxyService on new http:Listener(9244) {
+service mustRevalidateProxyService on new http:Listener(9247) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
     resource function cacheableProxyResource(http:Caller caller, http:Request req) {
-        var response = cachingEP1->forward("/nocachebackend", req);
+        var response = cachingEP3->forward("/mustRevalidateBE", req);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -39,33 +39,27 @@ service cachingProxyService on new http:Listener(9244) {
     }
 }
 
-json nocachePayload = {};
-int nocachehitcount = 0;
+int numberOfHits = 0;
 
 @http:ServiceConfig {
-    basePath: "/nocachebackend"
+    basePath: "/mustRevalidateBE"
 }
-service nocacheBackend on new http:Listener(9243) {
+service mustRevalidateBackend on new http:Listener(9248) {
 
     @http:ResourceConfig { path: "/" }
-    resource function sayHello(http:Caller caller, http:Request req) {
-        if (nocachehitcount < 1) {
-            nocachePayload = { "message": "1st request" };
-        } else {
-            nocachePayload = { "message": "2nd request" };
-        }
+    resource function mustRevalidate(http:Caller caller, http:Request req) {
+        json payload = {};
         http:Response res = new;
         http:ResponseCacheControl resCC = new;
-        resCC.maxAge = 60;
-        resCC.noCache = true;
-
+        payload = {"message" : "Hello, World!"};
+        resCC.mustRevalidate = true;
         res.cacheControl = resCC;
-        res.setETag(nocachePayload);
-        res.setLastModified();
-
-        nocachehitcount += 1;
-        res.setPayload(nocachePayload);
+        res.setETag(payload);
+        numberOfHits += 1;
+        res.setPayload(payload);
+        res.setHeader("x-service-hit-count", numberOfHits.toString());
 
         checkpanic caller->respond(res);
     }
 }
+
