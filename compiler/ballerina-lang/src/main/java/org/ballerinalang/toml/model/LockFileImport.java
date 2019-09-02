@@ -18,9 +18,6 @@
 
 package org.ballerinalang.toml.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * An import of a lock file.
  */
@@ -28,7 +25,6 @@ public class LockFileImport {
     private String org_name = "";
     private String name = "";
     private String version = "";
-    private List<LockFileImport> imports = new ArrayList<>();
     
     public LockFileImport(String orgName, String name, String version) {
         this.org_name = orgName;
@@ -59,14 +55,4 @@ public class LockFileImport {
     public void setVersion(String version) {
         this.version = version;
     }
-    
-    public List<LockFileImport> getImports() {
-        return imports;
-    }
-    
-    public void setImports(List<LockFileImport> imports) {
-        this.imports = imports;
-    }
-    
-    
 }
