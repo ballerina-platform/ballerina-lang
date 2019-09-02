@@ -1,5 +1,3 @@
-import ballerina/io;
-
 public function main (string... args) {
 {{#if blockingEP}}
     {{serviceName}}BlockingClient blockingEp = new("http://localhost:9090");
@@ -11,14 +9,14 @@ public function main (string... args) {
 service {{serviceName}}MessageListener = service {
 
     resource function onMessage(string message) {
-        io:println("Response received from server: " + message);
+        // Implementation goes here.
     }
 
     resource function onError(error err) {
-        io:println("Error from Connector: " + err.reason() + " - " + <string> err.detail()["message"]);
+        // Implementation goes here.
     }
 
     resource function onComplete() {
-        io:println("Server Complete Sending Responses.");
+        // Implementation goes here.
     }
 };{{/unless}}

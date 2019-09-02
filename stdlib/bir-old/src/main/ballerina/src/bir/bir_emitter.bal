@@ -194,7 +194,7 @@ public type BirEmitter object {
             }
         }
         if (bFunction.workerChannels.length() > 0) {
-            print("WORKER_CHANNELS: ");    
+            print("WORKER_CHANNELS: ");
         }
 
         int channelsSize = bFunction.workerChannels.length();
@@ -313,8 +313,6 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.columnsOp);
             print(", ");
             self.opEmitter.emitOp(ins.dataOp);
-            print(", ");
-            self.opEmitter.emitOp(ins.indexColOp);
             print(", ");
             self.opEmitter.emitOp(ins.keyColOp);
             println(";");
@@ -488,7 +486,7 @@ type TerminalEmitter object {
                 if (ref is VarRef) {
                     self.opEmitter.emitOp(ref);
                     print(" = ");
-                }   
+                }
             }
             self.opEmitter.emitOp(term.dataOp);
             print(" ", term.kind, " ");
@@ -616,7 +614,7 @@ type TypeEmitter object {
 
     function emitInvokableType(BInvokableType bInvokableType, string tabs) {
         print(tabs, "(");
-        // int pCount = bInvokableType.paramTypes.size(); 
+        // int pCount = bInvokableType.paramTypes.size();
         int i = 0;
         foreach var p in bInvokableType.paramTypes {
             BType pType = getType(p);
@@ -735,7 +733,7 @@ function print(any... vals) {
     if (e is error) {
         io:print("Warning: Print failed:", e.reason());
     }
-    
+
 }
 
 public function getVisibility(int flags) returns string {
@@ -745,6 +743,6 @@ public function getVisibility(int flags) returns string {
         return "pubilic";
     } else if ((flags & OPTIONAL) == OPTIONAL) {
         return "optional";
-    } 
+    }
     return "package private";
 }

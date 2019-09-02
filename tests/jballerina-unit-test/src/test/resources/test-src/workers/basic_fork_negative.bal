@@ -38,3 +38,9 @@ function forkToDefaultWorkerInteraction() returns int {
     io:println(results);
     return x;
 }
+
+public function testEmptyFork() {
+    fork {
+
+    }
+}

@@ -753,9 +753,22 @@ public class Types {
 
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
                                                      List<TypePair> unresolvedTypes) {
-        if (source.state != BArrayState.UNSEALED
-                && (target.restType != null || target.tupleTypes.size() != source.size)) {
-            return false;
+        if (!target.tupleTypes.isEmpty()) {
+            if (source.state == BArrayState.UNSEALED) {
+                // [int, int, int...] = int[] || [int, int] = int[]
+                return false;
+            }
+
+            if (target.restType != null && target.tupleTypes.size() > source.size) {
+                // [int, int, int...] = int[1]
+                return false;
+            }
+
+            if (target.restType == null && target.tupleTypes.size() != source.size) {
+                // [int, int] = int[1], [int, int] = int[3]
+                return false;
+            }
+
         }
 
         List<BType> targetTypes = new ArrayList<>(target.tupleTypes);
@@ -1302,9 +1315,9 @@ public class Types {
         if (type.tag != TypeTags.OBJECT) {
             return false;
         }
-        final BSymbol bSymbol = symTable.langObjectModuleSymbol.scope.lookup(Names.ABSTRACT_LISTENER).symbol;
+        final BSymbol bSymbol = symTable.langObjectModuleSymbol.scope.lookup(Names.LISTENER).symbol;
         if (bSymbol == symTable.notFoundSymbol || bSymbol.type.tag != TypeTags.OBJECT) {
-            throw new AssertionError("AbstractListener object not defined.");
+            throw new AssertionError("Listener object not defined.");
         }
         BObjectType rhsType = (BObjectType) type;
         BObjectType lhsType = (BObjectType) bSymbol.type;
@@ -1800,14 +1813,6 @@ public class Types {
         }
 
         public Boolean visit(BTupleType t, BType s) {
-            // tuples of [string...], [string, string...] can be treated as string[]
-            if (s.tag == TypeTags.ARRAY && t.restType != null) {
-                Set<BType> types = new HashSet<>(t.tupleTypes);
-                types.add(t.restType);
-                if (types.size() == 1 && types.contains(((BArrayType) s).eType)) {
-                    return true;
-                }
-            }
             if (s.tag != TypeTags.TUPLE) {
                 return false;
             }

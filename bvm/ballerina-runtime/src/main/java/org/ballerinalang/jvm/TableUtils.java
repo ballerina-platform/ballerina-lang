@@ -26,8 +26,10 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -59,6 +61,19 @@ public class TableUtils {
             sep = ",";
         }
         sbSql.append(") values (").append(sbValues).append(")");
+        return sbSql.toString();
+    }
+
+    public static String generateDeleteDataStatment(String tableName, MapValueImpl<?, ?> constrainedType) {
+        StringBuilder sbSql = new StringBuilder();
+        sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
+        Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
+        String sep = "";
+        for (BField sf : structFields) {
+            String name = sf.getFieldName();
+            sbSql.append(sep).append(name).append(" = ? ");
+            sep = TableConstants.SQL_AND;
+        }
         return sbSql.toString();
     }
 
@@ -133,7 +148,7 @@ public class TableUtils {
                 if (value == null) {
                     stmt.setNull(index, Types.DOUBLE);
                 } else {
-                    stmt.setDouble(index, (Double) data.get(fieldName));
+                    stmt.setDouble(index, ((DecimalValue) data.get(fieldName)).floatValue());
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
@@ -144,11 +159,13 @@ public class TableUtils {
                 }
                 break;
             case TypeTags.XML_TAG:
+                stmt.setString(index, data.get(fieldName).toString());
+                break;
             case TypeTags.JSON_TAG:
                 if (value == null) {
                     stmt.setNull(index, Types.VARCHAR);
                 } else {
-                    stmt.setString(index, data.get(fieldName).toString());
+                    stmt.setString(index, StringUtils.getJsonString(data.get(fieldName)));
                 }
                 break;
             case TypeTags.ARRAY_TAG:

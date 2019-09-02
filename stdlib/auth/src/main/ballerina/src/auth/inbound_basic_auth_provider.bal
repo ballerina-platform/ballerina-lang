@@ -16,7 +16,6 @@
 
 import ballerina/config;
 import ballerina/crypto;
-import ballerina/encoding;
 import ballerina/internal;
 
 # Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
@@ -56,15 +55,15 @@ public type InboundBasicAuthProvider object {
         if (passwordFromConfig.startsWith(CONFIG_PREFIX)) {
             if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA256)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha256(password.toBytes())),
+                                crypto:hashSha256(password.toBytes()).toBase16(),
                                 extractHash(passwordFromConfig));
             } else if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA384)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha384(password.toBytes())),
+                                crypto:hashSha384(password.toBytes()).toBase16(),
                                 extractHash(passwordFromConfig));
             } else if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA512)) {
                 authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha512(password.toBytes())),
+                                crypto:hashSha512(password.toBytes()).toBase16(),
                                 extractHash(passwordFromConfig));
             } else {
                 authenticated = password == passwordFromConfig;

@@ -169,13 +169,13 @@ function testArrayToTupleAssignment1() returns [string...] {
 }
 
 function testArrayToTupleAssignment2() returns [string, string...] {
-    string[] x = ["a", "b", "c"];
+    string[3] x = ["a", "b", "c"];
     [string, string...] y = x;
     return y;
 }
 
 function testArrayToTupleAssignment3() returns [string, string[]] {
-    string[] x = ["a", "b", "c"];
+    string[3] x = ["a", "b", "c"];
     [string, string...] [i, ...j] = x;
     return [i, j];
 }

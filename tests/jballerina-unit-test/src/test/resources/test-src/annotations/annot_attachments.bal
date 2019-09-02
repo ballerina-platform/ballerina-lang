@@ -123,7 +123,7 @@ service serTwo = @v8 {
 };
 
 type Listener object {
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public function __init() {
     }

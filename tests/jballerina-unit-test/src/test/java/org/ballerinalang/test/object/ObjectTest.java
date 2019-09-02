@@ -471,8 +471,10 @@ public class ObjectTest {
     public void testObjectInitFunctionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_init_function_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "object '__init()' function cannot be an 'external' function", 19, 5);
-        BAssertUtil.validateError(result, 1, "object '__init()' function cannot be an 'external' function", 23, 5);
+        BAssertUtil.validateError(result, 0, "object '__init' method cannot have an 'external' implementation",
+                19, 5);
+        BAssertUtil.validateError(result, 1, "object '__init' method cannot have an 'external' implementation",
+                23, 5);
     }
 
     @Test(description = "Test nillable initialization")

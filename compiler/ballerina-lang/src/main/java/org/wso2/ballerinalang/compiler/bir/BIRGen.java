@@ -202,6 +202,8 @@ public class BIRGen extends BLangNodeVisitor {
     private Map<BTypeSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
     private BLangBlockStmt currentBlock;
     private Map<BLangBlockStmt, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
+    // This is a global variable cache
+    public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
 
     public static BIRGen getInstance(CompilerContext context) {
@@ -793,14 +795,14 @@ public class BIRGen extends BLangNodeVisitor {
         Name name = ANNOTATION_DATA.equals(varNode.symbol.name.value) ? new Name(ANNOTATION_DATA) :
                 this.env.nextGlobalVarId(names);
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
-                                                                  varNode.symbol.type, name,
+                                                                  varNode.symbol.type, varNode.symbol.pkgID, name,
                                                                   VarScope.GLOBAL, VarKind.GLOBAL,
                                                                     varNode.name.value);
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
         
         this.env.enclPkg.globalVars.add(birVarDcl);
 
-        this.env.globalVarMap.put(varNode.symbol, birVarDcl);
+        this.globalVarMap.put(varNode.symbol, birVarDcl);
     }
 
     @Override
@@ -1514,7 +1516,7 @@ public class BIRGen extends BLangNodeVisitor {
                     symbol.name, VarScope.GLOBAL, VarKind.CONSTANT, symbol.name.value);
         }
 
-        return this.env.globalVarMap.get(symbol);
+        return this.globalVarMap.get(symbol);
     }
 
     @Override
@@ -1896,7 +1898,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangLockStmt lockStmt) {
         Supplier<TreeSet<BIRGlobalVariableDcl>> supplier = () -> new TreeSet<>(Comparator.comparing(v -> v.name.value));
         Set<BIRGlobalVariableDcl> lockedOn = lockStmt.lockVariables.stream()
-                .map(e -> this.env.globalVarMap.get(e))
+                .map(e -> this.globalVarMap.get(e))
                 .collect(Collectors.toCollection(supplier));
         for (BIRGlobalVariableDcl globalVar : lockedOn) {
             BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
@@ -2105,13 +2107,12 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand dataOp = this.env.targetOperand;
 
         tableLiteral.indexColumnsArrayLiteral.accept(this);
-        BIROperand indexColOp = this.env.targetOperand;
 
         tableLiteral.keyColumnsArrayLiteral.accept(this);
         BIROperand keyColOp = this.env.targetOperand;
 
         emit(new BIRNonTerminator.NewTable(tableLiteral.pos, tableLiteral.type, toVarRef, columnsOp, dataOp,
-                indexColOp, keyColOp));
+                keyColOp));
 
         this.env.targetOperand = toVarRef;
     }

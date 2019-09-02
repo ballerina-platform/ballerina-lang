@@ -1,3 +1,5 @@
+import ballerina/runtime;
+
 // Test if worker actions are panicked if the worker is cancelled before sending
 function workerCancelledBeforeSend() {
         worker wy {
@@ -5,6 +7,7 @@ function workerCancelledBeforeSend() {
             "message" -> default;
         }
         wy.cancel();
+        runtime:sleep(5);
         "message" -> wy;
         string|error result = <- wy;
 }
