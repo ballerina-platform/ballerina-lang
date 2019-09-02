@@ -185,7 +185,7 @@ public class ToolUtil {
         return false;
     }
 
-    public static void install(PrintStream printStream, String distribution) {
+    public static void install(PrintStream printStream, String distribution, boolean manualUpdate) {
         try {
             if (!use(printStream, distribution)) {
                 SSLContext sc = SSLContext.getInstance("SSL");
@@ -204,9 +204,9 @@ public class ToolUtil {
                     String newUrl = conn.getHeaderField("Location");
                     conn = (HttpURLConnection) new URL(newUrl).openConnection();
                     conn.setRequestProperty("content-type", "binary/data");
-                    download(printStream, conn, distribution);
+                    download(printStream, conn, distribution, manualUpdate);
                 } else if (conn.getResponseCode() == 200) {
-                    download(printStream, conn, distribution);
+                    download(printStream, conn, distribution, manualUpdate);
                 } else {
                     printStream.println(distribution + " is not found ");
                 }
@@ -217,7 +217,7 @@ public class ToolUtil {
     }
 
     public static void download(PrintStream printStream, HttpURLConnection conn,
-                                String distribution) throws IOException {
+                                String distribution, boolean manual) throws IOException {
         String distPath = getDistributionsPath();
         if (new File(distPath).canWrite()) {
             printStream.print("Downloading " + distribution);
@@ -242,8 +242,10 @@ public class ToolUtil {
                         + conn.getResponseCode());
             }
             conn.disconnect();
-            printStream.println(distribution + " is installed. Please execute \"ballerina dist use " +
-                    "" + distribution + "\" to use as the default");
+            if (manual) {
+                printStream.println(distribution + " is installed. Please execute \"ballerina dist use " +
+                        "" + distribution + "\" to use as the default");
+            }
         } else {
             printStream.println("Current user does not have write permissions to " + distPath + " directory");
         }
@@ -261,7 +263,7 @@ public class ToolUtil {
             Version currentVersion = new Version(version);
             String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
             if (!latestVersion.equals(version)) {
-                install(printStream, BALLERINA_TYPE + "-" + latestVersion);
+                install(printStream, BALLERINA_TYPE + "-" + latestVersion, false);
                 use(printStream, latestVersion);
             } else {
                 printStream.println("No update found");

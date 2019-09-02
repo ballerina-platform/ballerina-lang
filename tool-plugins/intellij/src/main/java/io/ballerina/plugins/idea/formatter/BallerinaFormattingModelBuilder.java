@@ -63,7 +63,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH_CLAUSES;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHANNEL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHANNEL_TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CLIENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COLON;
@@ -404,7 +403,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 //Channel keyword
                 .between(CHANNEL, LT).spaceIf(false)
-                .between(CHANNEL_TYPE, IDENTIFIER).spaceIf(true)
 
                 // Common tokens
                 .before(COMMA).spaceIf(false)

@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -1279,11 +1278,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         result = constant;
-    }
-
-    @Override
-    public void visit(BLangWorker workerNode) {
-        result = workerNode;
     }
 
     @Override
