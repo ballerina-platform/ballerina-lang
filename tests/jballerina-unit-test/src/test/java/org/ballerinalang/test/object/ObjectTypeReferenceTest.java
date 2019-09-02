@@ -44,7 +44,7 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testSimpleObjectTypeReferenceNegative_1() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 22);
+        Assert.assertEquals(negativeResult.getErrorCount(), 23);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
@@ -72,7 +72,8 @@ public class ObjectTypeReferenceTest {
                 "function through referenced type 'ObjectWithRedeclaredFunction_1'", 125, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'x'", 134, 6);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 142, 6);
-        BAssertUtil.validateError(negativeResult, i, "unknown type 'Tar'", 146, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 146, 6);
+        BAssertUtil.validateError(negativeResult, i, "redeclared symbol 'xyz'", 167, 6);
     }
 
     @Test
@@ -151,31 +152,51 @@ public class ObjectTypeReferenceTest {
         CompileResult result = BCompileUtil.compile("test-src/object/object_func_reference_neg.bal");
         int index = 0;
 
-        Assert.assertEquals(result.getErrorCount(), 7);
+        Assert.assertEquals(result.getErrorCount(), 8);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test1(string aString, int " +
                                           "anInt) returns (string|error)', found 'function test1(string str, int " +
                                           "anInt)" +
-                                          " returns (string|error)'", 51, 5);
+                                          " returns (string|error)'", 53, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'public function test2(string aString)', " +
-                                          "found 'function test2(string aString)'", 56, 5);
+                                          "found 'function test2(string aString)'", 58, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test3(int anInt, string " +
                                           "aString, string defaultable, int def2)', found 'function test3(string " +
-                                          "aString, int anInt, string defaultable, int def2) returns string'", 59, 5);
+                                          "aString, int anInt, string defaultable, int def2) returns string'", 61, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test4(string aString, int " +
                                           "anInt, Bar... bars) returns string', found 'function test4(string aString," +
-                                          " int anInt, AnotherBar... bars) returns string'", 64, 5);
+                                          " int anInt, AnotherBar... bars) returns string'", 66, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test5(ON|OFF... status) returns" +
-                                          " Bar', found 'function test5(ON|OFF... stat) returns Bar'", 69, 5);
+                                          " Bar', found 'function test5(ON|OFF... stat) returns Bar'", 71, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test6([string,ON|OFF]... tup)'," +
-                                          " found 'function test6([string,ON|OFF]... tupl)'", 74, 5);
-        BAssertUtil.validateError(result, index,
+                                          " found 'function test6([string,ON|OFF]... tupl)'", 76, 5);
+        BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test7() returns ON|OFF', found " +
-                                          "'function test7(int x) returns ON|OFF'", 77, 5);
+                                          "'function test7(int x) returns ON|OFF'", 79, 5);
+        BAssertUtil.validateError(result, index,
+                                  "mismatched function signatures: expected 'function test8(public string s, int i)'," +
+                                          " found 'function test8(string s, public int i)'", 84, 5);
+    }
+
+    @Test
+    public void testInvalidTypeReferenceAcrossModules() {
+        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject", "object_reference_negative");
+        int index = 0;
+
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, index++,
+                                  "incompatible type reference 'abc:Foo': a referenced object cannot have non-public " +
+                                          "fields or methods", 20, 6);
+        BAssertUtil.validateError(result, index++,
+                                  "incompatible type reference 'abc:Bar': a referenced object cannot have non-public " +
+                                          "fields or methods", 21, 6);
+        BAssertUtil.validateError(result, index,
+                                  "incompatible type reference 'abc:Baz': a referenced object cannot have non-public " +
+                                          "fields or methods", 22, 6);
     }
 }
