@@ -87,7 +87,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
@@ -277,7 +276,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
 
     private BLangStatementLink currentLink;
-    private Stack<BLangWorker> workerStack = new Stack<>();
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
 
     private SymbolEnv env;
@@ -800,14 +798,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
-    }
-
-    @Override
-    public void visit(BLangWorker workerNode) {
-        this.workerStack.push(workerNode);
-        workerNode.body = rewrite(workerNode.body, env);
-        this.workerStack.pop();
-        result = workerNode;
     }
 
     public void visit(BLangAnnotation annotationNode) {
