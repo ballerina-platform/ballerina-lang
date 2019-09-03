@@ -23,7 +23,7 @@ OPTIONS
 
 EXAMPLES
     Add a module with a main:
-    $ ballerina add mainmodule
+    $ ballerina add mymain
 
     Add a module with a service:
     $ ballerina add myservice --template service
