@@ -232,7 +232,6 @@ public class Scheduler {
             } catch (Throwable e) {
                 panic = e;
                 notifyChannels(item, panic);
-                logger.error("Strand died", e);
             } finally {
                 strandHolder.get().strand = null;
             }
