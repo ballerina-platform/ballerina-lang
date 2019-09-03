@@ -29,6 +29,11 @@ import java.util.HashMap;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+/**
+ * Test case for the ballerina/log module.
+ *
+ * @since 1.0.0
+ */
 public class LogAPITestCase extends BaseTest {
 
     private static final String testFileLocation = Paths.get("src", "test", "resources", "logging")
