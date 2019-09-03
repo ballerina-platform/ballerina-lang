@@ -20,14 +20,10 @@ package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.nats.Constants;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -38,7 +34,7 @@ import java.util.List;
 public class DefaultConnectionListener implements ConnectionListener {
 
     private static final PrintStream console;
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultConnectionListener.class);
+    private boolean printDisconnected = true;
 
     DefaultConnectionListener() {
     }
@@ -48,42 +44,45 @@ public class DefaultConnectionListener implements ConnectionListener {
         switch (type) {
             case CONNECTED: {
                 // The connection has successfully completed the handshake with the gnatsd
-                console.println("[ballerina/nats] Connection established with server "
-                        + conn.getConnectedUrl());
+                printToConsole("Connection established with server " + conn.getConnectedUrl());
                 break;
             }
             case CLOSED: {
                 // The connection is permanently closed, either by manual action or failed reconnects
-                String message = conn.getLastError() != null ? "Connection closed." + conn.getLastError() :
-                        "Connection closed.";
-                console.println("[ballerina/nats] " + message);
+                printToConsole(conn.getLastError() != null ? "Connection closed." + conn.getLastError() :
+                        "Connection closed.");
                 break;
             }
             case RECONNECTED: {
                 // The connection was connected, lost its connection and successfully reconnected
-                String message = "Connection reconnected with server " + conn.getConnectedUrl();
-                console.println("[ballerina/nats] " + message);
+                printToConsole("Connection reconnected with server " + conn.getConnectedUrl());
+                printDisconnected = true;
                 break;
             }
             case DISCONNECTED: {
                 // The connection lost its connection, but may try to reconnect if configured to.
-                String message = "Connection disconnected with server " + conn.getConnectedUrl();
-                console.println("[ballerina/nats] " + message);
+                if (printDisconnected) {
+                    printToConsole("Connection disconnected with server " + conn.getLastError());
+                    printDisconnected = false;
+                }
                 break;
             }
             case RESUBSCRIBED: {
                 // The connection was reconnected and the server has been notified of all subscriptions
-                String message = "Subscriptions reestablished with server " + conn.getConnectedUrl();
-                console.println("[ballerina/nats] " + message);
+                printToConsole("Subscriptions re-established with server " + conn.getConnectedUrl());
                 break;
             }
             case DISCOVERED_SERVERS: {
                 // The connection was told about new servers from, from the current server.
-                LOG.debug("Server discovered. List of connected servers "
+                printToConsole("Server discovered. List of connected servers "
                         + Arrays.toString(conn.getServers().toArray()));
                 break;
             }
         }
+    }
+
+    private void printToConsole(String message) {
+        console.println(Constants.MODULE + message);
     }
 
     static {

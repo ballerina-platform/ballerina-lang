@@ -34,23 +34,23 @@ import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "nats",
-                   functionName = "attach",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "StreamingListener",
-                                        structPackage = "ballerina/nats"),
-                   isPublic = true)
+@BallerinaFunction(orgName = Constants.ORG_NAME,
+        packageName = Constants.NATS,
+        functionName = "attach",
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = "StreamingListener",
+                structPackage = Constants.NATS_PACKAGE),
+        isPublic = true)
 public class Attach {
 
     public static void attach(Strand strand, ObjectValue streamingListener, ObjectValue service,
-            Object connection) {
+                              Object connection) {
         List<ObjectValue> serviceList = (List<ObjectValue>) ((ObjectValue) connection)
                 .getNativeData(Constants.SERVICE_LIST);
         serviceList.add(service);
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
-                .getNativeData(STREAMING_DISPATCHER_LIST);
+                        .getNativeData(STREAMING_DISPATCHER_LIST);
         serviceListenerMap.put(service, new StreamingListener(service, strand.scheduler));
     }
 }

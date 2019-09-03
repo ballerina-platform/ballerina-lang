@@ -41,10 +41,12 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  * @since 0.995
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "nats",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.NATS,
         functionName = "stop",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
-                structPackage = "ballerina/nats"),
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = Constants.NATS_LISTENER,
+                structPackage = Constants.NATS_PACKAGE),
         isPublic = true
 )
 public class Stop {
@@ -76,6 +78,7 @@ public class Stop {
             try {
                 natsConnection.close();
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw Utils.createNatsError("Listener interrupted while closing NATS connection");
             }
         }
