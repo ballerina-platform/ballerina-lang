@@ -102,7 +102,7 @@ public class WebSocketUtil {
                     callback.notifyFailure(createWebSocketError(WsInvalidHandshakeError,
                             "Unable to complete handshake:" + throwable.getMessage()));
                 } else {
-                    throw new WebSocketException("Unable to complete handshake");
+                    throw new WebSocketException(WsInvalidHandshakeError, "Unable to complete handshake");
                 }
                 logger.error("Unable to complete handshake", throwable);
             }

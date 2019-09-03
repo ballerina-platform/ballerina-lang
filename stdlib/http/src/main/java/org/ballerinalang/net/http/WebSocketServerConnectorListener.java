@@ -118,11 +118,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     WebSocketOpenConnectionInfo connectionInfo =
                             connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
                     WebSocketConnection webSocketConnection = null;
-                    try {
-                        webSocketConnection = connectionInfo.getWebSocketConnection();
-                    } catch (IllegalAccessException e) {
-                        // Ignore as it is not possible have an Illegal access
-                    }
+                    webSocketConnection = connectionInfo.getWebSocketConnection();
                     ObjectValue webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
                     ObjectValue webSocketConnector = (ObjectValue) webSocketEndpoint
                             .get(WebSocketConstants.LISTENER_CONNECTOR_FIELD);
@@ -143,11 +139,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             WebSocketOpenConnectionInfo connectionInfo =
                     connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
             if (connectionInfo != null) {
-                try {
-                    WebSocketUtil.closeDuringUnexpectedCondition(connectionInfo.getWebSocketConnection());
-                } catch (IllegalAccessException e) {
-                    // Ignore as it is not possible have an Illegal access
-                }
+                WebSocketUtil.closeDuringUnexpectedCondition(connectionInfo.getWebSocketConnection());
             }
         }
     }

@@ -83,7 +83,7 @@ public class WebSocketDispatcher {
             WebSocketService service = servicesRegistry.getUriTemplate().matches(requestUri.getPath(), pathParams,
                     webSocketHandshaker);
             if (service == null) {
-                throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
+                throw new WebSocketException("no Service found to handle the service request: " + serviceUri);
             }
             HttpCarbonMessage msg = webSocketHandshaker.getHttpCarbonRequest();
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
@@ -169,7 +169,7 @@ public class WebSocketDispatcher {
                 default:
                     //Throw an exception because a different type is invalid.
                     //Cannot reach here because of compiler plugin validation.
-                    throw new BallerinaConnectorException("Invalid resource signature.");
+                    throw new WebSocketException("Invalid resource signature.");
             }
         } catch (Exception ex) {
             webSocketConnection.terminateConnection(1003, ex.getMessage());

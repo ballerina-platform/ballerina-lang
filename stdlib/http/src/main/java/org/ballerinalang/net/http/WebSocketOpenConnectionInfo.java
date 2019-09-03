@@ -19,7 +19,10 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
+
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
 
 /**
  * This class represent already opened WebSocket connection. Which include all necessary details needed after for
@@ -47,11 +50,11 @@ public class WebSocketOpenConnectionInfo {
         return webSocketEndpoint;
     }
 
-    public WebSocketConnection getWebSocketConnection() throws IllegalAccessException {
+    public WebSocketConnection getWebSocketConnection() {
         if (webSocketConnection != null) {
             return webSocketConnection;
         } else {
-            throw new IllegalAccessException("The WebSocket connection has not been made");
+            throw new WebSocketException(WsConnectionError, "The WebSocket connection has not been made");
         }
     }
 
