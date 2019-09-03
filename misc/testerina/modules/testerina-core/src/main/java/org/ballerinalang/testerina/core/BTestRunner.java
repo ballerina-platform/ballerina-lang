@@ -53,7 +53,6 @@ import org.ballerinalang.tool.util.BCompileUtil;
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -261,8 +260,6 @@ public class BTestRunner {
             }
 
             // set the debugger
-            ProgramFile programFile = compileResult.getProgFile();
-            // processProgramFile(programFile);
         });
         registry.setTestSuitesCompiled(true);
     }
