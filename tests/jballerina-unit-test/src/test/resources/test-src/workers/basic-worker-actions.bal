@@ -104,3 +104,17 @@ function workerReturnTest() returns int {
     }
     return (wait wx);
 }
+
+public function workerAsAFutureTest() returns int {
+    worker w1 returns int {
+        future<int> fi = w2;
+        return wait fi;
+    }
+
+    worker w2 returns int {
+        future<int> fn = w1;
+        return 2;
+    }
+
+    return wait w1;
+}
