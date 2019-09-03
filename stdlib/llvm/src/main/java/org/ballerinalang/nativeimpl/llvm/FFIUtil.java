@@ -1,7 +1,6 @@
 package org.ballerinalang.nativeimpl.llvm;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
@@ -9,6 +8,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.function.IntFunction;
 
@@ -24,7 +24,7 @@ public class FFIUtil {
     public static BMap<String, BValue> newRecord(Context context, String type) {
         PackageInfo packageInfo = context.getProgramFile().getPackageInfo(LLVM_PKG_PATH);
         if (packageInfo == null) {
-            throw new BallerinaConnectorException("package - " + LLVM_PKG_PATH + " does not exist");
+            throw new BallerinaException("package - " + LLVM_PKG_PATH + " does not exist");
         }
         StructureTypeInfo structureInfo = packageInfo.getStructInfo(type);
         BStructureType structType = structureInfo.getType();

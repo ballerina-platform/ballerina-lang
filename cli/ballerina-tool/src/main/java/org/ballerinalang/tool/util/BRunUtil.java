@@ -19,7 +19,6 @@ package org.ballerinalang.tool.util;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValue;
@@ -229,20 +228,5 @@ public class BRunUtil {
     public static BValue[] invoke(CompileResult compileResult, String functionName) {
         BValue[] args = {};
         return invoke(compileResult, functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function given context.
-     *
-     * @param compileResult CompileResult instance.
-     * @param initFuncInfo Function to invoke.
-     * @param context invocation context.
-     */
-    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo,
-            WorkerExecutionContext context) {
-        Debugger debugger = new Debugger(compileResult.getProgFile());
-        compileResult.getProgFile().setDebugger(debugger);
-
-        BVMExecutor.executeFunction(compileResult.getProgFile(), initFuncInfo);
     }
 }

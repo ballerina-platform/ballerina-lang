@@ -17,35 +17,22 @@
  */
 package org.ballerinalang.tool;
 
-import org.ballerinalang.BLangProgramLoader;
-import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.tool.util.BFileUtil;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.BootstrapRunner;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.ballerinalang.util.exceptions.BLangUsageException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -62,9 +49,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -75,7 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
@@ -90,11 +73,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_TYPE;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
-import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
-import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.MODULE_INIT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAVA_MAIN;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MAIN_CLASS_MANIFEST_ENTRY;
 
@@ -110,28 +89,6 @@ public class LauncherUtils {
     private static final int EXIT_CODE_SUCCESS = 0;
 
     private static PrintStream errStream = System.err;
-
-    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
-                                  String configFilePath, String[] args, boolean offline, boolean observeFlag) {
-        runProgram(sourceRootPath, sourcePath, runtimeParams, configFilePath, args, offline, observeFlag, false, true);
-    }
-
-    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
-                                  String configFilePath, String[] args, boolean offline, boolean observeFlag,
-                                  boolean siddhiRuntimeFlag, boolean experimentalFlag) {
-
-        String srcPathStr = sourcePath.toString();
-        Path fullPath = sourceRootPath.resolve(sourcePath);
-        // Set the source root path relative to the source path i.e. set the parent directory of the source path
-        System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, fullPath.getParent().toString());
-        loadConfigurations(fullPath.getParent(), runtimeParams, configFilePath, observeFlag);
-
-        if (srcPathStr.endsWith(BLANG_COMPILED_JAR_EXT)) {
-            runJar(sourcePath, args);
-            return;
-        }
-        runBal(sourceRootPath, sourcePath, args, offline, siddhiRuntimeFlag, experimentalFlag, srcPathStr, fullPath);
-    }
 
     public static Path getSourceRootPath(String sourceRoot) {
         // Get source root path.
@@ -379,42 +336,6 @@ public class LauncherUtils {
         }
     }
 
-    private static void runBal(Path sourceRootPath, Path sourcePath, String[] args, boolean offline,
-                               boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr, Path fullPath) {
-        if (BLangConstants.JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET))) {
-            compileAndRunJar(sourceRootPath, offline, true, true, experimentalFlag, siddhiRuntimeFlag, args,
-                    sourcePath, fullPath, srcPathStr);
-            return;
-        }
-        ProgramFile programFile = getCompiledProgram(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag,
-                experimentalFlag, srcPathStr, fullPath);
-
-        // If a function named main is expected to be the entry point but such a function does not exist and there is
-        // no service entry point either, throw an error
-        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
-            throw createLauncherException("'" + programFile.getProgramFilePath()
-                    + "' does not contain a main function or a service");
-        }
-
-        int exitCode;
-        try {
-            exitCode = executeCompiledProgram(programFile, args);
-        } catch (BLangUsageException | BallerinaException e) {
-            throw createUsageException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
-        }
-
-        BLangProgramRunner.resumeStates(programFile);
-        if (exitCode != 0 || !programFile.isServiceEPAvailable()) {
-            try {
-                ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
-                ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException ex) {
-                // Ignore the error
-            }
-            Runtime.getRuntime().exit(exitCode);
-        }
-    }
-
     private static void compileAndRunJar(Path sourceRootPath, boolean offline, boolean lockEnabled, boolean skiptests,
                                          boolean enableExperimentalFeatures, boolean siddhiRuntimeEnabled,
                                          String[] args, Path sourcePath, Path fullPath, String srcPathStr) {
@@ -462,39 +383,6 @@ public class LauncherUtils {
         return;
     }
 
-    private static ProgramFile getCompiledProgram(Path sourceRootPath, Path sourcePath, boolean offline,
-                                                  boolean siddhiRuntimeFlag, boolean experimentalFlag,
-                                                  String srcPathStr, Path fullPath) {
-        if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
-            return BLangProgramLoader.read(sourcePath);
-        } else if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.isBallerinaProject(sourceRootPath)) {
-            return compile(fullPath.getParent(), fullPath.getFileName(), offline, siddhiRuntimeFlag, experimentalFlag);
-        } else if (Files.isDirectory(sourceRootPath)) {
-            return compileModule(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag, experimentalFlag,
-                    srcPathStr, fullPath);
-        }
-
-        throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX
-                + " files can be used with the 'ballerina run' command.");
-    }
-
-    private static int executeCompiledProgram(ProgramFile programFile, String[] args) {
-        BValue result = BLangProgramRunner.runProgram(programFile, args);
-
-        if (result != null && result.getType().getTag() == TypeTags.ERROR) {
-            // If an error occurred on main function execution, the program should terminate.
-            BError returnedError = (BError) result;
-            errStream.print(prepareErrorReturnedErrorMessage(returnedError));
-
-            if (returnedError.getDetails() != null) {
-                return getStatusCode((BMap<String, BValue>) returnedError.getDetails());
-            }
-        }
-
-        return EXIT_CODE_SUCCESS;
-    }
-
     private static void runInMemoryJar(JBallerinaInMemoryClassLoader classLoader, String[] args, String initClassName) {
 
         try {
@@ -531,33 +419,6 @@ public class LauncherUtils {
         }
     }
 
-    private static void runJar(Path sourcePath, String[] args) {
-
-        String initClassName = null;
-        try {
-            URLClassLoader classLoader =
-                    new URLClassLoader(new URL[] { sourcePath.toUri().toURL() }, ClassLoader.getSystemClassLoader());
-
-            initClassName = getModuleInitClassName(sourcePath);
-            Class<?> initClazz = classLoader.loadClass(initClassName);
-            Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
-            mainMethod.invoke(null, (Object) args);
-            if (!initClazz.getField("serviceEPAvailable").getBoolean(initClazz)) {
-                Runtime.getRuntime().exit(0);
-            }
-        } catch (MalformedURLException e) {
-            throw createLauncherException("loading jar file failed with given source path " + sourcePath);
-        } catch (ClassNotFoundException e) {
-            throw createLauncherException("module init class with name " + initClassName + " cannot be found ");
-        } catch (NoSuchMethodException e) {
-            throw createLauncherException("main method cannot be found for init class " + initClassName);
-        } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getMessage());
-        } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getCause());
-        }
-    }
-
     private static String getModuleInitClassName(Path sourcePath) {
         try (JarInputStream jarStream = new JarInputStream(new FileInputStream((sourcePath.toString())))) {
             Manifest mf = jarStream.getManifest();
@@ -570,59 +431,5 @@ public class LauncherUtils {
         } catch (IOException e) {
             throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
         }
-    }
-
-    private static ProgramFile compileModule(Path sourceRootPath, Path sourcePath, boolean offline,
-                                             boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr,
-                                             Path fullPath) {
-        ProgramFile programFile;
-        if (Files.isDirectory(fullPath) && !RepoUtils.isBallerinaProject(sourceRootPath)) {
-            throw createLauncherException("you are trying to run a module that is not inside " +
-                    "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
-                    "project and then run the module.");
-        }
-        if (Files.exists(fullPath)) {
-            if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
-                        BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
-                        "'ballerina run' command.");
-            }
-        } else {
-            throw createLauncherException("ballerina source does not exist '" + srcPathStr + "'");
-        }
-        // If we are trying to run a bal file inside a module from inside a project directory an error is thrown.
-        // To differentiate between top level bals and bals inside modules we need to check if the parent of the
-        // sourcePath given is null. If it is null then its a top level bal else its a bal inside a module
-        if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                sourcePath.getParent() != null) {
-            throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
-                    "project. Try running 'ballerina run <module-name>'");
-        }
-        programFile = compile(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag, experimentalFlag);
-        return programFile;
-    }
-
-    private static int getStatusCode(BMap<String, BValue> errorDetails) {
-        if (!errorDetails.hasKey(STATUS_CODE)) {
-            return EXIT_CODE_GENERAL_ERROR;
-        }
-
-        BValue specifiedStatusCode = errorDetails.get(STATUS_CODE);
-        if (specifiedStatusCode.getType().getTag() != TypeTags.INT) {
-            return EXIT_CODE_GENERAL_ERROR;
-        }
-
-        long specifiedIntCode = ((BInteger) specifiedStatusCode).intValue();
-        if (specifiedIntCode >= EXIT_CODE_GENERAL_ERROR) {
-            if (specifiedIntCode > Integer.MAX_VALUE) {
-                return Integer.MAX_VALUE;
-            }
-            return (int) specifiedIntCode;
-        }
-        return EXIT_CODE_GENERAL_ERROR;
-    }
-
-    private static String prepareErrorReturnedErrorMessage(BError error) {
-        return "error: " + BLangVMErrors.getErrorMessage(error);
     }
 }

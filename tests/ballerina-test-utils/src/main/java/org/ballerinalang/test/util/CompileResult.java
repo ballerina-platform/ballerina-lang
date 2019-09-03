@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.util;
 
-import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -37,8 +36,6 @@ public class CompileResult {
 
     private PackageNode pkgNode;
     private ProgramFile progFile;
-    //Used for stateful function invocation.
-    private WorkerExecutionContext context;
     private CompileResultDiagnosticListener diagnosticListener;
 
     JBallerinaInMemoryClassLoader classLoader;
@@ -76,14 +73,6 @@ public class CompileResult {
 
     public void setAST(PackageNode pkgNode) {
         this.pkgNode = pkgNode;
-    }
-
-    public WorkerExecutionContext getContext() {
-        return context;
-    }
-
-    public void setContext(WorkerExecutionContext context) {
-        this.context = context;
     }
 
     public JBallerinaInMemoryClassLoader getClassLoader() {
