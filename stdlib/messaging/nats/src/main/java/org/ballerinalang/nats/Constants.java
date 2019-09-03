@@ -21,24 +21,21 @@ package org.ballerinalang.nats;
 import org.ballerinalang.jvm.types.BPackage;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Represents the constants which will be used for NATS.
  */
 public class Constants {
-    /**
-     * Represents the NATS connection.
-     */
+    // Represents the NATS connection.
     public static final String NATS_CONNECTION = "nats_connection";
+    public static final String NATS_LISTENER = "Listener";
+    public static final String NATS_PRODUCER = "Producer";
 
-    /**
-     * Represents the NATS streaming connection.
-     */
+    // Represents the NATS streaming connection.
     public static final String NATS_STREAMING_CONNECTION = "nats_streaming_connection";
 
-    /**
-     * Represents connected clients.
-     */
+    // Represents connected clients.
     public static final String CONNECTED_CLIENTS = "connected_clients";
 
     /**
@@ -55,10 +52,14 @@ public class Constants {
      * Represent whether connection close already triggered.
      */
     public static final String CLOSING = "closing";
+
+    public static final String NATS = "nats";
+    public static final String ORG_NAME = "ballerina";
+
     /**
      * Represents nats package.
      */
-    public static final String NATS_PACKAGE = "ballerina/nats";
+    public static final String NATS_PACKAGE = ORG_NAME + ORG_NAME_SEPARATOR + NATS;
 
     public static final BPackage NATS_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "nats");
 
@@ -118,8 +119,21 @@ public class Constants {
     public static final String KEY_STORE_PASS = "password";
     public static final String KEY_STORE_PATH = "path";
 
+    // Error messages and logs.
+    public static final String MODULE = "[ballerina/nats] ";
     public static final String ERROR_SETTING_UP_SECURED_CONNECTION = "Error while setting up secured connection. ";
     public static final String THREAD_INTERRUPTED_ERROR =
             "Internal error occurred. The current thread got interrupted.";
+    public static final String PRODUCER_ERROR = "Error while publishing message to subject ";
 
+    // Service annotation fields.
+    public static final String SUBSCRIPTION_CONFIG = "SubscriptionConfig";
+    public static final String QUEUE_NAME = "queueName";
+    public static final String SUBJECT = "subject";
+    public static final String PENDING_LIMITS = "pendingLimits";
+    public static final String MAX_MESSAGES = "maxMessages";
+    public static final String MAX_BYTES = "maxBytes";
+
+    private Constants() {
+    }
 }

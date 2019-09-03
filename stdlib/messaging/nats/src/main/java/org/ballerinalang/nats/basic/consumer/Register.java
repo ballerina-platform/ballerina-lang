@@ -43,10 +43,12 @@ import static org.ballerinalang.nats.Constants.NATS_CLIENT_SUBSCRIBED;
  * @since 0.995
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "nats",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.NATS,
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
-                structPackage = "ballerina/nats"),
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = Constants.NATS_LISTENER,
+                structPackage = Constants.NATS_PACKAGE),
         isPublic = true
 )
 public class Register {
@@ -55,6 +57,7 @@ public class Register {
 
     public static Object register(Strand strand, ObjectValue listenerObject, ObjectValue service,
                                   Object annotationData) {
+        String errorMessage = "Error while registering the subscriber. ";
         Connection natsConnection =
                 (Connection) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.NATS_CONNECTION);
@@ -63,18 +66,19 @@ public class Register {
                 (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
         MapValue<String, Object> subscriptionConfig = getSubscriptionConfig(service.getType().getAnnotation(
-                "ballerina/nats", "SubscriptionConfig"));
+                Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while registering the subscriber. " +
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorMessage +
                     "Cannot find subscription configuration");
         }
-        String queueName = subscriptionConfig.getStringValue("queueName");
-        String subject = subscriptionConfig.getStringValue("subject");
+        String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME);
+        String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
         Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(strand.scheduler, service));
         // Add dispatcher. This is needed when closing the connection.
         @SuppressWarnings("unchecked")
         List<Dispatcher> dispatcherList = (List<Dispatcher>) listenerObject.getNativeData(DISPATCHER_LIST);
         dispatcherList.add(dispatcher);
+        setPendingLimits(dispatcher, subscriptionConfig.getMapValue(Constants.PENDING_LIMITS));
         try {
             if (queueName != null) {
                 dispatcher.subscribe(subject, queueName);
@@ -82,13 +86,23 @@ public class Register {
                 dispatcher.subscribe(subject);
             }
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while registering the subscriber. " +
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorMessage +
                     ex.getMessage());
         }
         serviceList.add(service);
         String sOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
         console.println(NATS_CLIENT_SUBSCRIBED + sOutput);
         return null;
+    }
+
+    // Set limits on the maximum number of messages, or maximum size of messages this consumer will
+    // hold before it starts to drop new messages waiting for the resource functions to drain the queue.
+    private static void setPendingLimits(Dispatcher dispatcher, MapValue pendingLimits) {
+        if (pendingLimits != null) {
+            long maxMessages = pendingLimits.getIntValue(Constants.MAX_MESSAGES);
+            long maxBytes = pendingLimits.getIntValue(Constants.MAX_BYTES);
+            dispatcher.setPendingLimits(maxMessages, maxBytes);
+        }
     }
 
     @SuppressWarnings("unchecked")
