@@ -18,6 +18,25 @@ import ballerina/http;
 
 final string CUSTOM_HEADER = "X-some-header";
 
+service simple3 on new http:Listener(21012) {
+
+    @http:ResourceConfig {
+        webSocketUpgrade: {
+            upgradePath: "/custom/header/server",
+            upgradeService: simpleProxy3
+        }
+    }
+    resource function websocketProxy(http:Caller httpEp, http:Request req) {
+        http:WebSocketCaller|http:WebSocketError wsServiceEp =
+        httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
+        if (wsServiceEp is http:WebSocketCaller) {
+            wsServiceEp.setAttribute(CUSTOM_HEADER, req.getHeader(CUSTOM_HEADER));
+        } else {
+            panic wsServiceEp;
+        }
+    }
+}
+
 service simpleProxy3 = @http:WebSocketServiceConfig {} service {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
@@ -29,19 +48,3 @@ service simpleProxy3 = @http:WebSocketServiceConfig {} service {
         }
     }
 };
-
-service simple3 on new http:Listener(21012) {
-
-    @http:ResourceConfig {
-        webSocketUpgrade: {
-            upgradePath: "/custom/header/server",
-            upgradeService: simpleProxy3
-        }
-    }
-    resource function websocketProxy(http:Caller httpEp, http:Request req) {
-        http:WebSocketCaller wsServiceEp;
-        wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
-        wsServiceEp.setAttribute(CUSTOM_HEADER, req.getHeader(CUSTOM_HEADER));
-    }
-}
-

@@ -27,11 +27,13 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
+import org.ballerinalang.net.http.exception.WebSocketException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
-import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -47,6 +49,7 @@ import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
         )
 )
 public class Pong {
+    private static final Logger log = LoggerFactory.getLogger(Pong.class);
 
     public static Object pong(Strand strand, ObjectValue wsConnection, ArrayValue binaryData) {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
@@ -56,7 +59,8 @@ public class Pong {
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData.getBytes()));
             WebSocketUtil.handleWebSocketCallback(callback, future);
         } catch (Exception e) {
-            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
+            log.error("Error occurred when ponging", e);
+            callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;

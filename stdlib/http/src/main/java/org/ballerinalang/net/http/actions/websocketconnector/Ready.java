@@ -27,9 +27,11 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
+import org.ballerinalang.net.http.exception.WebSocketException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
-import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -45,6 +47,7 @@ import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
         )
 )
 public class Ready {
+    private static final Logger log = LoggerFactory.getLogger(Ready.class);
 
     public static Object ready(Strand strand, ObjectValue wsConnection) {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
@@ -56,11 +59,12 @@ public class Ready {
                 WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnection);
                 callback.setReturnValues(null);
             } else {
-                callback.setReturnValues(WebSocketUtil.createWebSocketError("Already started reading frames"));
+                callback.setReturnValues(new WebSocketException("Already started reading frames"));
             }
             callback.notifySuccess();
         } catch (Exception e) {
-            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
+            log.error("Error occurred when calling ready", e);
+            callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;
