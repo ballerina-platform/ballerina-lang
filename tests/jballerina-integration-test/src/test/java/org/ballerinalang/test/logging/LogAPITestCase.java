@@ -22,6 +22,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -47,6 +48,8 @@ public class LogAPITestCase extends BaseTest {
     private static final String infoLog = "INFO level log";
     private static final String debugLog = "DEBUG level log";
     private static final String traceLog = "TRACE level log";
+
+    private static final PrintStream console = System.out;
 
     @Test
     public void testBasicLogFunctionality() throws BallerinaTestException {
@@ -79,10 +82,10 @@ public class LogAPITestCase extends BaseTest {
 
         assertEquals(logLines.length, 2);
 
-        System.out.println(logLines[0]);
+        console.println(logLines[0]);
         validateLogLevel(logLines[0], "ERROR", "[]", errLog);
 
-        System.out.println(logLines[1]);
+        console.println(logLines[1]);
         validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
     }
 
@@ -95,13 +98,13 @@ public class LogAPITestCase extends BaseTest {
 
         assertEquals(logLines.length, 3);
 
-        System.out.println(logLines[0]);
+        console.println(logLines[0]);
         validateLogLevel(logLines[0], "ERROR", "[]", errLog);
 
-        System.out.println(logLines[1]);
+        console.println(logLines[1]);
         validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
 
-        System.out.println(logLines[2]);
+        console.println(logLines[2]);
         validateLogLevel(logLines[2], "WARN", "[]", warnLog);
     }
 
@@ -114,16 +117,16 @@ public class LogAPITestCase extends BaseTest {
 
         assertEquals(logLines.length, 4);
 
-        System.out.println(logLines[0]);
+        console.println(logLines[0]);
         validateLogLevel(logLines[0], "ERROR", "[]", errLog);
 
-        System.out.println(logLines[1]);
+        console.println(logLines[1]);
         validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
 
-        System.out.println(logLines[2]);
+        console.println(logLines[2]);
         validateLogLevel(logLines[2], "WARN", "[]", warnLog);
 
-        System.out.println(logLines[3]);
+        console.println(logLines[3]);
         validateLogLevel(logLines[3], "INFO", "[]", infoLog);
     }
 
@@ -136,19 +139,19 @@ public class LogAPITestCase extends BaseTest {
 
         assertEquals(logLines.length, 5);
 
-        System.out.println(logLines[0]);
+        console.println(logLines[0]);
         validateLogLevel(logLines[0], "ERROR", "[]", errLog);
 
-        System.out.println(logLines[1]);
+        console.println(logLines[1]);
         validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
 
-        System.out.println(logLines[2]);
+        console.println(logLines[2]);
         validateLogLevel(logLines[2], "WARN", "[]", warnLog);
 
-        System.out.println(logLines[3]);
+        console.println(logLines[3]);
         validateLogLevel(logLines[3], "INFO", "[]", infoLog);
 
-        System.out.println(logLines[4]);
+        console.println(logLines[4]);
         validateLogLevel(logLines[4], "DEBUG", "[]", debugLog);
     }
 
@@ -161,22 +164,22 @@ public class LogAPITestCase extends BaseTest {
 
         assertEquals(logLines.length, 6);
 
-        System.out.println(logLines[0]);
+        console.println(logLines[0]);
         validateLogLevel(logLines[0], "ERROR", "[]", errLog);
 
-        System.out.println(logLines[1]);
+        console.println(logLines[1]);
         validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
 
-        System.out.println(logLines[2]);
+        console.println(logLines[2]);
         validateLogLevel(logLines[2], "WARN", "[]", warnLog);
 
-        System.out.println(logLines[3]);
+        console.println(logLines[3]);
         validateLogLevel(logLines[3], "INFO", "[]", infoLog);
 
-        System.out.println(logLines[4]);
+        console.println(logLines[4]);
         validateLogLevel(logLines[4], "DEBUG", "[]", debugLog);
 
-        System.out.println(logLines[5]);
+        console.println(logLines[5]);
         validateLogLevel(logLines[5], "TRACE", "[]", traceLog);
     }
 
@@ -189,22 +192,22 @@ public class LogAPITestCase extends BaseTest {
 
         assertEquals(logLines.length, 6);
 
-        System.out.println(logLines[0]);
+        console.println(logLines[0]);
         validateLogLevel(logLines[0], "ERROR", "[]", errLog);
 
-        System.out.println(logLines[1]);
+        console.println(logLines[1]);
         validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
 
-        System.out.println(logLines[2]);
+        console.println(logLines[2]);
         validateLogLevel(logLines[2], "WARN", "[]", warnLog);
 
-        System.out.println(logLines[3]);
+        console.println(logLines[3]);
         validateLogLevel(logLines[3], "INFO", "[]", infoLog);
 
-        System.out.println(logLines[4]);
+        console.println(logLines[4]);
         validateLogLevel(logLines[4], "DEBUG", "[]", debugLog);
 
-        System.out.println(logLines[5]);
+        console.println(logLines[5]);
         validateLogLevel(logLines[5], "TRACE", "[]", traceLog);
     }
 
