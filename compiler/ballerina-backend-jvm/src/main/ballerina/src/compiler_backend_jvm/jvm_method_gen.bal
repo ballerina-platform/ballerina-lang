@@ -2293,11 +2293,11 @@ function logCompileError(error compileError, bir:Package|bir:TypeDef|bir:Functio
     string name;
     if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
         name = <string> detail.get("name");
-        err = error(io:sprintf("method is too large: '%s'", name));
         bir:Function? func = findBIRFunction(src, name);
         if (func is ()) {
             panic compileError;
         } else {
+            err = error(io:sprintf("method is too large: '%s'", func.name.value));
             pos = func.pos;
         }
     } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {

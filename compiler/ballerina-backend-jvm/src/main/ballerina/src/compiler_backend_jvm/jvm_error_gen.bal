@@ -125,7 +125,13 @@ type DiagnosticLogger object {
             }
 
             string positionStr = io:sprintf("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
-            string errorStr = io:sprintf("error: %s: %s %s", positionStr, log.err.reason(), log.err.detail());
+            string errorStr;
+            var detail = log.err.detail();
+            if (detail["message"] is ()) {
+                errorStr = io:sprintf("error: %s:: %s", positionStr, log.err.reason());
+            } else {
+                errorStr = io:sprintf("error: %s:: %s %s", positionStr, log.err.reason(), detail);
+            }
             print(errorStr);
         }
     }
