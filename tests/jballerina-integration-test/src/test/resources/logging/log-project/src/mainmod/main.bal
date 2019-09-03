@@ -17,10 +17,12 @@
 import ballerina/log;
 import logorg/foo;
 import logorg/bar;
+import logorg/baz;
 
 public function main() {
     foo:logInFoo();
     bar:logInBar();
+    baz:logInBaz();
     logInMain();
 }
 

@@ -23,7 +23,6 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.Test;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
@@ -37,6 +36,8 @@ import static org.testng.Assert.assertTrue;
  */
 public class LogAPITestCase extends BaseTest {
 
+    private static final String projectDirPath = Paths.get("src", "test", "resources", "logging", "log-project")
+            .toAbsolutePath().toString();
     private static final String testFileLocation = Paths.get("src", "test", "resources", "logging")
             .toAbsolutePath().toString();
     private static final String testFileName = "log_level_test.bal";
@@ -53,16 +54,16 @@ public class LogAPITestCase extends BaseTest {
 
     @Test
     public void testBasicLogFunctionality() throws BallerinaTestException {
-        Path projectDirPath = Paths.get("src", "test", "resources", "logging", "log-project");
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{"mainmod"}, new HashMap<>(),
-                                                           projectDirPath.toAbsolutePath().toString(), true);
+                                                           projectDirPath, true);
         String[] logLines = output.split("\n");
-        assertEquals(logLines.length, 3);
+        assertEquals(logLines.length, 4);
 
         validateLogLevel(logLines[0], "INFO", "[logorg/foo]", "Logging from inside `foo` module");
         validateLogLevel(logLines[1], "INFO", "[logorg/bar]", "Logging from inside `bar` module");
-        validateLogLevel(logLines[2], "INFO", "[logorg/mainmod]", "Logging from inside `mainmod` module");
+        validateLogLevel(logLines[2], "ERROR", "[logorg/baz]", "Logging at ERROR level inside `baz`");
+        validateLogLevel(logLines[3], "INFO", "[logorg/mainmod]", "Logging from inside `mainmod` module");
     }
 
     @Test
@@ -211,9 +212,39 @@ public class LogAPITestCase extends BaseTest {
         validateLogLevel(logLines[5], "TRACE", "[]", traceLog);
     }
 
+    @Test
+    public void testSettingLogLevelToPackage() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{"-e", "logorg/foo.loglevel=DEBUG", "-e", "logorg/baz.loglevel=ERROR", "-e",
+                "logorg/mainmod.loglevel=OFF", "mainmod"};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), projectDirPath, true);
+        String[] logLines = output.split("\n");
+        assertEquals(logLines.length, 4, printLogLines(logLines));
+
+        console.println(logLines[0]);
+        validateLogLevel(logLines[0], "INFO", "[logorg/foo]", "Logging from inside `foo` module");
+
+        console.println(logLines[1]);
+        validateLogLevel(logLines[1], "DEBUG", "[logorg/foo]", "Logging at DEBUG level inside `foo`");
+
+        console.println(logLines[2]);
+        validateLogLevel(logLines[2], "INFO", "[logorg/bar]", "Logging from inside `bar` module");
+
+        console.println(logLines[3]);
+        validateLogLevel(logLines[3], "ERROR", "[logorg/baz]", "Logging at ERROR level inside `baz`");
+    }
+
     private void validateLogLevel(String log, String logLevel, String logLocation, String logMsg) {
         assertTrue(log.contains(logLevel));
         assertTrue(log.contains(logLocation));
         assertTrue(log.contains(logMsg));
+    }
+
+    private String printLogLines(String[] logs) {
+        StringBuilder sBuilder = new StringBuilder("\n");
+        for (String log : logs) {
+            sBuilder.append(log).append('\n');
+        }
+        return sBuilder.toString();
     }
 }
