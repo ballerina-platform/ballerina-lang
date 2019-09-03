@@ -520,7 +520,7 @@ public class MimeUtil {
      * @param contentType Content-Type value as a string
      * @return true if the value is valid
      */
-    public static Boolean isValidateContentType(String contentType) {
+    public static boolean isValidateContentType(String contentType) {
         try {
             new MimeType(contentType);
         } catch (MimeTypeParseException e) {
