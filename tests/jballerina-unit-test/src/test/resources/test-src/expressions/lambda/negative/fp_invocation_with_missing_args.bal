@@ -6,7 +6,7 @@ public function test1() {
         return s;
     };
 
-    string a = fn(); // This compiles fine at the moment.
+    string a = fn();
 }
 
 public function test2() {
@@ -17,7 +17,7 @@ public function test2() {
         return s;
     };
 
-    string a = fn(); // This compiles fine at the moment.
+    string a = fn();
 }
 
 public function test3() {
@@ -28,7 +28,7 @@ public function test3() {
         return s;
     };
 
-    string a = fn(45, 323, "SIM"); // This compiles fine at the moment.
+    string a = fn(45, 323, "SIM");
 }
 
 public function test4() {
@@ -39,5 +39,5 @@ public function test4() {
         return s;
     };
 
-    string a = fn(45, "SIM"); // This compiles fine at the moment.
+    string a = fn(45, "SIM");
 }
