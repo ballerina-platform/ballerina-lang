@@ -18,13 +18,11 @@
 
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -76,11 +74,6 @@ public class BStream implements BRefType<Object> {
     @Override
     public BType getType() {
         return this.type;
-    }
-
-    @Override
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
     }
 
     @Override

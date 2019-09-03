@@ -17,12 +17,10 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.util.BLangConstants;
@@ -31,15 +29,11 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
-
-import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
-import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
  * @since 0.985.0
@@ -210,13 +204,11 @@ public class BValueArray extends BNewArray {
     // ----------------------------  add methods --------------------------------------------------
 
     public void add(long index, BRefType<?> value) {
-        handleFrozenArrayValue();
         prepareForAdd(index, refValues.length);
         refValues[(int) index] = value;
     }
 
     public void add(long index, long value) {
-        handleFrozenArrayValue();
         prepareForAdd(index, intValues.length);
         intValues[(int) index] = value;
     }
@@ -227,25 +219,21 @@ public class BValueArray extends BNewArray {
             return;
         }
 
-        handleFrozenArrayValue();
         prepareForAdd(index, booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
     public void add(long index, byte value) {
-        handleFrozenArrayValue();
         prepareForAdd(index, byteValues.length);
         byteValues[(int) index] = value;
     }
 
     public void add(long index, double value) {
-        handleFrozenArrayValue();
         prepareForAdd(index, floatValues.length);
         floatValues[(int) index] = value;
     }
 
     public void add(long index, String value) {
-        handleFrozenArrayValue();
         prepareForAdd(index, stringValues.length);
         stringValues[(int) index] = value;
     }
@@ -259,81 +247,6 @@ public class BValueArray extends BNewArray {
     @Override
     public BType getType() {
         return arrayType;
-    }
-
-    @Override
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-        if (type.getTag() == TypeTags.TUPLE_TAG) {
-
-            if (elementType != null && isBasicType(elementType)) {
-                moveBasicTypeArrayToRefValueArray();
-            }
-
-            BRefType<?>[] arrayValues = this.getValues();
-            for (int i = 0; i < this.size(); i++) {
-                if (arrayValues[i] != null) {
-                    BType memberType = ((BTupleType) type).getTupleTypes().get(i);
-                    if (memberType.getTag() == TypeTags.ANYDATA_TAG || memberType.getTag() == TypeTags.JSON_TAG) {
-                        memberType = BVM.resolveMatchingTypeForUnion(arrayValues[i], memberType);
-                        ((BTupleType) type).getTupleTypes().set(i, memberType);
-                    }
-                    arrayValues[i].stamp(memberType, unresolvedValues);
-                }
-            }
-        } else if (type.getTag() == TypeTags.JSON_TAG) {
-
-            if (elementType != null && isBasicType(elementType) && !isBasicType(type)) {
-                moveBasicTypeArrayToRefValueArray();
-                this.arrayType = new BArrayType(type);
-                return;
-            }
-
-            BRefType<?>[] arrayValues = this.getValues();
-            for (int i = 0; i < this.size(); i++) {
-                if (arrayValues[i] != null) {
-                    arrayValues[i].stamp(BVM.resolveMatchingTypeForUnion(arrayValues[i], type), unresolvedValues);
-                }
-            }
-            type = new BArrayType(type);
-        } else if (type.getTag() == TypeTags.UNION_TAG) {
-            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (BVM.checkIsLikeType(this, memberType, new ArrayList<>())) {
-                    this.stamp(memberType, unresolvedValues);
-                    type = memberType;
-                    break;
-                }
-            }
-        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            type = BVM.resolveMatchingTypeForUnion(this, type);
-            this.stamp(type, unresolvedValues);
-        } else {
-            BType arrayElementType = ((BArrayType) type).getElementType();
-
-            if (elementType != null && isBasicType(elementType)) {
-                if (isBasicType(arrayElementType)) {
-                    this.arrayType = type;
-                    return;
-                }
-
-                moveBasicTypeArrayToRefValueArray();
-                this.arrayType = type;
-                return;
-            }
-
-            if (isBasicType(arrayElementType) && !isBasicType(elementType)) {
-                moveRefValueArrayToBasicTypeArray(type, arrayElementType);
-                return;
-            }
-
-            BRefType<?>[] arrayValues = this.getValues();
-            for (int i = 0; i < this.size(); i++) {
-                if (arrayValues[i] != null) {
-                    arrayValues[i].stamp(arrayElementType, unresolvedValues);
-                }
-            }
-        }
-
-        this.arrayType = type;
     }
 
     @Override
@@ -469,28 +382,6 @@ public class BValueArray extends BNewArray {
         return stringValue();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
-        if (!isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            return;
-        }
-
-        this.freezeStatus = freezeStatus;
-
-        if (elementType == null || !(elementType.getTag() == TypeTags.INT_TAG ||
-                elementType.getTag() == TypeTags.STRING_TAG || elementType.getTag() == TypeTags.BOOLEAN_TAG ||
-                elementType.getTag() == TypeTags.FLOAT_TAG || elementType.getTag() == TypeTags.BYTE_TAG)) {
-            for (int i = 0; i < this.size; i++) {
-                if (this.getRefValue(i) != null) {
-                    this.getRefValue(i).attemptFreeze(freezeStatus);
-                }
-            }
-        }
-    }
-
     @Override
     public void grow(int newLength) {
         if (elementType != null) {
@@ -548,17 +439,6 @@ public class BValueArray extends BNewArray {
         }
 
         return getElementType(((BArrayType) type).getElementType());
-    }
-
-    /**
-     * Util method to handle frozen array values.
-     */
-    private void handleFrozenArrayValue() {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
     }
 
     private boolean isBasicType(BType type) {

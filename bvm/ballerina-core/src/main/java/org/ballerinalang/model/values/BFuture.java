@@ -17,16 +17,10 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.bre.bvm.Strand;
-import org.ballerinalang.model.types.BType;
-
-import java.util.List;
-
 /**
  * Ballerina base value for the "future" type.
  */
-public interface BFuture extends BRefType<Strand> {
+public interface BFuture extends BRefType {
 
     /**
      * Cancels the current future, if its possible to do so.
@@ -49,9 +43,4 @@ public interface BFuture extends BRefType<Strand> {
      * @return true if its cancelled, or else, false
      */
     boolean isCancelled();
-
-    @Override
-    default void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
-    }
 }

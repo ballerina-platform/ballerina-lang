@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.DecimalValueKind;
@@ -30,7 +29,6 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Map;
 
-import static org.ballerinalang.bre.bvm.BVM.isByteLiteral;
 
 /**
  * The {@code BDecimal} represents a decimal value in Ballerina.
@@ -152,10 +150,6 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
                                              "'decimal' value '" + POSITIVE_INF + "' cannot be converted to 'int'");
         }
 
-        if (!BVM.isDecimalWithinIntRange(value)) {
-            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                    "out of range 'decimal' value '" + this.stringValue() + "' cannot be converted to 'int'");
-        }
         return Math.round(value.doubleValue());
     }
 
@@ -173,12 +167,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
                                              "'decimal' value '" + POSITIVE_INF + "' cannot be converted to 'byte'");
         }
 
-        long intVal = Math.round(this.value.doubleValue());
-        if (!isByteLiteral(intVal)) {
-            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                         "'decimal' value '" + value + "' cannot be converted to 'byte'");
-        }
-        return intVal;
+        return Math.round(this.value.doubleValue());
     }
 
     @Override
