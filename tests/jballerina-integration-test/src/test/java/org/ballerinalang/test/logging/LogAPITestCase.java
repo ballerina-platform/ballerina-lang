@@ -1,0 +1,211 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.ballerinalang.test.logging;
+
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BallerinaTestException;
+import org.testng.annotations.Test;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
+public class LogAPITestCase extends BaseTest {
+
+    private static final String testFileLocation = Paths.get("src", "test", "resources", "logging")
+            .toAbsolutePath().toString();
+    private static final String testFileName = "log_level_test.bal";
+    private static final String logLevelProperty = "b7a.log.level";
+
+    private static final String errLog = "ERROR level log";
+    private static final String errLogWithErr = "ERROR level log with error : error B7aError foo=bar";
+    private static final String warnLog = "WARN level log";
+    private static final String infoLog = "INFO level log";
+    private static final String debugLog = "DEBUG level log";
+    private static final String traceLog = "TRACE level log";
+
+    @Test
+    public void testBasicLogFunctionality() throws BallerinaTestException {
+        Path projectDirPath = Paths.get("src", "test", "resources", "logging", "log-project");
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{"mainmod"}, new HashMap<>(),
+                                                           projectDirPath.toAbsolutePath().toString(), true);
+        String[] logLines = output.split("\n");
+        assertEquals(logLines.length, 3);
+
+        validateLogLevel(logLines[0], "INFO", "[logorg/foo]", "Logging from inside `foo` module");
+        validateLogLevel(logLines[1], "INFO", "[logorg/bar]", "Logging from inside `bar` module");
+        validateLogLevel(logLines[2], "INFO", "[logorg/mainmod]", "Logging from inside `mainmod` module");
+    }
+
+    @Test
+    public void testLogsOff() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{"-e", logLevelProperty + "=OFF", testFileName};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
+        assertTrue(output.isEmpty());
+    }
+
+    @Test
+    public void testErrorLevel() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{"-e", logLevelProperty + "=ERROR", testFileName};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
+        String[] logLines = output.split("\n");
+
+        assertEquals(logLines.length, 2);
+
+        System.out.println(logLines[0]);
+        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+
+        System.out.println(logLines[1]);
+        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+    }
+
+    @Test
+    public void testWarnLevel() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{"-e", logLevelProperty + "=WARN", testFileName};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
+        String[] logLines = output.split("\n");
+
+        assertEquals(logLines.length, 3);
+
+        System.out.println(logLines[0]);
+        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+
+        System.out.println(logLines[1]);
+        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+
+        System.out.println(logLines[2]);
+        validateLogLevel(logLines[2], "WARN", "[]", warnLog);
+    }
+
+    @Test
+    public void testInfoLevel() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{"-e", logLevelProperty + "=INFO", testFileName};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
+        String[] logLines = output.split("\n");
+
+        assertEquals(logLines.length, 4);
+
+        System.out.println(logLines[0]);
+        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+
+        System.out.println(logLines[1]);
+        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+
+        System.out.println(logLines[2]);
+        validateLogLevel(logLines[2], "WARN", "[]", warnLog);
+
+        System.out.println(logLines[3]);
+        validateLogLevel(logLines[3], "INFO", "[]", infoLog);
+    }
+
+    @Test
+    public void testDebugLevel() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{"-e", logLevelProperty + "=DEBUG", testFileName};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
+        String[] logLines = output.split("\n");
+
+        assertEquals(logLines.length, 5);
+
+        System.out.println(logLines[0]);
+        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+
+        System.out.println(logLines[1]);
+        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+
+        System.out.println(logLines[2]);
+        validateLogLevel(logLines[2], "WARN", "[]", warnLog);
+
+        System.out.println(logLines[3]);
+        validateLogLevel(logLines[3], "INFO", "[]", infoLog);
+
+        System.out.println(logLines[4]);
+        validateLogLevel(logLines[4], "DEBUG", "[]", debugLog);
+    }
+
+    @Test
+    public void testTraceLevel() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{"-e", logLevelProperty + "=TRACE", testFileName};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
+        String[] logLines = output.split("\n");
+
+        assertEquals(logLines.length, 6);
+
+        System.out.println(logLines[0]);
+        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+
+        System.out.println(logLines[1]);
+        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+
+        System.out.println(logLines[2]);
+        validateLogLevel(logLines[2], "WARN", "[]", warnLog);
+
+        System.out.println(logLines[3]);
+        validateLogLevel(logLines[3], "INFO", "[]", infoLog);
+
+        System.out.println(logLines[4]);
+        validateLogLevel(logLines[4], "DEBUG", "[]", debugLog);
+
+        System.out.println(logLines[5]);
+        validateLogLevel(logLines[5], "TRACE", "[]", traceLog);
+    }
+
+    @Test
+    public void testAllOn() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{"-e", logLevelProperty + "=ALL", testFileName};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
+        String[] logLines = output.split("\n");
+
+        assertEquals(logLines.length, 6);
+
+        System.out.println(logLines[0]);
+        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+
+        System.out.println(logLines[1]);
+        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+
+        System.out.println(logLines[2]);
+        validateLogLevel(logLines[2], "WARN", "[]", warnLog);
+
+        System.out.println(logLines[3]);
+        validateLogLevel(logLines[3], "INFO", "[]", infoLog);
+
+        System.out.println(logLines[4]);
+        validateLogLevel(logLines[4], "DEBUG", "[]", debugLog);
+
+        System.out.println(logLines[5]);
+        validateLogLevel(logLines[5], "TRACE", "[]", traceLog);
+    }
+
+    private void validateLogLevel(String log, String logLevel, String logLocation, String logMsg) {
+        assertTrue(log.contains(logLevel));
+        assertTrue(log.contains(logLocation));
+        assertTrue(log.contains(logMsg));
+    }
+}
