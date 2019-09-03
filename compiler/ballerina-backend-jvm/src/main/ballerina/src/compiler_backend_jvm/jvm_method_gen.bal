@@ -1942,7 +1942,6 @@ function loadAnnots(jvm:MethodVisitor mv, string pkgName, bir:TypeDef typeDef) {
     string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
                             lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
     mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
-    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
     loadExternalOrLocalType(mv, typeDef);
     mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processAnnotations",
         io:sprintf("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);
