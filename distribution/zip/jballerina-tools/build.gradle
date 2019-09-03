@@ -71,6 +71,8 @@ dependencies {
     dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
     dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
     // dist 'org.ow2.asm:asm:6.2.1'
+    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
+    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
 
     // Following dependencies are required for kraal library
     dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
@@ -332,7 +334,7 @@ task generateDocs(type: JavaExec) {
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
     def libs = "$buildDir/ballerina/"
-    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm")
+    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm,bir,jvm")
 }
 
 task createApiDocsZip(type: Zip) {

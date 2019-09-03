@@ -632,11 +632,14 @@ public abstract class LSCompletionProvider {
             // function xyz() returns int = external;
             return false;
         }
-        if (defaultTokens.get(0) == BallerinaParser.RETURNS) {
+        if (defaultTokens.contains(BallerinaParser.RETURNS)
+                && ((defaultTokens.size() - 1) - defaultTokens.indexOf(BallerinaParser.RETURNS) <= 3)) {
             /*
             Check for the following cases
             Eg: function xyz() returns <cursor> {}
                 function xyz() returns in<cursor> {}
+                function xyz() returns in:<cursor> {}
+                function xyz() returns mod1:a<cursor> {}
              */
             return true;
         }

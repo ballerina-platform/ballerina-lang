@@ -20,7 +20,7 @@ import ballerina/lang.'object as lang;
 # of the corresponding subscription.
 public type StreamingListener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private Connection? connection;
     private string clusterId;

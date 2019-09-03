@@ -47,4 +47,24 @@ public class BLogLevelMapper {
                 return "<UNDEFINED>";
         }
     }
+
+    public static Level getLoggerLevel(BLogLevel level) {
+        switch (level) {
+            case OFF:
+                return Level.OFF;
+            case ERROR:
+                return Level.SEVERE;
+            case WARN:
+                return Level.WARNING;
+            case INFO:
+                return Level.INFO;
+            case DEBUG:
+                return Level.FINER;
+            case TRACE:
+                return Level.FINEST;
+            case ALL:
+                return Level.ALL;
+        }
+        return Level.INFO;
+    }
 }

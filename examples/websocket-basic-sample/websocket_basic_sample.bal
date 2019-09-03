@@ -1,7 +1,9 @@
 import ballerina/io;
 import ballerina/log;
 import ballerina/http;
-import ballerina/internal;
+
+string ping = "ping";
+byte[] pingData = ping.toBytes();
 
 @http:WebSocketServiceConfig {
     path: "/basic/ws",
@@ -9,9 +11,6 @@ import ballerina/internal;
     idleTimeoutInSeconds: 120
 }
 service basic on new http:Listener(9090) {
-
-    string ping = "ping";
-    byte[] pingData = ping.toBytes();
 
     // This `resource` is triggered after a successful client connection.
     resource function onOpen(http:WebSocketCaller caller) {
@@ -29,21 +28,21 @@ service basic on new http:Listener(9090) {
                                                         + finalFrame.toString());
         if (text == "ping") {
             io:println("Pinging...");
-            var err = caller->ping(self.pingData);
+            var err = caller->ping(pingData);
             if (err is http:WebSocketError) {
-                log:printError("Error sending ping", <error> err);
+                log:printError("Error sending ping", err);
             }
         } else if (text == "closeMe") {
             error? result = caller->close(statusCode = 1001,
                             reason = "You asked me to close the connection",
                             timeoutInSeconds = 0);
             if (result is http:WebSocketError) {
-                log:printError("Error occurred when closing connection", <error> result);
+                log:printError("Error occurred when closing connection", result);
             }
         } else {
             var err = caller->pushText("You said: " + text);
             if (err is http:WebSocketError) {
-                log:printError("Error occurred when sending text", <error> err);
+                log:printError("Error occurred when sending text", err);
             }
         }
     }
@@ -55,7 +54,7 @@ service basic on new http:Listener(9090) {
         io:println(b);
         var err = caller->pushBinary(b);
         if (err is http:WebSocketError) {
-            log:printError("Error occurred when sending binary", <error> err);
+            log:printError("Error occurred when sending binary", err);
         }
     }
 
@@ -64,7 +63,7 @@ service basic on new http:Listener(9090) {
     resource function onPing(http:WebSocketCaller caller, byte[] data) {
         var err = caller->pong(data);
         if (err is http:WebSocketError) {
-            log:printError("Error occurred when closing the connection", <error> err);
+            log:printError("Error occurred when closing the connection", err);
         }
     }
 
@@ -81,7 +80,7 @@ service basic on new http:Listener(9090) {
         var err = caller->close(statusCode = 1001, reason =
                                     "Connection timeout");
         if (err is http:WebSocketError) {
-            log:printError("Error occurred when closing the connection", <error> err);
+            log:printError("Error occurred when closing the connection", err);
         }
     }
 

@@ -17,7 +17,7 @@ service on ep, new PQR("pqr") {
 
 public type ABC object {
 
-    *'object:AbstractListener;
+    *'object:Listener;
 
     public function __start() returns error? {
         startCount += 1;
@@ -41,7 +41,7 @@ public type ABC object {
 
 public type PQR object {
 
-    *'object:AbstractListener;
+    *'object:Listener;
 
     public function __init(string name){
     }

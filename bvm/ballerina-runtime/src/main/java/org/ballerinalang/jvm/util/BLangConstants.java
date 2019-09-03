@@ -144,4 +144,10 @@ public class BLangConstants {
             "create a bug report with both this log file and the sample code.\n" +
             "\n" +
             "We thank you for helping make us better dancers.";
+
+    public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
+            "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";
+
+
+    public static final String ERROR_MESSAGE_FIELD_NAME = "message";
 }

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
@@ -27,9 +26,6 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.lang.reflect.Array;
-import java.util.List;
-
-import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 
 /**
  * {@code BArray} represents an arrays in Ballerina.
@@ -40,8 +36,6 @@ import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 public abstract class BNewArray implements BRefType, BCollection {
 
     protected BType arrayType;
-    protected volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
-
     /**
      * The maximum size of arrays to allocate.
      * <p>
@@ -61,11 +55,6 @@ public abstract class BNewArray implements BRefType, BCollection {
     @Override
     public BType getType() {
         return arrayType;
-    }
-
-    @Override
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
     }
 
     @Override
@@ -171,10 +160,6 @@ public abstract class BNewArray implements BRefType, BCollection {
             return cursor < length;
         }
 
-        @Override
-        public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
-        }
     }
 
     /**
@@ -182,16 +167,6 @@ public abstract class BNewArray implements BRefType, BCollection {
      */
     @Override
     public synchronized boolean isFrozen() {
-        return this.freezeStatus.isFrozen();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
-        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            this.freezeStatus = freezeStatus;
-        }
+        return true;
     }
 }

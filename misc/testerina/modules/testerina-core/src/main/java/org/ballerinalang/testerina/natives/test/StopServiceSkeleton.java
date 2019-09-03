@@ -18,20 +18,14 @@
 package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.testerina.core.TesterinaConstants;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.TesterinaUtils;
 
-import java.nio.file.Paths;
-
-    /**
+/**
  * Native function ballerina.test:stopServiceSkeleton.
  * Stop a service skeleton and cleanup the directories that got created.
  *
@@ -47,17 +41,17 @@ public class StopServiceSkeleton extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context ctx) {
-        String moduleName = ctx.getStringArgument(0);
-
-        TesterinaRegistry.getInstance().getSkeletonProgramFiles().forEach(skeletonProgramFile -> {
-            if (skeletonProgramFile.getEntryPkgName().equals(moduleName)) {
-                // stop the service
-                BVMExecutor.executeFunction(skeletonProgramFile,
-                        skeletonProgramFile.getEntryPackage().getStopFunctionInfo());
-                // Clean up the package DIR
-                TesterinaUtils.cleanUpDir(Paths.get(System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT),
-                                                    TesterinaConstants.TESTERINA_TEMP_DIR, moduleName));
-            }
-        });
+//        String moduleName = ctx.getStringArgument(0);
+//
+//        TesterinaRegistry.getInstance().getSkeletonProgramFiles().forEach(skeletonProgramFile -> {
+//            if (skeletonProgramFile.getEntryPkgName().equals(moduleName)) {
+//                // stop the service
+//                BVMExecutor.executeFunction(skeletonProgramFile,
+//                        skeletonProgramFile.getEntryPackage().getStopFunctionInfo());
+//                // Clean up the package DIR
+//                TesterinaUtils.cleanUpDir(Paths.get(System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT),
+//                                                    TesterinaConstants.TESTERINA_TEMP_DIR, moduleName));
+//            }
+//        });
     }
 }

@@ -204,7 +204,7 @@ public class PackagingTestCase extends BaseTest {
         LogLeecher clientLeecherOne = new LogLeecher(orgName + "/" + firstPackage + ":0.1.0 [project repo -> central]");
         LogLeecher clientLeecherTwo = new LogLeecher(orgName + "/" + secondPackage +
                                                              ":0.1.0 [project repo -> central]");
-        balClient.runMain("push", new String[0], envVariables, new String[]{},
+        balClient.runMain("push", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{clientLeecherOne, clientLeecherTwo}, projectPath.toString());
         clientLeecherOne.waitForText(5000);
         clientLeecherTwo.waitForText(5000);

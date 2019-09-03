@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
@@ -26,8 +25,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Map;
-
-import static org.ballerinalang.bre.bvm.BVM.isByteLiteral;
 
 /**
  * The {@code BFloat} represents a float value in Ballerina.
@@ -50,10 +47,6 @@ public final class BFloat extends BValueType implements BRefType<Double> {
                                          "'float' value '" + value + "' cannot be converted to 'int'");
         }
 
-        if (!BVM.isFloatWithinIntRange(value)) {
-            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                         "out of range 'float' value '" + value + "' cannot be converted to 'int'");
-        }
         return Math.round(value);
     }
 
@@ -64,12 +57,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
                                          "'float' value '" + value + "' cannot be converted to 'byte'");
         }
 
-        long intVal = Math.round(value);
-        if (!isByteLiteral(intVal)) {
-            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                         "'float' value '" + value + "' cannot be converted to 'byte'");
-        }
-        return intVal;
+        return Math.round(value);
     }
 
     @Override

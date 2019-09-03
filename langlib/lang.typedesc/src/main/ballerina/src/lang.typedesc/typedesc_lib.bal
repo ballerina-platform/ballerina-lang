@@ -20,7 +20,7 @@
 @typeParam
 type AnydataType anydata;
 
-# Construct a value with a specified type by copying another value.
+# Constructs a value with a specified type by copying another value.
 # + t - the type for the copy to be constructed
 # + v - the value to be copied
 # + return - a new value that belongs to type `t`, or an error if this cannot be done

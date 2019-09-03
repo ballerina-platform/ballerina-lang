@@ -30,7 +30,7 @@ service ParticipantService on new http:Listener(8889) {
         log:printInfo("Joined transaction: " +
                        transactions:getCurrentTransactionId());
 
-        var updateReq = untaint req.getJsonPayload();
+        var updateReq = <@untainted> req.getJsonPayload();
         if (updateReq is json) {
             string msg =
                 io:sprintf("Update stock quote request received.

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/encoding;
 
 function testCreateInboundBasicAuthProvider() returns auth:InboundBasicAuthProvider {
     auth:InboundBasicAuthProvider basicAuthProvider = new;
@@ -91,6 +90,6 @@ function testAuthenticationPlainNegative() returns boolean|auth:Error {
 
 function authenticate(string usernameAndPassword) returns boolean|auth:Error {
     auth:InboundBasicAuthProvider basicAuthProvider = new;
-    string credential = encoding:encodeBase64(usernameAndPassword.toBytes());
+    string credential = usernameAndPassword.toBytes().toBase64();
     return basicAuthProvider.authenticate(credential);
 }

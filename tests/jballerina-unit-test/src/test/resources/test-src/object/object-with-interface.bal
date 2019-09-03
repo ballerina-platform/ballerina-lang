@@ -6,11 +6,11 @@ public function testObjectWithInterface () returns [int, string, int, string] {
 
 
 type Person abstract object {
-    public int age = 10;
-    public string name = "sample name";
+    public int age;
+    public string name;
 
-    int year = 50;
-    string month = "february";
+    int year;
+    string month;
 
     function attachFunc1(int add, string value1) returns [int, string];
 
