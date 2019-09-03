@@ -4,7 +4,7 @@ version = "0.0.1"
 
 
 [platform]
-target = "java"
+target = "java8"
 
   [[platform.libraries]]
   path = "../../../../../../observability-test-utils/build/generated-bir-jar/testobserve.jar"

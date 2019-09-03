@@ -86,6 +86,23 @@ function testArrayToTupleAssignmentNegative5() returns [int...] {
     return y;
 }
 
+function testArrayToTupleAssignmentNegative6() {
+    int[] a = [1, 2, 3];
+    [int, int, int...] b = a;
+
+    [int, int, int] c = a;
+
+    int[1] d = [1];
+    [int, int, int...] e = d;
+
+    [int, int] f = d;
+
+    int[3] g = [1, 2, 3];
+    [int, int] h = g;
+
+    [int...] i = d;
+}
+
 function tupleAssignmentToAnyAndVar () {
     var x1 = (1); // brace hence valid
     any x2 = (1); // brace hence valid

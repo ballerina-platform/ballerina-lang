@@ -66,8 +66,8 @@ function testCastingRuntimeError() returns Person1 {
 }
 
 type AbstractPerson abstract object {
-    public string name = "";
-    public int age = 0;
+    public string name;
+    public int age;
 
     public function toString() returns string;
 };

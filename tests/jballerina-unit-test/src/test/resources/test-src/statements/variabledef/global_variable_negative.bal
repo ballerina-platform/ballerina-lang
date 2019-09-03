@@ -38,7 +38,7 @@ public listener Listener uninitializedPublicModuleListener;
 
 public type Listener object {
 
-    *AbstractListener;
+    *Listener;
 
     public function __init() {
 

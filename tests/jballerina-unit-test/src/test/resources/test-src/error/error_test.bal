@@ -206,7 +206,7 @@ function testUnspecifiedErrorDetailFrozenness() returns boolean {
     error e1 = error("reason 1");
     map<anydata|error> m1 = e1.detail();
     error? err = trap addValueToMap(m1, "k", 1);
-    return err is error && err.reason() == "{ballerina}InvalidUpdate";
+    return err is error && err.reason() == "{ballerina/lang.map}InvalidUpdate";
 }
 
 function addValueToMap(map<anydata|error> m, string key, anydata|error value) {
