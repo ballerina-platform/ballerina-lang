@@ -42,8 +42,10 @@ public class ObjectInBaloTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        result = BCompileUtil.compileInProc("test-src/balo/test_balo/object/test_objects.bal");
+        balCreator.reset();
     }
 
     @Test(description = "Test Basic object as struct")

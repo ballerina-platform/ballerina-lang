@@ -36,14 +36,16 @@ import static org.testng.Assert.assertEquals;
  */
 public class RecordInBaloTest {
 
+    BaloCreator balCreator = new BaloCreator();
+
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project/", "testorg", "records");
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project/", "testorg", "records");
     }
 
     @Test
     public void testRestFieldTypeDefAfterRecordDef() {
-        CompileResult result = BCompileUtil.compile("test-src/record/rest_in_balo.bal");
+        CompileResult result = BCompileUtil.compileInProc("test-src/record/rest_in_balo.bal");
 
         BValue[] returns = BRunUtil.invoke(result, "testORRestFieldInOR");
         assertEquals(returns[0].stringValue(), "{name:\"Open Foo\", ob:{x:1.0}}");
@@ -60,6 +62,7 @@ public class RecordInBaloTest {
 
     @AfterClass
     public void tearDown() {
+        balCreator.reset();
         BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project/", "testorg", "records");
     }
 }

@@ -75,4 +75,7 @@ public class JBallerinaInMemoryClassLoader {
         return joiner.toString();
     }
 
+    public URLClassLoader getURLClassLoader() {
+        return this.cl;
+    }
 }

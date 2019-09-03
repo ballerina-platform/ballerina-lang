@@ -37,8 +37,10 @@ public class AnnotationTests {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        result = BCompileUtil.compile("test-src/balo/test_balo/annotations/annotation.bal");
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        result = BCompileUtil.compileInProc("test-src/balo/test_balo/annotations/annotation.bal");
+        balCreator.reset();
     }
 
     @Test

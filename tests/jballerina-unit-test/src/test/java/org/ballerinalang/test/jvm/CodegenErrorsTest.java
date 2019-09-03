@@ -28,27 +28,27 @@ import org.testng.annotations.Test;
 public class CodegenErrorsTest {
 
     @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: .:too-large-method.bal:17:1:: method is too large: 'getXML'")
+            expectedExceptionsMessageRegExp = "error: .:too-large-method.bal:17:1: method is too large: 'getXML'")
     public void testTooLargeMethod() {
         BCompileUtil.compileInProc("test-src/jvm/too-large-method.bal");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: .:too-large-object-field.bal:18:9:: method is too large: " +
+            expectedExceptionsMessageRegExp = "error: .:too-large-object-field.bal:18:9: method is too large: " +
                     "'__init'")
     public void testTooLargeObjectMethod() {
         BCompileUtil.compileInProc("test-src/jvm/too-large-object-field.bal");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: .:too-large-object-method.bal:18:5:: method is too large: " +
+            expectedExceptionsMessageRegExp = "error: .:too-large-object-method.bal:18:5: method is too large: " +
                     "'getXML'")
     public void testTooLargeObjectField() {
         BCompileUtil.compileInProc("test-src/jvm/too-large-object-method.bal");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: .:.:1:1:: method is too large: '..<init>'")
+            expectedExceptionsMessageRegExp = "error: .:.:1:1: method is too large: '..<init>'")
     public void testTooLargePackageVar() {
         BCompileUtil.compileInProc("test-src/jvm/too-large-package-variable.bal");
     }

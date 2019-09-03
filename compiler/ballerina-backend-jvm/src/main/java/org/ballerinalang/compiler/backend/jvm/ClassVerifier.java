@@ -74,7 +74,7 @@ public class ClassVerifier {
 
     /**
      * This method is an extension of
-     * {@code jdk.internal.org.objectweb.asm.util.CheckClassAdapter#verify(ClassReader, boolean, java.io.PrintWriter)}.
+     * {@link jdk.internal.org.objectweb.asm.util.CheckClassAdapter#verify(ClassReader, boolean, java.io.PrintWriter)}.
      * 
      * @param bytes Bytes stream of the class to be verified.
      * @return An optional error, if there are verification errors.

@@ -69,7 +69,7 @@ public class BootstrapRunner {
         generateJarBinary(entryBir, jarOutputPath, dumpBir, birCachePaths);
     }
 
-    private static void generateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
+    public static void generateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
                                           String... birCachePaths) {
         try {
             Class<?> backendMain = Class.forName("ballerina.compiler_backend_jvm.___init");
@@ -83,7 +83,7 @@ public class BootstrapRunner {
         }
     }
 
-    private static void generateJarBinaryInProc(String entryBir, String jarOutputPath, boolean dumpBir,
+    public static void generateJarBinaryInProc(String entryBir, String jarOutputPath, boolean dumpBir,
                                                 String... birCachePaths) {
         try {
             List<String> commands = new ArrayList<>();
@@ -210,7 +210,7 @@ public class BootstrapRunner {
         return new JBallerinaInMemoryClassLoader(jarTarget, importsTarget.toFile());
     }
 
-    private static String calcFileNameForJar(BLangPackage bLangPackage) {
+    public static String calcFileNameForJar(BLangPackage bLangPackage) {
         PackageID pkgID = bLangPackage.pos.src.pkgID;
         Name sourceFileName = pkgID.sourceFileName;
         if (sourceFileName != null) {

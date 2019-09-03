@@ -41,8 +41,10 @@ public class ModuleLevelVariableAccessTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        result = BCompileUtil.compile("test-src/balo/test_balo/globalvar/test_module_level_variable.bal");
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        result = BCompileUtil.compileInProc("test-src/balo/test_balo/globalvar/test_module_level_variable.bal");
+        balCreator.reset();
     }
 
     @Test(description = "Test Defining global variables")

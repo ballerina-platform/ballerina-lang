@@ -37,10 +37,12 @@ public class MapConstantEqualityInDifferentBaloTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "bar");
-        compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/" +
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "bar");
+        compileResult = BCompileUtil.compileInProc("test-src/balo/test_balo/constant/" +
                 "map-literal-constant-equality-different-modules.bal");
+        balCreator.reset();
     }
 
     // boolean type.

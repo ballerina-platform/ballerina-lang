@@ -48,8 +48,10 @@ public class GlobalVarServiceInBaloTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        result = BCompileUtil.compile("test-src/balo/test_balo/globalvar/test_global_var_service.bal");
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        result = BCompileUtil.compileInProc("test-src/balo/test_balo/globalvar/test_global_var_service.bal");
+        balCreator.reset();
     }
 
     @Test(description = "Test defining global variables in services")

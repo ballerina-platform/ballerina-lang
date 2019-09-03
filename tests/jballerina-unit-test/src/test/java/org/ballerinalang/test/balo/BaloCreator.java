@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -45,6 +46,12 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 public class BaloCreator {
 
     private static final Path TEST_RESOURCES_SOURCE_PATH = Paths.get("src", "test", "resources");
+    private static final String JAVA_CLASS_PATH = "java.class.path";
+    private String javaClassPath;
+
+    public BaloCreator() {
+        this.javaClassPath = System.getProperty(JAVA_CLASS_PATH);
+    }
 
     /**
      * Generates BALO from the provided package and copy it to the ballerina.home directory.
@@ -54,7 +61,7 @@ public class BaloCreator {
      * @param orgName Organization name
      * @throws IOException If any error occurred while reading the source files
      */
-    private static void create(Path projectPath, String packageId, String orgName) throws IOException {
+    private void create(Path projectPath, String packageId, String orgName) throws IOException {
         String buildFolder = Paths.get(System.getProperty(USER_DIR))
                 .relativize(Paths.get(System.getProperty(BALLERINA_HOME))).toString();
         Path baloPath = Paths.get(USER_REPO_DEFAULT_DIRNAME);
@@ -66,11 +73,20 @@ public class BaloCreator {
         BFileUtil.delete(projectPath.resolve(baloPath).resolve(DOT_BALLERINA_REPO_DIR_NAME));
 
         // compile and create the balo
-        compileWithTestsAndWrite(projectPath, packageId, buildFolder + "/" + BALLERINA_HOME_LIB + "/");
+        CompileResult result =
+                compileWithTestsAndWrite(projectPath, packageId, buildFolder + "/" + BALLERINA_HOME_LIB + "/");
+        URL jarPath = result.getClassLoader().getURLClassLoader().getURLs()[0];
 
         // copy the balo to the temp-ballerina-home/libs/
         BFileUtil.delete(Paths.get(buildFolder, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, packageId));
         BFileUtil.copy(projectPath.resolve(baloPath), Paths.get(buildFolder, BALLERINA_HOME_LIB));
+
+        // update the class path with the generated jar
+        System.setProperty(JAVA_CLASS_PATH, System.getProperty(JAVA_CLASS_PATH) + ":" + jarPath.toString());
+    }
+
+    public void reset() {
+        System.setProperty(JAVA_CLASS_PATH, this.javaClassPath);
     }
 
     /**
@@ -80,7 +96,7 @@ public class BaloCreator {
      * @param orgName       org name.
      * @param pkgName       package name.
      */
-    public static void createAndSetupBalo(String projectRoot, String orgName, String pkgName) {
+    public void createAndSetupBalo(String projectRoot, String orgName, String pkgName) {
         try {
             create(Paths.get(projectRoot), pkgName, orgName);
         } catch (IOException e) {
@@ -109,7 +125,7 @@ public class BaloCreator {
         BFileUtil.delete(Paths.get(projectPath.toString(), HOME_REPO_DEFAULT_DIRNAME, DOT_BALLERINA_REPO_DIR_NAME));
     }
 
-    public static void compileWithTestsAndWrite(Path sourceRootPath, String packageName, String targetPath) {
+    private CompileResult compileWithTestsAndWrite(Path sourceRootPath, String packageName, String targetPath) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, new FileSystemProjectDirectory(sourceRootPath));
 
@@ -123,6 +139,7 @@ public class BaloCreator {
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         Compiler compiler = Compiler.getInstance(context);
         compiler.write(bLangPackage, targetPath);
+        return compileResult;
     }
         
 }

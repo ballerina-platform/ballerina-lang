@@ -43,8 +43,10 @@ public class SimpleConstantInBaloTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/simple-literal-constant.bal");
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        compileResult = BCompileUtil.compileInProc("test-src/balo/test_balo/constant/simple-literal-constant.bal");
+        balCreator.reset();
     }
 
     @Test

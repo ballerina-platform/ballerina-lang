@@ -39,12 +39,14 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -80,6 +82,7 @@ public class BCompileUtil {
 
     //TODO find a way to remove below line.
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
+    private static final String JAVA_CLASS_PATH = "java.class.path";
 
     /**
      * Compile and return the semantic errors.
@@ -211,7 +214,7 @@ public class BCompileUtil {
         String filePath = concatFileName(sourceRoot, resourceDir);
         Path rootPath = Paths.get(filePath);
         Path packagePath = Paths.get(packageName);
-        return getCompileResult(packageName, rootPath, packagePath, init);
+        return compilePackage(packageName, rootPath, packagePath, init);
     }
 
     /**
@@ -239,10 +242,10 @@ public class BCompileUtil {
         String filePath = concatFileName(sourceRoot, resourceDir);
         Path rootPath = Paths.get(filePath);
         Path packagePath = Paths.get(packageName);
-        return getCompileResult(packageName, rootPath, packagePath, init);
+        return compilePackage(packageName, rootPath, packagePath, init);
     }
 
-    private static CompileResult getCompileResult(String packageName, Path rootPath, Path packagePath, boolean init) {
+    private static CompileResult compilePackage(String packageName, Path rootPath, Path packagePath, boolean init) {
         String effectiveSource;
         if (Files.isDirectory(packagePath)) {
             String[] pkgParts = packageName.split("\\/");
@@ -259,7 +262,9 @@ public class BCompileUtil {
             // TODO: orgName is anon, fix it.
             PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
             effectiveSource = pkgId.getName().getValue();
-            return compileOnJBallerina(rootPath.toString(), effectiveSource, false, init);
+
+            CompilerContext context = new CompilerContext();
+            return compileOnJBallerina(context, rootPath.toString(), effectiveSource, false, init, true);
         }
 
         effectiveSource = packageName;
@@ -494,7 +499,7 @@ public class BCompileUtil {
                                                      SourceDirectory sourceDirectory, boolean init) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, sourceDirectory);
-        return compileOnJBallerina(context, sourceRoot, packageName, false, init, false);
+        return compileOnJBallerina(context, sourceRoot, packageName, false, init, true);
     }
 
     public static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp, boolean init) {
@@ -519,11 +524,14 @@ public class BCompileUtil {
         try {
             Path buildDir = Paths.get("build").toAbsolutePath().normalize();
             Path systemBirCache = buildDir.resolve("bir-cache");
-            JBallerinaInMemoryClassLoader cl = BootstrapRunner.createClassLoaders(bLangPackage,
-                                                                                  systemBirCache,
-                                                                                  buildDir.resolve("test-bir-temp"),
-                    Optional.empty(), false,
-                    onProc);
+            JBallerinaInMemoryClassLoader cl;
+            if (packageName.endsWith(".bal")) {
+                cl = BootstrapRunner.createClassLoaders(bLangPackage, systemBirCache, buildDir.resolve("test-bir-temp"),
+                        Optional.empty(), false, onProc);
+            } else {
+                cl = createClassLoaders(bLangPackage, systemBirCache, buildDir.resolve("test-bir-temp"),
+                        Optional.empty(), false, onProc);
+            }
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
@@ -532,7 +540,6 @@ public class BCompileUtil {
             }
 
             return compileResult;
-
         } catch (IOException e) {
             throw new BLangRuntimeException("Error during jvm code gen of the test", e);
         }
@@ -601,6 +608,73 @@ public class BCompileUtil {
             this.exitCode = exitCode;
             this.consoleOutput = consoleOutput;
             this.errorOutput = errorOutput;
+        }
+    }
+
+    private static JBallerinaInMemoryClassLoader createClassLoaders(BLangPackage bLangPackage,
+                                                                   Path systemBirCache,
+                                                                   Path buildRoot,
+                                                                   Optional<Path> jarTargetRoot,
+                                                                   boolean dumpBir, boolean onProc) throws IOException {
+
+        String javaClassPath = System.getProperty(JAVA_CLASS_PATH);
+        byte[] bytes = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
+        String fileName = BootstrapRunner.calcFileNameForJar(bLangPackage);
+        Files.createDirectories(buildRoot);
+        Path intermediates = Files.createTempDirectory(buildRoot, fileName + "-");
+        Path entryBir = intermediates.resolve(fileName + ".bir");
+        Path jarTarget = jarTargetRoot.orElse(intermediates).resolve(fileName + ".jar");
+        Files.write(entryBir, bytes);
+
+        Path importsBirCache = intermediates.resolve("imports").resolve("bir-cache");
+        Path importsTarget = importsBirCache.getParent().resolve("generated-bir-jar");
+        Files.createDirectories(importsTarget);
+
+        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir);
+        for (BPackageSymbol pkg : bLangPackage.symbol.imports) {
+            PackageID id = pkg.pkgID;
+            String importJarPath = importsTarget.resolve(id.name.value + ".jar").toString();
+            System.setProperty(JAVA_CLASS_PATH, System.getProperty(JAVA_CLASS_PATH) + ":" + importJarPath);
+        }
+
+        if (onProc) {
+            BootstrapRunner.generateJarBinaryInProc(entryBir.toString(), jarTarget.toString(), dumpBir,
+                    systemBirCache.toString(), importsBirCache.toString());
+        } else {
+            BootstrapRunner.generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir,
+                    systemBirCache.toString(), importsBirCache.toString());
+        }
+
+        // restore the java classpath
+        System.setProperty(JAVA_CLASS_PATH, javaClassPath);
+
+        if (!Files.exists(jarTarget)) {
+            throw new RuntimeException("Compiled binary jar is not found: " + jarTarget);
+        }
+
+        return new JBallerinaInMemoryClassLoader(jarTarget, importsTarget.toFile());
+    }
+
+    private static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,
+                                          Path jarTargetDir, boolean dumpBir)
+            throws IOException {
+        for (BPackageSymbol pkg : imports) {
+            PackageID id = pkg.pkgID;
+            if (!"ballerina".equals(id.orgName.value) && !"ballerinax".equals(id.orgName.value)) {
+                writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir, dumpBir);
+
+                byte[] bytes = PackageFileWriter.writePackage(pkg.birPackageFile);
+                Path pkgBirDir = importsBirCache.resolve(id.orgName.value).resolve(id.name.value)
+                        .resolve(id.version.value.isEmpty() ? "0.0.0" : id.version.value);
+                Files.createDirectories(pkgBirDir);
+                Path pkgBir = pkgBirDir.resolve(id.name.value + ".bir");
+                Files.write(pkgBir, bytes);
+
+                String jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar").toString();
+                BootstrapRunner.generateJarBinaryInProc(pkgBir.toString(), jarOutputPath, dumpBir, birCache.toString(),
+                        importsBirCache.toString());
+                System.setProperty(JAVA_CLASS_PATH, System.getProperty(JAVA_CLASS_PATH) + ":" + jarOutputPath);
+            }
         }
     }
 }

@@ -44,8 +44,10 @@ public class FiniteTypeTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/finite_type_project", "finiteTypeTest", "foo");
-        result = BCompileUtil.compile("test-src/balo/test_balo/types/finite_type_test.bal");
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/finite_type_project", "finiteTypeTest", "foo");
+        result = BCompileUtil.compileInProc("test-src/balo/test_balo/types/finite_type_test.bal");
+        balCreator.reset();
     }
 
     @Test()

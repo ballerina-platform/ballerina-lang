@@ -43,8 +43,10 @@ public class DocumentationTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_documentation", "testDocOrg", "test");
-        result = BCompileUtil.compile("test-src/balo/test_balo/documentation/test_documentation.bal");
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_documentation", "testDocOrg", "test");
+        result = BCompileUtil.compileInProc("test-src/balo/test_balo/documentation/test_documentation.bal");
+        balCreator.reset();
     }
 
     @Test(description = "Test Doc attachments in Balo.")

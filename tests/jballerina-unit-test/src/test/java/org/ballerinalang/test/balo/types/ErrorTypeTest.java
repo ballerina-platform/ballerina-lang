@@ -38,8 +38,10 @@ public class ErrorTypeTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "errors");
-        result = BCompileUtil.compile("test-src/balo/test_balo/types/error_type_test.bal");
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "errors");
+        result = BCompileUtil.compileInProc("test-src/balo/test_balo/types/error_type_test.bal");
+        balCreator.reset();
     }
 
     @Test()

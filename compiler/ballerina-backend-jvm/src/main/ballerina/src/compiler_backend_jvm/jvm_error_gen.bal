@@ -128,9 +128,9 @@ type DiagnosticLogger object {
             string errorStr;
             var detail = log.err.detail();
             if (detail["message"] is ()) {
-                errorStr = io:sprintf("error: %s:: %s", positionStr, log.err.reason());
+                errorStr = io:sprintf("error: %s: %s", positionStr, log.err.reason());
             } else {
-                errorStr = io:sprintf("error: %s:: %s %s", positionStr, log.err.reason(), detail);
+                errorStr = io:sprintf("error: %s: %s %s", positionStr, log.err.reason(), detail);
             }
             print(errorStr);
         }

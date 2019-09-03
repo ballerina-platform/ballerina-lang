@@ -38,8 +38,10 @@ public class FunctionPointersTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        result = BCompileUtil.compile("test-src/balo/test_balo/functions/test_global_function_pointers.bal");
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        result = BCompileUtil.compileInProc("test-src/balo/test_balo/functions/test_global_function_pointers.bal");
+        balCreator.reset();
     }
 
     @Test

@@ -47,10 +47,12 @@ public class FunctionSignatureInBaloTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        result = BCompileUtil.compile("test-src/balo/test_balo/functions/test_different_function_signatures.bal");
+        BaloCreator balCreator = new BaloCreator();
+        balCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        result = BCompileUtil.compileInProc("test-src/balo/test_balo/functions/test_different_function_signatures.bal");
         resultNegative = BCompileUtil
-                .compile("test-src/balo/test_balo/functions/test_different_function_signatures_negative.bal");
+                .compileInProc("test-src/balo/test_balo/functions/test_different_function_signatures_negative.bal");
+        balCreator.reset();
     }
 
     @Test
