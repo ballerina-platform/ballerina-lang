@@ -141,8 +141,8 @@ public class DefaultMessageHandler implements MessageHandler {
          */
         @Override
         public void notifyFailure(ErrorValue error) {
-            countDownLatch.countDown();
             ErrorHandlerUtils.printError(error);
+            countDownLatch.countDown();
         }
     }
 }
