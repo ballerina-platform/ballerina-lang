@@ -102,22 +102,13 @@ function checkForAuthHandlers(InboundAuthHandler[] authHandlers, Request request
 function isAuthnSuccessful(Caller caller, boolean|AuthenticationError authenticated) returns boolean {
     Response response = new;
     response.statusCode = 401;
-    if (authenticated is boolean) {
-        if (!authenticated) {
-            response.setTextPayload("Authentication failure.");
-            var err = caller->respond(response);
-            if (err is error) {
-                panic <error> err;
-            }
-            return false;
-        }
-    } else {
-        response.setTextPayload("Authentication failure. " + <string>authenticated.reason());
-        var err = caller->respond(response);
-        if (err is error) {
-            panic <error> err;
-        }
-        return false;
+    if (authenticated is boolean && authenticated) {
+        return authenticated;
     }
-    return true;
+    response.setTextPayload("Authentication failure.");
+    var err = caller->respond(response);
+    if (err is error) {
+        panic <error> err;
+    }
+    return false;
 }
