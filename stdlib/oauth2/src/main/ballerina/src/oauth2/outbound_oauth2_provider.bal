@@ -59,7 +59,7 @@ public type OutboundOAuth2Provider object {
             }
             return auth:prepareError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
-            var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, false);
+            var authToken = generateAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache);
             if (authToken is string) {
                 return authToken;
             } else {
@@ -78,7 +78,7 @@ public type OutboundOAuth2Provider object {
             return ();
         } else {
             if (data[http:STATUS_CODE] == http:STATUS_UNAUTHORIZED) {
-                var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, true);
+                var authToken = inspectAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache);
                 if (authToken is string) {
                     return authToken;
                 } else {
@@ -213,15 +213,29 @@ type RequestConfig record {|
     http:CredentialBearer credentialBearer;
 |};
 
-# Process auth token for OAuth2.
+# Process auth token for OAuth2 at token generation.
 #
 # + authConfig - OAuth2 configurations
 # + tokenCache - Cached token configurations
-# + updateRequest - Check if the request is updated after a 401 response
 # + return - Auth token or `Error` if the validation fails
-function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
-                               @tainted CachedToken tokenCache, boolean updateRequest)
-                               returns @tainted (string|Error) {
+function generateAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
+                                    @tainted CachedToken tokenCache) returns @tainted (string|Error) {
+    if (authConfig is PasswordGrantConfig) {
+        return getAuthTokenForOAuth2PasswordGrant(authConfig, tokenCache);
+    } else if (authConfig is ClientCredentialsGrantConfig) {
+        return getAuthTokenForOAuth2ClientCredentialsGrant(authConfig, tokenCache);
+    } else {
+        return getAuthTokenForOAuth2DirectTokenMode(authConfig, tokenCache);
+    }
+}
+
+# Process auth token for OAuth2 at inspection.
+#
+# + authConfig - OAuth2 configurations
+# + tokenCache - Cached token configurations
+# + return - Auth token or `Error` if the validation fails
+function inspectAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
+                                   @tainted CachedToken tokenCache) returns @tainted (string|Error) {
     if (authConfig is PasswordGrantConfig) {
         if (authConfig.retryRequest) {
             return getAuthTokenForOAuth2PasswordGrant(authConfig, tokenCache);
@@ -231,10 +245,8 @@ function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|
             return getAuthTokenForOAuth2ClientCredentialsGrant(authConfig, tokenCache);
         }
     } else {
-        if (updateRequest) {
-            authConfig.accessToken = "";
-        }
         if (authConfig.retryRequest) {
+            authConfig.accessToken = EMPTY_STRING;
             return getAuthTokenForOAuth2DirectTokenMode(authConfig, tokenCache);
         }
     }
