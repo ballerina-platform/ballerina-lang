@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -117,9 +118,11 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -128,6 +131,20 @@ import java.util.stream.Stream;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.DECIMAL;
+import static org.ballerinalang.model.elements.PackageID.ERROR;
+import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUTURE;
+import static org.ballerinalang.model.elements.PackageID.INT;
+import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.OBJECT;
+import static org.ballerinalang.model.elements.PackageID.STREAM;
+import static org.ballerinalang.model.elements.PackageID.STRING;
+import static org.ballerinalang.model.elements.PackageID.TABLE;
+import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
+import static org.ballerinalang.model.elements.PackageID.VALUE;
+import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 
@@ -211,6 +228,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
         }
+        if (PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
+            populateLangLibInSymTable(pkgSymbol);
+        }
 
         pkgNode.symbol = pkgSymbol;
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
@@ -232,7 +252,47 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
-        pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
+        Map<String, ImportResolveHolder> importPkgHolder = new HashMap<>();
+        pkgNode.imports.forEach(importNode -> {
+            String qualifiedName = importNode.getQualifiedPackageName();
+            if (importPkgHolder.containsKey(qualifiedName)) {
+                importPkgHolder.get(qualifiedName).unresolved.add(importNode);
+                return;
+            }
+            importPkgHolder.put(qualifiedName, new ImportResolveHolder(importNode));
+            defineNode(importNode, pkgEnv);
+        });
+    
+        for (ImportResolveHolder importHolder : importPkgHolder.values()) {
+            for (BLangImportPackage unresolvedPkg : importHolder.unresolved) {
+                BPackageSymbol pkgSymbol = importHolder.resolved.symbol; // get a copy of the package symbol, add
+                                                                         // compilation unit info to it,
+    
+                BPackageSymbol importSymbol = importHolder.resolved.symbol;
+                Name resolvedPkgAlias = names.fromIdNode(importHolder.resolved.alias);
+                Name unresolvedPkgAlias = names.fromIdNode(unresolvedPkg.alias);
+    
+                // check if its the same import or has the same alias.
+                if (!Names.IGNORE.equals(unresolvedPkgAlias) && unresolvedPkgAlias.equals(resolvedPkgAlias)
+                    && importSymbol.compUnit.equals(names.fromIdNode(unresolvedPkg.compUnit))) {
+                    if (isSameImport(unresolvedPkg, importSymbol)) {
+                        dlog.error(unresolvedPkg.pos, DiagnosticCode.REDECLARED_IMPORT_MODULE,
+                                unresolvedPkg.getQualifiedPackageName());
+                    } else {
+                        dlog.error(unresolvedPkg.pos, DiagnosticCode.REDECLARED_SYMBOL, unresolvedPkgAlias);
+                    }
+                    continue;
+                }
+                
+                unresolvedPkg.symbol = pkgSymbol;
+                // and define it in the current package scope
+                BPackageSymbol symbol = duplicatePackagSymbol(pkgSymbol);
+                symbol.compUnit = names.fromIdNode(unresolvedPkg.compUnit);
+                symbol.scope = pkgSymbol.scope;
+                unresolvedPkg.symbol = symbol;
+                pkgEnv.scope.define(unresolvedPkgAlias, symbol);
+            }
+        }
 
         // Define type definitions.
         this.typePrecedence = 0;
@@ -1007,6 +1067,68 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     // Private methods
+
+    private void populateLangLibInSymTable(BPackageSymbol packageSymbol) {
+
+        PackageID langLib = packageSymbol.pkgID;
+        if (langLib.equals(ARRAY)) {
+            symTable.langArrayModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(DECIMAL)) {
+            symTable.langDecimalModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(ERROR)) {
+            symTable.langErrorModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(FLOAT)) {
+            symTable.langFloatModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(FUTURE)) {
+            symTable.langFutureModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(INT)) {
+            symTable.langIntModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(MAP)) {
+            symTable.langMapModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(OBJECT)) {
+            symTable.langObjectModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(STREAM)) {
+            symTable.langStreamModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(STRING)) {
+            symTable.langStringModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(TABLE)) {
+            symTable.langTableModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(TYPEDESC)) {
+            symTable.langTypedescModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(VALUE)) {
+            symTable.langValueModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(XML)) {
+            symTable.langXmlModuleSymbol = packageSymbol;
+            return;
+        }
+    }
+    
     private boolean isValidAnnotationType(BType type) {
         if (type == symTable.semanticError) {
             return false;
@@ -1205,6 +1327,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     defineNode(f, objMethodsEnv);
                 });
 
+                List<String> referencedFunctions = new ArrayList<>();
                 // Add the attached functions of the referenced types to this object.
                 // Here it is assumed that all the attached functions of the referred type are
                 // resolved by the time we reach here. It is achieved by ordering the typeDefs
@@ -1216,7 +1339,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                     List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
                     for (BAttachedFunction function : functions) {
-                        defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function);
+                        defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function, referencedFunctions);
                     }
                 }
             } else if (typeDef.symbol.kind == SymbolKind.RECORD) {
@@ -1609,6 +1732,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveReferencedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
         List<BSymbol> referencedTypes = new ArrayList<>();
+        List<BLangType> invalidTypeRefs = new ArrayList<>();
         // Get the inherited fields from the type references
         structureTypeNode.referencedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
@@ -1619,13 +1743,28 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Check for duplicate type references
             if (referencedTypes.contains(referredType.tsymbol)) {
                 dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_TYPE_REFERENCE, typeRef);
+                invalidTypeRefs.add(typeRef);
                 return Stream.empty();
             }
 
-            if (structureTypeNode.type.tag == TypeTags.OBJECT && (referredType.tag != TypeTags.OBJECT || !Symbols
-                    .isFlagOn(referredType.tsymbol.flags, Flags.ABSTRACT))) {
-                dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
-                return Stream.empty();
+            if (structureTypeNode.type.tag == TypeTags.OBJECT) {
+                if (referredType.tag != TypeTags.OBJECT ||
+                        !Symbols.isFlagOn(referredType.tsymbol.flags, Flags.ABSTRACT)) {
+                    dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
+                    invalidTypeRefs.add(typeRef);
+                    return Stream.empty();
+                }
+
+                BObjectType objectType = (BObjectType) referredType;
+                if (structureTypeNode.type.tsymbol.owner != referredType.tsymbol.owner) {
+                    if (objectType.fields.stream().anyMatch(field -> !Symbols.isPublic(field.symbol)) ||
+                            ((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs.stream()
+                                    .anyMatch(func -> !Symbols.isPublic(func.symbol))) {
+                        dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS, typeRef);
+                        invalidTypeRefs.add(typeRef);
+                        return Stream.empty();
+                    }
+                }
             }
 
             if (structureTypeNode.type.tag == TypeTags.RECORD && referredType.tag != TypeTags.RECORD) {
@@ -1645,15 +1784,23 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return var;
             });
         }).collect(Collectors.toList());
+        structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
     }
 
     private void defineReferencedFunction(BLangTypeDefinition typeDef, SymbolEnv objEnv, BLangType typeRef,
-                                          BAttachedFunction referencedFunc) {
+                                          BAttachedFunction referencedFunc, List<String> referencedFunctions) {
+        String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
-                Symbols.getAttachedFuncSymbolName(typeDef.symbol.name.value, referencedFunc.funcName.value));
+                Symbols.getAttachedFuncSymbolName(typeDef.symbol.name.value, referencedFuncName));
         BSymbol matchingObjFuncSym = symResolver.lookupSymbol(objEnv, funcName, SymTag.VARIABLE);
 
         if (matchingObjFuncSym != symTable.notFoundSymbol) {
+            if (referencedFunctions.contains(referencedFuncName)) {
+                dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_SYMBOL, referencedFuncName);
+                return;
+            }
+            referencedFunctions.add(referencedFuncName);
+
             if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
                     referencedFunc.symbol)) {
                 Optional<BLangFunction> matchingFunc = ((BLangObjectTypeNode) typeDef.typeNode)
@@ -1712,7 +1859,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         List<BVarSymbol> params = referencedFuncSym.params;
         for (int i = 0; i < params.size(); i++) {
-            if (!params.get(i).name.value.equals(attachedFuncSym.params.get(i).name.value)) {
+            BVarSymbol referencedFuncParam = params.get(i);
+            BVarSymbol attachedFuncParam = attachedFuncSym.params.get(i);
+            if (!referencedFuncParam.name.value.equals(attachedFuncParam.name.value) ||
+                    !hasSameVisibilityModifier(referencedFuncParam.flags, attachedFuncParam.flags)) {
                 return false;
             }
         }
@@ -1743,7 +1893,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         signatureBuilder.append(visibilityModifier).append("function ")
                 .append(funcSymbol.name.value.split("\\.")[1]);
 
-        funcSymbol.params.forEach(param -> paramListBuilder.add(param.type.toString() + " " + param.name.value));
+        funcSymbol.params.forEach(param -> paramListBuilder.add(
+                (Symbols.isPublic(param) ? "public " : "") + param.type.toString() + " " + param.name.value));
 
         if (funcSymbol.restParam != null) {
             paramListBuilder.add(((BArrayType) funcSymbol.restParam.type).eType.toString() + "... " +
@@ -1818,6 +1969,23 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BLangIdentifier pkgName = importPkgNode.pkgNameComps.get(importPkgNode.pkgNameComps.size() - 1);
         return pkgName.value.equals(importSymbol.pkgID.name.value);
+    }
+    
+    /**
+     * Holds imports that are resolved and unresolved.
+     */
+    public static class ImportResolveHolder {
+        public BLangImportPackage resolved;
+        public List<BLangImportPackage> unresolved;
+    
+        public ImportResolveHolder() {
+            this.unresolved = new ArrayList<>();
+        }
+        
+        public ImportResolveHolder(BLangImportPackage resolved) {
+            this.resolved = resolved;
+            this.unresolved = new ArrayList<>();
+        }
     }
 
     /**

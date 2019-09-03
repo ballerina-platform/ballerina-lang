@@ -56,8 +56,7 @@ externalFunctionBody
     ;
 
 functionDefinition
-    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody |
-     externalFunctionBody SEMICOLON)
+    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION callableUnitSignature (callableUnitBody | externalFunctionBody SEMICOLON)
     ;
 
 lambdaFunction
@@ -123,11 +122,6 @@ constantDefinition
 globalVariableDefinition
     :   PUBLIC? LISTENER typeName Identifier ASSIGN expression SEMICOLON
     |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
-    |   channelType Identifier ASSIGN expression SEMICOLON
-    ;
-
-channelType
-    : CHANNEL LT typeName GT
     ;
 
 attachmentPoint
@@ -157,6 +151,7 @@ sourceOnlyAttachPointIdent
     |   VAR
     |   CONST
     |   LISTENER
+    |   WORKER
     ;
 
 workerDeclaration
@@ -416,9 +411,9 @@ matchStatement
     ;
 
 matchPatternClause
-    :   staticMatchLiterals EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   errorMatchPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   staticMatchLiterals EQUAL_GT LEFT_BRACE statement* RIGHT_BRACE
+    |   VAR bindingPattern (IF expression)? EQUAL_GT LEFT_BRACE statement* RIGHT_BRACE
+    |   errorMatchPattern (IF expression)? EQUAL_GT LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 bindingPattern
@@ -520,6 +515,7 @@ recordRefBindingPattern
 
 errorRefBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS ((variableReference (COMMA errorNamedArgRefPattern)*) | errorNamedArgRefPattern+) (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
+    |   TYPE_ERROR LEFT_PARENTHESIS errorRefRestPattern RIGHT_PARENTHESIS
     |   typeName LEFT_PARENTHESIS errorNamedArgRefPattern (COMMA errorNamedArgRefPattern)*  (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
     ;
 
@@ -658,7 +654,7 @@ functionInvocation
     ;
 
 invocation
-    :   (DOT | NOT) anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    :   DOT anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocationArgList

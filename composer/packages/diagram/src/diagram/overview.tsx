@@ -1,8 +1,8 @@
 import { ASTKindChecker, ASTNode, ASTUtil } from "@ballerina/ast-model";
-import { IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
+import { BallerinaAST, IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
 import { PanZoom } from "panzoom";
 import React from "react";
-import { DropdownItemProps, List, ListItemProps, Loader } from "semantic-ui-react";
+import { DropdownItemProps, ListItemProps } from "semantic-ui-react";
 import { visitor as expandingResettingVisitor } from "../visitors/expandings-undoing-visitor";
 import { visitor as initVisitor } from "../visitors/init-visitor";
 import { getReachedInvocationDepth, setMaxInvocationDepth, setProjectAST, visitor as invocationVisitor
@@ -135,21 +135,21 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
     public render() {
         const { modules } = this.state;
 
-        if (!this.state.selectedConstruct) {
-            return this.renderModulesList();
-        }
-
         const {
-            selectedAST,
+            selectedASTs,
             selectedUri,
         } = this.getSelected(this.state.selectedConstruct);
 
-        if (selectedAST) {
+        if (selectedASTs) {
             // Initialize AST node view state
-            ASTUtil.traversNode(selectedAST, initVisitor);
+            selectedASTs.forEach((ast) => {
+                ASTUtil.traversNode(ast, initVisitor);
+            });
             setProjectAST(modules);
             setMaxInvocationDepth(this.state.maxInvocationDepth === undefined ? -1 : this.state.maxInvocationDepth);
-            ASTUtil.traversNode(selectedAST, invocationVisitor);
+            selectedASTs.forEach((ast) => {
+                ASTUtil.traversNode(ast, invocationVisitor);
+            });
         }
 
         return (
@@ -171,7 +171,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     maxInvocationDepth={this.state.maxInvocationDepth}
                     reachedInvocationDepth={getReachedInvocationDepth()}
                 />
-                <Diagram ast={selectedAST}
+                <Diagram astList={selectedASTs}
                     langClient={this.props.langClient}
                     projectAst={modules}
                     docUri={selectedUri}
@@ -184,27 +184,26 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         );
     }
 
-    private getSelected(selectConstructDetails: ConstructIdentifier): {
-        selectedAST: ASTNode | undefined,
+    private getSelected(selectedConstructDetails?: ConstructIdentifier): {
+        selectedASTs: ASTNode[] | undefined,
         selectedUri: string,
     } {
-        const selectedModule = selectConstructDetails.moduleName;
-        const selectedConstruct = selectConstructDetails.constructName;
-        const selectedSubConstruct = selectConstructDetails.subConstructName;
+        if (!selectedConstructDetails) {
+            return {selectedASTs: this.getConstructsInFile(this.props.docUri), selectedUri: this.props.docUri};
+        }
+
+        const selectedModule = selectedConstructDetails.moduleName;
+        const selectedConstruct = selectedConstructDetails.constructName;
+        const selectedSubConstruct = selectedConstructDetails.subConstructName;
         const moduleList = this.getModuleList();
 
-        const moduleNames: string[] = [];
-        const constructNames: string[] = [];
         let selectedAST;
         let selectedUri = "";
 
         moduleList.forEach((module) => {
-            moduleNames.push(module.name);
-
             if (selectedModule === module.name) {
                 module.nodeInfo.forEach((nodeI) => {
                     const nodeName = (nodeI.node as any).name.value;
-                    constructNames.push(nodeName);
 
                     if (selectedConstruct && (nodeName === selectedConstruct)) {
                         selectedAST = nodeI.node;
@@ -223,59 +222,9 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         });
 
         return {
-            selectedAST,
+            selectedASTs: selectedAST ? [selectedAST] : undefined,
             selectedUri
         };
-    }
-
-    private renderModulesList() {
-        const modules = this.getModuleList().map((module) => {
-            return {
-                name: module.name,
-                nodes: module.nodeInfo.map((nodeInfo) => (nodeInfo.node))
-            };
-        });
-
-        if (!(modules.length > 0)) {
-            return <Loader active/>;
-        }
-
-        return <div className="overview">
-            <List relaxed>
-                {modules.map((module) => (
-                    <List.Item className="item-wrapper" key={module.name}>
-                        <List.Content>
-                            <List.Header className="list-item-header" >{module.name}</List.Header>
-                            <div>
-                                { this.renderConstructsList(module) }
-                            </div>
-                        </List.Content>
-                    </List.Item>)
-                )}
-            </List>
-        </div>;
-    }
-
-    private renderConstructsList(module: { name: string; nodes: ASTNode[]; }) {
-        return (
-            <List>
-                {module.nodes.filter((node) => (DiagramUtils.isDrawable(node)))
-                    .map((node) => {
-                        const nodeName = (node as any).name.value;
-                        return (
-                            <List.Item
-                                key={nodeName}
-                                data={{ moduleName: module.name, constructName: nodeName }}
-                                onClick={this.handleConstructClick}
-                            >
-                                <List.Content>
-                                    <List.Header as="a">{(node as any).name.value}</List.Header>
-                                </List.Content>
-                            </List.Item>
-                        );
-                    })}
-            </List>
-        );
     }
 
     private getModuleList(): Array<{name: string, nodeInfo: Array<{node: ASTNode, uri: string}>}> {
@@ -306,6 +255,30 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         });
 
         return moduleList;
+    }
+
+    private getConstructsInFile(uri: string): ASTNode[] | undefined {
+        const { modules } = this.state;
+
+        if (!modules) {
+            return;
+        }
+
+        let selectedFileAST: BallerinaAST | undefined;
+        Object.keys(modules).forEach((moduleName) => {
+            const module = modules[moduleName];
+            Object.keys(module.compilationUnits).forEach((cUnitName) => {
+                if (module.compilationUnits[cUnitName].uri === uri) {
+                    selectedFileAST = module.compilationUnits[cUnitName].ast;
+                }
+            });
+        });
+
+        if (selectedFileAST) {
+            return selectedFileAST.topLevelNodes.filter((node) => DiagramUtils.isDrawable(node)) as ASTNode[];
+        } else {
+            return;
+        }
     }
 
     private handleConstructClick(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, props: ListItemProps) {
@@ -399,11 +372,13 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }
 
         const {
-            selectedAST
+            selectedASTs
         } = this.getSelected(this.state.selectedConstruct);
 
-        if (selectedAST) {
-            ASTUtil.traversNode(selectedAST, expandingResettingVisitor);
+        if (selectedASTs) {
+            selectedASTs.forEach((ast) => {
+                ASTUtil.traversNode(ast, expandingResettingVisitor);
+            });
         }
 
         this.setState({

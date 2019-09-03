@@ -31,14 +31,11 @@ service MyService on new http:MockListener(9090) {
     }
 }
 
-function testBallerinaServiceAnnotations() returns any {
-    var a = reflect:getServiceAnnotations(MyService, "ServiceConfig");
-    if (a is ()) {
-        return "1";
-    }
-    return reflect:getServiceAnnotations(MyService, "ServiceConfig");
+function testBallerinaServiceAnnotations() returns http:HttpServiceConfig? {
+    typedesc<service> t = typeof MyService;
+    return t.@http:ServiceConfig;
 }
 
 function testBallerinaResourceAnnotations() returns any {
-    return reflect:getResourceAnnotations(MyService, "foo", "ResourceConfig");
+    return reflect:getResourceAnnotations(MyService, "foo", "ResourceConfig", "ballerina/http");
 }

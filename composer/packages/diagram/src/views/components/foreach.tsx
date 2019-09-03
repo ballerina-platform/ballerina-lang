@@ -7,6 +7,7 @@ import { ViewState } from "../../view-model/index";
 import { ArrowHead } from "./arrow-head";
 import { Block } from "./block";
 import { ForeachBox } from "./foreach-box";
+import { HiddenBlock } from "./hidden-block";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -16,6 +17,10 @@ export const Foreach: React.StatelessComponent<{
         model
     }) => {
         const viewState: ViewState = model.viewState;
+
+        if (viewState.hiddenBlock) {
+            return <HiddenBlock model={ model }/>;
+        }
 
         const conditionProps = {
             astModel: model,

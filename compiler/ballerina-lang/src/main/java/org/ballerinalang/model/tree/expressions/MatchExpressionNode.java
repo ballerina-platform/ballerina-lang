@@ -26,6 +26,7 @@ import java.util.List;
  * 
  * @since 0.970.0
  */
+@Deprecated
 public interface MatchExpressionNode extends ExpressionNode {
 
     /**

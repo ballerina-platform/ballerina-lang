@@ -455,7 +455,7 @@ public class SignatureHelpUtil {
                                            String nodeName) {
         String pkgAlias = identifierNode.getValue();
         if (!pkgAlias.isEmpty()) {
-            Optional<BLangImportPackage> optImport = CommonUtil.getCurrentModuleImports(context).stream()
+            Optional<BLangImportPackage> optImport = CommonUtil.getCurrentFileImports(context).stream()
                     .filter(p -> pkgAlias.equals(p.alias.value))
                     .findFirst();
             nodeName = (optImport.isPresent() ? optImport.get().getQualifiedPackageName() : pkgAlias) + ":" + nodeName;

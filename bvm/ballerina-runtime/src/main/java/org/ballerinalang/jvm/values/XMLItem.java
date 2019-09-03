@@ -33,10 +33,10 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -55,6 +55,9 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
+import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.KEY_NOT_FOUND_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * {@code BXML} represents a single XML item in Ballerina.
@@ -276,7 +279,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     public void setAttributes(MapValue<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -407,7 +410,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     public void setChildren(XMLValue<?> seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -445,7 +448,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     public void addChildren(XMLValue<?> seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -564,7 +567,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public String stringValue() {
+    public String stringValue(Strand strand) {
         try {
             switch (this.omNode.getType()) {
                 case OMNode.TEXT_NODE:
@@ -664,7 +667,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     public void removeAttribute(String qname) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -689,7 +692,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     public void removeChildren(String qname) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -988,8 +991,8 @@ public final class XMLItem extends XMLValue<OMNode> {
         public String getOrThrow(Object key) {
             String value = this.get(key);
             if (value == null) {
-                throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
-                        "cannot find key '" + key + "'");
+                throw BallerinaErrors.createError(getModulePrefixedReason(XML_LANG_LIB, KEY_NOT_FOUND_ERROR_IDENTIFIER),
+                                                  "cannot find key '" + key + "'");
             }
             return value;
         }

@@ -539,6 +539,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (tableConstraint.tag == TypeTags.NONE) {
             dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT);
             return;
+        } else if (tableConstraint.tag != TypeTags.RECORD) {
+            dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CONSTRAINT_MUST_BE_A_RECORD_TYPE);
+            return;
         }
         validateTableColumns(tableConstraint, tableLiteral);
         checkExprs(tableLiteral.tableDataRows, this.env, tableConstraint);
@@ -1282,12 +1285,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 continue;
             }
 
-            if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_FIELD_ACCESS);
-                unresolvedReference = true;
-                continue;
-            } else if (refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_INDEX_ACCESS);
+            if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                    || refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                dlog.error(refItem.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, refItem);
                 unresolvedReference = true;
                 continue;
             }
@@ -2708,17 +2708,6 @@ public class TypeChecker extends BLangNodeVisitor {
         Name funcName = names.fromIdNode(iExpr.name);
         Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
         BSymbol funcSymbol = symTable.notFoundSymbol;
-        // TODO: we may not need this section now, with the mandatory 'self'
-        // if no package alias, check for same object attached function
-        if (pkgAlias == Names.EMPTY && env.enclType != null) {
-            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                    env.enclType.type.tsymbol.name.value, funcName.value));
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
-                    env.enclType.type.tsymbol);
-            if (funcSymbol != symTable.notFoundSymbol) {
-                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
-            }
-        }
 
         BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgAlias, getCurrentCompUnit(iExpr));
         if (pkgSymbol == symTable.notFoundSymbol) {
@@ -2754,6 +2743,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
+        }
+
+        if (PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
+            // This will enable, type param support, if the function is called directly.
+            this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
         }
         // Set the resolved function symbol in the invocation expression.
         // This is used in the code generation phase.
@@ -3076,14 +3070,24 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = symTable.semanticError;
                 return;
             }
+        } else {
+            iExpr.symbol = funcSymbol;
         }
+
+        // __init method can be called in a method-call-expr only when the expression
+        // preceding the . is self
+        if (iExpr.name.value.equals(Names.USER_DEFINED_INIT_SUFFIX.value) &&
+                !(iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                (Names.SELF.equals(((BLangSimpleVarRef) iExpr.expr).symbol.name)))) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_INIT_INVOCATION);
+        }
+
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
-        iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
 
@@ -3569,24 +3573,21 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression startTagName = bLangXMLElementLiteral.startTagName;
         checkExpr(startTagName, xmlElementEnv, symTable.stringType);
         BLangExpression endTagName = bLangXMLElementLiteral.endTagName;
-        if (endTagName != null) {
-            checkExpr(endTagName, xmlElementEnv, symTable.stringType);
-        }
-
         if (endTagName == null) {
             return;
         }
 
-        if (startTagName.getKind() == NodeKind.XML_QNAME && startTagName.getKind() == NodeKind.XML_QNAME
-                && startTagName.equals(endTagName)) {
+        checkExpr(endTagName, xmlElementEnv, symTable.stringType);
+        if (startTagName.getKind() == NodeKind.XML_QNAME && endTagName.getKind() == NodeKind.XML_QNAME &&
+                startTagName.equals(endTagName)) {
             return;
         }
 
-        if (startTagName.getKind() != NodeKind.XML_QNAME && startTagName.getKind() != NodeKind.XML_QNAME) {
+        if (startTagName.getKind() != NodeKind.XML_QNAME && endTagName.getKind() != NodeKind.XML_QNAME) {
             return;
         }
 
-        dlog.error(startTagName.pos, DiagnosticCode.XML_TAGS_MISMATCH);
+        dlog.error(bLangXMLElementLiteral.pos, DiagnosticCode.XML_TAGS_MISMATCH);
     }
 
     private void checkStringTemplateExprs(List<BLangExpression> exprs, boolean allowXml) {

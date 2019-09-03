@@ -18,7 +18,6 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.jvnet.mimepull.MIMEPart;
 
 import java.io.IOException;
@@ -33,7 +32,7 @@ public class MimeEntityWrapper extends EntityWrapper {
 
     private MIMEPart mimePart;
 
-    public MimeEntityWrapper(EntityBodyChannel channel, MIMEPart mimePart) throws BallerinaIOException {
+    public MimeEntityWrapper(EntityBodyChannel channel, MIMEPart mimePart) {
         super(channel);
         this.mimePart = mimePart;
     }

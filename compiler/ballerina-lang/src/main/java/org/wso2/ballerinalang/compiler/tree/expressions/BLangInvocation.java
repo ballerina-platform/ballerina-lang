@@ -24,7 +24,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
-import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -50,9 +49,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     //caching since at desugar level we need to identify whether this is actually attached function or not
     public BSymbol exprSymbol;
     public boolean functionPointerInvocation;
-    /* Variables Required for Iterable Operation */
-    public boolean iterableOperationInvocation;
-    public IterableContext iContext;
     public boolean actionInvocation;
     public boolean langLibInvocation;
     public boolean async;
@@ -125,7 +121,8 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
 
     @Override
     public boolean isIterableOperation() {
-        return iterableOperationInvocation;
+
+        return false;
     }
 
     @Override
@@ -162,6 +159,13 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
      * @since 0.94
      */
     public static class BFunctionPointerInvocation extends BLangInvocation {
+
+        public BFunctionPointerInvocation(DiagnosticPos pos, BLangExpression varRef, BSymbol bSymbol, BType retType) {
+            this.pos = pos;
+            this.expr = varRef;
+            this.symbol = bSymbol;
+            this.type = retType;
+        }
 
         public BFunctionPointerInvocation(BLangInvocation parent, BLangExpression varRef) {
             this.pos = parent.pos;

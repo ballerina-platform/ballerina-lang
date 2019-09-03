@@ -309,6 +309,8 @@ function genJMethodForBFunc(bir:Function func,
 
     // Create Local Variable Table
     k = localVarOffset;
+    // Add strand variable to LVT
+    mv.visitLocalVariable("__strand", io:sprintf("L%s;", STRAND), methodStartLabel, methodEndLabel, 0);
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         jvm:Label startLabel = methodStartLabel;
@@ -328,7 +330,11 @@ function genJMethodForBFunc(bir:Function func,
                 }
             }
             string metaVarName = localVar.meta.name;
-            if (metaVarName != "") {
+            if (metaVarName != "" &&
+                      // filter out compiler added vars
+                      !((metaVarName.startsWith("$") && metaVarName.endsWith("$"))
+                        || (metaVarName.startsWith("$$") && metaVarName.endsWith("$$"))
+                        || metaVarName.startsWith("_$$_"))) {
                 mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.typeValue),
                                 startLabel, endLabel, indexMap.getIndex(localVar));
             }
@@ -668,7 +674,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:NewTable) {
                 instGen.generateTableNewIns(inst);
             } else if (inst is bir:NewStream) {
-                instGen.generateStreamNewIns(inst);
+                 instGen.generateStreamNewIns(inst);
             } else if (inst is bir:NewError) {
                 instGen.generateNewErrorIns(inst);
             } else if (inst is bir:NewInstance) {
@@ -1936,7 +1942,6 @@ function loadAnnots(jvm:MethodVisitor mv, string pkgName, bir:TypeDef typeDef) {
     string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
                             lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
     mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
-    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
     loadExternalOrLocalType(mv, typeDef);
     mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processAnnotations",
         io:sprintf("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);

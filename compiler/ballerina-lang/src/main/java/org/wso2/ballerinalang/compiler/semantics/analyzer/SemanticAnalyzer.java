@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -162,6 +164,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
     private static final String NULL_LITERAL = "null";
+    private static final String LEFT_BRACE = "{";
+    private static final String RIGHT_BRACE = "}";
+    private static final String SPACE = " ";
+    public static final String COLON = ":";
 
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -313,6 +319,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeStmt(funcNode.body, funcEnv);
         }
 
+        if (funcNode.anonForkName != null) {
+            funcNode.symbol.enclForkName = funcNode.anonForkName;
+        }
+
         this.processWorkers(funcNode, funcEnv);
     }
 
@@ -372,8 +382,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         boolean isAbstract = objectTypeNode.flagSet.contains(Flag.ABSTRACT);
         objectTypeNode.fields.forEach(field -> {
             analyzeDef(field, objectEnv);
-            if (isAbstract && field.flagSet.contains(Flag.PRIVATE)) {
-                this.dlog.error(field.pos, DiagnosticCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
+            if (isAbstract) {
+                if (field.flagSet.contains(Flag.PRIVATE)) {
+                    this.dlog.error(field.pos, DiagnosticCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
+                }
+
+                if (field.expr != null) {
+                    this.dlog.error(field.expr.pos, DiagnosticCode.FIELD_WITH_DEFAULT_VALUE_ABSTRACT_OBJECT);
+                }
             }
         });
 
@@ -436,6 +452,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (!types.isAssignable(reasonType, symTable.stringType)) {
             dlog.error(errorType.reasonType.pos, DiagnosticCode.INVALID_ERROR_REASON_TYPE, reasonType);
+        } else if (errorType.reasonType != null) {
+            validateModuleQualifiedReasons(errorType.reasonType.pos, reasonType);
         }
 
         if (errorType.detailType == null) {
@@ -455,6 +473,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return symTable.stringType;
         }
         return errorType.reasonType.type;
+    }
+
+    private void validateModuleQualifiedReasons(DiagnosticPos pos, BType reasonType) {
+        switch (reasonType.tag) {
+            case TypeTags.STRING:
+                return;
+            case TypeTags.FINITE:
+                BFiniteType finiteType = (BFiniteType) reasonType;
+                for (BLangExpression expr : finiteType.valueSpace) {
+                    validateModuleQualifiedReason(pos, (String) ((BLangLiteral) expr).value);
+                }
+                return;
+            case TypeTags.UNION:
+                ((BUnionType) reasonType).getMemberTypes().forEach(type -> validateModuleQualifiedReasons(pos, type));
+        }
+    }
+
+    private void validateModuleQualifiedReason(DiagnosticPos pos, String reason) {
+        if (!reason.startsWith(LEFT_BRACE)) {
+            return;
+        }
+
+        PackageID currentPackageId = env.enclPkg.packageID;
+        if (currentPackageId.isUnnamed || reason.contains(SPACE) ||
+                !reason.startsWith(LEFT_BRACE.concat(currentPackageId.toString().split(COLON)[0])
+                                           .concat(RIGHT_BRACE))) {
+            dlog.warning(pos, DiagnosticCode.NON_MODULE_QUALIFIED_ERROR_REASON, reason);
+        }
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -793,7 +839,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleDeclaredWithVar(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
+    private void handleDeclaredVarInForeach(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
         switch (variable.getKind()) {
             case VARIABLE:
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
@@ -813,25 +859,36 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         symbolEnter.defineNode(simpleVariable, blockEnv);
                     }
                 }
+                recursivelySetFinalFlag(simpleVariable);
                 break;
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-                if (TypeTags.TUPLE != rhsType.tag) {
+                if (TypeTags.TUPLE != rhsType.tag && TypeTags.UNION != rhsType.tag) {
                     dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
                     recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
                 }
 
                 tupleVariable.type = rhsType;
-                if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type, blockEnv))) {
+
+                if (rhsType.tag == TypeTags.TUPLE && !(checkTypeAndVarCountConsistency(tupleVariable,
+                        (BTupleType) tupleVariable.type, blockEnv))) {
                     return;
                 }
+
+                if (rhsType.tag == TypeTags.UNION && !(checkTypeAndVarCountConsistency(tupleVariable, null,
+                        blockEnv))) {
+                    return;
+                }
+
                 symbolEnter.defineNode(tupleVariable, blockEnv);
+                recursivelySetFinalFlag(tupleVariable);
                 break;
             case RECORD_VARIABLE:
                 BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
                 recordVariable.type = rhsType;
                 validateRecordVariable(recordVariable, blockEnv);
+                recursivelySetFinalFlag(recordVariable);
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
@@ -842,6 +899,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 errorVariable.type = rhsType;
                 validateErrorVariable(errorVariable);
+                recursivelySetFinalFlag(errorVariable);
                 break;
         }
     }
@@ -867,6 +925,38 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void recursivelySetFinalFlag(BLangVariable variable) {
+        if (variable == null) {
+            return;
+        }
+
+        switch (variable.getKind()) {
+            case VARIABLE:
+                if (variable.symbol == null) {
+                    return;
+                }
+                variable.symbol.flags |= Flags.FINAL;
+                break;
+            case TUPLE_VARIABLE:
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+                tupleVariable.memberVariables.forEach(this::recursivelySetFinalFlag);
+                recursivelySetFinalFlag(tupleVariable.restVariable);
+                break;
+            case RECORD_VARIABLE:
+                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+                recordVariable.variableList.forEach(value -> recursivelySetFinalFlag(value.valueBindingPattern));
+                recursivelySetFinalFlag((BLangVariable) recordVariable.restParam);
+                break;
+            case ERROR_VARIABLE:
+                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                recursivelySetFinalFlag(errorVariable.reason);
+                recursivelySetFinalFlag(errorVariable.restDetail);
+                errorVariable.detail.forEach(bLangErrorDetailEntry ->
+                        recursivelySetFinalFlag(bLangErrorDetailEntry.valueBindingPattern));
+                break;
+        }
+    }
+
     private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode) {
         return checkTypeAndVarCountConsistency(varNode, null, env);
     }
@@ -877,7 +967,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (tupleTypeNode == null) {
         /*
           This switch block will resolve the tuple type of the tuple variable.
-          For example consider the following - (int, string)|(boolean, float) (a, b) = foo();
+          For example consider the following - [int, string]|[boolean, float] [a, b] = foo();
           Since the varNode type is a union, the types of 'a' and 'b' will be resolved as follows:
           Type of 'a' will be (int | boolean) while the type of 'b' will be (string | float).
           Consider anydata (a, b) = foo();
@@ -912,7 +1002,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                     memberTupleTypes.add(varNode.type);
                                 }
                             }
-                            memberTupleTypes.add(BUnionType.create(null, memberTypes));
+
+                            if (memberTypes.size() > 1) {
+                                memberTupleTypes.add(BUnionType.create(null, memberTypes));
+                            } else {
+                                memberTupleTypes.addAll(memberTypes);
+                            }
                         }
                         tupleTypeNode = new BTupleType(memberTupleTypes);
                         break;
@@ -1456,7 +1551,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         // Check each LHS expression.
-        setTypeOfVarReferenceInAssignment(varRef);
+        setTypeOfVarRefInAssignment(varRef);
         expType = varRef.type;
 
         typeChecker.checkExpr(assignNode.expr, this.env, expType);
@@ -1468,7 +1563,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure tupleDeStmt) {
-        setTypeOfVarReferenceInAssignment(tupleDeStmt.varRef);
+        setTypeOfVarRefInBindingAssignment(tupleDeStmt.varRef);
         BType type = typeChecker.checkExpr(tupleDeStmt.expr, this.env, tupleDeStmt.varRef.type);
 
         if (tupleDeStmt.expr.type.tag == TypeTags.ARRAY) {
@@ -1486,7 +1581,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordDestructure recordDeStmt) {
         // recursively visit the var refs and create the record type
+        setTypeOfVarRefInBindingAssignment(recordDeStmt.varRef);
         typeChecker.checkExpr(recordDeStmt.varRef, env);
+
         if (recordDeStmt.expr.getKind() == RECORD_LITERAL_EXPR) {
             // TODO: 10/18/18 Need to support record literals as well
             dlog.error(recordDeStmt.expr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_BINDING_PATTERN);
@@ -1501,7 +1598,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangErrorDestructure errorDeStmt) {
         if (errorDeStmt.varRef.reason.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
                 names.fromIdNode(((BLangSimpleVarRef) errorDeStmt.varRef.reason).variableName) != Names.IGNORE) {
-            setTypeOfVarReferenceInAssignment(errorDeStmt.varRef.reason);
+            setTypeOfVarRefInBindingAssignment(errorDeStmt.varRef.reason);
         } else {
             // set reason var refs type to no type if the variable name is '_'
             errorDeStmt.varRef.reason.type = symTable.noType;
@@ -1592,28 +1689,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (variableReference.getKind() == NodeKind.RECORD_VARIABLE_REF) {
                 checkRecordVarRefEquivalency(variableReference.pos,
                         (BLangRecordVarRef) variableReference, rhsField.type, rhsPos);
-                continue;
-            }
-
-            if (variableReference.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+            } else if (variableReference.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
                 checkTupleVarRefEquivalency(pos, (BLangTupleVarRef) variableReference, rhsField.type, rhsPos);
-                continue;
-            }
-
-            if (variableReference.getKind() == NodeKind.ERROR_VARIABLE_REF) {
+            } else if (variableReference.getKind() == NodeKind.ERROR_VARIABLE_REF) {
                 checkErrorVarRefEquivalency(pos, (BLangErrorVarRef) variableReference, rhsField.type, rhsPos);
-                continue;
-            }
-
-            if (variableReference.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            } else if (variableReference.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 Name varName = names.fromIdNode(((BLangSimpleVarRef) variableReference).variableName);
                 if (varName == Names.IGNORE) {
                     continue;
                 }
+                types.checkType(variableReference.pos, rhsField.type,
+                        variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
+            } else {
+                dlog.error(variableReference.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN,
+                        variableReference);
             }
-
-            types.checkType(variableReference.pos,
-                    rhsField.type, variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
         }
 
         if (lhsVarRef.restParam != null) {
@@ -1709,18 +1799,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else if (NodeKind.ERROR_VARIABLE_REF == varRefExpr.getKind()) {
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRefExpr;
                 checkErrorVarRefEquivalency(pos, errorVarRef, sourceTypes.get(i), rhsPos);
-            } else {
-                if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
-                    Name varName = names.fromIdNode(simpleVarRef.variableName);
-                    if (varName == Names.IGNORE) {
-                        continue;
-                    }
+            } else if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
+                Name varName = names.fromIdNode(simpleVarRef.variableName);
+                if (varName == Names.IGNORE) {
+                    continue;
                 }
                 if (!types.isAssignable(sourceTypes.get(i), targetType)) {
                     dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, source);
                     break;
                 }
+            } else {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, varRefExpr);
             }
         }
     }
@@ -1823,7 +1913,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (detailItem.getKind() == NodeKind.SIMPLE_VARIABLE_REF && detailItem.name.value.equals(Names.IGNORE.value)) {
             return;
         }
-        setTypeOfVarReferenceInAssignment(detailItem.expr);
+
+        setTypeOfVarRefInBindingAssignment(detailItem.expr);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {
@@ -2078,7 +2169,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             final BType exprType = typeChecker.checkExpr(attachExpr, env);
             if (exprType != symTable.semanticError && !types.checkListenerCompatibility(exprType)) {
-                dlog.error(attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.ABSTRACT_LISTENER, exprType);
+                dlog.error(attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.LISTENER, exprType);
             } else if (exprType != symTable.semanticError && serviceNode.listenerType == null) {
                 serviceNode.listenerType = exprType;
             } else if (exprType != symTable.semanticError) {
@@ -2191,7 +2282,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-       /* ignore */
+        for (BLangSimpleVariableDef worker : forkJoin.workers) {
+            BLangFunction function = ((BLangLambdaFunction) worker.var.expr).function;
+            function.symbol.enclForkName = function.anonForkName;
+            ((BInvokableSymbol) worker.var.symbol).enclForkName = function.anonForkName;
+        }
     }
 
     @Override
@@ -2384,7 +2479,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Check whether the foreach node's variables are declared with var.
         if (foreachStmt.isDeclaredWithVar) {
             // If the foreach node's variables are declared with var, type is `varType`.
-            handleDeclaredWithVar(variableNode, foreachStmt.varType, blockEnv);
+            handleDeclaredVarInForeach(variableNode, foreachStmt.varType, blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
@@ -2392,12 +2487,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Then we need to check whether the RHS type is assignable to LHS type.
         if (types.isAssignable(foreachStmt.varType, typeNodeType)) {
             // If assignable, we set types to the variables.
-            handleDeclaredWithVar(variableNode, foreachStmt.varType, blockEnv);
+            handleDeclaredVarInForeach(variableNode, foreachStmt.varType, blockEnv);
             return;
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
         dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, foreachStmt.varType, typeNodeType);
-        handleDeclaredWithVar(variableNode, typeNodeType, blockEnv);
+        handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
     }
 
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {
@@ -2477,17 +2572,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private void setTypeOfVarReferenceInAssignment(BLangExpression expr) {
-        // In assignment, lhs supports only simpleVarRef, indexBasedAccess, filedBasedAccess expressions.
-        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                expr.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR &&
-                expr.getKind() != NodeKind.TUPLE_VARIABLE_REF) {
+    private void setTypeOfVarRefInBindingAssignment(BLangExpression expr) {
+        // In binding assignments, lhs supports only simple, record, error, tuple varRefs.
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF
+                && expr.getKind() != NodeKind.RECORD_VARIABLE_REF
+                && expr.getKind() != NodeKind.ERROR_VARIABLE_REF
+                && expr.getKind() != NodeKind.TUPLE_VARIABLE_REF) {
+            dlog.error(expr.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, expr);
+            expr.type = symTable.semanticError;
+        }
+        setTypeOfVarRef(expr);
+    }
+
+    private void setTypeOfVarRefInAssignment(BLangExpression expr) {
+        // In assignments, lhs supports only simple, record, error, tuple
+        // varRefs and field, xml and index based access expressions.
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF
+                && expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR
+                && expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR
+                && expr.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR
+                && expr.getKind() != NodeKind.RECORD_VARIABLE_REF
+                && expr.getKind() != NodeKind.ERROR_VARIABLE_REF
+                && expr.getKind() != NodeKind.TUPLE_VARIABLE_REF) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, expr);
             expr.type = symTable.semanticError;
         }
+        setTypeOfVarRef(expr);
+    }
 
+    private void setTypeOfVarRef(BLangExpression expr) {
         BLangVariableReference varRefExpr = (BLangVariableReference) expr;
         varRefExpr.lhsVar = true;
         typeChecker.checkExpr(varRefExpr, env);

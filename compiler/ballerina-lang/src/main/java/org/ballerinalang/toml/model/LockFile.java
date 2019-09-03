@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.toml.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Defines the LockFile object which is created using the Ballerina.lock file configs.
@@ -30,7 +32,7 @@ public class LockFile {
     private String version = "";
     private String lockfile_version = "";
     private String ballerina_version = "";
-    private Set<LockFileImport> imports = new HashSet<>();
+    private Map<String, List<LockFileImport>> imports = new LinkedHashMap<>();
     
     public String getOrgName() {
         return org_name;
@@ -64,11 +66,13 @@ public class LockFile {
         this.ballerina_version = ballerinaVersion;
     }
     
-    public Set<LockFileImport> getImports() {
-        return imports;
+    public Map<String, List<LockFileImport>> getImports() {
+        this.imports = this.imports.entrySet().stream()
+                .collect(Collectors.toMap(d -> d.getKey().replaceAll("^\"|\"$", ""), Map.Entry::getValue));
+        return this.imports;
     }
     
-    public void setImports(Set<LockFileImport> imports) {
+    public void setImports(Map<String, List<LockFileImport>> imports) {
         this.imports = imports;
     }
 }

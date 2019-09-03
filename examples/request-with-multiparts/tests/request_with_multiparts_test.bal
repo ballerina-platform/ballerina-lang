@@ -19,7 +19,7 @@ function testFunc() {
         if (result is mime:Entity[]) {
             var jsonValue = result[0].getJson();
             if (jsonValue is json) {
-                test:assertEquals(jsonValue.toString(), "{\"name\":\"ballerina\"}");
+                test:assertEquals(jsonValue.toJsonString(), "{\"name\":\"ballerina\"}");
             } else {
                 test:assertFail(msg = "Invalid json");
             }

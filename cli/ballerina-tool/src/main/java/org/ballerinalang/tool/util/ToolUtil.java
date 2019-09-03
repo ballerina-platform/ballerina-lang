@@ -37,6 +37,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -183,7 +185,7 @@ public class ToolUtil {
         return false;
     }
 
-    public static void install(PrintStream printStream, String distribution) {
+    public static void install(PrintStream printStream, String distribution, boolean manualUpdate) {
         try {
             if (!use(printStream, distribution)) {
                 SSLContext sc = SSLContext.getInstance("SSL");
@@ -202,9 +204,9 @@ public class ToolUtil {
                     String newUrl = conn.getHeaderField("Location");
                     conn = (HttpURLConnection) new URL(newUrl).openConnection();
                     conn.setRequestProperty("content-type", "binary/data");
-                    download(printStream, conn, distribution);
+                    download(printStream, conn, distribution, manualUpdate);
                 } else if (conn.getResponseCode() == 200) {
-                    download(printStream, conn, distribution);
+                    download(printStream, conn, distribution, manualUpdate);
                 } else {
                     printStream.println(distribution + " is not found ");
                 }
@@ -215,7 +217,7 @@ public class ToolUtil {
     }
 
     public static void download(PrintStream printStream, HttpURLConnection conn,
-                                String distribution) throws IOException {
+                                String distribution, boolean manual) throws IOException {
         String distPath = getDistributionsPath();
         if (new File(distPath).canWrite()) {
             printStream.print("Downloading " + distribution);
@@ -240,16 +242,41 @@ public class ToolUtil {
                         + conn.getResponseCode());
             }
             conn.disconnect();
-            printStream.println(distribution + " is installed. Please execute \"ballerina dist use " +
-                    "" + distribution + "\" to use as the default");
+            if (manual) {
+                printStream.println(distribution + " is installed. Please execute \"ballerina dist use " +
+                        "" + distribution + "\" to use as the default");
+            }
         } else {
             printStream.println("Current user does not have write permissions to " + distPath + " directory");
         }
     }
 
-    public static void update(PrintStream printStream, String version) {
-        //TODO : Get available versions, find latest patch and install that version
-        install(printStream, version);
+    public static void update(PrintStream printStream) {
+        try {
+            String version = getCurrentBallerinaVersion();
+            List<String> versions = new ArrayList<>();
+            MapValue distributions = getDistributions();
+            for (int i = 0; i < distributions.getArrayValue("list").size(); i++) {
+                MapValue dist = (MapValue) distributions.getArrayValue("list").get(i);
+                versions.add(dist.getStringValue("version"));
+            }
+            Version currentVersion = new Version(version);
+            String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
+            if (!latestVersion.equals(version)) {
+                install(printStream, BALLERINA_TYPE + "-" + latestVersion, false);
+                use(printStream, latestVersion);
+            } else {
+                printStream.println("No update found");
+            }
+        } catch (IOException | KeyManagementException | NoSuchAlgorithmException e) {
+            printStream.println("Cannot connect to the central server");
+        }
+    }
+
+    public static void selfUpdate(PrintStream printStream) {
+        //TODO: Need to implement
+        printStream.println("Self update service is not availalble. " +
+                "Please visit https://ballerina.io/downloads/ to get latest tools");
     }
 
     public static void remove(PrintStream outStream, String version) {
@@ -376,6 +403,38 @@ public class ToolUtil {
     public static String getDistributionsPath() throws IOException {
         return OSUtils.getInstalltionPath() + File.separator
                 + BALLERINA_TOOL_NAME + "-" + getCurrentToolsVersion() + File.separator + "distributions";
+    }
+
+    /**
+     * Checks for update avaiable for current version.
+     * @param printStream stream which messages should be printed
+     * @param args current commands arguments
+     */
+    public static void checkForUpdate(PrintStream printStream, String[] args) {
+        try {
+            boolean isRunCommand = Arrays.stream(args).anyMatch("run"::equals);
+            if (!isRunCommand) {
+                String version = getCurrentBallerinaVersion();
+                if (OSUtils.updateNotice(version)) {
+                    Version currentVersion = new Version(version);
+                    List<String> versions = new ArrayList<>();
+                    MapValue distributions = getDistributions();
+                    for (int i = 0; i < distributions.getArrayValue("list").size(); i++) {
+                        MapValue dist = (MapValue) distributions.getArrayValue("list").get(i);
+                        versions.add(dist.getStringValue("version"));
+                    }
+                    String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
+                    if (!latestVersion.equals(version)) {
+                        printStream.println();
+                        printStream.println("New Ballerina " + latestVersion + " version is available");
+                        printStream.println("Please use \"ballerina dist update\" command to update");
+                        printStream.println();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // If any exception occurs we are not letting users know as check for update is optional
+        }
     }
 }
 

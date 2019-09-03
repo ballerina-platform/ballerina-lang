@@ -35,7 +35,7 @@ LINE_COMMENT ('// The types `int`, `float`, `decimal`, `string`, `boolean`, `byt
 WHITE_SPACE ('\n')
 LINE_COMMENT ('// because they are basic types with only simple values. Simple values are always immutable.')
 WHITE_SPACE ('\n')
-PUBLIC ('public')
+public ('public')
 WHITE_SPACE (' ')
 function ('function')
 WHITE_SPACE (' ')

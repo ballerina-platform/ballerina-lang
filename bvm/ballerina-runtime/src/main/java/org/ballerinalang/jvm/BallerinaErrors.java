@@ -38,7 +38,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.jvm.util.BLangConstants.START_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.STOP_FUNCTION_SUFFIX;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
@@ -83,16 +83,9 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createConversionError(Object inputValue, BType targetType) {
-        return createError(CONVERSION_ERROR,
+        return createError(BALLERINA_PREFIXED_CONVERSION_ERROR,
                            BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
                                                                 TypeChecker.getType(inputValue), targetType));
-    }
-
-    public static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
-        return createError(CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType)
-                                   .concat(": ".concat(detailMessage)));
     }
 
     public static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {

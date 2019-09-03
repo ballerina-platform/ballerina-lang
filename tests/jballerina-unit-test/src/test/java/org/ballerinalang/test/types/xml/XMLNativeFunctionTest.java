@@ -39,7 +39,7 @@ import org.testng.annotations.Test;
 public class XMLNativeFunctionTest {
 
     private static final String ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE =
-            "error: \\{ballerina\\}XMLOperationError message=Failed to slice xml: index out of range:";
+            "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to slice xml: index out of range:";
     private CompileResult result;
 
     @BeforeClass
@@ -819,7 +819,7 @@ public class XMLNativeFunctionTest {
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLOperationError message=Failed to slice" +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to slice" +
                   " xml: invalid indices: 4 < 1.*")
     public void testSliceInvalidIndex() {
         BRunUtil.invoke(result, "testSliceInvalidIndex");

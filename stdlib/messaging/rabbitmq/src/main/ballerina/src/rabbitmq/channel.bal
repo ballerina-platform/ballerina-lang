@@ -115,4 +115,4 @@ public type Channel client object {
 };
 
 # Holds the types of message content that can be published.
-type MessageContent int | float | byte | boolean | string | map<any> | xml | json | byte[];
+public type MessageContent int | float | byte | boolean | string | map<any> | xml | json | byte[];

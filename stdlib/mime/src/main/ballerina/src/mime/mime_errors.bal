@@ -45,7 +45,7 @@ public type InvalidContentTypeError error<INVALID_CONTENT_TYPE, Detail>;
 public const HEADER_UNAVAILABLE = "{ballerina/mime}HeaderUnavailable";
 public type HeaderUnavailableError error<HEADER_UNAVAILABLE, Detail>;
 
-public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/http}IdleTimeoutTriggeredError";
+public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/mime}IdleTimeoutTriggeredError";
 public type IdleTimeoutTriggeredError error<IDLE_TIMEOUT_TRIGGERED, Detail>;
 
 public type Error ParserError|EncodeError|DecodeError|GenericMimeError|SetHeaderError|InvalidContentTypeError

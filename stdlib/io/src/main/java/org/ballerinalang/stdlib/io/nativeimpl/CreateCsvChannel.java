@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -27,6 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.csv.Format;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
@@ -70,11 +72,13 @@ public class CreateCsvChannel {
                     IOUtils.createDelimitedRecordChannelExtended(filePath, charset, accessMode, Format.valueOf(format));
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
             return textRecordChannel;
-        } catch (Throwable e) {
-            String message = "Error occurred while converting character channel to textRecord channel:" + e
+        } catch (BallerinaIOException e) {
+            String message = "error occurred while converting character channel to textRecord channel:" + e
                     .getMessage();
             log.error(message, e);
             return IOUtils.createError(message);
+        } catch (ErrorValue e) {
+            return e;
         }
     }
 }

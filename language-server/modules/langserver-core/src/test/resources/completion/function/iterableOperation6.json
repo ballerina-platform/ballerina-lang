@@ -6,7 +6,7 @@
   "source": "function/source/iterableOperation6.bal",
   "items": [
     {
-      "label": "add(any data)((()|error))",
+      "label": "add(record {\n\n} data)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -35,20 +35,6 @@
       },
       "sortText": "130",
       "insertText": "cloneReadOnly()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "length()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns the number of members in `tbl`.  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
     {

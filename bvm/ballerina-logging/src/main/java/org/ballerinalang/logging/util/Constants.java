@@ -30,6 +30,8 @@ public class Constants {
     public static final String BALLERINA_USER_LOG_LEVEL = "b7a.log.level";
     public static final String LOG_LEVEL = ".loglevel";
 
+    public static final String CONSOLE_LOGGER = "b7a.log.console";
+
     public static final String HTTP_TRACE_LOG = "http.tracelog";
     public static final String HTTP_TRACE_LOG_ENABLED = "http.tracelog.enabled";
     public static final String HTTP_TRACE_LOG_CONSOLE = "b7a.http.tracelog.console";

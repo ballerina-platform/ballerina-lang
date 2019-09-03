@@ -375,7 +375,7 @@ public class CommonUtil {
             // If the annotation resides within the current package, no need to set the additional text edits
             return annotationItem;
         }
-        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(ctx);
+        List<BLangImportPackage> imports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
         Optional currentPkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
                     String pkgName = bLangImportPackage.orgName + "/"
@@ -691,26 +691,27 @@ public class CommonUtil {
      *
      * @param bType BType to get the name
      * @param ctx   LS Operation Context
+     * @param doSimplify Simplifies the types eg. Errors
      * @return {@link String}   BType Name as String
      */
-    public static String getBTypeName(BType bType, LSContext ctx) {
+    public static String getBTypeName(BType bType, LSContext ctx, boolean doSimplify) {
         if (bType instanceof ConstrainedType) {
-            return getConstrainedTypeName(bType, ctx);
+            return getConstrainedTypeName(bType, ctx, doSimplify);
         }
         if (bType instanceof BUnionType) {
-            return getUnionTypeName((BUnionType) bType, ctx);
+            return getUnionTypeName((BUnionType) bType, ctx, doSimplify);
         }
         if (bType instanceof BTupleType) {
-            return getTupleTypeName((BTupleType) bType, ctx);
+            return getTupleTypeName((BTupleType) bType, ctx, doSimplify);
         }
         if (bType instanceof BFiniteType || bType instanceof BInvokableType || bType instanceof BNilType) {
             return bType.toString();
         }
         if (bType instanceof BArrayType) {
-            return getArrayTypeName((BArrayType) bType, ctx);
+            return getArrayTypeName((BArrayType) bType, ctx, doSimplify);
         }
         if (bType instanceof BRecordType) {
-            return getRecordTypeName((BRecordType) bType, ctx);
+            return getRecordTypeName((BRecordType) bType, ctx, doSimplify);
         }
         return getShallowBTypeName(bType, ctx);
     }
@@ -738,11 +739,11 @@ public class CommonUtil {
         if (pkgId.getName().getValue().startsWith("lang.")) {
             return nameComponents[nameComponents.length - 1];
         }
-        return pkgId.getName().getValue() + CommonKeys.PKG_DELIMITER_KEYWORD
+        return pkgId.getName().getValue().replaceAll(".*\\.", "") + CommonKeys.PKG_DELIMITER_KEYWORD
                 + nameComponents[nameComponents.length - 1];
     }
 
-    private static String getUnionTypeName(BUnionType unionType, LSContext ctx) {
+    private static String getUnionTypeName(BUnionType unionType, LSContext ctx, boolean doSimplify) {
         List<BType> nonErrorTypes = new ArrayList<>();
         List<BType> errorTypes = new ArrayList<>();
         StringBuilder unionName = new StringBuilder("(");
@@ -754,10 +755,10 @@ public class CommonUtil {
             }
         });
         String nonErrorsName = nonErrorTypes.stream()
-                .map(bType -> getBTypeName(bType, ctx))
+                .map(bType -> getBTypeName(bType, ctx, doSimplify))
                 .collect(Collectors.joining("|"));
         unionName.append(nonErrorsName);
-        if (errorTypes.size() > 3) {
+        if (errorTypes.size() > 3 && doSimplify) {
             if (nonErrorTypes.isEmpty()) {
                 unionName.append("error");
             } else {
@@ -765,7 +766,7 @@ public class CommonUtil {
             }
         } else if (!errorTypes.isEmpty()) {
             String errorsName = errorTypes.stream()
-                    .map(bType -> getBTypeName(bType, ctx))
+                    .map(bType -> getBTypeName(bType, ctx, doSimplify))
                     .collect(Collectors.joining("|"));
 
             if (nonErrorTypes.isEmpty()) {
@@ -778,18 +779,18 @@ public class CommonUtil {
         return unionName.toString();
     }
 
-    private static String getTupleTypeName(BTupleType tupleType, LSContext ctx) {
+    private static String getTupleTypeName(BTupleType tupleType, LSContext ctx, boolean doSimplify) {
         return "[" + tupleType.getTupleTypes().stream()
-                .map(bType -> getBTypeName(bType, ctx))
+                .map(bType -> getBTypeName(bType, ctx, doSimplify))
                 .collect(Collectors.joining(",")) + "]";
     }
 
-    private static String getRecordTypeName(BRecordType recordType, LSContext ctx) {
+    private static String getRecordTypeName(BRecordType recordType, LSContext ctx, boolean doSimplify) {
         if (recordType.tsymbol.kind == SymbolKind.RECORD && recordType.tsymbol.name.value.contains("$anonType")) {
             StringBuilder recordTypeName = new StringBuilder("record {");
             recordTypeName.append(CommonUtil.LINE_SEPARATOR);
             String fieldsList = recordType.fields.stream()
-                    .map(field -> getBTypeName(field.type, ctx) + " " + field.name.getValue() + ";")
+                    .map(field -> getBTypeName(field.type, ctx, doSimplify) + " " + field.name.getValue() + ";")
                     .collect(Collectors.joining(CommonUtil.LINE_SEPARATOR));
             recordTypeName.append(fieldsList).append(CommonUtil.LINE_SEPARATOR).append("}");
             return recordTypeName.toString();
@@ -798,8 +799,8 @@ public class CommonUtil {
         return getShallowBTypeName(recordType, ctx);
     }
 
-    private static String getArrayTypeName(BArrayType arrayType, LSContext ctx) {
-        return getBTypeName(arrayType.eType, ctx) + "[]";
+    private static String getArrayTypeName(BArrayType arrayType, LSContext ctx, boolean doSimplify) {
+        return getBTypeName(arrayType.eType, ctx, doSimplify) + "[]";
     }
 
     /**
@@ -807,9 +808,10 @@ public class CommonUtil {
      *
      * @param bType   BType to evaluate
      * @param context Language server operation context
+     * @param doSimplify
      * @return {@link StringBuilder} constraint type name
      */
-    private static String getConstrainedTypeName(BType bType, LSContext context) {
+    private static String getConstrainedTypeName(BType bType, LSContext context, boolean doSimplify) {
 
         if (!(bType instanceof ConstrainedType)) {
             return "";
@@ -821,7 +823,7 @@ public class CommonUtil {
         if (constraint.tsymbol.kind == SymbolKind.RECORD && constraint.tsymbol.name.value.contains("$anonType")) {
             constraintName.append("record {}");
         } else {
-            constraintName.append(getBTypeName(constraint, context));
+            constraintName.append(getBTypeName(constraint, context, doSimplify));
         }
 
         constraintName.append(">");
@@ -908,19 +910,6 @@ public class CommonUtil {
                 (!(bInvokableSymbol.name.value.endsWith(BLangConstants.INIT_FUNCTION_SUFFIX)
                         || bInvokableSymbol.name.value.endsWith(BLangConstants.START_FUNCTION_SUFFIX)
                         || bInvokableSymbol.name.value.endsWith(BLangConstants.STOP_FUNCTION_SUFFIX)));
-    }
-
-    /**
-     * Get the current module's imports.
-     *
-     * @param ctx LS Operation Context
-     * @return {@link List}     List of imports in the current file
-     */
-    public static List<BLangImportPackage> getCurrentModuleImports(LSContext ctx) {
-        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        BLangPackage ownerPkg = getSourceOwnerBLangPackage(relativePath, currentPkg);
-        return ownerPkg.imports;
     }
 
     /**
@@ -1076,7 +1065,7 @@ public class CommonUtil {
 
         BType returnType = symbol.type.getReturnType();
         if (returnType != null && !(returnType instanceof BNilType)) {
-            signature.append(initString).append(CommonUtil.getBTypeName(returnType, ctx));
+            signature.append(initString).append(CommonUtil.getBTypeName(returnType, ctx, false));
             signature.append(endString);
         }
 
@@ -1144,6 +1133,19 @@ public class CommonUtil {
         }
 
         return insertText.toString();
+    }
+
+    /**
+     * Get the current module's imports.
+     *
+     * @param ctx LS Operation Context
+     * @return {@link List}     List of imports in the current file
+     */
+    public static List<BLangImportPackage> getCurrentModuleImports(LSContext ctx) {
+        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        BLangPackage ownerPkg = getSourceOwnerBLangPackage(relativePath, currentPkg);
+        return ownerPkg.imports;
     }
 
     ///////////////////////////////
@@ -1226,13 +1228,31 @@ public class CommonUtil {
      * @return random argument name
      */
     public static String generateVariableName(BLangNode bLangNode, Set<String> names) {
-        return generateVariableName(1, bLangNode, names);
+        String newName = generateName(1, names);
+        if (bLangNode instanceof BLangInvocation) {
+            return generateVariableName(1, ((BLangInvocation) bLangNode).name.value, names);
+        }
+        return newName;
     }
 
-    private static String generateVariableName(int value, BLangNode bLangNode, Set<String> names) {
+    /**
+     * Generates a variable name.
+     *
+     * @param bType {@link BType}
+     * @return random argument name
+     */
+    public static String generateVariableName(BType bType, Set<String> names) {
+        String value = bType.name.getValue();
+        if (value.isEmpty() && bType.tsymbol != null) {
+            value = bType.tsymbol.name.value;
+        }
+        return generateVariableName(1, value, names);
+    }
+
+    private static String generateVariableName(int value, String name, Set<String> names) {
         String newName = generateName(value, names);
-        if (bLangNode instanceof BLangInvocation && value == 1) {
-            newName = ((BLangInvocation) bLangNode).name.value;
+        if (value == 1 && !name.isEmpty()) {
+            newName = name;
             BiFunction<String, String, String> replacer = (search, text) ->
                     (text.startsWith(search)) ? text.replaceFirst(search, "") : text;
             // Replace common prefixes
@@ -1251,7 +1271,7 @@ public class CommonUtil {
             }
             // If empty, revert back to original name
             if (newName.isEmpty()) {
-                newName = ((BLangInvocation) bLangNode).name.value;
+                newName = name;
             }
             // Lower first letter
             newName = newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
@@ -1280,7 +1300,7 @@ public class CommonUtil {
             }
             // if still already available, try a random letter
             while (names.contains(newName)) {
-                newName = generateVariableName(++value, bLangNode, names);
+                newName = generateVariableName(++value, name, names);
             }
         }
         return newName;
@@ -1299,7 +1319,7 @@ public class CommonUtil {
         String pkgPrefix = "";
         if (!typePkgId.equals(currentPkgId) &&
                 !(typePkgId.orgName.value.equals("ballerina") && typePkgId.name.value.startsWith("lang."))) {
-            pkgPrefix = typePkgId.name.value + ":";
+            pkgPrefix = typePkgId.name.value.replaceAll(".*\\.", "") + ":";
             if (importsAcceptor != null) {
                 importsAcceptor.accept(typePkgId.orgName.value, typePkgId.name.value);
             }
@@ -1409,7 +1429,7 @@ public class CommonUtil {
     }
 
     public static BPackageSymbolDTO getPackageSymbolDTO(LSContext ctx, String pkgName) {
-        Optional bLangImport = CommonUtil.getCurrentModuleImports(ctx).stream()
+        Optional bLangImport = getCurrentFileImports(ctx).stream()
                 .filter(importPkg -> importPkg.getAlias().getValue().equals(pkgName))
                 .findFirst();
         String realPkgName;

@@ -19,7 +19,7 @@ import ballerina/lang.'object as lang;
 # Represents a connection which will be used for subscription.
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
     private Connection connection;
 
     # Creates a new consumer. A new connection will be created if a refernece to a connection is not provided.
