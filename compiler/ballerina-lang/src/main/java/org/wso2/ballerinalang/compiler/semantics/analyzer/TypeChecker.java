@@ -3266,6 +3266,9 @@ public class TypeChecker extends BLangNodeVisitor {
             if (iExpr.symbol.tag == SymTag.VARIABLE) {
                 if (i < paramTypes.size()) {
                     checkTypeParamExpr(arg, this.env, expectedType);
+                    if (nonRestParams.size() > i) {
+                        requiredParams.remove(nonRestParams.get(i));
+                    }
                     continue;
                 }
                 // if no such parameter, too many arg have been given.
