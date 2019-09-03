@@ -246,7 +246,7 @@ function inspectAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantCon
         }
     } else {
         if (authConfig.retryRequest) {
-            authConfig.accessToken = EMPTY_STRING;
+            authConfig.accessToken = "";
             return getAuthTokenForOAuth2DirectTokenMode(authConfig, tokenCache);
         }
     }
