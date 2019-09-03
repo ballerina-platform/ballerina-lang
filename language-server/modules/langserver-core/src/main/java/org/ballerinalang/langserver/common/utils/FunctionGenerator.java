@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -246,6 +247,8 @@ public class FunctionGenerator {
                 list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
             }
             return "(" + String.join(", ", list) + ")[]";
+        } else if (bType instanceof BTableType) {
+            return "table<record {}>";
         }
         return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol) :
                 "any";
@@ -284,7 +287,7 @@ public class FunctionGenerator {
                     argNames.add(argName);
                 }
                 if (restParam != null && (restParam.type instanceof BArrayType)) {
-                    list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx));
+                    list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
                 }
             }
         } else {
@@ -294,10 +297,10 @@ public class FunctionGenerator {
                     continue;
                 }
                 BVarSymbol param = parameterDefs.get(i);
-                list.add(CommonUtil.getBTypeName(param.type, ctx) + " " + param.getName());
+                list.add(CommonUtil.getBTypeName(param.type, ctx, true) + " " + param.getName());
             }
             if (restParam != null && (restParam.type instanceof BArrayType)) {
-                list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx));
+                list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
             }
         }
         return (!list.isEmpty()) ? list : new ArrayList<>();

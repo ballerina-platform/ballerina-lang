@@ -14,7 +14,7 @@ service on ep {
 
 public type ABC object {
 
-    *'object:AbstractListener;
+    *'object:Listener;
 
     public function __start() returns error?{
         error e = error("startError");

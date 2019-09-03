@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
@@ -40,6 +41,7 @@ import javax.xml.namespace.QName;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
+import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 
 /**
  * {@code BXMLSequence} represents a sequence of {@link XMLItem}s in Ballerina.
@@ -176,7 +178,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public void setAttributes(MapValue<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -272,7 +274,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public void setChildren(XMLValue<?> seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -290,7 +292,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public void addChildren(XMLValue<?> seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -416,11 +418,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public String stringValue() {
+    public String stringValue(Strand strand) {
         try {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < sequence.size(); i++) {
-                sb.append(((RefValue) sequence.getRefValue(i)).stringValue());
+                sb.append(((RefValue) sequence.getRefValue(i)).stringValue(strand));
             }
             return sb.toString();
         } catch (Throwable t) {
@@ -443,7 +445,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             return refs.get(this);
         }
 
-        Object[] copiedVals = new Object[(int) sequence.size()];
+        Object[] copiedVals = new Object[sequence.size()];
         refs.put(this, new XMLSequence(new ArrayValue(copiedVals, new BArrayType(BTypes.typeXML))));
         for (int i = 0; i < sequence.size(); i++) {
             copiedVals[i] = ((XMLValue<?>) sequence.getRefValue(i)).copy(refs);
@@ -507,7 +509,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public void removeAttribute(String qname) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 
@@ -522,7 +524,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public void removeChildren(String qname) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
 

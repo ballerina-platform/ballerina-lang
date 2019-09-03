@@ -101,13 +101,13 @@ public class LangLibTupleTest {
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina\\}OperationNotSupported.*")
+          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.array\\}OperationNotSupported.*")
     public void testRemove() {
         BRunUtil.invoke(compileResult, "testRemove");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina\\}OperationNotSupported.*")
+          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.array\\}OperationNotSupported.*")
     public void testSort() {
         BRunUtil.invoke(compileResult, "testSort");
     }

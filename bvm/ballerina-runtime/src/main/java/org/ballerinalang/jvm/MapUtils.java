@@ -24,12 +24,16 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 
 import static java.lang.String.format;
+import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for MapValue insertion/manipulation.
@@ -46,7 +50,8 @@ public class MapUtils {
             case TypeTags.MAP_TAG:
                 if (!TypeChecker.checkIsType(value, ((BMapType) mapType).getConstrainedType())) {
                     BType expType = ((BMapType) mapType).getConstrainedType();
-                    throw BallerinaErrors.createError(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                    throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
+                                                                              INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType,
                                     valuesType));
                 }
@@ -66,13 +71,14 @@ public class MapUtils {
                 } else {
                     // If both of the above conditions fail, the implication is that this is an attempt to insert a
                     // value to a non-existent field in a closed record.
-                    throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
+                    throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName,
                                     recType));
                 }
 
                 if (!TypeChecker.checkIsType(value, recFieldType)) {
-                    throw BallerinaErrors.createError(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                    throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
+                                                                              INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName,
                                     recFieldType, valuesType));
                 }
@@ -83,7 +89,8 @@ public class MapUtils {
     }
 
     public static ErrorValue createOpNotSupportedError(BType type, String op) {
-        return BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
+        return BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
+                                                                   OPERATION_NOT_SUPPORTED_IDENTIFIER),
                                            format("%s not supported on type '%s'", op, type.getQualifiedName()));
     }
 

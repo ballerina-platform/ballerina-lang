@@ -65,7 +65,7 @@ public class LangLibTypedescTest {
     public void testOptionalFieldToMandotoryField() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testOptionalFieldToMandotoryField");
         Assert.assertEquals(returns[0].stringValue(),
-                "{ballerina}ConversionError {message:\"'CRec' value cannot be converted to 'BRec'\"}");
+                "{ballerina/lang.typedesc}ConversionError {message:\"'CRec' value cannot be converted to 'BRec'\"}");
     }
 
     @Test

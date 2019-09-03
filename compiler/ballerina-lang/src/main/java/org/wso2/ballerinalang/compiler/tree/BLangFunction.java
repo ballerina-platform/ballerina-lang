@@ -42,7 +42,6 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     //TODO remove this and use ATTACHED flag instead
     // TODO remove when removing struct
     public boolean attachedFunction;
-    public boolean attachedOuterFunction;
     public boolean objInitFunction;
 
     public boolean interfaceFunction;
@@ -57,6 +56,9 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public BInvokableSymbol originalFuncSymbol;
 
     public LinkedHashSet<String> sendsToThis = new LinkedHashSet<>();
+
+    // This only set when we encounter worker inside a fork statement.
+    public String anonForkName;
 
     public SimpleVariableNode getReceiver() {
         return receiver;

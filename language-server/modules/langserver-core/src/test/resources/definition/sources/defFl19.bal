@@ -1,6 +1,6 @@
 import ballerina/http;
+import ballerina/lang.'object as lang;
 import ballerina/reflect;
-import ballerina/'lang\.object as lang;
 
 type Annot record {
     string foo;  
@@ -42,7 +42,7 @@ service ser on lis {
 }
 
 type Listener object {
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public function __init() {
     }

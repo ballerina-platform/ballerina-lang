@@ -1,4 +1,5 @@
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
+
 type Annot record {
     string foo;
     int bar?;
@@ -28,7 +29,7 @@ service ser on lis {
 }
 
 type Listener object {
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public function __init() {
     }

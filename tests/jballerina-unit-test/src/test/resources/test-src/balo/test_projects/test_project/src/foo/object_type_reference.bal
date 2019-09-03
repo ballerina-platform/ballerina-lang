@@ -15,8 +15,8 @@
 // under the License.
 
 public type Person1 abstract object {
-    public int age = 10;
-    public string name = "sample name";
+    public int age;
+    public string name;
 
     public function getName(string greeting = "Hi") returns string;
 };

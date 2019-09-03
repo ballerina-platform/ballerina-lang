@@ -275,17 +275,9 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(refValueArray2.getRefValue(1).stringValue(), "FooUpdated");
     }
 
-    @Test(description = "Test tuple var ref with index and field based var refs")
-    public void testFieldAndIndexBasedVarRefs() {
-        BValue[] returns = BRunUtil.invoke(result, "testFieldAndIndexBasedVarRefs");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2002);
-        Assert.assertEquals(returns[1].stringValue(), "S1");
-    }
-
     @Test
     public void testNegativeTupleVariablesReferences() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 33);
+        Assert.assertEquals(resultNegative.getErrorCount(), 38);
         int i = -1;
         String errorMsg1 = "incompatible types: expected ";
 
@@ -327,5 +319,15 @@ public class TupleVariableReferenceTest {
                 134, 36);
         BAssertUtil.validateError(resultNegative, ++i,
                 errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 139, 84);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'a'", 146, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'a'", 153, 10);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'a'", 153, 13);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference 'm[var1]' cannot " +
+                "be used with binding pattern", 160, 6);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference 'm[var2]' cannot " +
+                "be used with binding pattern", 160, 18);
     }
 }

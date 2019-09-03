@@ -6,17 +6,6 @@
   "source": "function/source/iterableOperation4.bal",
   "items": [
     {
-      "label": "anydataType",
-      "kind": "Keyword",
-      "detail": "Anydata",
-      "documentation": {
-        "left": "A type parameter that is a subtype of `anydata`.\nHas the special semantic that when used in a declaration\nall uses in the declaration must refer to same type."
-      },
-      "sortText": "120",
-      "insertText": "anydataType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "fromJsonString()((json|error))",
       "kind": "Function",
       "detail": "Function",
@@ -61,17 +50,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "Type1",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "A type parameter that is a subtype of `any|error`.\nHas the special semantic that when used in a declaration\nall uses in the declaration must refer to same type."
-      },
-      "sortText": "120",
-      "insertText": "Type1",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "removeAll()",
@@ -134,13 +112,13 @@
       }
     },
     {
-      "label": "map(function ((any|error)) returns ((any|error)) func)(map<(any|error)>)",
+      "label": "map(function ((any|error)) returns ((any|error)) func)(map\u003c(any|error)\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReturn a map with the result of applying function `func` to each member of map `m`.\n  \n**Params**  \n- `function ((any|error)) returns ((any|error))` func: a function to apply to each member  \n  \n**Returns** `map<(any|error)>`   \n- new map containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturn a map with the result of applying function `func` to each member of map `m`.\n  \n**Params**  \n- `function ((any|error)) returns ((any|error))` func: a function to apply to each member  \n  \n**Returns** `map\u003c(any|error)\u003e`   \n- new map containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "130",
@@ -202,17 +180,6 @@
       }
     },
     {
-      "label": "PureType",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "A type parameter that is a subtype of `anydata|error`.\nHas the special semantic that when used in a declaration\nall uses in the declaration must refer to same type."
-      },
-      "sortText": "120",
-      "insertText": "PureType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "forEach(function ((any|error)) returns () func)",
       "kind": "Function",
       "detail": "Function",
@@ -259,21 +226,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "MapIterator",
-      "kind": "Class",
-      "detail": "Object",
-      "sortText": "120",
-      "insertText": "MapIterator",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "filter(function ((any|error)) returns (boolean) func)(map<(any|error)>)",
+      "label": "filter(function ((any|error)) returns (boolean) func)(map\u003c(any|error)\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a new map constructed from those elements of 'm' for which `func` returns true.\n  \n**Params**  \n- `function ((any|error)) returns (boolean)` func: a predicate to apply to each element to determine if it should be included  \n  \n**Returns** `map<(any|error)>`   \n- new map containig members which evaluate function 'func' to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a new map constructed from those elements of \u0027m\u0027 for which `func` returns true.\n  \n**Params**  \n- `function ((any|error)) returns (boolean)` func: a predicate to apply to each element to determine if it should be included  \n  \n**Returns** `map\u003c(any|error)\u003e`   \n- new map containig members which evaluate function \u0027func\u0027 to true  \n  \n"
         }
       },
       "sortText": "130",
@@ -285,28 +244,17 @@
       }
     },
     {
-      "label": "entries()(map<[string,(any|error)]>)",
+      "label": "entries()(map\u003c[string,(any|error)]\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Returns** `map<[string,(any|error)]>`   \n- map of [key, member] pairs  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Returns** `map\u003c[string,(any|error)]\u003e`   \n- map of [key, member] pairs  \n  \n"
         }
       },
       "sortText": "130",
       "insertText": "entries()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Type",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "A type parameter that is a subtype of `any|error`.\nHas the special semantic that when used in a declaration\nall uses in the declaration must refer to same type."
-      },
-      "sortText": "120",
-      "insertText": "Type",
       "insertTextFormat": "Snippet"
     },
     {
@@ -316,7 +264,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturn the result of merging json value `j1` with `j2`.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- merged json value or error  \n  \nIf the merge fails, then return an error.  \nThe merge of j1 with j2 is defined as follows:  \n- if j1 is (), then the result is j2  \n- if j2 is nil, then the result is j1  \n- if j1 is a mapping and j2 is a mapping, then for each entry [k, j] in j2,  \nset j1[k] to the merge of j1[k] with j  \n- if j1[k] is undefined, then set j1[k] to j  \n- if any merge fails, then the merge of j1 with j2 fails  \n- otherwise, the result is j1.  \n- otherwise, the merge fails  \n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturn the result of merging json value `j1` with `j2`.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- merged json value or error  \n  \nIf the merge fails, then return an error.  \nThe merge of j1 with j2 is defined as follows:  \n- if j1 is (), then the result is j2  \n- if j2 is nil, then the result is j1  \n- if j1 is a mapping and j2 is a mapping, then for each entry [k, j] in j2,  \n  set j1[k] to the merge of j1[k] with j  \n    - if j1[k] is undefined, then set j1[k] to j  \n    - if any merge fails, then the merge of j1 with j2 fails  \n    - otherwise, the result is j1.  \n- otherwise, the merge fails  \n  \n"
         }
       },
       "sortText": "130",
@@ -348,7 +296,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a simple, human-readable representation of `value` as a string.\n  \n  \n  \n**Returns** `string`   \n- simple, human-readable string representation of `value`  \n  \n- if `value` is a string, then returns `value`  \n- if `value` is `()`, then returns an empty string  \n- if `value` is boolean, then the string `true` or `false`  \n- if `value` is an int, then return `value` represented as a decimal string  \n- if `value` is a float or decimal, then return `value` represented as a decimal string,  \nwith a decimal point only if necessary, but without any suffix indicating the type of `value`  \nreturn `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `value` is a list, then returns the results toString on each member of the list  \nseparated by a space character  \n- if `value` is a map, then returns key=value for each member separated by a space character  \n- if `value` is xml, then returns `value` in XML format (as if it occurred within an XML element)  \n- if `value` is table, TBD  \n- if `value` is an error, then a string consisting of the following in order  \n1. the string `error`  \n2. a space character  \n3. the reason string  \n4. if the detail record is non-empty  \n1. a space character  \n2. the result of calling toString on the detail record  \n- if `value` is an object, then  \n- if `value` provides a `toString` method with a string return type and no required methods,  \nthen the result of calling that method on `value`  \n- otherwise, `object` followed by some implementation-dependent string  \n- if `value` is any other behavioral type, then the identifier for the behavioral type  \n(`function`, `future`, `service`, `typedesc` or `handle`)  \nfollowed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a simple, human-readable representation of `value` as a string.\n  \n  \n  \n**Returns** `string`   \n- simple, human-readable string representation of `value`  \n  \n- if `value` is a string, then returns `value`  \n- if `value` is `()`, then returns an empty string  \n- if `value` is boolean, then the string `true` or `false`  \n- if `value` is an int, then return `value` represented as a decimal string  \n- if `value` is a float or decimal, then return `value` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `value`  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `value` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `value` is a map, then returns key\u003dvalue for each member separated by a space character  \n- if `value` is xml, then returns `value` in XML format (as if it occurred within an XML element)  \n- if `value` is table, TBD  \n- if `value` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `value` is an object, then  \n    - if `value` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `value`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `value` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `\u003d\u003d` operator).  \n  \n"
         }
       },
       "sortText": "130",

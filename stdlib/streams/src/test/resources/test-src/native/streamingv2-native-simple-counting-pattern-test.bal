@@ -74,7 +74,7 @@ function waitAndGetEvents() returns (ABCInfo[]) {
 }
 
 // A[2..3] -> B, select a[1].id as aId, b.id as bId, 0 as cID
-public function runPatternQuery1() returns (ABCInfo[]) {
+function runPatternQuery1() returns (ABCInfo[]) {
     reset();
 
     // create output function

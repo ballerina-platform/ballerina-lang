@@ -58,17 +58,6 @@ function testObjectInitializerOrder() returns [int, string]{
     return [p.age, p.name];
 }
 
-function testObjectInitializerUsedAsAFunction() returns [int, string, int, string] {
-    person p = new(n = "Peter");
-    int age1 = p.age;
-    string name1 = p.name;
-    p.age = 15;
-    p.name = "Jack";
-
-    p.__init(a = 20, n = "James");
-    return [p.age, p.name, age1, name1];
-}
-
 type Person object {
     string name;
     int age;
@@ -199,4 +188,56 @@ function testMultipleErrorReturn() returns [Person4|FooErr|BarErr, Person4|FooEr
     Person4|FooErr|BarErr p1 = new(true);
     Person4|FooErr|BarErr p2 = new(false);
     return [p1, p2];
+}
+
+type Too object {
+    public string name;
+
+    public function __init(string name) {
+        self.name = name;
+    }
+
+    function updateName(string name) {
+        self.__init(name);
+    }
+};
+
+function testInitActionInsideObjectDescriptor() returns string {
+    Too t = new("Java");
+    t.updateName("Ballerina");
+    return t.name;
+}
+
+function panicTheStr() returns error|string {
+    return error("Panicked");
+}
+
+type PanicReceiver object {
+
+    public int age = 0;
+    public string name = "A";
+
+    function __init (string name, int a = 30) {
+        self.name = self.name + name;
+        self.age = a;
+        panic error("__init panicked");
+    }
+};
+
+function panicWrapper() {
+    PanicReceiver r = new(checkpanic panicTheStr());
+}
+
+function testCheckPanicObjectInit(boolean b) returns error|Person4 {
+    Person4 r = check new(b);
+    return r;
+}
+
+function testCheckPanicInObjectInitArg() returns error {
+    error|() p = trap panicWrapper();
+    return <error>p;
+}
+
+function testObjectInitPanic() returns error|PanicReceiver {
+    return trap new PanicReceiver("Mr. Panic");
 }

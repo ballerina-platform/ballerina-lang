@@ -7,29 +7,31 @@ authors= ["<auther-name>"]
 keywords= ["toml", "ballerina"]
 repository= "https://github.com/ballerina-platform/ballerina-lang"
 
+templates = ["mytemplate"]
 
 [dependencies]
 
 
 [platform]
-target = "java"
+target = "java8"
 
   [[platform.libraries]]
-  artafactId = "toml4j"
+  artifactId = "toml4j"
   version = "0.7.2"
   path = "libs/toml4j.jar"
   groupId = "com.moandjiezana.toml"
-  module = "mymodule"
+  modules = ["mymodule", "mytemplate"]
 
   [[platform.libraries]]
-  artafactId = "swagger"
+  artifactId = "swagger"
   version = "0.7.2"
   path = "libs/swagger.jar"
   groupId = "swagger.io"
-  module = [ "mymodule", "module2"]
+  modules = [ "mymodule", "module2"]
 
   [[platform.libraries]]
-  artafactId = "json"
+  artifactId = "json"
   version = "0.7.2"
   path = "libs/json.jar"
   groupId = "json.org"
+  modules = [ "mymodule", "module2"]

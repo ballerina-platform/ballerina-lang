@@ -18,14 +18,12 @@ import ballerina/internal;
 
 public type PackageParser object {
     BirChannelReader reader;
-    map<GlobalVariableDcl> globalVarMap;
     boolean addInterimBB = true;
     boolean symbolsOnly;
 
     public function __init(BirChannelReader reader, boolean symbolsOnly) {
         self.reader = reader;
         self.symbolsOnly = symbolsOnly;
-        self.globalVarMap = {};
     }
 
     public function parseVariableDcl() returns VariableDcl {
@@ -86,7 +84,6 @@ public type PackageParser object {
                                       flags:flags
                                     };
             globalVars[i] = dcl;
-            self.globalVarMap[name] = dcl;
             i = i + 1;
         }
     }
@@ -228,7 +225,7 @@ public type PackageParser object {
             count += 1;
         }
 
-        FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs, receiver);
+        FuncBodyParser bodyParser = new(self.reader, localVarMap, typeDefs, receiver);
         count = 0;
         BasicBlock?[][] paramDefaultBBs = [];
         while (count < numDefaultParams) {
@@ -410,7 +407,6 @@ public type PackageParser object {
             var typeValue = self.reader.readTypeCpRef();
             GlobalVariableDcl dcl = {kind:kind, name:{value:name}, typeValue:typeValue, flags:flags};
             globalVars[startIndex + i] = dcl;
-            self.globalVarMap[name] = dcl;
             i = i + 1;
         }
     }

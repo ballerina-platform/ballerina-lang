@@ -19,6 +19,7 @@ package org.ballerinalang.langserver;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -73,11 +74,11 @@ public class SnippetBlock {
     public CompletionItem build(LSContext ctx) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setInsertText(this.snippet);
-        List<BLangImportPackage> currentModuleImports = CommonUtil.getCurrentModuleImports(ctx);
+        List<BLangImportPackage> currentDocImports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
         if (imports != null) {
             List<TextEdit> importTextEdits = new ArrayList<>();
             for (Pair<String, String> pair : imports) {
-                boolean pkgAlreadyImported = currentModuleImports.stream()
+                boolean pkgAlreadyImported = currentDocImports.stream()
                         .anyMatch(importPkg -> importPkg.orgName.value.equals(pair.getLeft())
                                 && importPkg.alias.value.equals(pair.getRight()));
                 if (!pkgAlreadyImported) {
@@ -116,7 +117,6 @@ public class SnippetBlock {
                 return CompletionItemKind.Keyword;
             case SNIPPET:
             case STATEMENT:
-                return CompletionItemKind.Snippet;
             default:
                 return CompletionItemKind.Snippet;
         }

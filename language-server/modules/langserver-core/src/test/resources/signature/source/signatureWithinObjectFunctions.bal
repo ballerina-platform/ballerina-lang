@@ -15,11 +15,6 @@ type TestObject2 object {
     }
 };
 
-function TestObject1.testOb1Signature1() {
-    // This is the implementation for the signature 1
-}
-
-
 # This function shows the hover and signature content
 #
 # + param1 - This is the description for `param1`

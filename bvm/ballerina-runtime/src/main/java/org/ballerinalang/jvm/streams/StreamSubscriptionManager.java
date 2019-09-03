@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.streams;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.CloneUtils;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.StreamValue;
 
@@ -60,7 +61,7 @@ public class StreamSubscriptionManager implements Observer {
     public void sendMessage(StreamValue stream, Strand strand, Object value) {
         List<StreamSubscription> msgProcessors = processors.get(stream.streamId);
         if (msgProcessors != null) {
-            msgProcessors.forEach(processor -> processor.send(strand, value));
+            msgProcessors.forEach(processor -> processor.send(strand, CloneUtils.cloneValue(value)));
         }
     }
 

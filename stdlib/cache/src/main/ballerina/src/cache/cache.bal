@@ -104,6 +104,7 @@ public type Cache object {
 
     # Checks whether the given key has an accociated cache value.
     #
+    # + key - the key to be checked
     # + return - True if the given key has an associated value, false otherwise.
     public function hasKey(string key) returns (boolean) {
         return self.entries.hasKey(key);
@@ -208,6 +209,7 @@ public type Cache object {
     # Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is
     # full.
     #
+    # + numberOfKeysToEvict - the number of keys which should be evicted
     # + return - number of keys to be evicted
     function getLRUCacheKeys(int numberOfKeysToEvict) returns (string[]) {
         // Create new arrays to hold keys to be removed and hold the corresponding timestamps.

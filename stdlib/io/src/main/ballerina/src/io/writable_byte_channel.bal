@@ -22,6 +22,7 @@ public type WritableByteChannel object {
     # This operation will be asynchronous, write might return without writing all the content.
     #
     # + content - Block of bytes which should be written
+    # + offset - Start offset
     # + return - Offset which should be kept when writing bytes.
     #            Number of bytes written or `Error` if any error occurred
     public function write(byte[] content, int offset) returns int|Error = external;

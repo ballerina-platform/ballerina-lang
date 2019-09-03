@@ -3,17 +3,17 @@ org-name = "ballerina"
 version = "0.0.0"
 
 [platform]
-target = "java"
+target = "java8"
 
     [[platform.libraries]]
-    artafactId = "jvm"
+    artifactId = "jvm"
     version = "@project.version@"
     path = "./lib/ballerina-jvm-@project.version@.jar"
     groupId = "ballerina"
     modules = ["jvm"]
 
     [[platform.libraries]]
-    artafactId = "asm"
+    artifactId = "asm"
     version = "6.2.1"
     path = "./lib/asm-6.2.1.jar"
     groupId = "org.ow2.asm"

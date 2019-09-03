@@ -38,4 +38,7 @@ public interface BallerinaSourceOnlyAttachPointIdent extends PsiElement {
   @Nullable
   PsiElement getVar();
 
+  @Nullable
+  PsiElement getWorker();
+
 }

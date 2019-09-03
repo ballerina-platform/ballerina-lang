@@ -26,7 +26,6 @@ import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
-import com.sun.jdi.request.DuplicateRequestException;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import com.sun.tools.jdi.ObjectReferenceImpl;
@@ -47,6 +46,7 @@ import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.InitializeRequestArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
+import org.eclipse.lsp4j.debug.PauseArguments;
 import org.eclipse.lsp4j.debug.Scope;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
@@ -263,8 +263,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     @Override
+    public CompletableFuture<Void> pause(PauseArguments args) {
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
+        stackTraceResponse.setStackFrames(new StackFrame[0]);
+
         try {
             StackFrame[] stackFrames = eventBus.getThreadsMap().get(args.getThreadId())
                     .frames().stream()
@@ -340,7 +348,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                             }
                             String name = localVariableValueEntry.getKey() == null ? "" :
                                     localVariableValueEntry.getKey().name();
-                            if (name.startsWith("_$$_")) {
+                            if (name.equals("__strand")) {
                                 return null;
                             }
 
@@ -465,7 +473,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     .getValues(((ObjectReferenceImpl) value).referenceType().allFields());
             Map<String, Value> values = new HashMap<>();
             fieldValueMap.forEach((field, value1) -> {
-                values.put(field.toString(), value1);
+                // Filter out internal variables
+                if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
+                    values.put(field.name(), value1);
+                }
             });
 
             long variableReference = (long) nextVarReference.getAndIncrement();
@@ -487,7 +498,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             String stringValue = value.toString();
             dapVariable.setValue(stringValue);
             return dapVariable;
-        } else if (varType.startsWith("$value$")) {
+        } else if (varType.contains("$value$")) {
             // Record type
             String stringValue = value.type().name();
 
@@ -526,6 +537,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             dapVariable.setVariablesReference(variableReference);
             stringValue = stringValue.replace("$value$", "");
             dapVariable.setType(stringValue);
+            dapVariable.setValue(stringValue);
+            return dapVariable;
+        } else if ("org.ballerinalang.jvm.types.BObjectType".equalsIgnoreCase(varType)) {
+            Value typeName = ((ObjectReferenceImpl) value)
+                    .getValue(((ObjectReferenceImpl) value).referenceType().fieldByName("typeName"));
+            dapVariable.setType(varType);
+            String stringValue = typeName.toString();
             dapVariable.setValue(stringValue);
             return dapVariable;
         } else {
@@ -570,45 +588,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> next(NextArguments args) {
-        ThreadReference threadReference = eventBus.getThreadsMap().get(args.getThreadId());
-        try {
-            StepRequest request = debuggee.eventRequestManager().createStepRequest(threadReference,
-                    StepRequest.STEP_LINE, StepRequest.STEP_OVER);
-
-            request.addCountFilter(1); // next step only
-            request.enable();
-        } catch (DuplicateRequestException e) {
-
-        }
-        debuggee.resume();
+        eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepIn(StepInArguments args) {
-        ThreadReference thread = eventBus.getThreadsMap().get(args.getThreadId());
-        try {
-            StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
-                    StepRequest.STEP_LINE, StepRequest.STEP_INTO);
-
-            request.addCountFilter(1); // next step only
-            request.enable();
-        } catch (DuplicateRequestException e) {
-
-        }
-        debuggee.resume();
+        eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepOut(StepOutArguments args) {
-        ThreadReference thread = eventBus.getThreadsMap().get(args.getThreadId());
-        StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
-                StepRequest.STEP_LINE, StepRequest.STEP_OUT);
-
-        request.addCountFilter(1); // next step only
-        request.enable();
-        debuggee.resume();
+        eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_OUT);
         return CompletableFuture.completedFuture(null);
     }
 

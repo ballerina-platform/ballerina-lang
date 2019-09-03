@@ -17,6 +17,7 @@
 package org.ballerinalang.jvm.scheduling;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
@@ -37,6 +38,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.GLOBAL_TRANSACTION_ID;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.TRANSACTION_URL;
 import static org.ballerinalang.jvm.scheduling.SchedulerItem.POISON_PILL;
 
 /**
@@ -111,7 +114,7 @@ public class Scheduler {
     }
 
     public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
-        return schedule(params, fp.getConsumer(), parent);
+        return schedule(params, fp.getConsumer(), parent, null);
     }
 
     /**
@@ -149,10 +152,11 @@ public class Scheduler {
      * @param params   - parameters to be passed to the function
      * @param consumer - consumer to be executed
      * @param parent   - parent strand that makes the request to schedule another
+     * @param callback - to notify any listener when ever the execution of the given function is finished
      * @return - Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent) {
-        FutureValue future = createFuture(parent, null, null, BTypes.typeNull);
+    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback) {
+        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
@@ -282,6 +286,9 @@ public class Scheduler {
                     if (item.future.callback != null) {
                         if (item.future.panic != null) {
                             item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
+                            if (item.future.transactionLocalContext != null) {
+                                item.future.transactionLocalContext.notifyLocalRemoteParticipantFailure();
+                            }
                         } else {
                             item.future.callback.notifySuccess();
                         }
@@ -403,6 +410,7 @@ public class Scheduler {
             newStrand.observerContext = parent.observerContext;
         }
         FutureValue future = new FutureValue(newStrand, callback, constraint);
+        infectResourceFunction(newStrand, future);
         future.strand.frames = new Object[100];
         return future;
     }
@@ -410,6 +418,18 @@ public class Scheduler {
     public void poison() {
         for (int i = 0; i < numThreads; i++) {
             runnableList.add(POISON_PILL);
+        }
+    }
+
+    private void infectResourceFunction(Strand strand, FutureValue futureValue) {
+        String gTransactionId = (String) strand.getProperty(GLOBAL_TRANSACTION_ID);
+        if (gTransactionId != null) {
+            String globalTransactionId = strand.getProperty(GLOBAL_TRANSACTION_ID).toString();
+            String url = strand.getProperty(TRANSACTION_URL).toString();
+            TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
+                                                                                             url, "2pc");
+            strand.setLocalTransactionContext(transactionLocalContext);
+            futureValue.transactionLocalContext = transactionLocalContext;
         }
     }
 }

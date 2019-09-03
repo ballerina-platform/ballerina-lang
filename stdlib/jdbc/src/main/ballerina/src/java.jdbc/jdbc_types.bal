@@ -29,7 +29,7 @@ public type ClientEndpointConfig record {|
     string username = "";
     string password = "";
     PoolOptions poolOptions?;
-    map<any> dbOptions = {};
+    map<anydata> dbOptions = {};
 |};
 
 # Represents the properties which are used to configure DB connection pool.
@@ -103,13 +103,6 @@ public type GlobalPoolConfigContainer object {
 // poolConfig member of this instance to the extern client creation logic in order to access the internal map
 // of connection pools.
 final GlobalPoolConfigContainer globalPoolConfigContainer = new;
-
-# Retrieves the `final` `GlobalPoolConfigContainer` object.
-#
-# + return - The `final` `GlobalPoolConfigContainer` object
-public function getGlobalPoolConfigContainer() returns GlobalPoolConfigContainer {
-    return globalPoolConfigContainer;
-}
 
 # The SQL Datatype of the parameter.
 #
@@ -204,7 +197,7 @@ public const DIRECTION_INOUT = "INOUT";
 #                result row
 public type Parameter record {|
     SQLType sqlType;
-    any value = ();
+    anydata value = ();
     Direction direction = DIRECTION_IN;
     typedesc<record{}> recordType?;
 |};
@@ -236,4 +229,4 @@ public type BatchUpdateResult record {|
 |};
 
 # The parameter passed into the operations.
-type Param string|int|boolean|float|decimal|byte[]|Parameter;
+public type Param string|int|boolean|float|decimal|byte[]|Parameter;

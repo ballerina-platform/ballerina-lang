@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
@@ -55,8 +56,8 @@ public class KafkaConsumerPauseTest {
     @BeforeClass
     public void setup() throws IOException {
         result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_pause.bal")));
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true).deleteDataUponShutdown(true)
-                .addBrokers(1).startup();
+        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-pause-test");
+        kafkaCluster = createKafkaCluster(dataDir, 14003, 14103).addBrokers(1).startup();
         kafkaCluster.createTopic("test", 1, 1);
     }
 
@@ -120,14 +121,5 @@ public class KafkaConsumerPauseTest {
                 dataDir.deleteOnExit();
             }
         }
-    }
-
-    private static KafkaCluster kafkaCluster() {
-        if (kafkaCluster != null) {
-            throw new IllegalStateException();
-        }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-pause-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14003, 14103);
-        return kafkaCluster;
     }
 }
