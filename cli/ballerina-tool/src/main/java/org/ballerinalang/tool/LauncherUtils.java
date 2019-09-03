@@ -18,13 +18,7 @@
 package org.ballerinalang.tool;
 
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
-import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -98,38 +92,5 @@ public class LauncherUtils {
         char[] c = s.toCharArray();
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
-    }
-
-    /**
-     * Get the executable program ({@link ProgramFile}) given the compiled program
-     * ({@link org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile}).
-     *
-     * @param programFile Compiled program
-     * @return Executable program
-     */
-    public static ProgramFile getExecutableProgram(CompiledBinaryFile.ProgramFile programFile) {
-        ByteArrayInputStream byteIS = null;
-        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
-        try {
-            ProgramFileWriter.writeProgram(programFile, byteOutStream);
-
-            ProgramFileReader reader = new ProgramFileReader();
-            byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
-            return reader.readProgram(byteIS);
-        } catch (Throwable e) {
-            throw createLauncherException("failed to compile file: " + makeFirstLetterLowerCase(e.getMessage()));
-        } finally {
-            if (byteIS != null) {
-                try {
-                    byteIS.close();
-                } catch (IOException ignore) {
-                }
-            }
-
-            try {
-                byteOutStream.close();
-            } catch (IOException ignore) {
-            }
-        }
     }
 }

@@ -1,34 +1,28 @@
 package org.ballerinalang.nativeimpl.llvm;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.function.IntFunction;
-
-import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * sss.
  */
 public class FFIUtil {
-    public static final String LLVM_PKG_PATH = BALLERINA_PACKAGE_PREFIX + "llvm";
+//    public static final String LLVM_PKG_PATH = BALLERINA_PACKAGE_PREFIX + "llvm";
     public static final String NATIVE_KEY = "native";
 
     public static BMap<String, BValue> newRecord(Context context, String type) {
-        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(LLVM_PKG_PATH);
-        if (packageInfo == null) {
-            throw new BallerinaException("package - " + LLVM_PKG_PATH + " does not exist");
-        }
-        StructureTypeInfo structureInfo = packageInfo.getStructInfo(type);
-        BStructureType structType = structureInfo.getType();
-        return new BMap<>(structType);
+//        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(LLVM_PKG_PATH);
+//        if (packageInfo == null) {
+//            throw new BallerinaException("package - " + LLVM_PKG_PATH + " does not exist");
+//        }
+//        StructureTypeInfo structureInfo = packageInfo.getStructInfo(type);
+//        BStructureType structType = structureInfo.getType();
+        return new BMap<>();
     }
 
     public static <T> T getRecodeArgumentNative(Context context, int index) {

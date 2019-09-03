@@ -17,7 +17,6 @@
 package org.ballerinalang.tool.util;
 
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 
@@ -34,7 +33,6 @@ import java.util.List;
 public class CompileResult {
 
     private PackageNode pkgNode;
-    private ProgramFile progFile;
     private CompileResultDiagnosticListener diagnosticListener;
 
     public CompileResult(CompileResultDiagnosticListener diagnosticListener) {
@@ -54,14 +52,6 @@ public class CompileResult {
 
     public int getWarnCount() {
         return this.diagnosticListener.warnCount;
-    }
-
-    public ProgramFile getProgFile() {
-        return progFile;
-    }
-
-    public void setProgFile(ProgramFile progFile) {
-        this.progFile = progFile;
     }
 
     public PackageNode getAST() {
