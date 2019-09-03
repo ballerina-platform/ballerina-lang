@@ -23,6 +23,12 @@ string[] generatedInitFuncs = [];
 int nextId = -1;
 int nextVarId = -1;
 
+bir:BAttachedFunction errorRecInitFunc = {name:{value:"$$<init>"}, funcType:{retType:"()"}, flags:0};
+bir:BRecordType detailRec = {name:{value:"detail"}, sealed:false, restFieldType:"()", initFunction:errorRecInitFunc};
+bir:BErrorType errType = {name:{value:"error"}, moduleId:{org:BALLERINA, name:BUILT_IN_PACKAGE_NAME},
+                                reasonType:bir:TYPE_STRING, detailType:detailRec};
+bir:BUnionType errUnion = {members:["()", errType]};
+
 function generateMethod(bir:Function birFunc,
                             jvm:ClassWriter cw,
                             bir:Package birModule,
@@ -1804,12 +1810,6 @@ function enrichPkgWithInitializers(map<JavaClass> jvmClassMap, string typeOwnerC
 
 }
 
-bir:BAttachedFunction errorRecInitFunc = {name:{value:"$$<init>"}, funcType:{retType:"()"}, flags:0};
-bir:BRecordType detailRec = {name:{value:"detail"}, sealed:false, restFieldType:"()", initFunction:errorRecInitFunc};
-bir:BErrorType errType = {name:{value:"error"}, moduleId:{org:BALLERINA, name:BUILT_IN_PACKAGE_NAME}, 
-                                reasonType:bir:TYPE_STRING, detailType:detailRec};
-bir:BUnionType errUnion = {members:["()", errType]};
-
 function generateDepModInit(bir:ModuleID[] imprtMods, bir:Package pkg, string funcName,
                                 string initName) returns bir:Function {
     nextId = -1;
@@ -1823,14 +1823,17 @@ function generateDepModInit(bir:ModuleID[] imprtMods, bir:Package pkg, string fu
                             workerChannels:[], receiver:(), restParamExist:false};
     _ = addAndGetNextBasicBlock(modInitFunc);
 
+    bir:VariableDcl boolVal = addAndGetNextVar(modInitFunc, bir:TYPE_BOOLEAN);
+    bir:VarRef boolRef = {variableDcl:boolVal, typeValue:bir:TYPE_BOOLEAN};
+
     foreach var id in imprtMods {
         string initFuncName = calculateModuleSpecialFuncName(id, initName);
-        _ = addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef);
+        _ = addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
     }
 
     bir:ModuleID currentModId = packageToModuleId(pkg);
     string currentInitFuncName = calculateModuleSpecialFuncName(currentModId, initName);
-    bir:BasicBlock lastBB = addCheckedInvocation(modInitFunc, currentModId, currentInitFuncName, retVarRef);
+    bir:BasicBlock lastBB = addCheckedInvocation(modInitFunc, currentModId, currentInitFuncName, retVarRef, boolRef);
 
     bir:Return ret = {pos:{}, kind:bir:TERMINATOR_RETURN};
     lastBB.terminator = ret;
@@ -1851,7 +1854,7 @@ function getNextVarId() returns bir:Name {
 }
 
 function addCheckedInvocation(bir:Function func, bir:ModuleID modId, string initFuncName,
-                                    bir:VarRef retVar) returns bir:BasicBlock {
+                                    bir:VarRef retVar, bir:VarRef boolRef) returns bir:BasicBlock {
     bir:BasicBlock lastBB = <bir:BasicBlock>func.basicBlocks[func.basicBlocks.length() - 1];
     bir:BasicBlock nextBB = addAndGetNextBasicBlock(func);
     // TODO remove once lang.annotation is fixed
@@ -1861,29 +1864,16 @@ function addCheckedInvocation(bir:Function func, bir:ModuleID modId, string init
         lastBB.terminator = initCallTerm;
         return nextBB;
     }
-    bir:VariableDcl retStore = addAndGetNextVar(func, errUnion);
-    bir:VarRef retRef = {variableDcl:retStore, typeValue:errUnion};
-    bir:Call initCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:retRef, pkgID:modId,
+    bir:Call initCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:retVar, pkgID:modId,
                         name:{value:initFuncName}, isVirtual:false, thenBB:nextBB};
     lastBB.terminator = initCallTerm;
 
-    bir:VariableDcl boolVal = addAndGetNextVar(func, bir:TYPE_BOOLEAN);
-    bir:VarRef boolRef = {variableDcl:boolVal, typeValue:bir:TYPE_BOOLEAN};
-
     bir:TypeTest typeTest = {pos:{}, kind:bir:INS_KIND_TYPE_TEST,
-                                lhsOp:boolRef, rhsOp:retRef, typeValue:errType};
+                                lhsOp:boolRef, rhsOp:retVar, typeValue:errType};
     nextBB.instructions[nextBB.instructions.length()] = typeTest;
 
     bir:BasicBlock trueBB = addAndGetNextBasicBlock(func);
-    // bir:VariableDcl errorStore = addAndGetNextVar(func, errorType); 
-    // bir:VarRef errorRef = {variableDcl:errorStore};
 
-    // bir:TypeCast typCast = {pos:{}, kind:bir:INS_KIND_TYPE_CAST, lhsOp:errorRef, 
-    //                             rhsOp:retRef, castType:errorType, checkType:false};
-    // trueBB.instructions[trueBB.instructions.length()] = typeCast;
-    bir:Move moveToRet = {pos:{}, kind:bir:INS_KIND_MOVE, lhsOp:retVar, rhsOp:retRef};
-    trueBB.instructions[trueBB.instructions.length()] = moveToRet;
-    
     bir:BasicBlock retBB = addAndGetNextBasicBlock(func);
 
     bir:Return ret = {pos:{}, kind:bir:TERMINATOR_RETURN};
@@ -1942,7 +1932,6 @@ function loadAnnots(jvm:MethodVisitor mv, string pkgName, bir:TypeDef typeDef) {
     string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
                             lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
     mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
-    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
     loadExternalOrLocalType(mv, typeDef);
     mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processAnnotations",
         io:sprintf("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);

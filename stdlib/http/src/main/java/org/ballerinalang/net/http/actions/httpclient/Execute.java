@@ -46,21 +46,21 @@ public class Execute extends AbstractHTTPAction {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
         MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(config, url, verb, path, requestObj);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, config, url, verb, path, requestObj);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
         return null;
     }
 
-    protected static HttpCarbonMessage createOutboundRequestMsg(MapValue config, String serviceUri, String httpVerb,
-                                                                String path, ObjectValue requestObj) {
+    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, MapValue config, String serviceUri,
+                                                                String httpVerb, String path, ObjectValue requestObj) {
         HttpCarbonMessage outboundRequestMsg = HttpUtil
                 .getCarbonMsg(requestObj, HttpUtil.createHttpCarbonMessage(true));
 
         HttpUtil.checkEntityAvailability(requestObj);
         HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestObj);
-        prepareOutboundRequest(serviceUri, path, outboundRequestMsg, isNoEntityBodyRequest(requestObj));
+        prepareOutboundRequest(strand, serviceUri, path, outboundRequestMsg, isNoEntityBodyRequest(requestObj));
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || httpVerb.isEmpty()) {

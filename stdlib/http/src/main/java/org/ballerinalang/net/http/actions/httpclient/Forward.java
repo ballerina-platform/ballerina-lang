@@ -45,7 +45,7 @@ public class Forward extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
     public static Object nativeForward(Strand strand, ObjectValue httpClient, String path, ObjectValue requestObj) {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, path, requestObj);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, path, requestObj);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
@@ -53,7 +53,7 @@ public class Forward extends AbstractHTTPAction {
         return null;
     }
 
-    protected static HttpCarbonMessage createOutboundRequestMsg(String serviceUri, String path,
+    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, String path,
                                                                 ObjectValue requestObj) {
         if (requestObj.getNativeData(HttpConstants.REQUEST) == null &&
                 !HttpUtil.isEntityDataSourceAvailable(requestObj)) {
@@ -64,11 +64,11 @@ public class Forward extends AbstractHTTPAction {
 
         if (HttpUtil.isEntityDataSourceAvailable(requestObj)) {
             HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestObj);
-            prepareOutboundRequest(serviceUri, path, outboundRequestMsg,
+            prepareOutboundRequest(strand, serviceUri, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
             outboundRequestMsg.setHttpMethod(requestObj.get(HttpConstants.HTTP_REQUEST_METHOD).toString());
         } else {
-            prepareOutboundRequest(serviceUri, path, outboundRequestMsg,
+            prepareOutboundRequest(strand, serviceUri, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
             String httpVerb = outboundRequestMsg.getHttpMethod();
             outboundRequestMsg.setHttpMethod(httpVerb.trim().toUpperCase(Locale.getDefault()));

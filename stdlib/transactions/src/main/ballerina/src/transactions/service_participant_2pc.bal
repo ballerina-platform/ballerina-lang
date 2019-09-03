@@ -19,7 +19,7 @@ import ballerina/log;
 import ballerina/http;
 
 @http:ServiceConfig {
-    basePath:participant2pcCoordinatorBasePath
+    basePath:"/balcoordinator/participant/2pc"
 }
 // # Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
 service Participant2pcService on coordinatorListener {

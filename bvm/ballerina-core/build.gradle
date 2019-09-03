@@ -54,12 +54,6 @@ configurations {
     }
 }
 
-serviceLoader {
-    serviceInterface 'org.ballerinalang.util.LaunchListener'
-    serviceInterface 'org.ballerinalang.util.tracer.TracingLaunchListener'
-    serviceInterface 'org.ballerinalang.util.metrics.MetricsLaunchListener'
-}
-
 serviceLoaderBuild {
     inputs.files(sourceSets.main.java);
     outputs.dir("$buildDir/resources/main/META-INF/services/")

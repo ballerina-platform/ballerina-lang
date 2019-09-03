@@ -32,7 +32,6 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.FunctionUtil;
 import com.intellij.util.containers.ContainerUtil;
-import io.ballerina.plugins.idea.psi.BallerinaAttachedObject;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
@@ -70,10 +69,6 @@ public class BallerinaTypeFunctionMarker extends LineMarkerProviderDescriptor {
                 BallerinaFunctionDefinition ballerinaFunctionDefinition = PsiTreeUtil.getParentOfType(parent,
                         BallerinaFunctionDefinition.class);
                 if (ballerinaFunctionDefinition == null) {
-                    continue;
-                }
-                BallerinaAttachedObject attachedObject = ballerinaFunctionDefinition.getAttachedObject();
-                if (attachedObject == null) {
                     continue;
                 }
 

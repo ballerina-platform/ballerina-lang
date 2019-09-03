@@ -39,7 +39,6 @@ under the License.
                 </methods>
             </class>
             <class name="org.ballerinalang.stdlib.config.EnvVarConfigTest"/>
-            <class name="org.ballerinalang.stdlib.config.VMOptionsTest"/>
         </classes>
     </test>
 </suite>

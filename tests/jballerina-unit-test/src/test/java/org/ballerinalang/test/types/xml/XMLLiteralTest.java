@@ -107,7 +107,7 @@ public class XMLLiteralTest {
 
         // XML elements with mismatching start and end tags
         BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
-                                  73, 19);
+                                  73, 18);
     }
 
     @Test

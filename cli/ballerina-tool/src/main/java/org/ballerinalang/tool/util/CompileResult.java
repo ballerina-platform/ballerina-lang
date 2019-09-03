@@ -16,9 +16,7 @@
  */
 package org.ballerinalang.tool.util;
 
-import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 
@@ -35,9 +33,6 @@ import java.util.List;
 public class CompileResult {
 
     private PackageNode pkgNode;
-    private ProgramFile progFile;
-    //Used for stateful function invocation.
-    private WorkerExecutionContext context;
     private CompileResultDiagnosticListener diagnosticListener;
 
     public CompileResult(CompileResultDiagnosticListener diagnosticListener) {
@@ -59,14 +54,6 @@ public class CompileResult {
         return this.diagnosticListener.warnCount;
     }
 
-    public ProgramFile getProgFile() {
-        return progFile;
-    }
-
-    public void setProgFile(ProgramFile progFile) {
-        this.progFile = progFile;
-    }
-
     public PackageNode getAST() {
         return pkgNode;
     }
@@ -75,14 +62,6 @@ public class CompileResult {
         this.pkgNode = pkgNode;
     }
 
-    public WorkerExecutionContext getContext() {
-        return context;
-    }
-
-    public void setContext(WorkerExecutionContext context) {
-        this.context = context;
-    }
-    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
