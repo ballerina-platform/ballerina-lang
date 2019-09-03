@@ -184,12 +184,5 @@ public class StatementContextProvider extends LSCompletionProvider {
                             SnippetBlock.SnippetType.SNIPPET).build(ctx);
                 }).collect(Collectors.toList());
     }
-    
-    private boolean isAnnotationAccessExpression(LSContext context) {
-        List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
-        int annotationAccessIndex = defaultTokenTypes.indexOf(BallerinaParser.ANNOTATION_ACCESS);
-
-        return annotationAccessIndex > -1;
-    }
 }
 
