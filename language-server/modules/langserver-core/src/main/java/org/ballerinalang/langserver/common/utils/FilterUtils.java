@@ -154,7 +154,7 @@ public class FilterUtils {
             return resultList;
         }
         BType symbolType = bSymbol instanceof BInvokableSymbol ? ((BInvokableSymbol) bSymbol).retType : bSymbol.type;
-        BType modifiedSymbolBType = getModifiedBType(symbolType);
+        BType modifiedSymbolBType = getModifiedBType(symbolType, context);
         Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol, modifiedSymbolBType,
                                                                                     context);
 
@@ -169,7 +169,7 @@ public class FilterUtils {
             }
             bSymbol = entry.get().symbol;
             symbolType = bSymbol instanceof BInvokableSymbol ? ((BInvokableSymbol) bSymbol).retType : bSymbol.type;
-            modifiedSymbolBType = getModifiedBType(symbolType);
+            modifiedSymbolBType = getModifiedBType(symbolType, context);
             scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol, modifiedSymbolBType, context);
         }
         if (scopeEntries == null) {
@@ -242,8 +242,10 @@ public class FilterUtils {
         return actionFunctionList;
     }
     
-    private static BType getModifiedBType(BType bType) {
-        return bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType;
+    private static BType getModifiedBType(BType bType, LSContext context) {
+        Integer invocationType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        return bType instanceof BUnionType && invocationType == BallerinaParser.NOT ?
+                getBTypeForUnionType((BUnionType) bType) : bType;
     }
 
     private static List<ChainedFieldModel> getInvocationFieldList(List<CommonToken> defaultTokens, int startIndex) {
