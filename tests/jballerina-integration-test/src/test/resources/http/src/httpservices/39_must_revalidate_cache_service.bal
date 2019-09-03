@@ -17,6 +17,7 @@
 import ballerina/http;
 
 http:Client cachingEP3 = new("http://localhost:9248", { cache: { isShared: true } });
+int numberOfProxyHits = 0;
 
 @http:ServiceConfig {
     basePath: "/mustRevalidate"
@@ -27,8 +28,10 @@ service mustRevalidateProxyService on new http:Listener(9247) {
         path: "/"
     }
     resource function cacheableProxyResource(http:Caller caller, http:Request req) {
+        numberOfProxyHits += 1;
         var response = cachingEP3->forward("/mustRevalidateBE", req);
         if (response is http:Response) {
+            response.setHeader("x-proxy-hit-count", numberOfProxyHits.toString());
             checkpanic caller->respond(response);
         } else {
             http:Response res = new;
@@ -53,6 +56,7 @@ service mustRevalidateBackend on new http:Listener(9248) {
         http:ResponseCacheControl resCC = new;
         payload = {"message" : "Hello, World!"};
         resCC.mustRevalidate = true;
+        resCC.maxAge = 5;
         res.cacheControl = resCC;
         res.setETag(payload);
         numberOfHits += 1;

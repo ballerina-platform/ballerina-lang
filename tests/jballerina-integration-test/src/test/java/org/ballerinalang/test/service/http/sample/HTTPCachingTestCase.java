@@ -36,10 +36,10 @@ public class HTTPCachingTestCase extends HttpBaseTest {
 
     private final String serviceHitCount = "x-service-hit-count";
     private final String payload = "{\"message\":\"Hello, World!\"}";
+    private final String proxyHitCount = "x-proxy-hit-count";
 
     @Test(description = "Test basic caching behaviour")
     public void testPassthroughServiceByBasePath() throws IOException, InterruptedException {
-        final String proxyHitCount = "x-proxy-hit-count";
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9239, "cache"));
         assertEquals(response.getResponseCode(), 200);
         assertEquals(response.getHeaders().get(serviceHitCount), "1");
@@ -92,14 +92,22 @@ public class HTTPCachingTestCase extends HttpBaseTest {
     }
 
     @Test(description = "Test must-revalidate cache control")
-    public void testMMustRevalidateCacheControl()
-            throws IOException {
+    public void testMMustRevalidateCacheControl() throws IOException, InterruptedException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9247, "mustRevalidate"));
         assertEquals(response.getData(), payload);
         assertEquals(response.getHeaders().get(serviceHitCount), "1");
+        assertEquals(response.getHeaders().get(proxyHitCount), "1");
+
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9247, "mustRevalidate"));
+        assertEquals(response.getData(), payload);
+        assertEquals(response.getHeaders().get(serviceHitCount), "1");
+        assertEquals(response.getHeaders().get(proxyHitCount), "2");
+
+        Thread.sleep(5000);
 
         response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9247, "mustRevalidate"));
         assertEquals(response.getData(), payload);
         assertEquals(response.getHeaders().get(serviceHitCount), "2");
+        assertEquals(response.getHeaders().get(proxyHitCount), "3");
     }
 }
