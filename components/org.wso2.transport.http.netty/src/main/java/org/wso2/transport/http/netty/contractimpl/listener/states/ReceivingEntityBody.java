@@ -112,7 +112,7 @@ public class ReceivingEntityBody implements ListenerState {
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // If this method is called, it's an application error. Connection needs to be closed once the response is sent.
-        if (outboundResponseMsg.getHttpStatusCode() != HttpResponseStatus.CONTINUE.code()) {
+        if (Util.getHttpResponseStatus(outboundResponseMsg).code() != HttpResponseStatus.CONTINUE.code()) {
             respondToIncompleteRequest(sourceHandler.getInboundChannelContext().channel(), outboundResponseListener,
                                        listenerReqRespStateManager, outboundResponseMsg, httpContent,
                                        REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);

@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -77,7 +78,7 @@ public class EntityBodyReceived implements ListenerState {
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        if (outboundResponseMsg.getHttpStatusCode() != HttpResponseStatus.CONTINUE.code()) {
+        if (Util.getHttpResponseStatus(outboundResponseMsg).code() != HttpResponseStatus.CONTINUE.code()) {
             listenerReqRespStateManager.state
                     = new SendingHeaders(listenerReqRespStateManager, outboundResponseListener);
             listenerReqRespStateManager.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);

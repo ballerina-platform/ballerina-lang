@@ -36,6 +36,7 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -88,7 +89,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        if (outboundResponseMsg.getHttpStatusCode() == HttpResponseStatus.CONTINUE.code()) {
+        if (Util.getHttpResponseStatus(outboundResponseMsg).code() == HttpResponseStatus.CONTINUE.code()) {
             listenerReqRespStateManager.state =
                     new Response100ContinueSent(listenerReqRespStateManager, sourceHandler, outboundResponseListener);
         } else {

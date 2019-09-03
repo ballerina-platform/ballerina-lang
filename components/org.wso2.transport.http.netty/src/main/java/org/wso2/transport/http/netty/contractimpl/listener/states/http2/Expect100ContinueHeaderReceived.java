@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
@@ -74,7 +75,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
             throws Http2Exception {
-        if (outboundResponseMsg.getHttpStatusCode() == HttpResponseStatus.CONTINUE.code()) {
+        if (Util.getHttpResponseStatus(outboundResponseMsg).code() == HttpResponseStatus.CONTINUE.code()) {
             http2MessageStateContext.setListenerState(new Response100ContinueSent(http2MessageStateContext));
         } else {
             http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
