@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
  *
  * @since 1.0.0
  */
-@Test(enabled = false)
 public class ModuleExecutionFlowTests {
 
     @Test
