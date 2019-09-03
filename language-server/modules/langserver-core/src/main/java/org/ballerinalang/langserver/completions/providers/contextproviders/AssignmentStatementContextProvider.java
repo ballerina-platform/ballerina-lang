@@ -64,12 +64,8 @@ public class AssignmentStatementContextProvider extends LSCompletionProvider {
                 .map(symbolInfo -> symbolInfo.getScopeEntry().symbol)
                 .filter(symbol -> symbol instanceof BVarSymbol)
                 .findFirst();
-
-        if (!lhsTokenSymbol.isPresent()) {
-            return completionItems;
-        }
         
-        if (newTokenIndex >= 0) {
+        if (lhsTokenSymbol.isPresent() && newTokenIndex >= 0) {
             return getCompletionsAfterNewKW(lhsTokenSymbol.get(), ctx);
         }
 
@@ -81,7 +77,7 @@ public class AssignmentStatementContextProvider extends LSCompletionProvider {
             return this.getProvider(InvocationOrFieldAccessContextProvider.class).getCompletions(ctx);
         }
 
-        if (lhsTokenSymbol.get().type.tsymbol instanceof BObjectTypeSymbol) {
+        if (lhsTokenSymbol.isPresent() && lhsTokenSymbol.get().type.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) lhsTokenSymbol.get().type.tsymbol;
             BInvokableSymbol initFunction = objectTypeSymbol.initializerFunc.symbol;
             Pair<String, String> newSign = getFunctionInvocationSignature(initFunction, CommonKeys.NEW_KEYWORD_KEY,
