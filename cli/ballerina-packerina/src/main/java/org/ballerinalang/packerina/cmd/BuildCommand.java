@@ -120,7 +120,7 @@ public class BuildCommand implements BLauncherCmd {
                                                                   "extension.")
     private String output;
 
-    @CommandLine.Option(names = {"--off-line"}, description = "build/Compile offline without downloading " +
+    @CommandLine.Option(names = {"--off-line"}, description = "build/compile offline without downloading " +
                                                               "the dependencies.")
     private boolean offline;
 
