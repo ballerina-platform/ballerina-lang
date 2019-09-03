@@ -21,7 +21,6 @@ import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -114,19 +113,11 @@ public class NativeCallContext implements Context {
 
     @Override
     public long getIntArgument(int index) {
-        if (index < 0) {
-            throw new ArgumentOutOfRangeException(index);
-        }
-
         return sf.longRegs[index];
     }
 
     @Override
     public String getStringArgument(int index) {
-        if (index < 0) {
-            throw new ArgumentOutOfRangeException(index);
-        }
-
         String str = sf.stringRegs[index];
         if (str == null) {
             throw new BLangNullReferenceException();
@@ -137,37 +128,21 @@ public class NativeCallContext implements Context {
 
     @Override
     public String getNullableStringArgument(int index) {
-        if (index < 0) {
-            throw new ArgumentOutOfRangeException(index);
-        }
-
         return sf.stringRegs[index];
     }
 
     @Override
     public double getFloatArgument(int index) {
-        if (index < 0) {
-            throw new ArgumentOutOfRangeException(index);
-        }
-
         return sf.doubleRegs[index];
     }
 
     @Override
     public boolean getBooleanArgument(int index) {
-        if (index < 0) {
-            throw new ArgumentOutOfRangeException(index);
-        }
-
         return (sf.intRegs[index] == 1);
     }
 
     @Override
     public BValue getRefArgument(int index) {
-        if (index < 0) {
-            throw new ArgumentOutOfRangeException(index);
-        }
-
         BValue result = sf.refRegs[index];
         if (result == null) {
             throw new BallerinaException("argument " + index + " is null");
@@ -178,10 +153,6 @@ public class NativeCallContext implements Context {
 
     @Override
     public BValue getNullableRefArgument(int index) {
-        if (index < 0) {
-            throw new ArgumentOutOfRangeException(index);
-        }
-
         return sf.refRegs[index];
     }
 

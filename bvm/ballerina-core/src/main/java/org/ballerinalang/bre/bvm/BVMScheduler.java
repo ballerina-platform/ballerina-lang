@@ -19,17 +19,13 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.Strand.State;
-import org.ballerinalang.bre.old.WorkerExecutionContext;
-import org.ballerinalang.bre.old.WorkerState;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
-import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +55,7 @@ public class BVMScheduler {
      * @param strand to be executed
      */
     public static void schedule(Strand strand) {
-        ThreadPoolFactory.getInstance().getWorkerExecutor().submit(new CallableExecutor(strand));
+
     }
 
     /**
@@ -87,8 +83,6 @@ public class BVMScheduler {
      */
     public static void scheduleNative(NativeCallableUnit nativeCallable,
                                       Context nativeCtx, CallableUnitCallback callback) {
-        ThreadPoolFactory.getInstance().getWorkerExecutor()
-                .submit(new NativeCallableExecutor(nativeCallable, nativeCtx, callback));
     }
 
     /**
@@ -216,8 +210,6 @@ public class BVMScheduler {
             try {
                 this.nativeCallable.execute(this.nativeCtx, callback);
                 if (strand.fp > 0) {
-                    // Stop the observation context before popping the stack frame
-                    ObserveUtils.stopCallableObservation(strand);
                     // Maybe we can omit this since natives cannot have worker interactions
                     if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
                         strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(),
@@ -242,8 +234,6 @@ public class BVMScheduler {
                 error = BLangVMErrors.createError(this.nativeCtx.getStrand(), e.getMessage());
             }
             strand.setError(error);
-            // Stop the observation context before popping the stack frame
-            ObserveUtils.stopCallableObservation(strand);
             if (strand.fp > 0) {
                 strand.currentFrame.handleChannelPanic(error, strand.peekFrame(1).wdChannels);
                 strand.popFrame();
@@ -293,21 +283,6 @@ public class BVMScheduler {
 
         public long getWaitingForLockWorkerCount() {
             return this.stateCounts[5].longValue();
-        }
-
-        public void stateTransition(WorkerExecutionContext currentCtx, WorkerState newState) {
-//            if (!schedulerStatsEnabled || currentCtx.isRootContext()) {
-//                return;
-//            }
-//            WorkerState oldState = currentCtx.state;
-//            /* we are not considering CREATED state */
-//            if (oldState != WorkerState.CREATED) {
-//                this.stateCounts[oldState.ordinal()].decrement();
-//            }
-//            /* we are not counting the DONE state, since it is an ever increasing value */
-//            if (newState != WorkerState.DONE) {
-//                this.stateCounts[newState.ordinal()].increment();
-//            }
         }
 
         @Override

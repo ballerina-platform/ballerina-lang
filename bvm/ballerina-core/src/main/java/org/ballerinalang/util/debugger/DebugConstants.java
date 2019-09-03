@@ -61,4 +61,7 @@ public class DebugConstants {
     static final String DEBUG_MESSAGE = "Ballerina remote debugger is activated on port : ";
     public static final String ERROR_JSON = "{ \"error\": true }";
     static final String DEBUG_SERVER_ERROR = "Debug Server Error. Closing client connection.";
+
+    // Name of the system property to hold the debug port
+    public static final String SYSTEM_PROP_BAL_DEBUG = "debug";
 }

@@ -31,7 +31,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 
 import java.io.PrintStream;
 
-import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.util.debugger.DebugConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * {@code VMDebugServer} will open a websocket server for external clients to connect.

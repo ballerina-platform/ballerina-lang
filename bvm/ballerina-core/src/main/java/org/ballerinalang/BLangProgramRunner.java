@@ -19,11 +19,9 @@ package org.ballerinalang;
 
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.bvm.BVMScheduler;
-import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -104,9 +102,6 @@ public class BLangProgramRunner {
             return returnVal;
         }
 
-        if (programFile.isServiceEPAvailable()) {
-            executeListenPhase(programFile);
-        }
 
         return returnVal;
     }
@@ -117,10 +112,6 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
         return runProgram(programFile, debugger, entryFunction, args);
-    }
-
-    public static void resumeStates(ProgramFile programFile) {
-        new Thread(new RecoveryTask(programFile)).start();
     }
 
     private static BValue runMainFunction(ProgramFile programFile, FunctionInfo entryFunction, BValue[] args) {
@@ -138,14 +129,6 @@ public class BLangProgramRunner {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
         }
-    }
-
-    private static void executeListenPhase(ProgramFile programFile) {
-        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
-        programFile.setServerConnectorRegistry(serverConnectorRegistry);
-        serverConnectorRegistry.initServerConnectors();
-        BVMExecutor.invokePackageStartFunctions(programFile);
-        serverConnectorRegistry.deploymentComplete();
     }
 
     private static BValue[] parseEntryFuncArgs(FunctionInfo entryFunction, String[] args) {

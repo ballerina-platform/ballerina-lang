@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
@@ -50,6 +49,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.util.debugger.DebugConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * {@code VMDebugManager} Manages debug sessions and handle debug related actions.
@@ -77,7 +77,7 @@ public class Debugger {
     public Debugger(ProgramFile programFile) {
         this.programFile = programFile;
         this.expressionEvaluator = new ExpressionEvaluator();
-        String debug = System.getProperty(Constants.SYSTEM_PROP_BAL_DEBUG);
+        String debug = System.getProperty(SYSTEM_PROP_BAL_DEBUG);
         if (debug != null && !debug.isEmpty()) {
             debugEnabled = true;
         }

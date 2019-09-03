@@ -19,7 +19,6 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.bre.bvm.GlobalMemoryArea;
 import org.ballerinalang.bre.bvm.GlobalMemoryBlock;
-import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.LockableStructureType;
@@ -60,7 +59,6 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private int entryPkgCPIndex;
     private String entryPkgName;
     private PackageInfo entryPackage;
-    private ServerConnectorRegistry serverConnectorRegistry;
     private boolean mainFucAvailable = false;
     private boolean servicesAvailable = false;
 
@@ -129,16 +127,6 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     public void setServiceEPAvailable(boolean servicesAvailable) {
         this.servicesAvailable = servicesAvailable;
-    }
-
-    @Deprecated
-    public ServerConnectorRegistry getServerConnectorRegistry() {
-        return serverConnectorRegistry;
-    }
-
-    @Deprecated
-    public void setServerConnectorRegistry(ServerConnectorRegistry serverConnectorRegistry) {
-        this.serverConnectorRegistry = serverConnectorRegistry;
     }
 
     public void initializeGlobalMemArea() {

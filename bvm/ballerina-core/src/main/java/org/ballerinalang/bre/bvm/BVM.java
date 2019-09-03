@@ -21,9 +21,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BLangCallableUnitCallback;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.NativeCallContext;
-import org.ballerinalang.bre.old.WorkerExecutionContext;
-import org.ballerinalang.channels.ChannelManager;
-import org.ballerinalang.channels.ChannelRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
@@ -122,7 +119,6 @@ import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
-import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionLocalContext;
@@ -384,7 +380,7 @@ public class BVM {
                 case InstructionCodes.HALT:
                     if (strand.fp > 0) {
                         // Stop the observation context before popping the stack frame
-                        ObserveUtils.stopCallableObservation(strand);
+//                        ObserveUtils.stopCallableObservation(strand);
                         strand.popFrame();
                         break;
                     }
@@ -734,7 +730,7 @@ public class BVM {
                     case InstructionCodes.RET:
                         if (strand.fp > 0) {
                             // Stop the observation context before popping the stack frame
-                            ObserveUtils.stopCallableObservation(strand);
+//                            ObserveUtils.stopCallableObservation(strand);
                             if (sf.errorRetReg > -1) {
                                 //notifying waiting workers
                                 sf.handleChannelError(sf.refRegs[sf.errorRetReg], strand.peekFrame(1).wdChannels);
@@ -819,7 +815,7 @@ public class BVM {
         }
         StackFrame poppedFrame = strand.popFrame();
         // Stop observation
-        ObserveUtils.stopObservation(poppedFrame.observerContext);
+//        ObserveUtils.stopObservation(poppedFrame.observerContext);
         // Panic channels in the current frame
         poppedFrame.handleChannelPanic(strand.getError(), poppedFrame.wdChannels);
         // Signal transactions for errors
@@ -855,7 +851,7 @@ public class BVM {
                 return strand;
             }
             // Start observation after pushing the stack frame
-            ObserveUtils.startCallableObservation(strand, df.invocationFlags);
+//            ObserveUtils.startCallableObservation(strand, df.invocationFlags);
             if (callableUnitInfo.isNative()) {
                 return invokeNativeCallable(callableUnitInfo, strand, df, retReg, df.invocationFlags);
             }
@@ -869,7 +865,7 @@ public class BVM {
                 strand.globalProps, strandCallback);
         calleeStrand.pushFrame(df);
         // Start observation after pushing the stack frame
-        ObserveUtils.startCallableObservation(calleeStrand, strand.respCallback.getObserverContext());
+//        ObserveUtils.startCallableObservation(calleeStrand, strand.respCallback.getObserverContext());
         if (callableUnitInfo.isNative()) {
             Context nativeCtx = new NativeCallContext(calleeStrand, callableUnitInfo, df);
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
@@ -899,7 +895,7 @@ public class BVM {
 
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
-                    ObserveUtils.stopCallableObservation(strand);
+//                    ObserveUtils.stopCallableObservation(strand);
                     if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
                         strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue(),
                                 strand.peekFrame(1).wdChannels);
@@ -927,7 +923,7 @@ public class BVM {
             strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
         }
         // Stop the observation context before popping the stack frame
-        ObserveUtils.stopCallableObservation(strand);
+//        ObserveUtils.stopCallableObservation(strand);
         if (strand.fp > 0) {
             strand.currentFrame.handleChannelPanic(strand.getError(), strand.peekFrame(1).wdChannels);
             strand.popFrame();
@@ -992,18 +988,6 @@ public class BVM {
      */
     private static void handleCHNSend(Strand ctx, String channelName, BType dataType, int dataReg, BType keyType,
                                       int keyReg) {
-        BRefType keyVal = null;
-        if (keyType != null) {
-            keyVal = extractValue(ctx.currentFrame, keyType, keyReg);
-        }
-        BRefType dataVal = extractValue(ctx.currentFrame, dataType, dataReg);
-        ChannelRegistry.PendingContext pendingCtx = ChannelManager.channelSenderAction(channelName, keyVal, dataVal,
-                keyType, dataType);
-        if (pendingCtx != null) {
-            //inject the value to the ctx
-            copyArgValueForWorkerReceive(pendingCtx.context.currentFrame, pendingCtx.regIndex, dataType, dataVal);
-            BVMScheduler.schedule(pendingCtx.context);
-        }
     }
 
     /**
@@ -1020,18 +1004,7 @@ public class BVM {
      */
     private static boolean handleCHNReceive(Strand ctx, String channelName, BType receiverType,
                                             int receiverReg, BType keyType, int keyIndex) {
-        BValue keyVal = null;
-        if (keyType != null) {
-            keyVal = extractValue(ctx.currentFrame, keyType, keyIndex);
-        }
-        BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, keyType, ctx, receiverReg,
-                receiverType);
-        if (value != null) {
-            copyArgValueForWorkerReceive(ctx.currentFrame, receiverReg, receiverType, (BRefType) value);
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     private static Strand invokeCallable(Strand ctx, BFunctionPointer fp, FunctionCallCPEntry funcCallCPEntry,
@@ -4232,7 +4205,7 @@ public class BVM {
             strand.setError(null);
         } else if (strand.fp > 0) {
             // Stop the observation context before popping the stack frame
-            ObserveUtils.stopCallableObservation(strand);
+//            ObserveUtils.stopCallableObservation(strand);
             StackFrame popedFrame = strand.popFrame();
             popedFrame.handleChannelPanic(strand.getError(), strand.currentFrame.wdChannels);
             signalTransactionError(strand, popedFrame.trxParticipant);
@@ -4313,21 +4286,6 @@ public class BVM {
                                                                             getKeyRegIndex)
                                                               .collect(Collectors.toList())));
         return WaitCallbackHandler.handleReturnInWaitMultiple(strand, retValReg, callbackList);
-    }
-    /**
-     * This is used to propagate the results of {@link BVM#handleError(Strand)} to the
-     * main CPU instruction loop.
-     */
-    public static class HandleErrorException extends BallerinaException {
-
-        private static final long serialVersionUID = 1L;
-
-        public WorkerExecutionContext ctx;
-
-        public HandleErrorException(WorkerExecutionContext ctx) {
-            this.ctx = ctx;
-        }
-
     }
 
     private static void handleMapStore(Strand ctx, BMap<String, BRefType> bMap, String fieldName,

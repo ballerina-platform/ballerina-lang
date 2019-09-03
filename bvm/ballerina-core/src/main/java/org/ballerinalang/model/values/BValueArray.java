@@ -25,18 +25,12 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.reftypes.Serializable;
-import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
-import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +44,7 @@ import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 /**
  * @since 0.985.0
  */
-public class BValueArray extends BNewArray implements Serializable {
+public class BValueArray extends BNewArray {
 
     BRefType<?>[] refValues;
     private long[] intValues;
@@ -473,29 +467,6 @@ public class BValueArray extends BNewArray implements Serializable {
     @Override
     public String toString() {
         return stringValue();
-    }
-
-    @Override
-    public SerializableRefType serialize(SerializableState state) {
-
-        return new SerializableBRefArray(this, state);
-    }
-
-    @Override
-    public void serialize(OutputStream outputStream) {
-        if (elementType.getTag() == TypeTags.BYTE_TAG) {
-            try {
-                outputStream.write(byteValues);
-            } catch (IOException e) {
-                throw new BallerinaException("error occurred while writing the binary content to the output stream", e);
-            }
-        } else {
-            try {
-                outputStream.write(this.stringValue().getBytes(Charset.defaultCharset()));
-            } catch (IOException e) {
-                throw new BallerinaException("error occurred while serializing data", e);
-            }
-        }
     }
 
     /**

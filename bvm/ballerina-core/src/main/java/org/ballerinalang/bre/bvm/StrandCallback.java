@@ -22,8 +22,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 
 /**
  * Default VM callback implementation to report back VM related callback events.
@@ -39,7 +37,6 @@ public abstract class StrandCallback {
     private int intVal;
     private BRefType<?> refVal;
     private BError error;
-    private ObserverContext observerContext;
     //TODO try to generalize below to normal data channels
 
     private volatile CallbackStatus status;
@@ -68,8 +65,6 @@ public abstract class StrandCallback {
         if (this.status == null) {
             this.status =  CallbackStatus.VALUE_RETURNED;
         }
-        // Stop observation
-        ObserveUtils.stopObservation(observerContext);
         BVMScheduler.strandCountDown();
     }
 
@@ -212,24 +207,6 @@ public abstract class StrandCallback {
      */
     public BError getErrorVal() {
         return error;
-    }
-
-    /**
-     * Method to set the observation context of the callback.
-     *
-     * @param context observer context
-     */
-    public void setObserverContext(ObserverContext context) {
-        this.observerContext = context;
-    }
-
-    /**
-     * Method to get the observation context of the callback.
-     *
-     * @return observer context of the callback
-     */
-    public ObserverContext getObserverContext() {
-        return this.observerContext;
     }
 
     /**

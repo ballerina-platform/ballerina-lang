@@ -25,7 +25,6 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
-import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,8 +63,6 @@ public class StackFrame {
 
     // Return registry index
     int retReg;
-
-    public ObserverContext observerContext;
 
     // Indicate this frame belong to a transaction participant
     TransactionParticipantType trxParticipant;

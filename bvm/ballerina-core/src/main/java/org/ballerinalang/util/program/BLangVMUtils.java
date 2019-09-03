@@ -19,7 +19,6 @@ package org.ballerinalang.util.program;
 
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.Strand;
-import org.ballerinalang.bre.old.WorkerData;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -89,43 +88,6 @@ public class BLangVMUtils {
                 break;
             default:
                 data.refRegs[regIndex] = (BRefType) val;
-        }
-    }
-
-    public static WorkerData createWorkerData(WorkerDataIndex wdi) {
-        return new WorkerData(wdi);
-    }
-    
-    public static void mergeResultData(WorkerData sourceData, WorkerData targetData, BType[] types,
-                                       int[] regIndexes) {
-        int callersRetRegIndex;
-        int longRegCount = 0;
-        int doubleRegCount = 0;
-        int stringRegCount = 0;
-        int intRegCount = 0;
-        int refRegCount = 0;
-
-        for (int i = 0; i < types.length; i++) {
-            BType retType = types[i];
-            callersRetRegIndex = regIndexes[i];
-            switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                case TypeTags.BYTE_TAG:
-                    targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];
-                    break;
-                case TypeTags.STRING_TAG:
-                    targetData.stringRegs[callersRetRegIndex] = sourceData.stringRegs[stringRegCount++];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
-                    break;
-                default:
-                    targetData.refRegs[callersRetRegIndex] = sourceData.refRegs[refRegCount++];
-                    break;
-            }
         }
     }
 

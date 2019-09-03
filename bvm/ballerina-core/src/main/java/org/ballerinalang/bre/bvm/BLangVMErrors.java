@@ -18,11 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.old.WorkerExecutionContext;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -149,22 +146,6 @@ public class BLangVMErrors {
         }
     }
 
-    public static BValueArray generateCallStack(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
-        BValueArray callStack = new BValueArray();
-        long index = 0;
-        if (nativeCUI != null) {
-            callStack.add(index, getStackFrame(getStructureTypeInfo(context.programFile), nativeCUI, 0));
-            index++;
-        }
-        while (!context.isRootContext()) {
-            //                    TODO fix - rajith
-//            callStack.add(index, getStackFrame(context));
-            context = context.parent;
-            index++;
-        }
-        return callStack;
-    }
-
     public static BValueArray generateCallStack(ProgramFile programFile, Strand strand) {
         StructureTypeInfo typeInfo = getStructureTypeInfo(programFile);
         List<BMap<String, BValue>> sfList = new ArrayList<>();
@@ -278,9 +259,6 @@ public class BLangVMErrors {
 
         PackageInfo runtimePackage = programFile.getPackageInfo(BALLERINA_RUNTIME_PKG);
         StructureTypeInfo typeInfo = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
-        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw new BallerinaConnectorException("record - " + STRUCT_CALL_STACK_ELEMENT + " does not exist");
-        }
         return typeInfo;
     }
 }

@@ -29,18 +29,12 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,84 +71,6 @@ public class BVMExecutor {
                                                providedArgNo + ".");
         }
         return new BValue[]{execute(programFile, functionInfo, args, null, true)};
-    }
-
-    /**
-     * Execution API to execute a resource.
-     *
-     * @param programFile      to be executed
-     * @param resourceInfo     to be executed
-     * @param responseCallback to be used for notifications
-     * @param properties       to be passed in the context
-     * @param observerContext  to be used
-     * @param serviceInfo      to be used
-     * @param args             to be passed to the resource
-     */
-    public static void executeResource(ProgramFile programFile, FunctionInfo resourceInfo,
-                                       CallableUnitCallback responseCallback, Map<String, Object> properties,
-                                       ObserverContext observerContext, ServiceInfo serviceInfo, BValue... args) {
-        Strand strand = populateAndGetStrand(programFile, resourceInfo, responseCallback, properties, observerContext,
-                                             serviceInfo, args);
-        BVMScheduler.schedule(strand);
-    }
-
-    /**
-     * Execution API to execute a resource in the current thread.
-     *
-     * @param programFile      to be executed
-     * @param resourceInfo     to be executed
-     * @param responseCallback to be used for notifications
-     * @param properties       to be passed in the context
-     * @param observerContext  to be used
-     * @param serviceInfo      to be used
-     * @param args             to be passed to the resource
-     */
-    public static void execute(ProgramFile programFile, FunctionInfo resourceInfo,
-                               CallableUnitCallback responseCallback, Map<String, Object> properties,
-                               ObserverContext observerContext, ServiceInfo serviceInfo, BValue... args) {
-        Strand strand = populateAndGetStrand(programFile, resourceInfo, responseCallback, properties, observerContext,
-                                             serviceInfo, args);
-        BVMScheduler.execute(strand);
-    }
-
-    private static Strand populateAndGetStrand(ProgramFile programFile, FunctionInfo resourceInfo,
-                                               CallableUnitCallback responseCallback, Map<String, Object> properties,
-                                               ObserverContext observerContext, ServiceInfo serviceInfo,
-                                               BValue[] args) {
-        Map<String, Object> globalProps = new HashMap<>();
-        if (properties != null) {
-            globalProps.putAll(properties);
-        }
-
-        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback,
-                                                                           resourceInfo.workerSendInChannels);
-        Strand strand = new Strand(programFile, resourceInfo.getName(), globalProps, strandCallback);
-
-        infectResourceFunction(strandCallback, strand);
-        BLangVMUtils.setServiceInfo(strand, serviceInfo);
-
-        StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
-                                        resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1,
-                                        FunctionFlags.NOTHING, resourceInfo.workerSendInChannels);
-        copyArgValues(args, idf, resourceInfo.getParamTypes());
-        strand.pushFrame(idf);
-        // Start observation after pushing the stack frame
-        ObserveUtils.startResourceObservation(strand, observerContext);
-
-        BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
-        return strand;
-    }
-
-    private static void infectResourceFunction(StrandResourceCallback strandResourceCallback, Strand strand) {
-        String gTransactionId = (String) strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID);
-        if (gTransactionId != null) {
-            String globalTransactionId = strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID).toString();
-            String url = strand.globalProps.get(Constants.TRANSACTION_URL).toString();
-            TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
-                                                                                             url, "2pc");
-            strand.setLocalTransactionContext(transactionLocalContext);
-            strandResourceCallback.setTransactionLocalContext(transactionLocalContext);
-        }
     }
 
     private static BValue execute(ProgramFile programFile, CallableUnitInfo callableInfo,

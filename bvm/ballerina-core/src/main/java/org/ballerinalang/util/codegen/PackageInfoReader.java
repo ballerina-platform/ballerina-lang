@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BErrorType;
@@ -47,7 +46,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
@@ -921,16 +919,6 @@ public class PackageInfoReader {
         packageInfo.addFunctionInfo(uniqueFuncName, functionInfo);
 
         readWorkerData(packageInfo, functionInfo);
-
-        if (nativeFunc) {
-            NativeCallableUnit nativeFunction = NativeUnitLoader.getInstance().loadNativeFunction(
-                    functionInfo.getPkgPath(), uniqueFuncName);
-            if (nativeFunction == null) {
-                throw new BLangRuntimeException("native function not available " +
-                        functionInfo.getPkgPath() + ":" + uniqueFuncName);
-            }
-            functionInfo.setNativeCallableUnit(nativeFunction);
-        }
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, packageInfo, functionInfo);
