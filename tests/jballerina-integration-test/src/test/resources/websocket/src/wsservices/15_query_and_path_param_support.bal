@@ -30,12 +30,16 @@ service simple6 on new http:Listener(21015) {
         }
     }
     resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
-        http:WebSocketCaller wsServiceEp;
-        wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
-        wsServiceEp.setAttribute(PATH1, path1);
-        wsServiceEp.setAttribute(PATH2, path2);
-        wsServiceEp.setAttribute(QUERY1, req.getQueryParamValue("q1"));
-        wsServiceEp.setAttribute(QUERY2, req.getQueryParamValue("q2"));
+        http:WebSocketCaller|http:WebSocketError wsServiceEp =
+        httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
+        if (wsServiceEp is http:WebSocketCaller) {
+            wsServiceEp.setAttribute(PATH1, path1);
+            wsServiceEp.setAttribute(PATH2, path2);
+            wsServiceEp.setAttribute(QUERY1, req.getQueryParamValue("q1"));
+            wsServiceEp.setAttribute(QUERY2, req.getQueryParamValue("q2"));
+        } else {
+            panic wsServiceEp;
+        }
     }
 }
 

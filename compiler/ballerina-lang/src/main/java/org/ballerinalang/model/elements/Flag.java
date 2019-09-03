@@ -120,5 +120,9 @@ public enum Flag {
     /**
      * Indicates flagged node is a lang library function.
      */
-    LANG_LIB
+    LANG_LIB,
+    /**
+     * Indicates flagged node is a worker inside fork stmt.
+     */
+    FORKED
 }
