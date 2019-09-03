@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.InputStream;
+import java.io.PrintStream;
 
 /**
  * LockFile Processor which processes the toml file parsed and populate a {@link LockFile}.
@@ -30,7 +31,7 @@ import java.io.InputStream;
  * @since 0.973.1
  */
 public class LockFileProcessor {
-
+    private static final PrintStream err = System.err;
     private static final CompilerContext.Key<LockFileProcessor> LOCK_FILE_PROC_KEY = new CompilerContext.Key<>();
     private final LockFile lockFile;
 
@@ -52,8 +53,8 @@ public class LockFileProcessor {
         LockFileProcessor lockFileProcessor = context.get(LOCK_FILE_PROC_KEY);
         if (lockFileProcessor == null) {
             SourceDirectory sourceDirectory = context.get(SourceDirectory.class);
-            LockFile lfile = LockFileProcessor.parseTomlContentAsStream(sourceDirectory.getLockFileContent());
-            LockFileProcessor instance = new LockFileProcessor(lfile);
+            LockFile lockFile = LockFileProcessor.parseTomlContentAsStream(sourceDirectory.getLockFileContent());
+            LockFileProcessor instance = new LockFileProcessor(lockFile);
             context.put(LOCK_FILE_PROC_KEY, instance);
             return instance;
         }
@@ -67,8 +68,16 @@ public class LockFileProcessor {
      * @return lockFile object
      */
     public static LockFile parseTomlContentAsStream(InputStream inputStream) {
-        Toml lockToml = new Toml().read(inputStream);
-        return lockToml.to(LockFile.class);
+        try {
+            Toml lockToml = new Toml().read(inputStream);
+            return lockToml.to(LockFile.class);
+        } catch (Exception e) {
+            err.println("Ballerina.lock file is corrupted. this build will ignore using the lock file in resolving " +
+                        "dependencies. A valid lock file will be generated if '--skip-lock' is set to false. " +
+                        "'--skip-lock' flag is false by default.");
+        }
+        
+        return null;
     }
 
     public LockFile getLockFile() {

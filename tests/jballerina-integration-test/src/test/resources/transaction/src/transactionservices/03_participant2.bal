@@ -18,6 +18,8 @@ import ballerina/http;
 import ballerina/io;
 import ballerinax/java.jdbc;
 import ballerina/system;
+import ballerina/transactions;
+import ballerina/log;
 
 listener http:Listener participant2EP02 = new(8890);
 
@@ -108,7 +110,7 @@ service participant2 on participant2EP02 {
                 io:println(reg);
                 payload = reg.REGISTRATIONID;
             }
-           res.setTextPayload(untaint payload);
+           res.setTextPayload(<@untainted> payload);
         }
 
         checkpanic ep->respond(res);

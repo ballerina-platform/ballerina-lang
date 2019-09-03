@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -316,6 +317,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (funcNode.body != null) {
             analyzeStmt(funcNode.body, funcEnv);
+        }
+
+        if (funcNode.anonForkName != null) {
+            funcNode.symbol.enclForkName = funcNode.anonForkName;
         }
 
         this.processWorkers(funcNode, funcEnv);
@@ -2277,7 +2282,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-       /* ignore */
+        for (BLangSimpleVariableDef worker : forkJoin.workers) {
+            BLangFunction function = ((BLangLambdaFunction) worker.var.expr).function;
+            function.symbol.enclForkName = function.anonForkName;
+            ((BInvokableSymbol) worker.var.symbol).enclForkName = function.anonForkName;
+        }
     }
 
     @Override

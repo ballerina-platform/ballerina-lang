@@ -100,6 +100,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
+    WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS("worker.interactions.only.allowed.between.peers"),
     WORKER_SEND_AFTER_RETURN("worker.send.after.return"),
     WORKER_RECEIVE_AFTER_RETURN("worker.receive.after.return"),
     EXPLICIT_WORKER_CANNOT_BE_DEFAULT("explicit.worker.cannot.be.default"),

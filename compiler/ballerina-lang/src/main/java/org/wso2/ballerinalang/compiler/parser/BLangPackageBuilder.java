@@ -1808,6 +1808,12 @@ public class BLangPackageBuilder {
         forkJoin.pos = pos;
         forkJoin.addWS(ws);
         this.addStmtToCurrentBlock(forkJoin);
+        String nextAnonymousForkKey = anonymousModelHelper.getNextAnonymousForkKey(pos.src.pkgID);
+        for (BLangSimpleVariableDef worker : forkJoin.workers) {
+            BLangFunction function = ((BLangLambdaFunction) worker.var.expr).function;
+            function.flagSet.add(Flag.FORKED);
+            function.anonForkName = nextAnonymousForkKey;
+        }
     }
 
     void endCallableUnitBody(Set<Whitespace> ws) {
@@ -3816,7 +3822,7 @@ public class BLangPackageBuilder {
         BLangAnnotAccessExpr annotAccessExpr = (BLangAnnotAccessExpr) TreeBuilder.createAnnotAccessExpressionNode();
         annotAccessExpr.pos = pos;
         annotAccessExpr.addWS(ws);
-        annotAccessExpr.expr = (BLangVariableReference) exprNodeStack.pop();
+        annotAccessExpr.expr = (BLangExpression) exprNodeStack.pop();
         BLangNameReference nameReference = nameReferenceStack.pop();
         annotAccessExpr.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         annotAccessExpr.annotationName = (BLangIdentifier) nameReference.name;

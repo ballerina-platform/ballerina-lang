@@ -196,13 +196,6 @@ public class AnnotationDesugar {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = calculateIndex(initFunction.body.stmts, function.receiver.type.tsymbol);
                 } else {
-                    if (!function.attachedFunction) {
-                        // Temporarily avoid adding annot assignment in __init for module level functions, to avoid
-                        // the method too large error.
-                        // The function (lambda) is generated to allow desugaring, for use at BIR gen.
-                        continue;
-                    }
-
                     addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target, pkgID, owner);
                     index = initFunction.body.stmts.size();
                 }
@@ -344,7 +337,7 @@ public class AnnotationDesugar {
 
         BLangListConstructorExpr.BLangArrayLiteral valueLiteral = (BLangListConstructorExpr.BLangArrayLiteral)
                 TreeBuilder.createArrayLiteralExpressionNode();
-        valueLiteral.type = symTable.arrayType;
+        valueLiteral.type = new BArrayType(symTable.stringType);
         valueLiteral.pos = pos;
 
         for (BVarSymbol varSymbol : mainFunc.symbol.getParameters()) {

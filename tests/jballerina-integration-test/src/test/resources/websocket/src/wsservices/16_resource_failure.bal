@@ -24,14 +24,18 @@ service simple7 on new http:Listener(21016) {
         }
     }
     resource function websocketProxy(http:Caller httpEp, http:Request req) {
-        http:WebSocketCaller wsServiceEp;
-        wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
-        var queryParam = req.getQueryParamValue("q1");
-        if (queryParam == ()) {
-            error err = error("Query param not set");
-            panic err;
+        http:WebSocketCaller|http:WebSocketError wsServiceEp =
+        httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
+        if (wsServiceEp is http:WebSocketCaller) {
+            var queryParam = req.getQueryParamValue("q1");
+            if (queryParam == ()) {
+                error err = error("Query param not set");
+                panic err;
+            }
+            wsServiceEp.setAttribute("Query1", queryParam);
+        } else {
+            panic wsServiceEp;
         }
-        wsServiceEp.setAttribute("Query1", queryParam);
     }
 }
 

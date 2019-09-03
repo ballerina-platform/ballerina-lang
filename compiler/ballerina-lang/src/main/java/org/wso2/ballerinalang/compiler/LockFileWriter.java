@@ -75,7 +75,7 @@ public class LockFileWriter {
      *
      * @param moduleSymbol Module symbol.
      */
-    private void getPkgDependencies(BPackageSymbol moduleSymbol) {
+    private void addImportsToLockFileModel(BPackageSymbol moduleSymbol) {
         if (moduleSymbol.pkgID.version.value.isEmpty() || "*".equals(moduleSymbol.pkgID.version.value)) {
             return;
         }
@@ -86,16 +86,16 @@ public class LockFileWriter {
                                null != dep.getMetadata().getPath())
                 .findFirst();
         
+        // skip path dependencies
         if (!hasPathDependency.isPresent()) {
-            LockFileImport module = new LockFileImport(moduleSymbol.pkgID.orgName.value,
-                    moduleSymbol.pkgID.name.value,
-                    moduleSymbol.pkgID.version.value);
-            List<BPackageSymbol> importPackages = moduleSymbol.imports;
-            module.setImports(getImports(importPackages));
-            this.lockFile.getImports().add(module);
-            if (importPackages.size() > 0) {
-                for (BPackageSymbol importPackage : importPackages) {
-                    getPkgDependencies(importPackage);
+            if (moduleSymbol.imports.size() > 0) {
+                List<LockFileImport> importsForLockFile = getImports(moduleSymbol.imports);
+                if (importsForLockFile.size() > 0) {
+                    this.lockFile.getImports().put(moduleSymbol.pkgID.toString(), importsForLockFile);
+                }
+                
+                for (BPackageSymbol importSymbol : moduleSymbol.imports) {
+                    addImportsToLockFileModel(importSymbol);
                 }
             }
         }
@@ -108,10 +108,11 @@ public class LockFileWriter {
      * @return list of packages
      */
     private List<LockFileImport> getImports(List<BPackageSymbol> moduleSymbols) {
-        return moduleSymbols.stream().map(symbol -> new LockFileImport(symbol.pkgID.orgName.value,
-                                                                         symbol.pkgID.name.value,
-                                                                         symbol.pkgID.version.value))
-                             .collect(Collectors.toList());
+        return moduleSymbols.stream()
+                .filter(symbol -> !"".equals(symbol.pkgID.version.value))
+                .map(symbol -> new LockFileImport(symbol.pkgID.orgName.value, symbol.pkgID.name.value,
+                        symbol.pkgID.version.value))
+                .collect(Collectors.toList());
     }
     
     /**
@@ -132,7 +133,7 @@ public class LockFileWriter {
     private void updateDependencies(List<BLangPackage> modules) {
         // update this.ballerinaLockModules with dependencies.
         for (BLangPackage module : modules) {
-            getPkgDependencies(module.symbol);
+            addImportsToLockFileModel(module.symbol);
         }
     }
     

@@ -186,14 +186,20 @@ public class WebSocketResourceValidator {
 
     private static void validateEndpointParameter(BLangFunction resource, DiagnosticLog dlog,
                                                   List<BLangSimpleVariable> paramDetails, boolean isClient) {
-        if (paramDetails == null || paramDetails.isEmpty() ||
-                (!isClient && !WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(
-                        paramDetails.get(0).type.toString())) ||
-                (isClient && !WebSocketConstants.FULL_WEBSOCKET_CLIENT_NAME.equals(
-                        paramDetails.get(0).type.toString()))) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
-                    ": The first parameter should be an endpoint");
+        if (paramDetails != null && !paramDetails.isEmpty()) {
+            if (isClient) {
+                if (!WebSocketConstants.FULL_WEBSOCKET_CLIENT_NAME.equals(paramDetails.get(0).type.toString())) {
+                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
+                            + resource.getName().getValue() + RESOURCE_IN_SERVICE +
+                            ": The first parameter should be a " + WebSocketConstants.WEBSOCKET_CLIENT_NAME);
+                }
+            } else {
+                if (!WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(paramDetails.get(0).type.toString())) {
+                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
+                            + resource.getName().getValue() + RESOURCE_IN_SERVICE +
+                            ": The first parameter should be a " + WebSocketConstants.WEBSOCKET_CALLER_NAME);
+                }
+            }
         }
     }
 

@@ -3576,24 +3576,21 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression startTagName = bLangXMLElementLiteral.startTagName;
         checkExpr(startTagName, xmlElementEnv, symTable.stringType);
         BLangExpression endTagName = bLangXMLElementLiteral.endTagName;
-        if (endTagName != null) {
-            checkExpr(endTagName, xmlElementEnv, symTable.stringType);
-        }
-
         if (endTagName == null) {
             return;
         }
 
-        if (startTagName.getKind() == NodeKind.XML_QNAME && startTagName.getKind() == NodeKind.XML_QNAME
-                && startTagName.equals(endTagName)) {
+        checkExpr(endTagName, xmlElementEnv, symTable.stringType);
+        if (startTagName.getKind() == NodeKind.XML_QNAME && endTagName.getKind() == NodeKind.XML_QNAME &&
+                startTagName.equals(endTagName)) {
             return;
         }
 
-        if (startTagName.getKind() != NodeKind.XML_QNAME && startTagName.getKind() != NodeKind.XML_QNAME) {
+        if (startTagName.getKind() != NodeKind.XML_QNAME && endTagName.getKind() != NodeKind.XML_QNAME) {
             return;
         }
 
-        dlog.error(startTagName.pos, DiagnosticCode.XML_TAGS_MISMATCH);
+        dlog.error(bLangXMLElementLiteral.pos, DiagnosticCode.XML_TAGS_MISMATCH);
     }
 
     private void checkStringTemplateExprs(List<BLangExpression> exprs, boolean allowXml) {

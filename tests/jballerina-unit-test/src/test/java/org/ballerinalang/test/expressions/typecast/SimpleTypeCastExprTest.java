@@ -54,4 +54,20 @@ public class SimpleTypeCastExprTest {
         Assert.assertEquals(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected);
     }
+
+    @Test
+    public void testFloatToIntCast() {
+        testFloatToIntCast(4.5, 4);
+        testFloatToIntCast(5.5, 6);
+        testFloatToIntCast(3.2, 3);
+        testFloatToIntCast(6.7, 7);
+    }
+
+    private void testFloatToIntCast(double input, long expected) {
+        BValue[] args = {new BFloat(input)};
+        BValue[] returns = BRunUtil.invoke(result, "floatToIntCast", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+    }
 }

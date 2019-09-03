@@ -368,6 +368,8 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
+                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
+                                                                    // skipLock flag is not given exists(projects only)
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
@@ -378,8 +380,6 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable .jar file
                 .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
                 .addTask(new PrintExecutablePathTask(), this.compile)   // print the location of the executable
-                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
-                                                                    // skipLock flag is not given exists(projects only)
                 .addTask(new CreateDocsTask(), isSingleFileBuild)   // generate API docs(projects only)
                 .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
