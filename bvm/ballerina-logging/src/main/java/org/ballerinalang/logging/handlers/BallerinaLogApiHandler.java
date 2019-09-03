@@ -15,8 +15,15 @@
   *  specific language governing permissions and limitations
   *  under the License.
   */
- package org.ballerinalang.logging;
+ package org.ballerinalang.logging.handlers;
 
- public class BallerinaLogApiHandler {
+ import java.util.logging.ConsoleHandler;
 
+ /**
+  * Console log handler used for Ballerina Log API.
+  */
+ public class BallerinaLogApiHandler extends ConsoleHandler {
+
+     public BallerinaLogApiHandler() {
+     }
  }
