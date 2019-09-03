@@ -29,7 +29,6 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -76,7 +75,7 @@ public class HttpCarbonMessage {
     private String httpVersion;
     private String httpMethod;
     private String requestUrl;
-    private Integer httpStatusCode = HttpResponseStatus.OK.code();
+    private Integer httpStatusCode;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
