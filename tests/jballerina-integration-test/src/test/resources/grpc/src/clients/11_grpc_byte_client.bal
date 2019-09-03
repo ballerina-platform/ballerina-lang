@@ -52,7 +52,7 @@ function testLargeByteArray(string filePath) returns (string) {
             } else {
                 byte[] result = [];
                 [result, _] = addResponse;
-                if(result == bytes) {
+                if(result == resultBytes) {
                     return "30KB file content transmitted successfully";
                 } else {
                     return "Error while transmitting file content";
