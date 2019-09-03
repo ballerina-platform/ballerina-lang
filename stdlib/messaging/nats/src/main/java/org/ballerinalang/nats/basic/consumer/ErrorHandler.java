@@ -39,6 +39,11 @@ public class ErrorHandler {
 
     /**
      * Dispatch errors to the onError resource, if the onError resource is available.
+     *
+     * @param serviceObject ObjectValue service
+     * @param scheduler     JBallerina strand scheduler
+     * @param msgObj        Message object
+     * @param e             ErrorValue
      */
     public static void dispatchError(ObjectValue serviceObject, Scheduler scheduler,
                                      ObjectValue msgObj, ErrorValue e) {
@@ -47,7 +52,8 @@ public class ErrorHandler {
         if (onErrorResourcePresent) {
             CountDownLatch countDownLatch = new CountDownLatch(1);
             Executor.submit(scheduler, serviceObject, ON_ERROR_RESOURCE,
-                    new DefaultMessageHandler.ResponseCallback(countDownLatch), null, msgObj, true, e, true);
+                    new DefaultMessageHandler.ResponseCallback(countDownLatch),
+                    null, msgObj, true, e, true);
             try {
                 countDownLatch.await();
             } catch (InterruptedException ex) {

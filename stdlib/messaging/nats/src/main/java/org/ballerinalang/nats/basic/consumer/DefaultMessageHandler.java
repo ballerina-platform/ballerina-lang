@@ -45,9 +45,8 @@ import static org.ballerinalang.nats.Utils.getAttachedFunction;
  * @since 1.0.0
  */
 public class DefaultMessageHandler implements MessageHandler {
-    /**
-     * Resource which the message should be dispatched.
-     */
+
+    // Resource which the message should be dispatched.
     private ObjectValue serviceObject;
     private Scheduler scheduler;
 
@@ -75,7 +74,11 @@ public class DefaultMessageHandler implements MessageHandler {
 
     }
 
-    // Dispatch only the message to the onMessage resource.
+    /**
+     * Dispatch only the message to the onMessage resource.
+     *
+     * @param msgObj Message object
+     */
     private void dispatch(ObjectValue msgObj) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch),
@@ -88,12 +91,19 @@ public class DefaultMessageHandler implements MessageHandler {
         }
     }
 
-    // Dispatch message and type bound data to the onMessage resource.
+    /**
+     * Dispatch message and type bound data to the onMessage resource.
+     *
+     * @param msgObj       Message object
+     * @param intendedType Message type for data binding
+     * @param data         Message data
+     */
     private void dispatchWithDataBinding(ObjectValue msgObj, BType intendedType, byte[] data) {
         try {
             Object typeBoundData = bindDataToIntendedType(data, intendedType);
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch), null,
+            Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE,
+                    new ResponseCallback(countDownLatch), null,
                     msgObj, true, typeBoundData, true);
             countDownLatch.await();
         } catch (NumberFormatException e) {
@@ -114,7 +124,7 @@ public class DefaultMessageHandler implements MessageHandler {
     public static class ResponseCallback implements CallableUnitCallback {
         private CountDownLatch countDownLatch;
 
-        public ResponseCallback(CountDownLatch countDownLatch) {
+        ResponseCallback(CountDownLatch countDownLatch) {
             this.countDownLatch = countDownLatch;
         }
 
