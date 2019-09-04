@@ -27,7 +27,6 @@ import org.ballerinalang.model.util.serializer.providers.bvalue.BStringBValuePro
 import org.ballerinalang.model.util.serializer.providers.bvalue.BTypeBValueProviders;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BValueArrayBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BXMLBValueProviders;
-import org.ballerinalang.model.util.serializer.providers.bvalue.BallerinaBrokerByteBufBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ClassBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ConcurrentHashMapBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.DateTimeBValueProviders;
@@ -36,7 +35,6 @@ import org.ballerinalang.model.util.serializer.providers.bvalue.InetSocketAddres
 import org.ballerinalang.model.util.serializer.providers.bvalue.LinkedHashSetBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -44,7 +42,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 /**
- * Serialize {@link SerializableState} into JSON and back.
+ * Serialize into JSON and back.
  * <p>
  * Note that {@link JsonSerializer} is not thread safe and each thread needs to have it's own instance.
  *
@@ -59,7 +57,6 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         bValueProvider.register(new BStringBValueProvider());
         bValueProvider.register(new BMapBValueProvider());
         bValueProvider.register(new ClassBValueProvider());
-        bValueProvider.register(new BallerinaBrokerByteBufBValueProvider());
         bValueProvider.register(new ConcurrentHashMapBValueProvider());
         bValueProvider.register(new BIntegerBValueProvider());
         bValueProvider.register(new BFloatBValueProvider());

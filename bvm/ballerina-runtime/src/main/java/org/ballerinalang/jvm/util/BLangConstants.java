@@ -148,4 +148,7 @@ public class BLangConstants {
 
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";
+
+
+    public static final String ERROR_MESSAGE_FIELD_NAME = "message";
 }

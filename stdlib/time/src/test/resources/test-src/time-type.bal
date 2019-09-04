@@ -246,7 +246,7 @@ function testManualTimeCreateWithInvalidZone() returns (int) {
     return time:getYear(time);
 }
 
-function testParseTimenvalidPattern() returns [int, string, int]|time:Error {
+function testParseTimeValidPattern() returns [int, string, int]|time:Error {
     var timeRet = time:parse("2017-06-26T09:46:22.444-0500", "test");
     int timeValue = 0;
     string zoneId = "";
@@ -262,7 +262,7 @@ function testParseTimenvalidPattern() returns [int, string, int]|time:Error {
 
 }
 
-function testParseTimenFormatMismatch() returns [int, string, int]|time:Error {
+function testParseTimeFormatMismatch() returns [int, string, int]|time:Error {
     var timeRet = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd");
     int timeValue = 0;
     string zoneId = "";
