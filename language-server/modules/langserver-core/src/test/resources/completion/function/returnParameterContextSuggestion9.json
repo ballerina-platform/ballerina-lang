@@ -42,13 +42,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Mode",
-      "detail": "Union",
-      "sortText": "110",
-      "insertText": "Mode",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ReadableByteChannel",
       "kind": "Interface",
       "detail": "Object",
