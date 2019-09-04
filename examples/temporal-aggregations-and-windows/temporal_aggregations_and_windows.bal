@@ -46,14 +46,16 @@ function printRequestCount(RequestCount reqCount) {
 
 listener http:Listener ep = new (9090);
 
-future<()> ftr = start initRealtimeRequestCounter();
-
 @http:ServiceConfig {
     basePath: "/"
 }
 // The host header is extracted from the requests that come to the service using the `/requests` context. Using this
 // information, the `clientRequest` object is created and published to the `requestStream`.
 service requestService on ep {
+
+    public function __init() {
+        initRealtimeRequestCounter();
+    }
 
     @http:ResourceConfig {
         methods: ["POST"],
