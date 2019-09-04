@@ -1,5 +1,5 @@
 NAME
-    Ballerina build - Build a Ballerina module(s)/file and generate executable
+    Ballerina build - Build Ballerina modules/file and generate executable
     outputs.
 
 SYNOPSIS

@@ -121,7 +121,7 @@ public class PullCommand implements BLauncherCmd {
                 Runtime.getRuntime().exit(1);
             }
         } else {
-            outStream.println("couldn't find the module " + patten);
+            outStream.println("module not found '" + patten + "'");
             // Exit status, zero for OK, non-zero for error
             Runtime.getRuntime().exit(1);
         }

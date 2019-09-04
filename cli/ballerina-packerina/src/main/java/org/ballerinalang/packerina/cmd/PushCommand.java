@@ -128,7 +128,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("pushe modules to the Ballerina central repository.");
+        out.append("push modules to the Ballerina Central repository.");
     }
 
     @Override

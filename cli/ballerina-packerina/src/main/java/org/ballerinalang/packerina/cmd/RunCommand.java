@@ -324,8 +324,6 @@ public class RunCommand implements BLauncherCmd {
         out.append("By default, 'ballerina run' executes the main function. \n");
         out.append("If the main function is not there, it executes services. \n");
         out.append("\n");
-        out.append("If the -s flag is given, 'ballerina run' executes\n");
-        out.append("the services instead of the main function.\n");
     }
 
     @Override
