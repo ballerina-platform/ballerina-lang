@@ -112,6 +112,7 @@ public class LockFileWriter {
                 .filter(symbol -> !"".equals(symbol.pkgID.version.value))
                 .map(symbol -> new LockFileImport(symbol.pkgID.orgName.value, symbol.pkgID.name.value,
                         symbol.pkgID.version.value))
+                .distinct()
                 .collect(Collectors.toList());
     }
     
