@@ -133,6 +133,11 @@ public class BallerinaDebugProcess extends XDebugProcess {
     public void sessionInitialized() {
         final int[] retryAttempt = {0};
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            getSession().getConsoleView().print("Note: Stepping over code lines with non-blocking logic may " +
+                            "not work properly.\n" + "Visit https://ballerina.io/learn/tools-ides/intellij-plugin" +
+                            "/using-intellij-plugin-features/#debugging-ballerina-programs for " +
+                            "more details and workarounds. \n\n",
+                    ConsoleViewContentType.SYSTEM_OUTPUT);
             getSession().getConsoleView().print("Waiting for debug process to start...\n",
                     ConsoleViewContentType.SYSTEM_OUTPUT);
             // If already connected with the debug server, tries to set breakpoints and attach with the remote jvm.
@@ -503,7 +508,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     // Sends attach request to the debug server.
                     LOGGER.debug("Sending Attach command.");
                     dapClientConnector.attachToServer();
-                    getSession().getConsoleView().print("Compiling...\n", ConsoleViewContentType.SYSTEM_OUTPUT);
                 }
             });
         }
