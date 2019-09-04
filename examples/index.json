@@ -997,7 +997,7 @@
     },
     {
         "title": "XML Access",
-        "column": 1,
+        "column": 0,
         "category": "Experimental features",
         "samples": [
             {
@@ -1012,7 +1012,7 @@
     },
     {
         "title": "Streams",
-        "column": 0,
+        "column": 1,
         "category": "Experimental features",
         "samples": [{
                 "name": "Streams",
@@ -1042,7 +1042,7 @@
     },
     {
         "title": "Transactions",
-        "column": 1,
+        "column": 2,
         "category": "Experimental features",
         "samples": [{
                 "name": "Local Transactions",
@@ -1064,7 +1064,7 @@
     },
     {
         "title": "Table Queries",
-        "column": 2,
+        "column": 3,
         "category": "Experimental features",
         "samples": [{
                 "name": "Table Queries",
