@@ -1,2 +1,0 @@
-// In this example, messages are sent to two different queues,
-// to one queue using the same channel and to the other using two different channels.
