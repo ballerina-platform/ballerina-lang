@@ -61,7 +61,7 @@ function testErrorBindingPattern3() returns string {
     [string, map<any>] | error t1 = err1;
     match t1 {
       var [reason, detail] => return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
-          error   (   var    reason,message   =   message,...   details1  ) => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
+          error   (   var    reason,message   =   message,...  var  details1  ) => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
     }
 
     return "";
@@ -118,6 +118,7 @@ function testErrorBindingPattern6() returns string {
      =
             message,
    ...
+          var
              details1
      ) => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
     }

@@ -31,3 +31,14 @@ function serviceConstruct3() {
            }
         };
 }
+
+function serviceConstruct4() {
+    service doOrderOutboundDispatcherETLService =
+ @http:ServiceConfig {
+                   basePath: ""
+  }      service   {
+               resource function onTrigger() {
+                   int a = 0;
+       }
+            };
+}

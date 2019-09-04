@@ -689,7 +689,7 @@ public class BLangPackageBuilder {
                                      boolean exprAvailable,
                                      int annotCount,
                                      boolean isPublic) {
-        BLangSimpleVariable var  = addSimpleVar(pos, ws, identifier, identifierPos, exprAvailable, annotCount);
+        BLangSimpleVariable var = addSimpleVar(pos, ws, identifier, identifierPos, exprAvailable, annotCount);
         if (isPublic) {
             var.flagSet.add(Flag.PUBLIC);
         }
@@ -2060,6 +2060,21 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(typeDef);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
+    }
+
+    void addObjectTypeName(Set<Whitespace> ws) {
+        List<TopLevelNode> topLevelNodes = this.compUnit.getTopLevelNodes();
+        if (!this.typeNodeStack.isEmpty() && this.typeNodeStack.peek() instanceof BLangObjectTypeNode) {
+            BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) this.typeNodeStack.peek();
+            objectTypeNode.addWS(ws);
+        } else if (topLevelNodes.size() > 0
+                && (topLevelNodes.get(topLevelNodes.size() - 1) instanceof BLangTypeDefinition)) {
+            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) topLevelNodes.get(topLevelNodes.size() - 1);
+            if (typeDefinition.getTypeNode() instanceof BLangObjectTypeNode) {
+                BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.getTypeNode();
+                objectTypeNode.addWS(ws);
+            }
+        }
     }
 
     private BLangObjectTypeNode populateObjectTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {

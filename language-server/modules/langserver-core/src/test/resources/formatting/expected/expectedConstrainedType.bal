@@ -20,6 +20,6 @@ function name3() {
         a: "apple",
         b: "banana",
         c:
-        "cherry"
+            "cherry"
     });
 }

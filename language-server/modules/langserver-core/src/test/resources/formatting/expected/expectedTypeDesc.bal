@@ -10,17 +10,16 @@ function testBasicTypes() returns [typedesc<int>, typedesc<string>, typedesc<flo
 function testRefTypes() returns [typedesc<xml>, typedesc<json>, typedesc<map<any>>, typedesc<table<Employee>>] {
     typedesc<xml> a = xml;
     typedesc<json> b =
-    json;
+        json;
     typedesc<map<any>> c = map<any>;
     typedesc<table<Employee>> d =
-    table<Employee>;
+        table<Employee>;
     return [a, b, c, d];
 }
 
 function testObjectTypes() returns [typedesc<Person>, typedesc<object {}>] {
     typedesc<Person> a = Person;
-    typedesc<object
-    {}> b = object {
+    typedesc<object {}> b = object {
         public string name = "";
     };
     return [a, b];
@@ -59,7 +58,7 @@ function testRecordTypes() returns [typedesc<RecordA>, typedesc<record {}>] {
 function testRecordTypes2() returns [typedesc<RecordA>, typedesc<record {}>] {
     typedesc<RecordA> a = RecordA;
     typedesc<record {}> b =
-    record {string c; int d;};
+        record {string c; int d;};
     return [a, b];
 }
 

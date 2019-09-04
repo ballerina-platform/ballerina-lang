@@ -4,13 +4,13 @@ function testBasicCheckpanic1(int testNumber) returns int | float {
     match testNumber {
         1 => int i = checkpanic getGenericError();
         2 => int i =
-        checkpanic
-        getGenericErrorWithDetail();
+            checkpanic
+            getGenericErrorWithDetail();
         3 => int | boolean i = checkpanic getGenericErrorWithMultiUnion();
         4 => return checkpanic getFloat();
         5 => int i = checkpanic returnBallerinaPanicError();
         6 => int i = checkpanic
-        getCustomError();
+            getCustomError();
     }
     return 0.0;
 }
@@ -23,16 +23,16 @@ function testAsyncNonNativeBasic1() returns int {
 
 function testAsyncNonNativeBasic2() returns int {
     future<int> f1 = checkpanic
-    start add(5, 2);
+        start add(5, 2);
     int result = wait f1;
     return result;
 }
 
 function testAsyncNonNativeBasic3() returns int {
     future<int> f1 =
-    checkpanic
-    start
-    add(5, 2)
+        checkpanic
+        start
+        add(5, 2)
     ;
     int result = wait f1;
     return result;
@@ -59,7 +59,7 @@ service serviceName3 on new http:Listener(9090) {
         http:Response res = new;
         res.setPayload("sd");
         checkpanic
-        caller->respond(res);
+            caller->respond(res);
     }
 }
 
@@ -68,7 +68,7 @@ service serviceName4 on new http:Listener(9090) {
         http:Response res = new;
         res.setPayload("sd");
         var result = checkpanic
-        caller->respond(res);
+            caller->respond(res);
     }
 }
 
@@ -77,8 +77,8 @@ service serviceName5 on new http:Listener(9090) {
         http:Response res = new;
         res.setPayload("sd");
         var result =
-        checkpanic
-        caller->respond(res);
+            checkpanic
+            caller->respond(res);
     }
 }
 

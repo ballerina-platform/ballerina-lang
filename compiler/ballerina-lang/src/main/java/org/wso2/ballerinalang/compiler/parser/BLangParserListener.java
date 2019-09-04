@@ -456,6 +456,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 isClient, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.addObjectTypeName(getWS(ctx));
+    }
+
     @Override
     public void exitTypeReference(BallerinaParser.TypeReferenceContext ctx) {
         if (isInErrorState) {

@@ -15,51 +15,51 @@ function testExpressionAsAttributeValue1() returns [xml, xml, xml, xml, xml] {
     string v1 = "zzz";
     string v2 = "33>22";
     xml x1 =
-    xml `<
-    foo
-    bar
-    =
-    "${
-    v0
-    }"/>`
+        xml `<
+        foo
+        bar
+        =
+        "${
+        v0
+        }"/>`
     ;
     xml x2 =
-    xml `<
-    foo
-    bar
-    =
-    "aaa${
-    v1
-    }bb'b${
-    v2
-    }ccc?"/>`
+        xml `<
+        foo
+        bar
+        =
+        "aaa${
+        v1
+        }bb'b${
+        v2
+        }ccc?"/>`
     ;
     xml x3 =
-    xml `<
-    foo
-    bar
-    =
-    "}aaa${
-    v1
-    }}bbb${
-    v2
-    }ccc{d{}e}{f{"/>`
+        xml `<
+        foo
+        bar
+        =
+        "}aaa${
+        v1
+        }}bbb${
+        v2
+        }ccc{d{}e}{f{"/>`
     ;
     xml x4 =
-    xml `<foo
-    bar1
-    ='aaa{${v1
-    }}b\${b"b${
-    v2
-    }c\}cc{d{}e}{f{' bar2='aaa{${
-    v1
-    }}b\${b"b${
-    v2
-    }c\}cc{d{}e}{f{'/>`
+        xml `<foo
+        bar1
+        ='aaa{${v1
+        }}b\${b"b${
+        v2
+        }c\}cc{d{}e}{f{' bar2='aaa{${
+        v1
+        }}b\${b"b${
+        v2
+        }c\}cc{d{}e}{f{'/>`
     ;
     xml x5 = xml `<foo
-    bar=
-    ""/>`
+        bar=
+        ""/>`
     ;
     return [x1, x2, x3, x4, x5];
 }
@@ -71,13 +71,13 @@ function testDefineInlineNamespace() returns (xml) {
 
 function testDefineInlineNamespace1() returns (xml) {
     xml x1 =
-    xml `<
-    foo
-    foo
-    =
-    "http://wso2.com"
-    >hello</
-    foo>`
+        xml `<
+        foo
+        foo
+        =
+        "http://wso2.com"
+        >hello</
+        foo>`
     ;
     return x1;
 }
@@ -88,8 +88,8 @@ function testGetAttributesAsMap() returns [map<string>?, map<string>?, string, s
 
     map<string>? m1 = x1@;
     map<string>? m2 =
-    x2
-    @
+        x2
+        @
     ;
 
     var a = m1["{http://sample.com/wso2/a1}foo1"];

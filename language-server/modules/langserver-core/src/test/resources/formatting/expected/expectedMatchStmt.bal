@@ -51,7 +51,7 @@ function testStructuredMatchPatternsBasic4() returns string {
         s: "S",
         i: 23,
         fib: [5.6, 3,
-        true]
+            true]
     };
 
     match foo2 {

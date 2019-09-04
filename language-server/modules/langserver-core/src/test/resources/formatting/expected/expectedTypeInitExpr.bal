@@ -7,7 +7,7 @@ type Person object {
         self.name = name;
         var detailRec = details;
     }
-}
+};
 
 function name() {
     jdbc:Client studentDb1 = new ({
@@ -39,12 +39,12 @@ function name() {
     });
 
     jdbc:Client studentDb4 =
-    new
-    ({
-        url: "jdbc:mysql://localhost:5690/testdb",
-        username: "root",
-        password: "",
-        dbOptions: {useSSL: false}
-    })
+        new
+        ({
+            url: "jdbc:mysql://localhost:5690/testdb",
+            username: "root",
+            password: "",
+            dbOptions: {useSSL: false}
+        })
     ;
 }

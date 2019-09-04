@@ -22,7 +22,7 @@ function testSimpleRecordTypes_1() returns string {
 
     any y = x;
     if (y
-    is A) {
+        is A) {
         return y.a;
     } else if (y is B) {
         return y.b + "-" + y.c;
@@ -50,13 +50,13 @@ function testMultipleTypeGuardsWithAndOperatorInTernary() returns int {
     int | string x = 5;
     any y = 7;
     return (x is int && y
-    is int) ? x + y : -1;
+        is int) ? x + y : -1;
 }
 
 function testTypeGuardInElse_1() returns string {
     int | string x = 5;
     if (x
-    is int) {
+        is int) {
         int y = x;
         return "int: " + string.convert(y);
     } else {
@@ -69,22 +69,22 @@ function testTypeGuardInElse_3() returns string {
     int | string | float | boolean y = false;
     if (x is int | string) {
         if (y
-        is string) {
+            is string) {
             return "y is string: " + y;
         } else if (y
-        is int) {
+            is int) {
             int i = y;
             return "y is float: " + string.convert(i);
         } else {
             return "x is int|string";
         }
     } else if (
-    x is float) {
+        x is float) {
         float f = x;
         return "float: " + string.convert(f);
     } else {
         if (y is
-        int) {
+            int) {
             int i = y;
             return "x is boolean and y is int: " + string.convert(i);
         } else if (y is string) {
