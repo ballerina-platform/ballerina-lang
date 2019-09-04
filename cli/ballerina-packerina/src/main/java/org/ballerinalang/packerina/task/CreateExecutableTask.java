@@ -99,7 +99,7 @@ public class CreateExecutableTask implements Task {
         }
     }
 
-    private void copyJarFromCachePath(BuildContext buildContext, BLangPackage bLangPackage,  Path executablePath ) {
+    private void copyJarFromCachePath(BuildContext buildContext, BLangPackage bLangPackage, Path executablePath) {
         Path jarFromCachePath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
         try {
             // Copy the jar from cache to bin directory
