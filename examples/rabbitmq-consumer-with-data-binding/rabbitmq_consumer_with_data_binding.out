@@ -1,0 +1,11 @@
+# Make sure to have the RabbitMQ broker running.
+#
+# Navigate to the directory that contains the
+# 'rabbitmq_consumer_with_data_binding.bal' file, and issue the 'ballerina run' command as follows.
+
+$ ballerina run rabbitmq_consumer_with_data_binding.bal
+
+# The RabbitMQ consumer runs as a Ballerina service and listens to the subscribed queue.
+
+2019-06-13 13:15:35,611 INFO  [] - The message received: Hello from Ballerina
+2019-06-13 13:15:35,612 INFO  [] - The message received from data binding: Hello from Ballerina

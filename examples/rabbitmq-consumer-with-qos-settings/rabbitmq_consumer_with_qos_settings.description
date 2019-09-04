@@ -1,0 +1,15 @@
+// In this example, the messages are consumed from an
+// existing queue using the Ballerina RabbitMQ message listener,
+// requesting specific "quality of service" settings.
+// These settings (i.e., prefetchCount and prefetchSize) impose limits on the amount
+// of data the server will deliver to consumers before requiring acknowledgements.
+// Thus, they provide a means of consumer-initiated flow control.
+// prefetchSize is the maximum amount of content (measured in octets)
+// that the server will deliver.
+// If the prefetchSize is given as 0, it will be considered unlimited.
+// prefetchCount is the maximum number of messages that the server will deliver.
+// If the prefetchCount is given as 0, it will be considered unlimited.
+// If the settings are specified at the listener initialization, they will be
+// applied for the entire connection as a global setting.
+// To apply the settings per consumer service, they should be specified in the
+// service config annotation.
