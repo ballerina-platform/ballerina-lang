@@ -5,7 +5,7 @@ import ballerina/io;
 public function main() {
 
     // Get the current directory path.
-    io:println("Current directory: " + file:getCurrentDirectory());  // e.g. “/home/john/work”
+    io:println("Current directory: " + file:getCurrentDirectory());
 
     // Create a new directory.
     string|error createDirResults = file:createDir("foo");
@@ -33,7 +33,6 @@ public function main() {
         io:println("File size: " + fileInfoResults.getSize().toString());
         io:println("Is directory: " + fileInfoResults.isDir().toString());
         io:println("Modified at " + fileInfoResults.getLastModifiedTime().toString());
-
     }
 
     // Check whether file or directory of the provided path exists.
@@ -54,7 +53,7 @@ public function main() {
         io:println("bar.txt file is moved to new path " + newFilePath);
     }
 
-    // Get default directory use for temporary files.
+    // Get default directory used for temporary files.
     string tempDirPath = file:tempDir();
     io:println("Temporary directory: " + tempDirPath);
 
