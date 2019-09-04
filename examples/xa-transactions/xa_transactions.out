@@ -12,3 +12,5 @@ Insert to SALARY table status: 1
 Transaction committed
 Drop Table CUSTOMER status: 0
 Drop Table SALARY status: 0
+[ballerina/http] started HTTP/WS listener 10.100.7.118:64331
+[ballerina/http] stopped HTTP/WS listener 10.100.7.118:64331
