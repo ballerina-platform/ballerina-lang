@@ -186,7 +186,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
         }
         initBreakpointHandlersAndSetBreakpoints();
         LOGGER.debug("Sending breakpoints.");
-        breakpointHandler.sendBreakpoints(true);
+        breakpointHandler.sendBreakpoints(breakpoints, true);
     }
 
     @Override
@@ -439,7 +439,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
             getSession().updateBreakpointPresentation(breakpoint, AllIcons.Debugger.Db_verified_breakpoint, null);
             if (isConnected && !breakpoints.contains(breakpoint)) {
                 breakpoints.add(breakpoint);
-                sendBreakpoints(false);
+                sendBreakpoints(Collections.singletonList(breakpoint), false);
             }
         }
 
@@ -452,11 +452,11 @@ public class BallerinaDebugProcess extends XDebugProcess {
             }
             if (isConnected && breakpoints.contains(breakpoint)) {
                 breakpoints.remove(breakpoint);
-                sendBreakpoints(false);
+                sendBreakpoints(Collections.singletonList(breakpoint), false);
             }
         }
 
-        void sendBreakpoints(boolean attach) {
+        void sendBreakpoints(List<XBreakpoint<BallerinaBreakpointProperties>> breakpointList, boolean attach) {
             if (!isConnected) {
                 return;
             }
@@ -466,7 +466,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     return;
                 }
                 // Transforms IDEA breakpoint DAP breakpoints.
-                for (XBreakpoint<BallerinaBreakpointProperties> bp : breakpoints) {
+                for (XBreakpoint<BallerinaBreakpointProperties> bp : breakpointList) {
                     if (bp.getType().getId().equals("BallerinaLineBreakpoint") && bp.getSourcePosition() != null) {
                         Source source = new Source();
                         source.setName(bp.getSourcePosition().getFile().getName());
