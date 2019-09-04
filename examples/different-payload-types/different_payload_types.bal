@@ -67,7 +67,11 @@ service actionService on new http:Listener(9090) {
             var result = caller->respond("Client actions successfully executed!");
             handleError(result);
         } else {
-            handleError(bChannel);
+            http:Response res = new;
+            res.statusCode = 500;
+            res.setPayload(<@untainted> <string> bChannel.detail()?.message);
+            var result = caller->respond(res);
+            handleError(result);
         }
     }
 }
