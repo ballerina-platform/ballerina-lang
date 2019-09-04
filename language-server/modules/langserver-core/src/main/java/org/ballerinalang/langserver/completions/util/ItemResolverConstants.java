@@ -56,6 +56,7 @@ public class ItemResolverConstants {
     public static final String MAIN_FUNCTION = "public main function";
     public static final String SERVICE = "service/http";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
+    public static final String SERVICE_WEBSOCKET_CLIENT = "service/webSocketClient";
     public static final String SERVICE_WEBSUB = "service/webSub";
     public static final String SERVICE_GRPC = "service/gRPC";
     public static final String ANNOTATION = "annotation";

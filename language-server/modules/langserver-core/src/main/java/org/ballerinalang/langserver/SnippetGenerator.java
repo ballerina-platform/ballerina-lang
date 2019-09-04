@@ -482,6 +482,64 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get WebSocket OnBinary Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnBinarySnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onBinary", "websocket onBinary", Arrays.asList(
+                "http:WebSocketCaller ${#:caller}", "byte[] ${#:data}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket OnPing Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnPingSnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onPing", "websocket onPing", Arrays.asList(
+                "http:WebSocketClient ${#:wsEp}", "byte[] ${#:data}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket OnPong Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnPongSnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onPong", "websocket onPong", Arrays.asList(
+                "http:WebSocketClient ${#:wsEp}", "byte[] ${#:data}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket OnIdleTimeout Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnIdleTimeoutSnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onIdleTimeout", "websocket onIdleTimeout",
+                                                             Collections
+                                                                     .singletonList("http:WebSocketClient ${#:wsEp}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket onError Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnErrorSnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onError", "websocket onError",
+                                                             Arrays
+                                                                     .asList("http:WebSocketClient ${#:wsEp}",
+                                                                             "error ${#:err}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
      * Get WebSocket OnClose Resource Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -489,6 +547,84 @@ public class SnippetGenerator {
     public static SnippetBlock getWebSocketResourceOnCloseSnippet() {
         return SnippetGenerator.getResourceDefinitionSnippet("onClose", "websocket onClose", Arrays.asList(
                 "http:WebSocketCaller ${#:caller}", "int ${#:statusCode}", "string ${#:reason}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket Client Service OnText Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketClientServiceResourceOnTextSnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onText", "websocketClient onText", Arrays.asList(
+                "http:WebSocketClient ${#:wsEp}", "string ${#:data}", "boolean ${#:finalFrame}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket Client Service OnBinary Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketClientServiceResourceOnBinarySnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onBinary", "websocketClient onBinary", Arrays.asList(
+                "http:WebSocketClient ${#:wsEp}", "byte[] ${#:data}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket Client Service OnPing Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketClientServiceResourceOnPingSnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onPing", "websocketClient onPing", Arrays.asList(
+                "http:WebSocketClient ${#:wsEp}", "byte[] ${#:data}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket Client Service OnPong Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketClientServiceResourceOnPongSnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onPong", "websocketClient onPong", Arrays.asList(
+                "http:WebSocketClient ${#:wsEp}", "byte[] ${#:data}"), new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket Client Service OnIdleTimeout Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketClientServiceResourceOnIdleTimeoutSnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onIdleTimeout", "websocketClient onIdleTimeout",
+                                                             Collections
+                                                                     .singletonList("http:WebSocketClient ${#:wsEp}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket Client Service onError Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketClientServiceResourceOnErrorSnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onError", "websocketClient onError",
+                                                             Arrays.asList("http:WebSocketClient ${#:wsEp}",
+                                                                           "error ${#:err}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket Client Service OnClose Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketClientServiceResourceOnCloseSnippet() {
+        return SnippetGenerator.getResourceDefinitionSnippet("onClose", "websocketClient onClose", Arrays.asList(
+                "http:WebSocketClient ${#:wsEp}", "int ${#:statusCode}", "string ${#:reason}"),
                                                              new ImmutablePair<>("ballerina", "http"));
     }
 
@@ -502,8 +638,7 @@ public class SnippetGenerator {
                                                              Arrays.asList("websub:Caller ${#:caller}",
                                                                            "websub:IntentVerificationRequest " +
                                                                                    "${#:request}"),
-                                                             new ImmutablePair<>("ballerina",
-                                                                                 "websub"));
+                                                             new ImmutablePair<>("ballerina", "websub"));
     }
 
     /**
@@ -590,6 +725,24 @@ public class SnippetGenerator {
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSOCKET, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET, httpImport);
+    }
+
+    /**
+     * Get Web Socket Client Service Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketClientServiceDefSnippet() {
+        ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
+        String snippet = "service ${1:clientCallbackService} = @http:WebSocketServiceConfig {} service {" +
+                CommonUtil.LINE_SEPARATOR +
+                "\tresource function onText(http:WebSocketClient wsEp, string text) {"
+                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function onClose(http:WebSocketClient wsEp, int statusCode, string reason) {"
+                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}"
+                + CommonUtil.LINE_SEPARATOR + "};";
+        return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSOCKET_CLIENT, snippet,
+                                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET, httpImport);
     }
 
     /**

@@ -32,6 +32,51 @@
             "additionalTextEdits": []
         },
         {
+            "label": "websocket onBinary resource",
+            "kind": "Snippet",
+            "detail": "Snippet",
+            "sortText": "110",
+            "insertText": "resource function onBinary(http:WebSocketCaller ${1:caller},byte[] ${2:data}) {\n\t${3}\n}",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": []
+        },
+        {
+            "label": "websocket onPing resource",
+            "kind": "Snippet",
+            "detail": "Snippet",
+            "sortText": "110",
+            "insertText": "resource function onPing(http:WebSocketClient ${1:wsEp},byte[] ${2:data}) {\n\t${3}\n}",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": []
+        },
+        {
+            "label": "websocket onPong resource",
+            "kind": "Snippet",
+            "detail": "Snippet",
+            "sortText": "110",
+            "insertText": "resource function onPong(http:WebSocketClient ${1:wsEp},byte[] ${2:data}) {\n\t${3}\n}",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": []
+        },
+        {
+            "label": "websocket onIdleTimeout resource",
+            "kind": "Snippet",
+            "detail": "Snippet",
+            "sortText": "110",
+            "insertText": "resource function onIdleTimeout(http:WebSocketClient ${1:wsEp}) {\n\t${2}\n}",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": []
+        },
+        {
+            "label": "websocket onError resource",
+            "kind": "Snippet",
+            "detail": "Snippet",
+            "sortText": "110",
+            "insertText": "resource function onError(http:WebSocketClient ${1:wsEp},error ${2:err}) {\n\t${3}\n}",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": []
+        },
+        {
             "label": "websocket onClose resource",
             "kind": "Snippet",
             "detail": "Snippet",
