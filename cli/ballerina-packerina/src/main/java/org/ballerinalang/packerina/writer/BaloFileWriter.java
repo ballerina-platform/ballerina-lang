@@ -185,18 +185,19 @@ public class BaloFileWriter {
         try (ByteArrayInputStream tomlStream = new ByteArrayInputStream(manifestBytes)) {
             List<Dependency> dependenciesToAdd = new LinkedList<>();
             
-            // collect dependencies from lock file
+            // collect dependencies from lock file for the given module. Not adding transitive dependencies.
             LockFile lockFile = LockFileProcessor.parseTomlContentAsStream(this.sourceDirectory.getLockFileContent());
-            if (null != lockFile && null != lockFile.getImports() && lockFile.getImports().size() > 0) {
-                for (List<LockFileImport> imports : lockFile.getImports().values()) {
-                    for (LockFileImport lockImport : imports) {
-                        Dependency dependency = new Dependency();
-                        dependency.setModuleID(lockImport.getOrgName() + "/" + lockImport.getName());
-                        DependencyMetadata depMeta = new DependencyMetadata();
-                        depMeta.setVersion(lockImport.getVersion());
-                        dependency.setMetadata(depMeta);
-                        dependenciesToAdd.add(dependency);
-                    }
+            String moduleAlias = module.packageID.orgName.value + "/" + module.packageID.name.value;
+            if (null != lockFile && null != lockFile.getImports() && lockFile.getImports().size() > 0 &&
+                lockFile.getImports().containsKey(moduleAlias)) {
+                List<LockFileImport> moduleImports = lockFile.getImports().get(moduleAlias);
+                for (LockFileImport lockImport : moduleImports) {
+                    Dependency dependency = new Dependency();
+                    dependency.setModuleID(lockImport.getOrgName() + "/" + lockImport.getName());
+                    DependencyMetadata depMeta = new DependencyMetadata();
+                    depMeta.setVersion(lockImport.getVersion());
+                    dependency.setMetadata(depMeta);
+                    dependenciesToAdd.add(dependency);
                 }
             }
             

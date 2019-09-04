@@ -25,7 +25,6 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -33,6 +32,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for remote participant annotation.
@@ -80,29 +80,31 @@ public class RemoteParticipantTransactionTest extends BaseTest {
         sepBalserverInstance.cleanup();
     }
 
-    @Test
-    @Ignore
+    @Test // #18544
     public void remoteParticipantTransactionSuccessTest() throws IOException {
         String url = serverInstance.getServiceURLHttp(initiatorServicePort,
                 "remoteParticipantTransactionSuccessTest");
         HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        String target = " in-trx-block in-remote <payload-from-remote> in-trx-lastline " +
-                "in-baz[oncommittedFunc] committed-block after-trx";
-        assertEquals(response.getData(), target, "payload mismatched");
+        String target1 = " in-trx-block in-remote <payload-from-remote> in-trx-lastline "
+                + "in-baz[oncommittedFunc] committed-block after-trx";
+        String target2 = " in-trx-block in-remote <payload-from-remote> in-trx-lastline committed-block after-trx";
+        assertTrue(response.getData().equals(target1) || response.getData().equals(target2), "payload mismatched");
     }
 
-    @Test(enabled = false)
+    @Test // #18544
     public void remoteParticipantTransactionFailSuccessTest() throws IOException {
         String url = serverInstance.getServiceURLHttp(initiatorServicePort,
                 "remoteParticipantTransactionFailSuccessTest");
         HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
-        String target = " in-trx-block in-remote <payload-from-remote> throw-1 onretry-block " +
-                "in-trx-block in-remote <payload-from-remote> in-trx-lastline " +
-                "in-baz[oncommittedFunc] committed-block after-trx";
-        assertEquals(response.getData(), target, "payload mismatched");
+        String target1 = " in-trx-block in-remote <payload-from-remote> throw-1 onretry-block "
+                + "in-trx-block in-remote <payload-from-remote> in-trx-lastline "
+                + "in-baz[oncommittedFunc] committed-block after-trx";
+        String target2 = " in-trx-block in-remote <payload-from-remote> throw-1 onretry-block "
+                + "in-trx-block in-remote <payload-from-remote> in-trx-lastline committed-block after-trx";
+        assertTrue(response.getData().equals(target1) || response.getData().equals(target2), "payload mismatched");
     }
 
     @Test
@@ -116,17 +118,20 @@ public class RemoteParticipantTransactionTest extends BaseTest {
         assertEquals(response.getData(), target, "payload mismatched");
     }
 
-    @Test
+    @Test // #18544
     public void remoteParticipantTransactionExceptionInRemoteThenSuccessInRemote() throws IOException {
         String url = serverInstance.getServiceURLHttp(initiatorServicePort,
                 "remoteParticipantTransactionExceptionInRemoteThenSuccessInRemote");
         HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        String target = " in-trx-block in-remote remote1-blown in-trx-lastline " +
-                "onretry-block in-trx-block in-remote <payload-from-remote> in-trx-lastline " +
-                "in-baz[oncommittedFunc] committed-block after-trx";
-        assertEquals(response.getData(), target, "payload mismatched");
 
+        String target1 = " in-trx-block in-remote remote1-blown in-trx-lastline "
+                + "onretry-block in-trx-block in-remote <payload-from-remote> in-trx-lastline "
+                + "in-baz[oncommittedFunc] committed-block after-trx";
+        String target2 = " in-trx-block in-remote remote1-blown in-trx-lastline "
+                + "onretry-block in-trx-block in-remote <payload-from-remote> in-trx-lastline "
+                + "committed-block after-trx";
+        assertTrue(response.getData().equals(target1) || response.getData().equals(target2), "payload mismatched");
     }
 
     @Test

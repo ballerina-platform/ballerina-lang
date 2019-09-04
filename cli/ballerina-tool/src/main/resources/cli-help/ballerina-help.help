@@ -31,7 +31,7 @@ OPTIONS
 
 BALLERINA COMMANDS
     Available commands are:
-        build           Compile Ballerina program in-to an executable
+        build           Compile Ballerina program into an executable
         run             Run Ballerina program
         clean           Clean artifacts generated during compile/build
         test            Test Ballerina program
@@ -66,11 +66,11 @@ EXAMPLES
     Check the current version of Ballerina in use on your system
     $ ballerina -v
 
-    Get help on how to use the ballerina command
+    Get help on how to use a Ballerina command
     $ ballerina help build
 
-    Build your hello Ballerina program
+    Build a Ballerina program
     $ ballerina build hello.bal
 
-    Run a ballerina program
+    Run a Ballerina program
     $ ballerina run hello.bal
