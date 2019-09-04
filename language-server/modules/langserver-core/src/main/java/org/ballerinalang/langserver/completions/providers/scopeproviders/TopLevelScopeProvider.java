@@ -26,8 +26,11 @@ import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.TopLevelContextSorter;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -49,10 +52,19 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
     @Override
     public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        
+        if (this.inFunctionReturnParameterContext(ctx)) {
+            return this.getProvider(BallerinaParser.ReturnParameterContext.class).getCompletions(ctx);
+        }
+
         Optional<LSCompletionProvider> contextProvider = this.getContextProvider(ctx);
         List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+        Boolean forcedRemoved = ctx.get(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
 
+        if (forcedRemoved != null && forcedRemoved) {
+            return this.getCompletionOnParameterContext(ctx);
+        }
         if (parserRuleContext instanceof BallerinaParser.ConstantDefinitionContext) {
             return completionItems;
         }
@@ -72,10 +84,47 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
         return completionItems;
     }
 
+    private List<CompletionItem> getCompletionOnParameterContext(LSContext lsContext) {
+        List<Integer> defaultTokenTypes = lsContext.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<CommonToken> defaultTokens = lsContext.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(lsContext.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        Integer invocationType = lsContext.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        if (defaultTokenTypes.contains(BallerinaParser.FUNCTION)) {
+            if (invocationType == BallerinaParser.COLON) {
+                String pkgAlias = defaultTokens.get(defaultTokenTypes.indexOf(invocationType) - 1).getText();
+                return this.getTypesInPackage(visibleSymbols, pkgAlias, lsContext);
+            }
+            if (invocationType > -1) {
+                return new ArrayList<>();
+            }
+            /*
+            Within the function definition's parameter context and we only suggest the packages and types 
+             */
+            List<CompletionItem> completionItems = new ArrayList<>();
+            completionItems.addAll(getBasicTypes(visibleSymbols));
+            completionItems.addAll(this.getPackagesCompletionItems(lsContext));
+            
+            return completionItems;
+        }
+        
+        if (invocationType > -1) {
+            Either<List<CompletionItem>, List<SymbolInfo>> filteredSymbols =
+                    SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(lsContext);
+            return this.getCompletionItemList(filteredSymbols, lsContext);
+        }
+
+        List<CompletionItem> completionItems = new ArrayList<>();
+        visibleSymbols.removeIf(this.attachedOrSelfKeywordFilter());
+        completionItems.addAll(getBasicTypes(visibleSymbols));
+        completionItems.addAll(this.getPackagesCompletionItems(lsContext));
+        return completionItems;
+    }
+
     @Override
     public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        if (lhsTokens == null || lhsTokens.isEmpty()) {
+        Boolean forcedRemoved = ctx.get(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
+        if (lhsTokens == null || lhsTokens.isEmpty() || (forcedRemoved != null && forcedRemoved)) {
             return Optional.empty();
         }
         if (this.isAnnotationAttachmentContext(ctx)) {

@@ -18,17 +18,24 @@
 package org.ballerinalang.toml.parser;
 
 import com.moandjiezana.toml.Toml;
+import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.exceptions.TomlException;
+import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -197,5 +204,30 @@ public class ManifestProcessor {
      */
     private static String lowerCaseFirstLetter(String content) {
         return content.substring(0, 1).toLowerCase(Locale.getDefault()) + content.substring(1);
+    }
+    
+    public static byte[] addDependenciesToManifest(ByteArrayInputStream manifestStream, List<Dependency> deps) {
+        Map<String, Object> toml = new Toml().read(manifestStream).toMap();
+        Map<String, Object> dependencies = new LinkedHashMap<>();
+        if (toml.containsKey("dependencies")) {
+            Object tomlDepsAsObject = toml.get("dependencies");
+            Map<String, Object> updatedDependencies = new HashMap<>();
+            if (tomlDepsAsObject instanceof HashMap) {
+                // taking care of double quoted dependency names
+                Map<String, Object> tomlDeps = (HashMap<String, Object>) tomlDepsAsObject;
+                for (Map.Entry<String, Object> dep : tomlDeps.entrySet()) {
+                    updatedDependencies.put(dep.getKey().replaceAll("^\"|\"$", ""), dep.getValue());
+                }
+                dependencies = updatedDependencies;
+            }
+        }
+    
+        for (Dependency dep : deps) {
+            dependencies.put(dep.getOrgName() + "/" + dep.getModuleName(), dep.getMetadata().getVersion());
+        }
+        toml.put("dependencies", dependencies);
+        TomlWriter writer = new TomlWriter();
+        String tomlContent = writer.write(toml);
+        return tomlContent.getBytes(Charset.defaultCharset());
     }
 }

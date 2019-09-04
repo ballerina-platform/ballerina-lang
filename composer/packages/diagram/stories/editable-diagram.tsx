@@ -27,7 +27,7 @@ bbeASTsArray.forEach((bbeASTPath) => {
       <Diagram
         docUri=""
         langClient={new MockLangClient(bbeAST.ast)}
-        ast={bbeAST.ast}
+        astList={[bbeAST.ast]}
         {...commonProps}
       />
     ));

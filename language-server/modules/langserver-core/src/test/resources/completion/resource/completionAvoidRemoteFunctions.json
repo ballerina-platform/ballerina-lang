@@ -9,7 +9,7 @@
       "label": "protocol",
       "kind": "Variable",
       "detail": "string",
-      "sortText": "120",
+      "sortText": "130",
       "insertText": "protocol",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "localAddress",
       "kind": "Variable",
       "detail": "http:Local",
-      "sortText": "120",
+      "sortText": "130",
       "insertText": "localAddress",
       "insertTextFormat": "Snippet"
     },
@@ -25,23 +25,15 @@
       "label": "config",
       "kind": "Variable",
       "detail": "http:ListenerConfiguration",
-      "sortText": "120",
-      "insertText": "config",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "__init()",
-      "kind": "Function",
-      "detail": "Function",
       "sortText": "130",
-      "insertText": "__init();",
+      "insertText": "config",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "remoteAddress",
       "kind": "Variable",
       "detail": "http:Remote",
-      "sortText": "120",
+      "sortText": "130",
       "insertText": "remoteAddress",
       "insertTextFormat": "Snippet"
     },
@@ -49,7 +41,7 @@
       "label": "filterContext",
       "kind": "Variable",
       "detail": "(http:FilterContext|())",
-      "sortText": "120",
+      "sortText": "130",
       "insertText": "filterContext",
       "insertTextFormat": "Snippet"
     }

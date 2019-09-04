@@ -761,11 +761,11 @@ function testTableAddAndAccess() returns [string, string]|error {
     checkpanic dt.add(p2);
 
     json j1 = check typedesc<json>.constructFrom(dt);
-    string s1 = j1.toString();
+    string s1 = j1.toJsonString();
 
     checkpanic dt.add(p3);
     json j2 = check typedesc<json>.constructFrom(dt);
-    string s2 = j2.toString();
+    string s2 = j2.toJsonString();
 
     return [s1, s2];
 }
@@ -881,6 +881,15 @@ function testRemoveOpAnonymousFilter() returns table<Order> {
     return orderTable;
 }
 
+function testTableAddOnConstrainedTableWithViolation3() {
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+
+    table<Person> t1 = table {
+        { key id, salary, name, age, married },
+        [p1, p2]
+    };
+}
 
 //function testEmptyTableCreate() returns [int, int] {
 //    table<Person> dt3 = table{};

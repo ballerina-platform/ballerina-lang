@@ -26,6 +26,8 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -60,7 +62,7 @@ import java.util.Optional;
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
@@ -80,16 +82,16 @@ public abstract class AbstractHTTPAction {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
 
-    protected static HttpCarbonMessage createOutboundRequestMsg(String serviceUri, MapValue config, String path,
-                                                                ObjectValue request) {
+    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, MapValue config, 
+                                                                String path, ObjectValue request) {
         if (request == null) {
-            request = BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, REQUEST);
+            request = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, REQUEST);
         }
 
         HttpCarbonMessage requestMsg = HttpUtil.getCarbonMsg(request, HttpUtil.createHttpCarbonMessage(true));
         HttpUtil.checkEntityAvailability(request);
         HttpUtil.enrichOutboundMessage(requestMsg, request);
-        prepareOutboundRequest(serviceUri, path, requestMsg, isNoEntityBodyRequest(request));
+        prepareOutboundRequest(strand, serviceUri, path, requestMsg, isNoEntityBodyRequest(request));
         handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(config));
         return requestMsg;
     }
@@ -110,14 +112,13 @@ public abstract class AbstractHTTPAction {
         }
     }
 
-    static void prepareOutboundRequest(String serviceUri, String path, HttpCarbonMessage outboundRequest,
+    static void prepareOutboundRequest(Strand strand, String serviceUri, String path, HttpCarbonMessage outboundRequest,
                                        Boolean nonEntityBodyReq) {
-        //TODO transaction code
-//        if (context.isInTransaction()) {
-//            TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
-//            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
-//            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, transactionLocalContext.getURL());
-//        }
+        if (strand.isInTransaction()) {
+            TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
+            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, transactionLocalContext.getURL());
+        }
         try {
             String uri = getServiceUri(serviceUri) + path;
             URL url = new URL(uri);
@@ -425,7 +426,7 @@ public abstract class AbstractHTTPAction {
 
         @Override
         public void onResponseHandle(ResponseHandle responseHandle) {
-            ObjectValue httpFuture = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+            ObjectValue httpFuture = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                     HttpConstants.HTTP_FUTURE);
             httpFuture.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
             this.dataContext.notifyInboundResponseStatus(httpFuture, null);

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 # Configuration related to consumer endpoint.
 #
@@ -124,7 +124,7 @@ public type ConsumerRecord record {|
 #
 # + consumerConfig - Used to store configurations related to a Kafka connection.
 public type Consumer client object {
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public ConsumerConfig? consumerConfig = ();
 

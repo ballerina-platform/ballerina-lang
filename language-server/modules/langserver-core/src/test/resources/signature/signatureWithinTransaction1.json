@@ -11,7 +11,7 @@
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "Concatenate all the `strs`. Empty string if empty."
+              "value": "Concatenates zero or more strings."
             }
           },
           "parameters": []
@@ -19,6 +19,9 @@
       ],
       "activeSignature": 0,
       "activeParameter": 0
+    },
+    "id": {
+      "left": "324"
     },
     "jsonrpc": "2.0"
   }

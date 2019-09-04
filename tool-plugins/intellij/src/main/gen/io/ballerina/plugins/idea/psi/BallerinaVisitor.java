@@ -88,10 +88,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitAttachedObject(@NotNull BallerinaAttachedObject o) {
-    visitPsiElement(o);
-  }
-
   public void visitAttachmentPoint(@NotNull BallerinaAttachmentPoint o) {
     visitPsiElement(o);
   }
@@ -976,20 +972,20 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTypeName(o);
   }
 
-  public void visitTypeAccessExprInvocationReference(@NotNull BallerinaTypeAccessExprInvocationReference o) {
-    visitVariableReference(o);
-  }
-
-  public void visitTypeAccessExpression(@NotNull BallerinaTypeAccessExpression o) {
-    visitExpression(o);
-  }
-
   public void visitTypeConversionExpression(@NotNull BallerinaTypeConversionExpression o) {
     visitExpression(o);
   }
 
   public void visitTypeDefinition(@NotNull BallerinaTypeDefinition o) {
     visitTopLevelDefinition(o);
+  }
+
+  public void visitTypeDescExprInvocationReference(@NotNull BallerinaTypeDescExprInvocationReference o) {
+    visitVariableReference(o);
+  }
+
+  public void visitTypeDescExpression(@NotNull BallerinaTypeDescExpression o) {
+    visitExpression(o);
   }
 
   public void visitTypeDescReferenceTypeName(@NotNull BallerinaTypeDescReferenceTypeName o) {
@@ -1137,10 +1133,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitBacktickedBlock(@NotNull BallerinaBacktickedBlock o) {
-    visitPsiElement(o);
-  }
-
-  public void visitChannelType(@NotNull BallerinaChannelType o) {
     visitPsiElement(o);
   }
 

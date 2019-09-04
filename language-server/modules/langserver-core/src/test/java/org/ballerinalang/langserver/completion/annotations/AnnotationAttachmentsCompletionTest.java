@@ -45,6 +45,8 @@ public class AnnotationAttachmentsCompletionTest extends CompletionTest {
                 {"annotationAccessExpression2.json", "annotation"},
                 {"annotationAccessExpression3.json", "annotation"},
                 {"annotationAccessExpression4.json", "annotation"},
+                {"annotationAccessExpression5.json", "annotation"},
+                {"annotationAccessExpression6.json", "annotation"},
                 {"annotationBodyCompletion1.json", "annotation"},
                 {"annotationBodyCompletion2.json", "annotation"},
                 {"annotationBodyCompletion3.json", "annotation"},

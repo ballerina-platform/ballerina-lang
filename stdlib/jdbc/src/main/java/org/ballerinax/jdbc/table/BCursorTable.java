@@ -19,8 +19,10 @@ package org.ballerinax.jdbc.table;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.DataIterator;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
 
@@ -66,7 +68,8 @@ public class BCursorTable extends TableValue {
                 "data cannot be added to a table returned from a database");
     }
 
-    public Object performRemoveOperation() {
+    @Override
+    public Object performRemoveOperation(Strand strand, FPValue<Object, Boolean> func) {
         throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
                 "data cannot be deleted from a table returned from a database");
     }

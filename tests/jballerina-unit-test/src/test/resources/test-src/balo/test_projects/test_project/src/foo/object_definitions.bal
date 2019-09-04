@@ -116,10 +116,10 @@ function passSelfAsValue(Boy p) returns string {
 }
 
 public type Bin abstract object {
-    public int age = 10;
-    public string name = "sample name";
-    public int year = 50;
-    public string month = "february";
+    public int age;
+    public string name;
+    public int year;
+    public string month;
 
     public function attachFunc1(int add, string value1) returns [int, string];
 
@@ -210,8 +210,8 @@ public type Architect object {
 };
 
 public type Country abstract object {
-    public int age = 10;
-    public string month = "february";
+    public int age;
+    public string month;
 
     public function attachInterface(int add) returns int;
 };

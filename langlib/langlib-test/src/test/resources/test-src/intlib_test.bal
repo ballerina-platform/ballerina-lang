@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.int as ints;
+import ballerina/lang.'int as ints;
 
 function testMax(int n, int... ns) returns int {
     return ints:max(n, ...ns);

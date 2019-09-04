@@ -180,6 +180,8 @@ public class KafkaConsumerAndProducerWithSSLTest {
         prop.put("ssl.truststore.location", resourceDir + File.separator + keystoresAndTruststores + File.separator
                 + "kafka.server.truststore.jks");
         prop.put("ssl.truststore.password", "test1234");
+        prop.put("zookeeper.session.timeout.ms", "20000");
+        prop.put("zookeeper.connection.timeout.ms", "20000");
 
         return prop;
     }

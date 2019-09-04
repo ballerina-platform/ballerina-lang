@@ -231,7 +231,7 @@ public class MarkdownDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 22);
+        Assert.assertEquals(compileResult.getWarnCount(), 23);
 
         int index = 0;
 
@@ -256,7 +256,8 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 85, 9);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 86, 9);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 97, 5);
-        BAssertUtil.validateWarning(compileResult, index, "no documentable return parameter", 98, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 98, 1);
+        BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'filePath'", 104, 22);
     }
 
     @Test(description = "Test doc service")

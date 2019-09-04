@@ -122,7 +122,7 @@ public class HoverUtil {
             if (symbol instanceof BInvokableSymbol) {
                 // Get type information
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
-                returnType = " `" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx) + "`";
+                returnType = " `" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx, false) + "`";
             }
             content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE, returnType,
                                                        getReturnValueDescription(
@@ -390,7 +390,7 @@ public class HoverUtil {
             MarkdownDocAttachment.Parameter parameter = parameters.get(i);
             String type = "";
             if (!types.isEmpty() && types.get(parameter.name) != null) {
-                type = "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx) + "` ";
+                type = "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx, false) + "` ";
             }
             value.append("- ")
                     .append(type)

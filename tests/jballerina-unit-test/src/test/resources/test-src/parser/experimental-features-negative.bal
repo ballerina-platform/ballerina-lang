@@ -6,18 +6,18 @@ type Employee record {
 };
 
 stream<Employee> employeeStream1 = new;
-channel<json> chn1 = new;
+stream<Employee> employeeStream4 = new;
 
 function testStreamingQuery() {
 
     int i = 1;
 
     forever {
-        from teacherStream7
-        where age > 30
-        select name, age, status
+        from employeeStream1
+        where employeeStream1.age > 30 as x
+        select x.name, x.age, x.status
         => (Employee[] emp) {
-            io:println("Filterted event received #: "+ i);
+            println("Filterted event received #: ", i);
             foreach var e in emp {
                 employeeStream4.publish(e);
             }
@@ -25,33 +25,29 @@ function testStreamingQuery() {
     }
 }
 
+function println(any... names){
+}
+
 function foo() {
     stream<Employee> employeeStream2 = new;
 }
 
 function testTableQuery() {
-    table<Person> personTableCopy = from personTable select *;
+    table<Employee> tbl = table {
+                                    { key name, age, status },
+                                    [ { "Mary", 25 , "P" },
+                                      { "John", 30 , "T" },
+                                      { "Jim", 27, "P" }
+                                    ]
+                                };
+    table<Employee> copy = from tbl select *;
 }
 
-function testTransactionStmtWithCommitedAndAbortedBlocks() {
-    int failureCutOff = 3;
-    boolean requestAbort = false;
+function testTransactionStmtWithCommitedAndAbortedBlocks() returns string {
     string a = "";
-    a = a + "start";
-    a = a + " fc-" + failureCutOff;
     int count = 0;
     transaction with retries=2 {
         a = a + " inTrx";
-        count = count + 1;
-        if (count <= failureCutOff) {
-            a = a + " blowUp";
-            int bV = blowUp();
-        }
-
-        if (requestAbort) {
-            a = a + " aborting";
-            abort;
-        }
         a = a + " endTrx";
     } onretry {
         a = a + " retry";
@@ -62,4 +58,25 @@ function testTransactionStmtWithCommitedAndAbortedBlocks() {
     }
     a = (a + " end");
     return a;
+}
+
+function testXML() {
+    xml bookXML = xml `<book>
+    <name>Sherlock Holmes</name>
+    <author>
+        <fname title="Sir">Arthur</fname>
+        <mname>Conan</mname>
+        <lname>Doyle</lname>
+    </author>
+    <!--Price: $10-->
+    </book>`;
+    string? name = bookXML.author["fname"]@["title"];
+}
+
+int counter = 10;
+
+function testLock() {
+    lock {
+        counter = counter + 1;
+    }
 }

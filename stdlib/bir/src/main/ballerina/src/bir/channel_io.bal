@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/encoding;
+import ballerina/lang.'string as strings;
 
 // TODO: move to DataChannel native impl
 public type ChannelReader object {
@@ -28,18 +28,18 @@ public type ChannelReader object {
     }
 
     public function readBoolean() returns boolean {
-        var [boolByte, _mustBe1] = check self.byteChannel.read(1);
+        var [boolByte, _mustBe1] = checkpanic self.byteChannel.read(1);
         byte one = 1;
         return <@untainted> (boolByte[0] == one);
     }
 
     public function readInt8() returns int {
-        var [byteValue, _mustBe1] = check self.byteChannel.read(1);
+        var [byteValue, _mustBe1] = checkpanic self.byteChannel.read(1);
         return <@untainted int> byteValue[0];
     }
 
     public function readInt32() returns int {
-        var [intBytes, _mustBe4] = check self.byteChannel.read(4);
+        var [intBytes, _mustBe4] = checkpanic self.byteChannel.read(4);
         return <@untainted> bytesToInt(intBytes);
     }
 
@@ -61,15 +61,15 @@ public type ChannelReader object {
     public function readString() returns string {
         var stringLen = <@untainted> self.readInt32();
         if (stringLen > 0){
-            var [strBytes, strLen] = check self.byteChannel.read(<@untainted> stringLen);
-            return encoding:byteArrayToString(strBytes, "utf-8");
+            var [strBytes, strLen] = checkpanic self.byteChannel.read(<@untainted> stringLen);
+            return checkpanic <@untainted> strings:fromBytes(strBytes);
         } else {
             return "";
         }
     }
 
     public function readByteArray(int len) returns byte[] {
-        var [arr, arrLen] = check self.byteChannel.read(len);
+        var [arr, arrLen] = checkpanic self.byteChannel.read(len);
         if(arrLen != len){
             error err = error("Unable to read " + len.toString() + " bytes");
             panic err;

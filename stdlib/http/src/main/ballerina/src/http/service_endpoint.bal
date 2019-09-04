@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/cache;
 import ballerina/crypto;
+import ballerina/lang.'object as lang;
 import ballerina/runtime;
 import ballerina/system;
-import ballerina/'lang\.object as lang;
-import ballerina/cache;
 
 /////////////////////////////
 /// HTTP Listener Endpoint ///
@@ -27,7 +27,7 @@ import ballerina/cache;
 # remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations.
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private int port = 0;
     private ListenerConfiguration config = {};
@@ -67,12 +67,16 @@ public type Listener object {
         self.config = c;
         var auth = self.config["auth"];
         if (auth is ListenerAuth) {
-            var secureSocket = self.config.secureSocket;
-            if (secureSocket is ListenerSecureSocket) {
-                addAuthFilters(self.config);
+            if (auth.mandateSecureSocket) {
+                var secureSocket = self.config.secureSocket;
+                if (secureSocket is ListenerSecureSocket) {
+                    addAuthFilters(self.config);
+                } else {
+                    error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
+                    panic err;
+                }
             } else {
-                error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
-                panic err;
+                addAuthFilters(self.config);
             }
         }
         addAttributeFilter(self.config);
@@ -182,12 +186,14 @@ public type ListenerHttp1Settings record {|
 # should successfully be authorozed.
 # + positiveAuthzCache - The caching configurations for positive authorizations.
 # + negativeAuthzCache - The caching configurations for negative authorizations.
+# + mandateSecureSocket - Specify whether secure socket configurations are mandatory or not.
 # + position - The authn/authz filter position of the filter array. The position values starts from 0 and it is set to 0 implicitly.
 public type ListenerAuth record {|
     InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
     string[]|string[][] scopes?;
     AuthzCacheConfig positiveAuthzCache = {};
     AuthzCacheConfig negativeAuthzCache = {};
+    boolean mandateSecureSocket = true;
     int position = 0;
 |};
 

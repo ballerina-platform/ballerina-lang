@@ -56,12 +56,6 @@ public class BallerinaGlobalVariableDefinitionImpl extends ASTWrapperPsiElement 
 
   @Override
   @Nullable
-  public BallerinaChannelType getChannelType() {
-    return findChildByClass(BallerinaChannelType.class);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getAssign() {
     return findChildByType(ASSIGN);
   }

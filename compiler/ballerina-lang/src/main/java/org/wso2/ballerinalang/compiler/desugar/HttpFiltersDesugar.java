@@ -194,6 +194,7 @@ public class HttpFiltersDesugar {
 
         BLangSimpleVariable serviceSelf = (BLangSimpleVariable) resourceNode.getReceiver();
         BLangSimpleVarRef.BLangLocalVarRef serviceRef = new BLangSimpleVarRef.BLangLocalVarRef(serviceSelf.symbol);
+        serviceRef.type = serviceSelf.type;
         serviceRef.pos = resourceNode.pos;
 
         BLangLiteral serviceName = new BLangLiteral();

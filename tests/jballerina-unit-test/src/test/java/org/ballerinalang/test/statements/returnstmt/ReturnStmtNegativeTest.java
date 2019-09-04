@@ -122,6 +122,15 @@ public class ReturnStmtNegativeTest {
         BAssertUtil.validateError(result, 1, "this function must return a result", 4, 9);
     }
 
+    @Test
+    public void testMissingReturnAfterLoops() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt" +
+                                                            "/missing_return_after_loops_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 17, 1);
+        BAssertUtil.validateError(result, 1, "this function must return a result", 23, 1);
+    }
+
     @Test(description = "Test missing return")
     public void testMissingReturnForkJoin2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/missing-return-forkjoin-2.bal");
@@ -178,8 +187,8 @@ public class ReturnStmtNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-in-resource-with-" +
                 "mismatching-types.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'int'", 22, 16);
-        BAssertUtil.validateError(result, 1, "incompatible types: expected 'int', found 'string'", 26, 16);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'error?', found 'int'", 22, 16);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected '()', found 'string'", 26, 16);
         BAssertUtil.validateError(result, 2, "incompatible types: expected '()', found 'string'", 30, 16);
     }
 }

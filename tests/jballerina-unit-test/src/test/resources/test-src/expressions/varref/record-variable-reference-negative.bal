@@ -163,3 +163,38 @@ function testRestParameterType() {
     ObjectRestRecord rec2 = { name: "A", married: true, "extra": new };
     { name, ...other2 } = rec2; // incompatible types: expected 'map<error>', found 'map'
 }
+
+type IntRecord record {|
+    int i;
+    int j;
+|};
+
+type ComplexRecord record {|
+    int i;
+    IntRecord j;
+|};
+
+function testDuplicateBinding1() {
+    int x;
+    IntRecord rec1 = { i: 1, j: 2 };
+    { i: x, j: x } = rec1;
+}
+
+function testDuplicateBinding2() {
+    int x;
+    ComplexRecord rec1 = { i: 1, j: { i: 1, j: 2 } };
+    { i: x, j: { i: x, j: x } } = rec1;
+}
+
+type Child record {
+    string name;
+    [int, Age] yearAndAge;
+};
+
+function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
+    [int, Age] yearAndAge3 = [2002, {age: 22, format: "Z"}];
+    Child ch3 = {name: "D", yearAndAge: yearAndAge3};
+    map<anydata> m = {};
+    {name: m["var1"], yearAndAge: [m["var2"], _]} = ch3;
+    return [m["var1"], m["var2"]];
+}

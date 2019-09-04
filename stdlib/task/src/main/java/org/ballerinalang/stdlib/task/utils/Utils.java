@@ -40,7 +40,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_YEAR;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_ERROR_REASON;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_APPOINTMENT_DATA;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_PACKAGE_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_PACKAGE_ID;
 import static org.quartz.CronExpression.isValidExpression;
 
 /**
@@ -68,7 +68,7 @@ public class Utils {
     }
 
     private static MapValue<String, Object> createTaskDetailRecord(String message, ErrorValue cause) {
-        MapValue<String, Object> detail = BallerinaValues.createRecordValue(TASK_PACKAGE_NAME, DETAIL_RECORD_NAME);
+        MapValue<String, Object> detail = BallerinaValues.createRecordValue(TASK_PACKAGE_ID, DETAIL_RECORD_NAME);
         return BallerinaValues.createRecord(detail, message, cause);
     }
 

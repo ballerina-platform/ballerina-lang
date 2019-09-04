@@ -33,9 +33,6 @@ public interface BallerinaVarMatchPatternClause extends PsiElement {
   BallerinaExpression getExpression();
 
   @Nullable
-  BallerinaStatement getStatement();
-
-  @Nullable
   PsiElement getEqualGt();
 
   @Nullable
