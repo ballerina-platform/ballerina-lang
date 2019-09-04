@@ -114,7 +114,7 @@ public class ErrorTest {
         BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testRuntimeOOMError() {
         try {
             CompileResult compileResult = BCompileUtil.compile("test-src/jvm/runtime-oom-error.bal");
