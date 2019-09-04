@@ -26,13 +26,6 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.ballerinalang.util.LaunchListener;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-
-import java.util.ServiceLoader;
 
 /**
  * Native function ballerina.test:startServices.
@@ -54,23 +47,23 @@ public class StartServices extends BlockingNativeCallableUnit {
      */
     @Override
     public void execute(Context ctx) {
-        String moduleName = ctx.getStringArgument(0);
-
-        moduleName = TesterinaUtils.getFullModuleName(moduleName);
-        for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
-            // Get the service module
-            PackageInfo servicesPackage = programFile.getEntryPackage();
-            if (servicesPackage == null || !servicesPackage.getPkgPath().equals(moduleName)) {
-                continue;
-            }
-
-            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-            listeners.forEach(listener -> listener.beforeRunProgram(true));
-
-            TesterinaUtils.startService(programFile);
-            ctx.setReturnValues(new BBoolean(true));
-            return;
-        }
+//        String moduleName = ctx.getStringArgument(0);
+//
+//        moduleName = TesterinaUtils.getFullModuleName(moduleName);
+//        for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
+//            // Get the service module
+//            PackageInfo servicesPackage = programFile.getEntryPackage();
+//            if (servicesPackage == null || !servicesPackage.getPkgPath().equals(moduleName)) {
+//                continue;
+//            }
+//
+//            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
+//            listeners.forEach(listener -> listener.beforeRunProgram(true));
+//
+//            TesterinaUtils.startService(programFile);
+//            ctx.setReturnValues(new BBoolean(true));
+//            return;
+//        }
 
         // module could not be found
         ctx.setReturnValues(new BBoolean(false));

@@ -160,62 +160,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "READ",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "130",
-      "insertText": "READ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WRITE",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "130",
-      "insertText": "WRITE",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "RW",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "130",
-      "insertText": "RW",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "APPEND",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "130",
-      "insertText": "APPEND",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "CSV_RECORD_SEPARATOR",
       "kind": "Variable",
       "detail": "string",
@@ -351,13 +295,6 @@
       "detail": "Union",
       "sortText": "200",
       "insertText": "Error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Mode",
-      "detail": "Union",
-      "sortText": "110",
-      "insertText": "Mode",
       "insertTextFormat": "Snippet"
     },
     {

@@ -32,6 +32,16 @@ import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsGenericE
 public class WebSocketException extends ErrorValue {
     private static final long serialVersionUID = 381055783364464822L;
     private final String message;
+
+    /**
+     * Constructs a new {@link WebSocketException} with the specified detail message.
+     *
+     * @param ex the exception that caused this
+     */
+    public WebSocketException(Throwable ex) {
+        this(WebSocketUtil.getErrorMessage(ex));
+    }
+
     /**
      * Constructs a new {@link WebSocketException} with the specified detail message.
      *
@@ -44,16 +54,15 @@ public class WebSocketException extends ErrorValue {
     /**
      * Constructs a new {@link WebSocketException} with the specified detail message and cause.
      *
-     * @param message Error message
      * @param errorCode   Cause
+     * @param message Error message
      */
     public WebSocketException(WebSocketConstants.ErrorCode errorCode, String message) {
         super(errorCode.errorCode(), WebSocketUtil.createDetailRecord(message));
         this.message = message;
     }
 
-    @Override
-    public String getMessage() {
+    public String detailMessage() {
         return message;
     }
 }

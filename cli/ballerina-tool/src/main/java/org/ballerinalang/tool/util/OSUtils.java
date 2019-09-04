@@ -47,7 +47,6 @@ public class OSUtils {
      * @return File path
      */
     public static String getInstalltionPath() {
-       // String home = System.getProperty("user.home");
         if (OSUtils.isWindows()) {
             return System.getenv("ProgramFiles") + File.separator + "Ballerina";
         } else if (OSUtils.isUnix() || OSUtils.isSolaris()) {
@@ -74,8 +73,7 @@ public class OSUtils {
     }
 
     public static String getBallerinaVersionFilePath() throws IOException {
-
-        String userHome = System.getProperty("user.home");
+        String userHome = getUserHome();
         File file = new File(userHome + File.separator
                 + BALLERINA_HOME_DIR + File.separator + BALLERINA_CONFIG);
 
@@ -87,7 +85,7 @@ public class OSUtils {
             properties.load(inputStream);
             ToolUtil.setVersion(file.getPath(), properties.getProperty("ballerina.version"));
         }
-        return System.getProperty("user.home") + File.separator
+        return getUserHome() + File.separator
                 + BALLERINA_HOME_DIR + File.separator + BALLERINA_CONFIG;
     }
 
@@ -99,7 +97,7 @@ public class OSUtils {
      */
     public static boolean updateNotice(String version) throws IOException {
         boolean showNotice = false;
-        String userHome = System.getProperty("user.home");
+        String userHome = getUserHome();
         LocalDate today = LocalDate.now();
         File file = new File(userHome + File.separator
                 + BALLERINA_HOME_DIR + File.separator + UPDATE_NOTICE);
@@ -127,7 +125,7 @@ public class OSUtils {
      * @throws IOException could occur accessing the file
      */
     public static void clearBirCacheLocation(PrintStream outStream) throws IOException {
-        deleteDirectory(new File(System.getProperty("user.home") + File.separator
+        deleteDirectory(new File(getUserHome() + File.separator
                 + BALLERINA_HOME_DIR + File.separator + BIR_CACHE), outStream);
     }
 
@@ -137,7 +135,7 @@ public class OSUtils {
      * @throws IOException could occur accessing the file
      */
     public static void clearJarCacheLocation(PrintStream outStream) throws IOException {
-        deleteDirectory(new File(System.getProperty("user.home") + File.separator
+        deleteDirectory(new File(getUserHome() + File.separator
                 + BALLERINA_HOME_DIR + File.separator + JAR_CACHE), outStream);
     }
 
@@ -187,5 +185,17 @@ public class OSUtils {
 
     private static boolean isSolaris() {
         return OS.contains("sunos");
+    }
+
+    /**
+     * Provide user home directory based on command.
+     * @return user home directory
+     */
+    private static String getUserHome() {
+        String userHome = System.getenv("HOME");
+        if (userHome == null) {
+            userHome = System.getProperty("user.home");
+        }
+        return userHome;
     }
 }

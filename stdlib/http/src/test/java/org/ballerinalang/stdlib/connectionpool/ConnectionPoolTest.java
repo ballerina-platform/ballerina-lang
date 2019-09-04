@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.connectionpool;
 
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
@@ -78,15 +76,14 @@ public class ConnectionPoolTest {
     }
 
     private void verifyResults(BMap<String, BValue> client) {
-        Struct httpClient = BLangConnectorSPIUtil.toStruct(client);
-        Struct userDefinedPoolConfig = httpClient.getStructField(HttpConstants.USER_DEFINED_POOL_CONFIG);
+        BValue userDefinedPoolConfig = client.get(HttpConstants.USER_DEFINED_POOL_CONFIG);
         Assert.assertNull(userDefinedPoolConfig, "Client shouldn't have pool config defined by the user");
     }
 
     private ConnectionManager verifyPoolConfig(BValue aReturn) {
-        Struct httpClient = BLangConnectorSPIUtil.toStruct((BMap<String, BValue>) aReturn);
-        Struct clientConfig = httpClient.getStructField(CLIENT_ENDPOINT_CONFIG);
-        Struct userDefinedPoolConfig = clientConfig.getStructField(HttpConstants.USER_DEFINED_POOL_CONFIG);
+        BMap<String, BValue> result = (BMap<String, BValue>) aReturn;
+        BMap<String, BValue> clientConfig = (BMap) result.get(CLIENT_ENDPOINT_CONFIG);
+        BMap<String, BValue> userDefinedPoolConfig = (BMap) clientConfig.get(HttpConstants.USER_DEFINED_POOL_CONFIG);
         Assert.assertNotNull(userDefinedPoolConfig, "Client should have a pool config defined by the user");
         return (ConnectionManager) userDefinedPoolConfig.getNativeData(CONNECTION_MANAGER);
     }
