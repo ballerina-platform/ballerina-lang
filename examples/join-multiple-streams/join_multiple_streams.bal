@@ -62,15 +62,13 @@ function printMaterialUsageAlert(MaterialUsage materialUsage) {
 
 listener http:Listener productMaterialListener = new (9090);
 
+future<()> ftr = start initRealtimeProductionAlert();
+
 // The service, which receives events related to the production outcome and the raw material input.
 @http:ServiceConfig {
     basePath: "/"
 }
 service productMaterialService on productMaterialListener {
-
-    // Initializes the function, which contains streaming queries.
-    // TODO: issue #17267
-    () ftr = initRealtimeProductionAlert();
 
     @http:ResourceConfig {
         methods: ["POST"],
