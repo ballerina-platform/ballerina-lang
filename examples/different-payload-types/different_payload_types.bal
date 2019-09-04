@@ -38,33 +38,37 @@ service actionService on new http:Listener(9090) {
 
         //POST remote function with `byte[]` as payload.
         string textVal = "Sample Text";
-        byte[] binaryValue = textVal.toByteArray("UTF-8");
+        byte[] binaryValue = textVal.toBytes();
         response = clientEP->post("/echo", binaryValue);
         handleResponse(response);
 
         //Get a byte channel to a given file.
-        io:ReadableByteChannel bChannel = io:openReadableFile("./files/logo.png");
+        var bChannel = io:openReadableFile("./files/logo.png");
 
-        //POST remote function with byte channel as payload. Since the file path is static
-        //`untaint` is used to denote that the byte channel is trusted .
-        response = clientEP->post("/image", untaint bChannel);
-        handleResponse(response);
+        if (bChannel is io:ReadableByteChannel) {
+            //POST remote function with byte channel as payload. Since the file path is static
+            //`untaint` is used to denote that the byte channel is trusted .
+            response = clientEP->post("/image", <@untainted> bChannel);
+            handleResponse(response);
 
-        //Create a JSON body part.
-        mime:Entity part1 = new;
-        part1.setJson({ "name": "Jane" });
+            //Create a JSON body part.
+            mime:Entity part1 = new;
+            part1.setJson({ "name": "Jane" });
 
-        //Create a text body part.
-        mime:Entity part2 = new;
-        part2.setText("Hello");
+            //Create a text body part.
+            mime:Entity part2 = new;
+            part2.setText("Hello");
 
-        //POST remote function with body parts as payload.
-        mime:Entity[] bodyParts = [part1, part2];
-        response = clientEP->post("/echo", bodyParts);
-        handleResponse(response);
+            //POST remote function with body parts as payload.
+            mime:Entity[] bodyParts = [part1, part2];
+            response = clientEP->post("/echo", bodyParts);
+            handleResponse(response);
 
-        var result = caller->respond("Client actions successfully executed!");
-        handleError(result);
+            var result = caller->respond("Client actions successfully executed!");
+            handleError(result);
+        } else {
+            handleError(bChannel);
+        }
     }
 }
 
@@ -89,21 +93,20 @@ service backEndService on new http:Listener(9091) {
     resource function directResponse(http:Caller caller, http:Request req) {
         if (req.hasHeader("content-type")) {
             string baseType = getBaseType(req.getContentType());
-
             if (mime:TEXT_PLAIN == baseType) {
                 var returnValue = req.getTextPayload();
                 string textValue = "";
                 if (returnValue is string) {
                     textValue = returnValue;
                 } else {
-                    textValue = <string> returnValue.detail().message;
+                    textValue = <string> returnValue.detail()?.message;
                 }
-                var result = caller->respond(untaint textValue);
+                var result = caller->respond(<@untainted> textValue);
                 handleError(result);
             } else if (mime:APPLICATION_XML == baseType) {
                 var xmlValue = req.getXmlPayload();
                 if (xmlValue is xml) {
-                    var result = caller->respond(untaint xmlValue);
+                    var result = caller->respond(<@untainted> xmlValue);
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, xmlValue);
@@ -111,7 +114,7 @@ service backEndService on new http:Listener(9091) {
             } else if (mime:APPLICATION_JSON == baseType) {
                 var jsonValue = req.getJsonPayload();
                 if (jsonValue is json) {
-                    var result = caller->respond(untaint jsonValue);
+                    var result = caller->respond(<@untainted> jsonValue);
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, jsonValue);
@@ -119,7 +122,7 @@ service backEndService on new http:Listener(9091) {
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                 var blobValue = req.getBinaryPayload();
                 if (blobValue is byte[]) {
-                    var result = caller->respond(untaint blobValue);
+                    var result = caller->respond(<@untainted> blobValue);
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, blobValue);
@@ -127,14 +130,14 @@ service backEndService on new http:Listener(9091) {
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
                 var bodyParts = req.getBodyParts();
                 if (bodyParts is mime:Entity[]) {
-                    var result = caller->respond(untaint bodyParts);
+                    var result = caller->respond(<@untainted> bodyParts);
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, bodyParts);
                 }
             }
         } else {
-            var result = caller->respond();
+            var result = caller->respond(());
             handleError(result);
         }
     }
@@ -147,7 +150,7 @@ service backEndService on new http:Listener(9091) {
         var bytes = req.getBinaryPayload();
         if (bytes is byte[]) {
             http:Response response = new;
-            response.setBinaryPayload(untaint bytes,
+            response.setBinaryPayload(<@untainted> bytes,
                                         contentType = mime:IMAGE_PNG);
             var result = caller->respond(response);
             handleError(result);
@@ -215,7 +218,7 @@ function handleResponse(http:Response|error response) {
 function sendErrorMsg(http:Caller caller, error err) {
     http:Response res = new;
     res.statusCode = 500;
-    res.setPayload(untaint <string> err.detail().message);
+    res.setPayload(<@untainted> <string> err.detail()?.message);
     var result = caller->respond(res);
     handleError(result);
 }
