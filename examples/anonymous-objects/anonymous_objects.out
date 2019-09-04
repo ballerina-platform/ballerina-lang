@@ -1,5 +1,13 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run anonymous_objects.bal
-name=John Doe age=25 address={city:"Colombo", country:"Sri Lanka"}
-name=Jane Doe age=20 address={city:"London", country:"UK"}
+name=John Doe age=25 address=object $anonType$0 {
+        city : string,
+        country : string,
+        function value() returns (string)
+}
+name=Jane Doe age=20 address=object $anonType$1 {
+        city : string,
+        country : string,
+        function value() returns (string)
+}
