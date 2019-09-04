@@ -127,7 +127,7 @@ public class IOPrintTest {
     public void testConnectorPrintAndPrintln() throws IOException {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
-            final String expected = "{}\n{}";
+            final String expected = "object Foo\nobject Foo";
 
             BRunUtil.invoke(compileResult, printFuncName + "Connector");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
@@ -140,7 +140,8 @@ public class IOPrintTest {
     public void testFunctionPointerPrintAndPrintln() throws IOException {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
-            final String expected = "\n";
+            final String expected = "function function (int,int) returns (int)\n" +
+                    "function function (int,int) returns (int)";
 
             BRunUtil.invoke(compileResult, printFuncName + "FunctionPointer");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);

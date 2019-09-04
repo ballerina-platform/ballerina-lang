@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -115,7 +116,9 @@ public class Sprintf {
                             break;
                         case 's':
                             if (ref != null) {
-                                result.append(String.format("%" + padding + "s", ref.toString()));
+                                BType type = TypeChecker.getType(ref);
+                                result.append(String.format("%" + padding + "s",
+                                        StringUtils.getStringValue(strand, ref, type)));
                             }
                             break;
                         case '%':
