@@ -136,7 +136,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("download modules to the user repository. \n");
+        out.append("Download modules to the user repository. \n");
     }
 
     @Override

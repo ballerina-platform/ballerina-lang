@@ -274,7 +274,7 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("test the modules in a Ballerina program. \n");
+        out.append("Test the modules in a Ballerina program. \n");
     }
 
     @Override

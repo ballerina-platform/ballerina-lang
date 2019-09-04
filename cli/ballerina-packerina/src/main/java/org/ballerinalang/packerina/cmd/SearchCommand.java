@@ -78,7 +78,7 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("search for modules in Ballerina Central. \n");
+        out.append("Search for modules in Ballerina Central. \n");
     }
 
     @Override

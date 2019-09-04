@@ -71,9 +71,9 @@ public class NewCommand implements BLauncherCmd {
         // Check if the project name is given
         if (null == argList) {
             CommandUtil.printError(errStream,
-                    "following required arguments were not provided:\n" +
+                    "the following required arguments were not provided:\n" +
                          "    <project-name>",
-                    "ballerina new <project-name>.",
+                    "ballerina new <project-name>",
                     true);
             return;
         }
@@ -110,7 +110,7 @@ public class NewCommand implements BLauncherCmd {
             Files.createDirectories(path);
             CommandUtil.initProject(path);
         } catch (AccessDeniedException e) {
-            errStream.println("error: error occurred while creating the project: " + "insufficient permissions.");
+            errStream.println("error: error occurred while creating the project: insufficient permissions.");
         } catch (IOException e) {
             errStream.println("error: error occurred while creating the project: " + e.getMessage());
             return;
@@ -129,7 +129,7 @@ public class NewCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("create a new Ballerina project.");
+        out.append("Create a new Ballerina project.");
     }
 
     @Override

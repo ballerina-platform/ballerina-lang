@@ -216,7 +216,7 @@ public class AddCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("add a new Ballerina module.");
+        out.append("Add a new Ballerina module.");
     }
 
     @Override

@@ -83,7 +83,7 @@ public class ListCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("list the dependencies of modules. \n");
+        out.append("List the dependencies of modules. \n");
     }
 
     @Override

@@ -92,7 +92,7 @@ public class PushCommand implements BLauncherCmd {
             Path findRoot = ProjectDirs.findProjectRoot(sourceRootPath);
             if (null == findRoot) {
                 CommandUtil.printError(errStream,
-                        "push command can be only run from inside a Ballerina project.",
+                        "push command can only be run from inside a Ballerina project.",
                         null,
                         false);
                 return;
@@ -132,7 +132,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("push modules to the Ballerina central repository.");
+        out.append("Push modules to the Ballerina central repository.");
     }
 
     @Override

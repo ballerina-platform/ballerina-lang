@@ -90,7 +90,7 @@ public class CompileCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-lock"}, description = "skip using the lock file to resolve the dependencies.")
     private boolean skipLock;
 
-    @CommandLine.Option(names = {"--skip-tests"}, description = "skips test compilation and execution.")
+    @CommandLine.Option(names = {"--skip-tests"}, description = "skip test compilation and execution.")
     private boolean skipTests;
 
     @CommandLine.Parameters
@@ -155,8 +155,7 @@ public class CompileCommand implements BLauncherCmd {
             if (!ProjectDirs.isProject(this.sourceRootPath)) {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
-                    throw LauncherUtils.createLauncherException("no Ballerina.toml file " +
-                                                                "to compile a Ballerina project. Run " +
+                    throw LauncherUtils.createLauncherException("a Ballerina.toml file is required to build/compile a Ballerina project. Run " +
                                                                 "'ballerina new' from '" + this.sourceRootPath +
                                                                 "' to initialize it as a project.");
                 }
@@ -187,7 +186,7 @@ public class CompileCommand implements BLauncherCmd {
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
                 throw LauncherUtils.createLauncherException("you are trying to compile a module by giving the " +
-                                                            "absolute path. You only need give the name of the " +
+                                                            "absolute path. You only need to give the name of the " +
                                                             "module.");
             }
         
@@ -208,7 +207,7 @@ public class CompileCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             throw LauncherUtils.createLauncherException("invalid Ballerina source path. Either a module " +
-                                                        "name in a Ballerina project or a file with a \'" +
+                                                        "in a Ballerina project or a file with a \'" +
                                                         BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension is expected.");
         }
     
@@ -263,7 +262,7 @@ public class CompileCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("compile Ballerina module(s) and generates shareable .balo file(s). \n");
+        out.append("Compile Ballerina module(s) and generate shareable .balo file(s). \n");
     }
 
     @Override

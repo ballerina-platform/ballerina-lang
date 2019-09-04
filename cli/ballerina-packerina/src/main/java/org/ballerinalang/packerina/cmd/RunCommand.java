@@ -224,7 +224,7 @@ public class RunCommand implements BLauncherCmd {
                 CommandUtil.printError(this.errStream,
                         "you are trying to run a module by giving the absolute path. You only need to give " +
                         "the name of the module.",
-                        "ballerina run <module-name>.",
+                        "ballerina run <module-name>",
                         true);
                 Runtime.getRuntime().exit(1);
                 return;
@@ -252,7 +252,7 @@ public class RunCommand implements BLauncherCmd {
             targetPath = sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid Ballerina source path. It should either be a module name in a Ballerina project or a " +
+                    "invalid Ballerina source path. It should either be a module in a Ballerina project or a " +
                     "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.",
                     "ballerina run {<bal-file> | <module-name>}",
                     true);
@@ -316,7 +316,7 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Run command executes a compiled Ballerina program. \n");
+        out.append("The `ballerina run' command executes a compiled Ballerina program. \n");
         out.append("\n");
         out.append("If a Ballerina source file or a module is given, \n");
         out.append("the run command compiles and executes it. \n");

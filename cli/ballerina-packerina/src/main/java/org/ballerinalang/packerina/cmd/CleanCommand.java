@@ -85,7 +85,7 @@ public class CleanCommand implements BLauncherCmd {
     
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("clean the \"target\" directory of a Ballerina project. \n");
+        out.append("Clean the \"target\" directory of a Ballerina project. \n");
     }
     
     @Override
