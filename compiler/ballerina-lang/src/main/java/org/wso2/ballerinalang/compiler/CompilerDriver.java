@@ -288,9 +288,6 @@ public class CompilerDriver {
     }
 
     public BLangPackage codegen(BLangPackage pkgNode) {
-        if (pkgNode.hasTestablePackage()) {
-            this.birGenerator.genBIR(pkgNode.testablePkgs.get(0));
-        }
         return this.birGenerator.genBIR(pkgNode);
     }
 

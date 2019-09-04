@@ -22,6 +22,7 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -57,7 +58,7 @@ public class RunTestsTask implements Task {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         loadConfigurations(sourceRootPath, this.configPath);
     
-        Map<BLangPackage, JBallerinaInMemoryClassLoader> programFileMap = new HashMap<>();
+        Map<BLangPackage, TestarinaClassLoader> programFileMap = new HashMap<>();
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
@@ -73,9 +74,12 @@ public class RunTestsTask implements Task {
                     //     <org-name>/<package-name>:<version>
                     //         No tests found
                 // }
-                Path jarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
-                JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(jarPath,
-                        Paths.get(sourceRootPath.toString(), "target", "tmp").toFile());
+                Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
+                String modulejarName = buildContext.getJarPathFromTargetCache(bLangPackage.packageID)
+                        .getFileName().toString();
+                TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath,
+                        Paths.get(sourceRootPath.toString(), "target", "tmp").toFile(),
+                        modulejarName);
                 programFileMap.put(bLangPackage, classLoader);
             });
         // Create a class loader to
