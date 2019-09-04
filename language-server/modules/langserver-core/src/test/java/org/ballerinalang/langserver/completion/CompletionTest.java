@@ -84,8 +84,8 @@ public abstract class CompletionTest {
 //            Files.write(RES_DIR.resolve(configJsonPath), obj.toString().getBytes(StandardCharsets.UTF_8));
 
             // This will print nice comparable text in IDE
-//            Assert.assertEquals(responseItemList.toString(), expectedList.toString(),
-//                        "Failed Test for: " + configJsonPath);
+            Assert.assertEquals(responseItemList.toString(), expectedList.toString(),
+                        "Failed Test for: " + configJsonPath);
             Assert.fail("Failed Test for: " + configJsonPath);
         }
     }
