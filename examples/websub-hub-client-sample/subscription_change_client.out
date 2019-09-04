@@ -1,0 +1,5 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run subscription_change_client.bal
+Subscription Request successful at Hub [http://localhost:9191/websub/hub] for Topic [http://websubpubtopic.com]
+Unsubscription Request successful at Hub [http://localhost:9191/websub/hub] for Topic [http://websubpubtopic.com]

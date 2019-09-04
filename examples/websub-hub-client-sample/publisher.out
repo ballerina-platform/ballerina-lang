@@ -1,0 +1,14 @@
+# This sample requires running the subscriber client main program after the
+# Publisher starts up the hub and registers the topic, and the subscriber
+# service (representing the callback) is started.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run publisher.bal
+Starting up the Ballerina Hub Service
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9191
+[ballerina/websub] Default Ballerina WebSub Hub started up at http://localhost:9191/websub/hub
+Topic registration successful!
+2018-04-26 22:40:35,678 INFO  [ballerina/websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
+Update notification successful!
+2018-04-26 22:40:50,493 INFO  [ballerina/websub] - Intent verification successful for mode: [unsubscribe], for callback URL: [http://localhost:8181/websub]
+Update notification successful!
