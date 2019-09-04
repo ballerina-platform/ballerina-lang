@@ -2,18 +2,19 @@
 import ballerina/grpc;
 import ballerina/log;
 
+map<grpc:Caller> consMap = {};
+
 @grpc:ServiceConfig {
     name: "chat",
     clientStreaming: true,
     serverStreaming: true
 }
 service Chat on new grpc:Listener(9090) {
-    map<grpc:Caller> consMap = {};
 
     //This `resource` is triggered when a new caller connection is initialized.
     resource function onOpen(grpc:Caller caller) {
         log:printInfo(string `${caller.getId()} connected to chat`);
-        self.consMap[caller.getId().toString()] = caller;
+        consMap[caller.getId().toString()] = caller;
     }
 
     //This `resource` is triggered when the caller sends a request message to the `service`.
@@ -21,7 +22,7 @@ service Chat on new grpc:Listener(9090) {
         grpc:Caller ep;
         string msg = string `${chatMsg.name}: ${chatMsg.message}`;
         log:printInfo("Server received message: " + msg);
-        foreach var [callerId, connection] in self.consMap.entries() {
+        foreach var [callerId, connection] in consMap.entries() {
             ep = connection;
             grpc:Error? err = ep->send(msg);
             if (err is grpc:Error) {
@@ -44,8 +45,8 @@ service Chat on new grpc:Listener(9090) {
         grpc:Caller ep;
         string msg = string `${caller.getId()} left the chat`;
         log:printInfo(msg);
-        var v = self.consMap.remove(caller.getId().toString());
-        foreach var [callerId, connection] in self.consMap.entries() {
+        var v = consMap.remove(caller.getId().toString());
+        foreach var [callerId, connection] in consMap.entries() {
             ep = connection;
             grpc:Error? err = ep->send(msg);
             if (err is grpc:Error) {
