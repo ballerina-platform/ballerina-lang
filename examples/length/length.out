@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
-$ ballerina run --experimental length.bal
+$ ballerina run length.bal
 Integer array size: 3
 JSON array size: 2
 Map size: 3
