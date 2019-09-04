@@ -29,3 +29,22 @@ dependencies {
 artifacts {
     balSource file("src/main/ballerina/")
 }
+
+task copyNativesToExternal() {
+    dependsOn configurations.balo
+
+    doFirst {
+        configurations.balo.each { f ->
+            copy {
+                from new File(f, 'bre/lib/').toString()
+                into "$buildDir/externals"
+                include "asm-?.?.jar"
+                rename '.*', 'asm.jar'
+            }
+        }
+    }
+}
+
+createOldBirJar {
+    dependsOn copyNativesToExternal
+}
