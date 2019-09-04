@@ -11,3 +11,17 @@ target = "java8"
     path = "./lib/ballerina-kafka-@project.version@.jar"
     groupId = "ballerina"
     modules = ["kafka"]
+
+    [[platform.libraries]]
+    artifactId = "kafka-clients"
+    version = "2.0.0"
+    path = "./lib/kafka-clients-2.0.0.jar"
+    groupId = "org.apache.kafka"
+    modules = ["kafka"]
+
+    [[platform.libraries]]
+    artifactId = "kafka_2.11"
+    version = "2.0.0"
+    path = "./lib/kafka_2.11-2.0.0.jar"
+    groupId = "org.apache.kafka"
+    modules = ["kafka"]
