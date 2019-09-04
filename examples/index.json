@@ -400,10 +400,6 @@
             {
                 "name": "Fork Variable Access",
                 "url": "fork-variable-access"
-            },
-            {
-                "name": "Lock",
-                "url": "locks"
             }
         ]
     },
@@ -1008,6 +1004,16 @@
                 "name": "XML Access",
                 "url": "xml-access"
             }
+        ]
+    },
+    {
+        "title": "Lock",
+        "column": 0,
+        "category": "Experimental features",
+        "samples": [{
+            "name": "Lock",
+            "url": "locks"
+        }
         ]
     },
     {
