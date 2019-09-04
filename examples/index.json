@@ -786,28 +786,6 @@
             }
         ]
     },
- 	{
-        "title": "WebSub",
-        "column": 1,
-        "category": "Working over the network",
-        "samples": [{
-                "name": "Internal Hub Sample",
-                "url": "websub-internal-hub-sample"
-            },
-            {
-                "name": "Remote Hub Sample",
-                "url": "websub-remote-hub-sample"
-            },
-            {
-                "name": "Hub Client Sample",
-                "url": "websub-hub-client-sample"
-            },
-            {
-                "name": "Service Integration Sample",
-                "url": "websub-service-integration-sample"
-            }
-        ]
-    },
     {
         "title": "Database",
         "column": 2,
@@ -929,41 +907,6 @@
             {
                 "name": "Historical Message Replay",
                 "url": "nats-streaming-start-position"
-            }
-        ]
-    },
-    {
-        "title": "RabbitMQ",
-        "column": 3,
-        "category": "Working over the network",
-        "samples": [
-            {
-                "name": "Producer",
-                "url": "rabbitmq-producer"
-            },
-            {
-                "name": "Consumer",
-                "url": "rabbitmq-consumer"
-            },
-            {
-                "name": "Consumer Acknowledgements",
-                "url": "rabbitmq-consumer-with-client-acknowledgement"
-            },
-            {
-                "name": "QoS Settings",
-                "url": "rabbitmq-consumer-with-qos-settings"
-            },
-            {
-                "name": "Data Binding",
-                "url": "rabbitmq-consumer-with-data-binding"
-            },
-            {
-                "name": "Transaction Producer",
-                "url": "rabbitmq-transaction-producer"
-            },
-            {
-                "name": "Transaction Consumer",
-                "url": "rabbitmq-transaction-consumer"
             }
         ]
     },
