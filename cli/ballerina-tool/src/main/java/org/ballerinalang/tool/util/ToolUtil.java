@@ -426,8 +426,8 @@ public class ToolUtil {
                     String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
                     if (!latestVersion.equals(version)) {
                         printStream.println();
-                        printStream.println("New Ballerina " + latestVersion + " version is available");
-                        printStream.println("Please use \"ballerina dist update\" command to update");
+                        printStream.println("A New Ballerina " + latestVersion + " version (1.0.0) is available.");
+                        printStream.println("Execute the \"ballerina dist update\" command to update.");
                         printStream.println();
                     }
                 }
