@@ -19,6 +19,7 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
@@ -168,6 +169,7 @@ public class RunExecutableTask implements Task {
                 MODULE_INIT_CLASS_NAME);
         
         try {
+            ConfigRegistry.getInstance().setInitialized(false);
             Class<?> initClazz = classLoader.loadClass(initClassName);
             Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
             mainMethod.invoke(null, (Object) this.args);
