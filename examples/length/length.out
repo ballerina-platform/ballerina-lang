@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
-$ ballerina run length.bal
+$ ballerina run --experimental length.bal
 Integer array size: 3
 JSON array size: 2
 Map size: 3
@@ -8,4 +8,3 @@ String size: 23
 XML child elements size: 2
 Tuple size: 2
 Field size in `Student` record: 4
-Row count in table : 3
