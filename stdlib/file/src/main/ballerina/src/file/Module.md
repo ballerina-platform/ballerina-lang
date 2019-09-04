@@ -24,16 +24,16 @@ public function main() {
     // Create a new directory.
     string|error results = file:createDir(“foo/bar”);
     
-    // Create a directory with any non existence parents.
+    // Create a directory with any none-existent parents.
     string|error results = file:createDir(“foo/bar”, true);
     
-    // Remove file or directory in specified file path.
+    // Remove the file or directory in the specified file path.
     error? results = file:remove(“foo/bar.txt”);
 
-    // Remove directory in specified file path with all children.
+    // Remove the directory in the specified file path with all its children.
     error? results = file:remove(“foo/bar”, true);
     
-    // Rename(Move) file or directory to new path.
+    // Rename(Move) the file or directory to the new path.
     error? results = file:rename(“/A/B/C”, “/A/B/D”);
     
     // Get default directory use for temporary files.
@@ -45,10 +45,10 @@ public function main() {
     // Get metadata information of the file.
     file:FileInfo|error result = file:getFileInfo(“foo/bar.txt”);
     
-    // Get list of files in the directory.
+    // Get the list of files in the directory.
     file:FileInfo[]|error results = file:readDir(“foo/bar”);
     
-    // Copy file ot directory to new path.
+    // Copy the file or directory to the new path.
     error? results = file:copy(“/A/B/C”, “/A/B/D”, true);
 }
 ```

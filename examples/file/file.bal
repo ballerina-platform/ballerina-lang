@@ -4,7 +4,7 @@ import ballerina/io;
 
 public function main() {
 
-    // Get the current directory path.
+    // Get the path of the current directory.
     io:println("Current directory: " + file:getCurrentDirectory());
 
     // Create a new directory.
@@ -13,14 +13,14 @@ public function main() {
         io:println("Created directory path: " + createDirResults);
     }
 
-    // Create a new directory with any non existence parents.
+    // Create a new directory with any none-existent parents.
     string dirPath = checkpanic filepath:build("foo", "bar");
     createDirResults = file:createDir(dirPath, true);
     if (createDirResults is string) {
         io:println("Created nested directory path: " + createDirResults);
     }
 
-    // Create a file in given file path.
+    // Create a file in the given file path.
     string|error createFileResults = file:createFile("bar.txt");
     if (createFileResults is string) {
         io:println("Created file path: " + createFileResults);
@@ -35,38 +35,38 @@ public function main() {
         io:println("Modified at " + fileInfoResults.getLastModifiedTime().toString());
     }
 
-    // Check whether file or directory of the provided path exists.
+    // Check whether the file or directory of the provided path exists.
     boolean fileExists = file:exists("bar.txt");
     io:println("bar.txt file exists: " + fileExists.toString());
 
-    // Copy file or directory to new path.
+    // Copy the file or directory to the new path.
     string filePath = checkpanic filepath:build("foo", "bar", "bar.txt");
     error? copyDirResults = file:copy("bar.txt", filePath, true);
     if (copyDirResults is ()) {
         io:println("bar.txt file is copied to new path " + filePath);
     }
 
-    // Rename(Move) file or directory to new path.
+    // Rename(Move) the file or directory to the new path.
     string newFilePath = checkpanic filepath:build("foo", "bar1.txt");
     error? renameResults = file:rename("bar.txt", newFilePath);
     if (renameResults is ()) {
         io:println("bar.txt file is moved to new path " + newFilePath);
     }
 
-    // Get default directory used for temporary files.
+    // Get the default directory used for temporary files.
     string tempDirPath = file:tempDir();
     io:println("Temporary directory: " + tempDirPath);
 
-    // Get list of files in the directory.
+    // Get the list of files in the directory.
     file:FileInfo[]|error readDirResults = file:readDir("foo");
 
-    // Remove file or directory in specified file path.
+    // Remove the file or directory in the specified file path.
     error? removeResults = file:remove(newFilePath);
     if (removeResults is ()) {
         io:println("Remove file at " + newFilePath);
     }
 
-    // Remove directory in specified file path with all children.
+    // Remove the directory in the specified file path with all its children.
     removeResults = file:remove("foo", true);
     if (removeResults is ()) {
         io:println("Remove foo directory with all child elements.");
