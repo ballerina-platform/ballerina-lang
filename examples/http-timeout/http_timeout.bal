@@ -21,35 +21,32 @@ service timeoutService on new http:Listener(9090) {
     // The parameters include a reference to the caller
     // endpoint and an object of the request data.
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
-
         var backendResponse = backendClientEP->forward("/hello", request);
-        // The `is` operator is used to separate out union-type returns.
-        // The type of `backendResponse` variable is the union of `http:Response` and an `error`.
-        // If a response is returned, `backendResponse` is treated as an `http:Response`
-        // within the if-block and the normal process runs.
-        // If the service returns an `error`, `backendResponse` is implicitly
-        // converted to an `error` within the else block.
-        if (backendResponse is http:Response) {
 
+        // If `backendResponse` is an `http:Response`, it is sent back to the
+        // client. If `backendResponse` is an `http:ClientError`, an internal
+        // server error is returned to the client.
+        if (backendResponse is http:Response) {
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
             response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             string errorMessage = <string> backendResponse.detail()?.message;
-            if (errorMessage ==
-                  "Idle timeout triggered before initiating inbound response") {
+            string expectedMessage = "Idle timeout triggered before " +
+                "initiating inbound response";
+            if (errorMessage == expectedMessage) {
                 response.setPayload(
-                            "Request timed out. Please try again in sometime."
+                    "Request timed out. Please try again in sometime."
                 );
             } else {
                 response.setPayload(errorMessage);
             }
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -71,8 +68,7 @@ service helloWorld on new http:Listener(8080) {
 
         var result = caller->respond("Hello World!!!");
         if (result is error) {
-           log:printError("Error sending response from mock service",
-                           err = result);
+           log:printError("Error sending response from mock service", result);
         }
     }
 }
