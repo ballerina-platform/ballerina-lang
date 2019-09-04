@@ -767,7 +767,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
                     // Create mapSymbol in outer function node when it contain workers and it's not already created.
                     // We need this to allow worker identifier to be used as a future.
                     if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
-                        ((BLangBlockStmt) env.node).mapSymbol = createMapSymbol("$map$block$" + blockClosureMapCount, env);
+                        ((BLangBlockStmt) env.node).mapSymbol =
+                                createMapSymbol("$map$block$" + blockClosureMapCount, env);
                         enclMapSymbols.putIfAbsent(symbolEnv.envCount, ((BLangBlockStmt) symbolEnv.node).mapSymbol);
                     }
                 }
