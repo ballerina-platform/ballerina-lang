@@ -2,30 +2,49 @@ import ballerina/http;
 import ballerina/log;
 
 // Creates an HTTP client to interact with a remote endpoint.
-http:Client clientEndpoint = new("http://localhost:9090", {
+http:Client clientEndpoint = new("http://localhost:9092", {
         followRedirects: { enabled: true, maxCount: 5 }
     });
 
-public function main() {
-    // Sends a `GET` request to the specified endpoint.
-    var returnResult = clientEndpoint->get("/redirect1");
-    if (returnResult is http:Response) {
-        // Retrieves the text payload from the response.
-        var payload = returnResult.getTextPayload();
-        if (payload is string) {
-            log:printInfo("Response received : " + payload);
+service hello on new http:Listener(9090) {
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/"
+    }
+    resource function myResource(http:Caller caller, http:Request req) {
+        // Sends a `GET` request to the specified endpoint.
+        var returnResult = clientEndpoint->get("/redirect1");
+        if (returnResult is http:Response) {
+            // Retrieves the text payload from the response.
+            var payload = returnResult.getTextPayload();
+            if (payload is string) {
+                var result = caller->respond("Response received : " 
+                                                + <@untained> payload);
+                if (result is error) {
+                   log:printError("Error in responding", err = result);
+                }
+            } else {
+                var result = caller->respond("Error in payload : " 
+                        + <@untained> payload.detail()?.message.toString());
+                if (result is error) {
+                   log:printError("Error in responding", err = result);
+                }
+            }
         } else {
-            log:printError("Error in payload", err = payload);
+            var result = caller->respond("Error in connection : " 
+                                + returnResult.detail()?.message.toString());
+            if (result is error) {
+               log:printError("Error in responding", err = result);
+            }
         }
-    } else {
-        log:printError("Error in connection", err = returnResult);
     }
 }
 
 @http:ServiceConfig {
     basePath:"/redirect1"
 }
-service redirect1 on new http:Listener(9090) {
+service redirect1 on new http:Listener(9092) {
 
     @http:ResourceConfig {
         methods:["GET"],

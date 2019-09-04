@@ -4,6 +4,6 @@ $ ballerina run immutable_values.bal
 m1 === m2: false
 m1 is immutable: false
 m2 is immutable: true
-Error occurred on update: Invalid map insertion: modification not allowed on frozen value
+Error occurred on update: Invalid map insertion: modification not allowed on readonly value
 m2 === m3: true
 frozenVal is map<string>

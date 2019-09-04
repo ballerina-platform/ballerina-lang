@@ -1,6 +1,6 @@
 # Create a Ballerina project and a module inside it.
-# Copy generated stub file `grpc_unary_blocking_pb.bal` inside the module.
-# For example, if you create a module named `service`, copy the stub file in the `service` module.
+# Copy generated stub file `grpc_unary_blocking_pb.bal` to the module.
+# For example, if you create a module named `service`, copy the stub file to the `service` module.
 
 # Add new Ballerina file `grpc_unary_blocking.bal` inside the `service` module and add service implementation.
 
