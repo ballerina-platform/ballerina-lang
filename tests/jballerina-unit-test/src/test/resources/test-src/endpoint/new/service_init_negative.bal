@@ -16,7 +16,7 @@ public type ABC object {
 
     *'object:Listener;
 
-    public function __start() returns error?{
+    public function __start() returns error? {
         error e = error("startError");
         return e;
     }

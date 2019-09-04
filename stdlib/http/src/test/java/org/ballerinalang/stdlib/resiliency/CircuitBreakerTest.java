@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.resiliency;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -37,6 +36,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+
+import static org.ballerinalang.jvm.util.BLangConstants.ERROR_MESSAGE_FIELD_NAME;
 
 /**
  * Test cases for the Circuit Breaker.
@@ -87,7 +88,7 @@ public class CircuitBreakerTest {
             } else {
                 Assert.assertNotNull(errs.getRefValue(i)); // the request which resulted in an error
                 BMap<String, BValue> err = (BMap<String, BValue>) ((BError) errs.getRefValue(i)).getDetails();
-                String errMsg = err.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+                String errMsg = err.get(ERROR_MESSAGE_FIELD_NAME).stringValue();
                 Assert.assertTrue(errMsg != null && errMsg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
             }
@@ -125,7 +126,7 @@ public class CircuitBreakerTest {
             } else {
                 Assert.assertNotNull(errs.getRefValue(i)); // the request which resulted in an error
                 BMap<String, BValue> err = (BMap<String, BValue>) ((BError) errs.getRefValue(i)).getDetails();
-                String msg = err.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+                String msg = err.get(ERROR_MESSAGE_FIELD_NAME).stringValue();
                 Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
             }
@@ -265,7 +266,7 @@ public class CircuitBreakerTest {
             } else {
                 Assert.assertNotNull(errors.getRefValue(i)); // the request which resulted in an error
                 BMap<String, BValue> err = (BMap<String, BValue>) errors.getRefValue(i);
-                String msg = err.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+                String msg = err.get(ERROR_MESSAGE_FIELD_NAME).stringValue();
 
                 Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");

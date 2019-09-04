@@ -240,3 +240,8 @@ type Listener object {
         return ();
     }
 };
+
+public function testInlineAnnotAccess() returns boolean {
+    Annot? f = (typeof a).@v1;
+    return f is Annot;
+}

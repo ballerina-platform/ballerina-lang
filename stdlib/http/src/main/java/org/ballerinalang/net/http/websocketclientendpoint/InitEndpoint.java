@@ -94,7 +94,8 @@ public class InitEndpoint {
                 new WebSocketClientHandshakeListener(webSocketClient, wsService, clientConnectorListener,
                         readyOnConnect, countDownLatch));
         try {
-            if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
+            // Wait for 5 minutes before timeout
+            if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {
                 throw new WebSocketException("Waiting for WebSocket handshake has not been successful");
             }
         } catch (InterruptedException e) {
@@ -138,5 +139,8 @@ public class InitEndpoint {
                 key -> customHeaders.put(key, headers.get(key).toString())
         );
         return customHeaders;
+    }
+
+    private InitEndpoint() {
     }
 }

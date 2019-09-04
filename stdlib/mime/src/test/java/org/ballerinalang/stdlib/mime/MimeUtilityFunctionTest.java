@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.mime;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -58,6 +57,7 @@ import java.util.List;
 
 import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ERROR_MESSAGE_FIELD_NAME;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILENAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_STRUCT;
@@ -773,7 +773,7 @@ public class MimeUtilityFunctionTest {
     @SuppressWarnings("unchecked")
     private void assertErrorDetail(BValue error, String expectedMsg) {
         BMap<String, BValue> err = (BMap<String, BValue>) ((BError) error).getDetails();
-        String errMsg = err.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        String errMsg = err.get(ERROR_MESSAGE_FIELD_NAME).stringValue();
         Assert.assertEquals(errMsg, expectedMsg);
     }
 }

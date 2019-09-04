@@ -19,7 +19,6 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.NativeCallableUnit;
 
 /**
  * {@code {@link BlockingNativeCallableUnit}} represents an abstract implementation of
@@ -27,13 +26,9 @@ import org.ballerinalang.model.NativeCallableUnit;
  *
  * @since 0.964.0
  */
-public abstract class BlockingNativeCallableUnit implements NativeCallableUnit {
+public abstract class BlockingNativeCallableUnit {
 
     public abstract void execute(Context context);
-
-    public void execute(Context context, CallableUnitCallback callback) {
-        this.execute(context);
-    }
 
     /**
      * Returns whether this callable unit is executed in blocking manner or not.

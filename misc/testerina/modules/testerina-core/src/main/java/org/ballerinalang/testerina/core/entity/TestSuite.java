@@ -20,7 +20,6 @@ package org.ballerinalang.testerina.core.entity;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,16 +97,6 @@ public class TestSuite {
      * Value - a @{@link TesterinaFunction} mock function.
      */
     private Map<String, TesterinaFunction> mockFunctionsMap = new HashMap<>();
-
-    /**
-     * Key - unique identifier for the function to be mocked.
-     * Value - real function.
-     */
-    private Map<String, FunctionInfo> mockedRealFunctionsMap = new HashMap<>();
-
-    public Map<String, FunctionInfo> getMockedRealFunctionsMap() {
-        return mockedRealFunctionsMap;
-    }
 
     public Map<String, String> getMockFunctionNamesMap() {
         return mockFunctionNamesMap;
@@ -226,10 +215,6 @@ public class TestSuite {
 
     public void addMockFunction(String id, String function) {
         this.mockFunctionNamesMap.put(id, function);
-    }
-
-    public void addMockedRealFunction(String id, FunctionInfo function) {
-        this.mockedRealFunctionsMap.put(id, function);
     }
 
     public void addMockFunctionObj(String id, TesterinaFunction function) {
