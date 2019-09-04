@@ -40,7 +40,7 @@ public function main() {
     boolean fileExists = file:exists("bar.txt");
     io:println("bar.txt file exists: " + fileExists.toString());
 
-    // Copy file ot directory to new path.
+    // Copy file or directory to new path.
     string filePath = checkpanic filepath:build("foo", "bar", "bar.txt");
     error? copyDirResults = file:copy("bar.txt", filePath, true);
     if (copyDirResults is ()) {
