@@ -132,6 +132,14 @@ public class BallerinaDocGenerator {
             out.println("docerina: successfully created the output directory: " + output);
         }
 
+        writeAPIDocsForModules(docsMap, output);
+
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: documentation generation is done.");
+        }
+    }
+
+    public static void writeAPIDocsForModules(Map<String, ModuleDoc> docsMap, String output) {
         // Sort modules by module path
         List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
         moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
@@ -361,10 +369,6 @@ public class BallerinaDocGenerator {
                     .getMessage()));
             log.error(String.format("API documentation zip packaging failed for %s", output), e);
         }
-
-        if (BallerinaDocUtils.isDebugEnabled()) {
-            out.println("docerina: documentation generation is done.");
-        }
     }
 
     private static void sortModuleConstructs(BLangPackage bLangPackage) {
@@ -454,27 +458,13 @@ public class BallerinaDocGenerator {
             String sourceRoot, Path packagePath, String packageFilter, boolean isNative, boolean offline)
             throws IOException {
 
-        // find the Module.md file
-        Path packageMd;
-        Path absolutePkgPath = Paths.get(sourceRoot).resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                               .resolve(packagePath);
-        Optional<Path> o = Files.find(absolutePkgPath, 1, (path, attr) -> {
-            Path fileName = path.getFileName();
-            if (fileName != null) {
-                return fileName.toString().equals(MODULE_CONTENT_FILE);
-            }
-            return false;
-        }).findFirst();
+        Path absolutePkgPath = getAbsoluteModulePath(sourceRoot, packagePath);
 
-        packageMd = o.isPresent() ? o.get() : null;
+        // find the Module.md file
+        Path packageMd = getModuleDocPath(absolutePkgPath);
 
         // find the resources of the package
-        Path resourcesDirPath = absolutePkgPath.resolve("resources");
-        List<Path> resources = new ArrayList<>();
-        if (resourcesDirPath.toFile().exists()) {
-            resources = Files.walk(resourcesDirPath).filter(path -> !path.equals(resourcesDirPath)).collect(Collectors
-                    .toList());
-        }
+        List<Path> resources = getResourcePaths(absolutePkgPath);
 
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
         if (!isNative) {
@@ -517,6 +507,54 @@ public class BallerinaDocGenerator {
             }
         }
         return dataHolder.getPackageMap();
+    }
+
+    public static Map<String, ModuleDoc> generateModuleDocsFromBLangPackages(String sourceRoot,
+                                                                     List<BLangPackage> modules) throws IOException {
+        Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
+        for (BLangPackage bLangPackage : modules) {
+            String moduleName = bLangPackage.packageID.name.toString();
+            Path absolutePkgPath = getAbsoluteModulePath(sourceRoot, Paths.get(moduleName));
+
+            // find the Module.md file
+            Path packageMd = getModuleDocPath(absolutePkgPath);
+
+            // find the resources of the package
+            List<Path> resources = getResourcePaths(absolutePkgPath);
+
+            moduleDocMap.put(moduleName,
+                    new ModuleDoc(packageMd == null ? null : packageMd.toAbsolutePath(), resources, bLangPackage));
+        }
+        return moduleDocMap;
+    }
+
+    private static List<Path> getResourcePaths(Path absolutePkgPath) throws IOException {
+        Path resourcesDirPath = absolutePkgPath.resolve("resources");
+        List<Path> resources = new ArrayList<>();
+        if (resourcesDirPath.toFile().exists()) {
+            resources = Files.walk(resourcesDirPath).filter(path -> !path.equals(resourcesDirPath)).collect(Collectors
+                    .toList());
+        }
+        return resources;
+    }
+
+    private static Path getModuleDocPath(Path absolutePkgPath) throws IOException {
+        Path packageMd;
+        Optional<Path> o = Files.find(absolutePkgPath, 1, (path, attr) -> {
+            Path fileName = path.getFileName();
+            if (fileName != null) {
+                return fileName.toString().equals(MODULE_CONTENT_FILE);
+            }
+            return false;
+        }).findFirst();
+
+        packageMd = o.isPresent() ? o.get() : null;
+        return packageMd;
+    }
+
+    private static Path getAbsoluteModulePath(String sourceRoot, Path modulePath) {
+        return Paths.get(sourceRoot).resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                               .resolve(modulePath);
     }
 
     private static String packageNameToString(PackageID pkgId) {

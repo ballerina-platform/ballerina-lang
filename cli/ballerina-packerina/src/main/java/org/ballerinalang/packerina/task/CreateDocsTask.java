@@ -18,12 +18,40 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.ballerinalang.docgen.model.ModuleDoc;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_API_DOC_DIRECTORY;
 
 /**
  * Task for creating API docs for modules.
  */
 public class CreateDocsTask implements Task {
     @Override
-    public void execute(BuildContext buildContext) {}
+    public void execute(BuildContext buildContext) {
+        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+        Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
+        List<BLangPackage> modules = buildContext.getModules();
+        buildContext.out().println("Generating API Documentation");
+        try {
+            Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator
+                    .generateModuleDocsFromBLangPackages(sourceRootPath.toString(), modules);
+            Path output = targetDir.resolve(TARGET_API_DOC_DIRECTORY);
+            Files.createDirectories(output);
+            BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap,
+                    output.toString());
+        } catch (IOException e) {
+            throw createLauncherException("Unable to generate api docs.");
+        }
+    }
 }
