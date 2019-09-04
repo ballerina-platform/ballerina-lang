@@ -41,8 +41,8 @@ The following types can be given through a configuration file: `string`, `int`, 
 The same configs can be set using CLI parameters as follows.
 
 ```bash
-ballerina run -e b7a.http.tracelog.console=true -e b7a.http.tracelog.path=./trace.log
-  -e b7a.http.accesslog.console=true -e b7a.http.accesslog.path=./access.log my-program.bal
+ballerina run my-program.bal --b7a.http.tracelog.console=true --b7a.http.tracelog.path=./trace.log
+  --b7a.http.accesslog.console=true --b7a.http.accesslog.path=./access.log
 ```
 
 Configurations in a file can be overridden by environment variables. To override a particular configuration, an environment variable that matches the configuration key must be set. As periods are not allowed in environment variables, periods in a configuration key should be replaced by underscores.

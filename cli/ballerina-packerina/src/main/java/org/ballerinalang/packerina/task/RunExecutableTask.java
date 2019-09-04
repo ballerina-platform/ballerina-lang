@@ -19,9 +19,6 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
@@ -42,13 +39,11 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
-import java.util.logging.LogManager;
 
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -62,9 +57,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MAIN_CLAS
 public class RunExecutableTask implements Task {
     
     private final String[] args;
-    private final Map<String, String> runtimeParams;
-    private final String configFilePath;
-    private final boolean observeFlag;
     private Path executablePath;
     private boolean isGeneratedExecutable = false;
     
@@ -72,13 +64,9 @@ public class RunExecutableTask implements Task {
      * Create a task to run the executable. This requires {@link CreateExecutableTask} to be completed.
      *
      * @param args           Arguments for the executable.
-     * @param runtimeParams  run time parameters
-     * @param configFilePath config file path
-     * @param observeFlag    to indicate whether observability is enabled
      */
-    public RunExecutableTask(String[] args, Map<String, String> runtimeParams, String configFilePath,
-                             boolean observeFlag) {
-        this(null, args, runtimeParams, configFilePath, observeFlag);
+    public RunExecutableTask(String[] args) {
+        this(null, args);
         this.isGeneratedExecutable = true;
     }
     
@@ -87,25 +75,15 @@ public class RunExecutableTask implements Task {
      *
      * @param executablePath The path to the executable.
      * @param args           Arguments for the executable.
-     * @param runtimeParams  run time parameters
-     * @param configFilePath config file path
-     * @param observeFlag    to indicate whether observability is enabled
      */
-    public RunExecutableTask(Path executablePath, String[] args, Map<String, String> runtimeParams,
-                             String configFilePath, boolean observeFlag) {
+    public RunExecutableTask(Path executablePath, String[] args) {
         this.executablePath = executablePath;
         this.args = args;
-        this.runtimeParams = runtimeParams;
-        this.configFilePath = configFilePath;
-        this.observeFlag = observeFlag;
     }
     
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-    
-        // load configurations from config file
-        loadConfigurations(sourceRootPath, this.runtimeParams, this.configFilePath, this.observeFlag);
         
         if (!this.isGeneratedExecutable) {
             this.runExecutable();
@@ -252,36 +230,6 @@ public class RunExecutableTask implements Task {
             return initClassName.replaceAll("/", ".");
         } catch (IOException e) {
             throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
-     *
-     * @param sourceRootPath source directory
-     * @param runtimeParams  run time parameters
-     * @param configFilePath config file path
-     * @param observeFlag    to indicate whether observability is enabled
-     */
-    public static void loadConfigurations(Path sourceRootPath, Map<String, String> runtimeParams,
-                                          String configFilePath, boolean observeFlag) {
-        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
-        try {
-            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
-            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-            
-            if (observeFlag) {
-                ConfigRegistry.getInstance()
-                        .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, Boolean.TRUE);
-                ConfigRegistry.getInstance()
-                        .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, Boolean.TRUE);
-            }
-            
-        } catch (IOException e) {
-            throw createLauncherException("failed to read the specified configuration file: " +
-                                          ballerinaConfPath.toString());
-        } catch (RuntimeException e) {
-            throw createLauncherException(e.getMessage());
         }
     }
 }

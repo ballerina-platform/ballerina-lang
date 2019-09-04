@@ -89,15 +89,6 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
-    @CommandLine.Option(names = {"--config", "-c"}, description = "Path to the Ballerina configuration file.")
-    private String configFilePath;
-
-    @CommandLine.Option(names = "--observe", description = "Enable observability with default configs.")
-    private boolean observeFlag;
-
-    @CommandLine.Option(names = "-e", description = "Ballerina environment parameters.")
-    private Map<String, String> runtimeParams = new HashMap<>();
-
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
@@ -160,8 +151,7 @@ public class RunCommand implements BLauncherCmd {
             BuildContext buildContext = new BuildContext(sourceRootPath.normalize());
     
             TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                    .addTask(new RunExecutableTask(sourcePath.normalize(), programArgs, this.runtimeParams,
-                            this.configFilePath, this.observeFlag))
+                    .addTask(new RunExecutableTask(sourcePath.normalize(), programArgs))
                     .build();
     
             taskExecutor.executeTasks(buildContext);
@@ -291,7 +281,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(false))  // create the jar
                 .addTask(new CopyModuleJarTask())
                 .addTask(new CreateExecutableTask())  // create the executable .jar file
-                .addTask(new RunExecutableTask(programArgs, this.runtimeParams, this.configFilePath, this.observeFlag))
+                .addTask(new RunExecutableTask(programArgs))
                 .build();
     
         
@@ -330,9 +320,9 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina run [--off-line] [--observe]\n" +
-                   "                [--sourceroot] [-c|--config] [-B]\n" +
-                   "                {<balfile> | module-name | executable-jar} [args...] \n");
+        out.append("  ballerina run [--off-line]\n" +
+                   "                [--sourceroot]\n" +
+                   "                {<balfile> | module-name | executable-jar} [configs(--key=value)...] [args...] \n");
     }
 
     @Override

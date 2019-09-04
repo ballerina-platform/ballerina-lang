@@ -35,8 +35,10 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.logging.LogManager;
 
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_ENABLED;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX_LENGTH;
+import static org.ballerinalang.jvm.util.BLangConstants.CONFIG_FILE_PROPERTY;
 import static org.ballerinalang.jvm.util.BLangConstants.CONFIG_SEPARATOR;
 import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_PROPERTY;
 import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
@@ -58,9 +60,7 @@ public class LaunchUtils {
     private static PrintStream errStream = System.err;
 
     public static String[] initConfigurations(String[] args) {
-
-        String configFilePath = null;
-        boolean observeFlag = false;
+        
         if (ConfigRegistry.getInstance().isInitialized()) {
             return args;
         }
@@ -71,31 +71,20 @@ public class LaunchUtils {
                 userProgramArgs.addAll(Arrays.asList(Arrays.copyOfRange(args, i + 1, args.length)));
                 break;
             }
-            if (args[i].equals("--observe")) {
-                observeFlag = true;
-                continue;
-            }
-            if (args[i].equals("--config") || args[i].equals("-c")) {
-                if (i + 1 >= args.length) {
-                    RuntimeUtils.handleInvalidConfig();
-                }
-                configFilePath = args[i + 1];
-                i++;
-                continue;
-            }
             if (args[i].toLowerCase().startsWith(BALLERINA_ARGS_INIT_PREFIX)) {
                 String configString = args[i].substring(BALLERINA_ARGS_INIT_PREFIX_LENGTH);
                 String[] keyValuePair = configString.split(CONFIG_SEPARATOR);
-                if (keyValuePair.length < 2) {
-                    RuntimeUtils.handleInvalidOption(args[i]);
+                if (keyValuePair.length >= 2) {
+                    configArgs.put(keyValuePair[0], configString.substring(keyValuePair[0].length() + 1));
+                    continue;
                 }
-                configArgs.put(keyValuePair[0], configString.substring(keyValuePair[0].length() + 1));
-                continue;
             }
             userProgramArgs.add(args[i]);
         }
+
+        String observeFlag = configArgs.get(CONFIG_OBSERVABILITY_ENABLED);
         // load configurations
-        loadConfigurations(configArgs, configFilePath, observeFlag);
+        loadConfigurations(configArgs, configArgs.get(CONFIG_FILE_PROPERTY), Boolean.getBoolean(observeFlag));
         return userProgramArgs.toArray(new String[0]);
     }
 
