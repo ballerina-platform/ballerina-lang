@@ -40,7 +40,7 @@ public class BallerinaHighlightErrorFilter extends HighlightErrorFilter {
             }
             return true;
         } catch (Exception e) {
-            LOG.warn("Error occurred when filtering ballerina error highlight filtering");
+            LOG.warn("Error occurred when trying to filter plugin error highlighting.");
             return true;
         }
     }
