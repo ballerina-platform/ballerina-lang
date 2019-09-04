@@ -5,34 +5,34 @@ import ballerina/io;
 public function main() {
 
     // Get the current directory path.
-    io:println("current directory: " + file:getCurrentDirectory());  // e.g. “/home/john/work”
+    io:println("Current directory: " + file:getCurrentDirectory());  // e.g. “/home/john/work”
 
     // Create a new directory.
     string|error createDirResults = file:createDir("foo");
     if (createDirResults is string) {
-        io:println("created directory path: " + createDirResults);
+        io:println("Created directory path: " + createDirResults);
     }
 
     // Create a new directory with any non existence parents.
     string dirPath = checkpanic filepath:build("foo", "bar");
     createDirResults = file:createDir(dirPath, true);
     if (createDirResults is string) {
-        io:println("created nested directory path: " + createDirResults);
+        io:println("Created nested directory path: " + createDirResults);
     }
 
     // Create a file in given file path.
     string|error createFileResults = file:createFile("bar.txt");
     if (createFileResults is string) {
-        io:println("created file path: " + createFileResults);
+        io:println("Created file path: " + createFileResults);
     }
 
     // Get metadata information of the file.
     file:FileInfo|error fileInfoResults = file:getFileInfo("bar.txt");
     if (fileInfoResults is file:FileInfo) {
-        io:println("file name: " + fileInfoResults.getName());
-        io:println("file size: " + fileInfoResults.getSize().toString());
-        io:println("is directory: " + fileInfoResults.isDir().toString());
-        io:println("modified at " + fileInfoResults.getLastModifiedTime().toString());
+        io:println("File name: " + fileInfoResults.getName());
+        io:println("File size: " + fileInfoResults.getSize().toString());
+        io:println("Is directory: " + fileInfoResults.isDir().toString());
+        io:println("Modified at " + fileInfoResults.getLastModifiedTime().toString());
 
     }
 
@@ -64,12 +64,12 @@ public function main() {
     // Remove file or directory in specified file path.
     error? removeResults = file:remove(newFilePath);
     if (removeResults is ()) {
-        io:println("remove file at " + newFilePath);
+        io:println("Remove file at " + newFilePath);
     }
 
     // Remove directory in specified file path with all children.
     removeResults = file:remove("foo", true);
     if (removeResults is ()) {
-        io:println("remove foo directory with all child elements.");
+        io:println("Remove foo directory with all child elements.");
     }
 }
