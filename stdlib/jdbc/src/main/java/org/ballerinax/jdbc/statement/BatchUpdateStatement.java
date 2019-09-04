@@ -154,7 +154,8 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     // If such other databases are identified they can be included here.
     // The name of the database is being checked because there is no way to identify through the API.
     private boolean isGeneratedKeyReturningSupported() {
-        return !Constants.DatabaseNames.ORACLE.equals(datasource.getDatabaseProductName());
+        return !Constants.DatabaseNames.ORACLE.equals(datasource.getDatabaseProductName())
+                && !Constants.DatabaseNames.MSSQL_SERVER.equals(datasource.getDatabaseProductName());
     }
 
     private ArrayValue createUpdatedCountArray(int[] updatedCounts, int paramArrayCount) {
