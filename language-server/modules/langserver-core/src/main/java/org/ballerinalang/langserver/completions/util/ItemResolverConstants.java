@@ -60,6 +60,7 @@ public class ItemResolverConstants {
     public static final String SERVICE_GRPC = "service/gRPC";
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
+    public static final String HTTP_RESOURCE = "http resource";
     public static final String RESOURCE = "resource";
 
     // End of Basic Constructs

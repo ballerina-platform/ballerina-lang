@@ -559,17 +559,29 @@ public abstract class LSCompletionProvider {
         
         String owner = service.listenerType.tsymbol.owner.name.value;
         String serviceTypeName = service.listenerType.tsymbol.name.value;
-        
+
         // Only http, grpc have generic resource templates, others will have generic resource snippet
         switch (owner) {
             case "http":
                 if ("Listener".equals(serviceTypeName)) {
-                    items.add(Snippet.DEF_RESOURCE_HTTP.get().build(ctx));
-                    break;
-                } else if ("WebSocketListener".equals(serviceTypeName)) {
-                    addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
-                    addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
-                    addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
+                    Optional<Boolean> webSocketService = isWebSocketService(service);
+                    if (webSocketService.isPresent()) {
+                        if (webSocketService.get()) {
+                            // Is a 'ws' service
+                            addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
+                            addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
+                            addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
+                        } else {
+                            // Is a 'http' service
+                            items.add(Snippet.DEF_RESOURCE_HTTP.get().build(ctx));
+                        }
+                    } else {
+                        // ambiguous, suggest both 'ws' and 'http'
+                        addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
+                        addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
+                        addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
+                        items.add(Snippet.DEF_RESOURCE_HTTP.get().build(ctx));
+                    }
                     break;
                 }
                 return items;
@@ -924,10 +936,39 @@ public abstract class LSCompletionProvider {
         return false;
     }
 
+    /**
+     * Returns a websocket service or not.
+     *
+     * Currently, both 'websocket' and 'http' services are attached into a common http:Listener.
+     * Thus, need to distinguish both.
+     *
+     * @param service   service
+     * @return  Optional boolean, empty when service has zero resources(ambiguous).
+     */
+    private Optional<Boolean> isWebSocketService(BLangService service) {
+        List<BLangFunction> resources = service.getResources();
+        if (resources.isEmpty()) {
+            return Optional.empty();
+        }
+        BLangFunction resource = resources.get(0);
+        if (!resource.requiredParams.isEmpty()) {
+            BLangType typeNode = resource.requiredParams.get(0).typeNode;
+            if (typeNode instanceof BLangUserDefinedType) {
+                BLangUserDefinedType node = (BLangUserDefinedType) typeNode;
+                if ("WebSocketCaller".equals(node.typeName.value)) {
+                    return Optional.of(true);
+                } else {
+                    return Optional.of(false);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     private void addIfNotExists(SnippetBlock snippet, BLangService service, List<CompletionItem> items, LSContext ctx) {
         boolean found = false;
         for (BLangFunction resource : service.getResources()) {
-            if (snippet.getLabel().equals(resource.name.value + " " + ItemResolverConstants.RESOURCE)) {
+            if (snippet.getLabel().endsWith(resource.name.value + " " + ItemResolverConstants.RESOURCE)) {
                 found = true;
             }
         }
