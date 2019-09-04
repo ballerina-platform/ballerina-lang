@@ -16,7 +16,7 @@ letter: c, word: cherry
 
 Iterating a JSON object :
 string value: apple
-json array value: ["red", "green"]
+json array value: red green
 int value: 5
 
 Iterating a JSON array :

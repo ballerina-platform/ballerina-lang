@@ -57,7 +57,7 @@ public function main() {
                     </book>`;
     // Iterating an XML will return each element in each iteration.
     counter = 0;
-    foreach var x in book.*.elements(){
+    foreach var x in book.getChildren().elements(){
         io:println("xml at ", counter, ": ", x);
         counter += 1;
     }
