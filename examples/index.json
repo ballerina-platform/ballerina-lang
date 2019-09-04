@@ -1007,6 +1007,16 @@
         ]
     },
     {
+        "title": "Lock",
+        "column": 0,
+        "category": "Experimental features",
+        "samples": [{
+            "name": "Lock",
+            "url": "locks"
+        }
+        ]
+    },
+    {
         "title": "Streams",
         "column": 1,
         "category": "Experimental features",
@@ -1066,16 +1076,6 @@
                 "name": "Table Queries",
                 "url": "table-queries"
             }
-        ]
-    },
-    {
-        "title": "Lock",
-        "column": 0,
-        "category": "Experimental features",
-        "samples": [{
-            "name": "Lock",
-            "url": "locks"
-        }
         ]
     }
 ]
