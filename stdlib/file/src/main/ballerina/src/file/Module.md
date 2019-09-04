@@ -25,13 +25,13 @@ public function main() {
     string|error results = file:createDir(“foo/bar”);
     
     // Create a directory with any non existence parents.
-    string|error results = file:createDir(“foo/bar”, parentDirs = true);
+    string|error results = file:createDir(“foo/bar”, true);
     
     // Remove file or directory in specified file path.
     error? results = file:remove(“foo/bar.txt”);
 
     // Remove directory in specified file path with all children.
-    error? results = file:remove(“foo/bar”, recursive = true);
+    error? results = file:remove(“foo/bar”, true);
     
     // Rename(Move) file or directory to new path.
     error? results = file:rename(“/A/B/C”, “/A/B/D”);
@@ -43,12 +43,12 @@ public function main() {
     string|error results = file:createFile(“bar.txt”);
     
     // Get metadata information of the file.
-    FileInfo|error result = file:getFileInfo(“foo/bar.txt”);
+    file:FileInfo|error result = file:getFileInfo(“foo/bar.txt”);
     
     // Get list of files in the directory.
-    FileInfo[]|error results = file:readDir(“foo/bar”);
+    file:FileInfo[]|error results = file:readDir(“foo/bar”);
     
     // Copy file ot directory to new path.
-    error? results = file:copy(“/A/B/C”, “/A/B/D”, replaceExisting = true);
+    error? results = file:copy(“/A/B/C”, “/A/B/D”, true);
 }
 ```
