@@ -205,7 +205,7 @@ public class AddCommand implements BLauncherCmd {
 
         errStream.println("added a new Ballerina module at '" + userDir.relativize(projectPath
                 .resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                .resolve(moduleName)) + "'.");
+                .resolve(moduleName)) + "'");
     }
 
     @Override

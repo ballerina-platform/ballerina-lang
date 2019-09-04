@@ -5,7 +5,7 @@ SYNOPSIS
     ballerina update
 
 DESCRIPTION
-     The `ballerina update` command will update the Ballerina SDK version to the provided one.
+     The `ballerina update` command will update the Ballerina distribution version to the latest.
 
 OPTIONS
      The `ballerina update` command does not take any options.

@@ -215,7 +215,7 @@ public class BuildCommand implements BLauncherCmd {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(this.errStream,
-                            "need a Ballerina.toml file to build/compile a Ballerina project.",
+                            "a Ballerina.toml file is required to build/compile a Ballerina project.",
                             null,
                             false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -248,7 +248,7 @@ public class BuildCommand implements BLauncherCmd {
                 //// check if the given file exists.
                 if (Files.notExists(sourcePath)) {
                     CommandUtil.printError(this.errStream,
-                            "file not found: '" + sourcePath,
+                            "file not found: '" + sourcePath + "'",
                             null,
                             false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -280,7 +280,7 @@ public class BuildCommand implements BLauncherCmd {
             //// output flag cannot be set for projects
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                        "the '-o' or '--output' flags are supported only when building a standalone Ballerina file.",
+                        "the '-o' or '--output' flag is supported only when building a standalone Ballerina file.",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -399,7 +399,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("build a Ballerina module(s)/file and produce an executable .jar file(s). \n");
+        out.append("Build Ballerina modules/file and generate an executable .jar file(s). \n");
         out.append("\n");
         out.append("When building a Ballerina project or a specific module in a project, the \n");
         out.append("executable \".jar\" files will be created in the <project-root>/target/bin directory. \n");

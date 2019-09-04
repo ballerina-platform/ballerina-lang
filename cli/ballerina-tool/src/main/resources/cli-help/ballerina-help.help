@@ -1,10 +1,6 @@
 NAME
-<<<<<<< HEAD
     Ballerina - A programming language for network distributed
                 applications
-=======
-    Ballerina - A Programming Language for Network Distributed Applications
->>>>>>> d6a4073619e588cbd5912a5b3f8a48b3c574e1d4
 
 SYNOPSIS
     ballerina [-v|--version|version] [?|-h|--help]
@@ -17,14 +13,9 @@ DESCRIPTION
     and is suitable for application programmers.
 
     To learn how to run commands with Ballerina, use
-<<<<<<< HEAD
         ballerina <command> --help
     You can find the list of commands in the BALLERINA COMMANDS
     section below.
-=======
-        ballerina help <command>
-    You can find the list of commands in the BALLERINA COMMANDS section below.
->>>>>>> d6a4073619e588cbd5912a5b3f8a48b3c574e1d4
 
     To get started, visit https://ballerina.io/learn/quick-tour/.
 
@@ -63,14 +54,6 @@ BALLERINA COMMANDS
         dist update     Update to latest distribution version
         dist remove     Delete locally installed distribution version
 
-<<<<<<< HEAD
-        encrypt    Encrypt sensitive data
-        grpc       Generate a connector/service using a protobuf
-                    definition
-        openapi    Generate a client/service using an OpenAPI definition
-                    or export an OpenAPI file for a Ballerina service
-        format     Format Ballerina source code
-=======
         format          Formats Ballerina source code
 
         encrypt         Encrypt sensitive data
@@ -78,27 +61,16 @@ BALLERINA COMMANDS
                         Definition
         openapi         Generate client/service using openapi definition
                         or export openapi file for a Ballerina service
->>>>>>> d6a4073619e588cbd5912a5b3f8a48b3c574e1d4
 
 EXAMPLES
     Check the Ballerina version, which is currently in use: 
     $ ballerina -v
 
-<<<<<<< HEAD
-    Get help on how to use Ballerina commands:
-    $ ballerina run --help
-=======
     Get help on how to use the ballerina command
     $ ballerina help build
->>>>>>> d6a4073619e588cbd5912a5b3f8a48b3c574e1d4
 
     Build your hello Ballerina program:
     $ ballerina build hello.bal
 
-<<<<<<< HEAD
-    Test your Ballerina program with tests defined with @test:
-    $ ballerina test hello.bal
-=======
     Run a ballerina program
     $ ballerina run hello.bal
->>>>>>> d6a4073619e588cbd5912a5b3f8a48b3c574e1d4

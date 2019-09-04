@@ -1,5 +1,5 @@
 NAME
-    Ballerina push - Upload modules to Ballerina Central
+    Ballerina push - Upload the given module(s) to Ballerina Central.
 
 SYNOPSIS
     ballerina push <module-name> [--no-build]

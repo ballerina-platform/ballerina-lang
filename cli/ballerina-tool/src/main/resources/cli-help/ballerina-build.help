@@ -1,6 +1,6 @@
 NAME
     Ballerina build - Build Ballerina modules/file and generate executable
-    outputs.
+    .jar file(s).
 
 SYNOPSIS
     ballerina build [-o <output>] [--sourceroot] [--off-line] [--skip-tests]

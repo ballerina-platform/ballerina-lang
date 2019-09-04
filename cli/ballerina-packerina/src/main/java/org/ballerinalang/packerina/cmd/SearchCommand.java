@@ -33,7 +33,7 @@ import static org.ballerinalang.tool.LauncherUtils.createUsageExceptionWithHelp;
  *
  * @since 0.964
  */
-@CommandLine.Command(name = SEARCH_COMMAND, description = "search for modules within Ballerina Central.")
+@CommandLine.Command(name = SEARCH_COMMAND, description = "search for modules in Ballerina Central.")
 public class SearchCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
 
@@ -78,7 +78,7 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("search for modules within Ballerina Central. \n");
+        out.append("search for modules in Ballerina Central. \n");
     }
 
     @Override
