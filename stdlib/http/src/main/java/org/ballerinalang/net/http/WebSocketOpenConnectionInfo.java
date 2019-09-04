@@ -50,11 +50,11 @@ public class WebSocketOpenConnectionInfo {
         return webSocketEndpoint;
     }
 
-    public WebSocketConnection getWebSocketConnection() {
+    public WebSocketConnection getWebSocketConnection() throws IllegalAccessException {
         if (webSocketConnection != null) {
             return webSocketConnection;
         } else {
-            throw new WebSocketException(WsConnectionError, "The WebSocket connection has not been made");
+            throw new IllegalAccessException("The WebSocket connection has not been made");
         }
     }
 
