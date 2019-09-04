@@ -38,6 +38,8 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -77,11 +79,11 @@ public abstract class CompletionTest {
         boolean result = CompletionTestUtil.isSubList(expectedList, responseItemList);
         if (!result) {
             // Fix test cases replacing expected using responses
-//            JsonObject obj = new JsonObject();
-//            obj.add("position", configJsonObject.get("position"));
-//            obj.add("source", configJsonObject.get("source"));
-//            obj.add("items", resultList);
-//            Files.write(RES_DIR.resolve(configJsonPath), obj.toString().getBytes(StandardCharsets.UTF_8));
+            JsonObject obj = new JsonObject();
+            obj.add("position", configJsonObject.get("position"));
+            obj.add("source", configJsonObject.get("source"));
+            obj.add("items", resultList);
+            Files.write(RES_DIR.resolve(configJsonPath), obj.toString().getBytes(StandardCharsets.UTF_8));
 
             // This will print nice comparable text in IDE
 //            Assert.assertEquals(responseItemList.toString(), expectedList.toString(),

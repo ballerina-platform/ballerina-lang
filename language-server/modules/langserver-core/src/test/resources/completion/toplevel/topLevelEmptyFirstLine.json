@@ -34,7 +34,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "public function main(string... args) {\n\t${1}\n}",
+      "insertText": "public function main() {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
