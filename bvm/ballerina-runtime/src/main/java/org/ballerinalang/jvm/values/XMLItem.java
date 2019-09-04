@@ -50,7 +50,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -541,7 +540,14 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            this.omNode.serializeAndConsume(outputStream);
+            if (this.omNode.getType() == OMNode.ELEMENT_NODE) {
+                // not using the xml-factory here because of the namespace serializing issues.
+                this.omNode.serializeAndConsume(outputStream);
+            } else {
+                XMLOutputFactory factory = XMLOutputFactory.newInstance();
+                XMLStreamWriter writer = factory.createXMLStreamWriter(outputStream);
+                this.omNode.serializeAndConsume(writer);
+            }
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
