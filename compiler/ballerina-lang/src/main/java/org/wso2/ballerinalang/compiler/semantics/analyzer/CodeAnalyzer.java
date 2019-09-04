@@ -963,7 +963,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             // Rest pattern in previous binding-pattern can bind to all the error details,
             // hence current error pattern is not reachable.
-            if (precedingErrVar.restDetail != null) {
+            if (precedingErrVar.restDetail != null && isDirectErrorBindingPattern(precedingErrVar)) {
                 return true;
             }
 
@@ -1004,6 +1004,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         return precedingVar.getKind() == NodeKind.VARIABLE;
+    }
+
+    private boolean isDirectErrorBindingPattern(BLangErrorVariable precedingErrVar) {
+        return precedingErrVar.typeNode == null;
     }
 
     /**
