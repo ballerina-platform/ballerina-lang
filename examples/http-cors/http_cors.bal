@@ -13,8 +13,6 @@ import ballerina/log;
 }
 service crossOriginService on new http:Listener(9092) {
 
-    string respErr = "Failed to respond to the caller";
-
     //Resource-level CORS headers override the service-level CORS headers.
     @http:ResourceConfig {
         methods: ["GET"],
