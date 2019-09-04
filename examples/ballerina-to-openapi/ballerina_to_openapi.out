@@ -1,3 +1,6 @@
-#Run the following command in the Ballerina tools distribution to export the OAS definition of a ballerina service.
-$ ballerina openapi export ballerina_to_openapi.bal
-successfully generated openapi definition for input file - ballerina_to_openapi.bal
+# To export the OpenAPI definition of ballerina service `hello`, navigate to the directory that contains the
+# `ballerina_to_openapi.bal` file, and execute `ballerina openapi gen-contract` command.
+$ ballerina openapi gen-contract hello -i ballerina_to_openapi.bal
+Note: This is an Experimental tool ship under ballerina hence this will only support limited set of functionality.
+Successfully generated the ballerina contract at location
+/examples/ballerina-to-openapi/hello.openapi.yaml
