@@ -320,16 +320,8 @@
                 "url": "xml-namespaces"
             },
             {
-                "name": "XML Attributes",
-                "url": "xml-attributes"
-            },
-            {
                 "name": "XML Functions",
                 "url": "xml-functions"
-            },
-            {
-                "name": "XML Access",
-                "url": "xml-access"
             }
         ]
     },
@@ -1004,6 +996,21 @@
             {
                 "name": "Secured Client with OAuth2",
                 "url": "secured-client-with-oauth2"
+            }
+        ]
+    },
+    {
+        "title": "XML Access",
+        "column": 1,
+        "category": "Experimental features",
+        "samples": [
+            {
+                "name": "XML Attributes",
+                "url": "xml-attributes"
+            },
+            {
+                "name": "XML Access",
+                "url": "xml-access"
             }
         ]
     },

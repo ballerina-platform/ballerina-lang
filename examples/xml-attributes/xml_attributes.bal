@@ -11,7 +11,7 @@ public function main() {
     io:println(x1@[ns0:status]);
 
     // An attribute can also be accessed using the string representation of the qualified name. 
-    string s = x1@["{http://ballerina.com/aa}status"];
+    string? s = x1@["{http://ballerina.com/aa}status"];
     io:println(s);
 
     // An attribute that is not bound to a namespace can be accessed using the string representation of the name.
