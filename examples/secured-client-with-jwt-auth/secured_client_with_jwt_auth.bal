@@ -12,6 +12,7 @@ jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({
     username: "ballerina",
     issuer: "ballerina",
     audience: ["ballerina", "ballerina.org", "ballerina.io"],
+    customClaims: { "scope": "hello" },
     keyStoreConfig: {
         keyAlias: "ballerina",
         keyPassword: "ballerina",
