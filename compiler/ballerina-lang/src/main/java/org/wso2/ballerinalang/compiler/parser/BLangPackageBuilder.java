@@ -3822,7 +3822,7 @@ public class BLangPackageBuilder {
         BLangAnnotAccessExpr annotAccessExpr = (BLangAnnotAccessExpr) TreeBuilder.createAnnotAccessExpressionNode();
         annotAccessExpr.pos = pos;
         annotAccessExpr.addWS(ws);
-        annotAccessExpr.expr = (BLangExpression) exprNodeStack.pop();
+        annotAccessExpr.expr = (BLangVariableReference) exprNodeStack.pop();
         BLangNameReference nameReference = nameReferenceStack.pop();
         annotAccessExpr.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         annotAccessExpr.annotationName = (BLangIdentifier) nameReference.name;
