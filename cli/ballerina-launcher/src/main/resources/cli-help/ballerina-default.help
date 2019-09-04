@@ -37,7 +37,7 @@ OPTIONS
 BALLERINA COMMANDS
      Available commands are:
          run        Run Ballerina program
-         compile    Compile Ballerina module in-to a sharable
+         compile    Compile Ballerina module into a sharable
                     library(balo).
          build      Compile Ballerina program in-to an executable
          clean      Clean artifacts generated during compile/build
@@ -69,10 +69,10 @@ EXAMPLES
      Check the current version of Ballerina in use on your system
      $ ballerina -v
 
-     Get help on how to use the ballerina command 
+     Get help on how to use a Ballerina command 
      $ ballerina help 
 
-     Run your hello Ballerina program  
+     Run a Ballerina program  
      $ ballerina run hello.bal
 
      Test your Ballerina program with tests defined with @test
