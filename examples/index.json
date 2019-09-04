@@ -786,28 +786,6 @@
             }
         ]
     },
- 	{
-        "title": "WebSub",
-        "column": 1,
-        "category": "Working over the network",
-        "samples": [{
-                "name": "Internal Hub Sample",
-                "url": "websub-internal-hub-sample"
-            },
-            {
-                "name": "Remote Hub Sample",
-                "url": "websub-remote-hub-sample"
-            },
-            {
-                "name": "Hub Client Sample",
-                "url": "websub-hub-client-sample"
-            },
-            {
-                "name": "Service Integration Sample",
-                "url": "websub-service-integration-sample"
-            }
-        ]
-    },
     {
         "title": "Database",
         "column": 2,

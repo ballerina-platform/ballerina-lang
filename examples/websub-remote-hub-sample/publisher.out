@@ -1,6 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run publisher.bal
-Topic registration successful!
-Publishing update to remote Hub
-Update notification successful!
