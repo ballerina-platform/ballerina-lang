@@ -137,6 +137,8 @@ public class SourcePruner {
         lsContext.put(CompletionKeys.LHS_DEFAULT_TOKENS_KEY, lhsDefaultTokens); 
         lsContext.put(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY, lhsDefaultTokenTypes); 
         lsContext.put(CompletionKeys.RHS_TOKENS_KEY, rhsTokens);
+        lsContext.put(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY,
+                sourcePruneCtx.get(SourcePruneKeys.FORCE_CAPTURED_STATEMENT_WITH_PARENTHESIS_KEY));
 
         // Update document manager
         documentManager.setPrunedContent(path, tokenStream.getText());

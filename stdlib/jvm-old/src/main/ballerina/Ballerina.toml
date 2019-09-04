@@ -8,7 +8,7 @@ target = "java8"
     [[platform.libraries]]
     artifactId = "jvm"
     version = "@project.version@"
-    path = "../libs/ballerina-jvm-old-1.0.0-beta-SNAPSHOT.jar"
+    path = "../libs/ballerina-jvm-old-1.0.0-beta.jar"
     groupId = "ballerina"
     modules = ["jvm"]
 

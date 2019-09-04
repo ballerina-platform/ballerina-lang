@@ -107,7 +107,7 @@ public class OSUtils {
             showNotice = true;
         } else {
             BufferedReader br = Files.newBufferedReader(Paths.get(file.getPath()));
-            showNotice = today.minusDays(2)
+            showNotice = today.minusDays(1)
                     .isAfter(LocalDate.parse(br.lines().collect(Collectors.toList()).get(0)));
 
         }

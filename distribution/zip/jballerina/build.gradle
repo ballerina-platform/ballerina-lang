@@ -51,7 +51,6 @@ dependencies {
     dist 'io.dropwizard.metrics:metrics-core:3.1.0'
     dist 'javax.transaction:javax.transaction-api:1.2'
     dist 'org.apache.thrift:libthrift:0.10.0'
-    dist 'org.hdrhistogram:HdrHistogram:2.1.10'
     dist 'org.jvnet.mimepull:mimepull:1.9.7'
     dist 'org.quartz-scheduler:quartz-jobs:2.3.0'
     dist 'org.quartz-scheduler:quartz:2.3.0'
