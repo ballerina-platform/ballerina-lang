@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.stdlib.utils;
 
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.concurrent.Semaphore;
