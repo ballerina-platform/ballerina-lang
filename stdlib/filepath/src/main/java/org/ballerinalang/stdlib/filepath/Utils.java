@@ -19,12 +19,8 @@
 package org.ballerinalang.stdlib.filepath;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A utility class for OS Path related tasks.
@@ -35,41 +31,24 @@ public class Utils {
 
     static final String UNKNOWN_MESSAGE = "Unknown Error";
 
-    /**
-     * Returns error record for input reason. Error type is generic ballerina error type. This utility to construct
-     * error struct from message.
-     *
-     * @param reason Reason for creating the error object. If the reason is null, "UNKNOWN" sets by default.
-     * @param error  Java throwable object to capture description of error struct. If throwable object is null, "Unknown
-     *               Error" sets to message by default.
-     * @return Ballerina error object.
-     */
-    public static ErrorValue getPathError(String reason, Throwable error) {
-        String errorMsg = error != null && error.getMessage() != null ? error.getMessage() : reason;
-        return getPathError(errorMsg);
-    }
 
     /**
      * Returns error record for input reason and details. Error type is generic ballerina error type. This utility to
      * construct error struct from message.
      *
-     * @param details Java throwable object to capture description of error struct. If throwable object is null,
-     *                "Unknown Error" is set to message by default.
+     * @param reason  Error reason string
+     * @param details Error message description
      * @return Ballerina error object.
      */
-    private static ErrorValue getPathError(String details) {
-        return BallerinaErrors.createError(Constants.FILEPATH_ERROR_CODE, populateFilepathErrorRecord(details));
-    }
-
-    private static MapValue populateFilepathErrorRecord(String message) {
-        Map<String, Object> valueMap = new HashMap<>();
-        if (message != null) {
-            valueMap.put(Constants.ERROR_MESSAGE, message);
-        } else {
-            valueMap.put(Constants.ERROR_MESSAGE, UNKNOWN_MESSAGE);
+    public static ErrorValue getPathError(String reason, String details) {
+        //return BallerinaErrors.createError(reason, populateFilepathErrorRecord(details));
+        if (reason == null) {
+            reason = Constants.GENERIC_ERROR;
         }
-        return BallerinaValues.createRecordValue(Constants.FILEPATH_PACKAGE_ID,
-                Constants.ERROR_DETAILS, valueMap);
+        if (details == null) {
+            details = UNKNOWN_MESSAGE;
+        }
+        return BallerinaErrors.createError(reason, details);
     }
 
     private Utils() {

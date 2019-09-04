@@ -345,7 +345,7 @@ public function relative(string base, string target) returns string|Error {
 }
 
 # Returns the filepath after the evaluation of any symbolic links.
-# If path is relative, the result will be relative to the current directory,
+# If path  is relative, the result will be relative to the current directory,
 # unless one of the components is an absolute symbolic link.
 # Resolve calls normalize on the result.
 #
