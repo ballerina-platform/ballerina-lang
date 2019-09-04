@@ -133,7 +133,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
     public void sessionInitialized() {
         final int[] retryAttempt = {0};
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            getSession().getConsoleView().print("Connecting to the debug server...\n",
+            getSession().getConsoleView().print("Waiting for debug process to start...\n",
                     ConsoleViewContentType.SYSTEM_OUTPUT);
             // If already connected with the debug server, tries to set breakpoints and attach with the remote jvm.
             if (dapClientConnector.isConnected()) {
@@ -338,7 +338,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
                         session.breakpointReached(breakpoint, null, context);
                     }
                 }
-
             } catch (Exception e) {
                 LOGGER.warn("Error occurred when fetching stack frames", e);
             }
