@@ -2,7 +2,8 @@ import ballerina/http;
 import ballerina/log;
 
 http:ClientEndpointConfig weatherEPConfig = {
-    followRedirects: { enabled: true, maxCount: 5 }
+    followRedirects: { enabled: true, maxCount: 5 },
+    secureSocket:{ trustStore:{ path: "${ballerina.home}/bre/security/ballerinaTruststore.p12", password: "ballerina"} }
 };
 
 //Service is invoked using `basePath` value "/hbr".
