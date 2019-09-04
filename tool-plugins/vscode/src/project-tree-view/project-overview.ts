@@ -5,6 +5,7 @@ import * as os from 'os';
 
 import { BallerinaExtension, ExtendedLangClient } from '../core/index';
 import { ProjectTreeElement } from './project-tree';
+import { Uri } from 'vscode';
 
 const errorNode = new ProjectTreeElement(
     "Couldn't create the project overview. Please make sure your code compiles successfully and refresh.",
@@ -68,6 +69,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
             }
 
             this.sourceRoot = undefined;
+            this.currentFilePath = document ? document.fileName: undefined;
             const openFolders = vscode.workspace.workspaceFolders;
             if (openFolders) {
                 if (fs.existsSync(path.join(openFolders[0].uri.path, "Ballerina.toml"))) {
@@ -76,7 +78,6 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
             }
     
             if (!this.sourceRoot) {
-                this.currentFilePath = document ? document.fileName: undefined;
                 this.sourceRoot = this.currentFilePath? this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root) : undefined;
             }
 
@@ -221,7 +222,10 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                     elementTree.push(new ProjectTreeElement(child, collapseMode, {
                         command: "ballerina.executeTreeElement",
                         title: "Execute Tree Command",
-                        arguments: [key, child]
+                        arguments: [
+                            this.sourceRoot? Uri.file(this.sourceRoot).toString(): undefined,
+                            this.currentFilePath? Uri.file(this.currentFilePath).toString(): undefined,
+                            key, child]
                     }));
                 });
             } else {
@@ -230,7 +234,10 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                     Object.keys(treeObj).map(child => {
                         let args = [key, child];
                         if (parentEl.command && parentEl.command.arguments) {
-                            args = [...parentEl.command.arguments, child];
+                            args = [
+                                this.sourceRoot? Uri.file(this.sourceRoot).toString(): undefined,
+                                this.currentFilePath? Uri.file(this.currentFilePath).toString(): undefined,
+                                ...parentEl.command.arguments, child];
                         }
                         elementTree.push(new ProjectTreeElement(child, vscode.TreeItemCollapsibleState.None, {
                             command: "ballerina.executeTreeElement",
@@ -273,6 +280,13 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         }
     
         return this.getSourceRoot(path.dirname(currentPath), root);
+    }
+    
+    getParent(element: ProjectTreeElement): vscode.ProviderResult<ProjectTreeElement> {
+        // This is implemented in-order to make treeView#reveal api work.
+        // returns undefined for the moment, indicates no parent. It won't be a problem
+        // as we only use reveal api to reveal root element
+        return undefined;
     }
     
 }

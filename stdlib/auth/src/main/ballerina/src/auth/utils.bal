@@ -15,8 +15,9 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/encoding;
 import ballerina/internal;
+import ballerina/lang.'array as arrays;
+import ballerina/lang.'string as strings;
 import ballerina/log;
 import ballerina/runtime;
 
@@ -49,7 +50,7 @@ const string CONFIG_USER_SECTION = "b7a.users";
 # + credential - The credential values.
 # + return - A `string` tuple with the extracted username and password or `Error` occurred while extracting credentials
 public function extractUsernameAndPassword(string credential) returns [string, string]|Error {
-    string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
+    string decodedHeaderValue = check strings:fromBytes(check arrays:fromBase64(credential));
     string[] decodedCredentials = internal:split(decodedHeaderValue, ":");
     if (decodedCredentials.length() != 2) {
         return prepareError("Incorrect credential format. Format should be username:password");

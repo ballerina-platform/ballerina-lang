@@ -73,7 +73,10 @@ public class AnnotationAccessTest {
                 { "testServiceAnnotAccess1" },
                 { "testServiceAnnotAccess2" },
                 { "testServiceAnnotAccess3" },
-                { "testServiceAnnotAccess4" }
+                { "testServiceAnnotAccess4" },
+                { "testFunctionAnnotAccess1" },
+                { "testFunctionAnnotAccess2" }
+                // { "testInlineAnnotAccess" } // TODO: #17936
         };
     }
 

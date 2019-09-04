@@ -187,26 +187,6 @@ function lengthOfTuple() returns (int) {
     return length;
 }
 
-function lengthOfTable() returns (int) {
-    table<Employee> tbEmployee = table {
-        { key id, name, salary },
-        [ { 1, "Mary",  300.5 },
-        { 2, "John",  200.5 },
-        { 3, "Jim", 330.5 }
-        ]
-    };
-    int length = tbEmployee.length();
-    return length;
-}
-
-function lengthOfEmptyTable() returns (int) {
-    table<Employee> tbEmployee = table {
-        { key id, name, salary }
-    };
-    int length = tbEmployee.length();
-    return length;
-}
-
 function lengthOfRecord() returns (int) {
     Employee emp = {id : 1 , name : "John", salary: 300};
     int length = emp.length();

@@ -20,13 +20,16 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Extern function ballerina.model.strings:indexOf.
@@ -46,7 +49,8 @@ public class IndexOf {
     public static Object indexOf(Strand strand, String value, String subString, long startIndx) {
         StringUtils.checkForNull(value, subString);
         if (startIndx > Integer.MAX_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                                                            RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndx);
         }
         long index = value.indexOf(subString, (int) startIndx);

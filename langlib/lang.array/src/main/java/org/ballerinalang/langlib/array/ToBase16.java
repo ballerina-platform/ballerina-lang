@@ -23,12 +23,15 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.array:toBase16(byte[]).
@@ -49,7 +52,8 @@ public class ToBase16 {
         BType arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
+            throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                      OPERATION_NOT_SUPPORTED_IDENTIFIER),
                                               "toBase16() is only supported on 'byte[]'");
         }
 

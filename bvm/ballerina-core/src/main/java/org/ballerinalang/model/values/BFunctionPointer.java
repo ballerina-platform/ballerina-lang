@@ -17,10 +17,8 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,9 +30,8 @@ import java.util.Map;
  *
  * @since 0.90
  */
-public class BFunctionPointer implements BRefType<FunctionInfo> {
+public class BFunctionPointer implements BRefType {
 
-    FunctionInfo functionInfo;
     BType type;
 
     //container which keeps the closure variables values
@@ -43,19 +40,10 @@ public class BFunctionPointer implements BRefType<FunctionInfo> {
     //map which keeps tracks of additional index count needed for closure vars
     private Map<Integer, Integer> additionalIndexes = new HashMap<>();
 
-    public BFunctionPointer(FunctionInfo functionInfo) {
-        this.functionInfo = functionInfo;
-    }
-
-    public BFunctionPointer(FunctionInfo functionInfo, BType type) {
-        this.functionInfo = functionInfo;
+    public BFunctionPointer(BType type) {
         this.type = type;
     }
 
-    @Override
-    public FunctionInfo value() {
-        return functionInfo;
-    }
 
     public List<BClosure> getClosureVars() {
         return closureVars;
@@ -80,13 +68,14 @@ public class BFunctionPointer implements BRefType<FunctionInfo> {
         return type;
     }
 
-    @Override
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
-    }
 
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
-        return new BFunctionPointer(functionInfo);
+        return new BFunctionPointer(type);
+    }
+
+    @Override
+    public Object value() {
+        return null;
     }
 }

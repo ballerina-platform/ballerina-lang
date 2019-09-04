@@ -194,8 +194,31 @@ function testServiceAnnotAccess4() returns boolean {
     return annot is ();
 }
 
+@v3 {
+    foo: "func",
+    bar: 1
+}
+function funcWithAnnots() {
+
+}
+
+function testFunctionAnnotAccess1() returns boolean {
+    typedesc<any> t = typeof funcWithAnnots;
+    Annot? annot = t.@v3;
+    if (annot is Annot) {
+        return annot.foo == "func" && annot?.bar == 1;
+    }
+    return false;
+}
+
+function testFunctionAnnotAccess2() returns boolean {
+    typedesc<any> t = typeof serTwo;
+    Annot[]? annot = t.@v2;
+    return annot is ();
+}
+
 type Listener object {
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public function __init() {
     }
@@ -217,3 +240,9 @@ type Listener object {
         return ();
     }
 };
+
+// TODO: #17936
+//public function testInlineAnnotAccess() returns boolean {
+//    Annot? f = (typeof a).@v1;
+//    return f is Annot;
+//}

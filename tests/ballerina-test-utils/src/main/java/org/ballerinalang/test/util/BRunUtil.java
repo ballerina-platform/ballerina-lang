@@ -923,7 +923,7 @@ public class BRunUtil {
                 break;
             case org.ballerinalang.jvm.types.TypeTags.FUNCTION_POINTER_TAG:
                 FPValue functionValue = (FPValue) value;
-                bvmValue = new BFunctionPointer(null, getBVMType(functionValue.getType(), new Stack<>()));
+                bvmValue = new BFunctionPointer(getBVMType(functionValue.getType(), new Stack<>()));
                 break;
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 bvmValue = new BHandleValue(((HandleValue) value).getValue());
@@ -982,7 +982,7 @@ public class BRunUtil {
                 return bvmErrorType;
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;
-                BRecordType bvmRecordType = new BRecordType(null, recordType.getName(),
+                BRecordType bvmRecordType = new BRecordType(recordType.getName(),
                         recordType.getPackage().getName(), recordType.flags);
                 Map<String, BField> recordFields =
                         recordType.getFields().entrySet().stream()
@@ -1016,7 +1016,7 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
                 org.ballerinalang.jvm.types.BObjectType objectType = (org.ballerinalang.jvm.types.BObjectType) jvmType;
                 BObjectType bvmObjectType =
-                        new BObjectType(null, objectType.getName(), objectType.getPackage().getName(),
+                        new BObjectType(objectType.getName(), objectType.getPackage().getName(),
                                         objectType.flags);
                 Map<String, BField> objectFields = new LinkedHashMap<>();
                 for (org.ballerinalang.jvm.types.BField field : objectType.getFields().values()) {
@@ -1057,7 +1057,7 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 return BTypes.typeHandle;
             case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:
-                return new BServiceType(null, jvmType.getName(), null, 0);
+                return new BServiceType(jvmType.getName(), null, 0);
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

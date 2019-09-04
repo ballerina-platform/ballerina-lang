@@ -24,7 +24,7 @@ type InstructionGenerator object {
     string currentPackageName;
     bir:Package currentPackage;
 
-    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:Package moduleId) {
+    function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:Package moduleId) {
         self.mv = mv;
         self.indexMap = indexMap;
         self.currentPackage = moduleId;
@@ -613,11 +613,10 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, TABLE_VALUE);
         self.mv.visitInsn(DUP);
         loadType(self.mv, tableNewIns.typeValue);
-        self.loadVar(tableNewIns.indexColOp.variableDcl);
         self.loadVar(tableNewIns.keyColOp.variableDcl);
         self.loadVar(tableNewIns.dataOp.variableDcl);
-        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", BTYPE,
-                ARRAY_VALUE, ARRAY_VALUE, ARRAY_VALUE), false);
+        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;)V", BTYPE,
+                ARRAY_VALUE, ARRAY_VALUE), false);
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
@@ -884,7 +883,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
 
         string lambdaName = inst.name.value + "$lambda$";
-        string lookupKey = getPackageName(inst.pkgID.org, inst.pkgID.name) + inst.name.value;
+        string pkgName = getPackageName(inst.pkgID.org, inst.pkgID.name);
+        string lookupKey = pkgName + inst.name.value;
         string methodClass = lookupFullQualifiedClassName(lookupKey);
 
         bir:BType returnType = inst.lhsOp.typeValue;
@@ -910,6 +910,15 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
                                     io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
         }
+
+        // Set annotations if available.
+        self.mv.visitInsn(DUP);
+        string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
+                                    lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+        self.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
+        self.mv.visitLdcInsn(inst.name.value);
+        self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processFPValueAnnotations",
+            io:sprintf("(L%s;L%s;L%s;)V", FUNCTION_POINTER, MAP_VALUE, STRING_VALUE), false);
 
         self.storeToVar(inst.lhsOp.variableDcl);
         lambdas[lambdaName] = inst;
@@ -1117,8 +1126,13 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     bir:BType bType = varDcl.typeValue;
 
     if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
+        bir:GlobalVariableDcl globalVar = <bir:GlobalVariableDcl> varDcl;
+        bir:ModuleID modId = <bir:ModuleID> globalVar?.moduleId;
+        string moduleName = getPackageName(modId.org, modId.name);
+
         string varName = varDcl.name.value;
-        string className = lookupGlobalVarClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(moduleName + varName);
+
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
         return;

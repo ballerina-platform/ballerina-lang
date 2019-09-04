@@ -31,9 +31,6 @@ public interface BallerinaGlobalVariableDefinition extends BallerinaTopLevelDefi
   BallerinaTypeName getTypeName();
 
   @Nullable
-  BallerinaChannelType getChannelType();
-
-  @Nullable
   PsiElement getAssign();
 
   @Nullable

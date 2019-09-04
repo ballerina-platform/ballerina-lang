@@ -347,8 +347,8 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}IndexOutOfRange message=failed to set element to json: message=array index" +
-                            " out of range: index: 4, size: 3.*")
+                    "error: \\{ballerina/lang.array\\}IndexOutOfRange message=failed to set element to json: " +
+                            "message=array index out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
         BInteger bInteger = new BInteger(1);
         BInteger bInteger2 = new BInteger(4);

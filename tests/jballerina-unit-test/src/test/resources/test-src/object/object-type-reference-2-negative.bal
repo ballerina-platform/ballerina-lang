@@ -21,8 +21,8 @@ type Foo object {
 };
 
 type Bar abstract object {
-    int x = 0;
-    string y = "";
+    int x;
+    string y;
 };
 
 type XXX object {

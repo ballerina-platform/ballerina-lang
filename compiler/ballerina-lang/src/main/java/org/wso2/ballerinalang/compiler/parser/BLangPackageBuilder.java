@@ -456,6 +456,7 @@ public class BLangPackageBuilder {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
 
         typeDef.typeNode = recordTypeNode;
         typeDef.pos = pos;
@@ -572,6 +573,7 @@ public class BLangPackageBuilder {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
 
         typeDef.typeNode = errorType;
         typeDef.pos = pos;
@@ -1076,6 +1078,7 @@ public class BLangPackageBuilder {
         lambdaFunction.setName(createIdentifier(lambdaFunction.pos,
                 anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);
+        lambdaFunction.addFlag(Flag.ANONYMOUS);
     }
 
     void addLambdaFunctionDef(DiagnosticPos pos,
@@ -1805,6 +1808,12 @@ public class BLangPackageBuilder {
         forkJoin.pos = pos;
         forkJoin.addWS(ws);
         this.addStmtToCurrentBlock(forkJoin);
+        String nextAnonymousForkKey = anonymousModelHelper.getNextAnonymousForkKey(pos.src.pkgID);
+        for (BLangSimpleVariableDef worker : forkJoin.workers) {
+            BLangFunction function = ((BLangLambdaFunction) worker.var.expr).function;
+            function.flagSet.add(Flag.FORKED);
+            function.anonForkName = nextAnonymousForkKey;
+        }
     }
 
     void endCallableUnitBody(Set<Whitespace> ws) {
@@ -1961,6 +1970,7 @@ public class BLangPackageBuilder {
             IdentifierNode anonTypeGenName = createIdentifier(identifierPos, genName);
             typeDef.setName(anonTypeGenName);
             typeDef.flagSet.add(Flag.PUBLIC);
+            typeDef.flagSet.add(Flag.ANONYMOUS);
             typeDef.typeNode = finiteTypeNode;
             typeDef.pos = pos;
 
@@ -2043,6 +2053,7 @@ public class BLangPackageBuilder {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
 
         typeDef.typeNode = objectTypeNode;
         typeDef.pos = pos;
@@ -2119,6 +2130,7 @@ public class BLangPackageBuilder {
                 IdentifierNode anonTypeGenName = createIdentifier(identifierPos, genName);
                 typeDef.setName(anonTypeGenName);
                 typeDef.flagSet.add(Flag.PUBLIC);
+                typeDef.flagSet.add(Flag.ANONYMOUS);
 
                 typeDef.typeNode = finiteTypeNode;
                 typeDef.pos = pos;

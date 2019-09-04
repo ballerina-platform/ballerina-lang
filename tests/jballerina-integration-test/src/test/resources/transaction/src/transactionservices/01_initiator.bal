@@ -59,7 +59,7 @@ service InitiatorService00 on initiatorEP00 {
         transaction {
             var response = participant1EP00 -> get("/testRemoteParticipantAbort");
             if (response is http:Response) {
-                log:printInfo("/testRemoteParticipantAbort response code: " + response.statusCode);
+                log:printInfo("/testRemoteParticipantAbort response code: " + response.statusCode.toString());
             } else {
                 log:printInfo("/testRemoteParticipantAbort errored");
             }

@@ -42,6 +42,9 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public BVarSymbol receiverSymbol;
     public boolean bodyExist;
 
+    // Only applicable for workers within fork statements.
+    public String enclForkName;
+
     public BInvokableSymbol(int tag,
                             int flags,
                             Name name,

@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
+
 /**
  * Perform deep modification of the clone of input value so it will be look like target type. 
  *
@@ -75,7 +77,7 @@ public class Convert {
                 return null;
             }
             return BallerinaErrors
-                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
+                    .createError(BALLERINA_PREFIXED_CONVERSION_ERROR,
                                  org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
                                          .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
                                                                   .CANNOT_CONVERT_NIL, convertType));
@@ -95,8 +97,7 @@ public class Convert {
                 convertedValue.stamp(targetType, new ArrayList<>());
                 return convertedValue;
             } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
-                throw BallerinaErrors.createError(
-                        org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR, e.getDetail());
+                throw BallerinaErrors.createError(BALLERINA_PREFIXED_CONVERSION_ERROR, e.getDetail());
             }
         }
 

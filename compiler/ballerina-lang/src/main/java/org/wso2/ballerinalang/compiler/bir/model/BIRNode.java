@@ -200,12 +200,6 @@ public abstract class BIRNode {
         public int flags;
         public PackageID pkgId;
 
-        public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type,
-                                    Name name, VarScope scope, VarKind kind, String metaVarNme) {
-            super(pos, type, name, scope, kind, metaVarNme);
-            this.flags = flags;
-        }
-
         public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type, PackageID pkgId, Name name,
                                     VarScope scope, VarKind kind, String metaVarName) {
             super(pos, type, name, scope, kind, metaVarName);

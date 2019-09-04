@@ -516,7 +516,6 @@ public type NewTable record {|
     VarRef lhsOp;
     VarRef columnsOp;
     VarRef dataOp;
-    VarRef indexColOp;
     VarRef keyColOp;
     BType typeValue;
 |};

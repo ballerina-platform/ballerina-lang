@@ -67,7 +67,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCachingTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>
+<!--            <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>-->
         </classes>
     </test>
 
@@ -136,12 +136,12 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-transaction-tests" parallel="false">-->
-<!--        <classes>-->
-<!--             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="ballerina-transaction-tests" parallel="false">
+        <classes>
+             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
+        </classes>
+    </test>
 
     <test name="ballerina-websocket-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
@@ -269,8 +269,8 @@
     <test name="ballerina-observability-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
-            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
-            <!--<class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>-->
+            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
         </classes>
     </test>
 
@@ -311,5 +311,12 @@
         <packages>
             <package name="org.ballerinalang.test.run.*"/>
         </packages>
+    </test>
+
+    <test name="ballerina-logging-tests" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.logging.LogAPITestCase" />
+        </classes>
     </test>
 </suite>

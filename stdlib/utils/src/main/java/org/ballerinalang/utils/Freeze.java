@@ -28,6 +28,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_FREEZE_ERROR;
+
 /**
  * Performs freezing a given value.
  *
@@ -53,8 +55,8 @@ public class Freeze {
         if (refValue.getType().getTag() == org.ballerinalang.jvm.types.TypeTags.ERROR_TAG) {
             // If the value is of type error, return an error indicating an error cannot be frozen.
             // Freeze is only allowed on errors if they are part of a structure.
-            return BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.FREEZE_ERROR,
-                                 "'freeze()' not allowed on 'error'");
+            return BallerinaErrors.createError(BALLERINA_PREFIXED_FREEZE_ERROR,
+                                               "'freeze()' not allowed on 'error'");
         }
         Status freezeStatus = new Status(State.MID_FREEZE);
         try {
@@ -66,8 +68,7 @@ public class Freeze {
             // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
             // constituents to false, and return an error
             freezeStatus.setUnfrozen();
-            return BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.FREEZE_ERROR,
-                                 e.getMessage());
+            return BallerinaErrors.createError(BALLERINA_PREFIXED_FREEZE_ERROR, e.getMessage());
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
             // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
             // and its constituents to false, and panic

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/lang.'object as lang;
 import ballerina/log;
@@ -26,7 +27,7 @@ import ballerina/log;
 # + config - The configuration for the endpoint
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public SubscriberListenerConfiguration? config = ();
 
@@ -123,13 +124,13 @@ public type Listener object {
                     var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, publisherClientConfig);
                     if (discoveredDetails is [string, string]) {
                         var [retHub, retTopic] = discoveredDetails;
-                        var hubDecodeResponse = http:decode(retHub, "UTF-8");
+                        var hubDecodeResponse = encoding:decodeUriComponent(retHub, "UTF-8");
                         if (hubDecodeResponse is string) {
                             retHub = hubDecodeResponse;
                         } else {
                             panic <error> hubDecodeResponse;
                         }
-                        var topicDecodeResponse = http:decode(retTopic, "UTF-8");
+                        var topicDecodeResponse = encoding:decodeUriComponent(retTopic, "UTF-8");
                         if (topicDecodeResponse is string) {
                             retTopic = topicDecodeResponse;
                         } else {
