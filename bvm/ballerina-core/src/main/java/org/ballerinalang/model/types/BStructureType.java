@@ -18,7 +18,6 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.TypeInfo;
 
 import java.util.Map;
 
@@ -73,6 +72,5 @@ public abstract class BStructureType extends BType {
         this.attachedFunctions = attachedFunctions;
     }
 
-    public abstract TypeInfo getTypeInfo();
 }
 

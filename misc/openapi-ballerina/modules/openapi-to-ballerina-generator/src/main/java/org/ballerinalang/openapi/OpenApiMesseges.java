@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.openapi;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * This class contains the messages constants required for OpenApi tool.
  */
@@ -37,10 +41,15 @@ public class OpenApiMesseges {
 
 
 
-    public static final String GEN_SERVICE_MODULE_REQUIRED = "A module name and a service name is required to " +
-                                                             "generate the service from the provided OpenAPI file. " +
-                                                             "\n E.g. ballerina openapi gen-service " +
-                                                             "<module_name>:<service_name> <OpenAPI_file>";
+    public static final String GEN_SERVICE_MODULE_ARGS_REQUIRED = "A module name and a service name is required " +
+            "in order to generate the ballerina service for the provided OpenApi contract. \nE.g. ballerina " +
+            "openapi gen-service <module_name>:<service_name> <openapi_contract>";
+    public static final String GEN_SERVICE_MODULE_REQUIRED = "A module name is required in order to generate the " +
+            "ballerina service for the provided OpenApi contract. \nE.g. ballerina openapi gen-service " +
+            "<module_name>:<service_name> <openapi_contract>";
+    public static final String GEN_SERVICE_SERVICE_NAME_REQUIRED = "A service name is required in order to generate " +
+            "the ballerina service for the provided OpenApi contract. \nE.g. ballerina openapi gen-service " +
+            "<module_name>:<service_name> <openapi_contract>";
     public static final String GEN_SERVICE_PROJECT_ROOT = "Ballerina service generation should be done from the " +
                                                           "project root. \nIf you like to start with a new project " +
                                                           "use `ballerina new` command to create a new project.";
@@ -54,6 +63,23 @@ public class OpenApiMesseges {
                                                             "occured.";
     public static final String MODULE_MD_EXCEPTION = "Unable to create moudle.md file. File system error occured.";
     public static final String DEFINITION_EXISTS = "There is already an OpenApi contract in the location.";
+
+
+    //TODO Update keywords if Ballerina Grammer changes
+    private static final String[] KEYWORDS = new String[] { "abort", "aborted", "abstract", "all", "annotation",
+            "any", "anydata", "boolean", "break", "byte", "catch", "channel", "check", "checkpanic", "client",
+            "committed", "const", "continue", "decimal", "else", "error", "external", "fail", "final", "finally",
+            "float", "flush", "fork", "function", "future", "handle", "if", "import", "in", "int", "is", "join",
+            "json", "listener", "lock", "match", "new", "object", "OBJECT_INIT", "onretry", "PARAMETER", "panic",
+            "private", "public", "record", "remote", "resource", "retries", "retry", "return", "returns", "service",
+            "source", "start", "stream", "string", "table", "transaction", "try", "type", "typedesc", "typeof",
+            "trap", "throw", "wait", "while", "with", "worker", "var", "version", "xml", "xmlns", "BOOLEAN_LITERAL",
+            "NULL_LITERAL", "ascending", "descending", "foreach", "map"};
+
+    public static final List<String> BAL_KEYWORDS;
+    static {
+        BAL_KEYWORDS = Collections.unmodifiableList(Arrays.asList(KEYWORDS));
+    }
 
     private OpenApiMesseges() {
         throw new AssertionError();

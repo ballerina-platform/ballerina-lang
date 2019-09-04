@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
 import java.util.Map;
@@ -1059,7 +1060,7 @@ public class Message {
     public String toString() {
         StringBuilder payload = new StringBuilder("Message : ");
         if (bMessage != null) {
-            payload.append("{ ").append(bMessage.toString()).append(" }");
+            payload.append("{ ").append(StringUtils.getJsonString(bMessage)).append(" }");
         } else {
             payload.append("null");
         }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
@@ -200,10 +201,19 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 param.setSymbol(((BLangSimpleVariable) parameter).symbol);
                 documentedParameterMap.remove(name);
             } else {
-                // Check whether the parameter is public. Otherwise it is not mandatory to document it.
+                // Check whether the parameter is public. Otherwise it is not mandatory to document it except if it is a
+                // public function parameter.
                 if (Symbols.isFlagOn(((BLangSimpleVariable) parameter).symbol.flags, Flags.PUBLIC)) {
                     // Add warnings for undocumented parameters.
                     dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
+                }
+
+                // If the parameter is a public function parameter, the parameter should be documented.
+                if (documentableNode.getKind() == NodeKind.FUNCTION) {
+                    BLangFunction function = (BLangFunction) documentableNode;
+                    if (function.flagSet.contains(Flag.PUBLIC)) {
+                        dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
+                    }
                 }
             }
         });

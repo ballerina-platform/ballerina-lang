@@ -314,8 +314,6 @@ type InstructionEmitter object {
             print(", ");
             self.opEmitter.emitOp(ins.dataOp);
             print(", ");
-            self.opEmitter.emitOp(ins.indexColOp);
-            print(", ");
             self.opEmitter.emitOp(ins.keyColOp);
             println(";");
         } else if (ins is NewInstance) {

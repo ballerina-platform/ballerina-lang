@@ -39,7 +39,7 @@ public class BDecimalValueNegativeTest {
 
         String expectedError = "mismatched input 'decimal'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', " +
                 "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', " +
-                "'..<', '.@'}";
+                "'..<'}";
         BAssertUtil.validateError(compileResult, index++, expectedError, 23, 5);
 
         expectedError = "extraneous input 'g'";

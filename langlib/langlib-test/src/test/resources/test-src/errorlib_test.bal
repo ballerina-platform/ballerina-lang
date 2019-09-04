@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.error as errorLib;
+import ballerina/lang.'error as errorLib;
 
 type Detail record {|
     string message?;
@@ -22,10 +22,10 @@ type Detail record {|
     (anydata|error)...;
 |};
 
-public const CONNECTION_TIMED_OUT = "{ballerina/io}ConnectionTimedOut";
+public const CONNECTION_TIMED_OUT = "ConnectionTimedOut";
 public type TimeOutError error<CONNECTION_TIMED_OUT, Detail>;
 
-public const GENERIC_ERROR = "{ballerina/io}GenericError";
+public const GENERIC_ERROR = "GenericError";
 public type GenericError error<GENERIC_ERROR, Detail>;
 
 public type Error GenericError|TimeOutError;

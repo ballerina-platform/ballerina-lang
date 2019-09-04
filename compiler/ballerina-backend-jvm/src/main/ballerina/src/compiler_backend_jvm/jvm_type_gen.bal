@@ -524,7 +524,6 @@ function duplicateServiceTypeWithAnnots(jvm:MethodVisitor mv, bir:BObjectType ob
     string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
                             lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
     mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
-    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
 
     mv.visitVarInsn(ALOAD, strandIndex);
 

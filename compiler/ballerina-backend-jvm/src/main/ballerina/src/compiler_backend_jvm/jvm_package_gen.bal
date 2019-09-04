@@ -49,6 +49,8 @@ bir:ModuleID[] dependentModuleArray = [];
 
 string currentClass = "";
 
+int lambdaIndex = 0;
+
 function lookupFullQualifiedClassName(string key) returns string {
     if (birFunctionMap.hasKey(key)) {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
@@ -188,7 +190,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
                 string mainClass = "";
                 if (mainFunc is bir:Function) {
                     mainClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName,
-                                                        cleanupBalExt(mainFunc.pos.sourceFileName));
+                                       <@untainted> cleanupPathSeperators(cleanupBalExt(mainFunc.pos.sourceFileName)));
                 }
 
                 generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
@@ -200,7 +202,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             }
             generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
             generateCreateTypesMethod(cw, module.typeDefs);
-            generateModuleInitializer(cw, module, pkgName);
+            generateModuleInitializer(cw, module);
             generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
@@ -217,6 +219,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         }
         // clear the lambdas
         lambdas = {};
+        lambdaIndex = 0;
         cw.visitEnd();
 
         var result = cw.toByteArray();
@@ -337,7 +340,11 @@ function calculateBirCachePath(string birCacheDir, bir:ModuleID modId, string ex
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    string className = cleanupName(sourceFileName);
+    string className = cleanupSourceFileName(sourceFileName);
+    // handle source file path start with '/'.
+    if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
+        className = className.substring(1, className.length());
+    }
     if (moduleName != ".") {
         className = cleanupName(moduleName) + "/" + className;
     }
@@ -371,6 +378,10 @@ function splitPkgName(string key) returns [string, string] {
 
 function cleanupName(string name) returns string {
     return internal:replace(name, ".","_");
+}
+
+function cleanupSourceFileName(string name) returns string {
+    return internal:replace(name, ".", FILE_NAME_PERIOD_SEPERATOR);
 }
 
 function cleanupPackageName(string pkgName) returns string {

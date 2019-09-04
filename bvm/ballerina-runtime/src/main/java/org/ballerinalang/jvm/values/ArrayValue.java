@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
@@ -38,6 +39,7 @@ import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -56,6 +58,10 @@ import static org.ballerinalang.jvm.TypeChecker.anyToDecimal;
 import static org.ballerinalang.jvm.TypeChecker.anyToFloat;
 import static org.ballerinalang.jvm.TypeChecker.anyToInt;
 import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
+import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Represent an array in ballerina.
@@ -455,7 +461,8 @@ public class ArrayValue implements RefValue, CollectionValue {
         Object arr = getArrayFromType(elementType.getTag());
 
         if (index > lastIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                                                            RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
 
@@ -499,6 +506,11 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     @Override
     public String stringValue() {
+        return stringValue(null);
+    }
+
+    @Override
+    public String stringValue(Strand strand) {
         if (elementType != null) {
             StringJoiner sj = new StringJoiner(" ");
             if (elementType.getTag() == TypeTags.INT_TAG) {
@@ -529,10 +541,6 @@ public class ArrayValue implements RefValue, CollectionValue {
             }
         }
 
-        if (getElementType(arrayType).getTag() == TypeTags.JSON_TAG) {
-            return getJSONString();
-        }
-
         StringJoiner sj;
         if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
             sj = new StringJoiner(" ");
@@ -541,12 +549,8 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
 
         for (int i = 0; i < size; i++) {
-            if (refValues[i] != null) {
-                sj.add((refValues[i] instanceof RefValue) ? ((RefValue) refValues[i]).stringValue() :
-                        (refValues[i] instanceof String) ? (String) refValues[i] :  refValues[i].toString());
-            } else {
-                sj.add("()");
-            }
+            BType type = TypeChecker.getType(refValues[i]);
+            sj.add(StringUtils.getStringValue(strand, refValues[i], type));
         }
         return sj.toString();
     }
@@ -822,27 +826,32 @@ public class ArrayValue implements RefValue, CollectionValue {
         rangeCheck(index, size);
         if (index < 0 || index >= size) {
             if (arrayType != null && arrayType.getTag() == TypeTags.TUPLE_TAG) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                throw BLangExceptionHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                         RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
             }
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
     private void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
         if (arrayType != null && arrayType.getTag() == TypeTags.TUPLE_TAG) {
             if ((((BTupleType) arrayType).getRestType() == null && index >= maxArraySize) || (int) index < 0) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                throw BLangExceptionHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                         RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
             }
         } else {
             if ((int) index < 0 || index >= maxArraySize) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                throw BLangExceptionHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                         RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
             }
         }
@@ -901,7 +910,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         synchronized (this) {
             try {
                 if (this.freezeStatus.getState() != State.UNFROZEN) {
-                    FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                    FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), ARRAY_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
                 throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
@@ -1013,28 +1022,20 @@ public class ArrayValue implements RefValue, CollectionValue {
                 refValues[i] = booleanValues[i];
             }
             booleanValues = null;
-        }
-
-        if (elementType == BTypes.typeInt) {
+        } else if (elementType == BTypes.typeInt) {
             for (int i = 0; i < this.size(); i++) {
                 refValues[i] = intValues[i];
             }
             intValues = null;
-        }
-
-        if (elementType == BTypes.typeString) {
+        } else if (elementType == BTypes.typeString) {
             System.arraycopy(stringValues, 0, refValues, 0, this.size());
             stringValues = null;
-        }
-
-        if (elementType == BTypes.typeFloat) {
+        } else if (elementType == BTypes.typeFloat) {
             for (int i = 0; i < this.size(); i++) {
                 refValues[i] = floatValues[i];
             }
             floatValues = null;
-        }
-
-        if (elementType == BTypes.typeByte) {
+        } else if (elementType == BTypes.typeByte) {
             for (int i = 0; i < this.size(); i++) {
                 refValues[i] = (byteValues[i]);
             }
@@ -1110,49 +1111,44 @@ public class ArrayValue implements RefValue, CollectionValue {
             return;
         }
 
-        int arrayElementTypeTag = arrayElementType.getTag();
+        switch (arrayElementType.getTag()) {
+            case TypeTags.BYTE_TAG:
+                byteValues = (byte[]) newArrayInstance(Byte.TYPE);
+                for (int i = 0; i < this.size(); i++) {
+                    byteValues[i] = (byte) anyToByte(this.get(i));
+                }
+                break;
+            case TypeTags.INT_TAG:
+                intValues = (long[]) newArrayInstance(Long.TYPE);
+                for (int i = 0; i < this.size(); i++) {
+                    intValues[i] = anyToInt(this.get(i));
+                }
+                break;
+            case TypeTags.FLOAT_TAG:
+                floatValues = (double[]) newArrayInstance(Double.TYPE);
+                for (int i = 0; i < this.size(); i++) {
+                    floatValues[i] = anyToFloat(this.get(i));
+                }
+                break;
+            case TypeTags.DECIMAL_TAG:
+                for (int i = 0; i < this.size(); i++) {
+                    refValues[i] = anyToDecimal(this.get(i));
+                }
 
-        if (arrayElementTypeTag == TypeTags.BYTE_TAG) {
-            byteValues = (byte[]) newArrayInstance(Byte.TYPE);
-            for (int i = 0; i < this.size(); i++) {
-                byteValues[i] = (byte) anyToByte(this.get(i));
-            }
-        }
-
-        if (arrayElementTypeTag == TypeTags.INT_TAG) {
-            intValues = (long[]) newArrayInstance(Long.TYPE);
-            for (int i = 0; i < this.size(); i++) {
-                intValues[i] = anyToInt(this.get(i));
-            }
-        }
-
-        if (arrayElementTypeTag == TypeTags.FLOAT_TAG) {
-            floatValues = (double[]) newArrayInstance(Double.TYPE);
-            for (int i = 0; i < this.size(); i++) {
-                floatValues[i] = anyToFloat(this.get(i));
-            }
-        }
-
-        if (arrayElementTypeTag == TypeTags.DECIMAL_TAG) {
-            for (int i = 0; i < this.size(); i++) {
-                refValues[i] = anyToDecimal(this.get(i));
-            }
-
-            switch (this.elementType.getTag()) {
-                case TypeTags.BYTE_TAG:
-                    byteValues = null;
-                    break;
-                case TypeTags.INT_TAG:
-                    intValues = null;
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    floatValues = null;
-                    break;
-            }
-
-            this.elementType = arrayElementType;
-            this.arrayType = type;
-            return;
+                switch (this.elementType.getTag()) {
+                    case TypeTags.BYTE_TAG:
+                        byteValues = null;
+                        break;
+                    case TypeTags.INT_TAG:
+                        intValues = null;
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        floatValues = null;
+                        break;
+                }
+                this.elementType = arrayElementType;
+                this.arrayType = type;
+                return;
         }
 
         this.elementType = arrayElementType;
@@ -1186,14 +1182,17 @@ public class ArrayValue implements RefValue, CollectionValue {
         if (arrayType.getTag() == TypeTags.TUPLE_TAG) {
             BTupleType tupleType = (BTupleType) this.arrayType;
             if (tupleType.getRestType() == null) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                throw BLangExceptionHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         RuntimeErrors.ILLEGAL_TUPLE_SIZE, size, length);
             } else if (tupleType.getTupleTypes().size() > length) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                throw BLangExceptionHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         RuntimeErrors.ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE, tupleType.getTupleTypes().size(), length);
             }
         } else if (((BArrayType) this.arrayType).getState() == ArrayState.CLOSED_SEALED) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     RuntimeErrors.ILLEGAL_ARRAY_SIZE, size, length);
         }
     }

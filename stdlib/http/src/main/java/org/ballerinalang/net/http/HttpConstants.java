@@ -18,7 +18,10 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.types.BPackage;
+
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
@@ -48,6 +51,7 @@ public class HttpConstants {
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina" + ORG_NAME_SEPARATOR + "http";
+    public static final BPackage PROTOCOL_HTTP_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "http");
     public static final String HTTP_CALLER_NAME = "ballerina/http:Caller";
     public static final String HTTP_MOCK_SERVER_ENDPOINT_NAME = "Tballerina/http:MockListener;";
     public static final String PROTOCOL_HTTPS = "https";

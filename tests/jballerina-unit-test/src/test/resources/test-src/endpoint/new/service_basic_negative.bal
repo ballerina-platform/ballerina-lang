@@ -33,7 +33,7 @@ service MyService on ex {
 
 public type ABC object {
 
-    *'object:AbstractListener;
+    *'object:Listener;
 
     public function __start() returns error?{
         return;
@@ -69,3 +69,25 @@ service ser2 on ex {
 
     }
 }
+
+service ser3 on ex {
+    resource function foo() returns string? {
+
+    }
+
+    resource function bar() returns error {
+        return error("dummy error");
+    }
+}
+
+const R1 = "reason 1";
+const R2 = "reason 2";
+
+type FooErr error<R1>;
+type BarErr error<R2, record { string message?; error cause?; int code; }>;
+
+service ser4 = service {
+    resource function foo() returns FooErr|BarErr {
+        return FooErr();
+    }
+};

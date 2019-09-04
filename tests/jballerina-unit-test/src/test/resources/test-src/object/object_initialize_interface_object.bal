@@ -5,7 +5,7 @@ function test () returns int {
 }
 
 type Person abstract object {
-    public int age = 0;
+    public int age;
 
     function test(int a, string n) returns string;
 };

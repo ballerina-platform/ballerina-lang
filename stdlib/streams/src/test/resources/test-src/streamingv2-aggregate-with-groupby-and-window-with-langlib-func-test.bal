@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'int as ints;
+import ballerina/lang.'value as val;
 import ballerina/runtime;
-import ballerina/'lang\.int as ints;
-import ballerina/'lang\.value as val;
 
 type Teacher record {
     string name;

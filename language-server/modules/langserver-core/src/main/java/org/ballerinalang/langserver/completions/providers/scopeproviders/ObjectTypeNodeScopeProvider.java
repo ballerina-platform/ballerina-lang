@@ -78,6 +78,13 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
             return completionItems;
         }
 
+        if (inFunctionReturnParameterContext(context)) {
+            /*
+             Added the check before calculation of context and etc, to avoid unnecessary parser context calculations
+             */
+            return this.getProvider(BallerinaParser.ReturnParameterContext.class).getCompletions(context);
+        }
+
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
         Optional<String> subRule = this.getSubRule(lhsTokens);
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
@@ -104,6 +111,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
             completionItems.add(Snippet.DEF_REMOTE_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_INIT_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_ATTACH_FUNCTION.get().build(context));
+            completionItems.add(Snippet.DEF_DETACH_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_START_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_GRACEFUL_STOP_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_IMMEDIATE_STOP_FUNCTION.get().build(context));

@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/filepath;
 import ballerina/http;
-import ballerina/io;
-import ballerina/file;
-import ballerina/'lang\.int as lint;
 import ballerina/internal;
+import ballerina/io;
+import ballerina/lang.'int as lint;
 
 const int MAX_INT_VALUE = 2147483647;
 const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
@@ -87,14 +87,14 @@ public function main(string... args) {
         } else {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is error) {
-                panic createError("failed to resolve host of remote registry: " + host + " with port " + port.toString());
+                panic createError("failed to resolve host of remote repository: " + host + ":" + port.toString());
             } else {
                 httpEndpoint = result;
                 return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
             }
         }
     } else if (host != "" || strPort != "") {
-        panic createError("both host and port should be provided to enable proxy for accessing remote registry.");
+        panic createError("both host and port should be provided to enable proxy for accessing remote repository.");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
         return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
@@ -127,11 +127,11 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
     http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, req);
     if (httpResponse is error) {
         error e = httpResponse;
-        panic createError("connection to the remote registry host failed : " + e.reason());
+        panic createError("connection to the remote repository host failed: " + <string>e.detail()["message"]);
     } else {
         string statusCode = httpResponse.statusCode.toString();
-        if (internal:hasPrefix(statusCode, "5")) {
-            panic createError("remote registry failed for url:" + url);
+        if (statusCode.startsWith("5")) {
+            panic createError("unable to connect to remote repository: " + url);
         } else if (statusCode != "200") {
             var resp = httpResponse.getJsonPayload();
             if (resp is json) {
@@ -142,7 +142,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     panic createError(resp.message.toString());
                 }
             } else {
-                panic createError("error occurred when pulling the module from remote registry");
+                panic createError("failed to pull the module '" + modulePath + "' from the remote repository '" + url + "'");
             }
         } else {
             string contentLengthHeader;
@@ -200,12 +200,12 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                 var destChannelClose = wch.close();
                 if (destChannelClose is error) {
                     error e = destChannelClose;
-                    panic createError("error occurred while closing the channel: " + e.reason());
+                    panic createError("error occurred while closing the channel: " + <string>e.detail()["message"]);
                 } else {
                     var srcChannelClose = sourceChannel.close();
                     if (srcChannelClose is error) {
                         error e = srcChannelClose;
-                        panic createError("error occurred while closing the channel: " + e.reason());
+                        panic createError("error occurred while closing the channel: " + <string>e.detail()["message"]);
                     } else {
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
@@ -382,7 +382,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
             error e = channelCloseError;
-            io:println(logFormatter.formatLog("Error occured while closing the channel: " + e.reason()));
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + <string>e.detail()["message"]));
         } else {
             return;
         }
@@ -390,7 +390,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
             error e = channelCloseError;
-            io:println(logFormatter.formatLog("Error occured while closing the channel: " + e.reason()));
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + <string>e.detail()["message"]));
         } else {
             return;
         }

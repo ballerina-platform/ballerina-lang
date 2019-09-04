@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -57,35 +56,54 @@ public abstract class CompletionItemSorter {
     }
 
     void setPriority(CompletionItem completionItem) {
-        String detail = completionItem.getDetail();
-        switch (detail) {
-            case ItemResolverConstants.NONE:
+        if (completionItem.getKind() == null) {
+            completionItem.setSortText(Priority.PRIORITY110.toString());
+            return;
+        }
+        switch (completionItem.getKind()) {
+            case Snippet:
+                completionItem.setSortText(Priority.PRIORITY240.toString());
+                break;
+            case Unit:
+                completionItem.setSortText(Priority.PRIORITY230.toString());
+                break;
+            case Keyword:
                 completionItem.setSortText(Priority.PRIORITY220.toString());
                 break;
-            case ItemResolverConstants.KEYWORD_TYPE:
+            case Field:
                 completionItem.setSortText(Priority.PRIORITY210.toString());
                 break;
-            case ItemResolverConstants.STATEMENT_TYPE:
+            case Event:
                 completionItem.setSortText(Priority.PRIORITY200.toString());
                 break;
-            case ItemResolverConstants.FIELD_TYPE:
+            case Interface:
+                completionItem.setSortText(Priority.PRIORITY190.toString());
+                break;
+            case Struct:
                 completionItem.setSortText(Priority.PRIORITY180.toString());
                 break;
-            case ItemResolverConstants.B_TYPE:
+            case TypeParameter:
                 completionItem.setSortText(Priority.PRIORITY170.toString());
                 break;
-            case ItemResolverConstants.PACKAGE_TYPE:
+            case Enum:
+                completionItem.setSortText(Priority.PRIORITY160.toString());
+                break;
+            case Class:
+                completionItem.setSortText(Priority.PRIORITY150.toString());
+                break;
+            case Module:
                 completionItem.setSortText(Priority.PRIORITY140.toString());
                 break;
-            case ItemResolverConstants.FUNCTION_TYPE:
+            case Variable:
                 completionItem.setSortText(Priority.PRIORITY130.toString());
                 break;
-            case ItemResolverConstants.SNIPPET_TYPE:
-                completionItem.setSortText(Priority.PRIORITY110.toString());
-                break;
-            default:
+            case Function:
                 completionItem.setSortText(Priority.PRIORITY120.toString());
                 break;
+            default:
+                completionItem.setSortText(Priority.PRIORITY110.toString());
+                break;
+                
         }
     }
 }

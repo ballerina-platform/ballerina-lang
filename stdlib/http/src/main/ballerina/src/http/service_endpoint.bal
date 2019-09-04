@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/cache;
 import ballerina/crypto;
+import ballerina/lang.'object as lang;
 import ballerina/runtime;
 import ballerina/system;
-import ballerina/'lang\.object as lang;
-import ballerina/cache;
 
 /////////////////////////////
 /// HTTP Listener Endpoint ///
@@ -27,7 +27,7 @@ import ballerina/cache;
 # remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations.
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private int port = 0;
     private ListenerConfiguration config = {};

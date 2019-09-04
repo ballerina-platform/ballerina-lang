@@ -45,7 +45,7 @@ public class BConstantCompletionItemBuilder {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(constantSymbol.getName().getValue());
         completionItem.setInsertText(constantSymbol.getName().getValue());
-        completionItem.setDetail(CommonUtil.getBTypeName(constantSymbol.literalType, context));
+        completionItem.setDetail(CommonUtil.getBTypeName(constantSymbol.literalType, context, false));
         completionItem.setDocumentation(getDocumentation(constantSymbol));
         completionItem.setKind(CompletionItemKind.Variable);
 

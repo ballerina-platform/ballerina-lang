@@ -14,35 +14,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Sum of all the arguments.
-# 0 if no args.
+# Sum of zero or more decimal values.
 #
-# + xs - decimal numbers to sum
-# + return - sum of the arguments
+# + xs - decimal values to sum
+# + return - sum of all the `xs`; 0 if `xs` is empty
 public function sum(decimal... xs) returns decimal = external;
 
-# Maximum of all the arguments.
+# Maximum of one or more decimal values.
 #
-# + x - first paramter to check for max value
-# + xs - rest of the parameter to check for max value
-# + return - maximum value of all provided values
+# + x - first decimal value
+# + xs - other decimal values
+# + return - maximum value of `x` and all the `xs`
 public function max(decimal x, decimal... xs) returns decimal = external;
 
-# Minimum of all the arguments.
+# Minimum of one or more decimal values
 #
-# + x - first paramter to check for min value
-# + xs - rest of the parameter to check for min value
-# + return - minimum value of all provided values
+# + x - first decimal value
+# + xs - other decimal values
+# + return - minimum value of `x` and all the `xs`.
 public function min(decimal x, decimal... xs) returns decimal = external;
 
 # IEEE abs operation.
 #
-# + x - whose absolute value is to be determined
-# + return - absolute value of the argument
+# + x - decimal value to operate on
+# + return - absolute value of `x`
 public function abs(decimal x) returns decimal = external;
 
-# Floating point value that is a mathematical integer and closest to `x`.
-# If there are two such integers, choose the one that is even
+# Round a decimal to the closest integral value.
+# Returns the decimal value that is a mathematical integer and closest to `x`.
+# If there are two such values, choose the one that is even
 # (this is the round-to-nearest rounding mode, which is the default for IEEE
 # and for Ballerina).
 # Same as Java Math.rint method
@@ -50,20 +50,20 @@ public function abs(decimal x) returns decimal = external;
 # IEEE 754 roundToIntegralTiesToEven operation
 # Note that `<int>x` is the same as `<int>x.round()`
 #
-# + x - whose value to be rounded
-# + return - rounded value
+# + x - decimal value to operate on
+# + return - closest decimal value to `x` that is a mathematical integer
 public function round(decimal x) returns decimal = external;
 
-# Largest (closest to +∞) floating point value not greater than `x` that is a mathematical integer.
+# Rounds a decimal down to the closest integral value.
 #
-# + x - whose value to be floored
-# + return - floored value
+# + x - decimal value to operate on
+# + return - largest (closest to +∞) decimal value not greater than `x` that is a mathematical integer.
 public function floor(decimal x) returns decimal = external;
 
-# Smallest (closest to -∞) floating point value not less than `x` that is a mathematical integer
+# Rounds a decimal up to the closest integral value.
 #
-# + x - value to performe ceiling on
-# + return - integer ceiling value of the argument in decimal
+# + x - decimal value to operate on
+# + return - smallest (closest to -∞) decimal value not less than `x` that is a mathematical integer
 public function ceiling(decimal x) returns decimal = external;
 
 # Return the decimal value represented by `s`.

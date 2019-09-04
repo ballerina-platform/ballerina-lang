@@ -606,11 +606,10 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, TABLE_VALUE);
         self.mv.visitInsn(DUP);
         loadType(self.mv, tableNewIns.typeValue);
-        self.loadVar(tableNewIns.indexColOp.variableDcl);
         self.loadVar(tableNewIns.keyColOp.variableDcl);
         self.loadVar(tableNewIns.dataOp.variableDcl);
-        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", BTYPE,
-                ARRAY_VALUE, ARRAY_VALUE, ARRAY_VALUE), false);
+        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;)V", BTYPE,
+                ARRAY_VALUE, ARRAY_VALUE), false);
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
@@ -1108,8 +1107,12 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     bir:BType bType = varDcl.typeValue;
 
     if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
+        bir:GlobalVariableDcl globalVar = <bir:GlobalVariableDcl> varDcl;
+        bir:ModuleID modId = <bir:ModuleID> globalVar?.moduleId;
+        string moduleName = getPackageName(modId.org, modId.name);
+
         string varName = varDcl.name.value;
-        string className = lookupGlobalVarClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(moduleName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
         return;

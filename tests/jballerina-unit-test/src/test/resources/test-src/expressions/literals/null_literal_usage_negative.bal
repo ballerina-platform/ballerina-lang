@@ -58,8 +58,8 @@ function testNullWithMatch() returns string {
     int? x = 10;
 
     match x {
-        0 => return "0";
-        null => return "null";
+        0 => {return "0";}
+        null => {return "null";}
     }
 
     return "";

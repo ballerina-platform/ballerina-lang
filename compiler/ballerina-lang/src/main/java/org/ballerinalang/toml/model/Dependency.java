@@ -20,6 +20,8 @@ package org.ballerinalang.toml.model;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 
+import java.util.Objects;
+
 /**
  * Dependency definition in Ballerina.toml manifest file.
  */
@@ -59,5 +61,30 @@ public class Dependency {
     
     public void setMetadata(DependencyMetadata metadata) {
         this.metadata = metadata;
+    }
+    
+    @Override
+    public String toString() {
+        return null != this.metadata &&
+               null != this.metadata.getVersion() &&
+               !"".equals(this.metadata.getVersion().trim()) ?
+               getModuleID() + ":" + this.metadata.getVersion() : getModuleID();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Dependency)) {
+            return false;
+        }
+        Dependency that = (Dependency) o;
+        return this.toString().equals(that.toString());
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(toString());
     }
 }

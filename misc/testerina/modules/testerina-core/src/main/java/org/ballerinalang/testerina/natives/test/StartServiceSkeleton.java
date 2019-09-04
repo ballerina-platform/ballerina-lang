@@ -29,13 +29,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.testerina.core.TesterinaConstants;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.ballerinalang.tool.util.CompileResult;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -78,9 +74,9 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
 
         try {
             // TODO: find how to give the service name in to service generation function.
-            generator.generateService(userDir, openApiFilePath, "", rootDir.toString());
+            generator.generateService(userDir, openApiFilePath, "", "", rootDir.toString());
         } catch (IOException | BallerinaOpenApiException e) {
-            throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to generate the "
+            throw new BallerinaException(String.format("Service skeleton creation failed. Failed to generate the "
                     + "service from the [OpenApi file] %s [cause] %s", openApiFilePath, e.getMessage()), e);
         }
 
@@ -95,12 +91,12 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
         }
         // set the debugger
 
-        ProgramFile programFile = compileResult.getProgFile();
-        programFile.setProgramFilePath(Paths.get(rootDir.toString()));
-        // start the service
-        TesterinaUtils.startService(programFile);
-        // keep a reference to be used in stop service skeleton
-        TesterinaRegistry.getInstance().addSkeletonProgramFile(programFile);
+//        ProgramFile programFile = compileResult.getProgFile();
+//        programFile.setProgramFilePath(Paths.get(rootDir.toString()));
+//        // start the service
+//        TesterinaUtils.startService(programFile);
+//        // keep a reference to be used in stop service skeleton
+//        TesterinaRegistry.getInstance().addSkeletonProgramFile(programFile);
         ctx.setReturnValues(new BBoolean(true));
     }
 
@@ -111,7 +107,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
             try {
                 Files.createDirectories(projectRoot);
             } catch (IOException e) {
-                throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to create " +
+                throw new BallerinaException(String.format("Service skeleton creation failed. Failed to create " +
                         "[.ballerina] %s [cause] %s", projectRoot.toString(), e.getMessage()), e);
             }
         }

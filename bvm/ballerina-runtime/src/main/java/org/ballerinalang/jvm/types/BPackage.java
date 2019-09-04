@@ -43,6 +43,12 @@ public class BPackage {
         this.version = version;
     }
 
+    public BPackage(String org, String name) {
+        this.org = org;
+        this.name = name;
+        this.version = "";
+    }
+
     public String getOrg() {
         return org;
     }

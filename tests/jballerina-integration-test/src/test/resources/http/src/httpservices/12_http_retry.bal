@@ -19,7 +19,6 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/runtime;
 import ballerina/io;
-import ballerina/internal;
 
 listener http:Listener serviceEndpoint1 = new(9105);
 
@@ -96,12 +95,12 @@ service mockHelloService on serviceEndpoint1 {
             log:printInfo("Request received from the client to healthy service.");
             http:Response response = new;
             if (req.hasHeader(mime:CONTENT_TYPE)
-                && internal:hasPrefix(req.getHeader(mime:CONTENT_TYPE), http:MULTIPART_AS_PRIMARY_TYPE)) {
+                && req.getHeader(mime:CONTENT_TYPE).startsWith(http:MULTIPART_AS_PRIMARY_TYPE)) {
                 var bodyParts = req.getBodyParts();
                 if (bodyParts is mime:Entity[]) {
                     foreach var bodyPart in bodyParts {
                         if (bodyPart.hasHeader(mime:CONTENT_TYPE)
-                            && internal:hasPrefix(bodyPart.getHeader(mime:CONTENT_TYPE), http:MULTIPART_AS_PRIMARY_TYPE)) {
+                            && bodyPart.getHeader(mime:CONTENT_TYPE).startsWith(http:MULTIPART_AS_PRIMARY_TYPE)) {
                             var nestedParts = bodyPart.getBodyParts();
                             if (nestedParts is error) {
                                 log:printError(<string> nestedParts.detail().message);

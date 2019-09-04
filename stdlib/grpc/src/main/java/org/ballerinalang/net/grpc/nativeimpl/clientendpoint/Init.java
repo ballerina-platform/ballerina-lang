@@ -88,7 +88,7 @@ public class Init {
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
         try {
-            populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
+            populateSenderConfigurations(senderConfiguration, clientEndpointConfig, scheme);
             MapValue userDefinedPoolConfig = (MapValue) clientEndpointConfig.get(
                     HttpConstants.USER_DEFINED_POOL_CONFIG);
             ConnectionManager poolManager = userDefinedPoolConfig == null ? getConnectionManager(globalPoolConfig) :

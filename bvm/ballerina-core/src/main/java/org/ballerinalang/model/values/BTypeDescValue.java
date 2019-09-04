@@ -18,12 +18,10 @@
 
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,11 +54,6 @@ public class BTypeDescValue implements BRefType<BType> {
     @Override
     public BType getType() {
         return BTypes.typeDesc;
-    }
-
-    @Override
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
     }
 
     @Override

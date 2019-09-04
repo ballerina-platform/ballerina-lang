@@ -475,8 +475,8 @@ public type Request object {
         string cacheControl = self.getHeader(CACHE_CONTROL);
         string[] directives = internal:split(cacheControl, ",");
 
-        foreach var directive in directives {
-            directive = directive.trim();
+        foreach var dir in directives {
+            var directive = dir.trim();
             if (directive == NO_CACHE) {
                 reqCC.noCache = true;
             } else if (directive == NO_STORE) {
@@ -485,13 +485,13 @@ public type Request object {
                 reqCC.noTransform = true;
             } else if (directive == ONLY_IF_CACHED) {
                 reqCC.onlyIfCached = true;
-            } else if (internal:hasPrefix(directive, MAX_AGE)) {
+            } else if (directive.startsWith(MAX_AGE)) {
                 reqCC.maxAge = getExpirationDirectiveValue(directive);
             } else if (directive == MAX_STALE) {
                 reqCC.maxStale = MAX_STALE_ANY_AGE;
-            } else if (internal:hasPrefix(directive, MAX_STALE)) {
+            } else if (directive.startsWith(MAX_STALE)) {
                 reqCC.maxStale = getExpirationDirectiveValue(directive);
-            } else if (internal:hasPrefix(directive, MIN_FRESH)) {
+            } else if (directive.startsWith(MIN_FRESH)) {
                 reqCC.minFresh = getExpirationDirectiveValue(directive);
             }
             // non-standard directives are ignored

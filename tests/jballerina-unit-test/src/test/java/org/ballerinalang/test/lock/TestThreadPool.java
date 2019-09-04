@@ -19,7 +19,8 @@
 
 package org.ballerinalang.test.lock;
 
-import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
+
+import org.ballerinalang.jvm.runtime.BLangThreadFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

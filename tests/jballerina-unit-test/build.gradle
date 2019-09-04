@@ -40,6 +40,7 @@ dependencies {
     implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-java')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-streams')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'
@@ -80,7 +81,7 @@ dependencies {
     // baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
-//    baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
@@ -107,6 +108,14 @@ test {
 
     afterSuite { suite, result ->
         result.exception?.printStackTrace()
+    }
+
+    testLogging {
+        // this will only change --warn flag behaviour
+        warn {
+            events = ["failed", "skipped"]
+            exceptionFormat "full"
+        }
     }
 
     dependsOn createBre

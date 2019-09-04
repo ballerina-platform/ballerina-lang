@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.internal.builtin;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -51,7 +50,7 @@ public class Matches {
             Matcher matcher = pattern.matcher(value);
             return matcher.matches();
         } catch (PatternSyntaxException e) {
-            throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR, e.getMessage());
+            throw new BallerinaException("{ballerina/internal}StringOperationError", e.getMessage());
         }
     }
 }

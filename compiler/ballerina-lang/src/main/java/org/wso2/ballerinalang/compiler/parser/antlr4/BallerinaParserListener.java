@@ -278,16 +278,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#channelType}.
-	 * @param ctx the parse tree
-	 */
-	void enterChannelType(BallerinaParser.ChannelTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#channelType}.
-	 * @param ctx the parse tree
-	 */
-	void exitChannelType(BallerinaParser.ChannelTypeContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#attachmentPoint}.
 	 * @param ctx the parse tree
 	 */
@@ -1478,6 +1468,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code annotAccessExpression}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnnotAccessExpression(BallerinaParser.AnnotAccessExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code annotAccessExpression}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnnotAccessExpression(BallerinaParser.AnnotAccessExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code mapArrayVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
@@ -1910,18 +1912,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code typeConversionExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code typeConversionExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code checkedExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -1933,6 +1923,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCheckedExpression(BallerinaParser.CheckedExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code typeConversionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code typeConversionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code checkPanickedExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -1981,18 +1983,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTypeTestExpression(BallerinaParser.TypeTestExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code annotAccessExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterAnnotAccessExpression(BallerinaParser.AnnotAccessExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code annotAccessExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitAnnotAccessExpression(BallerinaParser.AnnotAccessExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code binaryDivMulModExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

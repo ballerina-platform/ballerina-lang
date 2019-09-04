@@ -47,9 +47,9 @@ public class BallerinaEnterInDocumentationHandler extends EnterHandlerDelegateAd
         int prevLine = caretPos.line - 1;
         String lineString = editor.getDocument().getText(
                 new TextRange(editor.getDocument().getLineStartOffset(prevLine),
-                        editor.getDocument().getLineEndOffset(prevLine)));
-        if (lineString.trim().startsWith("#")) {
-            int newCol = lineString.indexOf("#");
+                        editor.getDocument().getLineEndOffset(prevLine))).trim();
+        if (lineString.startsWith("#")) {
+            int newCol = lineString.replace("\t", "    ").indexOf("#");
             String enteredText = editor.getDocument().getText(
                     new TextRange(editor.getDocument().getLineStartOffset(caretPos.line),
                             editor.getDocument().getLineEndOffset(caretPos.line))).trim();

@@ -25,8 +25,6 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Map;
 
-import static org.ballerinalang.bre.bvm.BVM.isByteLiteral;
-
 /**
  * The {@code BString} represents a string in Ballerina.
  *
@@ -58,9 +56,6 @@ public final class BString extends BValueType implements BRefType<String> {
         long result;
         try {
             result = Long.parseLong(this.value);
-            if (!isByteLiteral(result)) {
-                throw new BallerinaException("input value " + this.value + " cannot be cast to byte");
-            }
         } catch (NumberFormatException e) {
             throw new BallerinaException("input value " + this.value + " cannot be cast to byte");
         }

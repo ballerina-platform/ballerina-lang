@@ -23,7 +23,7 @@ package org.ballerinalang.util.diagnostic;
  *
  * @since 0.94
  */
-public interface Diagnostic {
+public interface Diagnostic extends Comparable<Diagnostic> {
 
     /**
      * Kind of the diagnostic.
@@ -41,7 +41,7 @@ public interface Diagnostic {
      *
      * @since 0.94
      */
-    interface DiagnosticSource {
+    interface DiagnosticSource extends Comparable<DiagnosticSource> {
 
         String getPackageName();
 
@@ -58,7 +58,7 @@ public interface Diagnostic {
      *
      * @since 0.94
      */
-    interface DiagnosticPosition {
+    interface DiagnosticPosition extends Comparable<DiagnosticPosition> {
 
         DiagnosticSource getSource();
 

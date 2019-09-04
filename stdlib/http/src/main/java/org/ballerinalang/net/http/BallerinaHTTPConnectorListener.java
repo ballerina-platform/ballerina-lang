@@ -71,7 +71,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             if (HttpDispatcher.shouldDiffer(httpResource)) {
                 inboundMessage.setProperty(HTTP_RESOURCE, httpResource);
                 //Removes inbound content listener since data binding waits for all contents to be received
-                //before executing its logic.  
+                //before executing its logic.
                 inboundMessage.removeInboundContentListener();
                 return;
             }
@@ -89,7 +89,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Error in HTTP server connector: {}", throwable.getMessage());
+        log.warn("Error in HTTP server connector: {}", throwable.getMessage());
     }
 
     protected void extractPropertiesAndStartResourceExecution(HttpCarbonMessage inboundMessage,
