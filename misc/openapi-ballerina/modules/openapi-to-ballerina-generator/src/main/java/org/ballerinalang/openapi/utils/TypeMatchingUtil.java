@@ -228,7 +228,7 @@ public class TypeMatchingUtil {
                         final Schema<?> arrayItems = ((ArraySchema) schema).getItems();
                         if (arrayItems.getType() != null) {
                             schemaType.setItemType(
-                                    delimeterizeUnescapedIdentifires(arrayItems.getType(),false));
+                                    delimeterizeUnescapedIdentifires(arrayItems.getType(), false));
                             schemaType.setItemName(arrayItems.getType().toLowerCase(Locale.ENGLISH));
                         } else if (arrayItems.get$ref() != null) {
                             final String[] ref = arrayItems.get$ref().split("/");
@@ -239,7 +239,7 @@ public class TypeMatchingUtil {
                     }
                     break;
                 default:
-                    schemaType.setSchemaType(delimeterizeUnescapedIdentifires(schema.getType(),false ));
+                    schemaType.setSchemaType(delimeterizeUnescapedIdentifires(schema.getType(), false));
                     break;
             }
         }
@@ -393,19 +393,19 @@ public class TypeMatchingUtil {
     }
 
     /**
-     * This will escape special characters in ballerina identifiers
+     * This will escape special characters in ballerina identifiers.
      *
      * @param identifier - identifier string
      * @param isVar - is a variable name or type
      * @return escaped string
      */
     public static String delimeterizeUnescapedIdentifires(String identifier, boolean isVar) {
-        if (identifier.matches("^[a-zA-Z0-9_]*$") && !BAL_KEYWORDS.stream().anyMatch(identifier::equals) ) {
+        if (identifier.matches("^[a-zA-Z0-9_]*$") && !BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
             return identifier;
         }
-        if (!identifier.matches("[a-zA-Z]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals) ) {
-            if ( (isVar && BAL_KEYWORDS.stream().anyMatch(identifier::equals))
-                    || !BAL_KEYWORDS.stream().anyMatch(identifier::equals) ) {
+        if (!identifier.matches("[a-zA-Z]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
+            if ((isVar && BAL_KEYWORDS.stream().anyMatch(identifier::equals))
+                    || !BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
                 identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+(){}|.$])", "\\\\$1");
                 identifier = "'" + identifier;
             }
