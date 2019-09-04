@@ -34,6 +34,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -42,6 +43,7 @@ import java.util.HashSet;
 import java.util.Optional;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Task for creating the executable jar file.
@@ -49,6 +51,15 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 public class CreateExecutableTask implements Task {
     
     private static HashSet<String> excludeExtensions =  new HashSet<>(Lists.of("DSA", "SF"));
+
+    private boolean skipCopyLibsFromDist = false;
+
+    public CreateExecutableTask(boolean skipCopyLibsFromDist) {
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+    }
+
+    public CreateExecutableTask() {
+    }
     
     @Override
     public void execute(BuildContext buildContext) {
@@ -60,7 +71,13 @@ public class CreateExecutableTask implements Task {
             buildContext.out().println("Generating executables");
             for (BLangPackage module : buildContext.getModules()) {
                 if (module.symbol.entryPointExists) {
-                    assembleExecutable(buildContext, module);
+                    Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
+                    copyJarFromCachePath(buildContext, module, executablePath);
+                    // Copy ballerina runtime all jar
+                    if (!skipCopyLibsFromDist) {
+                        copyRuntimeAllJar(buildContext, executablePath);
+                    }
+                    assembleExecutable(buildContext, module, executablePath);
                 }
             }
         } else {
@@ -81,19 +98,35 @@ public class CreateExecutableTask implements Task {
             }
         }
     }
-    
-    private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage) {
+
+    private void copyJarFromCachePath(BuildContext buildContext, BLangPackage bLangPackage,  Path executablePath ) {
+        Path jarFromCachePath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
         try {
             // Copy the jar from cache to bin directory
-            Path executablePath = buildContext.getExecutablePathFromTarget(bLangPackage.packageID);
+            Files.copy(jarFromCachePath, executablePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw createLauncherException("unable to copy the jar from cache path :" + e.getMessage());
+        }
+    }
 
+    private void copyRuntimeAllJar(BuildContext buildContext, Path executablePath) {
+        String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
+        String ballerinaVersion = System.getProperty("ballerina.version");
+        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        Path runtimeAllJar = Paths.get(balHomePath, "bre", "lib", runtimeJarName);
+        try {
+            copyFromJarToJar(runtimeAllJar, executablePath);
+        } catch (IOException e) {
+            throw createLauncherException("unable to copy the ballerina runtime all jar :" + e.getMessage());
+        }
+    }
+    
+    private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage, Path executablePath) {
+        try {
             Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
             Path tmpDir = targetDir.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
-            Path jarFromCachePath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
-
             // Check if the package has an entry point.
             if (bLangPackage.symbol.entryPointExists) {
-                Files.copy(jarFromCachePath, executablePath, StandardCopyOption.REPLACE_EXISTING);
                 for (File file : tmpDir.toFile().listFiles()) {
                     if (!file.isDirectory()) {
                         copyFromJarToJar(file.toPath(), executablePath);
@@ -153,8 +186,9 @@ public class CreateExecutableTask implements Task {
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Path toFile = toPath.resolve(fromPath.relativize(file).toString());
             String fileName = toFile.getFileName().toString();
-            if (!Files.exists(toFile) && !excludeExtensions
-                    .contains(fileName.substring(fileName.lastIndexOf(".") + 1))) {
+            if ((!Files.exists(toFile) &&
+                    !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1))) ||
+                    toFile.toString().startsWith("/META-INF/services")) {
                 Files.copy(file, toFile, copyOption);
             }
             return FileVisitResult.CONTINUE;
