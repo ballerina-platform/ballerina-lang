@@ -3059,6 +3059,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkObjectFunctionInvocationExpr(BLangInvocation iExpr, BObjectType objectType) {
+        if (objectType.getKind() == TypeKind.SERVICE &&
+                !(iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                (Names.SELF.equals(((BLangSimpleVarRef) iExpr.expr).symbol.name)))) {
+            dlog.error(iExpr.pos, DiagnosticCode.SERVICE_FUNCTION_INVALID_INVOCATION);
+            return;
+        }
         // check for object attached function
         Name funcName =
                 names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value, iExpr.name.value));
