@@ -505,6 +505,10 @@
                 "url": "filepath"
             },
             {
+                "name": "File",
+                "url": "file"
+            },
+            {
                 "name": "Task Scheduler Appointment",
                 "url": "task-scheduler-appointment"
             },
