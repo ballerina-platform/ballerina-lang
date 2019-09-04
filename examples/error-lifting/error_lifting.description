@@ -1,3 +1,0 @@
-// The error-lifting operator enables you to navigate through a set of fields without the necessity to consider 
-// `error` or `nil` values along the way. If an `error` or a `nil` is returned, the operator stops
-// the navigation and the value of the entire expression evaluates to `error` or `nil`.
