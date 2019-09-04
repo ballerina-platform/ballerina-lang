@@ -56,7 +56,7 @@ public class TestCommandTest extends CommandTest {
     }
 
     // Following test is disabled due to system exit issue
-    @Test(description = "Test Test Command in a Project", enabled = true)
+    @Test(description = "Test Test Command in a Project  ", enabled = true)
     public void testTestCommand() throws IOException {
         // Build the project
         String[] compileArgs = {"mymodule"};

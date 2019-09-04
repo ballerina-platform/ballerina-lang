@@ -2,7 +2,6 @@ import ballerina/test;
 import ballerina/io;
 
 # Before Suite Function
-
 @test:BeforeSuite
 function beforeSuiteFunc () {
     io:println("I'm the before suite function!");

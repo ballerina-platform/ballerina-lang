@@ -46,6 +46,7 @@ import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.tool.BLauncherException;
 import org.ballerinalang.tool.LauncherUtils;
@@ -150,7 +151,7 @@ public class BTestRunner {
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
-    public void runTest(Map<BLangPackage, JBallerinaInMemoryClassLoader> packageList) {
+    public void runTest(Map<BLangPackage, TestarinaClassLoader> packageList) {
         registry.setGroups(Collections.emptyList());
         registry.setShouldIncludeGroups(true);
         buildSuites(packageList);
@@ -269,7 +270,7 @@ public class BTestRunner {
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
-    private void buildSuites(Map<BLangPackage, JBallerinaInMemoryClassLoader> packageList) {
+    private void buildSuites(Map<BLangPackage, TestarinaClassLoader> packageList) {
         packageList.forEach((sourcePackage, classLoader) -> {
             String packageName;
             if (sourcePackage.packageID.getName().getValue().equals(".")) {
@@ -302,7 +303,7 @@ public class BTestRunner {
      *
      * @param programFile program file generated
      */
-    private void processProgramFile(BLangPackage programFile, JBallerinaInMemoryClassLoader classLoader) {
+    private void processProgramFile(BLangPackage programFile, TestarinaClassLoader classLoader) {
         // process the compiled files
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
@@ -326,7 +327,7 @@ public class BTestRunner {
      * @param bLangPackage compiled package.
      * @param classLoader  class loader to load and run package tests.
      */
-    public void packageProcessed(BLangPackage bLangPackage, JBallerinaInMemoryClassLoader classLoader) {
+    public void packageProcessed(BLangPackage bLangPackage, TestarinaClassLoader classLoader) {
         //packageInit = false;
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());

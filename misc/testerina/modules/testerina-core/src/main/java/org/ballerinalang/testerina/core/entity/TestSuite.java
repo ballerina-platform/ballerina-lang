@@ -19,6 +19,7 @@
 package org.ballerinalang.testerina.core.entity;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class TestSuite {
     private TesterinaFunction startFunction;
     private TesterinaFunction stopFunction;
     private List<Test> tests = new ArrayList<>();
-    private JBallerinaInMemoryClassLoader programFile;
+    private TestarinaClassLoader programFile;
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
     private List<String> afterSuiteFunctionNames = new ArrayList<>();
 
@@ -118,7 +119,7 @@ public class TestSuite {
         this.suiteName = suiteName;
     }
 
-    public JBallerinaInMemoryClassLoader getProgramFile() {
+    public TestarinaClassLoader getProgramFile() {
         return programFile;
     }
 
@@ -245,7 +246,7 @@ public class TestSuite {
         this.afterSuiteFunctions = afterSuiteFunctions;
     }
 
-    public void setProgramFile(JBallerinaInMemoryClassLoader programFile) {
+    public void setProgramFile(TestarinaClassLoader programFile) {
         this.programFile = programFile;
     }
 
