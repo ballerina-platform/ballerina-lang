@@ -302,7 +302,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public boolean checkCanInitBreakpoints() {
-        // We manually initializes the breakpoints after connecting to the debug server.
+        // We manually initialize the breakpoints after connecting to the debug server.
         return false;
     }
 
@@ -381,7 +381,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
     }
 
     private XBreakpoint<BallerinaBreakpointProperties> findBreakPoint(@NotNull StackFrame stackFrame) {
-        String filePath = stackFrame.getSource().getPath();
+        String filePath = stackFrame.getSource().getPath().trim();
         int lineNumber = stackFrame.getLine().intValue();
 
         for (XBreakpoint<BallerinaBreakpointProperties> breakpoint : breakpoints) {
@@ -391,7 +391,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
             }
             VirtualFile fileInBreakpoint = breakpointPosition.getFile();
             int line = breakpointPosition.getLine() + 1;
-            if (fileInBreakpoint.getPath().endsWith(filePath) && line == lineNumber) {
+            if (fileInBreakpoint.getPath().trim().endsWith(filePath) && line == lineNumber) {
                 return breakpoint;
             }
         }
