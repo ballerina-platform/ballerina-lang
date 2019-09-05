@@ -55,7 +55,7 @@ export default class TraceLogs extends React.Component<TraceLogsProps, TraceLogs
         this.props.onSelected(selected);
     }
 
-    public onClearLogs () {
+    public onClearLogs() {
         this.setState({
             selected: undefined
         });
