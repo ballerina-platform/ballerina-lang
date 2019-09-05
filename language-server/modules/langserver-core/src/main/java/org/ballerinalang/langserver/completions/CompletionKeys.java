@@ -65,6 +65,10 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<List<CommonToken>> RHS_TOKENS_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<List<CommonToken>> RHS_DEFAULT_TOKENS_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<Integer>> RHS_DEFAULT_TOKEN_TYPES_KEY
+            = new LSContext.Key<>();
     public static final LSContext.Key<Integer> INVOCATION_TOKEN_TYPE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IN_WORKER_RETURN_CONTEXT_KEY
