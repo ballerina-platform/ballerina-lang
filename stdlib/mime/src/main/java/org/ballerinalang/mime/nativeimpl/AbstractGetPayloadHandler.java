@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -79,8 +79,15 @@ public abstract class AbstractGetPayloadHandler {
                     }
                     updateDataSourceAndNotify(callback, entity, dataSource);
                 } catch (Exception e) {
-                    createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
-                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + e.getMessage());
+                    if (e instanceof ErrorValue) {
+                        if (callback != null) {
+                            setReturnValuesAndNotify(callback, e);
+                        }
+                    } else {
+                        createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
+                                sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " +
+                                e.getMessage());
+                    }
                 } finally {
                     try {
                         inputStream.close();
@@ -146,7 +153,7 @@ public abstract class AbstractGetPayloadHandler {
         if (message != null) {
             return message;
         } else {
-            throw new BallerinaException("Empty content");
+            throw BallerinaErrors.createError("Empty content");
         }
     }
 

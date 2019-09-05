@@ -20,6 +20,7 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -49,8 +50,11 @@ public class GetMediaType {
             ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
             mediaType = MimeUtil.parseMediaType(mediaType, contentType);
             return mediaType;
-        } catch (Throwable e) {
-            return MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
+        } catch (Throwable err) {
+            if (err instanceof ErrorValue) {
+                return err;
+            }
+            return MimeUtil.createError(INVALID_CONTENT_TYPE, err.getMessage());
         }
     }
 }

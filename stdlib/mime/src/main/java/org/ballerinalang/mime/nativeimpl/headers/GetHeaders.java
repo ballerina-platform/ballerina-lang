@@ -20,9 +20,9 @@ package org.ballerinalang.mime.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,6 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.List;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.HEADER_NOT_FOUND;
 
 /**
  * Get all the header values associated with the given header name.
@@ -50,12 +51,12 @@ public class GetHeaders {
 
     public static ArrayValue getHeaders(Strand strand, ObjectValue entityObj, String headerName) {
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
-            throw new BallerinaException("Http Header does not exist!");
+            throw MimeUtil.createError(HEADER_NOT_FOUND, "Http Header does not exist");
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         List<String> headerValueList = httpHeaders.getAll(headerName);
         if (headerValueList == null) {
-            throw new BallerinaException("Http Header does not exist!");
+            throw MimeUtil.createError(HEADER_NOT_FOUND, "Http Header does not exist");
         }
         int i = 0;
         ArrayValue stringArray = new ArrayValue(org.ballerinalang.jvm.types.BTypes.typeString);
