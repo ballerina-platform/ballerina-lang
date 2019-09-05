@@ -80,14 +80,11 @@ public abstract class AbstractGetPayloadHandler {
                     updateDataSourceAndNotify(callback, entity, dataSource);
                 } catch (Exception e) {
                     if (e instanceof ErrorValue) {
-                        if (callback != null) {
-                            setReturnValuesAndNotify(callback, e);
-                        }
-                    } else {
-                        createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
-                                sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " +
-                                e.getMessage());
+                        returnErrorValue(callback, e);
                     }
+                    createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
+                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " +
+                            e.getMessage());
                 } finally {
                     try {
                         inputStream.close();
@@ -105,33 +102,28 @@ public abstract class AbstractGetPayloadHandler {
         });
     }
 
-    static void setReturnValuesAndNotify(NonBlockingCallback callback, Object result) {
+    private static void setReturnValuesAndNotify(NonBlockingCallback callback, Object result) {
         callback.setReturnValues(result);
         callback.notifySuccess();
     }
 
     static Object createParsingEntityBodyFailedErrorAndNotify(NonBlockingCallback callback, String errMsg) {
         ErrorValue error = MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, errMsg);
-        if (callback != null) {
-            setReturnValuesAndNotify(callback, error);
-            return null;
-        }
-        return error;
+        return returnErrorValue(callback, error);
     }
 
-    static Object returnErrorValue(NonBlockingCallback callback, Exception ex) {
+    static Object returnErrorValue(NonBlockingCallback callback, Object err) {
         if (callback != null) {
-            setReturnValuesAndNotify(callback, ex);
+            setReturnValuesAndNotify(callback, err);
             return null;
         }
-        return ex;
+        return err;
     }
 
     static void updateDataSource(ObjectValue entityObj, Object result) {
         EntityBodyHandler.addMessageDataSource(entityObj, result);
         removeByteChannel(entityObj);
     }
-
 
     static void updateJsonDataSource(ObjectValue entityObj, Object result) {
         EntityBodyHandler.addJsonMessageDataSource(entityObj, result);
