@@ -192,7 +192,7 @@ public class DataBindingTest {
     }
 
     @Test(description = "Test data binding without a payload", expectedExceptions = BallerinaConnectorException.class,
-          expectedExceptionsMessageRegExp = ".*data binding failed: String payload is null*")
+          expectedExceptionsMessageRegExp = ".*ParsingEntityBodyFailed message=String payload is null*")
     public void testDataBindingWithoutPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "GET");

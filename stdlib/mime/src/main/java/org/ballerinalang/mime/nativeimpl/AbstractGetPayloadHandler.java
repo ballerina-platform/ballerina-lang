@@ -108,7 +108,7 @@ public abstract class AbstractGetPayloadHandler {
         return returnErrorValue(callback, error);
     }
 
-    static Object returnErrorValue(NonBlockingCallback callback, Object err) {
+    private static Object returnErrorValue(NonBlockingCallback callback, Object err) {
         if (callback != null) {
             setReturnValuesAndNotify(callback, err);
             return null;
@@ -116,14 +116,8 @@ public abstract class AbstractGetPayloadHandler {
         return err;
     }
 
-    public static String getErrorMsg(Throwable ex) {
-        String errMsg = "";
-        if (ex instanceof ErrorValue) {
-            errMsg = errMsg + ex.toString();
-        } else {
-            errMsg = errMsg + ex.getMessage();
-        }
-        return errMsg;
+    static String getErrorMsg(Throwable err) {
+        return err instanceof ErrorValue ? err.toString() : err.getMessage();
     }
 
     static void updateDataSource(ObjectValue entityObj, Object result) {
@@ -159,7 +153,7 @@ public abstract class AbstractGetPayloadHandler {
         if (message != null) {
             return message;
         } else {
-            throw BallerinaErrors.createError("Empty content");
+            throw BallerinaErrors.createError(PARSING_ENTITY_BODY_FAILED, "Empty content");
         }
     }
 

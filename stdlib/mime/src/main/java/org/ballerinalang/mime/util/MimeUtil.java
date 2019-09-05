@@ -141,8 +141,7 @@ public class MimeUtil {
             MimeTypeParameterList parameterList = mimeType.getParameters();
             return parameterList.get(parameterName);
         } catch (MimeTypeParseException e) {
-            throw MimeUtil.createError(INVALID_CONTENT_TYPE,
-                                       "Error while parsing Content-Type value: " + e.getMessage());
+            throw MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
         }
     }
 
@@ -159,8 +158,7 @@ public class MimeUtil {
             MimeTypeParameterList parameterList = mimeType.getParameters();
             return parameterList.get(parameterName);
         } catch (MimeTypeParseException e) {
-            throw MimeUtil.createError(INVALID_CONTENT_TYPE,
-                                       "Error while parsing Content-Type value: " + e.getMessage());
+            throw MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
         }
     }
 
@@ -223,7 +221,7 @@ public class MimeUtil {
             mediaType.set(SUFFIX_FIELD, suffix);
             mediaType.set(PARAMETER_MAP_FIELD, parameterMap);
         } catch (MimeTypeParseException e) {
-            throw new ErrorValue(INVALID_CONTENT_TYPE, "Error while parsing Content-Type value: " + e.getMessage());
+            throw new ErrorValue(INVALID_CONTENT_TYPE, e.getMessage());
         }
         return mediaType;
     }

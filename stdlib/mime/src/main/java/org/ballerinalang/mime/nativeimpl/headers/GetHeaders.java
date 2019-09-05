@@ -51,12 +51,12 @@ public class GetHeaders {
 
     public static ArrayValue getHeaders(Strand strand, ObjectValue entityObj, String headerName) {
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
-            throw MimeUtil.createError(HEADER_NOT_FOUND, "Http Header does not exist");
+            throw MimeUtil.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         List<String> headerValueList = httpHeaders.getAll(headerName);
         if (headerValueList == null) {
-            throw MimeUtil.createError(HEADER_NOT_FOUND, "Http Header does not exist");
+            throw MimeUtil.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
         int i = 0;
         ArrayValue stringArray = new ArrayValue(org.ballerinalang.jvm.types.BTypes.typeString);

@@ -221,7 +221,9 @@ public class ServiceTest {
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
-        assertResponseMessage(responseMsg, "Error occurred while extracting text data from entity : Empty content");
+        assertResponseMessage(responseMsg,
+                              "Error occurred while extracting text data from entity : error " +
+                                      "{ballerina/mime}ParsingEntityBodyFailed message=Empty content");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")
