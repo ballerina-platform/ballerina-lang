@@ -45,25 +45,24 @@ function testLargeByteArray(string filePath) returns (string) {
         return "Error while reading the file.";
     } else {
         var resultBytes = rch.read(10000);
-        byte[] bytes = [];
-        if (resultBytes is [byte[], int]) {
-            [bytes, _] = resultBytes;
+        if (resultBytes is byte[]) {
+            var addResponse = blockingEp->checkBytes(resultBytes);
+            if (addResponse is grpc:Error) {
+                return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
+            } else {
+                byte[] result = [];
+                [result, _] = addResponse;
+                if(result == resultBytes) {
+                    return "30KB file content transmitted successfully";
+                } else {
+                    return "Error while transmitting file content";
+                }
+            }
         } else {
             error err = resultBytes;
             return io:sprintf("File read error: %s - %s", err.reason(), <string> err.detail()["message"]);
         }
-        var addResponse = blockingEp->checkBytes(bytes);
-        if (addResponse is grpc:Error) {
-            return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
-        } else {
-            byte[] result = [];
-            [result, _] = addResponse;
-            if(result == bytes) {
-                return "30KB file content transmitted successfully";
-            } else {
-                return "Error while transmitting file content";
-            }
-        }
+
     }
 }
 

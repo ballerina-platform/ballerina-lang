@@ -83,7 +83,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinTransaction.json", "function"},
                 {"completionWithinTransactionOnRetry.json", "function"},
                 {"completionAfterReturn.json", "function"},
-                {"functionCompletionWithMissingImport.json", "function"},
+//                {"functionCompletionWithMissingImport.json", "function"},
                 {"completionWithinRecord1.json", "function"},
                 {"completionWithinRecord2.json", "function"},
                 {"completionWithinRecord3.json", "function"},
