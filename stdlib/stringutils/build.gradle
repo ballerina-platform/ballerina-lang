@@ -47,7 +47,7 @@ createBalo {
     jvmTarget = 'true'
 }
 
-description = 'Ballerina - Regex'
+description = 'Ballerina - String Utils'
 
 configurations.all {
     resolutionStrategy.preferProjectModules()

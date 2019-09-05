@@ -98,6 +98,6 @@ public function getScopes(string scopes) returns string[] {
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
-    http:ClientEndpointConfig clientConfig = {};
+    http:ClientConfiguration clientConfig = {};
 |};
 

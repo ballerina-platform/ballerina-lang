@@ -77,10 +77,10 @@ function testFailureScenario () returns @tainted http:Response | error {
 
 public type MockClient client object {
     public string url = "";
-    public http:ClientEndpointConfig config = {};
+    public http:ClientConfiguration config = {};
     public http:Client httpClient;
 
-    public function __init(string url, http:ClientEndpointConfig? config = ()) {
+    public function __init(string url, http:ClientConfiguration? config = ()) {
         http:Client simpleClient = new(url);
         self.url = url;
         self.config = config ?: {};

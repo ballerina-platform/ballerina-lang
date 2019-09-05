@@ -14,16 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/regex;
+# Type for XML options.
+#
+# + attributePrefix - attribute prefix of XML
+# + preserveNamespaces - preserve namespaces of XML
+public type XmlOptions record {
+    string attributePrefix = "@";
+    boolean preserveNamespaces = true;
+};
 
-function testSplit() returns string[] {
-    string testStr = "amal,,kamal,,nimal,,sunimal,";
-    string[] arr = regex:split(testStr, ",,");
-    return arr;
-}
-
-function testReplace() returns string {
-    string testStr = "Hello Amal!!! Nimal!!!";
-    string newStr = regex:replace(testStr, "!!!", "!");
-    return newStr;
-}
+# Converts a XML object to a JSON representation.
+#
+# + x - The xml source
+# + options - xmlOptions struct for XML to JSON conversion properties
+# + return - JSON representation of the given XML
+public function toJSON(xml x, XmlOptions options = {}) returns json|error = external;

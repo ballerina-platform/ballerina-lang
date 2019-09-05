@@ -37,8 +37,8 @@ public type SubscriberServiceConfiguration record {|
     int leaseSeconds?;
     string secret?;
     string callback?;
-    http:ClientEndpointConfig publisherClientConfig?;
-    http:ClientEndpointConfig hubClientConfig?;
+    http:ClientConfiguration publisherClientConfig?;
+    http:ClientConfiguration hubClientConfig?;
 |};
 
 # WebSub Subscriber Configuration for the service, indicating subscription related parameters.
