@@ -39,6 +39,8 @@ export interface OverviewState {
 }
 
 export interface ConstructIdentifier {
+    sourceRoot?: string;
+    filePath?: string;
     constructName: string;
     moduleName: string;
     subConstructName?: string;
@@ -78,57 +80,102 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
     }
 
     public updateAST() {
-        const { langClient, sourceRootUri, docUri } = this.props;
-        if (sourceRootUri) {
-            langClient.getProjectAST({ sourceRoot: sourceRootUri }).then((result) => {
-                if (!result || !(Object.keys(result.modules).length > 0)) {
-                    return;
-                }
+        if (this.state.selectedConstruct) {
+            const { selectedConstruct } = this.state;
+            this.getAST(selectedConstruct.sourceRoot, selectedConstruct.filePath).then((ast) => {
                 this.setState({
-                    modules: result.modules
+                    maxInvocationDepth: -1,
+                    modules: ast ? ast : {},
+                    selectedConstruct,
                 });
-            }, () => {/** no op */});
-        } else {
-            langClient.getAST({documentIdentifier: {uri: docUri}}).then((result) => {
+            });
+            return;
+        }
+
+        if (this.props.docUri) {
+            this.getAST(undefined, this.props.docUri).then((ast) => {
+                this.setState({
+                    maxInvocationDepth: -1,
+                    modules: ast ? ast : {},
+                });
+            });
+            return;
+        }
+    }
+
+    public getAST(sourceRootUri: string | undefined, docUri: string | undefined): PromiseLike<ProjectAST | undefined> {
+        const { langClient } = this.props;
+        if (sourceRootUri) {
+            return langClient.getProjectAST({ sourceRoot: sourceRootUri }).then((result) => {
+                if (!result || !(Object.keys(result.modules).length > 0)) {
+                    return undefined;
+                }
+
+                return result.modules;
+            }, () => (undefined));
+        }
+
+        if (docUri) {
+            return langClient.getAST({documentIdentifier: {uri: docUri}}).then((result) => {
                 const ast = result.ast as any;
                 if (!ast) {
                     return;
                 }
 
-                this.setState({
-                    modules: {
-                        [ast.name]: {
-                            compilationUnits: {
-                                [ast.name]: {
-                                    ast,
-                                    name: ast.name,
-                                    uri: docUri,
-                                }
-                            },
-                            name: ast.name,
-                        }
+                return {
+                    [ast.name]: {
+                        compilationUnits: {
+                            [ast.name]: {
+                                ast,
+                                name: ast.name,
+                                uri: docUri,
+                            }
+                        },
+                        name: ast.name,
                     }
-                });
+                };
             });
         }
+
+        return Promise.resolve(undefined);
     }
 
-    public selectConstruct({moduleName, constructName, subConstructName}: ConstructIdentifier) {
-        this.setState({
-            maxInvocationDepth: -1,
-            selectedConstruct: {
-                constructName, moduleName, subConstructName
-            },
-        });
+    public selectConstruct(selectedConstruct: ConstructIdentifier) {
+        if (!this.state.selectedConstruct ||
+            (selectedConstruct.sourceRoot &&
+                (this.state.selectedConstruct.sourceRoot !== selectedConstruct.sourceRoot))) {
+
+            this.getAST(selectedConstruct.sourceRoot, selectedConstruct.filePath).then((ast) => {
+                this.setState({
+                    maxInvocationDepth: -1,
+                    modules: ast ? ast : {},
+                    selectedConstruct,
+                });
+            });
+        } else {
+            this.setState({
+                maxInvocationDepth: -1,
+                selectedConstruct,
+            });
+        }
+
         this.handleReset();
     }
 
     public componentDidMount() {
-        this.updateAST();
         if (this.props.initialSelectedConstruct) {
-            this.setState({
-                selectedConstruct: this.props.initialSelectedConstruct,
+            this.selectConstruct(this.props.initialSelectedConstruct);
+            return;
+        }
+
+        if (this.props.docUri) {
+            this.getAST(undefined, this.props.docUri).then((ast) => {
+                this.setState({
+                    maxInvocationDepth: -1,
+                    modules: ast ? ast : {},
+                });
             });
+            return;
         }
     }
 
@@ -231,7 +278,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         const { modules } = this.state;
         const moduleList: Array<{name: string, nodeInfo: Array<{node: ASTNode, uri: string}>}>  = [];
 
-        Object.keys(modules).map((moduleName) => {
+        Object.keys(modules).forEach((moduleName) => {
             const module = modules[moduleName];
             const newModule: {name: string, nodeInfo: Array<{node: ASTNode, uri: string}>}
                 = { name: module.name, nodeInfo: [] };
