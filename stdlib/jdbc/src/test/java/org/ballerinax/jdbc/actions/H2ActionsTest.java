@@ -130,12 +130,12 @@ public class H2ActionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*Error in sql connector configuration: "
+                  ".*error in sql connector configuration: "
                           + "Property INVALID_PARAM does not exist on target class org.h2.jdbcx.JdbcDataSource.*",
           groups = { H2_TEST_GROUP })
     public void testInitWithInvalidDbOptions() {
         BRunUtil.invoke(result, "testInitWithInvalidDbOptions", args);
-        Assert.fail("Expected exception should have been thrown by this point");
+        Assert.fail("expected exception should have been thrown by this point");
     }
 
     private void assertInitTestReturnValues(BValue[] returns) {
