@@ -544,7 +544,7 @@ public class MimeUtil {
                 contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
             }
         } catch (NumberFormatException e) {
-            throw MimeUtil.createError(INVALID_CONTENT_LENGTH,"Invalid content length");
+            throw MimeUtil.createError(INVALID_CONTENT_LENGTH, "Invalid content length");
         }
         return contentLength;
     }

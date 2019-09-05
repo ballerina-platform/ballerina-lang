@@ -89,7 +89,7 @@ public class HeaderUtil {
     private static String extractValue(String headerValue) {
         String value = headerValue.substring(0, headerValue.indexOf(SEMICOLON)).trim();
         if (value.isEmpty()) {
-            throw MimeUtil.createError(INVALID_HEADER_VALUE,"invalid header value: " + headerValue);
+            throw MimeUtil.createError(INVALID_HEADER_VALUE, "invalid header value: " + headerValue);
         }
         return value;
     }
@@ -111,7 +111,7 @@ public class HeaderUtil {
             if (param.contains("=")) {
                 String[] keyValuePair = param.split("=", 2);
                 if (keyValuePair.length != 2 || keyValuePair[0].isEmpty() || keyValuePair[1].isEmpty()) {
-                    throw MimeUtil.createError(INVALID_HEADER_PARAM,"invalid header parameter: " + param);
+                    throw MimeUtil.createError(INVALID_HEADER_PARAM, "invalid header parameter: " + param);
                 }
                 paramMap.put(keyValuePair[0].trim(), keyValuePair[1].trim());
             } else {
