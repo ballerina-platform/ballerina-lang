@@ -44,8 +44,8 @@ public type LoadBalanceClient client object {
             if (lbRule is LoadBalancerRule) {
                 self.lbRule = lbRule;
             } else {
-                LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
-                self.lbRule = loadBalancerRounRobinRule;
+                LoadBalancerRoundRobinRule loadBalancerRoundRobinRule = new;
+                self.lbRule = loadBalancerRoundRobinRule;
             }
         }
     }
@@ -209,12 +209,10 @@ public type LoadBalanceClient client object {
 
 # Represents an error occurred in an remote function of the Load Balance connector.
 #
-# + statusCode - HTTP status code of the `LoadBalanceActionError`
 # + httpActionErr - Array of errors occurred at each endpoint
 # + message - An explanation of the error
 # + cause - The original error which resulted in a `LoadBalanceActionError`
 public type LoadBalanceActionErrorData record {|
-    int statusCode = 0;
     error?[] httpActionErr = [];
     string message?;
     error cause?;
@@ -241,7 +239,7 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
              returns Response|ClientError {
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     //TODO: workaround to initialize a type inside a function. Change this once fix is available.
-    LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode: 500, message: "", httpActionErr:[]};
+    LoadBalanceActionErrorData loadBalanceActionErrorData = {message: "", httpActionErr:[]};
     int lbErrorIndex = 0;
     Request loadBalancerInRequest = request;
     mime:Entity requestEntity = new;
@@ -299,7 +297,6 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
     string message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
     AllLoadBalanceEndpointsFailedError err = error(ALL_LOAD_BALANCE_ENDPOINTS_FAILED,
                                                     message = message,
-                                                    statusCode = STATUS_INTERNAL_SERVER_ERROR,
                                                     httpActionError = loadBalanceActionErrorData.httpActionErr);
     return err;
 }
