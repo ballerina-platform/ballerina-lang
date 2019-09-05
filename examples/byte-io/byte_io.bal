@@ -4,17 +4,28 @@ import ballerina/log;
 // Copies the content from the source channel to a destination channel.
 function copy(io:ReadableByteChannel src,
               io:WritableByteChannel dst) returns error? {
-    int readCount = 1;
-    byte[] readContent;
     // The below example shows how to read all the content from
     // the source and copy it to the destination.
-    while (readCount > 0) {
+    while (true) {
         // The operation attempts to read a maximum of 1000 bytes and returns
         // with the available content, which could be < 1000.
-        [byte[], int] result = check src.read(1000);
-        [readContent, readCount] = result;
-        // The operation writes the given content into the channel.
-        var writeResult = check dst.write(readContent, 0);
+        byte[]|io:Error result = src.read(1000);
+        if (result is io:EofError) {
+            break;
+        } else if (result is error) {
+            return <@untained> result;
+        } else {
+            // The operation writes the given content into the channel.
+            int i = 0;
+            while (i < result.length()) {
+                var result2 = dst.write(result, i);
+                if (result2 is error) {
+                    return result2;
+                } else {
+                    i = i + result2;
+                }
+            }
+        }
     }
     return;
 }
@@ -26,7 +37,7 @@ function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
     } channelResult = ch;
     var cr = channelResult.close();
     if (cr is error) {
-        log:printError("Error occurred while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", cr);
     }
 }
 
@@ -41,7 +52,7 @@ public function main() returns error? {
     // Copies the source byte channel to the target byte channel.
     var result = copy(srcCh, dstCh);
     if (result is error) {
-        log:printError("error occurred while performing copy ", err = result);
+        log:printError("error occurred while performing copy ", result);
     } else {
         io:println("File copy completed. The copied file is located at " +
                     dstPath);

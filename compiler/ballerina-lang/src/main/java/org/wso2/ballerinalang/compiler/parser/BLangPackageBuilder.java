@@ -1808,6 +1808,12 @@ public class BLangPackageBuilder {
         forkJoin.pos = pos;
         forkJoin.addWS(ws);
         this.addStmtToCurrentBlock(forkJoin);
+        String nextAnonymousForkKey = anonymousModelHelper.getNextAnonymousForkKey(pos.src.pkgID);
+        for (BLangSimpleVariableDef worker : forkJoin.workers) {
+            BLangFunction function = ((BLangLambdaFunction) worker.var.expr).function;
+            function.flagSet.add(Flag.FORKED);
+            function.anonForkName = nextAnonymousForkKey;
+        }
     }
 
     void endCallableUnitBody(Set<Whitespace> ws) {

@@ -35,8 +35,8 @@ import static org.testng.Assert.assertEquals;
 public class HTTPCachingTestCase extends HttpBaseTest {
 
     private final String serviceHitCount = "x-service-hit-count";
-    private final String proxyHitCount = "x-proxy-hit-count";
     private final String payload = "{\"message\":\"Hello, World!\"}";
+    private final String proxyHitCount = "x-proxy-hit-count";
 
     @Test(description = "Test basic caching behaviour")
     public void testPassthroughServiceByBasePath() throws IOException, InterruptedException {
@@ -60,5 +60,54 @@ public class HTTPCachingTestCase extends HttpBaseTest {
         assertEquals(response.getHeaders().get(serviceHitCount), "1");
         assertEquals(response.getHeaders().get(proxyHitCount), "3");
         assertEquals(response.getData(), payload);
+    }
+
+    @Test(description = "Test no-cache cache control")
+    public void testNoCacheCacheControl() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9244, "nocache"));
+        assertEquals(response.getData(), "{\"message\":\"1st response\"}");
+        assertEquals(response.getHeaders().get(serviceHitCount), "1");
+
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9244, "nocache"));
+        assertEquals(response.getData(), "{\"message\":\"2nd response\"}");
+        assertEquals(response.getHeaders().get(serviceHitCount), "2");
+
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9244, "nocache"));
+        assertEquals(response.getData(), "{\"message\":\"2nd response\"}");
+        assertEquals(response.getHeaders().get(serviceHitCount), "3");
+    }
+
+    @Test(description = "Test max-age cache control")
+    public void testMaxAgeCacheControl() throws IOException, InterruptedException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9245, "maxAge"));
+        assertEquals(response.getData(), "public,max-age=5");
+
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9245, "maxAge"));
+        assertEquals(response.getData(), "public,max-age=5");
+
+        Thread.sleep(5000);
+
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9245, "maxAge"));
+        assertEquals(response.getData(), "{\"message\":\"after cache expiration\"}");
+    }
+
+    @Test(description = "Test must-revalidate cache control")
+    public void testMMustRevalidateCacheControl() throws IOException, InterruptedException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9247, "mustRevalidate"));
+        assertEquals(response.getData(), payload);
+        assertEquals(response.getHeaders().get(serviceHitCount), "1");
+        assertEquals(response.getHeaders().get(proxyHitCount), "1");
+
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9247, "mustRevalidate"));
+        assertEquals(response.getData(), payload);
+        assertEquals(response.getHeaders().get(serviceHitCount), "1");
+        assertEquals(response.getHeaders().get(proxyHitCount), "2");
+
+        Thread.sleep(5000);
+
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9247, "mustRevalidate"));
+        assertEquals(response.getData(), payload);
+        assertEquals(response.getHeaders().get(serviceHitCount), "2");
+        assertEquals(response.getHeaders().get(proxyHitCount), "3");
     }
 }

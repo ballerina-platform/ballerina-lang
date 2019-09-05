@@ -78,4 +78,18 @@ public class AnnotationUtils {
             }
         }
     }
+
+    /**
+     * Method to retrieve annotations of a function type from the global annotation map and set it to the type.
+     *
+     * @param fpValue           The {@link FPValue} representing the function reference
+     * @param globalAnnotMap    The global annotation map
+     * @param name              The function name that acts as the annotation key
+     */
+    public static void processFPValueAnnotations(FPValue fpValue, MapValue globalAnnotMap, String name) {
+        AnnotatableType type = (AnnotatableType) fpValue.getType();
+        if (globalAnnotMap.containsKey(name)) {
+            type.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(name));
+        }
+    }
 }

@@ -19,14 +19,10 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Map;
-
-import static org.ballerinalang.bre.bvm.BVM.isByteLiteral;
 
 /**
  * The {@code BInteger} represents a int value in Ballerina.
@@ -49,10 +45,6 @@ public final class BInteger extends BValueType implements BRefType<Long> {
 
     @Override
     public long byteValue() {
-        if (!isByteLiteral(this.value)) {
-            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                         "'int' value '" + value + "' cannot be converted to 'byte'");
-        }
         return this.value;
     }
 

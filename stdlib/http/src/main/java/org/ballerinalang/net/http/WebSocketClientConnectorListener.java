@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -42,7 +41,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
-        throw new WebSocketException("onHandshake and onOpen is not supported for WebSocket client service");
+        // Cannot reach this point as onHandshake and onOpen is not supported for WebSocket client service
     }
 
     @Override

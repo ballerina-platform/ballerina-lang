@@ -56,7 +56,7 @@ public class WebSocketCompilationTest {
     public void testFailOnOpenOnIdle() {
         CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onOpen_onIdle.bal");
 
-        assertExpectedDiagnosticsLength(compileResult, 5);
+        assertExpectedDiagnosticsLength(compileResult, 4);
     }
 
     @Test(description = "Invalid parameter count for onText resource")

@@ -57,6 +57,9 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     public LinkedHashSet<String> sendsToThis = new LinkedHashSet<>();
 
+    // This only set when we encounter worker inside a fork statement.
+    public String anonForkName;
+
     public SimpleVariableNode getReceiver() {
         return receiver;
     }
