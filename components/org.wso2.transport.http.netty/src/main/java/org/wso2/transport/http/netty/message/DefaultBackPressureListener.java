@@ -35,28 +35,28 @@ public class DefaultBackPressureListener implements BackPressureListener {
      * Creates the semaphore and sets the source or target channel.
      */
     public DefaultBackPressureListener() {
-
         this.semaphore = new Semaphore(0);
     }
 
     @Override
     public void onUnWritable() {
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Semaphore acquired in thread {} ", Thread.currentThread().getName());
-        }
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Semaphore acquired in thread {} ", Thread.currentThread().getName());
+        }
     }
 
     @Override
     public void onWritable() {
+        semaphore.release();
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Semaphore released in thread {} ", Thread.currentThread().getName());
         }
-        semaphore.release();
     }
 }
