@@ -37,7 +37,7 @@ public class Utils {
      * construct error struct from message.
      *
      * @param reason Valid error reason. If the reason is null, "{ballerina/filepath}GenericError" is set as the reason by default
-     * @param details Error message description
+     * @param details Description of the error message. If the message is null, "Unknown Error" is set to message by default.
      * @return Ballerina error object.
      */
     public static ErrorValue getPathError(String reason, String details) {
