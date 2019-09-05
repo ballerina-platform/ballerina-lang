@@ -53,8 +53,9 @@ listener http:Listener ep = new (9090);
 // information, the `clientRequest` object is created and published to the `requestStream`.
 service requestService on ep {
 
-    // TODO: issue #17267
-    () ftr = initRealtimeRequestCounter();
+    public function __init() {
+        initRealtimeRequestCounter();
+    }
 
     @http:ResourceConfig {
         methods: ["POST"],

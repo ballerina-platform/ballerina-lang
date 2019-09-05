@@ -9,13 +9,27 @@ import ballerina/oauth2;
 oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
     tokenUrl: "https://bitbucket.org/site/oauth2/access_token",
     clientId: "mMNWS9PLmM93V5WHjC",
-    clientSecret: "jLY6xPY3ER4bNTspaGu6fb7kahhs7kUa"
+    clientSecret: "jLY6xPY3ER4bNTspaGu6fb7kahhs7kUa",
+    clientConfig: {
+        secureSocket: {
+            trustStore: {
+                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                 password: "ballerina"
+            }
+        }
+    }
 });
 http:BearerAuthHandler oauth2Handler1 = new(oauth2Provider1);
 
 http:Client clientEP1 = new("https://api.bitbucket.org/2.0", {
     auth: {
         authHandler: oauth2Handler1
+    },
+    secureSocket: {
+        trustStore: {
+             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+             password: "ballerina"
+        }
     }
 });
 
@@ -31,8 +45,24 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
     password: "ballerina",
     clientId: "mMNWS9PLmM93V5WHjC",
     clientSecret: "jLY6xPY3ER4bNTspaGu6fb7kahhs7kUa",
+    clientConfig: {
+        secureSocket: {
+            trustStore: {
+                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                 password: "ballerina"
+            }
+        }
+    },
     refreshConfig: {
-        refreshUrl: "https://bitbucket.org/site/oauth2/access_token"
+        refreshUrl: "https://bitbucket.org/site/oauth2/access_token",
+        clientConfig: {
+            secureSocket: {
+                trustStore: {
+                     path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                     password: "ballerina"
+                }
+            }
+        }
     }
 });
 http:BearerAuthHandler oauth2Handler2 = new(oauth2Provider2);
@@ -40,6 +70,12 @@ http:BearerAuthHandler oauth2Handler2 = new(oauth2Provider2);
 http:Client clientEP2 = new("https://api.bitbucket.org/2.0", {
     auth: {
         authHandler: oauth2Handler2
+    },
+    secureSocket: {
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 
@@ -54,7 +90,15 @@ oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
         clientId: "506144513496-dqm5vdqfrfhdjjom10rmvafb8e3h7rtm.apps.googleusercontent.com",
         clientSecret: "3hw2XN4MfiIRrv6mghX6m5gM",
         refreshToken: "1/UwH3YyYccKTrH9bqj35Y7hMYTK9f3HEC3uzlrleFwPE",
-        refreshUrl: "https://www.googleapis.com/oauth2/v4/token"
+        refreshUrl: "https://www.googleapis.com/oauth2/v4/token",
+        clientConfig: {
+            secureSocket: {
+                trustStore: {
+                     path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                     password: "ballerina"
+                }
+            }
+        }
     }
 });
 http:BearerAuthHandler oauth2Handler3 = new(oauth2Provider3);
@@ -62,6 +106,12 @@ http:BearerAuthHandler oauth2Handler3 = new(oauth2Provider3);
 http:Client clientEP3 = new("https://www.googleapis.com/tasks/v1", {
     auth: {
         authHandler: oauth2Handler3
+    },
+    secureSocket: {
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 

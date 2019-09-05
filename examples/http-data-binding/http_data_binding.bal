@@ -10,8 +10,6 @@ type Student record {
 @http:ServiceConfig{}
 service hello on new http:Listener(9090) {
 
-    string respErr = "Failed to respond to the caller";
-
     //The `body` annotation represents the entity body of the inbound request.
     @http:ResourceConfig {
         methods: ["POST"],

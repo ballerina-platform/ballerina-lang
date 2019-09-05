@@ -10,9 +10,9 @@ $ curl -v http://localhost:9090/timeout
 >
 < HTTP/1.1 500 Internal Server Error
 < content-type: text/plain
-< content-length: 18
-< server: ballerina/0.981.0
-< date: Fri, 10 Aug 2018 19:56:21 +0530
+< content-length: 48
+< server: ballerina/1.0.0-beta
+< date: Wed, 4 Sep 2019 16:21:34 +0530
 <
 * Connection #0 to host localhost left intact
 Request timed out. Please try again in sometime.
