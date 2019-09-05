@@ -397,19 +397,16 @@ function performFailoverAction (string path, Request request, HttpOperation requ
     return inResponse;
 }
 
-// Populates generic error specific to Failover connector by including all the errors returned from endpoints.
+// Populates an error specific to the Failover connector by including all the errors returned from endpoints.
 function populateGenericFailoverActionError (ClientError?[] failoverActionErr, ClientError httpActionErr, int index)
-                                                                                        returns ClientError {
+                                                                            returns FailoverAllEndpointsFailedError {
 
     failoverActionErr[index] = httpActionErr;
     error err = httpActionErr;
-    string? lastErrorMsg = err.detail()?.message;
-    string failoverMessage = "All the failover endpoints failed. Last error was: ";
-    if (lastErrorMsg is string) {
-        failoverMessage = failoverMessage + lastErrorMsg;
-    }
-    FailoverActionFailedError actionError =
-                error(FAILOVER_ENDPOINT_ACTION_FAILED, message = failoverMessage, failoverErrors = failoverActionErr);
+    string lastErrorMsg = <string> err.detail()?.message;
+    string failoverMessage = "All the failover endpoints failed. Last error was: " + lastErrorMsg;
+    FailoverAllEndpointsFailedError actionError =
+                error(FAILOVER_ALL_ENDPOINTS_FAILED, message = failoverMessage, failoverErrors = failoverActionErr);
     return actionError;
 }
 
@@ -512,7 +509,7 @@ function getLastSuceededClientEP(FailoverClient failoverClient) returns Client {
     var lastSuccessClient = failoverClient.failoverInferredConfig
                                             .failoverClientsArray[failoverClient.succeededEndpointIndex];
     if (lastSuccessClient is Client) {
-        // We dont have to check this again as we already check for the response when we get the future.
+        // We don't have to check this again as we already check for the response when we get the future.
         return lastSuccessClient;
     } else {
         // This should not happen as we only fill Client objects to the Clients array
@@ -568,10 +565,7 @@ function handleResponseWithErrorCode(Response response, int initialIndex, int no
 function handleError(ClientError err, int initialIndex, int noOfEndpoints, int index, error?[] failoverActionErrData)
                                                                                         returns [int, ClientError?] {
     ClientError? httpConnectorErr = ();
-    // err is the error received instead of a Response. We wrap it to a `ClientError` here.
-    string invalidResponseMessage = "An error received while retrieving the response";
-    FailoverActionFailedError actionError = error(FAILOVER_ENDPOINT_ACTION_FAILED,
-                                                    message = invalidResponseMessage, cause = err);
+
     int currentIndex = index;
     // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
     // endpoint configured in the failover endpoints gave the erroneous response.
@@ -584,7 +578,7 @@ function handleError(ClientError err, int initialIndex, int noOfEndpoints, int i
             // If the execution lands here, that means all the endpoints has been tried out and final
             // endpoint gave an erroneous response. Therefore appropriate error message needs to be
             //  generated and should return it to the client.
-            httpConnectorErr = populateGenericFailoverActionError(failoverActionErrData, actionError, currentIndex - 1);
+            httpConnectorErr = populateGenericFailoverActionError(failoverActionErrData, err, currentIndex - 1);
         }
     } else {
         // If execution reaches here, that means failover has not started with the default starting index.
@@ -593,7 +587,7 @@ function handleError(ClientError err, int initialIndex, int noOfEndpoints, int i
             // If the execution lands here, that means all the endpoints has been tried out and final
             // endpoint gave an erroneous response. Therefore appropriate error message needs to be
             //  generated and should return it to the client.
-            httpConnectorErr = populateGenericFailoverActionError(failoverActionErrData, actionError, currentIndex - 1);
+            httpConnectorErr = populateGenericFailoverActionError(failoverActionErrData, err, currentIndex - 1);
         } else if (noOfEndpoints == currentIndex) {
             // If the execution lands here, that means the last endpoint has been tried out and endpoint gave
             // a erroneous response. Since failover resumed from the last succeeded endpoint we need try out
