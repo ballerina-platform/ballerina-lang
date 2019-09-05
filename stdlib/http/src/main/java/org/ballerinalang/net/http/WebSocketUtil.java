@@ -151,10 +151,11 @@ public class WebSocketUtil {
     }
 
     public static void handleWebSocketCallback(NonBlockingCallback callback,
-                                               ChannelFuture webSocketChannelFuture) {
+                                               ChannelFuture webSocketChannelFuture, Logger log) {
         webSocketChannelFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
+                log.error("Error occurred ", cause);
                 callback.setReturnValues(new WebSocketException(cause));
 
             } else {
