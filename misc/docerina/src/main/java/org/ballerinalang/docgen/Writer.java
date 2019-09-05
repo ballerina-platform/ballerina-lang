@@ -141,6 +141,8 @@ public class Writer {
                 label += "<span>() </span>";
             }
             label += " </code>";
+        } else if ("builtin".equals(type.category)) {
+            label = type.name;
         } else {
             label = getHtmlLink(type, root);
         }
@@ -165,9 +167,6 @@ public class Writer {
         if ("types".equals(type.category) || "constants".equals(type.category) || "annotations".equals(type.category)
                 || "errors".equals(type.category)) {
             link = root + type.moduleName + "/" + type.category + ".html#" + type.name;
-        }
-        if ("builtin".equals(type.moduleName)) {
-            link = "https://ballerina.io/learn/api-docs/ballerina/primitive-types.html#" + type.name;
         }
         String suffix = type.isArrayType ? "[]" : "";
         suffix += type.isNullable ? "?" : "";
