@@ -17,6 +17,7 @@
 package io.ballerina.plugins.idea.debugger;
 
 import com.google.common.base.Strings;
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.ballerina.plugins.idea.debugger.client.DAPClient;
@@ -158,6 +159,8 @@ public class BallerinaDAPClientConnector {
         requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
         try {
             requestManager.attach(requestArgs);
+            getContext().getSession().getConsoleView().print("Compiling and running...\n\n",
+                    ConsoleViewContentType.SYSTEM_OUTPUT);
         } catch (Exception e) {
             LOG.warn("Attaching to the debug adapter failed", e);
         }

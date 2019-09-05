@@ -103,7 +103,8 @@ public function main() {
         // Convert a table to `json`.
         var jsonConversionRet = typedesc<json>.constructFrom(selectRet);
         if (jsonConversionRet is json) {
-            io:println("JSON: ", io:sprintf("%s", jsonConversionRet));
+            io:print("JSON: ");
+            io:println(jsonConversionRet.toJsonString());
         } else {
             io:println("Error in table to json conversion");
         }

@@ -1,0 +1,17 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and execute the `ballerina run` command.
+$ ballerina run file.bal
+Current directory: /A/B
+Created directory path: /A/B/foo
+Created nested directory path: /A/B/foo/bar
+Created file path: /A/B/bar.txt
+File name: bar.txt
+File size: 0
+Is directory: false
+Modified at time=1567597039000 zone=id=Z offset=0
+bar.txt file exists: true
+bar.txt file is copied to new path foo/bar/bar.txt
+bar.txt file is moved to new path foo/bar1.txt
+Temporary directory: /var/folders/4z/xvlnvsp54ks9793d6k5_6bw40000gn/T/
+Remove file at foo/bar1.txt
+Remove foo directory with all child elements.

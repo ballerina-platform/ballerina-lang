@@ -9,7 +9,8 @@ http:BasicAuthHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
 
 listener http:Listener ep  = new(9090, config = {
     auth: {
-        authHandlers: [inboundBasicAuthHandler]
+        authHandlers: [inboundBasicAuthHandler],
+        scopes: ["hello"]
     },
     secureSocket: {
         keyStore: {
