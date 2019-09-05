@@ -36,7 +36,7 @@ public class Utils {
      * Returns error record for input reason and details. Error type is generic ballerina error type. This utility to
      * construct error struct from message.
      *
-     * @param reason  Error reason string
+     * @param reason Valid error reason. If the reason is null, "{ballerina/filepath}GenericError" is set as the reason by default
      * @param details Error message description
      * @return Ballerina error object.
      */
