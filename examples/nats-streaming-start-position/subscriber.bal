@@ -86,7 +86,7 @@ service receiveFromGivenIndex on lis {
 
 [nats:TIME_DELTA_START, int] timeDelta = [nats:TIME_DELTA_START, 5];
 // Binds the consumer to listen to the messages published to the 'demo' subject.
-// Recieves messages since the provided historical time delta.
+// Receives messages since the provided historical time delta.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
     startPosition : timeDelta

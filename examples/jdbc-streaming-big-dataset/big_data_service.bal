@@ -9,7 +9,7 @@ jdbc:Client testDB = new({
     password: "test"
 });
 
-// Create an HTTP service and bind it to a listener on port 9090
+// Create an HTTP service and bind it to a listener on port 9090.
 service dataService on new http:Listener(9090) {
 
     resource function getData(http:Caller caller, http:Request req) {

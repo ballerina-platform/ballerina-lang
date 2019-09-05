@@ -3,8 +3,8 @@ import ballerina/log;
 
 // This function returns a `ReadableTextRecordChannel` from a given file location.
 // The encoding is a character representation (i.e., UTF-8 ASCCI) of the
-// content in the file. The `rs` annotation defines a record seperator
-// (e.g., a new line) and the `fs` annotation is a field seperator
+// content in the file. The `rs` annotation defines a record separator
+// (e.g., a new line) and the `fs` annotation is a field separator
 // (e.g., a comma).
 function getReadableRecordChannel(string filePath, string encoding, string rs,
                                   string fs)
@@ -23,8 +23,8 @@ function getReadableRecordChannel(string filePath, string encoding, string rs,
 
 // This function returns a `WritableTextRecordChannel` from a given file location.
 // The encoding is a character representation (i.e., UTF-8 ASCCI) of the
-// content in the file. The `rs` annotation defines a record seperator
-// (e.g., a new line) and the `fs` annotation is a field seperator
+// content in the file. The `rs` annotation defines a record separator
+// (e.g., a new line) and the `fs` annotation is a field separator
 // (e.g., a comma).
 function getWritableRecordChannel(string filePath, string encoding, string rs,
                                   string fs)
@@ -56,7 +56,7 @@ function process(io:ReadableTextRecordChannel srcRecordChannel,
     return;
 }
 
-// Closes the readabale text record channel.
+// Closes the readable text record channel.
 function closeRc(io:ReadableTextRecordChannel rc) {
     var closeResult = rc.close();
     if (closeResult is error) {

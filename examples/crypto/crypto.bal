@@ -34,23 +34,23 @@ public function main() returns error? {
     string key = "somesecret";
     byte[] keyArr = key.toBytes();
 
-    // HMAC generation for input value using MD5 hasing algorithm, and printing HMAC value using Hex encoding.
+    // HMAC generation for input value using MD5 hashing algorithm, and printing HMAC value using Hex encoding.
     output = crypto:hmacMd5(inputArr, keyArr);
     io:println("Hex encoded HMAC with MD5: " + encoding:encodeHex(output));
 
-    // HMAC generation for input value using SHA1 hasing algorithm, and printing HMAC value using Base64 encoding.
+    // HMAC generation for input value using SHA1 hashing algorithm, and printing HMAC value using Base64 encoding.
     output = crypto:hmacSha1(inputArr, keyArr);
     io:println("Base64 encoded HMAC with SHA1: " + encoding:encodeBase64(output));
 
-    // HMAC generation for input value using SHA256 hasing algorithm, and printing HMAC value using Hex encoding.
+    // HMAC generation for input value using SHA256 hashing algorithm, and printing HMAC value using Hex encoding.
     output = crypto:hmacSha256(inputArr, keyArr);
     io:println("Hex encoded HMAC with SHA256: " + encoding:encodeHex(output));
 
-    // HMAC generation for input value using SHA384 hasing algorithm, and printing HMAC value using Base64 encoding.
+    // HMAC generation for input value using SHA384 hashing algorithm, and printing HMAC value using Base64 encoding.
     output = crypto:hmacSha384(inputArr, keyArr);
     io:println("Base64 encoded HMAC with SHA384: " + encoding:encodeBase64(output));
 
-    // HMAC generation for input value using SHA512 hasing algorithm, and printing HMAC value using Hex encoding.
+    // HMAC generation for input value using SHA512 hashing algorithm, and printing HMAC value using Hex encoding.
     output = crypto:hmacSha512(inputArr, keyArr);
     io:println("Hex encoded HMAC with SHA512: " + encoding:encodeHex(output));
 
