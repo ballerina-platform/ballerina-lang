@@ -27,6 +27,9 @@ import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.wso2.transport.http.netty.contract.Constants.SECURITY;
+import static org.wso2.transport.http.netty.contract.Constants.SSL;
+
 /**
  * Handles inbound exceptions for both the streams and the connection.
  */
@@ -39,13 +42,17 @@ public class Http2ExceptionHandler extends ChannelInboundHandlerAdapter {
         this.http2ConnectionHandler = http2ConnectionHandler;
     }
 
+    public Http2ExceptionHandler() {}
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (Http2CodecUtil.getEmbeddedHttp2Exception(cause) != null) {
+        if (http2ConnectionHandler != null && Http2CodecUtil.getEmbeddedHttp2Exception(cause) != null) {
             http2ConnectionHandler.onError(ctx, false, cause);
         } else {
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
         }
-        LOG.error("Exception occurred in HTTP/2 inbound channel", cause);
+        if (!cause.toString().contains(SSL) && !cause.toString().contains(SECURITY)) {
+            LOG.error("Exception occurred in HTTP/2 inbound channel", cause);
+        }
     }
 }

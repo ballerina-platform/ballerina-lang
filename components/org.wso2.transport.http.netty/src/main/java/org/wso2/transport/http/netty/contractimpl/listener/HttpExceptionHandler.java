@@ -27,6 +27,9 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.wso2.transport.http.netty.contract.Constants.SECURITY;
+import static org.wso2.transport.http.netty.contract.Constants.SSL;
+
 /**
  * A class responsible for handling exceptions occurred in HTTP inbound pipeline. This should be placed at the tail
  * of the pipeline. When engaged channel handlers have not implemented exceptionCaught method, this class
@@ -43,6 +46,8 @@ public class HttpExceptionHandler extends ChannelInboundHandlerAdapter {
                     HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
                     .addListener(ChannelFutureListener.CLOSE);
         }
-        LOG.error("Exception occurred in HTTP inbound channel pipeline : {}", cause);
+        if (!cause.toString().contains(SSL) && !cause.toString().contains(SECURITY)) {
+            LOG.error("Exception occurred in HTTP inbound channel pipeline : {}", cause);
+        }
     }
 }

@@ -32,6 +32,8 @@ import org.wso2.transport.http.netty.contract.exceptions.UnresolvedHostException
 
 import static org.wso2.transport.http.netty.contract.Constants.COLON;
 import static org.wso2.transport.http.netty.contract.Constants.ERROR_COULD_NOT_RESOLVE_HOST;
+import static org.wso2.transport.http.netty.contract.Constants.SECURITY;
+import static org.wso2.transport.http.netty.contract.Constants.SSL;
 import static org.wso2.transport.http.netty.contract.Constants.SSL_CONNECTION_ERROR;
 import static org.wso2.transport.http.netty.contract.Constants.UNKNOWN_HOST_EXCEPTION;
 
@@ -134,7 +136,7 @@ public class ConnectionAvailabilityFuture {
                 channelFuture.cause() == null)) {
             connectorException = new ConnectionTimedOutException("Connection timeout: " + socketAddress,
                     HttpResponseStatus.BAD_GATEWAY.code());
-        } else if (cause.toString().contains("javax.net.ssl") || cause.toString().contains("security")) {
+        } else if (cause.toString().contains(SSL) || cause.toString().contains(SECURITY)) {
             connectorException = new SslException(
                     SSL_CONNECTION_ERROR + COLON + cause.getMessage() + socketAddress,
                     HttpResponseStatus.BAD_GATEWAY.code());

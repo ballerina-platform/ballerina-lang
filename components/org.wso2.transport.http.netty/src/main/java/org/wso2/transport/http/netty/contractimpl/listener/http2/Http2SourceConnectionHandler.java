@@ -69,7 +69,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
         super.handlerAdded(ctx);
         // Remove unwanted handlers after upgrade
         safelyRemoveHandlers(ctx.pipeline(), Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER, Constants.HTTP_COMPRESSOR,
-                Constants.HTTP_TRACE_LOG_HANDLER, Constants.HTTP_ACCESS_LOG_HANDLER);
+                Constants.HTTP_TRACE_LOG_HANDLER, Constants.HTTP_ACCESS_LOG_HANDLER, Constants.HTTP2_EXCEPTION_HANDLER);
         // Add HTTP2 Source handler
         Http2SourceHandler http2SourceHandler = new Http2SourceHandler(serverChannelInitializer, encoder, interfaceId,
                 connection(), serverConnectorFuture, serverName);
