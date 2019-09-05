@@ -144,6 +144,8 @@ public class ReceivingHeaders implements ListenerState {
             handleIncompleteInboundMessage(inboundRequestMsg,
                                            IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS);
         });
+        listenerReqRespStateManager.state
+                = new ResponseCompleted(listenerReqRespStateManager, sourceHandler, inboundRequestMsg);
         return outboundRespFuture;
     }
 }
