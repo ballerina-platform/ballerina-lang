@@ -80,7 +80,7 @@ public class ReceivingHeaders implements SenderState {
         }
 
         if (httpInboundResponse.decoderResult().isFailure()) {
-            LOG.warn(httpInboundResponse.decoderResult().cause().getMessage());
+            LOG.debug(httpInboundResponse.decoderResult().cause().getMessage());
         }
     }
 
