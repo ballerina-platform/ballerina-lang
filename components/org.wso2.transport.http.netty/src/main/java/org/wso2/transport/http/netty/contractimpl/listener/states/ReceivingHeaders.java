@@ -77,7 +77,7 @@ public class ReceivingHeaders implements ListenerState {
         notifyRequestListener(inboundRequestMsg);
 
         if (inboundRequestHeaders.decoderResult().isFailure()) {
-            LOG.warn(inboundRequestHeaders.decoderResult().cause().getMessage());
+            LOG.debug(inboundRequestHeaders.decoderResult().cause().getMessage());
         }
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceRequestReceiving(inboundRequestMsg);
