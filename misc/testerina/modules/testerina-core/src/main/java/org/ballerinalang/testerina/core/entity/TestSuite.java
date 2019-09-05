@@ -19,7 +19,6 @@
 package org.ballerinalang.testerina.core.entity;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class TestSuite {
     private TesterinaFunction testStartFunction;
     private TesterinaFunction testStopFunction;
     private List<Test> tests = new ArrayList<>();
-    private TestarinaClassLoader programFile;
+    private JBallerinaInMemoryClassLoader programFile;
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
     private List<String> afterSuiteFunctionNames = new ArrayList<>();
 
@@ -122,7 +121,7 @@ public class TestSuite {
         this.suiteName = suiteName;
     }
 
-    public TestarinaClassLoader getProgramFile() {
+    public JBallerinaInMemoryClassLoader getProgramFile() {
         return programFile;
     }
 
@@ -249,7 +248,7 @@ public class TestSuite {
         this.afterSuiteFunctions = afterSuiteFunctions;
     }
 
-    public void setProgramFile(TestarinaClassLoader programFile) {
+    public void setProgramFile(JBallerinaInMemoryClassLoader programFile) {
         this.programFile = programFile;
     }
 
@@ -304,8 +303,10 @@ public class TestSuite {
             initFunction.scheduler = initScheduler;
             initFunction.invoke();
             // Now we initialize the init of testable module.
-            testInitFunction.scheduler = initScheduler;
-            testInitFunction.invoke();
+            if (testInitFunction != null) {
+                testInitFunction.scheduler = initScheduler;
+                testInitFunction.invoke();
+            }
             // As the start function we need to use $moduleStart to start all the dependent modules
             // properly.
             startFunction.bFunction.name.value = "$moduleStart";
@@ -313,8 +314,10 @@ public class TestSuite {
             startFunction.invoke();
 
             // Invoke start function of the testable module
-            testStartFunction.scheduler = initScheduler;
-            testStartFunction.invoke();
+            if (testStartFunction != null) {
+                testStartFunction.scheduler = initScheduler;
+                testStartFunction.invoke();
+            }
 
             // Once the start function finish we will re start the scheduler with immortal true
             initScheduler.immortal = true;
@@ -329,8 +332,10 @@ public class TestSuite {
     public void stop() {
         if (stopFunction != null) {
             // Invoke stop function of the testable module.
-            testStopFunction.scheduler = scheduler;
-            testStopFunction.invoke();
+            if (testStopFunction != null) {
+                testStopFunction.scheduler = scheduler;
+                testStopFunction.invoke();
+            }
 
             stopFunction.bFunction.name.value = "$moduleStop";
             stopFunction.directInvoke(new Class[]{});

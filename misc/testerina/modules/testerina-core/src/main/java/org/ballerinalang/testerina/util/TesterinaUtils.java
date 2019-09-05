@@ -110,7 +110,7 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param programFileMap map containing bLangPackage nodes along with their compiled program files
      */
-    public static void executeTests(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader>
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, JBallerinaInMemoryClassLoader>
             programFileMap) {
         executeTests(sourceRootPath, programFileMap, System.out, System.err);
     }
@@ -123,7 +123,7 @@ public class TesterinaUtils {
      * @param outStream      error stream for logging.
      * @param errStream      info stream for logging.
      */
-    public static void executeTests(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader>
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, JBallerinaInMemoryClassLoader>
             programFileMap, PrintStream outStream, PrintStream errStream) {
         // Set org-name and version to the Testerina Registry.
         setManifestConfigs(sourceRootPath);
