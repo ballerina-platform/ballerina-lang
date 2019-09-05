@@ -78,8 +78,8 @@ public enum HttpErrorType {
     UNSUPPORTED_ACTION("UnsupportedActionError", "{ballerina/http}UnsupportedAction"),
     HTTP2_CLIENT_ERROR("Http2ClientError", "{ballerina/http}Http2ClientError"),
     MAXIMUM_WAIT_TIME_EXCEEDED("MaximumWaitTimeExceededError", "{ballerina/http}MaximumWaitTimeExceeded"),
-    SSL_ERROR("SslError", "{ballerina/http}SslError");
-
+    SSL_ERROR("SslError", "{ballerina/http}SslError"),
+    INVALID_CONTENT_LENGTH("InvalidContentLengthError", "{ballerina/http}InvalidContentLength");
 
     private final String errorName;
     private final String reason;
