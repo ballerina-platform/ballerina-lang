@@ -495,7 +495,7 @@ public class BLangPackageBuilder {
                                 boolean exprAvailable, int annotCount, boolean isPrivate, boolean isPublic) {
         BLangSimpleVariable field = addSimpleVar(pos, ws, identifier, identifierPos, exprAvailable, annotCount);
 
-        attachAnnotations(field, annotCount);
+        attachAnnotations(field, annotCount, false);
 
         if (isPublic) {
             field.flagSet.add(Flag.PUBLIC);
@@ -651,7 +651,7 @@ public class BLangPackageBuilder {
 
     void startFunctionDef(int annotCount, boolean isLambda) {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
-        attachAnnotations(functionNode, annotCount);
+        attachAnnotations(functionNode, annotCount, false);
         if (!isLambda) {
             attachMarkdownDocumentations(functionNode);
         }
@@ -709,7 +709,7 @@ public class BLangPackageBuilder {
                                      int annotCount) {
         BLangSimpleVariable var = (BLangSimpleVariable) this.generateBasicVarNode(pos, ws, identifier, identifierPos,
                 exprAvailable);
-        attachAnnotations(var, annotCount);
+        attachAnnotations(var, annotCount, false);
         var.pos = pos;
         if (this.varListStack.empty()) {
             this.varStack.push(var);
@@ -1007,7 +1007,7 @@ public class BLangPackageBuilder {
                                            int annotCount) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNodeWithoutType(pos, ws, identifier, identifierPos,
                 exprAvailable);
-        attachAnnotations(var, annotCount);
+        attachAnnotations(var, annotCount, false);
         var.pos = pos;
         if (this.varListStack.empty()) {
             this.varStack.push(var);
@@ -1026,7 +1026,7 @@ public class BLangPackageBuilder {
                         Set<Whitespace> ws,
                         int annotCount) {
         BLangSimpleVariable var = (BLangSimpleVariable) this.generateBasicVarNode(pos, ws, null, null, false);
-        attachAnnotations(var, annotCount);
+        attachAnnotations(var, annotCount, false);
         var.pos = pos;
         this.varStack.push(var);
     }
@@ -1113,7 +1113,7 @@ public class BLangPackageBuilder {
         if (expressionNode.getKind() == NodeKind.INVOCATION) {
             BLangInvocation invocation = (BLangInvocation) this.exprNodeStack.peek();
             invocation.async = true;
-            attachAnnotations(invocation, numAnnotations);
+            attachAnnotations(invocation, numAnnotations, false);
         } else {
             dlog.error(pos, DiagnosticCode.START_REQUIRE_INVOCATION);
         }
@@ -1599,7 +1599,7 @@ public class BLangPackageBuilder {
         invocationExpr.async = async;
 
         invocationExpr.expr = (BLangExpression) exprNodeStack.pop();
-        attachAnnotations(invocationExpr, numAnnotations);
+        attachAnnotations(invocationExpr, numAnnotations, false);
         exprNodeStack.push(invocationExpr);
     }
 
@@ -1663,7 +1663,7 @@ public class BLangPackageBuilder {
     void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws, int annotationCount,
                                   boolean typeNameAvailable) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
-        attachAnnotations(typeConversionNode, annotationCount);
+        attachAnnotations(typeConversionNode, annotationCount, false);
         typeConversionNode.pos = pos;
         typeConversionNode.addWS(ws);
         if (typeNameAvailable) {
@@ -1773,19 +1773,27 @@ public class BLangPackageBuilder {
         }
 
         endCallableUnitBody(ws);
+
+        BLangFunction bLangFunction = (BLangFunction) this.invokableNodeStack.peek();
         // change default worker name
-        ((BLangFunction) this.invokableNodeStack.peek()).defaultWorkerName.value = workerName;
+        bLangFunction.defaultWorkerName.value = workerName;
+
+        // Attach worker annotation to the function node.
+        attachAnnotations(bLangFunction, numAnnotations, true);
+
         addLambdaFunctionDef(pos, ws, false, retParamsAvail, false);
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
         addSimpleVariableDefStatement(pos, null, workerLambdaName, null, true, true, true);
 
         // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
-        if (!this.forkJoinNodesStack.empty()) {
-            // TODO: Revisit the fork join worker declaration and decide whether move this to desugar.
-            List<? extends StatementNode> stmtsAdded = this.blockNodeStack.peek().getStatements();
-            BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
-            lamdaWrkr.isInFork = true;
-            this.forkJoinNodesStack.peek().addWorkers(lamdaWrkr);
+        BLangSimpleVariableDef lamdaWrkr = getLastVarDefStmtFromBlock();
+        if (lamdaWrkr != null) {
+            lamdaWrkr.isWorker = true;
+            if (!this.forkJoinNodesStack.empty()) {
+                // TODO: Revisit the fork join worker declaration and decide whether move this to desugar.
+                lamdaWrkr.isInFork = true;
+                this.forkJoinNodesStack.peek().addWorkers(lamdaWrkr);
+            }
         }
 
         addNameReference(pos, null, null, workerLambdaName);
@@ -1793,6 +1801,21 @@ public class BLangPackageBuilder {
         createWorkerLambdaInvocationNode(pos, null, workerLambdaName);
         markLastInvocationAsAsync(pos, numAnnotations);
         addSimpleVariableDefStatement(pos, null, workerName, null, true, true, true);
+        BLangSimpleVariableDef invocationStmt = getLastVarDefStmtFromBlock();
+        if (invocationStmt != null) {
+            invocationStmt.isWorker = true;
+        }
+    }
+
+    private BLangSimpleVariableDef getLastVarDefStmtFromBlock() {
+        BLangSimpleVariableDef variableDef = null;
+        if (!this.blockNodeStack.isEmpty()) {
+            List<? extends StatementNode> stmtsAdded = this.blockNodeStack.peek().getStatements();
+            if (stmtsAdded.get(stmtsAdded.size() - 1) instanceof BLangSimpleVariableDef) {
+                variableDef = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
+            }
+        }
+        return variableDef;
     }
 
     void attachWorkerWS(Set<Whitespace> ws) {
@@ -2203,7 +2226,7 @@ public class BLangPackageBuilder {
 
         function.attachedFunction = true;
 
-        attachAnnotations(function, annCount);
+        attachAnnotations(function, annCount, false);
         if (markdownDocPresent) {
             attachMarkdownDocumentations(function);
         }
@@ -2359,7 +2382,7 @@ public class BLangPackageBuilder {
         }
     }
 
-    private void attachAnnotations(AnnotatableNode annotatableNode, int count) {
+    private void attachAnnotations(AnnotatableNode annotatableNode, int count, boolean peek) {
         if (count == 0 || annotAttachmentStack.empty()) {
             return;
         }
@@ -2369,7 +2392,11 @@ public class BLangPackageBuilder {
             if (annotAttachmentStack.empty()) {
                 break;
             }
-            tempAnnotAttachments.add(annotAttachmentStack.pop());
+            if (peek) {
+                tempAnnotAttachments.add(annotAttachmentStack.peek());
+            } else {
+                tempAnnotAttachments.add(annotAttachmentStack.pop());
+            }
         }
         // reversing the collected annotations to preserve the original order
         Collections.reverse(tempAnnotAttachments);
@@ -2825,7 +2852,7 @@ public class BLangPackageBuilder {
         //      This is a global variable if the service is defined in module level.
         //      Otherwise (isAnonServiceValue = true) it is a local variable definition, which is written by user.
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
-        attachAnnotations(serviceNode, annotCount);
+        attachAnnotations(serviceNode, annotCount, false);
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         serviceNode.isAnonymousServiceValue = isAnonServiceValue;
@@ -3090,7 +3117,7 @@ public class BLangPackageBuilder {
                       int annotCount) {
         BLangSimpleVariable restParam = (BLangSimpleVariable) this.generateBasicVarNode(pos, ws, identifier,
                 identifierPos, false);
-        attachAnnotations(restParam, annotCount);
+        attachAnnotations(restParam, annotCount, false);
         restParam.pos = pos;
 
         BLangArrayType typeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
