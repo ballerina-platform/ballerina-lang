@@ -371,7 +371,20 @@ public class BTestRunner {
         });
         // Add all functions of the test function to test suite
         if (bLangPackage.hasTestablePackage()) {
-            bLangPackage.getTestablePkg().functions.stream().forEach(function -> {
+            BLangPackage testablePackage = bLangPackage.getTestablePkg();
+            String testClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                    bLangPackage.packageID.name.value,
+                    bLangPackage.packageID.name.value);
+
+            Class<?> testInitClazz = classLoader.loadClass(testClassName);
+            suite.setTestInitFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.initFunction));
+            suite.setTestStartFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.startFunction));
+            suite.setTestStopFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.stopFunction));
+
+            testablePackage.functions.stream().forEach(function -> {
                 try {
                     String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                             bLangPackage.packageID.name.value,
