@@ -120,7 +120,7 @@ public class JSONToXMLConverter {
      */
     @SuppressWarnings("rawtypes")
     private static OMElement traverseJsonNode(Object json, String nodeName, OMElement parentElement,
-            List<XMLValue> omElementArrayList, String attributePrefix, String arrayEntryTag) {
+                                              List<XMLValue> omElementArrayList, String attributePrefix, String arrayEntryTag) {
         OMElement currentRoot = null;
         if (nodeName != null) {
             // Extract attributes and set to the immediate parent.
@@ -154,56 +154,56 @@ public class JSONToXMLConverter {
             BType type = TypeChecker.getType(json);
             switch (type.getTag()) {
 
-            case TypeTags.MAP_TAG:
-                if (((BMapType) type).getConstrainedType().getTag() != TypeTags.JSON_TAG) {
-                    throw BallerinaErrors.createError("error in converting map<non-json> to xml");
-                }
-                map = (MapValueImpl) json;
-                for (Entry<String, Object> entry : map.entrySet()) {
-                    currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot, omElementArrayList,
-                            attributePrefix, arrayEntryTag);
-                    if (nodeName == null) { // Outermost object
-                        omElementArrayList.add(new XMLItem(currentRoot));
-                        currentRoot = null;
+                case TypeTags.MAP_TAG:
+                    if (((BMapType) type).getConstrainedType().getTag() != TypeTags.JSON_TAG) {
+                        throw BallerinaErrors.createError("error in converting map<non-json> to xml");
                     }
-                }
-                break;
-            case TypeTags.JSON_TAG:
-                map = (MapValueImpl) json;
-                for (Entry<String, Object> entry : map.entrySet()) {
-                    currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot, omElementArrayList,
-                            attributePrefix, arrayEntryTag);
-                    if (nodeName == null) { // Outermost object
-                        omElementArrayList.add(new XMLItem(currentRoot));
-                        currentRoot = null;
+                    map = (MapValueImpl) json;
+                    for (Entry<String, Object> entry : map.entrySet()) {
+                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot, omElementArrayList,
+                                attributePrefix, arrayEntryTag);
+                        if (nodeName == null) { // Outermost object
+                            omElementArrayList.add(new XMLItem(currentRoot));
+                            currentRoot = null;
+                        }
                     }
-                }
-                break;
-            case TypeTags.ARRAY_TAG:
-                ArrayValue array = (ArrayValue) json;
-                for (int i = 0; i < array.size(); i++) {
-                    currentRoot = traverseJsonNode(array.getRefValue(i), arrayEntryTag, currentRoot, omElementArrayList,
-                            attributePrefix, arrayEntryTag);
-                    if (nodeName == null) { // Outermost array
-                        omElementArrayList.add(new XMLItem(currentRoot));
-                        currentRoot = null;
+                    break;
+                case TypeTags.JSON_TAG:
+                    map = (MapValueImpl) json;
+                    for (Entry<String, Object> entry : map.entrySet()) {
+                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot, omElementArrayList,
+                                attributePrefix, arrayEntryTag);
+                        if (nodeName == null) { // Outermost object
+                            omElementArrayList.add(new XMLItem(currentRoot));
+                            currentRoot = null;
+                        }
                     }
-                }
-                break;
-            case TypeTags.INT_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-            case TypeTags.STRING_TAG:
-            case TypeTags.BOOLEAN_TAG:
-                if (currentRoot == null) {
-                    throw BallerinaErrors.createError("error in converting json to xml");
-                }
+                    break;
+                case TypeTags.ARRAY_TAG:
+                    ArrayValue array = (ArrayValue) json;
+                    for (int i = 0; i < array.size(); i++) {
+                        currentRoot = traverseJsonNode(array.getRefValue(i), arrayEntryTag, currentRoot, omElementArrayList,
+                                attributePrefix, arrayEntryTag);
+                        if (nodeName == null) { // Outermost array
+                            omElementArrayList.add(new XMLItem(currentRoot));
+                            currentRoot = null;
+                        }
+                    }
+                    break;
+                case TypeTags.INT_TAG:
+                case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
+                case TypeTags.STRING_TAG:
+                case TypeTags.BOOLEAN_TAG:
+                    if (currentRoot == null) {
+                        throw BallerinaErrors.createError("error in converting json to xml");
+                    }
 
-                OMText txt1 = OM_FACTORY.createOMText(currentRoot, json.toString());
-                currentRoot.addChild(txt1);
-                break;
-            default:
-                throw BallerinaErrors.createError("error in converting json to xml");
+                    OMText txt1 = OM_FACTORY.createOMText(currentRoot, json.toString());
+                    currentRoot.addChild(txt1);
+                    break;
+                default:
+                    throw BallerinaErrors.createError("error in converting json to xml");
             }
         }
 

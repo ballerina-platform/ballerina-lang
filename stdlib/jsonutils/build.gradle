@@ -25,36 +25,31 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
+    baloCreat project(':lib-creator')
+
     implementation 'org.apache.ws.commons.axiom:axiom-impl'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
     implementation 'org.apache.ws.commons.axiom:axiom-c14n'
-    
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
-    baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-logging')
-    implementation project(':ballerina-runtime-api')
 
-    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
-
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-test-utils')
-    testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
-
-    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 
 createBalo {
     jvmTarget = 'true'
 }
 
-description = 'Ballerina - Jsonutils'
+description = 'Ballerina - Json Utils'
 
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
