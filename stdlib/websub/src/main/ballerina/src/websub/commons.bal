@@ -227,7 +227,7 @@ function processWebSubNotification(http:Request request, service serviceType) re
 function validateSignature(string xHubSignature, string stringPayload, string secret) returns error? {
     string[] splitSignature = stringutils:split(xHubSignature, "=");
     string method = splitSignature[0];
-    string signature = internal:replace(xHubSignature, method + "=", "");
+    string signature = stringutils:replace(xHubSignature, method + "=", "");
     string generatedSignature = "";
 
     if (internal:equalsIgnoreCase(method, SHA1)) {
@@ -381,8 +381,8 @@ public function extractTopicAndHubUrls(http:Response response) returns @tainted 
         string[] linkConstituents = stringutils:split(link, ";");
         if (linkConstituents[1] != "") {
             string url = linkConstituents[0].trim();
-            url = internal:replace(url, "<", "");
-            url = internal:replace(url, ">", "");
+            url = stringutils:replace(url, "<", "");
+            url = stringutils:replace(url, ">", "");
             if (internal:contains(linkConstituents[1], "rel=\"hub\"")) {
                 hubs[hubIndex] = url;
                 hubIndex += 1;

@@ -113,7 +113,7 @@ public type StreamEvent object {
         int index = 0;
         map<anydata>[] dArray = self.dataMap[alias] ?: [{}];
         if (aliasSplit.length() > 1) {
-            string replacedString = internal:replaceAll(aliasSplit[1], "]", "");
+            string replacedString = stringutils:replaceAll(aliasSplit[1], "]", "");
             string indexStr = replacedString.trim();
             if (internal:contains(indexStr, "last")) {
                 int lastIndex = dArray.length();
