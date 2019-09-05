@@ -149,17 +149,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         String path = args.getSource().getPath();
 
-        projectRoot = findProjectRoot(Paths.get(path));
-        if (projectRoot == null) {
-            // calculate projectRoot for single file
-            File file = new File(path);
-            File parentDir = file.getParentFile();
-            projectRoot = parentDir.toPath();
-        } else {
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            orgName = manifest.getProject().getOrgName();
-        }
-
         this.eventBus.setBreakpointsList(path, breakpoints);
 
         return CompletableFuture.completedFuture(breakpointsResponse);
@@ -171,10 +160,26 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(null);
     }
 
+    private void updateProjectRoot(String balFile) {
+        projectRoot = findProjectRoot(Paths.get(balFile));
+        if (projectRoot == null) {
+            // calculate projectRoot for single file
+            File file = new File(balFile);
+            File parentDir = file.getParentFile();
+            projectRoot = parentDir.toPath();
+        } else {
+            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+            orgName = manifest.getProject().getOrgName();
+        }
+    }
+
     @Override
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         nextVarReference.set(1);
         Launch launcher = new LaunchFactory().getLauncher(args);
+
+        String balFile = args.get("script").toString();
+        updateProjectRoot(balFile);
         try {
             launchedProcess = launcher.start();
         } catch (IOException e) {
@@ -227,7 +232,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         nextVarReference.set(1);
         try {
             int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
-            debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
+            String debuggeeHost = args.get("debuggeeHost") == null ? "" : args.get("debuggeeHost").toString();
+
+            String balFile = args.get("script").toString();
+            updateProjectRoot(balFile);
+
+            debuggee = new DebuggerAttachingVM(debuggeePort, debuggeeHost).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
