@@ -17,14 +17,10 @@
 */
 package org.ballerinalang.langserver.completion.definitions;
 
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
 
 /**
  * Completion item tests for function definition.
