@@ -61,7 +61,6 @@ public class ServiceSkeletonTest {
 
     @AfterMethod
     private void cleanup() {
-        TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
         TesterinaRegistry.getInstance().getInitializedPackages().clear();
     }

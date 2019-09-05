@@ -29,14 +29,11 @@ public interface BallerinaInvocation extends PsiElement {
   @Nullable
   BallerinaInvocationArgList getInvocationArgList();
 
-  @Nullable
+  @NotNull
   PsiElement getDot();
 
   @NotNull
   PsiElement getLeftParenthesis();
-
-  @Nullable
-  PsiElement getNot();
 
   @NotNull
   PsiElement getRightParenthesis();

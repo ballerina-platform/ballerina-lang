@@ -134,6 +134,13 @@ function testConstructFromWithNumericConversion6() returns boolean {
     return m2 is map<int> && m.length() == m2.length() && m2["a"] == 1 && m2["b"] == 3 && m2 == m3;
 }
 
+function testConstructFromWithNumericConversion7() returns boolean {
+    int[] a1 = [1, 2, 3];
+    decimal[]|error a2 = decimal[].constructFrom(a1);
+    return a2 is decimal[] && a2.length() == a1.length() && a2[0] == <decimal> 1 && a2[1] == <decimal> 2 &&
+        a2[2] == <decimal> 3;
+}
+
 function testConstructFromSuccessWithMoreThanOneNumericTarget() returns boolean {
     map<int> m1 = { a: 1, b: 2 };
     // Successful since value conversion is not required.

@@ -26,6 +26,8 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -80,8 +82,8 @@ public abstract class AbstractHTTPAction {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
 
-    protected static HttpCarbonMessage createOutboundRequestMsg(String serviceUri, MapValue config, String path,
-                                                                ObjectValue request) {
+    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, MapValue config, 
+                                                                String path, ObjectValue request) {
         if (request == null) {
             request = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, REQUEST);
         }
@@ -89,7 +91,7 @@ public abstract class AbstractHTTPAction {
         HttpCarbonMessage requestMsg = HttpUtil.getCarbonMsg(request, HttpUtil.createHttpCarbonMessage(true));
         HttpUtil.checkEntityAvailability(request);
         HttpUtil.enrichOutboundMessage(requestMsg, request);
-        prepareOutboundRequest(serviceUri, path, requestMsg, isNoEntityBodyRequest(request));
+        prepareOutboundRequest(strand, serviceUri, path, requestMsg, isNoEntityBodyRequest(request));
         handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(config));
         return requestMsg;
     }
@@ -110,14 +112,13 @@ public abstract class AbstractHTTPAction {
         }
     }
 
-    static void prepareOutboundRequest(String serviceUri, String path, HttpCarbonMessage outboundRequest,
+    static void prepareOutboundRequest(Strand strand, String serviceUri, String path, HttpCarbonMessage outboundRequest,
                                        Boolean nonEntityBodyReq) {
-        //TODO transaction code
-//        if (context.isInTransaction()) {
-//            TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
-//            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
-//            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, transactionLocalContext.getURL());
-//        }
+        if (strand.isInTransaction()) {
+            TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
+            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, transactionLocalContext.getURL());
+        }
         try {
             String uri = getServiceUri(serviceUri) + path;
             URL url = new URL(uri);

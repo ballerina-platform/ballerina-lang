@@ -46,14 +46,14 @@ public type FailoverInferredConfig record {|
 # + succeededEndpointIndex - Index of the `CallerActions[]` array which given a successful response
 public type FailoverClient client object {
 
-    public FailoverClientEndpointConfiguration failoverClientConfig;
+    public FailoverClientConfiguration failoverClientConfig;
     public FailoverInferredConfig failoverInferredConfig;
     public int succeededEndpointIndex;
 
     # Failover caller actions which provides failover capabilities to an HTTP client endpoint.
     #
     # + config - The configurations of the client endpoint associated with this `Failover` instance
-    public function __init(FailoverClientEndpointConfiguration failoverClientConfig) {
+    public function __init(FailoverClientConfiguration failoverClientConfig) {
         self.failoverClientConfig = failoverClientConfig;
         self.succeededEndpointIndex = 0;
         var failoverHttpClientArray = createFailoverHttpClientArray(failoverClientConfig);
@@ -453,7 +453,7 @@ function populateErrorsFromLastResponse (Response inResponse, ClientError?[] fai
 # + retryConfig - Retry related options
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
 # + intervalInMillis - Failover delay interval in milliseconds
-public type FailoverClientEndpointConfiguration record {|
+public type FailoverClientConfiguration record {|
     string httpVersion = HTTP_1_1;
     ClientHttp1Settings http1Settings = {};
     ClientHttp2Settings http2Settings = {};
@@ -472,9 +472,9 @@ public type FailoverClientEndpointConfiguration record {|
     int intervalInMillis = 0;
 |};
 
-function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
-                                                  TargetService target) returns ClientEndpointConfig {
-    ClientEndpointConfig clientEPConfig = {
+function createClientEPConfigFromFailoverEPConfig(FailoverClientConfiguration foConfig,
+                                                  TargetService target) returns ClientConfiguration {
+    ClientConfiguration clientEPConfig = {
         http1Settings: foConfig.http1Settings,
         http2Settings: foConfig.http2Settings,
         circuitBreaker:foConfig.circuitBreaker,
@@ -492,7 +492,7 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
     return clientEPConfig;
 }
 
-function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failoverClientConfig)
+function createFailoverHttpClientArray(FailoverClientConfiguration failoverClientConfig)
                                                                             returns Client?[]|error {
 
     Client clientEp;
@@ -500,7 +500,7 @@ function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failo
     int i = 0;
 
     foreach var target in failoverClientConfig.targets {
-        ClientEndpointConfig epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
+        ClientConfiguration epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
         clientEp = new(target.url, epConfig);
         httpClients[i] = clientEp;
         i += 1;

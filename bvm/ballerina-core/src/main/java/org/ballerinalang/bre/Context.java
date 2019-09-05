@@ -17,14 +17,8 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.Map;
 
@@ -35,31 +29,17 @@ import java.util.Map;
  */
 public interface Context {
 
-    Strand getStrand();
-
-    CallableUnitInfo getCallableUnitInfo();
-
-    StackFrame getDataFrame();
-
     Object getProperty(String key);
 
     Map<String, Object> getProperties();
 
     void setProperty(String key, Object value);
 
-    ServiceInfo getServiceInfo();
-
-    void setServiceInfo(ServiceInfo serviceInfo);
-
     boolean isInTransaction();
 
     BError getError();
 
     void setError(BError error);
-
-    ProgramFile getProgramFile();
-
-    TransactionLocalContext getLocalTransactionInfo();
 
     long getIntArgument(int index);
 

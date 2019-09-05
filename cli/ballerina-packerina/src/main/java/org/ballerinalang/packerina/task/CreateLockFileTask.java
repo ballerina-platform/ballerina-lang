@@ -34,6 +34,5 @@ public class CreateLockFileTask implements Task {
         LockFileWriter lockFileWriter = LockFileWriter.getInstance(compilerContext,
                 ManifestProcessor.getInstance(compilerContext).getManifest());
         lockFileWriter.writeLockFile(buildContext.getModules(), buildContext.getLockFilePath());
-    
     }
 }

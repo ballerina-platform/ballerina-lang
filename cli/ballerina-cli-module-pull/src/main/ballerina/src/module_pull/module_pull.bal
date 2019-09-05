@@ -87,7 +87,7 @@ public function main(string... args) {
         } else {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is error) {
-                panic createError("failed to resolve host of remote repository: " + host + " with port " + port.toString());
+                panic createError("failed to resolve host of remote repository: " + host + ":" + port.toString());
             } else {
                 httpEndpoint = result;
                 return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
@@ -127,11 +127,11 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
     http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, req);
     if (httpResponse is error) {
         error e = httpResponse;
-        panic createError("connection to the remote repository host failed : " + e.reason());
+        panic createError("connection to the remote repository host failed: " + <string>e.detail()["message"]);
     } else {
         string statusCode = httpResponse.statusCode.toString();
         if (statusCode.startsWith("5")) {
-            panic createError("remote repository failed for url:" + url);
+            panic createError("unable to connect to remote repository: " + url);
         } else if (statusCode != "200") {
             var resp = httpResponse.getJsonPayload();
             if (resp is json) {
@@ -142,7 +142,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     panic createError(resp.message.toString());
                 }
             } else {
-                panic createError("error occurred when pulling the module from remote repository");
+                panic createError("failed to pull the module '" + modulePath + "' from the remote repository '" + url + "'");
             }
         } else {
             string contentLengthHeader;
@@ -200,12 +200,12 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                 var destChannelClose = wch.close();
                 if (destChannelClose is error) {
                     error e = destChannelClose;
-                    panic createError("error occurred while closing the channel: " + e.reason());
+                    panic createError("error occurred while closing the channel: " + <string>e.detail()["message"]);
                 } else {
                     var srcChannelClose = sourceChannel.close();
                     if (srcChannelClose is error) {
                         error e = srcChannelClose;
-                        panic createError("error occurred while closing the channel: " + e.reason());
+                        panic createError("error occurred while closing the channel: " + <string>e.detail()["message"]);
                     } else {
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
@@ -276,10 +276,8 @@ function defineEndpointWithoutProxy(string url) returns http:Client{
 # + numberOfBytes - Number of bytes to be read
 # + return - Read content as byte[] along with the number of bytes read, or error if read failed
 function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns [byte[], int]|error {
-    byte[] bytes;
-    int numberOfBytesRead;
-    [bytes, numberOfBytesRead] = check (byteChannel.read(numberOfBytes));
-    return <@untainted>[bytes, numberOfBytesRead];
+    byte[] bytes = check (byteChannel.read(numberOfBytes));
+    return <@untainted>[bytes, bytes.length()];
 }
 
 # This function will write the bytes from the byte channel.
@@ -382,7 +380,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
             error e = channelCloseError;
-            io:println(logFormatter.formatLog("Error occured while closing the channel: " + e.reason()));
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + <string>e.detail()["message"]));
         } else {
             return;
         }
@@ -390,7 +388,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
             error e = channelCloseError;
-            io:println(logFormatter.formatLog("Error occured while closing the channel: " + e.reason()));
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + <string>e.detail()["message"]));
         } else {
             return;
         }

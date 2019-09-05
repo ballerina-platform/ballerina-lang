@@ -124,7 +124,15 @@ public class DiagnosticsHelper {
 
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
             Diagnostic diagnostic = new Diagnostic(range, diag.getMessage());
-            diagnostic.setSeverity(DiagnosticSeverity.Error);
+            org.ballerinalang.util.diagnostic.Diagnostic.Kind diagnosticKind = diag.getKind();
+
+            // set diagnostic log kind
+            if (diagnosticKind.equals(org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR)) {
+                diagnostic.setSeverity(DiagnosticSeverity.Error);
+            } else if (diagnosticKind.equals(org.ballerinalang.util.diagnostic.Diagnostic.Kind.WARNING)) {
+                diagnostic.setSeverity(DiagnosticSeverity.Warning);
+            }
+
             clientDiagnostics.add(diagnostic);
         }
         return diagnosticsMap;

@@ -29,6 +29,11 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
 
     private static final Logger log = LoggerFactory.getLogger(FunctionDefinitionCompletionTest.class);
 
+    @Test(dataProvider = "completion-data-provider", enabled = false)
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -74,7 +79,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinTransaction.json", "function"},
                 {"completionWithinTransactionOnRetry.json", "function"},
                 {"completionAfterReturn.json", "function"},
-                {"functionCompletionWithMissingImport.json", "function"},
+//                {"functionCompletionWithMissingImport.json", "function"},
                 {"completionWithinRecord1.json", "function"},
                 {"completionWithinRecord2.json", "function"},
                 {"completionWithinRecord3.json", "function"},

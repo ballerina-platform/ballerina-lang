@@ -42,6 +42,8 @@ import { createTelemetryReporter, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM
 export const EXTENSION_ID = 'ballerina.ballerina';
 
 export interface ConstructIdentifier {
+    sourceRoot?: string;
+    filePath?: string;
     moduleName: string;
     constructName: string;
     subConstructName?: string;

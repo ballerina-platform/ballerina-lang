@@ -424,6 +424,24 @@ http:Client clientEP14 = new("https://localhost:20101", {
     }
 });
 
+// Test the direct token mode with valid credentials (with the retrying request set as false) and without a refresh config
+oauth2:OutboundOAuth2Provider oauth2Provider15 = new({
+    accessToken: "2YotnFZFEjr1zCsicMWpAA",
+    retryRequest: false
+});
+http:BearerAuthHandler oauth2Handler15 = new(oauth2Provider15);
+http:Client clientEP15 = new("https://localhost:20101", {
+    auth: {
+        authHandler: oauth2Handler15
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
+    }
+});
+
 listener http:Listener listener18 = new(20028, {
     secureSocket: {
         keyStore: {
@@ -473,6 +491,8 @@ service echo18 on listener18 {
             backendResponse = clientEP13->post("/foo/bar", request);
         } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_INVALID_REFRESH_CONFIG") {
             backendResponse = clientEP14->post("/foo/bar", request);
+        } else if (testCase == "DIRECT_TOKEN_WITH_VALID_CREDENTIALS_AND_NO_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE") {
+            backendResponse = clientEP15->post("/foo/bar", request);
         }
 
         if (backendResponse is http:Response) {

@@ -60,13 +60,13 @@
             }
         },
         {
-            "label": "acceptWebSocketUpgrade(map<string> headers)(http:WebSocketCaller)",
+            "label": "acceptWebSocketUpgrade(map\u003cstring\u003e headers)((http:WebSocketCaller|http:WsConnectionClosureError|http:WsInvalidHandshakeError|http:WsPayloadTooBigError|http:WsProtocolError|http:WsConnectionError|http:WsInvalidContinuationFrameError|http:WsGenericError))",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "**Package:** _ballerina/http_  \n  \nSends an upgrade request with custom headers.\n  \n**Params**  \n- `map<string>` headers: A `map` of custom headers for handshake  \n  \n**Returns** `http:WebSocketCaller`   \n- WebSocket service endpoint  \n  \n"
+                    "value": "**Package:** _ballerina/http_  \n  \nSends an upgrade request with custom headers.\n  \n**Params**  \n- `map\u003cstring\u003e` headers: A `map` of custom headers for handshake  \n  \n**Returns** `(http:WebSocketCaller|http:WsConnectionClosureError|http:WsInvalidHandshakeError|http:WsPayloadTooBigError|http:WsProtocolError|http:WsConnectionError|http:WsInvalidContinuationFrameError|http:WsGenericError)`   \n- `WebSocketCaller` or error on failure to upgrade  \n  \n"
                 }
             },
             "sortText": "120",

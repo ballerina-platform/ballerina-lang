@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.HomeBirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.PathBaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
@@ -186,6 +187,7 @@ public class PackageLoader {
         Repo remoteDryRepo = new RemoteRepo(new URIDryConverter(URI.create(RepoUtils.getRemoteRepoURL()),
                 this.dependencyManifests));
         Repo homeBaloCache = new HomeBaloRepo(this.dependencyManifests);
+        Repo homeBirRepo = new HomeBirRepo();
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir, compilerPhase) : new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir,
@@ -212,8 +214,22 @@ public class PackageLoader {
                                                         node(secondarySystemRepo))))))));
         }
         
-        // If lock file is not there, fist check in central.
-        if (!this.offline && this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
+        if (null != this.manifest) {
+            // Skip checking home bir cache if there are dependencies to be resolved by path. This is because when a
+            // module is resolved by BIR, it cannot resolve it's imports using BALO source. This happens when replacing
+            // transitive dependencies using balo path.
+            Optional<Dependency> pathDependency = this.manifest.getDependencies().stream()
+                    .filter(dep -> null != dep.getMetadata())
+                    .filter(dep -> null != dep.getMetadata().getPath())
+                    .findAny();
+            if (!pathDependency.isPresent()) {
+                homeCacheNode = node(homeBirRepo, homeCacheNode);
+            }
+        }
+    
+        // check latest in central if not offline. if a module's gets resolved by toml or lock then remote is not
+        // checked for latest version.
+        if (!this.offline) {
             homeCacheNode = node(remoteDryRepo, homeCacheNode);
         }
         
@@ -301,7 +317,7 @@ public class PackageLoader {
      * Update the version of a moduleID if a version is available. Priority order:
      * 1. If a version is available in the Ballerina.lock file.
      * 2. If a version is available on the Ballerina.toml
-     * 3. When a dependency is given to resolve by path.
+     * 3. If a version is available in the Ballerina.toml of the enclosing module's balo.
      *
      * @param moduleID The ID of the module.
      * @param enclPackageId The ID of the parent module.
@@ -314,14 +330,9 @@ public class PackageLoader {
         if (enclPackageId != null && moduleID.version.value.isEmpty() &&
             this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
             // Not a top level package or bal
-            Optional<LockFileImport> foundBaseImport = lockFile.getImports()
-                                                                .stream()
-                                                                .filter(baseImport ->
-                                                enclPackageId.orgName.value.equals(baseImport.getOrgName()) &&
-                                                enclPackageId.name.value.equals(baseImport.getName()))
-                                                                .findFirst();
-            if (foundBaseImport.isPresent()) {
-                Optional<LockFileImport> foundNestedImport = foundBaseImport.get().getImports()
+            if (this.lockFile.getImports().containsKey(enclPackageId.toString())) {
+                List<LockFileImport> foundBaseImport = lockFile.getImports().get(enclPackageId.toString());
+                Optional<LockFileImport> foundNestedImport = foundBaseImport
                                                                       .stream()
                                                                       .filter(nestedImport ->
                                                       moduleID.orgName.value.equals(nestedImport.getOrgName()) &&
@@ -343,7 +354,7 @@ public class PackageLoader {
             dependency.ifPresent(value -> moduleID.version = new Name(value.getMetadata().getVersion()));
         }
         
-        // Set the version from Ballerina.toml found in a path dependency(balo).
+        // Set the version from Ballerina.toml found in dependent balos.
         if (null != enclPackageId && moduleID.version.value.isEmpty() && this.dependencyManifests.size() > 0 &&
             this.dependencyManifests.containsKey(enclPackageId)) {
             
@@ -547,6 +558,8 @@ public class PackageLoader {
      */
     public boolean hasLockFile(Path sourceRoot) {
         return RepoUtils.isBallerinaProject(sourceRoot) &&
-               (null == this.lockFile || this.lockFile.getImports().size() > 0);
+               null != this.lockFile &&
+               null != this.lockFile.getImports() &&
+               this.lockFile.getImports().size() > 0;
     }
 }

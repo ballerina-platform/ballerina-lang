@@ -23,7 +23,7 @@ configurations.all {
 }
 
 dependencies {
-    implementation 'io.swagger.parser.v3:swagger-parser:2.0.0-rc3'
+    implementation 'io.swagger.parser.v3:swagger-parser'
     implementation 'io.swagger:swagger-core'
     implementation 'io.swagger:swagger-models'
     implementation 'io.swagger:swagger-parser'

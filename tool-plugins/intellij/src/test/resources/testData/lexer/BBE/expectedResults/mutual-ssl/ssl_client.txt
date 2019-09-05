@@ -20,7 +20,7 @@ LINE_COMMENT ('// The`trustStorePassword`, which is required to enable mutual SS
 WHITE_SPACE ('\n')
 identifier ('http')
 : (':')
-identifier ('ClientEndpointConfig')
+identifier ('ClientConfiguration')
 WHITE_SPACE (' ')
 identifier ('clientEPConfig')
 WHITE_SPACE (' ')

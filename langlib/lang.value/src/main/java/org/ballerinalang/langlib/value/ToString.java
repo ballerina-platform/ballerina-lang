@@ -18,9 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,7 +39,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class ToString {
     public static String toString(Strand strand, Object value) {
-        BType type = TypeChecker.getType(value);
-        return StringUtils.getStringValue(strand, value, type);
+        return StringUtils.getStringValue(strand, value);
     }
 }
