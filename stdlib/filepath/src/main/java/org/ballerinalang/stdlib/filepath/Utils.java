@@ -29,15 +29,17 @@ import org.ballerinalang.jvm.values.ErrorValue;
  */
 public class Utils {
 
-    static final String UNKNOWN_MESSAGE = "Unknown Error";
+    private static final String UNKNOWN_MESSAGE = "Unknown Error";
 
 
     /**
-     * Returns error record for input reason and details. Error type is generic ballerina error type. This utility to
-     * construct error struct from message.
+     * Returns error record for input reason and details. This utility to construct error struct from the reason and
+     * message description.
      *
-     * @param reason Valid error reason. If the reason is null, "{ballerina/filepath}GenericError" is set as the reason by default
-     * @param details Description of the error message. If the message is null, "Unknown Error" is set to message by default.
+     * @param reason  Valid error reason. If the reason is null, "{ballerina/filepath}GenericError" is set as the reason
+     *                by default
+     * @param details Description of the error message. If the message is null, "Unknown Error" is set to message by
+     *                default.
      * @return Ballerina error object.
      */
     public static ErrorValue getPathError(String reason, String details) {
