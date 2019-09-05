@@ -18,6 +18,8 @@
 package org.ballerinalang.net.http.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -51,9 +53,8 @@ import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 )
 public class ParseHeader {
 
-    private static final org.ballerinalang.jvm.types.BTupleType parseHeaderTupleType = new org.ballerinalang.jvm
-            .types.BTupleType(
-            Arrays.asList(org.ballerinalang.jvm.types.BTypes.typeString, org.ballerinalang.jvm.types.BTypes.typeMap));
+    private static final BTupleType parseHeaderTupleType = new BTupleType(
+            Arrays.asList(BTypes.typeString, BTypes.typeMap));
 
     public static Object parseHeader(Strand strand, String headerValue) {
         String errMsg;

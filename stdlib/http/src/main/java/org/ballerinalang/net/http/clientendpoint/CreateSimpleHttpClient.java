@@ -40,7 +40,6 @@ import java.util.Map;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpConstants.HTTP2_PRIOR_KNOWLEDGE;
-import static org.ballerinalang.net.http.HttpUtil.createHttpError;
 import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
 import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0_VERSION;
@@ -71,7 +70,7 @@ public class CreateSimpleHttpClient {
         try {
             url = new URL(urlString);
         } catch (MalformedURLException e) {
-            throw createHttpError("Malformed URL: " + urlString, HttpErrorType.GENERIC_CLIENT_ERROR);
+            throw HttpUtil.createHttpError("Malformed URL: " + urlString, HttpErrorType.GENERIC_CLIENT_ERROR);
         }
         scheme = url.getProtocol();
         Map<String, Object> properties =

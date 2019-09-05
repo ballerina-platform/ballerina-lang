@@ -24,6 +24,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpErrorType;
+import org.ballerinalang.net.http.HttpUtil;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 
@@ -41,9 +43,14 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
         isPublic = true
 )
 public class Stop extends AbstractHttpNativeFunction {
-    public static void stop(Strand strand, ObjectValue serverEndpoint) {
-        getServerConnector(serverEndpoint).stop();
-        serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
-        resetRegistry(serverEndpoint);
+    public static Object stop(Strand strand, ObjectValue serverEndpoint) {
+        try {
+            getServerConnector(serverEndpoint).stop();
+            serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
+            resetRegistry(serverEndpoint);
+        } catch (Exception ex) {
+            return HttpUtil.createHttpError(ex.getMessage(), HttpErrorType.GENERIC_LISTENER_ERROR);
+        }
+        return null;
     }
 }
