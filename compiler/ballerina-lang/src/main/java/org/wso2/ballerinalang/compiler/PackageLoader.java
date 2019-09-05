@@ -317,7 +317,7 @@ public class PackageLoader {
      * Update the version of a moduleID if a version is available. Priority order:
      * 1. If a version is available in the Ballerina.lock file.
      * 2. If a version is available on the Ballerina.toml
-     * 3. When a dependency is given to resolve by path.
+     * 3. If a version is available in the Ballerina.toml of the enclosing module's balo.
      *
      * @param moduleID The ID of the module.
      * @param enclPackageId The ID of the parent module.
