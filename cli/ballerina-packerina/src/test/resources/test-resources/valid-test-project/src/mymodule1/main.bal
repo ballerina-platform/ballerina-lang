@@ -1,6 +1,6 @@
 import ballerina/io;
 
-
+int y = 9;
 
 public function main(string... args) {
     io:println("test print");

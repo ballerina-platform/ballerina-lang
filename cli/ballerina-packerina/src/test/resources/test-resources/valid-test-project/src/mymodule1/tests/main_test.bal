@@ -1,6 +1,9 @@
 import ballerina/test;
 import ballerina/io;
 
+int x = 8;
+
+
 # Before Suite Function
 @test:BeforeSuite
 function beforeSuiteFunc () {
@@ -22,6 +25,8 @@ function beforeFunc () {
 function testFunction () {
     io:println("I'm in test function!");
     test:assertTrue(false , msg = "Something Failed!");
+    test:assertTrue(x == 8, msg = "Test init is not working");
+    test:assertTrue(y == 9, msg = "Module init is not working");
 }
 
 # After test function
