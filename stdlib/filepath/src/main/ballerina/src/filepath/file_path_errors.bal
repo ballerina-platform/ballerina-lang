@@ -45,7 +45,6 @@ public const INVALID_PATH_ERROR = "{ballerina/filepath}InvalidPathError";
 public type InvalidPathError error<INVALID_PATH_ERROR, Detail>;
 
 # Indicates that the given pattern does not confirm to the java FileSystem PathMatcher
-# references: https://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher(java.lang.String)
 public const INVALID_PATTERN_ERROR = "{ballerina/filepath}InvalidPatternError";
 public type InvalidPatternError error<INVALID_PATTERN_ERROR, Detail>;
 
