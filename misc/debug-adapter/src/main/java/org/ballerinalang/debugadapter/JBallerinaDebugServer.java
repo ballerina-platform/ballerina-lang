@@ -103,6 +103,7 @@ import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
+    public static final String DEBUGGER_TERMINATED = "Debugger terminated";
     private IDebugProtocolClient client;
     private VirtualMachine debuggee;
     private int systemExit = 1;
@@ -661,7 +662,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private void exit(boolean terminateDebuggee) {
-        LOGGER.info("Debugger terminated");
         if (terminateDebuggee) {
             new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
         }
@@ -692,6 +692,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> terminate(TerminateArguments args) {
         this.exit(true);
+        LOGGER.info(DEBUGGER_TERMINATED);
+        sendOutput(DEBUGGER_TERMINATED, STDOUT);
         return CompletableFuture.completedFuture(null);
     }
 
