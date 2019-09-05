@@ -892,14 +892,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "LoadBalanceClientEndpointConfiguration",
+      "label": "LoadBalanceClientConfiguration",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "The configurations related to the load balance client endpoint.\n"
       },
       "sortText": "120",
-      "insertText": "LoadBalanceClientEndpointConfiguration",
+      "insertText": "LoadBalanceClientConfiguration",
       "insertTextFormat": "Snippet"
     },
     {

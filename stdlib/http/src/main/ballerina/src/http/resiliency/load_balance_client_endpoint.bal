@@ -24,7 +24,7 @@ import ballerina/mime;
 # + failover - Whether to fail over in case of a failure
 public type LoadBalanceClient client object {
 
-    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
+    public LoadBalanceClientConfiguration loadBalanceClientConfig;
     public Client?[] loadBalanceClientsArray;
     public LoadBalancerRule lbRule;
     public boolean failover;
@@ -32,7 +32,7 @@ public type LoadBalanceClient client object {
     # Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
     #
     # + loadBalanceClientConfig - The configurations for the load balance client endpoint
-    public function __init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) {
+    public function __init(LoadBalanceClientConfiguration loadBalanceClientConfig) {
         self.loadBalanceClientConfig = loadBalanceClientConfig;
         self.failover = loadBalanceClientConfig.failover;
         var lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
@@ -323,7 +323,7 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # + retryConfig - Retry related options
 # + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
-public type LoadBalanceClientEndpointConfiguration record {|
+public type LoadBalanceClientConfiguration record {|
     string httpVersion = HTTP_1_1;
     ClientHttp1Settings http1Settings = {};
     ClientHttp2Settings http2Settings = {};
@@ -342,7 +342,7 @@ public type LoadBalanceClientEndpointConfiguration record {|
     boolean failover = true;
 |};
 
-function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
+function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientConfiguration lbConfig,
                                                      TargetService target) returns ClientConfiguration {
     ClientConfiguration clientEPConfig = {
         http1Settings: lbConfig.http1Settings,
@@ -362,7 +362,7 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
     return clientEPConfig;
 }
 
-function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
+function createLoadBalanceHttpClientArray(LoadBalanceClientConfiguration loadBalanceClientConfig)
                                                                                     returns Client?[]|error {
     Client cl;
     Client?[] httpClients = [];
