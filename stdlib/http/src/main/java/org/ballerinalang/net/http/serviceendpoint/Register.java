@@ -31,6 +31,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
+import org.ballerinalang.net.http.exception.WebSocketException;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 
@@ -58,16 +59,20 @@ public class Register extends AbstractHttpNativeFunction {
 
         BType param;
         AttachedFunction[] resourceList = service.getType().getAttachedFunctions();
-        if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
-            String callerType = param.getQualifiedName();
-            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) { // TODO fix should work with equals - rajith
+        try {
+            if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
+                String callerType = param.getQualifiedName();
+                if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) { // TODO fix should work with equals - rajith
+                    httpServicesRegistry.registerService(service);
+                } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                    WebSocketService webSocketService = new WebSocketService(service, strand.scheduler);
+                    webSocketServicesRegistry.registerService(webSocketService);
+                }
+            } else {
                 httpServicesRegistry.registerService(service);
-            } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
-                WebSocketService webSocketService = new WebSocketService(service, strand.scheduler);
-                webSocketServicesRegistry.registerService(webSocketService);
             }
-        } else {
-            httpServicesRegistry.registerService(service);
+        } catch (WebSocketException ex) {
+            return ex;
         }
         return null;
     }

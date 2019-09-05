@@ -14,18 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//# Represents the set of permissions supported to open file.
-//#
-//# READ - open the file in read mode
-//# WRITE - open the file in write mode
-//# READ/WRITE - open the file either to read or write
-//# APPEND - append to existing file instead of replacing
-public type Mode READ|WRITE|RW|APPEND;
-public const READ = "r";
-public const WRITE = "w";
-public const RW = "rw";
-public const APPEND = "a";
-
 # Retrieves a ReadableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file

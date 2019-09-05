@@ -142,7 +142,6 @@ public class TimeTest {
         Assert.assertEquals((returns[7]).stringValue(), "TUESDAY");
     }
 
-
     @Test(description = "Test Get Date Function.")
     public void testGetDateFunction() {
         BValue[] returns = BRunUtil.invoke(result, "testGetDateFunction");
@@ -220,15 +219,15 @@ public class TimeTest {
     }
 
     @Test
-    public void testParseTimenvalidPattern() {
-        BValue[] returns = BRunUtil.invoke(result, "testParseTimenvalidPattern");
+    public void testParseTimeValidPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimeValidPattern");
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(returns[0].stringValue(), "{ballerina/time}TimeError {message:\"invalid pattern: test\"}");
     }
 
     @Test
-    public void testParseTimenFormatMismatch() {
-        BValue[] returns = BRunUtil.invoke(result, "testParseTimenFormatMismatch");
+    public void testParseTimeFormatMismatch() {
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimeFormatMismatch");
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(returns[0].stringValue(),
                 "{ballerina/time}TimeError {message:\"parse date \"2017-06-26T09:46:22.444-0500\" for "

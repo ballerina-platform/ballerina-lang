@@ -33,9 +33,7 @@ import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
@@ -52,8 +50,6 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
-import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
-import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -322,11 +318,6 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
 
         if (nodeType != XMLNodeType.ELEMENT || attributes == null) {
             return;
@@ -453,12 +444,6 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setChildren(BXML<?> seq) {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
         if (seq == null) {
             return;
         }
@@ -481,12 +466,6 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void addChildren(BXML<?> seq) {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
         if (seq == null) {
             return;
         }
@@ -688,12 +667,6 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void removeAttribute(String qname) {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
         if (nodeType != XMLNodeType.ELEMENT || qname.isEmpty()) {
             return;
         }
@@ -718,12 +691,6 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void removeChildren(String qname) {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
         switch (nodeType) {
             case ELEMENT:
                 /*
@@ -843,21 +810,6 @@ public final class BXMLItem extends BXML<OMNode> {
 
         private BXMLCodePointIterator createCodePointIterator(BXMLItem value) {
             return new BXMLCodePointIterator(((OMText) value.omNode).getText());
-        }
-
-        @Override
-        public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
-        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            this.freezeStatus = freezeStatus;
         }
     }
 

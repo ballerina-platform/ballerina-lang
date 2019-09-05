@@ -159,7 +159,7 @@ public class WebSocketDispatcher {
                     return bxml;
                 case TypeTags.RECORD_TYPE_TAG:
                     return JSONUtils.convertJSONToRecord(JSONParser.parse(aggregateString),
-                            (BStructureType) dataType);
+                                                         (BStructureType) dataType);
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                         return new ArrayValue(
@@ -171,8 +171,10 @@ public class WebSocketDispatcher {
                     //Cannot reach here because of compiler plugin validation.
                     throw new BallerinaConnectorException("Invalid resource signature.");
             }
+        } catch (WebSocketException ex) {
+            webSocketConnection.terminateConnection(1003, ex.detailMessage());
         } catch (Exception ex) {
-            webSocketConnection.terminateConnection(1003, ex.getMessage());
+            webSocketConnection.terminateConnection(1003, WebSocketUtil.getErrorMessage(ex));
             log.error("Data binding failed. Hence connection terminated. ", ex);
         }
         return null;
@@ -218,7 +220,7 @@ public class WebSocketDispatcher {
         WebSocketService wsService = connectionInfo.getService();
         AttachedFunction onPingMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
-            pingAutomatically(controlMessage);
+            pongAutomatically(controlMessage);
             return;
         }
         BType[] paramTypes = onPingMessageResource.getParameterType();
@@ -322,11 +324,7 @@ public class WebSocketDispatcher {
         Object[] bValues = new Object[onErrorResource.getParameterType().length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
-        String errMsg = throwable.getMessage();
-        if (errMsg == null) {
-            errMsg = "Unexpected internal error";
-        }
-        bValues[2] = WebSocketUtil.createWebSocketError(errMsg);
+        bValues[2] = new WebSocketException(throwable);
         bValues[3] = true;
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
             @Override
@@ -379,7 +377,7 @@ public class WebSocketDispatcher {
                 WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT, onIdleTimeoutCallback, null, bValues);
     }
 
-    private static void pingAutomatically(WebSocketControlMessage controlMessage) {
+    private static void pongAutomatically(WebSocketControlMessage controlMessage) {
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
         webSocketConnection.pong(controlMessage.getByteBuffer()).addListener(future -> {
             Throwable cause = future.cause();

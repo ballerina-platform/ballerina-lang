@@ -16,17 +16,9 @@
  */
 package org.ballerinalang.testerina.test.utils;
 
-import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.ballerinalang.tool.util.CompileResult;
-import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 
@@ -52,7 +44,7 @@ public class BTestUtils {
         return BCompileUtil.compile(sourceRoot, sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
-    /**
+    /*
      * Compile and return the semantic errors.
      *
      * @param sourceRoot  root path of the source packages
@@ -163,86 +155,86 @@ public class BTestUtils {
 //        return compiledPkg;
 //    }
 
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param packageName   Name of the package to invoke
-     * @param functionName  Name of the function to invoke
-     * @param args          Input parameters for the function
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName,
-                                  BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            String msg = "";
-            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
-                msg += diagnostic.getMessage() + "\n";
-            }
-            throw new IllegalStateException("compilation contains errors.. " + msg);
-        }
-        ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-
-        if (functionInfo == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
-        }
-
-        return new BValue[]{BLangProgramRunner.runProgram(programFile, args)};
-    }
-
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param packageName   Name of the package to invoke
-     * @param functionName  Name of the function to invoke
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName) {
-        BValue[] args = {};
-        return invoke(compileResult, packageName, functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param functionName  Name of the function to invoke
-     * @param args          Input parameters for the function
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            String msg = "";
-            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
-                msg += diagnostic + "\n";
-            }
-            throw new IllegalStateException("compilation contains errors.. " + msg);
-        }
-        ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-
-        if (functionInfo == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
-        }
-
-        return new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
-    }
-
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param functionName  Name of the function to invoke
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String functionName) {
-        BValue[] args = {};
-        return invoke(compileResult, functionName, args);
-    }
+//    /**
+//     * Invoke a ballerina function.
+//     *
+//     * @param compileResult CompileResult instance
+//     * @param packageName   Name of the package to invoke
+//     * @param functionName  Name of the function to invoke
+//     * @param args          Input parameters for the function
+//     * @return return values of the function
+//     */
+//    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName,
+//                                  BValue[] args) {
+//        if (compileResult.getErrorCount() > 0) {
+//            String msg = "";
+//            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
+//                msg += diagnostic.getMessage() + "\n";
+//            }
+//            throw new IllegalStateException("compilation contains errors.. " + msg);
+//        }
+//        ProgramFile programFile = compileResult.getProgFile();
+//        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
+//        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+//
+//        if (functionInfo == null) {
+//            throw new RuntimeException("Function '" + functionName + "' is not defined");
+//        }
+//
+//        return new BValue[]{BLangProgramRunner.runProgram(programFile, args)};
+//    }
+//
+//    /**
+//     * Invoke a ballerina function.
+//     *
+//     * @param compileResult CompileResult instance
+//     * @param packageName   Name of the package to invoke
+//     * @param functionName  Name of the function to invoke
+//     * @return return values of the function
+//     */
+//    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName) {
+//        BValue[] args = {};
+//        return invoke(compileResult, packageName, functionName, args);
+//    }
+//
+//    /**
+//     * Invoke a ballerina function.
+//     *
+//     * @param compileResult CompileResult instance
+//     * @param functionName  Name of the function to invoke
+//     * @param args          Input parameters for the function
+//     * @return return values of the function
+//     */
+//    public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
+//        if (compileResult.getErrorCount() > 0) {
+//            String msg = "";
+//            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
+//                msg += diagnostic + "\n";
+//            }
+//            throw new IllegalStateException("compilation contains errors.. " + msg);
+//        }
+//        ProgramFile programFile = compileResult.getProgFile();
+//        PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
+//        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+//
+//        if (functionInfo == null) {
+//            throw new RuntimeException("Function '" + functionName + "' is not defined");
+//        }
+//
+//        return new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
+//    }
+//
+//    /**
+//     * Invoke a ballerina function.
+//     *
+//     * @param compileResult CompileResult instance
+//     * @param functionName  Name of the function to invoke
+//     * @return return values of the function
+//     */
+//    public static BValue[] invoke(CompileResult compileResult, String functionName) {
+//        BValue[] args = {};
+//        return invoke(compileResult, functionName, args);
+//    }
 
     /**
      * Compile and run a ballerina file.
@@ -319,12 +311,5 @@ public class BTestUtils {
             }
         }
         return sb.toString();
-    }
-
-    public static BMap<?, ?> createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
-        PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
-        StructureTypeInfo structInfo = structPackageInfo.getStructInfo(structName);
-        BStructureType structType = structInfo.getType();
-        return new BMap<>(structType);
     }
 }
