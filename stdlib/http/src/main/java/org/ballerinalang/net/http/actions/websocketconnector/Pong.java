@@ -57,7 +57,7 @@ public class Pong {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData.getBytes()));
-            WebSocketUtil.handleWebSocketCallback(callback, future);
+            WebSocketUtil.handleWebSocketCallback(callback, future, log);
         } catch (Exception e) {
             log.error("Error occurred when ponging", e);
             callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));

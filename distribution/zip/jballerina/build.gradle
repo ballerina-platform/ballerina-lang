@@ -131,6 +131,7 @@ dependencies {
     distBal project(path: ':ballerina-time', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-java', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-java-arrays', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-websub', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-xslt', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-kafka', configuration: 'baloImplementation')
@@ -141,6 +142,7 @@ dependencies {
     distBal project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
 
     // Lang libs
     distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
@@ -186,6 +188,7 @@ dependencies {
     balSource project(path: ':ballerina-time', configuration: 'balSource')
     balSource project(path: ':ballerina-transactions', configuration: 'balSource')
     balSource project(path: ':ballerina-java', configuration: 'balSource')
+    balSource project(path: ':ballerina-java-arrays', configuration: 'balSource')
     balSource project(path: ':ballerina-websub', configuration: 'balSource')
     balSource project(path: ':ballerina-xslt', configuration: 'balSource')
     balSource project(path: ':ballerina-kafka', configuration: 'balSource')
@@ -196,6 +199,7 @@ dependencies {
     balSource project(path: ':ballerina-jwt', configuration: 'balSource')
     balSource project(path: ':ballerina-ldap', configuration: 'balSource')
     balSource project(path: ':ballerina-oauth2', configuration: 'balSource')
+    balSource project(path: ':ballerina-jsonutils', configuration: 'balSource')
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
@@ -246,6 +250,7 @@ dependencies {
     dist project(':ballerina-tool')
     dist project(':ballerina-transactions')
     dist project(':ballerina-java')
+    dist project(':ballerina-java-arrays')
     dist project(':ballerina-websub')
     dist project(':ballerina-xslt')
     dist project(':ballerina-utils')
@@ -259,6 +264,7 @@ dependencies {
     dist project(':ballerina-jwt')
     dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
+    dist project(':ballerina-jsonutils')
 
     // Lang libs
     dist project(':ballerina-lang:internal')

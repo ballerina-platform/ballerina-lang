@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -385,7 +386,7 @@ public class PathTest {
         assertEquals(returns.length, 1);
         assertTrue(returns[0] instanceof BError);
         BError resolveError = (BError) returns[0];
-        assertEquals(resolveError.getReason(), "{ballerina/filepath}Error");
+        assertEquals(resolveError.getReason(), Constants.NOT_LINK_ERROR);
         log.info("Ballerina error: " + resolveError.getDetails().stringValue());
     }
 
@@ -398,7 +399,7 @@ public class PathTest {
         assertEquals(returns.length, 1);
         assertTrue(returns[0] instanceof BError);
         BError resolveError = (BError) returns[0];
-        assertEquals(resolveError.getReason(), "{ballerina/filepath}Error");
+        assertEquals(resolveError.getReason(), Constants.FILE_NOT_FOUND_ERROR);
         log.info("Ballerina error: " + resolveError.getDetails().stringValue());
     }
 
@@ -418,7 +419,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}Error");
+            assertEquals(error.getReason(), Constants.INVALID_PATTERN_ERROR);
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BBoolean);

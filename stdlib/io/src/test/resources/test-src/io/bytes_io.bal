@@ -34,13 +34,7 @@ function initWritableChannel(string filePath) {
 }
 
 function readBytes(int numberOfBytes) returns @tainted byte[]|io:Error {
-    var result = rch.read(numberOfBytes);
-    if (result is [byte[], int]) {
-        var [bytes, val] = result;
-        return bytes;
-    } else {
-        return result;
-    }
+    return rch.read(numberOfBytes);
 }
 
 function writeBytes(byte[] content, int startOffset) returns int|io:Error {
