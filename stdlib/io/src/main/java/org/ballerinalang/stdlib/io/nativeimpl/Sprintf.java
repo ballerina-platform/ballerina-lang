@@ -116,9 +116,8 @@ public class Sprintf {
                             break;
                         case 's':
                             if (ref != null) {
-                                BType type = TypeChecker.getType(ref);
                                 result.append(String.format("%" + padding + "s",
-                                        StringUtils.getStringValue(strand, ref, type)));
+                                        StringUtils.getStringValue(strand, ref)));
                             }
                             break;
                         case '%':

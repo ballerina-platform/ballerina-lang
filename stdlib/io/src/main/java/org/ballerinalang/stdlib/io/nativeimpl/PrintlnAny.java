@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
@@ -52,8 +50,7 @@ public class PrintlnAny {
         for (int i = 0; i < values.size(); i++) {
             value = values.get(i);
             if (value != null) {
-                BType type = TypeChecker.getType(value);
-                content.append(StringUtils.getStringValue(strand, value, type));
+                content.append(StringUtils.getStringValue(strand, value));
             }
         }
         out.println(content);
