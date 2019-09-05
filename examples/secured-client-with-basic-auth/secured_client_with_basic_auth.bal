@@ -1,5 +1,4 @@
 import ballerina/auth;
-import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
@@ -19,6 +18,12 @@ http:BasicAuthHandler outboundBasicAuthHandler =
 http:Client httpEndpoint = new("https://localhost:9090", {
     auth: {
         authHandler: outboundBasicAuthHandler
+    },
+    secureSocket: {
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 

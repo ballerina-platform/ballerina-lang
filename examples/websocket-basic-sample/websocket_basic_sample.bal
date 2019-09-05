@@ -1,7 +1,9 @@
 import ballerina/io;
 import ballerina/log;
 import ballerina/http;
-import ballerina/internal;
+
+string ping = "ping";
+byte[] pingData = ping.toBytes();
 
 @http:WebSocketServiceConfig {
     path: "/basic/ws",
@@ -9,9 +11,6 @@ import ballerina/internal;
     idleTimeoutInSeconds: 120
 }
 service basic on new http:Listener(9090) {
-
-    string ping = "ping";
-    byte[] pingData = ping.toBytes();
 
     // This `resource` is triggered after a successful client connection.
     resource function onOpen(http:WebSocketCaller caller) {
@@ -29,7 +28,7 @@ service basic on new http:Listener(9090) {
                                                         + finalFrame.toString());
         if (text == "ping") {
             io:println("Pinging...");
-            var err = caller->ping(self.pingData);
+            var err = caller->ping(pingData);
             if (err is http:WebSocketError) {
                 log:printError("Error sending ping", <error> err);
             }
