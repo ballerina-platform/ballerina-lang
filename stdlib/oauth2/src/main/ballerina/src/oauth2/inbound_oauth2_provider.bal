@@ -16,8 +16,8 @@
 
 import ballerina/auth;
 import ballerina/http;
-import ballerina/internal;
 import ballerina/mime;
+import ballerina/stringutils;
 
 # Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
@@ -87,7 +87,7 @@ public type InboundOAuth2Provider object {
 # + return - Array of groups for the user denoted by the username
 public function getScopes(string scopes) returns string[] {
     string scopeVal = scopes.trim();
-    return internal:split(scopeVal, " ");
+    return stringutils:split(scopeVal, " ");
 }
 
 # Represents introspection server onfigurations.
