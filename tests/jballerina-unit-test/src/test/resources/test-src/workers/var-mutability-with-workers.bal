@@ -53,20 +53,24 @@ public function testWithTuples() returns [string, int] {
     return [str, i];
 }
 
+const TOKEN = "token";
 public function testWithMaps() returns map<string> {
     map<string> m1 = {a: "A", b: "B", c: "C", d: "D"};
     worker w1 {
       m1["e"] = "EE";
       m1["a"] = "AA";
+      TOKEN -> w3;
     }
 
     worker w2 {
        m1["a"] = "AAA";
        m1["n"] = "N";
+       TOKEN -> w3;
     }
 
      worker w3 {
-        _ = wait {w1, w2};
+        _ = <- w1;
+        _ = <- w2;
         m1["e"] = "EEE";
         m1["a"] = "AAAA";
      }
