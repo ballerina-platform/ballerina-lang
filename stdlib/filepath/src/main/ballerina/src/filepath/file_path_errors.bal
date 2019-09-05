@@ -67,7 +67,7 @@ public type Error FileNotFoundError | NotLinkError | IOError | SecurityError | I
 InvalidPatternError | RelativePathError | UNCPathError | GenericError;
 
 # Prepare the `error` as a `Error`.
-# + errorType - The type of error
+# + errorType - The type of error.
 # + message - The error message.
 # + err - The `error` instance.
 # + return - Prepared `Error` instance.
