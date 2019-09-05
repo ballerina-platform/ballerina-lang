@@ -32,7 +32,7 @@ http:ListenerConfiguration helloWorldEPConfig = {
 
 };
 
-http:ClientEndpointConfig endpointConfig = {
+http:ClientConfiguration endpointConfig = {
     secureSocket: {
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

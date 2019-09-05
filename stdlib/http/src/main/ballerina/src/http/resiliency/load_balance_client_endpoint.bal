@@ -343,8 +343,8 @@ public type LoadBalanceClientEndpointConfiguration record {|
 |};
 
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
-                                                     TargetService target) returns ClientEndpointConfig {
-    ClientEndpointConfig clientEPConfig = {
+                                                     TargetService target) returns ClientConfiguration {
+    ClientConfiguration clientEPConfig = {
         http1Settings: lbConfig.http1Settings,
         http2Settings: lbConfig.http2Settings,
         circuitBreaker:lbConfig.circuitBreaker,
@@ -368,7 +368,7 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
     Client?[] httpClients = [];
     int i = 0;
     foreach var target in loadBalanceClientConfig.targets {
-        ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
+        ClientConfiguration epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
         cl =  new(target.url , epConfig);
         httpClients[i] = cl;
         i += 1;

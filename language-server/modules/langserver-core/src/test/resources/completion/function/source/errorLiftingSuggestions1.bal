@@ -5,7 +5,7 @@ import ballerina/io;
 auth:OutboundBasicAuthProvider basicAuthProvider = new({ username: "postman", password: "password" });
 http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
-http:ClientEndpointConfig conf = {
+http:ClientConfiguration conf = {
    auth: {
        authHandler: basicAuthHandler
    }

@@ -20,7 +20,7 @@ import ballerina/log;
 
 listener http:Listener circuitBreakerEP03 = new(9309);
 
-http:ClientEndpointConfig conf03 = {
+http:ClientConfiguration conf03 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowInMillis: 60000,

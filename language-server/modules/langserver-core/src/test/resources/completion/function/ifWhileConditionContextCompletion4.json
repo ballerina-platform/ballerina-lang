@@ -248,14 +248,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ClientEndpointConfig",
+      "label": "ClientConfiguration",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
       },
       "sortText": "120",
-      "insertText": "ClientEndpointConfig",
+      "insertText": "ClientConfiguration",
       "insertTextFormat": "Snippet"
     },
     {

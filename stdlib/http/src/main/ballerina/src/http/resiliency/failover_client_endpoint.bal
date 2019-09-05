@@ -473,8 +473,8 @@ public type FailoverClientEndpointConfiguration record {|
 |};
 
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
-                                                  TargetService target) returns ClientEndpointConfig {
-    ClientEndpointConfig clientEPConfig = {
+                                                  TargetService target) returns ClientConfiguration {
+    ClientConfiguration clientEPConfig = {
         http1Settings: foConfig.http1Settings,
         http2Settings: foConfig.http2Settings,
         circuitBreaker:foConfig.circuitBreaker,
@@ -500,7 +500,7 @@ function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failo
     int i = 0;
 
     foreach var target in failoverClientConfig.targets {
-        ClientEndpointConfig epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
+        ClientConfiguration epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
         clientEp = new(target.url, epConfig);
         httpClients[i] = clientEp;
         i += 1;
