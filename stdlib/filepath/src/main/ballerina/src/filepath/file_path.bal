@@ -69,7 +69,9 @@ public function isAbsolute(string path) returns boolean|Error {
 # + return - Returns the name of the file
 public function filename(string path) returns string|Error {
     string validatedPath = check parse(path);
+    io:println(validatedPath);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
+    io:println(offsetIndexes);
     int count = offsetIndexes.length();
     if (count == 0) {
         return "";
@@ -77,10 +79,6 @@ public function filename(string path) returns string|Error {
     if (count == 1 && validatedPath.length() > 0) {
         if !(check isAbsolute(validatedPath)) {
             return validatedPath;
-        } else if (isWindows) {
-            // if windows path is absolute and doesn't contain path separator, 
-            // there is no filename. 
-            return "";
         }
     }
     int lastOffset = offsetIndexes[count - 1];
