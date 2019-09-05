@@ -114,7 +114,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (!idleTimeoutTriggered) {
-            targetChannel.senderReqRespStateManager.handleAbruptChannelClosure(httpResponseFuture);
+            targetChannel.senderReqRespStateManager.handleAbruptChannelClosure(this, httpResponseFuture);
         }
         connectionManager.invalidateTargetChannel(targetChannel);
 

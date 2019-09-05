@@ -68,7 +68,7 @@ public class EntityBodyReceived implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         LOG.debug("Closing the channel once response is received");
     }
 

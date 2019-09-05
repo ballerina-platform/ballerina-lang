@@ -92,7 +92,7 @@ public class ReceivingHeaders implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
                                         REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
     }

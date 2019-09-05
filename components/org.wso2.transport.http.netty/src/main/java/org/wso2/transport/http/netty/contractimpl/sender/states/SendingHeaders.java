@@ -184,7 +184,7 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
         LOG.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
