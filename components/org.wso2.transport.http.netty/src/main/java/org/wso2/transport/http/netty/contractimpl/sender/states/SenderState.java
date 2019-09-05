@@ -67,9 +67,10 @@ public interface SenderState {
     /**
      * Handle channel closure occurred due to abrupt connection failures.
      *
+     * @param targetHandler       the target handler
      * @param httpResponseFuture to notify the closure
      */
-    void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture);
+    void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture);
 
     /**
      * Handle channel closure occurred due to idle timeout.

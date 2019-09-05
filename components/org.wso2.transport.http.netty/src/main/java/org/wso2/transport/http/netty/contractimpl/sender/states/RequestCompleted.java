@@ -75,7 +75,7 @@ public class RequestCompleted implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         httpResponseFuture.notifyHttpListener(
                 new ServerConnectorException(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE));
         LOG.error(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE);

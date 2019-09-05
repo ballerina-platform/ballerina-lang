@@ -59,9 +59,9 @@ public class SenderReqRespStateManager {
         state.readInboundResponseEntityBody(ctx, httpContent, inboundResponseMsg);
     }
 
-    public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         nettyTargetChannel.close();
-        state.handleAbruptChannelClosure(httpResponseFuture);
+        state.handleAbruptChannelClosure(targetHandler, httpResponseFuture);
     }
 
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {

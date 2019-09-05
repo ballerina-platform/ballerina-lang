@@ -118,7 +118,7 @@ public class Sending100Continue implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
         for (HttpContent cachedHttpContent : contentList) {
             cachedHttpContent.release();
         }

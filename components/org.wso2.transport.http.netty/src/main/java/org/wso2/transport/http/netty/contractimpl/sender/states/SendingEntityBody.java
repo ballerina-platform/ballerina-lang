@@ -101,9 +101,10 @@ public class SendingEntityBody implements SenderState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
-        httpResponseFuture
-                .notifyHttpListener(
+    public void handleAbruptChannelClosure(TargetHandler targetHandler, HttpResponseFuture httpResponseFuture) {
+        targetHandler.getOutboundRequestMsg()
+                .setIoException(new IOException(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
+        httpResponseFuture.notifyHttpListener(
                         new ClientConnectorException(senderReqRespStateManager.nettyTargetChannel.id().asShortText(),
                 REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
         LOG.error("Error in HTTP client: {}", REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
