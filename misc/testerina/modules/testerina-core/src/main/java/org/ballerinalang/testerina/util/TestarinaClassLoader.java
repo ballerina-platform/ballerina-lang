@@ -37,12 +37,11 @@ public class TestarinaClassLoader {
 
     public TestarinaClassLoader(Path testJarPath, File importsCache, String moduleJar) {
         try {
-            int index = 1;
+            int index = 0;
             URL[] jars;
             if (importsCache.isDirectory()) {
                 String[] jarFIles = importsCache.list();
                 jars = new URL[jarFIles.length + 1];
-                jars[0] = testJarPath.toFile().toURI().toURL();
                 for (String file : jarFIles) {
                     if (file.equals(moduleJar)) {
                         // skip loading of the module jar
@@ -53,8 +52,7 @@ public class TestarinaClassLoader {
             } else {
                 jars = new URL[1];
             }
-
-
+            jars[index] = testJarPath.toFile().toURI().toURL();
             cl = new URLClassLoader(jars);
         } catch (MalformedURLException e) {
             throw new BLangCompilerException("error loading jar " + testJarPath, e);

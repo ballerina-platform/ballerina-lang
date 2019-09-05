@@ -24,7 +24,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
@@ -75,8 +74,8 @@ public class RunTestsTask implements Task {
                     //         No tests found
                 // }
                 Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
-                String modulejarName = buildContext.getJarPathFromTargetCache(bLangPackage.packageID)
-                        .getFileName().toString();
+                Path modulejarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID).getFileName();
+                String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
                 TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath,
                         Paths.get(sourceRootPath.toString(), "target", "tmp").toFile(),
                         modulejarName);
