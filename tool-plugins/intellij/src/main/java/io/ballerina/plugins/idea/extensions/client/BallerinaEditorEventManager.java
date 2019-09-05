@@ -21,6 +21,7 @@ import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
@@ -225,7 +226,9 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         Command command = item.getCommand();
         String detail = item.getDetail();
         String insertText = item.getInsertText();
-        CompletionItemKind kind = item.getKind();
+        // Hack to avoid potential NPE since lang client does not handle null completion kinds.
+        // Todo - Remove after adding a proper fix to language client library.
+        CompletionItemKind kind = item.getKind() != null ? item.getKind() : CompletionItemKind.Property;
         String label = item.getLabel();
         TextEdit textEdit = item.getTextEdit();
         List<TextEdit> addTextEdits = item.getAdditionalTextEdits();
@@ -233,6 +236,11 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         String tailText = (detail != null) ? detail : "";
         LSPIconProvider iconProvider = GUIUtils.getIconProviderFor(wrapper.getServerDefinition());
         Icon icon = iconProvider.getCompletionIcon(kind);
+
+        // Todo - Remove after improving language client icons.
+        if (icon == null) {
+            icon = AllIcons.Nodes.Property;
+        }
         LookupElementBuilder lookupElementBuilder;
 
         String lookupString = null;
