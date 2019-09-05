@@ -22,8 +22,8 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
@@ -57,7 +57,7 @@ public class RunTestsTask implements Task {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         loadConfigurations(sourceRootPath, this.configPath);
     
-        Map<BLangPackage, TestarinaClassLoader> programFileMap = new HashMap<>();
+        Map<BLangPackage, JBallerinaInMemoryClassLoader> programFileMap = new HashMap<>();
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
@@ -76,9 +76,8 @@ public class RunTestsTask implements Task {
                 Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
                 Path modulejarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID).getFileName();
                 String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
-                TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath,
-                        Paths.get(sourceRootPath.toString(), "target", "tmp").toFile(),
-                        modulejarName);
+                JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(jarPath,
+                        Paths.get(sourceRootPath.toString(), "target", "tmp").toFile());
                 programFileMap.put(bLangPackage, classLoader);
             });
         // Create a class loader to
