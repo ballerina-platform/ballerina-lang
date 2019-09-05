@@ -19,9 +19,6 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -57,8 +54,6 @@ import java.util.Arrays;
 public class ReadBytes {
 
     private static final Logger log = LoggerFactory.getLogger(ReadBytes.class);
-    private static final BTupleType readTupleType = new BTupleType(
-            Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
 
     public static Object read(Strand strand, ObjectValue channel, long nBytes) {
         int arraySize = nBytes <= 0 ? IOConstants.CHANNEL_BUFFER_SIZE : (int) nBytes;
@@ -68,13 +63,10 @@ public class ReadBytes {
             return IOUtils.createEoFError();
         } else {
             try {
-                int numberOfBytesRead = byteChannel.read(content);
-                ArrayValue contentTuple = new ArrayValue(readTupleType);
-                contentTuple.add(0, new ArrayValue(getContentData(content)));
-                contentTuple.add(1, Integer.valueOf(numberOfBytesRead));
-                return contentTuple;
+                byteChannel.read(content);
+                return new ArrayValue(getContentData(content));
             } catch (Exception e) {
-                String msg = "error occurred while reading bytes from the channel" + e.getMessage();
+                String msg = "error occurred while reading bytes from the channel. " + e.getMessage();
                 log.error(msg, e);
                 return IOUtils.createError(msg);
             }
