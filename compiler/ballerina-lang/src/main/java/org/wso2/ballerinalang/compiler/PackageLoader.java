@@ -472,8 +472,8 @@ public class PackageLoader {
 
         // 3) Create the compiledPackage structure
         pkgNode.symbol.compiledPackage = createInMemoryCompiledPackage(pkgNode);
-        if(pkgNode.hasTestablePackage()){
-            BLangPackage testablePackage = pkgNode.testablePkgs.get(0);
+        if (pkgNode.hasTestablePackage()) {
+            BLangPackage testablePackage = pkgNode.getTestablePkg();
             testablePackage.symbol.compiledPackage = createInMemoryCompiledPackage(testablePackage);
         }
         return pkgNode.symbol;
