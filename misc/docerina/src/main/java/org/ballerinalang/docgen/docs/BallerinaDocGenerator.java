@@ -74,7 +74,7 @@ import java.util.stream.Collectors;
 public class BallerinaDocGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
-    private static final PrintStream out = System.out;
+    private static PrintStream out = System.out;
 
     private static final String MODULE_CONTENT_FILE = "Module.md";
     private static final Path BAL_BUILTIN = Paths.get("ballerina", "builtin");
@@ -371,6 +371,29 @@ public class BallerinaDocGenerator {
         }
     }
 
+    public static Map<String, ModuleDoc> generateModuleDocsFromBLangPackages(String sourceRoot,
+                                                                             List<BLangPackage> modules) throws IOException {
+        Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
+        for (BLangPackage bLangPackage : modules) {
+            String moduleName = bLangPackage.packageID.name.toString();
+            Path absolutePkgPath = getAbsoluteModulePath(sourceRoot, Paths.get(moduleName));
+
+            // find the Module.md file
+            Path packageMd = getModuleDocPath(absolutePkgPath);
+
+            // find the resources of the package
+            List<Path> resources = getResourcePaths(absolutePkgPath);
+
+            moduleDocMap.put(moduleName,
+                    new ModuleDoc(packageMd == null ? null : packageMd.toAbsolutePath(), resources, bLangPackage));
+        }
+        return moduleDocMap;
+    }
+
+    public static void setPrintStream(PrintStream out) {
+        BallerinaDocGenerator.out = out;
+    }
+
     private static void sortModuleConstructs(BLangPackage bLangPackage) {
         bLangPackage.getFunctions().sort(Comparator.comparing(f -> (f.getReceiver() == null ? "" : f
                 .getReceiver().getName()) + f.getName().getValue()));
@@ -507,25 +530,6 @@ public class BallerinaDocGenerator {
             }
         }
         return dataHolder.getPackageMap();
-    }
-
-    public static Map<String, ModuleDoc> generateModuleDocsFromBLangPackages(String sourceRoot,
-                                                                     List<BLangPackage> modules) throws IOException {
-        Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
-        for (BLangPackage bLangPackage : modules) {
-            String moduleName = bLangPackage.packageID.name.toString();
-            Path absolutePkgPath = getAbsoluteModulePath(sourceRoot, Paths.get(moduleName));
-
-            // find the Module.md file
-            Path packageMd = getModuleDocPath(absolutePkgPath);
-
-            // find the resources of the package
-            List<Path> resources = getResourcePaths(absolutePkgPath);
-
-            moduleDocMap.put(moduleName,
-                    new ModuleDoc(packageMd == null ? null : packageMd.toAbsolutePath(), resources, bLangPackage));
-        }
-        return moduleDocMap;
     }
 
     private static List<Path> getResourcePaths(Path absolutePkgPath) throws IOException {

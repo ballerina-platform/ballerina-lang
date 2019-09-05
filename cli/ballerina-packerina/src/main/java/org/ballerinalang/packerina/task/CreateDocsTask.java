@@ -25,6 +25,9 @@ import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -42,16 +45,30 @@ public class CreateDocsTask implements Task {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         List<BLangPackage> modules = buildContext.getModules();
+        buildContext.out().println();
         buildContext.out().println("Generating API Documentation");
         try {
+            // disable deprecated verbose logs from docerina
+            BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
             Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator
                     .generateModuleDocsFromBLangPackages(sourceRootPath.toString(), modules);
             Path output = targetDir.resolve(TARGET_API_DOC_DIRECTORY);
             Files.createDirectories(output);
             BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap,
                     output.toString());
+            buildContext.out().println("\t" + sourceRootPath.relativize(output).toString());
         } catch (IOException e) {
-            throw createLauncherException("Unable to generate api docs.");
+            throw createLauncherException("Unable to generate API Documentation.");
+        }
+    }
+
+    static class EmptyPrintStream extends PrintStream {
+        EmptyPrintStream() throws UnsupportedEncodingException {
+            super(new OutputStream() {
+                @Override
+                public void write(int b) {
+                }
+            }, true, "UTF-8");
         }
     }
 }

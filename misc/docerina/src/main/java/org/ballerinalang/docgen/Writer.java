@@ -44,7 +44,6 @@ import java.util.stream.Collectors;
  * Generates the HTML pages from the Page objects.
  */
 public class Writer {
-    private static PrintStream out = System.out;
 
     /**
      * Write the HTML document from the Page object for a bal package.
@@ -112,7 +111,6 @@ public class Writer {
 
             Context context = Context.newBuilder(object).resolver(FieldValueResolver.INSTANCE).build();
             writer.println(template.apply(context));
-            out.println("docerina: HTML file written: " + filePath);
         } finally {
             if (writer != null) {
                 writer.close();
