@@ -41,7 +41,6 @@ public class Utils {
      * @return Ballerina error object.
      */
     public static ErrorValue getPathError(String reason, String details) {
-        //return BallerinaErrors.createError(reason, populateFilepathErrorRecord(details));
         if (reason == null) {
             reason = Constants.GENERIC_ERROR;
         }
