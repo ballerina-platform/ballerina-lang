@@ -107,6 +107,7 @@ include(':observability-test-utils')
 include(':jballerina-integration-test')
 // include(':composer-integration-test')
 // include(':ballerina-tools-integration-test')
+include(':ballerina-jsonutils')
 
 // include(':examples-test')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
@@ -236,6 +237,7 @@ project(':ballerina-nats').projectDir = file('stdlib/messaging/nats')
 project(':ballerina-jwt').projectDir = file('stdlib/jwt')
 project(':ballerina-ldap').projectDir = file('stdlib/ldap')
 project(':ballerina-oauth2').projectDir = file('stdlib/oauth2')
+project(':ballerina-jsonutils').projectDir = file('stdlib/jsonutils')
 project(':ballerina-bootstrapper').projectDir = file('distribution/bootstrapper')
 
 project(':debug-adapter').projectDir = file('misc/debug-adapter')
