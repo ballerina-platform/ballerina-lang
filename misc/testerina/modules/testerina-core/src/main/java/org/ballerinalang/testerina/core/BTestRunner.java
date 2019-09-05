@@ -366,19 +366,22 @@ public class BTestRunner {
                 // we do nothing here
             }
         });
+        // Add all functions of the test function to test suite
+        if (bLangPackage.hasTestablePackage()) {
+            bLangPackage.getTestablePkg().functions.stream().forEach(function -> {
+                try {
+                    String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                            bLangPackage.packageID.name.value,
+                            getClassName(function));
+                    Class<?> functionClass = classLoader.loadClass(functionClassName);
+                    suite.addTestUtilityFunction(new TesterinaFunction(functionClass,
+                            function));
+                } catch (RuntimeException e) {
+                    // we do nothing here
+                }
+            });
+        }
 
-        bLangPackage.testablePkgs.get(0).functions.stream().forEach(function -> {
-            try {
-                String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                        bLangPackage.packageID.name.value,
-                        getClassName(function));
-                Class<?> functionClass = classLoader.loadClass(functionClassName);
-                suite.addTestUtilityFunction(new TesterinaFunction(functionClass,
-                        function));
-            } catch (RuntimeException e) {
-                // we do nothing here
-            }
-        });
         resolveFunctions(suite);
         int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);

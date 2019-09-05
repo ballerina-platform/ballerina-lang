@@ -1176,8 +1176,6 @@ public class SymbolEnter extends BLangNodeVisitor {
      */
     private void populatePackageNode(BLangTestablePackage pkgNode, List<BLangImportPackage> enclPkgImports) {
         populatePackageNode(pkgNode);
-        // Remove recurring imports from the testable package which appears in the enclosing bLangPackage
-        pkgNode.getImports().removeIf(enclPkgImports::contains);
     }
 
     /**
