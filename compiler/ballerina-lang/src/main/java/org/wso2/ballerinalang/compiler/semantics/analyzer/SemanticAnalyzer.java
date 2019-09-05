@@ -2398,7 +2398,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         BLangExpression expression = constant.expr;
-        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL) && constant.typeNode == null) {
+        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
+                && constant.typeNode == null) {
             constant.type = symTable.semanticError;
             dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
             return; // This has to return, because constant.symbol.type is required for further validations.
