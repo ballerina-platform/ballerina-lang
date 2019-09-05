@@ -156,10 +156,12 @@ public class RunExecutableTask implements Task {
                 "ballerina.home is not set");
         JBallerinaInMemoryClassLoader classLoader;
         try {
+            ConfigRegistry.getInstance().setInitialized(true);
             Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
             classLoader = BootstrapRunner.createClassLoaders(executableModule,
                     Paths.get(balHome).resolve("bir-cache"),
                     targetDirectory, Optional.empty(), false, false);
+            ConfigRegistry.getInstance().setInitialized(false);
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }
