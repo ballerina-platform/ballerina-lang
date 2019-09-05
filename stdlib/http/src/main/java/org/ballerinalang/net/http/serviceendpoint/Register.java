@@ -28,6 +28,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpErrorType;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -53,6 +55,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 public class Register extends AbstractHttpNativeFunction {
     public static Object register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service,
                                   Object annotationData) {
+
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
         httpServicesRegistry.setScheduler(strand.scheduler);
@@ -62,7 +65,8 @@ public class Register extends AbstractHttpNativeFunction {
         try {
             if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
                 String callerType = param.getQualifiedName();
-                if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) { // TODO fix should work with equals - rajith
+                if (HttpConstants.HTTP_CALLER_NAME.equals(
+                        callerType)) { // TODO fix should work with equals - rajith
                     httpServicesRegistry.registerService(service);
                 } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
                     WebSocketService webSocketService = new WebSocketService(service, strand.scheduler);
@@ -72,7 +76,7 @@ public class Register extends AbstractHttpNativeFunction {
                 httpServicesRegistry.registerService(service);
             }
         } catch (WebSocketException ex) {
-            return ex;
+            return HttpUtil.createHttpError(ex.getMessage(), HttpErrorType.GENERIC_LISTENER_ERROR);
         }
         return null;
     }

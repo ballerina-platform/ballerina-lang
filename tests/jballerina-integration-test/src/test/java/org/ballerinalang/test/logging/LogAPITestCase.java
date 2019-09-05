@@ -69,7 +69,7 @@ public class LogAPITestCase extends BaseTest {
     @Test
     public void testLogsOff() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{"-e", logLevelProperty + "=OFF", testFileName};
+        String[] args = new String[]{testFileName, "--" + logLevelProperty + "=OFF"};
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         assertTrue(output.isEmpty());
     }
@@ -77,7 +77,7 @@ public class LogAPITestCase extends BaseTest {
     @Test
     public void testErrorLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{"-e", logLevelProperty + "=ERROR", testFileName};
+        String[] args = new String[] { testFileName, "--" + logLevelProperty + "=ERROR" };
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
@@ -93,7 +93,7 @@ public class LogAPITestCase extends BaseTest {
     @Test
     public void testWarnLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{"-e", logLevelProperty + "=WARN", testFileName};
+        String[] args = new String[] { testFileName, "--" + logLevelProperty + "=WARN", };
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
@@ -112,7 +112,7 @@ public class LogAPITestCase extends BaseTest {
     @Test
     public void testInfoLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{"-e", logLevelProperty + "=INFO", testFileName};
+        String[] args = new String[] { testFileName, "--" + logLevelProperty + "=INFO" };
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
@@ -134,7 +134,7 @@ public class LogAPITestCase extends BaseTest {
     @Test
     public void testDebugLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{"-e", logLevelProperty + "=DEBUG", testFileName};
+        String[] args = new String[] { testFileName, "--" + logLevelProperty + "=DEBUG" };
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
@@ -159,7 +159,7 @@ public class LogAPITestCase extends BaseTest {
     @Test
     public void testTraceLevel() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{"-e", logLevelProperty + "=TRACE", testFileName};
+        String[] args = new String[] { testFileName, "--" + logLevelProperty + "=TRACE" };
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
@@ -187,7 +187,7 @@ public class LogAPITestCase extends BaseTest {
     @Test
     public void testAllOn() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{"-e", logLevelProperty + "=ALL", testFileName};
+        String[] args = new String[] { testFileName, "--" + logLevelProperty + "=ALL" };
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
@@ -215,8 +215,8 @@ public class LogAPITestCase extends BaseTest {
     @Test
     public void testSettingLogLevelToPackage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{"-e", "logorg/foo.loglevel=DEBUG", "-e", "logorg/baz.loglevel=ERROR", "-e",
-                "logorg/mainmod.loglevel=OFF", "mainmod"};
+        String[] args = new String[] { "mainmod", "--logorg/foo.loglevel=DEBUG", "--logorg/baz.loglevel=ERROR",
+                "--logorg/mainmod.loglevel=OFF" };
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), projectDirPath, true);
         String[] logLines = output.split("\n");
         assertEquals(logLines.length, 4, printLogLines(logLines));

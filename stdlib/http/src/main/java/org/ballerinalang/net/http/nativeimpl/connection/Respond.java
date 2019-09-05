@@ -69,11 +69,9 @@ public class Respond extends ConnectionAction {
     private static final Logger log = LoggerFactory.getLogger(Respond.class);
 
     public static Object nativeRespond(Strand strand, ObjectValue connectionObj, ObjectValue outboundResponseObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
-        DataContext dataContext = new DataContext(strand, callback, inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
         HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseObj, HttpUtil.createHttpCarbonMessage(false));
         outboundResponseMsg.setPipeliningEnabled(inboundRequestMsg.isPipeliningEnabled());

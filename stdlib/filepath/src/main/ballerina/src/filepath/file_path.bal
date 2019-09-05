@@ -77,10 +77,6 @@ public function filename(string path) returns string|Error {
     if (count == 1 && validatedPath.length() > 0) {
         if !(check isAbsolute(validatedPath)) {
             return validatedPath;
-        } else if (isWindows) {
-            // if windows path is absolute and doesn't contain path separator, 
-            // there is no filename. 
-            return "";
         }
     }
     int lastOffset = offsetIndexes[count - 1];
@@ -296,7 +292,7 @@ public function relative(string base, string target) returns string|Error {
     int targetOffset;
     [targetRoot, targetOffset] = check getRoot(cleanTarget);
     if (!isSamePath(baseRoot, targetRoot)) {
-        return prepareError(message = "Can't make: " + target + " relative to " + base);
+        return prepareError(RELATIVE_PATH_ERROR, "Can't make: " + target + " relative to " + base);
     }
     int b0 = baseOffset;
     int bi = baseOffset;
@@ -324,7 +320,7 @@ public function relative(string base, string target) returns string|Error {
         t0 = ti;
     }
     if (cleanBase.substring(b0, bi) == "..") {
-        return prepareError(message = "Can't make: " + target + " relative to " + base);
+        return prepareError(RELATIVE_PATH_ERROR, "Can't make: " + target + " relative to " + base);
     }
     if (b0 != bl) {
         string remainder = cleanBase.substring(b0, bl);
@@ -455,7 +451,7 @@ function getOffsetIndexes(string path) returns int[]|Error {
 function charAt(string input, int index) returns string|Error {
     int length = input.length();
     if (index > length) {
-        return prepareError(message = io:sprintf("Character index %d is greater then path string length %d",
+        return prepareError(GENERIC_ERROR, io:sprintf("Character index %d is greater then path string length %d",
         index, length));
     }
     return input.substring(index, index + 1);

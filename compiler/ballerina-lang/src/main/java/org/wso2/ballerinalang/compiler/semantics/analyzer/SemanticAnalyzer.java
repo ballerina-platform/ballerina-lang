@@ -540,6 +540,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (varNode.isDeclaredWithVar) {
             validateWorkerAnnAttachments(varNode.expr);
             handleDeclaredWithVar(varNode);
+            transferForkFlag(varNode);
             return;
         }
 
@@ -601,6 +602,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) &&
                 !types.checkListenerCompatibility(varNode.symbol.type)) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
+        }
+
+        transferForkFlag(varNode);
+    }
+
+    private void transferForkFlag(BLangSimpleVariable varNode) {
+        // Transfer FORK flag to workers future value.
+        if (varNode.expr != null && varNode.expr.getKind() == NodeKind.INVOCATION
+                && varNode.flagSet.contains(Flag.WORKER)) {
+
+            BLangInvocation expr = (BLangInvocation) varNode.expr;
+            if (expr.name.value.startsWith("0") && (expr.symbol.flags & Flags.FORKED) == Flags.FORKED) {
+                varNode.symbol.flags |= Flags.FORKED;
+            }
         }
     }
 

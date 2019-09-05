@@ -26,10 +26,10 @@ public type HttpSecureClient client object {
     //These properties are populated from the init call and sent to the client connector as these will be needed at a
     //later stage for retrying and in other few places.
     public string url = "";
-    public ClientEndpointConfig config = {};
+    public ClientConfiguration config = {};
     public HttpClient httpClient;
 
-    public function __init(string url, ClientEndpointConfig config) {
+    public function __init(string url, ClientConfiguration config) {
         self.url = url;
         self.config = config;
         var simpleClient = createClient(url, self.config);
@@ -261,7 +261,7 @@ public type HttpSecureClient client object {
 # + url - Base URL
 # + config - Client endpoint configurations
 # + return - Created secure HTTP client
-public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient|ClientError {
+public function createHttpSecureClient(string url, ClientConfiguration config) returns HttpClient|ClientError {
     HttpSecureClient httpSecureClient;
     if (config.auth is OutboundAuthConfig) {
         httpSecureClient = new(url, config);
@@ -276,7 +276,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 # + req - An HTTP outbound request message
 # + config - Client endpoint configurations
 # + return - Prepared HTTP request or `http:ClientError` if an error occurred at auth handler invocation
-function prepareSecureRequest(Request req, ClientEndpointConfig config) returns Request|ClientError {
+function prepareSecureRequest(Request req, ClientConfiguration config) returns Request|ClientError {
     var auth = config.auth;
     if (auth is OutboundAuthConfig) {
         OutboundAuthHandler authHandler = auth.authHandler;
@@ -292,7 +292,7 @@ function prepareSecureRequest(Request req, ClientEndpointConfig config) returns 
 # + res - An HTTP outbound response message
 # + config - Client endpoint configurations
 # + return - Prepared HTTP request or `()` if nothing to be done or `http:ClientError` if an error occurred at auth handler invocation
-function doInspection(Request req, Response res, ClientEndpointConfig config) returns Request|ClientError? {
+function doInspection(Request req, Response res, ClientConfiguration config) returns Request|ClientError? {
     var auth = config.auth;
     if (auth is OutboundAuthConfig) {
         OutboundAuthHandler authHandler = auth.authHandler;

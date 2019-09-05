@@ -97,6 +97,7 @@ public enum DiagnosticCode {
     UNDEFINED_WORKER("undefined.worker"),
     INVALID_WORKER_JOIN_RESULT_TYPE("invalid.worker.join.result.type"),
     INVALID_WORKER_TIMEOUT_RESULT_TYPE("invalid.worker.timeout.result.type"),
+    INVALID_WORKER_REFERRENCE("invalid.worker.reference"),
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),

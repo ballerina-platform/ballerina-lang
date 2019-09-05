@@ -40,6 +40,7 @@ import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.net.http.CompressionConfigState;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,15 +131,17 @@ public abstract class AbstractHTTPAction {
             setOutboundReqHeaders(outboundRequest, port, host);
 
         } catch (MalformedURLException e) {
-            throw new BallerinaException("Malformed url specified. " + e.getMessage());
+            throw HttpUtil.createHttpError("Malformed url specified. " + e.getMessage(),
+                                           HttpErrorType.GENERIC_CLIENT_ERROR);
         } catch (Exception e) {
-            throw new BallerinaException("Failed to prepare request. " + e.getMessage());
+            throw HttpUtil.createHttpError("Failed to prepare request. " + e.getMessage(),
+                                           HttpErrorType.GENERIC_CLIENT_ERROR);
         }
     }
 
     private static String getServiceUri(String serviceUri) {
         if (serviceUri.isEmpty()) {
-            throw new BallerinaException("Service uri is not defined correctly.");
+            throw HttpUtil.createHttpError("Service uri is not defined correctly.", HttpErrorType.GENERIC_CLIENT_ERROR);
         }
         return serviceUri;
     }
@@ -348,7 +351,7 @@ public abstract class AbstractHTTPAction {
                     exception.getMessage().contains(Constants.INBOUND_RESPONSE_ALREADY_RECEIVED)) {
                 logger.warn("Response already received before completing the outbound request", exception);
             } else {
-                throw exception;
+                throw HttpUtil.createHttpError(exception.getMessage(), HttpErrorType.GENERIC_CLIENT_ERROR);
             }
         }
     }

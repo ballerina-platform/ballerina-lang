@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.JSONDataSource;
 import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -121,6 +122,15 @@ public class StreamingJsonValue extends ArrayValue {
         }
 
         return super.toString();
+    }
+
+    @Override
+    public String stringValue(Strand strand) {
+        if (datasource.hasNext()) {
+            buildDatasource();
+        }
+
+        return super.stringValue(strand);
     }
 
     @Override

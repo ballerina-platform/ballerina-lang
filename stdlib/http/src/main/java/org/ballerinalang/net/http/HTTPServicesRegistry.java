@@ -21,7 +21,6 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.slf4j.Logger;
@@ -138,8 +137,9 @@ public class HTTPServicesRegistry {
                     HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource(),
                                                          HttpConstants.HTTP_PACKAGE_PATH);
             if (resourceConfigAnnotation == null) {
-                throw new BallerinaException("Cannot register WebSocket service without resource config " +
-                                                     "annotation in resource " + upgradeToWebSocketResource.getName());
+                throw BallerinaErrors.createError(
+                        "Cannot register WebSocket service without resource config annotation in resource " +
+                                upgradeToWebSocketResource.getName());
             }
             MapValue webSocketConfig = resourceConfigAnnotation.getMapValue(
                     HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);

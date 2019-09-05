@@ -46,7 +46,6 @@ dependencies {
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-task')
     testCompile project(':ballerina-time')
-    testCompile project(':ballerina-encoding')
     testCompile project(':ballerina-internal')
     testCompile project(':ballerina-reflect')
     testCompile 'org.awaitility:awaitility'

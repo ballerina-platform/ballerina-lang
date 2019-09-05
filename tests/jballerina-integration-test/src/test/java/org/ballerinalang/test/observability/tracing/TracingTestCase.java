@@ -89,7 +89,7 @@ public class TracingTestCase extends BaseTest {
                 "observability" + File.separator + "tracing").getAbsolutePath();
 
         String configFile = new File(RESOURCE_LOCATION + "ballerina.conf").getAbsolutePath();
-        String[] args = new String[]{"--config", configFile};
+        String[] args = new String[] { "--b7a.config=" + configFile };
         serverInstance.startServer(basePath, "tracingservices", null, args, requiredPorts);
     }
 
