@@ -120,7 +120,8 @@ public class JSONToXMLConverter {
      */
     @SuppressWarnings("rawtypes")
     private static OMElement traverseJsonNode(Object json, String nodeName, OMElement parentElement,
-                                              List<XMLValue> omElementArrayList, String attributePrefix, String arrayEntryTag) {
+                                              List<XMLValue> omElementArrayList, String attributePrefix,
+                                              String arrayEntryTag) {
         OMElement currentRoot = null;
         if (nodeName != null) {
             // Extract attributes and set to the immediate parent.
@@ -160,8 +161,8 @@ public class JSONToXMLConverter {
                     }
                     map = (MapValueImpl) json;
                     for (Entry<String, Object> entry : map.entrySet()) {
-                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot, omElementArrayList,
-                                attributePrefix, arrayEntryTag);
+                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot,
+                                omElementArrayList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost object
                             omElementArrayList.add(new XMLItem(currentRoot));
                             currentRoot = null;
@@ -171,8 +172,8 @@ public class JSONToXMLConverter {
                 case TypeTags.JSON_TAG:
                     map = (MapValueImpl) json;
                     for (Entry<String, Object> entry : map.entrySet()) {
-                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot, omElementArrayList,
-                                attributePrefix, arrayEntryTag);
+                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot,
+                                omElementArrayList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost object
                             omElementArrayList.add(new XMLItem(currentRoot));
                             currentRoot = null;
@@ -182,8 +183,8 @@ public class JSONToXMLConverter {
                 case TypeTags.ARRAY_TAG:
                     ArrayValue array = (ArrayValue) json;
                     for (int i = 0; i < array.size(); i++) {
-                        currentRoot = traverseJsonNode(array.getRefValue(i), arrayEntryTag, currentRoot, omElementArrayList,
-                                attributePrefix, arrayEntryTag);
+                        currentRoot = traverseJsonNode(array.getRefValue(i), arrayEntryTag, currentRoot,
+                                omElementArrayList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost array
                             omElementArrayList.add(new XMLItem(currentRoot));
                             currentRoot = null;
