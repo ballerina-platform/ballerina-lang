@@ -1,15 +1,18 @@
 NAME
-    Ballerina remove - Remove a given distribution version
+       Ballerina remove - Remove a given distribution version
 
 SYNOPSIS
-    ballerina remove <distribution-version>
+       ballerina remove <distribution-version>
+
 
 DESCRIPTION
-     removes the given Ballerina version from project repository.
+       removes the given Ballerina version from project repository.
+
 
 OPTIONS
-     Ballerina remove command takes no options.
+       Ballerina remove command takes no options.
+
 
 EXAMPLES
-     Remove Ballerina 1.0.0 version
-     $ ballerina remove 1.0.0
+       Remove Ballerina 1.0.0 version
+       $ ballerina remove 1.0.0
