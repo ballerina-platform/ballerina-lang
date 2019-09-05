@@ -26,8 +26,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
 /**
  * Constant expression test cases.
  *
@@ -44,7 +42,7 @@ public class ConstantExpressionTest {
     }
 
     @Test
-    public void ConstExpressionNegative() {
+    public void constExpressionNegative() {
 
         CompileResult compileResult1 = BCompileUtil.compile("test-src/types/constant/constant-expression-negative.bal");
         int i = 0;
