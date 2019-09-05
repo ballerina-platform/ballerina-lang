@@ -29,6 +29,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
@@ -233,5 +236,19 @@ public class BStreamValueTest {
         Assert.assertNotEquals(returns[0], returns[1]);
         Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Gima");
         Assert.assertEquals(((BMap) returns[1]).get("name").stringValue(), "CloneOfGima");
+    }
+
+    @Test(description = "Test using sleeps in the subscription function")
+    public void testSleepInSubscriptionFuncs() {
+        BValue[] returns = BRunUtil.invoke(result, "testSleepInSubscriptionFuncs");
+        Assert.assertEquals(returns[0].size(), 4);
+        List<String> outcome = new ArrayList<>(4);
+        for (int i = 0; i < 4; i ++) {
+            outcome.add(((BValueArray) returns[0]).getString(i));
+        }
+        Assert.assertTrue(outcome.remove("2: s=old value"));
+        Assert.assertTrue(outcome.remove("2: s=old value"));
+        Assert.assertTrue(outcome.remove("1: s=old value"));
+        Assert.assertTrue(outcome.remove("1: s=new value"));
     }
 }

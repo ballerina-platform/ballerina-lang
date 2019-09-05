@@ -24,7 +24,7 @@
         <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
             <run>
-                <exclude name="TakesTooMuchTime"/>
+                <!--<exclude name="TakesTooMuchTime"/>-->
             </run>
         </groups>
         <packages>

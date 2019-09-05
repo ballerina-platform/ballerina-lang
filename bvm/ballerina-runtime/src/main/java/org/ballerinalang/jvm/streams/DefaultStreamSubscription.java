@@ -18,8 +18,15 @@
 
 package org.ballerinalang.jvm.streams;
 
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 /**
  * The {@link DefaultStreamSubscription} represents a stream subscription in Ballerina.
@@ -30,6 +37,7 @@ public class DefaultStreamSubscription extends StreamSubscription {
 
     private StreamValue stream;
     private FPValue<Object[], Object> functionPointer;
+    private Executor executor = Executors.newSingleThreadExecutor();
 
     DefaultStreamSubscription(StreamValue stream, FPValue<Object[], Object> functionPointer,
                               StreamSubscriptionManager streamSubscriptionManager) {
@@ -39,8 +47,31 @@ public class DefaultStreamSubscription extends StreamSubscription {
     }
 
     public void execute(Object[] fpParams) {
-        //Cannot use scheduler, as the order of events should be preserved
-        functionPointer.accept(fpParams);
+        executor.execute(() -> {
+            Strand strand = (Strand) fpParams[0];
+            Semaphore semaphore = new Semaphore(0);
+            final ErrorValue[] errorValue = new ErrorValue[1];
+            strand.scheduler.schedule(fpParams, functionPointer.getConsumer(), strand, new CallableUnitCallback() {
+                @Override
+                public void notifySuccess() {
+                    semaphore.release();
+                }
+
+                @Override
+                public void notifyFailure(ErrorValue error) {
+                    errorValue[0] = error;
+                    semaphore.release();
+                }
+            });
+            try {
+                semaphore.acquire();
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+            if (errorValue[0] != null) {
+                throw errorValue[0];
+            }
+        });
     }
 
     public StreamValue getStream() {

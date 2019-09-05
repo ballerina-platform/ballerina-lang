@@ -1,8 +1,13 @@
 import ballerina/log;
+import ballerina/io;
 import ballerina/time;
 import ballerina/runtime;
 
 stream<Employee> globalEmployeeStream = new;
+
+type Foo record {
+    string s;
+};
 
 type Employee record {
     int id = 0;
@@ -323,6 +328,41 @@ function testStreamEventClone() returns Employee[] {
     }
 
     return arr;
+}
+
+string[] arr = [];
+int arrCount = 0;
+public function testSleepInSubscriptionFuncs() returns any[] {
+    stream<Foo> sf = new;
+    sf.subscribe(one);
+    sf.subscribe(two);
+
+    Foo f = {
+        s: "old value"
+    };
+    sf.publish(f);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count += 1;
+        if((arr.length()) == 3 || count == 30) {
+            break;
+        }
+    }
+    return arr;
+}
+
+function one(Foo f) {
+    arr[arr.length()] = io:sprintf("1: %s", f);
+    runtime:sleep(2000);
+    f.s = "new value";
+    arr[arr.length()] = io:sprintf("1: %s", f);
+}
+
+function two(Foo f) {
+    arr[arr.length()] = io:sprintf("2: %s", f);
+    runtime:sleep(5000);
+    arr[arr.length()] = io:sprintf("2: %s", f);
 }
 
 function printJobDescription(Job j) {
