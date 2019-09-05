@@ -2188,15 +2188,65 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#constantExpression}.
+	 * Enter a parse tree produced by the {@code constSimpleLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#constantExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterConstantExpression(BallerinaParser.ConstantExpressionContext ctx);
+	void enterConstSimpleLiteralExpression(BallerinaParser.ConstSimpleLiteralExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#constantExpression}.
+	 * Exit a parse tree produced by the {@code constSimpleLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#constantExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitConstantExpression(BallerinaParser.ConstantExpressionContext ctx);
+	void exitConstSimpleLiteralExpression(BallerinaParser.ConstSimpleLiteralExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code constGroupExpressions}
+	 * labeled alternative in {@link BallerinaParser#constantExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterConstGroupExpressions(BallerinaParser.ConstGroupExpressionsContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code constGroupExpressions}
+	 * labeled alternative in {@link BallerinaParser#constantExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitConstGroupExpressions(BallerinaParser.ConstGroupExpressionsContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code constDivMulModExpression}
+	 * labeled alternative in {@link BallerinaParser#constantExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterConstDivMulModExpression(BallerinaParser.ConstDivMulModExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code constDivMulModExpression}
+	 * labeled alternative in {@link BallerinaParser#constantExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitConstDivMulModExpression(BallerinaParser.ConstDivMulModExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code constRecordLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#constantExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterConstRecordLiteralExpression(BallerinaParser.ConstRecordLiteralExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code constRecordLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#constantExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitConstRecordLiteralExpression(BallerinaParser.ConstRecordLiteralExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code constAddSubExpression}
+	 * labeled alternative in {@link BallerinaParser#constantExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterConstAddSubExpression(BallerinaParser.ConstAddSubExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code constAddSubExpression}
+	 * labeled alternative in {@link BallerinaParser#constantExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitConstAddSubExpression(BallerinaParser.ConstAddSubExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeDescExpr}.
 	 * @param ctx the parse tree
