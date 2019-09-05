@@ -69,9 +69,7 @@ public function isAbsolute(string path) returns boolean|Error {
 # + return - Returns the name of the file
 public function filename(string path) returns string|Error {
     string validatedPath = check parse(path);
-    io:println(validatedPath);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
-    io:println(offsetIndexes);
     int count = offsetIndexes.length();
     if (count == 0) {
         return "";
