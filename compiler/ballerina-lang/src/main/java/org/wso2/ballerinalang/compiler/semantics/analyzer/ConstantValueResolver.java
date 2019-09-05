@@ -170,7 +170,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         } catch (NumberFormatException nfe) {
             // Ignore. This will be handled as a compiler error.
         } catch (ArithmeticException ae) {
-            dlog.error(currentPos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT, ae.getMessage());
+            dlog.error(currentPos, DiagnosticCode.INVALID_CONST_EXPRESSION, ae.getMessage());
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.

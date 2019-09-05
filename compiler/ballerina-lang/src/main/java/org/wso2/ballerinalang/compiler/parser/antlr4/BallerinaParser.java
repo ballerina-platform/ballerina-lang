@@ -12794,20 +12794,20 @@ public class BallerinaParser extends Parser {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConstSimpleLiteralExpression(this);
 		}
 	}
-	public static class ConstGroupExpressionsContext extends ConstantExpressionContext {
+	public static class ConstGroupExpressionContext extends ConstantExpressionContext {
 		public TerminalNode LEFT_PARENTHESIS() { return getToken(BallerinaParser.LEFT_PARENTHESIS, 0); }
 		public ConstantExpressionContext constantExpression() {
 			return getRuleContext(ConstantExpressionContext.class,0);
 		}
 		public TerminalNode RIGHT_PARENTHESIS() { return getToken(BallerinaParser.RIGHT_PARENTHESIS, 0); }
-		public ConstGroupExpressionsContext(ConstantExpressionContext ctx) { copyFrom(ctx); }
+		public ConstGroupExpressionContext(ConstantExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterConstGroupExpressions(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterConstGroupExpression(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConstGroupExpressions(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConstGroupExpression(this);
 		}
 	}
 	public static class ConstDivMulModExpressionContext extends ConstantExpressionContext {
@@ -12903,7 +12903,7 @@ public class BallerinaParser extends Parser {
 				break;
 			case 3:
 				{
-				_localctx = new ConstGroupExpressionsContext(_localctx);
+				_localctx = new ConstGroupExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(2051);

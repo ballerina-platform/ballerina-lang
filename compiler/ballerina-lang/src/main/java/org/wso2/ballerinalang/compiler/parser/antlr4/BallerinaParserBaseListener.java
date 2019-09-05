@@ -2500,13 +2500,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConstGroupExpressions(BallerinaParser.ConstGroupExpressionsContext ctx) { }
+	@Override public void enterConstGroupExpression(BallerinaParser.ConstGroupExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConstGroupExpressions(BallerinaParser.ConstGroupExpressionsContext ctx) { }
+	@Override public void exitConstGroupExpression(BallerinaParser.ConstGroupExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

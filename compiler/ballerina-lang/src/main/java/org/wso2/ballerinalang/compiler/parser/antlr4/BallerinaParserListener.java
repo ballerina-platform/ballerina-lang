@@ -2200,17 +2200,17 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitConstSimpleLiteralExpression(BallerinaParser.ConstSimpleLiteralExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code constGroupExpressions}
+	 * Enter a parse tree produced by the {@code constGroupExpression}
 	 * labeled alternative in {@link BallerinaParser#constantExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterConstGroupExpressions(BallerinaParser.ConstGroupExpressionsContext ctx);
+	void enterConstGroupExpression(BallerinaParser.ConstGroupExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code constGroupExpressions}
+	 * Exit a parse tree produced by the {@code constGroupExpression}
 	 * labeled alternative in {@link BallerinaParser#constantExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitConstGroupExpressions(BallerinaParser.ConstGroupExpressionsContext ctx);
+	void exitConstGroupExpression(BallerinaParser.ConstGroupExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code constDivMulModExpression}
 	 * labeled alternative in {@link BallerinaParser#constantExpression}.

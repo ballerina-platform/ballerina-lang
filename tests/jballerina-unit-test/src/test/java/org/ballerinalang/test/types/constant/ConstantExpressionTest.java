@@ -46,9 +46,11 @@ public class ConstantExpressionTest {
 
         CompileResult compileResult1 = BCompileUtil.compile("test-src/types/constant/constant-expression-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(compileResult1, i++, "type is required for constants with expressions", 4, 13);
-        BAssertUtil.validateError(compileResult1, i++, "const expressions are not yet supported here.", 6, 32);
-        BAssertUtil.validateError(compileResult1, i++, "const expressions are not yet supported here.", 6, 44);
+        BAssertUtil.validateError(compileResult1, i++, "type is required for constants with expressions", 19, 13);
+        BAssertUtil.validateError(compileResult1, i++, "const expressions are not yet supported here", 21, 32);
+        BAssertUtil.validateError(compileResult1, i++, "const expressions are not yet supported here", 21, 44);
+        BAssertUtil.validateError(compileResult1, i++, "invalid constant expression, reason '/ by zero'", 23, 18);
+        BAssertUtil.validateError(compileResult1, i++, "invalid constant expression, reason '/ by zero'", 25, 18);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 

@@ -4237,11 +4237,11 @@ public class Desugar extends BLangNodeVisitor {
 
         BConstantSymbol constSymbol = constant.symbol;
         if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
-            BLangLiteral literal = ASTBuilderUtil.createLiteral(constant.expr.pos, constSymbol.literalType,
-                    constSymbol.value.value);
             if (constSymbol.literalType.tag != TypeTags.NIL && constSymbol.value.value == null) {
                 throw new IllegalStateException();
             }
+            BLangLiteral literal = ASTBuilderUtil.createLiteral(constant.expr.pos, constSymbol.literalType,
+                    constSymbol.value.value);
             constant.expr = rewriteExpr(literal);
         } else {
             constant.expr = rewriteExpr(constant.expr);

@@ -589,7 +589,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitConstGroupExpressions(BallerinaParser.ConstGroupExpressionsContext ctx) {
+    public void exitConstGroupExpression(BallerinaParser.ConstGroupExpressionContext ctx) {
 
         if (isInErrorState) {
             return;
