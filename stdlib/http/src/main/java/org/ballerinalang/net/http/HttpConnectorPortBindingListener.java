@@ -59,6 +59,6 @@ public class HttpConnectorPortBindingListener implements PortBindingEventListene
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Error in http endpoint", throwable);
+        log.debug("Error in http endpoint", throwable);
     }
 }
