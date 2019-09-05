@@ -26,7 +26,7 @@ const debugConfigProvider: DebugConfigurationProvider = {
 async function getModifiedConfigs(config: DebugConfiguration) {
     let debuggeePort = config.debuggeePort;
     if (!debuggeePort) {
-        await getPortPromise({ port: 5010, stopPort: 10000});
+        debuggeePort = await getPortPromise({ port: 5010, stopPort: 10000});
     }
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
     if (!ballerinaHome) {

@@ -65,21 +65,21 @@ public abstract class LauncherImpl {
             command.add("--debug");
             command.add(debuggeePort);
         }
-        ArrayList<String> commandOptions = (ArrayList<String>) args.get("commandOptions");
-        commandOptions = commandOptions == null ? new ArrayList<>() : commandOptions;
-        command.addAll(commandOptions);
 
         command.add("--experimental");
+
+        command.add(balFile);
 
         boolean networkLogs = args.get("networkLogs") != null && (boolean) args.get("networkLogs");
         if (networkLogs && !debugTests) {
             Double networkLogsPort = (Double) args.get("networkLogsPort");
-            command.add("-e");
-            command.add("b7a.http.tracelog.host=localhost");
-            command.add("-e");
-            command.add("b7a.http.tracelog.port=" + networkLogsPort.intValue());
+            command.add("--b7a.http.tracelog.host=localhost");
+            command.add("--b7a.http.tracelog.port=" + networkLogsPort.intValue());
         }
-        command.add(balFile);
+
+        ArrayList<String> commandOptions = (ArrayList<String>) args.get("commandOptions");
+        commandOptions = commandOptions == null ? new ArrayList<>() : commandOptions;
+        command.addAll(commandOptions);
 
         ArrayList<String> scriptArguments = (ArrayList<String>) args.get("scriptArguments");
         scriptArguments = scriptArguments == null ? new ArrayList<>() : scriptArguments;
