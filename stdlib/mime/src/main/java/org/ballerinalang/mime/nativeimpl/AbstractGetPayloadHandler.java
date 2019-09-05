@@ -153,7 +153,7 @@ public abstract class AbstractGetPayloadHandler {
         if (message != null) {
             return message;
         } else {
-            throw BallerinaErrors.createError(PARSING_ENTITY_BODY_FAILED, "Empty content");
+            throw BallerinaErrors.createError("Empty content");
         }
     }
 

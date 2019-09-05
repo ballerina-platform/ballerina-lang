@@ -85,8 +85,7 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while " +
                 "retrieving the json payload from the request\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
-                "{message:\"Error occurred while extracting json data from entity: error " +
-                "{ballerina/mime}ParsingEntityBodyFailed message=Empty content\"}}");
+                "{message:\"Error occurred while extracting json data from entity: error Empty content \"}}");
     }
 
     @Test(description = "Test method with string payload")
@@ -123,7 +122,9 @@ public class RequestNativeFunctionNegativeTest {
         inRequest.set(REQUEST_ENTITY_FIELD, entity);
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetTextPayload", new Object[]{ inRequest });
         Assert.assertTrue(returnVals[0].stringValue()
-                        .contains("Error occurred while extracting text data from entity : Empty content"));
+                        .contains("{message:\"Error occurred while retrieving the text payload from the request\", " +
+                                          "cause:{ballerina/mime}ParsingEntityBodyFailed {message:\"Error occurred " +
+                                          "while extracting text data from entity : error Empty content \"}}"));
     }
 
     @Test
@@ -135,8 +136,7 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetXmlPayload", new Object[]{ inRequest });
         Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while " +
                 "retrieving the xml payload from the request\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
-                "{message:\"Error occurred while extracting xml data from entity : error " +
-                "{ballerina/mime}ParsingEntityBodyFailed message=Empty content\"}}");
+                "{message:\"Error occurred while extracting xml data from entity : error Empty content \"}}");
     }
 
     @Test
