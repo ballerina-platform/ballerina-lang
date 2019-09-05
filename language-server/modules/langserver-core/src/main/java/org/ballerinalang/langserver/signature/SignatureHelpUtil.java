@@ -116,15 +116,16 @@ public class SignatureHelpUtil {
         String funcInvocation = String.join("", getSourcePrunedFunctionInvocation(serviceContext));
         boolean isInsideFuncInvocation = COMMA.equals(funcInvocation);
         Matcher m = EMPTY_FUNCTION_PATTERN.matcher(funcInvocation);
-        boolean isEmptyFuncInvocation = m.matches();
-        if (isEmptyFuncInvocation && funcInvocation.endsWith(SEMI_COLON)) {
-            // Remove seami-colon(;) if not exists
+        boolean isEmptyFuncInvocation = funcInvocation.isEmpty(); // matches functions like 'io:println('
+        boolean isEmptyFuncInovcPattern = m.matches(); // matches functions like 'io:println()'
+        if (isEmptyFuncInovcPattern && funcInvocation.endsWith(SEMI_COLON)) {
+            // Remove semi-colon(;) if not exists
             funcInvocation = funcInvocation.substring(0, funcInvocation.lastIndexOf(SEMI_COLON));
         }
 
         // Visit LHS of the tokens to get function invocation statement
-        int rightParenthesisCount = (isInsideFuncInvocation) ? 1 : 0;
-        if (isInsideFuncInvocation) {
+        int rightParenthesisCount = (isInsideFuncInvocation || isEmptyFuncInvocation) ? 1 : 0;
+        if (isInsideFuncInvocation || isEmptyFuncInvocation) {
             List<Token> tokens = serviceContext.get(SourcePruneKeys.TOKEN_LIST_KEY);
             List<Token> collected = new ArrayList<>();
             int traverser = cursorTokenIndex;
