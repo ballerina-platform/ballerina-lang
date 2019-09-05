@@ -60,6 +60,7 @@ public class SenderReqRespStateManager {
     }
 
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
+        nettyTargetChannel.close();
         state.handleAbruptChannelClosure(httpResponseFuture);
     }
 

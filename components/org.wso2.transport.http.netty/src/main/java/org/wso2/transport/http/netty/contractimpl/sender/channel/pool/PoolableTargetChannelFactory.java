@@ -16,6 +16,7 @@
 package org.wso2.transport.http.netty.contractimpl.sender.channel.pool;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -132,12 +133,13 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
     @Override
     public void destroyObject(Object o) throws Exception {
-        TargetChannel targetChannel = (TargetChannel) o;
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Destroying channel: {}", targetChannel.getChannel().id());
+        Channel targetNettyChannel = ((TargetChannel) o).getChannel();
+        if (targetNettyChannel.isOpen()) {
+            targetNettyChannel.close();
         }
-        if (targetChannel.getChannel().isOpen()) {
-            targetChannel.getChannel().close();
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Destroying channel: {}", targetNettyChannel.id());
         }
     }
 
