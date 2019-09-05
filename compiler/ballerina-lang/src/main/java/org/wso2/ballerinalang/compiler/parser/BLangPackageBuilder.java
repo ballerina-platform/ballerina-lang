@@ -1785,6 +1785,7 @@ public class BLangPackageBuilder {
             List<? extends StatementNode> stmtsAdded = this.blockNodeStack.peek().getStatements();
             BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
             lamdaWrkr.isInFork = true;
+            lamdaWrkr.var.flagSet.add(Flag.FORKED);
             this.forkJoinNodesStack.peek().addWorkers(lamdaWrkr);
         }
 
