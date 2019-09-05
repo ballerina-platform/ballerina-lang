@@ -79,10 +79,4 @@ public class BasicWorkerTest {
         BInteger ret = (BInteger) vals[0];
         Assert.assertEquals(ret.intValue(), 51);
     }
-
-    @Test
-    public void workerAsAFutureTest() {
-        BValue[] vals = BRunUtil.invoke(result, "workerAsAFutureTest", new BValue[0]);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 2);
-    }
 }

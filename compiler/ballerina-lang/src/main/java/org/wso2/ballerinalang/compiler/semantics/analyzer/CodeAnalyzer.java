@@ -1276,6 +1276,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void checkWorkerPeerWorkerUsageInsideWorker(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
+        if ((symbol.flags & Flags.WORKER) == Flags.WORKER) {
+            // Current location is a worker lambda
+            // And refering symbol is in a toplevel function.
+            if (env.scope.owner != null
+                    && (((BInvokableSymbol) env.scope.owner).flags & Flags.WORKER) == Flags.WORKER
+                    && symbol.owner != null
+                    && symbol.owner.owner != null
+                    && symbol.owner.owner.getKind() == SymbolKind.PACKAGE
+                    && env.scope.lookup(symbol.name).symbol == null) {
+                dlog.error(pos, DiagnosticCode.INVALID_WORKER_REFERRENCE, symbol.name);
+            }
+        }
+    }
+
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
 
@@ -1753,7 +1768,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
-        /* ignore */
+        switch (varRefExpr.parent.getKind()) {
+            // Referring workers for worker interactions are allowed, hence skip the check.
+            case WORKER_RECEIVE:
+            case WORKER_SEND:
+            case WORKER_SYNC_SEND:
+                return;
+            default:
+                if (varRefExpr.type.tag == TypeTags.FUTURE) {
+                    checkWorkerPeerWorkerUsageInsideWorker(varRefExpr.pos, varRefExpr.symbol, this.env);
+                }
+        }
     }
 
     public void visit(BLangRecordVarRef varRefExpr) {
