@@ -73,8 +73,8 @@ public class LockFileProcessor {
             return lockToml.to(LockFile.class);
         } catch (Exception e) {
             err.println("Ballerina.lock file is corrupted. this build will ignore using the lock file in resolving " +
-                        "dependencies. A valid lock file will be generated if '--skip-lock' is set to false. " +
-                        "'--skip-lock' flag is false by default.");
+                        "dependencies. a valid lock file will be generated if '--skip-lock' is set to false when " +
+                        "using build command. '--skip-lock' flag is false by default.");
         }
         
         return null;
