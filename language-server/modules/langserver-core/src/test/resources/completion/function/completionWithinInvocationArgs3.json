@@ -3119,14 +3119,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "FailoverClientEndpointConfiguration",
+      "label": "FailoverClientConfiguration",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
       },
       "sortText": "120",
-      "insertText": "FailoverClientEndpointConfiguration",
+      "insertText": "FailoverClientConfiguration",
       "insertTextFormat": "Snippet"
     },
     {

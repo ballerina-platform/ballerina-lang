@@ -873,14 +873,14 @@
       ]
     },
     {
-      "label": "FailoverClientEndpointConfiguration",
+      "label": "FailoverClientConfiguration",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
         "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
       },
       "sortText": "180",
-      "insertText": "FailoverClientEndpointConfiguration",
+      "insertText": "FailoverClientConfiguration",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
