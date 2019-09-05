@@ -14,16 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/regex;
+import ballerina/stringutils;
 
 function testSplit() returns string[] {
     string testStr = "amal,,kamal,,nimal,,sunimal,";
-    string[] arr = regex:split(testStr, ",,");
+    string[] arr = stringutils:split(testStr, ",,");
     return arr;
 }
 
 function testReplace() returns string {
     string testStr = "Hello Amal!!! Nimal!!!";
-    string newStr = regex:replace(testStr, "!!!", "!");
+    string newStr = stringutils:replace(testStr, "!!!", "!");
     return newStr;
 }

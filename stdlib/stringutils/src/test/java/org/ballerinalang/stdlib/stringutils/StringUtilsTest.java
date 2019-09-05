@@ -15,7 +15,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.regex;
+package org.ballerinalang.stdlib.stringutils;
 
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -29,13 +29,13 @@ import org.testng.annotations.Test;
 import java.nio.file.Paths;
 
 /**
- * Class to test functionality of regex.
+ * Class to test functionality of string utils.
  *
  * @since 1.0
  */
-public class RegexTest {
+public class StringUtilsTest {
 
-    private CompileResult result = BCompileUtil.compile(String.valueOf(Paths.get("test-src", "regex.bal")));
+    private CompileResult result = BCompileUtil.compile(String.valueOf(Paths.get("test-src", "string-utils-test.bal")));
 
     @Test
     public void testSplitFunction() {
