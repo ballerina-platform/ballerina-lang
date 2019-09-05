@@ -1,0 +1,13 @@
+[project]
+org-name = "ballerinax"
+version = "0.0.0"
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    artifactId = "java.arrays"
+    version = "@project.version@"
+    path = "./lib/ballerina-java-arrays-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["java.arrays"]
