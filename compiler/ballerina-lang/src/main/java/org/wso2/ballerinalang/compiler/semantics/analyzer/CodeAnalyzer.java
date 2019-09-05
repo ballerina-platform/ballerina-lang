@@ -1770,17 +1770,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         analyzeExpr(fieldAccessExpr.expr);
-        if (fieldAccessExpr.expr.type.tag == TypeTags.XML) {
-            checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, fieldAccessExpr.pos);
-        }
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
-        if (indexAccessExpr.expr.type.tag == TypeTags.XML) {
-            checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, indexAccessExpr.pos);
-        }
     }
 
     public void visit(BLangInvocation invocationExpr) {
@@ -2065,7 +2059,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
 
-        checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ATTRIBUTES_ACCESS, xmlAttributeAccessExpr.pos);
         analyzeExpr(xmlAttributeAccessExpr.expr);
         analyzeExpr(xmlAttributeAccessExpr.indexExpr);
     }
