@@ -183,10 +183,8 @@ public class CopyNativeLibTask implements Task {
                         continue;
                     }
                     // get the input stream
-                    try (InputStream is = jar.getInputStream(file); FileOutputStream fos = new FileOutputStream(f)) {
-                        while (is.available() > 0) {  // write contents of 'is' to 'fos'
-                            fos.write(is.read());
-                        }
+                    try (InputStream is = jar.getInputStream(file)) {
+                        Files.copy(is, f.toPath());
                     }
                 }
             }
