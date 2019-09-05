@@ -3240,14 +3240,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "LoadBalancerRounRobinRule",
+      "label": "LoadBalancerRoundRobinRule",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
         "left": "Implementation of round robin load balancing strategy.\n"
       },
       "sortText": "120",
-      "insertText": "LoadBalancerRounRobinRule",
+      "insertText": "LoadBalancerRoundRobinRule",
       "insertTextFormat": "Snippet"
     },
     {
