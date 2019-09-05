@@ -105,7 +105,7 @@ public abstract class AbstractGetPayloadHandler {
         });
     }
 
-    private static void setReturnValuesAndNotify(NonBlockingCallback callback, Object result) {
+    static void setReturnValuesAndNotify(NonBlockingCallback callback, Object result) {
         callback.setReturnValues(result);
         callback.notifySuccess();
     }
@@ -117,6 +117,14 @@ public abstract class AbstractGetPayloadHandler {
             return null;
         }
         return error;
+    }
+
+    static Object returnErrorValue(NonBlockingCallback callback, Exception ex) {
+        if (callback != null) {
+            setReturnValuesAndNotify(callback, ex);
+            return null;
+        }
+        return ex;
     }
 
     static void updateDataSource(ObjectValue entityObj, Object result) {

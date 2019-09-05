@@ -20,6 +20,7 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -76,9 +77,12 @@ public class GetByteChannel {
                     return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Byte channel is not available as payload");
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable err) {
+            if (err instanceof ErrorValue) {
+                return err;
+            }
             return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
-                    "Error occurred while constructing byte channel from entity body : " + e.getMessage());
+                    "Error occurred while constructing byte channel from entity body : " + err.getMessage());
         }
     }
 
