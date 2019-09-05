@@ -16,8 +16,6 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.util.codegen.ObjectTypeInfo;
-
 /**
  * {@code BServiceType} represents a service in Ballerina.
  *
@@ -25,8 +23,8 @@ import org.ballerinalang.util.codegen.ObjectTypeInfo;
  */
 public class BServiceType extends BObjectType {
 
-    public BServiceType(ObjectTypeInfo objectTypeInfo, String typeName, String pkgPath, int flags) {
-        super(objectTypeInfo, typeName, pkgPath, flags);
+    public BServiceType(String typeName, String pkgPath, int flags) {
+        super(typeName, pkgPath, flags);
     }
 
     @Override

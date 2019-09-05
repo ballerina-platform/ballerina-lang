@@ -28,10 +28,6 @@ import java.util.ResourceBundle;
 public class BLangExceptionHelper {
     private static ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
 
-    public static void throwSemanticError(String errorMessage) {
-        throw new SemanticException(errorMessage);
-    }
-
     public static BallerinaException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         String errorMsg = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
         //todo change below exception to BLangRuntimeException later, for the time being using BallerinaException

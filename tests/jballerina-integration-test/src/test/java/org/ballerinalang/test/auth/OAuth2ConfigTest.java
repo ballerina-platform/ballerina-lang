@@ -158,4 +158,14 @@ public class OAuth2ConfigTest extends AuthBaseTest {
                 serverInstance.getServerHome());
         assertContains(response, serverResponse);
     }
+
+    @Test(description = "Test direct token mode with valid access token and no refresh config " +
+            "but retry request is set as false")
+    public void testDirectToken7() throws Exception {
+        final String serverResponse = "access_granted";
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+                "echo/oauth2/DIRECT_TOKEN_WITH_VALID_CREDENTIALS_AND_NO_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE"),
+                serverInstance.getServerHome());
+        assertContains(response, serverResponse);
+    }
 }

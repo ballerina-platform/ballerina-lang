@@ -27,11 +27,13 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
+import org.ballerinalang.net.http.exception.WebSocketException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
-import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -46,6 +48,7 @@ import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
         )
 )
 public class PushBinary {
+    private static final Logger log = LoggerFactory.getLogger(PushBinary.class);
 
     public static Object pushBinary(Strand strand, ObjectValue wsConnection, ArrayValue binaryData,
                                     boolean finalFrame) {
@@ -55,9 +58,10 @@ public class PushBinary {
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture webSocketChannelFuture = connectionInfo.getWebSocketConnection().pushBinary(
                     ByteBuffer.wrap(binaryData.getBytes()), finalFrame);
-            WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture);
+            WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture, log);
         } catch (Exception e) {
-            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
+            log.error("Error occurred when pushing binary data", e);
+            callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;

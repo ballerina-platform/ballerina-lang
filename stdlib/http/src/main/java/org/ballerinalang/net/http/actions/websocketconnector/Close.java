@@ -26,6 +26,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
+import org.ballerinalang.net.http.exception.WebSocketException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.util.concurrent.CountDownLatch;
@@ -33,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionClosureError;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
-import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -49,6 +51,7 @@ import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
         )
 )
 public class Close {
+    private static final Logger log = LoggerFactory.getLogger(Close.class);
 
     public static Object externClose(Strand strand, ObjectValue wsConnection, long statusCode, String reason,
                                      long timeoutInSecs) {
@@ -65,7 +68,8 @@ public class Close {
                 callback.notifySuccess();
             });
         } catch (Exception e) {
-            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
+            log.error("Error occurred when closing the connection", e);
+            callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;
@@ -85,7 +89,7 @@ public class Close {
         return closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                callback.setReturnValues(createWebSocketError(WsConnectionClosureError, cause.getMessage()));
+                callback.setReturnValues(new WebSocketException(WsConnectionClosureError, cause.getMessage()));
             } else {
                 callback.setReturnValues(null);
             }
@@ -104,12 +108,12 @@ public class Close {
                     String errMsg = String.format(
                             "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
                             timeoutInSecs);
-                    callback.setReturnValues(createWebSocketError(WsConnectionClosureError, errMsg));
+                    callback.setReturnValues(new WebSocketException(WsConnectionClosureError, errMsg));
                 }
             }
         } catch (InterruptedException err) {
-            callback.setReturnValues(createWebSocketError(WsConnectionClosureError,
-                                                          "Connection interrupted while closing the connection"));
+            callback.setReturnValues(new WebSocketException(WsConnectionClosureError,
+                                                            "Connection interrupted while closing the connection"));
             Thread.currentThread().interrupt();
         }
     }

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 
 import java.util.ArrayList;
@@ -55,11 +54,6 @@ public class BError implements BRefType {
     }
 
     @Override
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
-    }
-
-    @Override
     public BValue copy(Map<BValue, BValue> refs) {
         // Error values are immutable and frozen, copy give same value.
         return this;
@@ -76,14 +70,6 @@ public class BError implements BRefType {
     @Override
     public Object value() {
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void attemptFreeze(BVM.FreezeStatus freezeStatus) {
-        // do nothing, since error types are always frozen
     }
 
     /**

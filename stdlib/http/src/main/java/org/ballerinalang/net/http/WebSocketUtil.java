@@ -20,7 +20,6 @@ package org.ballerinalang.net.http;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -42,7 +41,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import java.util.Arrays;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsGenericError;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
 
@@ -99,8 +97,9 @@ public class WebSocketUtil {
             @Override
             public void onError(Throwable throwable) {
                 if (callback != null) {
-                    callback.notifyFailure(createWebSocketError(WsInvalidHandshakeError,
-                            "Unable to complete handshake:" + throwable.getMessage()));
+                    callback.notifyFailure(new WebSocketException(WsInvalidHandshakeError,
+                                                                  "Unable to complete handshake:" +
+                                                                          throwable.getMessage()));
                 } else {
                     throw new WebSocketException("Unable to complete handshake");
                 }
@@ -152,11 +151,12 @@ public class WebSocketUtil {
     }
 
     public static void handleWebSocketCallback(NonBlockingCallback callback,
-                                               ChannelFuture webSocketChannelFuture) {
+                                               ChannelFuture webSocketChannelFuture, Logger log) {
         webSocketChannelFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                callback.setReturnValues(createWebSocketError(cause.getMessage()));
+                log.error("Error occurred ", cause);
+                callback.setReturnValues(new WebSocketException(cause));
 
             } else {
                 callback.setReturnValues(null);
@@ -224,25 +224,11 @@ public class WebSocketUtil {
                 .toArray(String[]::new);
     }
 
-    /**
-     * Create Generic webSocket error with given error message.
-     *
-     * @param errMsg the error message
-     * @return ErrorValue instance which contains the error details
-     */
-    public static ErrorValue createWebSocketError(String errMsg) {
-        return BallerinaErrors.createError(WsGenericError.errorCode(), createDetailRecord(errMsg));
-    }
-
-    /**
-     * Create webSocket error with given error code and message.
-     *
-     * @param code   the error code which cause for this error
-     * @param errMsg the error message
-     * @return ErrorValue instance which contains the error details
-     */
-    public static ErrorValue createWebSocketError(WebSocketConstants.ErrorCode code, String errMsg) {
-        return BallerinaErrors.createError(code.errorCode(), createDetailRecord(errMsg));
+    public static String getErrorMessage(Throwable err) {
+        if (err.getMessage() == null) {
+            return "Unexpected error occurred";
+        }
+        return err.getMessage();
     }
 
     public static MapValue<String, Object> createDetailRecord(String errMsg) {
