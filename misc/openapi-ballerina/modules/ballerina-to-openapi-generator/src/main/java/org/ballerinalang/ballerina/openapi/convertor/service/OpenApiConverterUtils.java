@@ -401,11 +401,12 @@ public class OpenApiConverterUtils {
         try {
             pkg =  compileModule(Paths.get(System.getProperty("user.dir")), moduleName);
         } catch (Exception e) {
-            throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+            throw new OpenApiConverterException(e.getLocalizedMessage());
         }
 
         if (pkg == null) {
-            throw LauncherUtils.createLauncherException("The provided package is not valid.");
+            throw new OpenApiConverterException("The provided Ballerina module is not valid. Please provide a " +
+                    "valid module.");
         }
 
         service = pkg.services.stream()
@@ -414,7 +415,7 @@ public class OpenApiConverterUtils {
                     .orElse(null);
 
         if (service == null) {
-            throw LauncherUtils.createLauncherException("Couldn't find " + serviceName + " service in the " +
+            throw new OpenApiConverterException("Couldn't find " + serviceName + " service in the " +
                     "provided module. Please check that there is a service in the module.");
         }
 
@@ -444,7 +445,7 @@ public class OpenApiConverterUtils {
         }
 
         if (checkOASFileExists(serviceName + ConverterConstants.YAML_EXTENSION, output)) {
-            throw LauncherUtils.createLauncherException("The output location already contains " +
+            throw new OpenApiConverterException("The output location already contains " +
                     "an OpenApi Contract named " + serviceName + ConverterConstants.YAML_EXTENSION);
         }
 
