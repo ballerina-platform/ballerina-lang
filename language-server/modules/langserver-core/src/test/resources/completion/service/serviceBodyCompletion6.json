@@ -279,7 +279,7 @@
             "kind": "Snippet",
             "detail": "Snippet",
             "sortText": "110",
-            "insertText": "resource function onPing(http:WebSocketClient ${1:wsEp},byte[] ${2:data}) {\n\t${3}\n}",
+            "insertText": "resource function onPing(http:WebSocketCaller ${1:caller},byte[] ${2:data}) {\n\t${3}\n}",
             "insertTextFormat": "Snippet",
             "additionalTextEdits": [
                 {
@@ -302,7 +302,7 @@
             "kind": "Snippet",
             "detail": "Snippet",
             "sortText": "110",
-            "insertText": "resource function onPong(http:WebSocketClient ${1:wsEp},byte[] ${2:data}) {\n\t${3}\n}",
+            "insertText": "resource function onPong(http:WebSocketCaller ${1:caller},byte[] ${2:data}) {\n\t${3}\n}",
             "insertTextFormat": "Snippet",
             "additionalTextEdits": [
                 {
@@ -325,7 +325,7 @@
             "kind": "Snippet",
             "detail": "Snippet",
             "sortText": "110",
-            "insertText": "resource function onIdleTimeout(http:WebSocketClient ${1:wsEp}) {\n\t${2}\n}",
+            "insertText": "resource function onIdleTimeout(http:WebSocketCaller ${1:caller}) {\n\t${2}\n}",
             "insertTextFormat": "Snippet",
             "additionalTextEdits": [
                 {
@@ -348,7 +348,7 @@
             "kind": "Snippet",
             "detail": "Snippet",
             "sortText": "110",
-            "insertText": "resource function onError(http:WebSocketClient ${1:wsEp},error ${2:err}) {\n\t${3}\n}",
+            "insertText": "resource function onError(http:WebSocketCaller ${1:caller},error ${2:err}) {\n\t${3}\n}",
             "insertTextFormat": "Snippet",
             "additionalTextEdits": [
                 {
