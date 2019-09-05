@@ -59,7 +59,7 @@ public class TestCommandTest extends CommandTest {
     @Test(description = "Test Test Command in a Project  ", enabled = true)
     public void testTestCommand() throws IOException {
         // Build the project
-        String[] compileArgs = {"mymodule"};
+        String[] compileArgs = {"mymodule1"};
         TestCommand testCommand = new TestCommand(this.testResources.resolve("valid-test-project"), printStream,
                 printStream, false, true);
         new CommandLine(testCommand).parse(compileArgs);
