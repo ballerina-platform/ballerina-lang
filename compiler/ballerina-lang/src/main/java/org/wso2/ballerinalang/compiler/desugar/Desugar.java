@@ -2927,6 +2927,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
+        recordLiteral.keyValuePairs.sort((v1, v2) -> Boolean.compare(v1.key.computedKey, v2.key.computedKey));
+
         // Process the key-val pairs in the record literal
         recordLiteral.keyValuePairs.forEach(keyValue -> {
             BLangExpression keyExpr = keyValue.key.expr;

@@ -1465,6 +1465,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
         BLangExpression expr = exprStmtNode.expr;
+
+        if (expr.getKind() == NodeKind.WORKER_SYNC_SEND) {
+            return;
+        }
+
         while (expr.getKind() == NodeKind.MATCH_EXPRESSION ||
                 expr.getKind() == NodeKind.CHECK_EXPR ||
                 expr.getKind() == NodeKind.CHECK_PANIC_EXPR) {
@@ -2413,7 +2418,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
         this.typeChecker.checkExpr(send.expr, send.env, receive.type);
-        types.checkType(send, send.type, receive.matchingSendsError);
+        types.checkType(send, receive.matchingSendsError, send.type);
         addImplicitCast(send.expr.type, receive);
         receive.sendExpression = send;
     }
