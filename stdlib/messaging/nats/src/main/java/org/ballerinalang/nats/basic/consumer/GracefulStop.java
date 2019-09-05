@@ -40,7 +40,7 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 /**
  * Extern function to gracefully stop the NATS subscriber.
  *
- * @since 0.995
+ * @since 1.0.0
  */
 @BallerinaFunction(
         orgName = Constants.ORG_NAME,
@@ -53,7 +53,7 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 )
 public class GracefulStop {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ImmediateStop.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GracefulStop.class);
 
     public static void gracefulStop(Strand strand, ObjectValue listenerObject) {
         ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);

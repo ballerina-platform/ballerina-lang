@@ -78,7 +78,9 @@ public class Register {
         @SuppressWarnings("unchecked")
         List<Dispatcher> dispatcherList = (List<Dispatcher>) listenerObject.getNativeData(DISPATCHER_LIST);
         dispatcherList.add(dispatcher);
-        setPendingLimits(dispatcher, subscriptionConfig.getMapValue(Constants.PENDING_LIMITS));
+        if (subscriptionConfig.getMapValue(Constants.PENDING_LIMITS) != null) {
+            setPendingLimits(dispatcher, subscriptionConfig.getMapValue(Constants.PENDING_LIMITS));
+        }
         try {
             if (queueName != null) {
                 dispatcher.subscribe(subject, queueName);
@@ -98,11 +100,9 @@ public class Register {
     // Set limits on the maximum number of messages, or maximum size of messages this consumer will
     // hold before it starts to drop new messages waiting for the resource functions to drain the queue.
     private static void setPendingLimits(Dispatcher dispatcher, MapValue pendingLimits) {
-        if (pendingLimits != null) {
-            long maxMessages = pendingLimits.getIntValue(Constants.MAX_MESSAGES);
-            long maxBytes = pendingLimits.getIntValue(Constants.MAX_BYTES);
-            dispatcher.setPendingLimits(maxMessages, maxBytes);
-        }
+        long maxMessages = pendingLimits.getIntValue(Constants.MAX_MESSAGES);
+        long maxBytes = pendingLimits.getIntValue(Constants.MAX_BYTES);
+        dispatcher.setPendingLimits(maxMessages, maxBytes);
     }
 
     @SuppressWarnings("unchecked")
