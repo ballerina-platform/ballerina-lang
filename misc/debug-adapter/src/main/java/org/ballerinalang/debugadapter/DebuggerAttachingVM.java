@@ -66,7 +66,7 @@ public class DebuggerAttachingVM {
             defaultArgs.put("hostname", hostname);
         }
 
-        LOGGER.info("Debugger is attaching to: " + this.port);
+        LOGGER.info("Debugger is attaching to: " + this.hostname + ":" + this.port);
         vm = ac.attach(defaultArgs);
         return vm;
     }

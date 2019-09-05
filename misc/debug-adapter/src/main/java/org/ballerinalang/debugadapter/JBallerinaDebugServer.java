@@ -246,9 +246,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             context.setDebuggee(debuggee);
             this.eventBus.startListening();
 
-        } catch (IOException e) {
+        } catch (IOException | IllegalConnectorArgumentsException e) {
+            LOGGER.error("Debugger failed to attach");
             return CompletableFuture.completedFuture(null);
-        } catch (IllegalConnectorArgumentsException e) {
         }
         return CompletableFuture.completedFuture(null);
     }
