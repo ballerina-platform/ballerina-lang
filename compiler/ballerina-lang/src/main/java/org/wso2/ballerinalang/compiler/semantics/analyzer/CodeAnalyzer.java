@@ -1775,7 +1775,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             case WORKER_SYNC_SEND:
                 return;
             default:
-                if (varRefExpr.type.tag == TypeTags.FUTURE) {
+                if (varRefExpr.type != null && varRefExpr.type.tag == TypeTags.FUTURE) {
                     checkWorkerPeerWorkerUsageInsideWorker(varRefExpr.pos, varRefExpr.symbol, this.env);
                 }
         }
