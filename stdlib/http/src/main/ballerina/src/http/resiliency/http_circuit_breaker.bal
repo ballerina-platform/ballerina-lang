@@ -125,7 +125,7 @@ public type CircuitBreakerInferredConfig record {|
 public type CircuitBreakerClient client object {
 
     public string url;
-    public ClientEndpointConfig config;
+    public ClientConfiguration config;
     public CircuitBreakerInferredConfig circuitBreakerInferredConfig;
     public HttpClient httpClient;
     public CircuitHealth circuitHealth;
@@ -138,7 +138,7 @@ public type CircuitBreakerClient client object {
     # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
     # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
     # + circuitHealth - The circuit health monitor
-    public function __init(string url, ClientEndpointConfig config, CircuitBreakerInferredConfig
+    public function __init(string url, ClientConfiguration config, CircuitBreakerInferredConfig
                                         circuitBreakerInferredConfig, HttpClient httpClient, CircuitHealth circuitHealth) {
         self.url = url;
         self.config = config;

@@ -42,7 +42,7 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "createHttpCachingClient(string url, http:ClientEndpointConfig config, http:CacheConfig cacheConfig)(ballerina/http:Client|error)",
+            "label": "createHttpCachingClient(string url, http:ClientConfiguration config, http:CacheConfig cacheConfig)(ballerina/http:Client|error)",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
@@ -84,7 +84,7 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "createHttpSecureClient(string url, http:ClientEndpointConfig config)(ballerina/http:Client|error)",
+            "label": "createHttpSecureClient(string url, http:ClientConfiguration config)(ballerina/http:Client|error)",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
@@ -225,14 +225,14 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "ClientEndpointConfig",
+            "label": "ClientConfiguration",
             "kind": "Class",
             "detail": "Record",
             "documentation": {
                 "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
             },
             "sortText": "221",
-            "insertText": "ClientEndpointConfig",
+            "insertText": "ClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {
@@ -489,14 +489,14 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "FailoverClientEndpointConfiguration",
+            "label": "FailoverClientConfiguration",
             "kind": "Class",
             "detail": "Record",
             "documentation": {
                 "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
             },
             "sortText": "221",
-            "insertText": "FailoverClientEndpointConfiguration",
+            "insertText": "FailoverClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {
@@ -577,14 +577,14 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "LoadBalanceClientEndpointConfiguration",
+            "label": "LoadBalanceClientConfiguration",
             "kind": "Class",
             "detail": "Record",
             "documentation": {
                 "left": "The configurations related to the load balance client endpoint.\n"
             },
             "sortText": "221",
-            "insertText": "LoadBalanceClientEndpointConfiguration",
+            "insertText": "LoadBalanceClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {
