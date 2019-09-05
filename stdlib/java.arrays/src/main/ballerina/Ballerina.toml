@@ -11,3 +11,4 @@ target = "java8"
     path = "./lib/ballerina-java-arrays-@project.version@.jar"
     groupId = "ballerina"
     modules = ["java.arrays"]
+    
