@@ -1,0 +1,101 @@
+{
+  "position": {
+    "line": 1,
+    "character": 41
+  },
+  "source": "annotation/source/externalAnnotation2.bal",
+  "items": [
+    {
+      "label": "Constructor",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "Constructor {\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "Method",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "Method {\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "FieldGet",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "FieldGet {\n\tname: \"${1}\",\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "FieldSet",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "FieldSet {\n\tname: \"${1}\",\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/java;\n"
+        }
+      ]
+    }
+  ]
+}

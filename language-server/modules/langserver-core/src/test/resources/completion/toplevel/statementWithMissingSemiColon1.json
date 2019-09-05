@@ -203,6 +203,29 @@
       ]
     },
     {
+      "label": "ballerinax/java",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/java;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Package",

@@ -21,8 +21,10 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
@@ -66,7 +68,7 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
             completionItems.addAll(this.getPackageNameCompletions(orgName, packagesList));
         } else if (importTokenIndex > -1 && (importTokenIndex == lhsDefaultTokenTypes.size() - 1
                 || importTokenIndex == lhsDefaultTokenTypes.size() - 2)) {
-            completionItems.addAll(this.getItemsIncludingOrgName(packagesList));
+            completionItems.addAll(this.getItemsIncludingOrgName(packagesList, ctx));
         } else if (importTokenIndex > -1 && lhsDefaultTokenTypes.size() >= 2
                 && (lastToken.getChannel() == Token.HIDDEN_CHANNEL
                 || lhsTokens.get(lhsTokens.size() - 2).getChannel() == Token.HIDDEN_CHANNEL)) {
@@ -76,7 +78,7 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         return completionItems;
     }
 
-    private ArrayList<CompletionItem> getItemsIncludingOrgName(List<BallerinaPackage> packagesList) {
+    private ArrayList<CompletionItem> getItemsIncludingOrgName(List<BallerinaPackage> packagesList, LSContext ctx) {
         List<String> orgNames = new ArrayList<>();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
@@ -100,6 +102,20 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
                 orgNames.add(pkg.getOrgName());
             }
         });
+
+        /*
+        If within a project, suggest the project modules except the owner module of the file which being processed
+         */
+        LSDocument lsDocument = ctx.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
+        if (lsDocument != null && lsDocument.isWithinProject()) {
+            String ownerModule = lsDocument.getOwnerModule();
+            List<String> projectModules = lsDocument.getProjectModules();
+            projectModules.forEach(module -> {
+                if (!module.equals(ownerModule)) {
+                    completionItems.add(getImportCompletion(module, module));
+                }
+            });
+        }
 
         return completionItems;
     }
