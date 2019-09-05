@@ -23,10 +23,10 @@
 # + config - The configurations associated with the HttpClient
 public type HttpClient client object {
 
-    public ClientEndpointConfig config = {};
+    public ClientConfiguration config = {};
     public string url;
 
-    public function __init(string url, public ClientEndpointConfig? config = ()) {
+    public function __init(string url, public ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
         createSimpleHttpClient(self, globalHttpClientConnPool);
@@ -200,7 +200,7 @@ public type HttpTimeoutError record {|
     int statusCode = 0;
 |};
 
-function createClient(string url, ClientEndpointConfig config) returns HttpClient|ClientError {
+function createClient(string url, ClientConfiguration config) returns HttpClient|ClientError {
     HttpClient simpleClient = new(url, config);
     return simpleClient;
 }

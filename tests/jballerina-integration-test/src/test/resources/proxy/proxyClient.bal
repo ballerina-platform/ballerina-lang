@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-http:ClientEndpointConfig clientEPConfig  = {
+http:ClientConfiguration clientEPConfig  = {
     http1Settings: {
         proxy: {
             host:"localhost",

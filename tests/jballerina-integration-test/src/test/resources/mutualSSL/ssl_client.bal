@@ -18,7 +18,7 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/io;
 
-http:ClientEndpointConfig mutualSslCertClientConf = {
+http:ClientConfiguration mutualSslCertClientConf = {
     secureSocket:{
         keyFile: config:getAsString("certificate.key"),
         certFile: config:getAsString("public.cert"),

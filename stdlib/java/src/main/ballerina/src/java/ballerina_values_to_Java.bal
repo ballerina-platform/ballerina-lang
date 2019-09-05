@@ -40,29 +40,21 @@ public function isNull(handle value) returns boolean = external;
 # + return - the `handle` that refers to Java null
 public function createNull() returns handle = external;
 
-# Returns a `handle` that refers to the element at the specified index in the given Java array.
+# Returns a `handle` that refers to the Java Class object associated
+# with the class or interface with the given string name.
 #
-# This function panics with a `JavaNullReferenceError` error if the `handle` refers to Java null.
+# This function performs a Java `class.forName(name)` except for following cases:
 #
-# + receiver - the `handle` which referes to the Java array
-# + index - the index of the element to be returned
-# + return - the `handle` that refers to the element at the specified position in the Java array
-public function getArrayElement(handle receiver, int index) returns handle = external;
-
-# Replaces the element at the specified index in the given Java array with the specified element.
-#
-# This function panics with a `JavaNullReferenceError` error if the `handle` refers to Java null.
-#
-# + receiver - the `handle` which referes to the Java array
-# + index - the index of the element to be replaced
-# + element - the element to be stored at the specified index
-public function setArrayElement(handle receiver, int index, handle element) = external;
-
-# Returns the length of the given Java array.
-#
-# This function panics with a `JavaNullReferenceError` error if the `handle` refers to Java null.
-#
-# + receiver - the `handle` which referes to the Java array
-# + return - the length of the given Java array
-public function getArrayLength(handle receiver) returns int = external;
+#   name        output
+#   boolean     the Java Class instance representing the Java primitive type boolean
+#   byte        the Java Class instance representing the Java primitive type byte
+#   char        the Java Class instance representing the Java primitive type char
+#   short       the Java Class instance representing the Java primitive type short
+#   int         the Java Class instance representing the Java primitive type int
+#   long        the Java Class instance representing the Java primitive type long
+#   float       the Java Class instance representing the Java primitive type float
+#   double      the Java Class instance representing the Java primitive type double
+# + name - the name of the Java class
+# + return - the Java Class object for the class with the given name.
+public function getClass(string name) returns handle | error = external;
 

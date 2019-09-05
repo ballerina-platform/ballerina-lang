@@ -466,8 +466,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             for (Map.Entry<K, V> kvEntry : this.entrySet()) {
                 K key = kvEntry.getKey();
                 V value = kvEntry.getValue();
-                BType type = TypeChecker.getType(value);
-                sj.add(key + "=" + StringUtils.getStringValue(strand, value, type));
+                sj.add(key + "=" + StringUtils.getStringValue(strand, value));
             }
             return sj.toString();
         } finally {

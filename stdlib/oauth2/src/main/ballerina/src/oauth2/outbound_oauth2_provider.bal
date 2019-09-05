@@ -108,7 +108,7 @@ public type ClientCredentialsGrantConfig record {|
     int clockSkewInSeconds = 0;
     boolean retryRequest = true;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
-    http:ClientEndpointConfig clientConfig = {};
+    http:ClientConfiguration clientConfig = {};
 |};
 
 # The `PasswordGrantConfig` record can be used to configue OAuth2 password grant type
@@ -135,7 +135,7 @@ public type PasswordGrantConfig record {|
     int clockSkewInSeconds = 0;
     boolean retryRequest = true;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
-    http:ClientEndpointConfig clientConfig = {};
+    http:ClientConfiguration clientConfig = {};
 |};
 
 # The `DirectTokenConfig` record configures the access token directly.
@@ -163,7 +163,7 @@ public type RefreshConfig record {|
     string refreshUrl;
     string[] scopes?;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
-    http:ClientEndpointConfig clientConfig = {};
+    http:ClientConfiguration clientConfig = {};
 |};
 
 # The `DirectTokenRefreshConfig` record passes the configurations for refreshing the access token for
@@ -183,7 +183,7 @@ public type DirectTokenRefreshConfig record {|
     string clientSecret;
     string[] scopes?;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
-    http:ClientEndpointConfig clientConfig = {};
+    http:ClientConfiguration clientConfig = {};
 |};
 
 # The `CachedToken` stores the values received from the authorization/token server to use them
@@ -418,7 +418,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     RequestConfig requestConfig;
     int clockSkewInSeconds;
     string tokenUrl;
-    http:ClientEndpointConfig clientConfig;
+    http:ClientConfiguration clientConfig;
 
     if (config is ClientCredentialsGrantConfig) {
         if (config.clientId == "" || config.clientSecret == "") {
@@ -474,7 +474,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     RequestConfig requestConfig;
     int clockSkewInSeconds;
     string refreshUrl;
-    http:ClientEndpointConfig clientConfig;
+    http:ClientConfiguration clientConfig;
 
     if (config is PasswordGrantConfig) {
         var refreshConfig = config?.refreshConfig;
@@ -534,7 +534,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 # + tokenCache - Cached token configurations
 # + clockSkewInSeconds - Clock skew in seconds
 # + return - Access token received or `Error` if an error occurred during HTTP client invocation
-function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig,
+function doRequest(string url, http:Request request, http:ClientConfiguration clientConfig,
                    @tainted CachedToken tokenCache, int clockSkewInSeconds) returns @tainted (string|Error) {
     http:Client clientEP = new(url, clientConfig);
     var response = clientEP->post("", request);
