@@ -34,7 +34,6 @@ public class UtilsTest {
     @Test
     public void testGetPathError() {
         InvalidPathException exp = new InvalidPathException("/User/ballerina/path\\test", "Invalid path format");
-        //String reason = "INVALID_PATH";
 
         // Get Path error with reason and throwable.
         ErrorValue error1 = Utils.getPathError(Constants.INVALID_PATH_ERROR, exp.getMessage());
