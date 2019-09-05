@@ -77,10 +77,6 @@ public function filename(string path) returns string|Error {
     if (count == 1 && validatedPath.length() > 0) {
         if !(check isAbsolute(validatedPath)) {
             return validatedPath;
-        } else if (isWindows) {
-            // if windows path is absolute and doesn't contain path separator, 
-            // there is no filename. 
-            return "";
         }
     }
     int lastOffset = offsetIndexes[count - 1];
