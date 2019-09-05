@@ -75,11 +75,8 @@ public class GetJson extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
             }
         } catch (Exception ex) {
-            if (ex instanceof ErrorValue) {
-                return returnErrorValue(callback, ex);
-            }
             return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                 "Error occurred while extracting json data from entity: " + ex.getMessage());
+                                 "Error occurred while extracting json data from entity: " + getErrorMsg(ex));
         }
         return result;
     }

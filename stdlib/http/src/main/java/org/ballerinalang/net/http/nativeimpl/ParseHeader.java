@@ -74,8 +74,12 @@ public class ParseHeader {
                 contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
                 return contentTuple;
 
-            } catch (BallerinaException ex) {
-                errMsg = PARSER_ERROR + ex.getMessage();
+            } catch (Exception ex) {
+                if (ex instanceof ErrorValue) {
+                    errMsg = PARSER_ERROR + ex.toString();
+                } else {
+                    errMsg = PARSER_ERROR + ex.getMessage();
+                }
             }
         } else {
             errMsg = PARSER_ERROR + "header value cannot be null";

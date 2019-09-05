@@ -89,11 +89,8 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
             }
         } catch (Exception ex) {
-            if (ex instanceof ErrorValue) {
-                return returnErrorValue(callback, ex);
-            }
             createParsingEntityBodyFailedErrorAndNotify(callback,
-                                 "Error occurred while extracting blob data from entity : " + ex.getMessage());
+                                 "Error occurred while extracting blob data from entity : " + getErrorMsg(ex));
         }
         return result;
     }

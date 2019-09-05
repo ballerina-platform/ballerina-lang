@@ -79,12 +79,8 @@ public abstract class AbstractGetPayloadHandler {
                     }
                     updateDataSourceAndNotify(callback, entity, dataSource);
                 } catch (Exception e) {
-                    if (e instanceof ErrorValue) {
-                        returnErrorValue(callback, e);
-                    }
                     createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
-                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " +
-                            e.getMessage());
+                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + getErrorMsg(e));
                 } finally {
                     try {
                         inputStream.close();
@@ -118,6 +114,16 @@ public abstract class AbstractGetPayloadHandler {
             return null;
         }
         return err;
+    }
+
+    public static String getErrorMsg(Throwable ex) {
+        String errMsg = "";
+        if (ex instanceof ErrorValue) {
+            errMsg = errMsg + ex.toString();
+        } else {
+            errMsg = errMsg + ex.getMessage();
+        }
+        return errMsg;
     }
 
     static void updateDataSource(ObjectValue entityObj, Object result) {

@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.mime.nativeimpl.AbstractGetPayloadHandler.getErrorMsg;
 import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
@@ -51,10 +52,7 @@ public class GetMediaType {
             mediaType = MimeUtil.parseMediaType(mediaType, contentType);
             return mediaType;
         } catch (Throwable err) {
-            if (err instanceof ErrorValue) {
-                return err;
-            }
-            return MimeUtil.createError(INVALID_CONTENT_TYPE, err.getMessage());
+            return MimeUtil.createError(INVALID_CONTENT_TYPE, getErrorMsg(err));
         }
     }
 }

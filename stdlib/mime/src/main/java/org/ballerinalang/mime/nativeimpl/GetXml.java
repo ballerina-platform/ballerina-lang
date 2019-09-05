@@ -20,7 +20,6 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -71,11 +70,8 @@ public class GetXml extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.XML);
             }
         } catch (Exception ex) {
-            if (ex instanceof ErrorValue) {
-                return returnErrorValue(callback, ex);
-            }
             return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                 "Error occurred while extracting xml data from entity : " + ex.getMessage());
+                                 "Error occurred while extracting xml data from entity : " + getErrorMsg(ex));
         }
         return result;
     }
