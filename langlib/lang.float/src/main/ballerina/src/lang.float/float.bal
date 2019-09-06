@@ -22,10 +22,9 @@ public const float PI = 3.141592653589793;
 # Euler's number
 public const float E =  2.718281828459045;
 // # IEEE not-a-number value
-//public const float NaN = 0.0/0.0;     // TODO : Fix this. #18385
-
+public const float NaN = 0.0/0.0;
 //# IEEE positive infinity
-//public const float Infinity = 1.0/0.0; // TODO : Fix this. #18385
+public const float Infinity = 1.0/0.0;
 
 # Tests whether a float is finite.
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value

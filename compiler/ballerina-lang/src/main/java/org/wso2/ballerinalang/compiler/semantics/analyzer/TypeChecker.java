@@ -4714,7 +4714,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isConst(BLangExpression expression) {
-        if (symbolEnter.isValidConstantExpression(expression)) {
+
+        if (ConstantAnalyzer.isValidConstantExpressionNode(expression)) {
             return true;
         }
 
