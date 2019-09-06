@@ -60,6 +60,7 @@ public class BallerinaDAPClientConnector {
 
     private BallerinaDebugProcess context;
     private Project project;
+    private String entryFilePath;
     private String host;
     private int port;
     private DAPClient debugClient;
@@ -72,11 +73,14 @@ public class BallerinaDAPClientConnector {
     private ConnectionState myConnectionState;
 
     private int debugAdapterPort;
-    private static final String CONFIG_SOURCEROOT = "sourceRoot";
+    private static final String CONFIG_SOURCE = "script";
+    private static final String CONFIG_DEBUGEE_HOST = "debuggeeHost";
     private static final String CONFIG_DEBUGEE_PORT = "debuggeePort";
 
-    public BallerinaDAPClientConnector(@NotNull Project project, @NotNull String host, int port) {
+    public BallerinaDAPClientConnector(@NotNull Project project, @NotNull String entryFilePath, @NotNull String host,
+                                       int port) {
         this.project = project;
+        this.entryFilePath = entryFilePath;
         this.host = host;
         this.port = port;
         this.debugAdapterPort = findFreePort();
@@ -153,10 +157,11 @@ public class BallerinaDAPClientConnector {
     }
 
     void attachToServer() {
-        Map<String, Object> requestArgs = new HashMap<>();
-        requestArgs.put(CONFIG_SOURCEROOT, project.getBasePath());
-        requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
         try {
+            Map<String, Object> requestArgs = new HashMap<>();
+            requestArgs.put(CONFIG_SOURCE, entryFilePath);
+            requestArgs.put(CONFIG_DEBUGEE_HOST, host);
+            requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
             requestManager.attach(requestArgs);
         } catch (Exception e) {
             LOG.warn("Attaching to the debug adapter failed", e);
@@ -176,8 +181,8 @@ public class BallerinaDAPClientConnector {
     }
 
     public boolean isConnected() {
-        return debugClient != null && launcherFuture != null && !launcherFuture.isDone()
-                && !launcherFuture.isCancelled() && myConnectionState == ConnectionState.CONNECTED;
+        return debugClient != null && launcherFuture != null && !launcherFuture.isCancelled()
+                && myConnectionState == ConnectionState.CONNECTED;
     }
 
     void stop() {
