@@ -29,7 +29,7 @@ public function contains(string originalString, string substring) returns boolea
 #
 # + firstString - first string to compare
 # + secondString - second string to compare
-# + return - `true` if two strings are the same, `false` if the strings does not match
+# + return - `true` if the two strings are the same or`false` if the strings do not match
 public function equalsIgnoreCase(string firstString, string secondString) returns boolean {
     return equalsIgnoreCaseExternal(java:fromString(firstString), java:fromString(secondString));
 }
