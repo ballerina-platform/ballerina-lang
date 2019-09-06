@@ -449,7 +449,7 @@ public type HubConfiguration record {|
     RemotePublishConfig remotePublish?;
     boolean topicRegistrationRequired = true;
     string publicUrl?;
-    http:ClientEndpointConfig clientConfig?;
+    http:ClientConfiguration clientConfig?;
     HubPersistenceStore hubPersistenceStore?;
 |};
 

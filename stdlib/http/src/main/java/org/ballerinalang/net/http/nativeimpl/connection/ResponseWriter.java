@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -103,7 +103,8 @@ public class ResponseWriter {
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         } catch (IOException ex) {
-            throw new BallerinaException("Error occurred while serializing byte channel content : ", ex);
+            throw BallerinaErrors.createError(
+                    "Error occurred while serializing byte channel content : " + ex.getMessage());
         }
     }
 
@@ -125,7 +126,8 @@ public class ResponseWriter {
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         } catch (IOException ex) {
-            throw new BallerinaException("Error occurred while serializing message data source : ", ex);
+            throw BallerinaErrors.createError(
+                    "Error occurred while serializing message data source : " + ex.getMessage());
         }
     }
 

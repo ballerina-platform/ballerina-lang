@@ -1,33 +1,33 @@
 NAME
-    Ballerina - A Programming Language for Network Distributed Applications
+       Ballerina - A Programming Language for Network Distributed Applications
 
 SYNOPSIS
-    ballerina [-v|--version|version] [?|-h|--help]
-              <command> [<args>]
+       ballerina [-v | --version] [-h | --help]
+                 <command> [<args>]
+
 
 DESCRIPTION
-    In the cloud, applications interact with their environment over the network.
-    Ballerina is a general-purpose programming language with features optimized
-    for these network distributed applications. It is easy to write and modify
-    and is suitable for application programmers.
+       In the cloud, applications interact with their environment over the network.
+       Ballerina is a general-purpose programming language with features optimized
+       for these network distributed applications. It is easy to write and modify
+       and is suitable for application programmers.
 
-    To learn how to run commands with Ballerina, use
-        ballerina help <command>
-    You can find the list of commands in the BALLERINA COMMANDS section below.
+       To learn how to run commands with Ballerina, use
+           ballerina help <command>
+       You can find the list of commands in the BALLERINA COMMANDS section below.
 
-    To get started, visit https://ballerina.io/learn/quick-tour/
+       To get started, visit https://ballerina.io/learn/quick-tour/
 
-    To find out the latest on Ballerina, visit https://ballerina.io
+       To find out the latest on Ballerina, visit https://ballerina.io
+
 
 OPTIONS
-    -v
-    --version
-    version
-         Prints the Ballerina version in use.
+       -v, --version
+           Prints the Ballerina version in use.
 
-    -h
-    --help
-         Prints usage details of a command.
+       -h, --help
+           Prints usage details of a command.
+
 
 BALLERINA COMMANDS
     Available commands are:
@@ -62,15 +62,16 @@ BALLERINA COMMANDS
         openapi         Generate client/service using openapi definition
                         or export openapi file for a Ballerina service
 
+
 EXAMPLES
-    Check the current version of Ballerina in use on your system
-    $ ballerina -v
+       Check the current version of Ballerina in use on your system
+       $ ballerina -v
 
-    Get help on how to use a Ballerina command
-    $ ballerina help build
+       Get help on how to use a Ballerina command
+       $ ballerina help build
 
-    Build a Ballerina program
-    $ ballerina build hello.bal
+       Build a Ballerina program
+       $ ballerina build hello.bal
 
-    Run a Ballerina program
-    $ ballerina run hello.bal
+       Run a Ballerina program
+       $ ballerina run hello.bal

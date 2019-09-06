@@ -59,7 +59,6 @@ dependencies {
     implementation project(':ballerina-http')
     implementation project(':ballerina-grpc')
     implementation project(':protobuf-ballerina')
-    implementation project(':ballerina-encoding')
     implementation project(':ballerina-jdbc')
     implementation project(':ballerina-transactions')
     implementation project(':protobuf-ballerina')

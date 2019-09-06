@@ -38,7 +38,7 @@ public enum Snippet {
 
     DEF_RECORD(SnippetGenerator.getRecordDefinitionSnippet()),
 
-    DEF_RESOURCE_HTTP(SnippetGenerator.getHttpResourceDefinitionSnippet()),
+    DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
 
     DEF_RESOURCE_COMMON(SnippetGenerator.getCommonResourceDefinitionSnippet()),
 
@@ -48,7 +48,31 @@ public enum Snippet {
 
     DEF_RESOURCE_WS_TEXT(SnippetGenerator.getWebSocketResourceOnTextSnippet()),
 
+    DEF_RESOURCE_WS_BINARY(SnippetGenerator.getWebSocketResourceOnBinarySnippet()),
+
+    DEF_RESOURCE_WS_PING(SnippetGenerator.getWebSocketResourceOnPingSnippet()),
+
+    DEF_RESOURCE_WS_PONG(SnippetGenerator.getWebSocketResourceOnPongSnippet()),
+
+    DEF_RESOURCE_WS_IDLE(SnippetGenerator.getWebSocketResourceOnIdleTimeoutSnippet()),
+
+    DEF_RESOURCE_WS_ERROR(SnippetGenerator.getWebSocketResourceOnErrorSnippet()),
+
     DEF_RESOURCE_WS_CLOSE(SnippetGenerator.getWebSocketResourceOnCloseSnippet()),
+
+    DEF_RESOURCE_WS_CS_TEXT(SnippetGenerator.getWebSocketClientServiceResourceOnTextSnippet()),
+
+    DEF_RESOURCE_WS_CS_BINARY(SnippetGenerator.getWebSocketClientServiceResourceOnBinarySnippet()),
+
+    DEF_RESOURCE_WS_CS_PING(SnippetGenerator.getWebSocketClientServiceResourceOnPingSnippet()),
+
+    DEF_RESOURCE_WS_CS_PONG(SnippetGenerator.getWebSocketClientServiceResourceOnPongSnippet()),
+
+    DEF_RESOURCE_WS_CS_IDLE(SnippetGenerator.getWebSocketClientServiceResourceOnIdleTimeoutSnippet()),
+
+    DEF_RESOURCE_WS_CS_ERROR(SnippetGenerator.getWebSocketClientServiceResourceOnErrorSnippet()),
+
+    DEF_RESOURCE_WS_CS_CLOSE(SnippetGenerator.getWebSocketClientServiceResourceOnCloseSnippet()),
 
     DEF_RESOURCE_WEBSUB_INTENT(SnippetGenerator.getWebSubResourceOnIntentVerificationSnippet()),
 
@@ -57,6 +81,8 @@ public enum Snippet {
     DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
 
     DEF_SERVICE_WEBSOCKET(SnippetGenerator.getWebSocketServiceDefSnippet()),
+
+    DEF_SERVICE_WS_CLIENT(SnippetGenerator.getWebSocketClientServiceDefSnippet()),
 
     DEF_SERVICE_WEBSUB(SnippetGenerator.getWebSubServiceDefSnippet()),
 

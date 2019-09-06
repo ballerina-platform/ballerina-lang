@@ -20,7 +20,6 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -30,6 +29,7 @@ import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.csv.Format;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,11 +69,11 @@ public class CreateWritableDelimitedRecordChannel {
                 delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, Format.valueOf(format));
             }
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             String message =
-                    "error occurred while converting character channel to textRecord channel:" + e.getMessage();
+                    "error occurred while converting character channel to textRecord channel: " + e.getMessage();
             log.error(message, e);
-            throw new BallerinaException(message, e);
+            throw IOUtils.createError(message);
         }
     }
 }

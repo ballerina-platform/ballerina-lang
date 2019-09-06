@@ -63,14 +63,14 @@ public class OpenWritableFile extends AbstractNativeChannel {
     public static Object openWritableFile(Strand strand, String pathUrl, boolean accessMode) {
         try {
             return createChannel(inFlow(pathUrl, accessMode));
-        } catch (BallerinaIOException e) {
+        } catch (BallerinaIOException | BallerinaException e) {
             return IOUtils.createError(e);
         } catch (ErrorValue e) {
             return e;
         }
     }
 
-    private static Channel inFlow(String pathUrl, boolean accessMode) throws BallerinaException, BallerinaIOException {
+    private static Channel inFlow(String pathUrl, boolean accessMode) throws BallerinaIOException {
         Path path = Paths.get(pathUrl);
         FileChannel fileChannel;
         if (accessMode) {

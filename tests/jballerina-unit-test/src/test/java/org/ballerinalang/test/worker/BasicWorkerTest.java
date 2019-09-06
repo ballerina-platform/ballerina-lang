@@ -79,5 +79,4 @@ public class BasicWorkerTest {
         BInteger ret = (BInteger) vals[0];
         Assert.assertEquals(ret.intValue(), 51);
     }
-    
 }

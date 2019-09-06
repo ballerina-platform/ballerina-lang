@@ -17,8 +17,8 @@
 
 package org.ballerinalang.stdlib.io.channels;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -51,7 +51,7 @@ public class FileIOChannel extends Channel {
         try {
             channel.transferTo(position, count, dstChannel);
         } catch (IOException e) {
-            throw new BallerinaException("error occurred while transferring file", e);
+            throw IOUtils.createError("error occurred while transferring file: " + e.getMessage());
         }
     }
 
