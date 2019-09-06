@@ -64,9 +64,9 @@ import java.util.List;
 public class SQLDataIterator extends TableIterator {
 
     private Calendar utcCalendar;
-    private static final String UNASSIGNABLE_UNIONTYPE_EXCEPTION = "Corresponding Union type in the record is not "
+    private static final String UNASSIGNABLE_UNIONTYPE_EXCEPTION = "corresponding Union type in the record is not "
             + "an assignable nillable type";
-    private static final String MISMATCHING_FIELD_ASSIGNMENT = "Trying to assign to a mismatching type";
+    private static final String MISMATCHING_FIELD_ASSIGNMENT = "trying to assign to a mismatching type";
     private String sourceDatabase;
     private static final String POSTGRES_OID_COLUMN_TYPE_NAME = "oid";
 
@@ -108,7 +108,7 @@ public class SQLDataIterator extends TableIterator {
     public MapValue<String, Object> generateNext() {
         if (this.type == null) {
             throw ErrorGenerator
-                    .getSQLApplicationError("The expected record type is not specified in the remote function");
+                    .getSQLApplicationError("the expected record type is not specified in the remote function");
         }
         MapValue<String, Object> bStruct = new MapValueImpl<>(this.type);
         int index = 0;
@@ -117,7 +117,7 @@ public class SQLDataIterator extends TableIterator {
         try {
             BField[] structFields = this.type.getFields().values().toArray(new BField[0]);
             if (columnDefs.size() != structFields.length) {
-                throw ErrorGenerator.getSQLApplicationError("Number of fields in the constraint type is " + (
+                throw ErrorGenerator.getSQLApplicationError("number of fields in the constraint type is " + (
                         structFields.length > columnDefs.size() ?
                                 "greater" : "lower") + " than column count of the result set");
             }
@@ -226,13 +226,13 @@ public class SQLDataIterator extends TableIterator {
                             handleStructValue(bStruct, fieldName, structData, fieldType);
                             break;
                         default:
-                            throw ErrorGenerator.getSQLApplicationError("Unsupported sql type " + sqlType
+                            throw ErrorGenerator.getSQLApplicationError("unsupported sql type " + sqlType
                                     + " found for the column " + columnName + " at index " + index);
                     }
                 }
             }
         } catch (IOException | SQLException e) {
-            throw ErrorGenerator.getSQLApplicationError("Error while retrieving next value for column "
+            throw ErrorGenerator.getSQLApplicationError("error while retrieving next value for column "
                     + columnName + " of SQL Type " + sqlType + " at index " + index + ", " + e.getMessage());
         } catch (PanickingApplicationException e) {
             throw ErrorGenerator.getSQLApplicationError(e);
@@ -277,11 +277,11 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleNilToNonNillableFieldAssignment() throws PanickingApplicationException {
-        throw new PanickingApplicationException("Trying to assign a Nil value to a non-nillable field");
+        throw new PanickingApplicationException("trying to assign a Nil value to a non-nillable field");
     }
 
     private void handleMismatchingFieldAssignment() throws PanickingApplicationException {
-        throw new PanickingApplicationException("Trying to assign to a mismatching type");
+        throw new PanickingApplicationException("trying to assign to a mismatching type");
     }
 
     private void handleUnAssignableUnionTypeAssignment() throws PanickingApplicationException {
@@ -309,7 +309,7 @@ public class SQLDataIterator extends TableIterator {
             Object[] dataArray = structValue.getAttributes();
             if (dataArray != null) {
                 if (dataArray.length != internalStructFields.length) {
-                    throw new PanickingApplicationException("Specified record and the returned record types are " +
+                    throw new PanickingApplicationException("specified record and the returned record types are " +
                             "not compatible");
                 }
                 int index = 0;
@@ -352,13 +352,13 @@ public class SQLDataIterator extends TableIterator {
                         break;
                     default:
                         throw new PanickingApplicationException(
-                                "Error while retrieving UDT data for unsupported type " + type);
+                                "error while retrieving UDT data for unsupported type " + type);
                     }
                     ++index;
                 }
             }
         } catch (SQLException e) {
-            throw new PanickingApplicationException("Error while retrieving UDT data: " + e.getMessage());
+            throw new PanickingApplicationException("error while retrieving UDT data: " + e.getMessage());
         }
         return struct;
     }
@@ -404,7 +404,7 @@ public class SQLDataIterator extends TableIterator {
             MapValue<String, Object> bStruct, String fieldName) throws PanickingApplicationException {
         if (containsNull) {
             throw new PanickingApplicationException(
-                    "Trying to assign an array containing NULL values to an array of a non-nillable element type");
+                    "trying to assign an array containing NULL values to an array of a non-nillable element type");
         } else {
             int expectedTypeTag = ((BArrayType) nonNilType).getElementType().getTag();
             int actualTypeTag;
