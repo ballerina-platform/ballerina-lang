@@ -169,12 +169,14 @@ public class RuntimeUtils {
         Level logLevel = Level.ALL;
 
         try {
-            if (handler == null) {
-                handler = new FileHandler(initBRELogHandler(), true);
-                handler.setFormatter(new DefaultLogFormatter());
-                crashLogger.addHandler(handler);
-                crashLogger.setUseParentHandlers(false);
-                crashLogger.setLevel(logLevel);
+            synchronized (crashLogger) {
+                if (handler == null) {
+                    handler = new FileHandler(initBRELogHandler(), true);
+                    handler.setFormatter(new DefaultLogFormatter());
+                    crashLogger.addHandler(handler);
+                    crashLogger.setUseParentHandlers(false);
+                    crashLogger.setLevel(logLevel);
+                }
             }
         } catch (IOException ioException) {
             stderr.print("error initializing crash logger");
