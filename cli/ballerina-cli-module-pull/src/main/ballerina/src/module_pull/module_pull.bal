@@ -20,6 +20,7 @@ import ballerina/http;
 import ballerina/internal;
 import ballerina/io;
 import ballerina/lang.'int as lint;
+import ballerina/stringutils;
 
 const int MAX_INT_VALUE = 2147483647;
 const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
@@ -162,7 +163,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                 resolvedURI = url;
             }
 
-            string [] uriParts = internal:split(resolvedURI,"/");
+            string [] uriParts = stringutils:split(resolvedURI,"/");
             string moduleVersion = uriParts[uriParts.length() - 3];
             boolean valid = internal:matches(moduleVersion, VERSION_REGEX);
 

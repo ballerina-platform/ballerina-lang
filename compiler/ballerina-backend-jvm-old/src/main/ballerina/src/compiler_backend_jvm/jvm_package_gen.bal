@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jvm;
-import ballerina/io;
-import ballerina/internal;
 import ballerina/bir;
 import ballerina/file;
+import ballerina/internal;
+import ballerina/io;
+import ballerina/jvm;
 
 type BIRFunctionWrapper record {
     string orgName;

@@ -21,6 +21,7 @@ import ballerina/http;
 import ballerina/internal;
 import ballerina/lang.'int as langint;
 import ballerina/log;
+import ballerina/stringutils;
 import ballerina/system;
 import ballerina/time;
 
@@ -562,5 +563,5 @@ function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return groupsArr;
     }
-    return internal:split(groupString, ",");
+    return stringutils:split(groupString, ",");
 }

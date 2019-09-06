@@ -187,3 +187,44 @@ public function workerAsAFutureTest() returns int {
 
     return wait wy;
 }
+
+type ObjFuncUsingWorkersAsFutureValues object {
+    function foo() returns int {
+        worker wx returns int {
+            any a = <- wy;
+            "h" -> wy;
+            future<int> fi = wy; // illegal peer worker ref
+            var f = function () {
+                _ = wait wy; // illegal peer worker ref within a worker
+            };
+            return wait fi;
+        }
+
+        worker wy returns int {
+            "a" -> wx;
+            string k = <- wx;
+
+            fork {
+                worker wix returns int {
+                    int ji = <- wiy;
+                    var fwiy = wiy; // illegal peer worker ref within a worker
+
+                    return 0;
+                }
+                worker wiy {
+                    0 -> wix;
+                    _ = wait wix; // illegal peer worker ref within a worker
+                    _ = wait wx; // illegal peer worker ref within a worker
+                    function (future<int>) returns future<int> f = (a) => wx; // illegal peer worker ref within a worker
+                    future<int> wxRef = f();
+                }
+            }
+
+            future<int>  wixF = wix;
+            int wixK = wait wix;
+            future<int> fn = wx; // illegal peer worker ref within a worker
+            return wait wx; // illegal peer worker ref within a worker
+        }
+        return wait wy;
+    }
+};

@@ -14,11 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jvm;
-import ballerina/io;
-import ballerina/internal;
 import ballerina/bir;
 import ballerina/file;
+import ballerina/internal;
+import ballerina/io;
+import ballerina/jvm;
+import ballerina/stringutils;
 
 type BIRFunctionWrapper record {
     string orgName;
@@ -377,11 +378,11 @@ function splitPkgName(string key) returns [string, string] {
 }
 
 function cleanupName(string name) returns string {
-    return internal:replace(name, ".","_");
+    return stringutils:replace(name, ".","_");
 }
 
 function cleanupSourceFileName(string name) returns string {
-    return internal:replace(name, ".", FILE_NAME_PERIOD_SEPERATOR);
+    return stringutils:replace(name, ".", FILE_NAME_PERIOD_SEPERATOR);
 }
 
 function cleanupPackageName(string pkgName) returns string {
