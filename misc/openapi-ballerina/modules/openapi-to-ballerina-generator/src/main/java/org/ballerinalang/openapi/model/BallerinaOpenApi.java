@@ -111,7 +111,7 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
         for (Map.Entry<String, PathItem> path : pathList.entrySet()) {
             BallerinaPath balPath = new BallerinaPath().buildContext(path.getValue(), openAPI);
             if (balPath.isNoOperationsForPath()) {
-                balPath.setResourceName(path.getKey());
+                balPath.setResourceName(delimeterizeUnescapedIdentifires(path.getKey(), false));
             } else {
                 balPath.getOperations().forEach(operation -> {
                     if (operation.getValue().getOperationId() == null) {
@@ -119,6 +119,9 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
                         String operationId = operation.getKey() + StringUtils.capitalize(pathName);
                         operation.getValue().setOperationId(delimeterizeUnescapedIdentifires(
                                 CodegenUtils.normalizeForBIdentifier(operationId), false));
+                    } else {
+                        String opId = operation.getValue().getOperationId();
+                        operation.getValue().setOperationId(delimeterizeUnescapedIdentifires(opId, false));
                     }
                 });
             }

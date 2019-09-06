@@ -211,7 +211,8 @@ public class CodeGenerator {
 
         switch (type) {
             case GEN_CLIENT:
-                // modelPackage is not in use at the moment. All models will be written into same package as other src files.
+                // modelPackage is not in use at the moment. All models will be written into same package
+                // as other src files.
                 // Therefore value set to modelPackage is ignored here
                 BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
                         .modelPackage(srcPackage);
