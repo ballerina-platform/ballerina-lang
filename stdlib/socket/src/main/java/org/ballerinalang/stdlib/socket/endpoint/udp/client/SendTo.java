@@ -61,20 +61,20 @@ public class SendTo {
         int port = address.getIntValue(SocketConstants.CONFIG_FIELD_PORT).intValue();
         byte[] byteContent = content.getBytes();
         if (log.isDebugEnabled()) {
-            log.debug("No of byte going to write[" + socket.hashCode() + "]: " + byteContent.length);
+            log.debug(String.format("No of byte going to write[%d]: %d", socket.hashCode(), byteContent.length));
         }
         try {
             final InetSocketAddress remote = new InetSocketAddress(host, port);
             int write = socket.send(ByteBuffer.wrap(byteContent), remote);
             if (log.isDebugEnabled()) {
-                log.debug("No of byte written for the client[" + socket.hashCode() + "]: " + write);
+                log.debug(String.format("No of byte written for the client[%d]: %d", socket.hashCode(), write));
             }
             return write;
         } catch (ClosedChannelException e) {
-            return SocketUtils.createSocketError("Client socket close already.");
+            return SocketUtils.createSocketError("client socket close already.");
         } catch (IOException e) {
             log.error("Unable to perform write[" + socket.hashCode() + "]", e);
-            return SocketUtils.createSocketError("Write failed.");
+            return SocketUtils.createSocketError("write failed. " + e.getMessage());
         }
     }
 }
