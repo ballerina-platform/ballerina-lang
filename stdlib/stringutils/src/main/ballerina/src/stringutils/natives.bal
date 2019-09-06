@@ -36,7 +36,7 @@ public function equalsIgnoreCase(string firstString, string secondString) return
 
 # Returns the last index of the provided substring within a string.
 #
-# + originalString - string to look at
+# + originalString - the original string
 # + substring - string to look for
 # + return - starting point of the last appearence of the provided substring
 public function lastIndexOf(string originalString, string substring) returns int {
