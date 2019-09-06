@@ -30,7 +30,10 @@ import java.math.MathContext;
 
 /**
  * The {@link DecimalValue} represents a decimal value in Ballerina.
- *
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * 
  * @since 0.995.0
  */
 public class DecimalValue {

@@ -28,7 +28,10 @@ import java.util.UUID;
 
 /**
  * The {@link StreamValue} represents a stream in Ballerina.
- *
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * 
  * @since 0.995.0
  */
 public class StreamValue implements RefValue {

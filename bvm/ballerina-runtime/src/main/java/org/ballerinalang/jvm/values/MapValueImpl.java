@@ -69,7 +69,10 @@ import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdat
 /**
  * Structure that represents the mapping between key value pairs in ballerina.
  * A map cannot contain duplicate keys; each key can map to at most one value.
- *
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * 
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  *

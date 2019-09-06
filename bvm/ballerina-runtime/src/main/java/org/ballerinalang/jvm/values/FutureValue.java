@@ -26,11 +26,14 @@
  import java.util.Map;
  import java.util.StringJoiner;
 
- /**
-  * Represent a Ballerina future in Java.
-  *
-  * @since 0.995.0
-  */
+/**
+ * Represent a Ballerina future in Java.
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * 
+ * @since 0.995.0
+ */
  public class FutureValue implements RefValue {
 
      public Strand strand;

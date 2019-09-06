@@ -29,7 +29,10 @@ import java.util.Map;
  * {@code typedesc} is used to describe type of a value in Ballerina.
  * For example {@code typedesc} of number 5 is {@code int}, where as {@code typedesc} of a record value is the
  * record type that used to create this particular value instance.
- *
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * 
  * @since 0.995.0
  */
 public class TypedescValue implements RefValue {

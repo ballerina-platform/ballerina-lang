@@ -24,7 +24,10 @@ import org.ballerinalang.jvm.types.TypeTags;
 
 /**
  * {@link XMLIterator} private iteration providers for ballerina xml.
- *
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * 
  * @since 0.995.0
  */
 public class XMLIterator {

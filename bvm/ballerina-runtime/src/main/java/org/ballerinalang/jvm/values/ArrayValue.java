@@ -65,6 +65,9 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 
 /**
  * Represent an array in ballerina.
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
  * 
  * @since 0.995.0
  */

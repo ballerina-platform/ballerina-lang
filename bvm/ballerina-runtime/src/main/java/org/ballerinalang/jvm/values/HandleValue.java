@@ -25,7 +25,10 @@ import java.util.Map;
 
 /**
  * Represent an opaque handle value in jBallerina.
- *
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * 
  * @since 1.0
  */
 public class HandleValue implements RefValue {

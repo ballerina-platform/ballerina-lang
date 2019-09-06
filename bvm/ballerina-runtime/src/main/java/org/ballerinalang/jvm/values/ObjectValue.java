@@ -24,6 +24,9 @@ import java.util.HashMap;
 
 /**
  * Interface to be implemented by all the ballerina objects.
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
  * 
  * @since 0.995.0
  */

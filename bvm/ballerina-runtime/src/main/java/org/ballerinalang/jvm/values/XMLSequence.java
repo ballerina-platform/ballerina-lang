@@ -45,7 +45,10 @@ import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 
 /**
  * {@code BXMLSequence} represents a sequence of {@link XMLItem}s in Ballerina.
- *
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * 
  * @since 0.995.0
  */
 public final class XMLSequence extends XMLValue<ArrayValue> {

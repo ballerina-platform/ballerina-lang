@@ -35,6 +35,9 @@ import java.util.Map;
 
 /**
  * Interface to be implemented by all the reference types.
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
  * 
  * @since 0.995.0
  */

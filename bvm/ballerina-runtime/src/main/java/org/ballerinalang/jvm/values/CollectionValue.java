@@ -19,7 +19,10 @@ package org.ballerinalang.jvm.values;
 
 /**
  * {@code {@link CollectionValue}} represents a collection in Ballerina.
- *
+ * <br/>
+ * <br/>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * 
  * @since 0.995.0
  */
 public interface CollectionValue {
