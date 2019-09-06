@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.openapi.utils.TypeMatchingUtil.delimeterizeUnescapedIdentifires;
+
 /**
  * Wrapper for {@link OpenAPI}.
  * <p>This class can be used to push additional context variables for handlebars</p>
@@ -115,7 +117,8 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
                     if (operation.getValue().getOperationId() == null) {
                         String pathName = path.getKey().substring(1); //need to drop '/' prefix from the key, ex:'/path'
                         String operationId = operation.getKey() + StringUtils.capitalize(pathName);
-                        operation.getValue().setOperationId(CodegenUtils.normalizeForBIdentifier(operationId));
+                        operation.getValue().setOperationId(delimeterizeUnescapedIdentifires(
+                                CodegenUtils.normalizeForBIdentifier(operationId), false));
                     }
                 });
             }
