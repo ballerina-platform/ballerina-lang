@@ -52,7 +52,7 @@ public class HttpPayloadTestCase extends HttpBaseTest {
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(),
                             "Error occurred while extracting xml data from entity: error ParseError at [row,col]:[1," +
-                                    "1]Message: Content is not allowed in prolog.",
+                                    "1]Message: Content is not allowed in prolog. ",
                             "Message content mismatched");
     }
 }
