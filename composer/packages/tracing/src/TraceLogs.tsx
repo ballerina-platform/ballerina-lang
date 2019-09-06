@@ -42,23 +42,25 @@ export default class TraceLogs extends React.Component<TraceLogsProps, TraceLogs
         super(props);
         this.onFilteredTraces = this.onFilteredTraces.bind(this);
         this.onSelected = this.onSelected.bind(this);
+        this.onClearLogs = this.onClearLogs.bind(this);
         this.state = {
             filteredTraces: props.traces,
         };
     }
 
     public onSelected(selected: any) {
-        if (selected.id === this.state.selected) {
-            this.setState({
-                selected: undefined
-            });
-            this.props.onSelected(undefined);
-        } else {
-            this.setState({
-                selected: selected.id
-            });
-            this.props.onSelected(selected);
-        }
+        this.setState({
+            selected: selected.id
+        });
+        this.props.onSelected(selected);
+    }
+
+    public onClearLogs() {
+        this.setState({
+            selected: undefined
+        });
+        this.props.onSelected(undefined);
+        this.props.clearLogs();
     }
 
     public componentWillReceiveProps(nextProps: any) {
@@ -81,7 +83,7 @@ export default class TraceLogs extends React.Component<TraceLogsProps, TraceLogs
                     <ToolBar
                         traces={traces}
                         filters={this.props.filters}
-                        clearLogs={this.props.clearLogs}
+                        clearLogs={this.onClearLogs}
                         onFilteredTraces={this.onFilteredTraces}
                     />
                 </div>
