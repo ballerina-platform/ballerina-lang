@@ -60,19 +60,6 @@ function testTransactionStmtWithCommitedAndAbortedBlocks() returns string {
     return a;
 }
 
-function testXML() {
-    xml bookXML = xml `<book>
-    <name>Sherlock Holmes</name>
-    <author>
-        <fname title="Sir">Arthur</fname>
-        <mname>Conan</mname>
-        <lname>Doyle</lname>
-    </author>
-    <!--Price: $10-->
-    </book>`;
-    string? name = bookXML.author["fname"]@["title"];
-}
-
 int counter = 10;
 
 function testLock() {

@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.ArgumentParser;
 import org.ballerinalang.jvm.util.RuntimeUtils;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -105,13 +106,13 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             final Throwable t = out.panic;
             if (t != null) {
                 if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                    throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                    throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
+                    throw new BLangRuntimeException(
                             "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
@@ -159,13 +160,13 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             final Throwable t = out.panic;
             if (t != null) {
                 if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                    throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                    throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
+                    throw new BLangRuntimeException(
                             "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
@@ -203,13 +204,13 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             final Throwable t = out.panic;
             if (t != null) {
                 if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                    throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                    throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
+                    throw new BLangRuntimeException(
                             "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;

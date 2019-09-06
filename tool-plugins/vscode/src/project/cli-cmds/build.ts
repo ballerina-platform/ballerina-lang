@@ -13,7 +13,7 @@ export function activateBuildCommand() {
         // get Ballerina Project path for current Ballerina file
         getCurrentBallerinaProject().then((project) => {
             if (project) {
-                runCommand(project, BALLERINA_COMMANDS.BUILD);
+                runCommand(project, BALLERINA_COMMANDS.BUILD, "-a");
             }
         }, (reason) => {
             reporter.sendTelemetryException(reason, { component: CMP_PROJECT_BUILD });

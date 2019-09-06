@@ -67,8 +67,6 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
 
     @Override
     public MapValue<String, Object> execute() {
-        //TODO: JBalMigration Commenting out transaction handling
-        //TODO: #16033
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs;
@@ -81,7 +79,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         }
 
         boolean isInTransaction = strand.isInTransaction();
-        String errorMessagePrefix = "Failed to execute batch update";
+        String errorMessagePrefix = "failed to execute batch update";
         try {
             conn = getDatabaseConnection(strand, client, datasource);
             stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);

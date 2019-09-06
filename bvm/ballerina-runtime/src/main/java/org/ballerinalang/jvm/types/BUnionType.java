@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.types;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * {@code BUnionType} represents a union type in Ballerina.
@@ -29,8 +28,10 @@ import java.util.stream.Collectors;
  */
 public class BUnionType extends BType {
 
+    public static final char PIPE = '|';
     private List<BType> memberTypes;
-    private boolean nullable;
+    private Boolean nullable;
+    private String cachedToString;
 
     /**
      * Create a {@code BUnionType} which represents the union type.
@@ -47,7 +48,6 @@ public class BUnionType extends BType {
     public BUnionType(List<BType> memberTypes) {
         super(null, null, Object.class);
         this.memberTypes = memberTypes;
-        this.nullable = checkNillable(memberTypes);
     }
 
     public BUnionType(BType[] memberTypes) {
@@ -59,12 +59,12 @@ public class BUnionType extends BType {
     }
 
     public boolean isNullable() {
-        return nullable;
+        return isNilable();
     }
 
     @Override
     public <V extends Object> V getZeroValue() {
-        if (nullable || memberTypes.stream().anyMatch(BType::isNilable)) {
+        if (isNilable() || memberTypes.stream().anyMatch(BType::isNilable)) {
             return null;
         }
 
@@ -73,7 +73,7 @@ public class BUnionType extends BType {
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        if (nullable || memberTypes.stream().anyMatch(BType::isNilable)) {
+        if (isNilable() || memberTypes.stream().anyMatch(BType::isNilable)) {
             return null;
         }
 
@@ -87,8 +87,20 @@ public class BUnionType extends BType {
 
     @Override
     public String toString() {
-        List<String> list = memberTypes.stream().map(BType::toString).collect(Collectors.toList());
-        return String.join("|", list);
+        if (cachedToString == null) {
+            StringBuilder sb = new StringBuilder();
+            int size = memberTypes.size();
+            int i = 0;
+            while (i < size) {
+                sb.append(memberTypes.get(i).toString());
+                if (++i < size) {
+                    sb.append(PIPE);
+                }
+            }
+            cachedToString = sb.toString();
+
+        }
+        return cachedToString;
     }
 
     @Override
@@ -115,17 +127,18 @@ public class BUnionType extends BType {
     }
 
     public boolean isNilable() {
+        if (nullable == null) {
+            nullable = checkNillable(memberTypes);
+        }
         return nullable;
     }
 
     private boolean checkNillable(List<BType> memberTypes) {
-        boolean nillable = false;
         for (BType t : memberTypes) {
             if (t.isNilable()) {
-                nillable = true;
-                break;
+                return true;
             }
         }
-        return nillable;
+        return false;
     }
 }

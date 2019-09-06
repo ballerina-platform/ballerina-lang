@@ -1,7 +1,19 @@
-#Run the following command in the Ballerina tools distribution for mock service generation.
-$ ballerina openapi gen-service openapi_to_ballerina.yaml -m pet_service
-successfully generated ballerina mock service for input file - openapi_to_ballerina.yaml
+# Run the following command in a Ballerina project to generate the service from OpenAPI contract.
+$ ballerina openapi gen-service petStore:petService openapi_to_ballerina.yaml
+Note: This is an Experimental tool ship under ballerina hence this will only support limited set of functionality.
+Service generated successfully and the OpenApi contract is copied to petStore/resources. this location will be referenced throughout the ballerina project.
+Following files were created.
+src/
+- petStore
+-- petservice.bal
+-- schema.bal
 
-#Run the following command in the Ballerina tools distribution for client service generation.
-$ ballerina openapi gen-client openapi_to_ballerina.yaml -m pet_client
-successfully generated ballerina client for input file - openapi_to_ballerina.yaml
+# Run the following command the same Ballerina project to generate the service client from OpenAPI contract.
+$ ballerina openapi gen-client petservice_client openapi_to_ballerina.yaml
+Note: This is an Experimental tool ship under ballerina hence this will only support limited set of functionality.
+Client generated successfully.
+Following files were created.
+src/
+- client
+-- openapi_petstore.bal
+-- schema.bal

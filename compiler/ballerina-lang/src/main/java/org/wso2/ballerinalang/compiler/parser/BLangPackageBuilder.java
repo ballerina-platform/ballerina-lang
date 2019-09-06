@@ -894,6 +894,7 @@ public class BLangPackageBuilder {
                                                                             BLangIdentifier bLangIdentifier) {
         BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(pos, bindingVarName);
+        simpleVariableNode.name.pos = pos;
         simpleVariableNode.pos = pos;
         if (this.bindingPatternIdentifierWS.size() > 0) {
             simpleVariableNode.addWS(this.bindingPatternIdentifierWS.pop());
@@ -1785,6 +1786,7 @@ public class BLangPackageBuilder {
             List<? extends StatementNode> stmtsAdded = this.blockNodeStack.peek().getStatements();
             BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
             lamdaWrkr.isInFork = true;
+            lamdaWrkr.var.flagSet.add(Flag.FORKED);
             this.forkJoinNodesStack.peek().addWorkers(lamdaWrkr);
         }
 
@@ -1792,7 +1794,16 @@ public class BLangPackageBuilder {
         startInvocationNode(null);
         createWorkerLambdaInvocationNode(pos, null, workerLambdaName);
         markLastInvocationAsAsync(pos, numAnnotations);
-        addSimpleVariableDefStatement(pos, null, workerName, null, true, true, true);
+        addWorkerVariableDefStatement(pos, workerName);
+    }
+
+    private void addWorkerVariableDefStatement(DiagnosticPos pos, String identifier) {
+        BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, null, identifier, null, true, true, true);
+        if (this.bindingPatternIdentifierWS.size() > 0) {
+            varDefNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+        varDefNode.var.flagSet.add(Flag.WORKER);
+        addStmtToCurrentBlock(varDefNode);
     }
 
     void attachWorkerWS(Set<Whitespace> ws) {

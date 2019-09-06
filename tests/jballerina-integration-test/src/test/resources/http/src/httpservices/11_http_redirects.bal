@@ -33,19 +33,19 @@ http:ListenerConfiguration httpsEPConfig = {
 
 listener http:Listener httpsEP = new(9104, httpsEPConfig);
 
-http:ClientEndpointConfig endPoint1Config = {
+http:ClientConfiguration endPoint1Config = {
     followRedirects: { enabled: true, maxCount: 3 }
 };
 
-http:ClientEndpointConfig endPoint2Config = {
+http:ClientConfiguration endPoint2Config = {
     followRedirects: { enabled: true, maxCount: 5 }
 };
 
-http:ClientEndpointConfig endPoint3Config = {
+http:ClientConfiguration endPoint3Config = {
     followRedirects: { enabled: true }
 };
 
-http:ClientEndpointConfig endPoint5Config = {
+http:ClientConfiguration endPoint5Config = {
     followRedirects: { enabled: true },
     secureSocket: {
         trustStore: {

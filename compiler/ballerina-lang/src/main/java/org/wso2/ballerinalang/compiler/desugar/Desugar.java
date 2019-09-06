@@ -2927,6 +2927,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
+        recordLiteral.keyValuePairs.sort((v1, v2) -> Boolean.compare(v1.key.computedKey, v2.key.computedKey));
+
         // Process the key-val pairs in the record literal
         recordLiteral.keyValuePairs.forEach(keyValue -> {
             BLangExpression keyExpr = keyValue.key.expr;
@@ -4234,7 +4236,18 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        constant.expr = rewriteExpr(constant.expr);
+
+        BConstantSymbol constSymbol = constant.symbol;
+        if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
+            if (constSymbol.literalType.tag != TypeTags.NIL && constSymbol.value.value == null) {
+                throw new IllegalStateException();
+            }
+            BLangLiteral literal = ASTBuilderUtil.createLiteral(constant.expr.pos, constSymbol.literalType,
+                    constSymbol.value.value);
+            constant.expr = rewriteExpr(literal);
+        } else {
+            constant.expr = rewriteExpr(constant.expr);
+        }
         constant.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = constant;
     }

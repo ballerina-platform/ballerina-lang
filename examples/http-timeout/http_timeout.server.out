@@ -3,4 +3,4 @@
 ballerina run http_timeout.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:8080
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9090
-2018-11-30 14:28:48,528 ERROR [ballerina/log] - Error sending response from mock service : {ballerina/http}HTTPError {message:"Connection between remote client and host is closed"}
+2019-09-04 16:21:39,541 ERROR [ballerina/log] - Error sending response from mock service : error {ballerina/http}GenericListenerError message=Connection between remote client and host is closed

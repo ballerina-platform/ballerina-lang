@@ -1,4 +1,3 @@
-import ballerina/encoding;
 import ballerina/log;
 import ballerina/nats;
 

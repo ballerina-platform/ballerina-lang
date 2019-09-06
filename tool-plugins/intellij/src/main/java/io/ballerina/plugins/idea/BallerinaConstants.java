@@ -33,6 +33,7 @@ public class BallerinaConstants {
     }
 
     public static final String BALLERINA = "Ballerina";
+    public static final String BAL_FILE_EXT = "bal";
     public static final String MAIN = "main";
     public static final String PATH = "PATH";
     public static final String MODULE_TYPE_ID = "BALLERINA_MODULE";
