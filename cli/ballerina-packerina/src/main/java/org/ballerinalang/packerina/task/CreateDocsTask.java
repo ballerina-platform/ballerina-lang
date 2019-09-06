@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_API_DOC_DIRECTORY;
 
@@ -40,10 +41,21 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_AP
  * Task for creating API docs for modules.
  */
 public class CreateDocsTask implements Task {
+
+    private Path output;
+
+    public CreateDocsTask(Path output) {
+        this.output = output;
+    }
+
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
+        boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
+        Path outputPath = isSingleFileBuild
+                ? this.output
+                : targetDir.resolve(TARGET_API_DOC_DIRECTORY);
         List<BLangPackage> modules = buildContext.getModules();
         buildContext.out().println();
         buildContext.out().println("Generating API Documentation");
@@ -52,11 +64,10 @@ public class CreateDocsTask implements Task {
             BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
             Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator
                     .generateModuleDocsFromBLangPackages(sourceRootPath.toString(), modules);
-            Path output = targetDir.resolve(TARGET_API_DOC_DIRECTORY);
-            Files.createDirectories(output);
+            Files.createDirectories(outputPath);
             BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap,
-                    output.toString());
-            buildContext.out().println("\t" + sourceRootPath.relativize(output).toString());
+                    outputPath.toString());
+            buildContext.out().println("\t" + sourceRootPath.relativize(outputPath).toString());
         } catch (IOException e) {
             throw createLauncherException("Unable to generate API Documentation.");
         }

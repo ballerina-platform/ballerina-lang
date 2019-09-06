@@ -149,9 +149,14 @@ public class BallerinaDocGenerator {
 
         // Generate project model
         Project project = new Project();
+        project.isSingleFile = moduleDocList.size() == 1 &&
+                moduleDocList.get(0).bLangPackage.packageID.name.value.equals(".");
+        if (project.isSingleFile) {
+            project.sourceFileName = moduleDocList.get(0).bLangPackage.packageID.sourceFileName.value;
+        }
         project.name = "";
         project.description = "";
-        project.version = "0.0.0";
+        project.version = BallerinaDocDataHolder.getInstance().getVersion();
         project.organization = BallerinaDocDataHolder.getInstance().getOrgName();
         project.modules = moduleDocList.stream().map(moduleDoc -> {
 
@@ -197,10 +202,11 @@ public class BallerinaDocGenerator {
                 "annotations");
         String errorsTemplateName = System.getProperty(BallerinaDocConstants.ERRORS_TEMPLATE_NAME_KEY, "errors");
 
+        String rootPathModuleLevel = project.isSingleFile ? "./" : "../";
+        String rootPathConstructLevel = project.isSingleFile ? "../" : "../../";
         // Generate module pages
         for (Module module : project.modules) {
             try {
-
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("docerina: starting to generate docs for module: " + module.id);
                 }
@@ -210,8 +216,10 @@ public class BallerinaDocGenerator {
                 Files.createDirectories(Paths.get(modDir));
 
                 // Create module index page
-                ModulePageContext modulePageContext = new ModulePageContext(module, project, "../",
-                        "API Docs - " + project.organization + module.id);
+                ModulePageContext modulePageContext = new ModulePageContext(module, project,
+                        rootPathModuleLevel,
+                        "API Docs - " + (project.isSingleFile ? project.sourceFileName
+                                : project.organization + "/" + module.id));
                 String modIndexPath = modDir + File.separator + "index" + HTML;
                 Writer.writeHtmlDocument(modulePageContext, moduleTemplateName, modIndexPath);
 
@@ -221,7 +229,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(recordsDir));
                     for (Record record : module.records) {
                         RecordPageContext recordPageContext = new RecordPageContext(record, module, project,
-                                "../../", "API Docs - Record : " + record.name);
+                                rootPathConstructLevel, "API Docs - Record : " + record.name);
                         String recordFilePath = recordsDir + File.separator + record.name + HTML;
                         Writer.writeHtmlDocument(recordPageContext, recordTemplateName, recordFilePath);
                     }
@@ -233,7 +241,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(objectsDir));
                     for (Object object : module.objects) {
                         ObjectPageContext objectPageContext = new ObjectPageContext(object, module, project,
-                                "../../", "API Docs - Object : " + object.name);
+                                rootPathConstructLevel, "API Docs - Object : " + object.name);
                         String objectFilePath = objectsDir + File.separator + object.name + HTML;
                         Writer.writeHtmlDocument(objectPageContext, objectTemplateName, objectFilePath);
                     }
@@ -245,7 +253,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(clientsDir));
                     for (Client client : module.clients) {
                         ClientPageContext clientPageContext = new ClientPageContext(client, module, project,
-                                "../../", "API Docs - Client : " + client.name);
+                                rootPathConstructLevel, "API Docs - Client : " + client.name);
                         String clientFilePath = clientsDir + File.separator + client.name + HTML;
                         Writer.writeHtmlDocument(clientPageContext, clientTemplateName, clientFilePath);
                     }
@@ -257,7 +265,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(listenersDir));
                     for (Listener listener : module.listeners) {
                         ListenerPageContext listenerPageContext = new ListenerPageContext(listener, module, project,
-                                "../../", "API Docs - Listener : " + listener.name);
+                                rootPathConstructLevel, "API Docs - Listener : " + listener.name);
                         String listenerFilePath = listenersDir + File.separator + listener.name + HTML;
                         Writer.writeHtmlDocument(listenerPageContext, listenerTemplateName, listenerFilePath);
                     }
@@ -267,7 +275,7 @@ public class BallerinaDocGenerator {
                 if (!module.functions.isEmpty()) {
                     String functionsFile = modDir + File.separator + "functions" + HTML;
                     FunctionsPageContext functionsPageContext = new FunctionsPageContext(module.functions,
-                            module, project, "../", "API Docs - Functions : " + module.id);
+                            module, project, rootPathModuleLevel, "API Docs - Functions : " + module.id);
                     Writer.writeHtmlDocument(functionsPageContext, functionsTemplateName, functionsFile);
                 }
 
@@ -275,7 +283,7 @@ public class BallerinaDocGenerator {
                 if (!module.constants.isEmpty()) {
                     String constantsFile = modDir + File.separator + "constants" + HTML;
                     ConstantsPageContext constantsPageContext = new ConstantsPageContext(module.constants,
-                            module, project, "../", "API Docs - Constants : " + module.id);
+                            module, project, rootPathModuleLevel, "API Docs - Constants : " + module.id);
                     Writer.writeHtmlDocument(constantsPageContext, constantsTemplateName, constantsFile);
                 }
 
@@ -283,7 +291,7 @@ public class BallerinaDocGenerator {
                 if (!(module.unionTypes.isEmpty() && module.finiteTypes.isEmpty())) {
                     String typesFile = modDir + File.separator + "types" + HTML;
                     TypesPageContext typesPageContext = new TypesPageContext(module.unionTypes, module, project,
-                            "../", "API Docs - Types : " + module.id);
+                            rootPathModuleLevel, "API Docs - Types : " + module.id);
                     Writer.writeHtmlDocument(typesPageContext, typesTemplateName, typesFile);
                 }
 
@@ -291,7 +299,7 @@ public class BallerinaDocGenerator {
                 if (!module.annotations.isEmpty()) {
                     String annotationsFile = modDir + File.separator + "annotations" + HTML;
                     AnnotationsPageContext annotationsPageContext = new AnnotationsPageContext(module.annotations,
-                            module, project, "../", "API Docs - Annotations : " + module.id);
+                            module, project, rootPathModuleLevel, "API Docs - Annotations : " + module.id);
                     Writer.writeHtmlDocument(annotationsPageContext, annotationsTemplateName, annotationsFile);
                 }
 
@@ -299,7 +307,7 @@ public class BallerinaDocGenerator {
                 if (!module.errors.isEmpty()) {
                     String errorsFile = modDir + File.separator + "errors" + HTML;
                     ErrorsPageContext errorsPageContext = new ErrorsPageContext(module.errors, module, project,
-                            "../", "API Docs - Errors : " + module.id);
+                            rootPathModuleLevel, "API Docs - Errors : " + module.id);
                     Writer.writeHtmlDocument(errorsPageContext, errorsTemplateName, errorsFile);
                 }
 

@@ -31,7 +31,8 @@ public class BallerinaDocConstants {
     public static final String OUTPUT_ZIP_PATH = "output.zip.path";
 
     // config registry environment variables -e flags
-    public static final String ORG_NAME = "orgName";
+    public static final String ORG_NAME = "org-name";
+    public static final String VERSION = "version";
     public static final String RECORD_TEMPLATE_NAME_KEY = "record.template.name";
     public static final String OBJECT_TEMPLATE_NAME_KEY = "object.template.name";
     public static final String CLIENT_TEMPLATE_NAME_KEY = "client.template.name";

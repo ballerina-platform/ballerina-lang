@@ -1,7 +1,11 @@
 <div class="primary-list module">
-    <a href="{{ rootPath }}{{ module.id }}/index.html">
-        <h3>{{module.id}}</h3>
-    </a>
+    {{#if project.isSingleFile}}
+        <h3>{{project.sourceFileName}}</h3>
+    {{else}}
+        <a href="{{ rootPath }}{{ module.id }}/index.html">
+            <h3>{{module.id}}</h3>
+        </a>
+    {{/if}}
     <ul>
         {{#if module.records}}
         <li>

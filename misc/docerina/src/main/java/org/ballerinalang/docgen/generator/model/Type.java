@@ -193,14 +193,15 @@ public class Type {
                 case TypeTags.BOOLEAN:
                 case TypeTags.JSON:
                 case TypeTags.XML:
-                case TypeTags.TABLE:
                 case TypeTags.NIL:
+                case TypeTags.ANY:
                 case TypeTags.ANYDATA:
-                case TypeTags.MAP:
                 case TypeTags.XMLNS:
+                case TypeTags.MAP: // TODO generate type for constraint type
+                case TypeTags.TABLE:
                     this.category = "builtin"; break;
                 default:
-                    this.category = "UNKOWN";
+                    this.category = "UNKNOWN";
             }
 
         }
