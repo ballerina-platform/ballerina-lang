@@ -19,7 +19,8 @@ service demoService on lis {
             // Prints the incoming message in the console.
             log:printInfo("Message Received: " + val);
         } else {
-            log:printError("Error occurred during json to string conversion", err = val);
+            log:printError("Error occurred during json to string conversion",
+                                                                      err = val);
         }
     }
 

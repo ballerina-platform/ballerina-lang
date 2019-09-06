@@ -29,7 +29,8 @@ service Chat on new grpc:Listener(9090) {
                 log:printError("Error from Connector: " + err.reason() + " - "
                             + <string> err.detail()["message"]);
             } else {
-                log:printInfo("Server message to caller " + callerId + " sent successfully.");
+                log:printInfo("Server message to caller " + callerId
+                                                      + " sent successfully.");
             }
         }
     }
@@ -53,7 +54,8 @@ service Chat on new grpc:Listener(9090) {
                 log:printError("Error from Connector: " + err.reason() + " - "
                         + <string> err.detail()["message"]);
             } else {
-                log:printInfo("Server message to caller " + callerId + " sent successfully.");
+                log:printInfo("Server message to caller " + callerId
+                                                      + " sent successfully.");
             }
         }
     }
