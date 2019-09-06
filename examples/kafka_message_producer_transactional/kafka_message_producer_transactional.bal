@@ -11,6 +11,7 @@ kafka:ProducerConfig producerConfigs = {
     clientId: "basic-producer",
     acks: "all",
     retryCount: 3,
+    enableIdempotence: true,
     transactionalId: "test-transactional-id"
 };
 
@@ -29,7 +30,6 @@ public function main() {
 function kafkaAdvancedTransactionalProduce(byte[] msg1, byte[] msg2) {
     // Kafka transactions allows messages to be send multiple partition atomically on KafkaProducerClient. Kafka Local transactions can only be used
     // when you are sending multiple messages using the same KafkaProducerClient instance.
-    boolean transactionSuccess = false;
     transaction {
         var sendResult1 = kafkaProducer->send(msg1, "test-kafka-topic", partition = 0);
         if (sendResult1 is error) {
@@ -39,12 +39,9 @@ function kafkaAdvancedTransactionalProduce(byte[] msg1, byte[] msg2) {
         if (sendResult2 is error) {
             log:printError("Kafka producer failed to send second message", sendResult2);
         }
-        transactionSuccess = true;
-    }
-
-    if (transactionSuccess) {
+    } committed {
         io:println("Transaction committed");
-    } else {
-        io:println("Transaction failed");
+    } aborted {
+        io:println("Transaction aborted");
     }
 }
