@@ -111,12 +111,17 @@ public class SendingEntityBody implements SenderState {
     }
 
     @Override
-    public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
+    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
+                                                   HttpResponseFuture httpResponseFuture, String channelID) {
+
         senderReqRespStateManager.nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
         senderReqRespStateManager.nettyTargetChannel.close();
+        targetHandler.getOutboundRequestMsg()
+                .setIoException(new IOException(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
         httpResponseFuture.notifyHttpListener(
                 new EndpointTimeOutException(channelID, IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
                                              HttpResponseStatus.INTERNAL_SERVER_ERROR.code()));
+
         LOG.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
     }
 

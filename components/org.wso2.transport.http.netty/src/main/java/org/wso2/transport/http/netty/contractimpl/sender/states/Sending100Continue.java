@@ -131,7 +131,8 @@ public class Sending100Continue implements SenderState {
     }
 
     @Override
-    public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
+    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
+                                                   HttpResponseFuture httpResponseFuture, String channelID) {
         configIdleTimeoutTrigger(senderReqRespStateManager.socketTimeout);
         senderReqRespStateManager.state =
                 new SendingEntityBody(senderReqRespStateManager, httpInboundResponseFuture);
