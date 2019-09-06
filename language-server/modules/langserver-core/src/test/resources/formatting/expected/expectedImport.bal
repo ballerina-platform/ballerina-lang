@@ -6,3 +6,4 @@ ballerina
 /
 io
 ;
+import ballerina/lang.'decimal as decimals;
