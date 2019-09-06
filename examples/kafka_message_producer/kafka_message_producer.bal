@@ -6,7 +6,8 @@ kafka:ProducerConfig producerConfigs = {
     // client.id - used for broker-side logging.
     // `acks` - number of acknowledgments to complete the request.
     // `noRetries` - number of retries if record sending fails.
-    // `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
+    // `bootstrapServers` is the list of remote server endpoints of
+    // the Kafka brokers
     bootstrapServers: "localhost:9092",
     clientId: "basic-producer",
     acks: "all",

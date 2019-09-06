@@ -28,8 +28,6 @@ public function main() {
 }
 
 function kafkaAdvancedTransactionalProduce(byte[] msg) {
-    // Kafka transactions allow messages to be sent to multiple partitions atomically via a `KafkaProducerClient`. Kafka Local transactions can only be used
-    // when you are sending multiple messages using the same KafkaProducerClient instance.
     transaction {
         var sendResult = kafkaProducer->send(msg, "test-kafka-topic", partition = 0);
         if (sendResult is error) {
