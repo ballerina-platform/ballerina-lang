@@ -17,7 +17,6 @@
 import ballerina/internal;
 import ballerina/io;
 import ballerina/jvm;
-import ballerina/stringutils;
 
 function emitStopObservationInvocation(jvm:MethodVisitor mv, int strandIndex) {
     mv.visitVarInsn(ALOAD, strandIndex);
@@ -44,7 +43,7 @@ function emitStartObservationInvocation(jvm:MethodVisitor mv, int strandIndex, s
 function cleanUpServiceName(string serviceName) returns string {
     string finalString = serviceName;
     if (internal:contains(serviceName, "$$service$")) {
-        finalString = stringutils:replace(serviceName, "$$service$", "_");
+        finalString = internal:replace(serviceName, "$$service$", "_");
     }
     return finalString;
 }

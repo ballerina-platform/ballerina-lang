@@ -19,7 +19,6 @@ import ballerina/file;
 import ballerina/internal;
 import ballerina/io;
 import ballerina/jvm;
-import ballerina/stringutils;
 
 type BIRFunctionWrapper record {
     string orgName;
@@ -375,11 +374,11 @@ function splitPkgName(string key) returns [string, string] {
 }
 
 function cleanupName(string name) returns string {
-    return stringutils:replace(name, ".","_");
+    return internal:replace(name, ".","_");
 }
 
 function cleanupSourceFileName(string name) returns string {
-    return stringutils:replace(name, ".", FILE_NAME_PERIOD_SEPERATOR);
+    return internal:replace(name, ".", FILE_NAME_PERIOD_SEPERATOR);
 }
 
 function cleanupPackageName(string pkgName) returns string {
