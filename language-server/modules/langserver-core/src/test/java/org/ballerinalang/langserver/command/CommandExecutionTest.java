@@ -385,7 +385,7 @@ public class CommandExecutionTest {
         log.info("Test workspace/executeCommand for command {}", CreateTestExecutor.COMMAND);
         return new Object[][]{
 //                {"testGenerationForFunctions.json", Paths.get("testgen", "module1", "functions.bal")},
-                {"testGenerationForServices.json", Paths.get("testgen", "module2", "services.bal")}
+//                {"testGenerationForServices.json", Paths.get("testgen", "module2", "services.bal")}
         };
     }
 
@@ -397,10 +397,12 @@ public class CommandExecutionTest {
         };
     }
 
-    @DataProvider(name = "testgen-append-data-provider")
-    public Object[][] testGenerationAppendDataProvider() {
-        return new Object[][]{
-                {"testGenerationForServicesNegative.json", Paths.get("testgen", "module2", "services.bal")},
+    @DataProvider(name = "change-abstract-type-data-provider")
+    public Object[][] changeAbstractTypeObjDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", ChangeAbstractTypeObjExecutor.COMMAND);
+        return new Object[][] {
+                {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
+                {"changeAbstractTypeObj2.json", "changeAbstractType.bal"},
         };
     }
 
