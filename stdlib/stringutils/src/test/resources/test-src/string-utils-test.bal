@@ -24,6 +24,10 @@ function testEqualsIgnoreCase(string firstString, string secondString) returns b
     return stringutils:equalsIgnoreCase(firstString, secondString);
 }
 
+function testHashCode(string stringValue) returns int {
+    return stringutils:hashCode(stringValue);
+}
+
 function testLastIndexOf(string originalString, string substring) returns int {
     return stringutils:lastIndexOf(originalString, substring);
 }

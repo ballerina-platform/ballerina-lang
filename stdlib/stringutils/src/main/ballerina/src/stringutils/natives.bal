@@ -34,6 +34,14 @@ public function equalsIgnoreCase(string firstString, string secondString) return
     return equalsIgnoreCaseExternal(java:fromString(firstString), java:fromString(secondString));
 }
 
+# Returns a hash code for a given string.
+#
+# + stringValue - string to generate hash code
+# + return - Hash code for the given string
+public function hashCode(string stringValue) returns int {
+    return hashCodeExternal(java:fromString(stringValue));
+}
+
 # Returns the last index of the provided substring within a string.
 #
 # + originalString - string to look at
@@ -143,6 +151,12 @@ function replaceFirstExternal(handle originalString, handle stringToReplace, han
 
 function splitExternal(handle receiver, handle delimiter) returns handle = @java:Method {
     name: "split",
+    class: "java.lang.String",
+    paramTypes: ["java.lang.String"]
+} external;
+
+function hashCodeExternal(handle stringValue) returns int = @java:Method {
+    name: "hashCode",
     class: "java.lang.String",
     paramTypes: ["java.lang.String"]
 } external;

@@ -75,6 +75,15 @@ public class StringUtilsTest {
         Assert.assertFalse(((BBoolean) returnValues[0]).booleanValue());
     }
 
+    @Test(description = "Tests string hashCode function")
+    public void testHashCode() {
+        BValue[] inputs = {new BString("Testing String")};
+        BValue[] returnValues = BRunUtil.invoke(result, "testHashCode", inputs);
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(returnValues[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 117955681);
+    }
+
     @Test(description = "Tests lastIndexOf function")
     public void testLastIndexOf() {
         BValue[] inputs = {new BString("This is as large as Elephas maximus"), new BString("as")};
