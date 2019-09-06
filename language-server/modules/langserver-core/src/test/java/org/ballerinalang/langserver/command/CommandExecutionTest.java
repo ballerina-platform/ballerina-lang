@@ -134,7 +134,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    @Test(description = "Test Create Initializer for object", enabled = false)
+    @Test(description = "Test Create Initializer for object")
     public void testCreateInitializer() {
         log.info("Test workspace/executeCommand for command {}", CreateObjectInitializerExecutor.COMMAND);
         String configJsonPath = "command" + File.separator + "createInitializer.json";
