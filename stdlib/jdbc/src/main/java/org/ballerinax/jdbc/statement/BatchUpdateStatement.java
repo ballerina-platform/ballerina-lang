@@ -84,10 +84,9 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         String errorMessagePrefix = "Failed to execute batch update";
         try {
             conn = getDatabaseConnection(strand, client, datasource);
-            boolean returningGeneratedKeys = false;
-            if (isGeneratedKeyReturningSupported()) {
+            boolean generatedKeyReturningSupported = isGeneratedKeyReturningSupported();
+            if (generatedKeyReturningSupported) {
                 stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
-                returningGeneratedKeys = true;
             } else {
                 stmt = conn.prepareStatement(query);
             }
@@ -104,7 +103,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                 stmt.addBatch();
             }
             updatedCount = stmt.executeBatch();
-            if (returningGeneratedKeys) {
+            if (generatedKeyReturningSupported) {
                 rs = stmt.getGeneratedKeys();
                 //This result set contains the auto generated keys.
                 generatedKeys = getGeneratedKeysFromBatch(rs);
@@ -149,8 +148,8 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         }
     }
 
-    // It has been identified that Oracle does not support returning generated keys along with batch update.
-    // And such effort would result in an exception causing batch update failure.
+    // It has been identified that Oracle and MS SQL Server does not support returning generated keys along with
+    // batch update. And such effort would result in an exception causing batch update failure.
     // If such other databases are identified they can be included here.
     // The name of the database is being checked because there is no way to identify through the API.
     private boolean isGeneratedKeyReturningSupported() {
