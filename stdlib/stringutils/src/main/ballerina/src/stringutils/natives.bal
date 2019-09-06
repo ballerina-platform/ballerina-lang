@@ -79,7 +79,7 @@ public function replaceAll(string originalString, string regex, string replaceme
 #
 # + originalString - the original string
 # + stringToReplace - string to replace
-# + replacement - replacement string
+# + replacement - the replacement string
 # + return - the resultant string
 public function replaceFirst(string originalString, string stringToReplace, string replacement) returns string {
     return replaceFirstExternal(java:fromString(originalString),
