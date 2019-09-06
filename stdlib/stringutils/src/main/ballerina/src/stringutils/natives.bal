@@ -20,7 +20,7 @@ import ballerinax/java;
 #
 # + originalString - the original string 
 # + substring - string to match
-# + return - `true` if the original string contains the substring, `false` otherwise
+# + return - `true` if the original string contains the substring or `false` otherwise
 public function contains(string originalString, string substring) returns boolean {
     return containsExternal(java:fromString(originalString), java:fromString(substring));
 }
