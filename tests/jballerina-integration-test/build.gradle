@@ -76,6 +76,7 @@ dependencies {
     implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-jvm')
     implementation project(':ballerina-stringutils')
+    implementation project(':ballerina-java')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
@@ -119,6 +120,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-runtime')

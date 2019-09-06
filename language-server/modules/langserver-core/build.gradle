@@ -124,6 +124,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
 //    baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
