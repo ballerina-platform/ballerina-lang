@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -69,8 +70,30 @@ public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
         if (scopeNode instanceof BLangService) {
             completionItems.addAll(this.getResourceSnippets(ctx));
             completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
+        } else {
+            fillTypes(ctx, completionItems);
+            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(ctx));
+            completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
+            completionItems.add(Snippet.DEF_REMOTE_FUNCTION.get().build(ctx));
+            completionItems.add(Snippet.DEF_INIT_FUNCTION.get().build(ctx));
+            completionItems.add(Snippet.DEF_ATTACH_FUNCTION.get().build(ctx));
+            completionItems.add(Snippet.DEF_DETACH_FUNCTION.get().build(ctx));
+            completionItems.add(Snippet.DEF_START_FUNCTION.get().build(ctx));
+            completionItems.add(Snippet.DEF_GRACEFUL_STOP_FUNCTION.get().build(ctx));
+            completionItems.add(Snippet.DEF_IMMEDIATE_STOP_FUNCTION.get().build(ctx));
+            completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
+            completionItems.add(Snippet.KW_PRIVATE.get().build(ctx));
         }
 
         return completionItems;
+    }
+
+    private void fillTypes(LSContext context, List<CompletionItem> completionItems) {
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<SymbolInfo> filteredTypes = visibleSymbols.stream()
+                .filter(symbolInfo -> FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
+                .collect(Collectors.toList());
+        completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
+        completionItems.addAll(this.getPackagesCompletionItems(context));
     }
 }

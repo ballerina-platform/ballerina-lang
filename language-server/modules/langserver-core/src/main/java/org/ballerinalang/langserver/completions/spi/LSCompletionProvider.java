@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -82,6 +83,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getFunctionInvocationSignature;
 
@@ -425,6 +427,9 @@ public abstract class LSCompletionProvider {
                 completionItems.addAll(this.getVarDefCompletions(context));
                 fillFunctionWithBodySnippet((BLangFunctionTypeNode) assignmentType.get(), context, completionItems);
                 fillArrowFunctionSnippet((BLangFunctionTypeNode) assignmentType.get(), context, completionItems);
+            } else if (assignmentType.isPresent() && assignmentType.get().type instanceof BServiceType) {
+                completionItems.addAll(this.getVarDefCompletions(context));
+                completionItems.add(Snippet.DEF_SERVICE_VAR.get().build(context));
             } else if (assignmentType.isPresent() && assignmentType.get() instanceof BLangUserDefinedType) {
                 completionItems.addAll(
                         getUserDefinedTypeCompletions(context, (BLangUserDefinedType) assignmentType.get()));
@@ -651,16 +656,6 @@ public abstract class LSCompletionProvider {
                 .findAny();
     }
     
-    protected Optional<BSymbol> getObjectInPackage(BSymbol pkg, String typeName) {
-        if (!(pkg instanceof BPackageSymbol)) {
-            return Optional.empty();
-        }
-        return pkg.scope.entries.values().stream().filter(scopeEntry -> {
-            BSymbol symbol = scopeEntry.symbol;
-            return symbol instanceof BObjectTypeSymbol && symbol.getName().getValue().equals(typeName);
-        }).findAny().map(scopeEntry -> scopeEntry.symbol);
-    }
-    
     protected List<SymbolInfo> getSymbolByName(String name, LSContext context) {
         List<SymbolInfo> symbolInfos = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         return symbolInfos.parallelStream()
@@ -749,6 +744,12 @@ public abstract class LSCompletionProvider {
             subRule.append("function testFunction () {").append(CommonUtil.LINE_SEPARATOR).append("\t");
         }
         while (counter < lhsTokens.size()) {
+            if (lhsTokens.get(counter).getType() == BallerinaParser.PUBLIC
+                    || lhsTokens.get(counter).getType() == BallerinaParser.PRIVATE) {
+                // Evaluated when the object field definition completion is routed to var def completion context
+                counter++;
+                continue;
+            }
             subRule.append(lhsTokens.get(counter).getText());
             if (lhsTokens.get(counter).getType() == BallerinaParser.ASSIGN) {
                 subRule.append("0;");

@@ -1,192 +1,10 @@
 {
   "position": {
-    "line": 4,
-    "character": 4
+    "line": 1,
+    "character": 22
   },
-  "source": "object/source/objectTest1.bal",
+  "source": "toplevel/source/globalVarDef3.bal",
   "items": [
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "Float",
-      "sortText": "230",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "Xml",
-      "sortText": "230",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testEmptyObject",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "190",
-      "insertText": "testEmptyObject",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Unit",
-      "detail": "Byte",
-      "sortText": "230",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "handle",
-      "kind": "Unit",
-      "detail": "Handle",
-      "sortText": "230",
-      "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ArgsData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defaultable argument names. This is for internal use.\n"
-      },
-      "sortText": "180",
-      "insertText": "ArgsData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "null",
-      "kind": "Unit",
-      "detail": "Nil",
-      "sortText": "230",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "Decimal",
-      "sortText": "230",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "String",
-      "sortText": "230",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Event",
-      "detail": "Error",
-      "documentation": {
-        "left": "Default error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
-      },
-      "sortText": "200",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "Stream",
-      "sortText": "230",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testObject",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "190",
-      "insertText": "testObject",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "json",
-      "kind": "Unit",
-      "detail": "Json",
-      "sortText": "230",
-      "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "Map",
-      "sortText": "230",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "Table",
-      "sortText": "230",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anydata",
-      "kind": "Unit",
-      "detail": "Anydata",
-      "sortText": "230",
-      "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "any",
-      "kind": "Unit",
-      "detail": "Any",
-      "sortText": "230",
-      "insertText": "any",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "Int",
-      "sortText": "230",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "Boolean",
-      "sortText": "230",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "Future",
-      "sortText": "230",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "Service",
-      "sortText": "230",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "Typedesc",
-      "sortText": "230",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "ballerinax/java.jdbc",
       "kind": "Module",
@@ -238,7 +56,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'object",
+      "insertText": "\u0027object",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -252,7 +70,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'object;\n"
+          "newText": "import ballerina/lang.\u0027object;\n"
         }
       ]
     },
@@ -284,7 +102,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'xml",
+      "insertText": "\u0027xml",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -298,7 +116,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'xml;\n"
+          "newText": "import ballerina/lang.\u0027xml;\n"
         }
       ]
     },
@@ -330,7 +148,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'array",
+      "insertText": "\u0027array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -344,7 +162,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'array;\n"
+          "newText": "import ballerina/lang.\u0027array;\n"
         }
       ]
     },
@@ -583,7 +401,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'string",
+      "insertText": "\u0027string",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -597,7 +415,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'string;\n"
+          "newText": "import ballerina/lang.\u0027string;\n"
         }
       ]
     },
@@ -790,7 +608,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'future",
+      "insertText": "\u0027future",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -804,7 +622,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'future;\n"
+          "newText": "import ballerina/lang.\u0027future;\n"
         }
       ]
     },
@@ -813,7 +631,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'value",
+      "insertText": "\u0027value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -827,7 +645,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'value;\n"
+          "newText": "import ballerina/lang.\u0027value;\n"
         }
       ]
     },
@@ -951,7 +769,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'float",
+      "insertText": "\u0027float",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -965,7 +783,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'float;\n"
+          "newText": "import ballerina/lang.\u0027float;\n"
         }
       ]
     },
@@ -1020,7 +838,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'decimal",
+      "insertText": "\u0027decimal",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1034,7 +852,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'decimal;\n"
+          "newText": "import ballerina/lang.\u0027decimal;\n"
         }
       ]
     },
@@ -1089,7 +907,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'table",
+      "insertText": "\u0027table",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1103,7 +921,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'table;\n"
+          "newText": "import ballerina/lang.\u0027table;\n"
         }
       ]
     },
@@ -1158,7 +976,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'stream",
+      "insertText": "\u0027stream",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1172,7 +990,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'stream;\n"
+          "newText": "import ballerina/lang.\u0027stream;\n"
         }
       ]
     },
@@ -1181,7 +999,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'error",
+      "insertText": "\u0027error",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1195,7 +1013,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'error;\n"
+          "newText": "import ballerina/lang.\u0027error;\n"
         }
       ]
     },
@@ -1204,7 +1022,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'typedesc",
+      "insertText": "\u0027typedesc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1218,7 +1036,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'typedesc;\n"
+          "newText": "import ballerina/lang.\u0027typedesc;\n"
         }
       ]
     },
@@ -1227,7 +1045,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'map",
+      "insertText": "\u0027map",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1241,7 +1059,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'map;\n"
+          "newText": "import ballerina/lang.\u0027map;\n"
         }
       ]
     },
@@ -1250,7 +1068,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "'int",
+      "insertText": "\u0027int",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1264,7 +1082,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'int;\n"
+          "newText": "import ballerina/lang.\u0027int;\n"
         }
       ]
     },
@@ -1292,91 +1110,59 @@
       ]
     },
     {
-      "label": "function signature",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "function ${1:name}(${2});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "remote function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "public remote function ${1:name}(${2}) {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "init function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "public function __init(${1:any arg}) {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "attach function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "public function __attach(service ${1:s}, string? ${2:name} = ()) returns error? {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "detach function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "public function __detach(service ${1:s}) returns error? {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "start function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "public function __start() returns error? {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "graceful stop function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "public function __gracefulStop() returns error? {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "immediate stop function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "public function __immediateStop() returns error? {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "public",
+      "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "220",
-      "insertText": "public ",
+      "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "private",
+      "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "220",
-      "insertText": "private ",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "wait",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "wait ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "untainted",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "untainted ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "but",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "240",
+      "insertText": "but {\n\t${1}\n};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "trap",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "trap ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "service {\n\t${1}\n};",
       "insertTextFormat": "Snippet"
     }
   ]

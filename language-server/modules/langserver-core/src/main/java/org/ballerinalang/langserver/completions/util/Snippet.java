@@ -80,6 +80,8 @@ public enum Snippet {
 
     DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
 
+    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
+
     DEF_SERVICE_WEBSOCKET(SnippetGenerator.getWebSocketServiceDefSnippet()),
 
     DEF_SERVICE_WS_CLIENT(SnippetGenerator.getWebSocketClientServiceDefSnippet()),
@@ -126,6 +128,8 @@ public enum Snippet {
     KW_FUNCTION(SnippetGenerator.getFunctionKeywordSnippet()),
 
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
+
+    KW_PRIVATE(SnippetGenerator.getPrivateKeywordSnippet()),
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
 
