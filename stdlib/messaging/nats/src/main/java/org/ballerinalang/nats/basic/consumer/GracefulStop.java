@@ -65,7 +65,6 @@ public class GracefulStop {
                 (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
         if (natsConnection == null) {
             LOG.debug("NATS connection does not exist. Possibly the connection is already closed.");
-            listenerObject.set(Constants.CONNECTION_OBJ, null);
             return;
         }
         @SuppressWarnings("unchecked")
@@ -81,9 +80,11 @@ public class GracefulStop {
                 natsConnection.drain(Duration.ZERO);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw Utils.createNatsError("Listener interrupted while closing NATS connection");
+                throw Utils.createNatsError("Listener interrupted on graceful stop.");
             } catch (TimeoutException e) {
-                throw Utils.createNatsError("Timeout error occurred, initial flush timed out");
+                throw Utils.createNatsError("Timeout error occurred, on graceful stop.");
+            } catch (IllegalStateException e) {
+                throw Utils.createNatsError("Connection is already closed.");
             }
         }
     }

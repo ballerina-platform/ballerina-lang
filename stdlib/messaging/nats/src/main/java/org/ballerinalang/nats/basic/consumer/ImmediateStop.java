@@ -63,7 +63,6 @@ public class ImmediateStop {
                 (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
         if (natsConnection == null) {
             LOG.debug("NATS connection does not exist. Possibly the connection is already closed.");
-            listenerObject.set(Constants.CONNECTION_OBJ, null);
             return;
         }
         @SuppressWarnings("unchecked")
