@@ -2,9 +2,10 @@ import ballerina/kafka;
 import ballerina/log;
 
 kafka:ProducerConfig producerConfigs = {
-    // Here we create a producer configs with optional parameters client.id - used for broker side logging.
-    // `acks` - number of acknowledgments for request complete,
-    // `noRetries` - number of retries if record send fails.
+    // Here, we create the configs of a producer with optional parameters.
+    client.id - used for broker-side logging.
+    // `acks` - number of acknowledgments to complete the request.
+    // `noRetries` - number of retries if record sending fails.
     // `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
     bootstrapServers: "localhost:9092",
     clientId: "basic-producer",

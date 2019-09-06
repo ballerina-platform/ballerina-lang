@@ -3,7 +3,7 @@ import ballerina/kafka;
 import ballerina/lang. 'string as strings;
 import ballerina/log;
 
-// `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
+// `bootstrapServers` is the list of remote server endpoints of the Kafka brokers.
 kafka:ConsumerConfig consumerConfigs = {
     bootstrapServers: "localhost:9092",
     groupId: "group-id",
@@ -17,11 +17,11 @@ listener kafka:Consumer consumer = new (consumerConfigs);
 service kafkaService on consumer {
 
     resource function onMessage(kafka:Consumer kafkaConsumer, kafka:ConsumerRecord[] records) {
-        // Dispatched set of Kafka records to service, We process each one by one.
+        // The set of Kafka records dispatched to the service processed one by one.
         foreach var kafkaRecord in records {
             processKafkaRecord(kafkaRecord);
         }
-        // Commit offsets returned for returned records, marking them as consumed.
+        // Commit offsets returned for returned records by marking them as consumed.
         var commitResult = kafkaConsumer->commit();
         if (commitResult is error) {
             log:printError("Error occurred while committing the offsets for the consumer ", commitResult);

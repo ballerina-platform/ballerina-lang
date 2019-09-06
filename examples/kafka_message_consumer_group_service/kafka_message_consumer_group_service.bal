@@ -3,7 +3,7 @@ import ballerina/kafka;
 import ballerina/lang. 'string as strings;
 import ballerina/log;
 
-// `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
+// `bootstrapServers` is the list of remote server endpoints of the Kafka brokers.
 kafka:ConsumerConfig consumerConfigs = {
     bootstrapServers: "localhost:9092",
     concurrentConsumers: 2,
@@ -16,7 +16,7 @@ listener kafka:Consumer consumer = new (consumerConfigs);
 
 service kafkaService on consumer {
     resource function onMessage(kafka:Consumer kafkaConsumer, kafka:ConsumerRecord[] records) {
-        // Dispatched set of Kafka records to service, We process each one by one.
+        // The set of Kafka records dispatched to the service processed one by one.
         foreach var kafkaRecord in records {
             processKafkaRecord(kafkaRecord);
         }

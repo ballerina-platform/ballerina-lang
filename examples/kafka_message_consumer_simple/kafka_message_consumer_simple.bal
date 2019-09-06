@@ -3,7 +3,7 @@ import ballerina/kafka;
 import ballerina/lang. 'string as strings;
 import ballerina/log;
 
-// `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
+// `bootstrapServers` is the list of remote server endpoints of the Kafka brokers.
 kafka:ConsumerConfig consumerConfigs = {
     bootstrapServers: "localhost:9092",
     groupId: "group-id",
@@ -14,13 +14,13 @@ kafka:ConsumerConfig consumerConfigs = {
 kafka:Consumer consumer = new (consumerConfigs);
 
 public function main() {
-    // polling consumer for messages
+    // Poll the consumer for messages.
     var results = consumer->poll(1000);
     if (results is error) {
         log:printError("Error occurred while polling ", results);
     } else {
         foreach var kafkaRecord in results {
-            // convert byte[] to string
+            // Convert byte[] to string.
             byte[] serializedMsg = kafkaRecord.value;
             string | error msg = strings:fromBytes(serializedMsg);
             if (msg is string) {
