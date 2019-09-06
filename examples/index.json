@@ -908,11 +908,11 @@
                 "url": "kafka_message_producer"
             },
             {
-                "name": "Consumer",
+                "name": "Consumer Service",
                 "url": "kafka_message_consumer_service"
             },
             {
-                "name": "Simple Consumer",
+                "name": "Consumer Client",
                 "url": "kafka_message_consumer_simple"
             },
             {

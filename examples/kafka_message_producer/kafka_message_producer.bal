@@ -23,14 +23,14 @@ kafka:ProducerConfig producerConfigs = {
     // `noRetries` - number of retries if record send fails.
     // `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
     bootstrapServers: "localhost:9092",
-    clientId:"basic-producer",
-    acks:"all",
-    retryCount:3
+    clientId: "basic-producer",
+    acks: "all",
+    retryCount: 3
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
+kafka:Producer kafkaProducer = new (producerConfigs);
 
-public function main () {
+public function main() {
     string msg = "Hello World, Ballerina";
     byte[] serializedMsg = msg.toBytes();
     var sendResult = kafkaProducer->send(serializedMsg, "test-kafka-topic");
@@ -42,4 +42,3 @@ public function main () {
         log:printError("Kafka producer failed to flush the records", flushResult);
     }
 }
-
