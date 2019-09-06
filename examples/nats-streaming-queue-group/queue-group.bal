@@ -20,7 +20,8 @@ service firstQueueGroupMember on lis {
         // Prints the incoming message in the console.
         string|error messageData = strings:fromBytes(message.getData());
         if (messageData is string) {
-            log:printInfo("Message Received to first queue group member: " + messageData);
+            log:printInfo("Message Received to first queue group member: "
+                                                                + messageData);
         } else {
             log:printError("Error occurred while obtaining message data");
         }
@@ -44,7 +45,8 @@ service secondQueueGroupMember on lis {
         // Prints the incoming message in the console.
         string|error messageData = strings:fromBytes(message.getData());
         if (messageData is string) {
-            log:printInfo("Message Received to second queue group member: " + messageData);
+            log:printInfo("Message Received to second queue group member: "
+                                                                + messageData);
         } else {
             log:printError("Error occurred while obtaining message data");
         }
@@ -68,7 +70,8 @@ service thridQueueGroupMember on lis {
         // Prints the incoming message in the console.
         string|error messageData = strings:fromBytes(message.getData());
         if (messageData is string) {
-            log:printInfo("Message Received to third queue group member: " + messageData);
+            log:printInfo("Message Received to third queue group member: "
+                                                                + messageData);
         } else {
             log:printError("Error occurred while obtaining message data");
         }

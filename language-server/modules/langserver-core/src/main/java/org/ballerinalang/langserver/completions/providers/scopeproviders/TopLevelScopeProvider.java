@@ -122,20 +122,20 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
 
     @Override
     public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
+        List<Integer> lhsTokensTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
         Boolean forcedRemoved = ctx.get(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
-        if (lhsTokens == null || lhsTokens.isEmpty() || (forcedRemoved != null && forcedRemoved)) {
+        if (lhsTokensTypes == null || lhsTokensTypes.isEmpty() || (forcedRemoved != null && forcedRemoved)) {
             return Optional.empty();
         }
         if (this.isAnnotationAttachmentContext(ctx)) {
             return Optional.ofNullable(this.getProvider(AnnotationAttachmentContextProvider.class));
         }
         // Handle with the parser rule context
-        Optional<CommonToken> serviceToken = lhsTokens.stream()
-                .filter(commonToken -> commonToken.getType() == BallerinaParser.SERVICE)
-                .findFirst();
+        int serviceTokenIndex = lhsTokensTypes.indexOf(BallerinaParser.SERVICE);
+        int assignTokenIndex = lhsTokensTypes.indexOf(BallerinaParser.ASSIGN);
 
-        if (serviceToken.isPresent()) {
+        if (serviceTokenIndex > -1 && assignTokenIndex == -1) {
             return Optional.ofNullable(this.getProvider(BallerinaParser.ServiceDefinitionContext.class));
         }
         Optional<String> subRule = this.getSubRule(lhsTokens);

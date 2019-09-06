@@ -27,7 +27,8 @@ public function main() {
     // Closes the publisher connection.
     nats:Error? result = producer.close();
     if (result is nats:Error) {
-        log:printError("Error occurred while closing the logical connection", result);
+        log:printError("Error occurred while closing the logical connection",
+                                                                        result);
     }
 
     result = connection.close();

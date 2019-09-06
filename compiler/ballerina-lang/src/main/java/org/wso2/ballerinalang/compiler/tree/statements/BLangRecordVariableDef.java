@@ -59,6 +59,11 @@ public class BLangRecordVariableDef extends BLangStatement implements VariableDe
     }
 
     @Override
+    public boolean getIsWorker() {
+        return false;
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.VARIABLE_DEF;
     }

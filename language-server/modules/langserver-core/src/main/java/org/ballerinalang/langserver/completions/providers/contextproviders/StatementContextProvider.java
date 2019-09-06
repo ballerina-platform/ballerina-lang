@@ -59,11 +59,14 @@ public class StatementContextProvider extends LSCompletionProvider {
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
         Boolean inWorkerReturn = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        
+
         if (this.isAnnotationAccessExpression(context)) {
             return this.getProvider(AnnotationAccessExpressionContextProvider.class).getCompletions(context);
         }
-        
+        if (this.isAnnotationAttachmentContext(context)) {
+            return this.getProvider(AnnotationAttachmentContextProvider.class).getCompletions(context);
+        }
+
         Optional<String> subRule = this.getSubRule(lhsTokens);
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);

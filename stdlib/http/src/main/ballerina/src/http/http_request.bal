@@ -14,9 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/internal;
 import ballerina/io;
 import ballerina/mime;
-import ballerina/internal;
+import ballerina/stringutils;
 
 # Represents an HTTP request.
 #
@@ -324,7 +325,7 @@ public type Request object {
                 return getGenericClientError(message, formData);
             } else {
                 if (formData != "") {
-                    string[] entries = internal:split(formData, "&");
+                    string[] entries = stringutils:split(formData, "&");
                     int entryIndex = 0;
                     while (entryIndex < entries.length()) {
                         int? index = entries[entryIndex].indexOf("=");
@@ -473,7 +474,7 @@ public type Request object {
 
         RequestCacheControl reqCC = new;
         string cacheControl = self.getHeader(CACHE_CONTROL);
-        string[] directives = internal:split(cacheControl, ",");
+        string[] directives = stringutils:split(cacheControl, ",");
 
         foreach var dir in directives {
             var directive = dir.trim();

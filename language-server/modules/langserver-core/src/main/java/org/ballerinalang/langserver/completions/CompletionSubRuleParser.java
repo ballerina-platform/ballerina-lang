@@ -48,6 +48,12 @@ public class CompletionSubRuleParser {
         getParser(context, functionRule).functionDefinition();
     }
 
+    public static void parseWithinObjectTypeDefinition(String subRule, LSContext context) {
+        String functionRule = "type testObject object {" + CommonUtil.LINE_SEPARATOR + "\t" + subRule +
+                CommonUtil.LINE_SEPARATOR + "};";
+        getParser(context, functionRule).typeDefinition();
+    }
+
     public static void parseWithinServiceDefinition(String subRule, LSContext context) {
         String functionRule = "service testService on new http:Listener(8080) {" + CommonUtil.LINE_SEPARATOR + "\t"
                 + subRule + CommonUtil.LINE_SEPARATOR + "}";

@@ -15,16 +15,18 @@ public function main() {
 
     // Initializes the timer scheduler using the interval value.
     // The delay will be equal to the interval as an initial delay is not provided.
-    task:Scheduler timer = new({ intervalInMillis: intervalInMillis, initialDelayInMillis: 0 });
+    task:Scheduler timer = new({
+        intervalInMillis: intervalInMillis,
+        initialDelayInMillis: 0
+    });
 
     // Define a person object
     Person person = { name: "Sam", age: 0, maxAge: 10 };
 
     // Attaching the service to the timer. This will not start the timer.
-    // Hpowever, it will attach the service to the timer and also passes the
+    // However, it will attach the service to the timer and also passes the
     // person object into the timer service.
-    // Defaultable `serviceParameter` will pass the object into the resources
-    // if it is set.
+    // `attachment` will pass the object into the `onTrigger()` resource
     var attachResult = timer.attach(service1, attachment = person);
     if (attachResult is error) {
         io:println("Error attaching the service1.");
