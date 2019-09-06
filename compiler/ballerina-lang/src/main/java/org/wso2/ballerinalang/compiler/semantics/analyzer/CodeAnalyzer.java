@@ -1288,8 +1288,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isCurrentPositionInWorker(SymbolEnv env) {
-        return env.scope.owner != null
-                && (((BInvokableSymbol) env.scope.owner).flags & Flags.WORKER) == Flags.WORKER;
+        if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.WORKER)) {
+            return true;
+        }
+        if (env.enclEnv != null
+                && !(env.enclEnv.node.getKind() == NodeKind.PACKAGE
+                    || env.enclEnv.node.getKind() == NodeKind.OBJECT_TYPE)) {
+            return isCurrentPositionInWorker(env.enclEnv);
+        }
+        return false;
     }
 
     private boolean referingForkedWorkerOutOfFork(BSymbol symbol, SymbolEnv env) {

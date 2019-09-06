@@ -33,7 +33,7 @@ public class BasicWorkerActionsNegativeTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/actions-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 24, "Worker actions negative test error count");
+        Assert.assertEquals(result.getErrorCount(), 26, "Worker actions negative test error count");
     }
 
     @Test(description = "Test negative scenarios of worker actions")
@@ -67,10 +67,12 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 167, 21);
         BAssertUtil.validateError(result, index++, "unsupported worker reference 'lw1'", 172, 22);
         BAssertUtil.validateError(result, index++, "unsupported worker reference 'wy'", 196, 30);
-        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wiy'", 207, 32);
-        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wix'", 213, 30);
-        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 214, 30);
-        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 220, 30);
-        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 221, 25);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wy'", 198, 26);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wiy'", 210, 32);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wix'", 216, 30);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 217, 30);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 218, 75);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 225, 30);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 226, 25);
     }
 }
