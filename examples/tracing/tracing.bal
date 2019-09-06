@@ -3,7 +3,7 @@ import ballerina/log;
 import ballerina/observe;
 import ballerina/runtime;
 
-// Make sure you start the service with '--b7a.observability.enabled=true`, or tracing enabled.
+// Make sure you start the service with the '--b7a.observability.enabled=true` property or with tracing enabled.
 service hello on new http:Listener(9234) {
 
     // Invoke all resources with arguments of server connector and request.

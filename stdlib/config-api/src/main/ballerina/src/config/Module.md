@@ -1,6 +1,6 @@
 ## Module overview
 
-The `ballerina/config` module provides the Config API to read configurations from environment variables, TOML files, and command-line parameters, and build a consolidated set of configurations.
+The `ballerina/config` module provides the Config API to read configurations from environment variables, TOML files, and command-line parameters and build a consolidated set of configurations.
 
 The precedence order for configuration lookup is as follows: 
 1. CLI configurations (used with the --)
@@ -16,9 +16,9 @@ The Config API provides the capability to feed sensitive data (e.g., passwords) 
 
 ### Setting configurations
 
-To explicitly specify a configuration file, the `--b7a.config=<path to configuration file>` property can be used. If 
+To specify a configuration file explicitly, the `--b7a.config=<path to configuration file>` property can be used. If 
 this property is not set when 
-running a project, Ballerina looks for a `ballerina.conf` file in project root. When running a single file or a `.balx`, it's picked from the same directory as the `.balx` or source. The path to the configuration file can either be an absolute or a relative path. 
+running a project, Ballerina looks for a `ballerina.conf` file in the project root. When running a single file or a `.balx`, it's picked from the same directory in which the `.balx` or source resides. The path to the configuration file can either be an absolute or a relative path. 
 
 ```sh
 ballerina run my-program.bal --b7a.config=/path/to/conf/file/custom-config-file-name.conf 

@@ -1,5 +1,5 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command with '--b7a.observability.enabled=true' property.
+# `.bal` file and execute the `ballerina run` command with the '--b7a.observability.enabled=true' property.
 $ ballerina run counter_metrics.bal --b7a.observability.enabled=true
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9797
 ballerina: started Prometheus HTTP listener 0.0.0.0:9797

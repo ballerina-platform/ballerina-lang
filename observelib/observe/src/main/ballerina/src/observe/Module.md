@@ -3,7 +3,7 @@
 This module provides apis for observing Ballerina services.
 Ballerina supports Observability out of the box. This module provides user api's to make Ballerina Observability more flexible for the user.
 
-To observe ballerina code, the '--b7a.observability.enabled=true' property should be given when starting the service. 
+To observe Ballerina code, the '--b7a.observability.enabled=true' property should be given when starting the service. 
 i.e. `ballerina run hello_world.bal --b7a.observability.enabled=true'
 For more information on Ballerina Observability visit [How to Observe Ballerina Services](https://ballerina.io/learn/how-to-observe-ballerina-code/)
 
