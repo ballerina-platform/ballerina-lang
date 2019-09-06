@@ -38,7 +38,6 @@ import static org.wso2.transport.http.netty.contract.Constants.ERROR_COULD_NOT_R
 import static org.wso2.transport.http.netty.contract.Constants.SECURITY;
 import static org.wso2.transport.http.netty.contract.Constants.SSL;
 import static org.wso2.transport.http.netty.contract.Constants.SSL_CONNECTION_ERROR;
-import static org.wso2.transport.http.netty.contract.Constants.UNKNOWN_HOST_EXCEPTION;
 
 /**
  * A future to check the connection availability.
