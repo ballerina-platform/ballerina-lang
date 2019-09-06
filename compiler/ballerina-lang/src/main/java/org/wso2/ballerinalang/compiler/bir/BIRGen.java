@@ -224,7 +224,30 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public BLangPackage genBIR(BLangPackage astPkg) {
+        BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName,
+                astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
+
+        astPkg.symbol.bir = birPkg; //TODO try to remove this
+
+        this.env = new BIRGenEnv(birPkg);
         astPkg.accept(this);
+
+        this.birOptimizer.optimizePackage(birPkg);
+        astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
+
+        if (astPkg.hasTestablePackage()) {
+            astPkg.getTestablePkgs().forEach(testPkg -> {
+                visitBuiltinFunctions(testPkg, testPkg.initFunction);
+                visitBuiltinFunctions(testPkg, testPkg.startFunction);
+                visitBuiltinFunctions(testPkg, testPkg.stopFunction);
+                // remove imports of the main module from testable module
+                astPkg.imports.stream().forEach(mod -> testPkg.imports.remove(mod));
+                testPkg.accept(this);
+                this.birOptimizer.optimizePackage(birPkg);
+                testPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
+            });
+        }
+
         setEntryPoints(astPkg);
         return astPkg;
     }
@@ -249,16 +272,21 @@ public class BIRGen extends BLangNodeVisitor {
         return null;
     }
 
+    private void visitBuiltinFunctions(BLangPackage pkgNode, BLangFunction function) {
+        if (Symbols.isFlagOn(pkgNode.symbol.flags, Flags.TESTABLE)) {
+            String funcName = function.getName().value;
+            String builtinFuncName = funcName.substring(funcName.indexOf("<") + 1, funcName.indexOf(">"));
+            String modifiedFuncName = funcName.replace(builtinFuncName, "test" + builtinFuncName);
+            function.name.setValue(modifiedFuncName);
+            function.originalFuncSymbol.name.value = modifiedFuncName;
+            function.symbol.name.value = modifiedFuncName;
+        }
+    }
+
     // Nodes
 
     @Override
     public void visit(BLangPackage astPkg) {
-        BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName,
-                astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
-
-        astPkg.symbol.bir = birPkg; //TODO try to remove this
-
-        this.env = new BIRGenEnv(birPkg);
         // Lower function nodes in AST to bir function nodes.
         // TODO handle init, start, stop functions
         astPkg.imports.forEach(impPkg -> impPkg.accept(this));
@@ -270,9 +298,6 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.stopFunction.accept(this);
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
-
-        this.birOptimizer.optimizePackage(birPkg);
-        astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
     }
 
     @Override

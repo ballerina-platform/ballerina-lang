@@ -66,7 +66,7 @@ public class Close {
             }
         } catch (IOException e) {
             log.error("Unable to close the connection", e);
-            return SocketUtils.createSocketError("Unable to close the client socket connection");
+            return SocketUtils.createSocketError("unable to close the client socket connection");
         }
         return null;
     }
