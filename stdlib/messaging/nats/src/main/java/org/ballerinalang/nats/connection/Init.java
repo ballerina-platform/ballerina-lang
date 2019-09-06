@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
 import java.io.FileInputStream;
@@ -67,10 +68,12 @@ import static org.ballerinalang.nats.Constants.SERVICE_LIST;
  * @since 0.995
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "nats",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.NATS,
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/nats"),
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = "Connection",
+                structPackage = Constants.NATS_PACKAGE),
         isPublic = true
 )
 public class Init {
@@ -123,11 +126,11 @@ public class Init {
 
         List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
         // Add NATS connection listener.
-        opts.connectionListener(new DefaultConnectionListener(strand.scheduler, serviceList));
+        opts.connectionListener(new DefaultConnectionListener());
 
         // Add NATS error listener.
         if (connectionConfig.getBooleanValue(ENABLE_ERROR_LISTENER)) {
-            ErrorListener errorListener = new DefaultErrorListener(strand.scheduler, serviceList);
+            ErrorListener errorListener = new DefaultErrorListener();
             opts.errorListener(errorListener);
         }
 
