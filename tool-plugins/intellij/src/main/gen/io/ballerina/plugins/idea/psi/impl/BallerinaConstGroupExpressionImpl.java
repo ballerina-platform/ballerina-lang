@@ -24,22 +24,39 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public abstract class BallerinaConstantExpressionImpl extends ASTWrapperPsiElement implements BallerinaConstantExpression {
+public class BallerinaConstGroupExpressionImpl extends BallerinaConstantExpressionImpl implements BallerinaConstGroupExpression {
 
-  public BallerinaConstantExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaConstGroupExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitConstantExpression(this);
+    visitor.visitConstGroupExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof BallerinaVisitor) accept((BallerinaVisitor)visitor);
     else super.accept(visitor);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaConstantExpression getConstantExpression() {
+    return findChildByClass(BallerinaConstantExpression.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getLeftParenthesis() {
+    return findNotNullChildByType(LEFT_PARENTHESIS);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightParenthesis() {
+    return findChildByType(RIGHT_PARENTHESIS);
   }
 
 }
