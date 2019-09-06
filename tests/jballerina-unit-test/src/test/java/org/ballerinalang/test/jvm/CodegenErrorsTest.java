@@ -41,7 +41,8 @@ public class CodegenErrorsTest {
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: .:too-large-object-method.bal:18:5: method is too large: 'getXML'")
+            expectedExceptionsMessageRegExp = "error: .:too-large-object-method.bal:18:5: method is too large: " +
+                    "'getXML'")
     public void testTooLargeObjectField() {
         BCompileUtil.compileInProc("test-src/jvm/too-large-object-method.bal");
     }
