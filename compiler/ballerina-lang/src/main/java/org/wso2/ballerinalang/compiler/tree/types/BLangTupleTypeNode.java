@@ -43,6 +43,11 @@ public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
     }
 
     @Override
+    public BLangType getRestParamType() {
+        return this.restParamType;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
