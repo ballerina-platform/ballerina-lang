@@ -407,21 +407,22 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 String topLevelNodeType = CommonUtil.topLevelNodeInLine(identifier, line, documentManager);
 
+                // NOTE: Temporary disable testsgen code action. enable once tested thoroughly
                 // Add create test commands
-                Path modulePath = document.getOwnerModulePath() == null ? document.getProjectRootPath()
-                        : document.getOwnerModulePath();
-                String innerDirName = modulePath.relativize(document.getPath()).toString()
-                        .split(Pattern.quote(File.separator))[0];
-                String moduleName = document.getOwnerModule();
-                if (topLevelNodeType != null && diagnostics.isEmpty() && document.isWithinProject() &&
-                        !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
-                        !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
-                    /*
-                    Test generation suggested only when no code diagnosis exists, inside a bal project,
-                    inside a module, not inside /tests folder
-                     */
-                    actions.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params, context));
-                }
+//                Path modulePath = document.getOwnerModulePath() == null ? document.getProjectRootPath()
+//                        : document.getOwnerModulePath();
+//                String innerDirName = modulePath.relativize(document.getPath()).toString()
+//                        .split(Pattern.quote(File.separator))[0];
+//                String moduleName = document.getOwnerModule();
+//                if (topLevelNodeType != null && diagnostics.isEmpty() && document.isWithinProject() &&
+//                        !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
+//                        !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
+//                    /*
+//                    Test generation suggested only when no code diagnosis exists, inside a bal project,
+//                    inside a module, not inside /tests folder
+//                     */
+//                    actions.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params, context));
+//                }
 
                 // Add commands base on node diagnostics
                 if (!diagnostics.isEmpty()) {
