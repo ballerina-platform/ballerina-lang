@@ -68,6 +68,14 @@ service ser2 on ex {
     public resource function bar() {
 
     }
+
+    public function car() {
+
+    }
+
+    private function dar() {
+
+    }
 }
 
 service ser3 on ex {
@@ -91,3 +99,27 @@ service ser4 = service {
         return FooErr();
     }
 };
+
+service def = service {
+    resource function tuv() {
+    }
+
+    function xyz() {
+    }
+};
+
+service kgp on ex {
+    resource function pkg() {
+    }
+
+    function gkp() {
+    }
+}
+
+public function invokeServiceFunctions() {
+    _ = def.tuv();
+    _ = def.xyz();
+    _ = kgp.pkg();
+    _ = kgp.gkp();
+}
+

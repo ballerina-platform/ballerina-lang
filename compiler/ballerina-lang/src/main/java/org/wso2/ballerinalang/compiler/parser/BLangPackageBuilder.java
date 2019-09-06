@@ -2197,7 +2197,6 @@ public class BLangPackageBuilder {
         if (resourceFunc) {
             function.flagSet.add(Flag.RESOURCE);
         }
-
         if (nativeFunc) {
             function.flagSet.add(Flag.NATIVE);
         }
