@@ -142,7 +142,13 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 executePostUpgradeActions(ctx);
             }
             ctx.fireUserEventTriggered(evt);
-        } else if (evt instanceof Http2ConnectionPrefaceAndSettingsFrameWrittenEvent) {
+        } else {
+            logTheErrorMsg(evt);
+        }
+    }
+
+    private void logTheErrorMsg(Object evt) {
+        if (evt instanceof Http2ConnectionPrefaceAndSettingsFrameWrittenEvent) {
             LOG.debug("Connection Preface and Settings frame written");
         } else if (evt instanceof SslCloseCompletionEvent) {
             LOG.debug("SSL close completion event received");
