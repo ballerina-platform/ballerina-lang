@@ -144,8 +144,13 @@ public class ConnectionAvailabilityFuture {
             connectorException = new UnresolvedHostException(ERROR_COULD_NOT_RESOLVE_HOST + COLON +
                     cause.getMessage(), HttpResponseStatus.BAD_GATEWAY.code());
         } else {
-            connectorException = new ClientConnectorException(channelFuture.cause().getMessage(),
-                    HttpResponseStatus.BAD_GATEWAY.code());
+            if (channelFuture.cause() != null) {
+                connectorException = new ClientConnectorException(channelFuture.cause().getMessage(),
+                        HttpResponseStatus.BAD_GATEWAY.code());
+            } else {
+                connectorException = new ClientConnectorException("Generic client error",
+                        HttpResponseStatus.BAD_GATEWAY.code());
+            }
         }
         if (channelFuture.cause() != null) {
             connectorException.initCause(channelFuture.cause());
