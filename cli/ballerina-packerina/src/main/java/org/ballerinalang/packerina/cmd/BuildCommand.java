@@ -370,7 +370,6 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                                     // skipLock flag is not given exists(projects only)
-                .addTask(new CreateDocsTask(), isSingleFileBuild)   // generate API docs(projects only)
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
