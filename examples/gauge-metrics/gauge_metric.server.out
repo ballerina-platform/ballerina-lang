@@ -1,6 +1,6 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command with `--observe` param.
-$ ballerina run --observe gauge_metrics.bal
+# `.bal` file and use the `ballerina run` command with '--b7a.observability.enabled=true' property.
+$ ballerina run gauge_metrics.bal --b7a.observability.enabled=true
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9797
 ballerina: started Prometheus HTTP listener 0.0.0.0:9797
 ballerina: started publishing tracers to Jaeger on localhost:5775
