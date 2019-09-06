@@ -155,6 +155,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
+        closeChannel(ctx);
+
         if (!idleTimeout) {
             if (!requestSet.isEmpty()) {
                 requestSet.forEach((key, inboundMsg) -> inboundMsg.listenerReqRespStateManager
@@ -163,7 +165,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 notifyErrorListenerAtConnectedState(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
             }
         }
+
         closeTargetChannels();
+
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
             handlerExecutor = null;
