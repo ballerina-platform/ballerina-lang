@@ -51,6 +51,7 @@ dependencies {
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-jdbc')
+    implementation project(':ballerina-java')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-file')
     implementation project(':ballerina-filepath')
@@ -97,6 +98,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
@@ -124,6 +126,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
 //    baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 

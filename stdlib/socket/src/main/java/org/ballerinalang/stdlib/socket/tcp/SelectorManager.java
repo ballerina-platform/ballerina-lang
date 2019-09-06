@@ -191,7 +191,7 @@ public class SelectorManager {
                 socketService.getSocketChannel()
                         .register(selector, channelRegisterCallback.getInitialInterest(), socketService);
             } catch (ClosedChannelException e) {
-                channelRegisterCallback.notifyFailure("Socket already closed");
+                channelRegisterCallback.notifyFailure("socket already closed");
                 continue;
             }
             // Notification needs to happen to the client connection in the socket server only if the client has
@@ -246,20 +246,20 @@ public class SelectorManager {
         } catch (ClosedByInterruptException e) {
             SelectorDispatcher
                     .invokeOnError(new SocketService(socketService.getScheduler(), socketService.getService()),
-                    "Client accept interrupt by another process");
+                    "client accept interrupt by another process");
         } catch (AsynchronousCloseException e) {
             SelectorDispatcher
                     .invokeOnError(new SocketService(socketService.getScheduler(), socketService.getService()),
-                            "Client closed by another process");
+                            "client closed by another process");
         } catch (ClosedChannelException e) {
             SelectorDispatcher
                     .invokeOnError(new SocketService(socketService.getScheduler(), socketService.getService()),
-                            "Client is already closed");
+                            "client is already closed");
         } catch (IOException e) {
             log.error("An error occurred while accepting new client", e);
             SelectorDispatcher
                     .invokeOnError(new SocketService(socketService.getScheduler(), socketService.getService()),
-                            "Unable to accept a new client");
+                            "unable to accept a new client. " +  e.getMessage());
         }
     }
 
@@ -339,13 +339,13 @@ public class SelectorManager {
             callback.getCallback().notifySuccess();
             callback.cancelTimeout();
         } catch (CancelledKeyException | ClosedChannelException e) {
-            processError(callback, null, "Connection closed");
+            processError(callback, null, "connection closed");
         } catch (IOException e) {
             log.error("Error while data receive.", e);
             processError(callback, null, e.getMessage());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            processError(callback, ReadTimedOutError, "Error while on receiveFrom operation");
+            processError(callback, ReadTimedOutError, "error while on receiveFrom operation");
         }
     }
 
@@ -380,15 +380,15 @@ public class SelectorManager {
             callback.getCallback().notifySuccess();
             callback.cancelTimeout();
         } catch (NotYetConnectedException e) {
-            processError(callback, null, "Connection not yet connected");
+            processError(callback, null, "connection not yet connected");
         } catch (CancelledKeyException | ClosedChannelException e) {
-            processError(callback, null, "Connection closed");
+            processError(callback, null, "connection closed");
         } catch (IOException e) {
             log.error("Error while read.", e);
             processError(callback, null, e.getMessage());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            processError(callback, null, "Error while on read operation");
+            processError(callback, null, "error while on read operation");
         }
     }
 

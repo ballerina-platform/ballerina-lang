@@ -53,6 +53,7 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"recordTest2.json", "toplevel"},
                 {"globalVarDef1.json", "toplevel"},
                 {"globalVarDef2.json", "toplevel"},
+                {"globalVarDef3.json", "toplevel"},
                 {"globalVarDefPackageContent.json", "toplevel"},
                 {"topLevelCompletionAfterDocumentation.json", "toplevel"},
                 {"importStatement1.json", "toplevel"},
@@ -67,6 +68,10 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"topLevelCompletionAfterFinalKeyword2.json", "toplevel"},
                 {"topLevelPackageContentAccess.json", "toplevel"},
                 {"constantDefinition1.json", "toplevel"},
+                {"statementWithMissingSemiColon1.json", "toplevel"},
+                {"statementWithMissingSemiColon2.json", "toplevel"},
+                {"statementWithMissingSemiColon3.json", "toplevel"},
+                {"statementWithMissingSemiColon4.json", "toplevel"},
         };
     }
 }

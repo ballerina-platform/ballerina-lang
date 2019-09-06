@@ -75,9 +75,9 @@ public class ToolUtil {
     /**
      * List distributions in the local and remote.
      * @param outStream stream outputs need to be printed
-     * @param isRemote option to list distributions in the central
+     * @param isLocal option to list distributions only in the local
      */
-    public static void listDistributions(PrintStream outStream, boolean isRemote) {
+    public static void listDistributions(PrintStream outStream, boolean isLocal) {
         try {
             outStream.println("Distributions available locally: \n");
             String currentBallerinaVersion = getCurrentBallerinaVersion();
@@ -92,7 +92,7 @@ public class ToolUtil {
             }
             outStream.println();
 
-            if (isRemote) {
+            if (!isLocal) {
                 outStream.println("Distributions available remotely: \n");
                 MapValue distributions = getDistributions();
                 for (int i = 0; i < distributions.getArrayValue("list").size(); i++) {
@@ -130,7 +130,7 @@ public class ToolUtil {
      */
     private static String getCurrentToolsVersion() {
         //TODO: Need to read folder
-        return "1.0.0-beta-SNAPSHOT";
+        return "1.0.0-beta";
     }
 
     private static String getVersion(String path) throws IOException {
@@ -263,20 +263,15 @@ public class ToolUtil {
             Version currentVersion = new Version(version);
             String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
             if (!latestVersion.equals(version)) {
-                install(printStream, BALLERINA_TYPE + "-" + latestVersion, false);
-                use(printStream, latestVersion);
+                String distribution = BALLERINA_TYPE + "-" + latestVersion;
+                install(printStream, distribution, false);
+                use(printStream, distribution);
             } else {
                 printStream.println("No update found");
             }
         } catch (IOException | KeyManagementException | NoSuchAlgorithmException e) {
             printStream.println("Cannot connect to the central server");
         }
-    }
-
-    public static void selfUpdate(PrintStream printStream) {
-        //TODO: Need to implement
-        printStream.println("Self update service is not availalble. " +
-                "Please visit https://ballerina.io/downloads/ to get latest tools");
     }
 
     public static void remove(PrintStream outStream, String version) {
@@ -412,8 +407,8 @@ public class ToolUtil {
      */
     public static void checkForUpdate(PrintStream printStream, String[] args) {
         try {
-            boolean isRunCommand = Arrays.stream(args).anyMatch("run"::equals);
-            if (!isRunCommand) {
+            //Update check will be done only for build command
+            if (Arrays.stream(args).anyMatch("build"::equals)) {
                 String version = getCurrentBallerinaVersion();
                 if (OSUtils.updateNotice(version)) {
                     Version currentVersion = new Version(version);

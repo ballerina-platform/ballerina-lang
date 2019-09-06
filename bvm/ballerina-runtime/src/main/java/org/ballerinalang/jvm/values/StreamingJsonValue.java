@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.JSONDataSource;
 import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -28,8 +29,13 @@ import java.io.OutputStream;
 import java.io.Writer;
 
 /**
+ * <p>
  * {@link StreamingJsonValue} represent a JSON array generated from a {@link JSONDataSource}.
- * 
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ *  
  * @since 0.981.0
  */
 public class StreamingJsonValue extends ArrayValue {
@@ -121,6 +127,15 @@ public class StreamingJsonValue extends ArrayValue {
         }
 
         return super.toString();
+    }
+
+    @Override
+    public String stringValue(Strand strand) {
+        if (datasource.hasNext()) {
+            buildDatasource();
+        }
+
+        return super.stringValue(strand);
     }
 
     @Override

@@ -53,6 +53,11 @@ public class BLangTupleVariableDef extends BLangStatement implements VariableDef
     }
 
     @Override
+    public boolean getIsWorker() {
+        return false;
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.VARIABLE_DEF;
     }

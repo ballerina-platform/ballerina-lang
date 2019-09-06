@@ -36,6 +36,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
@@ -56,6 +57,7 @@ dependencies {
     implementation project(':ballerina-file')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-tool')
+    implementation project(':ballerina-stringutils')
 
     testImplementation 'org.slf4j:slf4j-jdk14'
     testImplementation 'com.h2database:h2'

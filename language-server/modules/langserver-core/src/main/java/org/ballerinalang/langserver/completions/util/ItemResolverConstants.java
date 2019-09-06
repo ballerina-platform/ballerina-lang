@@ -54,12 +54,15 @@ public class ItemResolverConstants {
     public static final String FUNCTION = "function";
     public static final String FUNCTION_SIGNATURE = "function signature";
     public static final String MAIN_FUNCTION = "public main function";
-    public static final String SERVICE = "service/http";
+    public static final String SERVICE_HTTP = "service/http";
+    public static final String SERVICE = "service";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
+    public static final String SERVICE_WEBSOCKET_CLIENT = "service/webSocketClient";
     public static final String SERVICE_WEBSUB = "service/webSub";
     public static final String SERVICE_GRPC = "service/gRPC";
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
+    public static final String HTTP_RESOURCE = "http resource";
     public static final String RESOURCE = "resource";
 
     // End of Basic Constructs
@@ -104,6 +107,7 @@ public class ItemResolverConstants {
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";
+    public static final String PRIVATE_KEYWORD = "private";
     public static final String FINAL_KEYWORD = "final";
     public static final String CONST_KEYWORD = "const";
 

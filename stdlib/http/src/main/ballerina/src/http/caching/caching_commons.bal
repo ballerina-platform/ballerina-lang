@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
 import ballerina/lang.'int;
+import ballerina/stringutils;
 
 // Cache-control directives
 # Forces the cache to validate a cached response with the origin server before serving.
@@ -235,7 +235,7 @@ function buildCommaSeparatedString (string[] values) returns string {
 }
 
 function getExpirationDirectiveValue (string directive) returns int {
-    string[] directiveParts = internal:split(directive, "=");
+    string[] directiveParts = stringutils:split(directive, "=");
 
     // Disregarding the directive if a value isn't provided
     if (directiveParts.length() != 2) {

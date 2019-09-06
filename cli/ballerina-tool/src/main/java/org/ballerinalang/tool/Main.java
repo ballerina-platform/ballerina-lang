@@ -54,9 +54,9 @@ public class Main {
 
     public static void main(String... args) {
         try {
-            ToolUtil.checkForUpdate(outStream, args);
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
+            ToolUtil.checkForUpdate(outStream, args);
         } catch (BLangRuntimeException e) {
             errStream.println(e.getMessage());
             Runtime.getRuntime().exit(1);
@@ -113,11 +113,6 @@ public class Main {
             EncryptCmd encryptCmd = new EncryptCmd();
             cmdParser.addSubcommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
             encryptCmd.setParentCmdParser(cmdParser);
-
-            // Ballerina Self Update Command
-            SelfUpdateCmd selfUpdateCmd = new SelfUpdateCmd();
-            cmdParser.addSubcommand(BallerinaCliCommands.SELF_UPDATE, selfUpdateCmd);
-            selfUpdateCmd.setParentCmdParser(cmdParser);
 
             //DistCmd Command
             DistCmd distCmd = new DistCmd();
@@ -395,62 +390,6 @@ public class Main {
 
 
     /**
-     * This class represents the "self-update" command and it holds arguments and flags specified by the user.
-     *
-     * @since 1.0.0
-     */
-    @CommandLine.Command(name = "self-update", description = "Updates Ballerina tool itself")
-    private static class SelfUpdateCmd implements BLauncherCmd {
-
-        @CommandLine.Parameters(description = "Command name")
-        private List<String> selfUpdateCommands;
-
-        @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
-        private boolean helpFlag;
-
-        private CommandLine parentCmdParser;
-
-        public void execute() {
-            if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.SELF_UPDATE);
-                return;
-            }
-
-            if (selfUpdateCommands == null) {
-                ToolUtil.selfUpdate(outStream);
-                return;
-            } else if (selfUpdateCommands.size() > 1) {
-                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
-            }
-
-            String userCommand = selfUpdateCommands.get(0);
-            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
-            }
-        }
-
-        @Override
-        public String getName() {
-            return BallerinaCliCommands.SELF_UPDATE;
-        }
-
-        @Override
-        public void printLongDesc(StringBuilder out) {
-
-        }
-
-        @Override
-        public void printUsage(StringBuilder out) {
-            out.append("  ballerina self-update\n");
-        }
-
-        @Override
-        public void setParentCmdParser(CommandLine parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
-        }
-    }
-
-    /**
      * Represents the encrypt command which can be used to make use of the AES cipher tool. This is for the users to be
      * able to encrypt sensitive values before adding them to config files.
      *
@@ -499,11 +438,11 @@ public class Main {
                 AESCipherTool cipherTool = new AESCipherTool(secret);
                 String encryptedValue = cipherTool.encrypt(value);
 
-                errStream.println("Add the following to the runtime config:");
-                errStream.println("@encrypted:{" + encryptedValue + "}\n");
+                errStream.println("Add the following to the configuration file:");
+                errStream.println("<key>=\"@encrypted:{" + encryptedValue + "}\"\n");
 
-                errStream.println("Or add to the runtime command line:");
-                errStream.println("-e<param>=@encrypted:{" + encryptedValue + "}");
+                errStream.println("Or provide it as a command line argument:");
+                errStream.println("--<key>=@encrypted:{" + encryptedValue + "}");
             } catch (AESCipherToolException e) {
                 throw LauncherUtils.createLauncherException("failed to encrypt value: " + e.getMessage());
             }
@@ -595,8 +534,8 @@ public class Main {
         @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
-        @CommandLine.Option(names = {"--remote"}, hidden = true)
-        private boolean remoteFlag;
+        @CommandLine.Option(names = {"--local"}, hidden = true)
+        private boolean localFlag;
 
         private CommandLine parentCmdParser;
 
@@ -607,7 +546,7 @@ public class Main {
             }
 
             if (listCommands == null) {
-                ToolUtil.listDistributions(outStream, remoteFlag);
+                ToolUtil.listDistributions(outStream, localFlag);
                 return;
             } else if (listCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
@@ -658,7 +597,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.PULL);
+                printUsageInfo("dist-" + BallerinaCliCommands.PULL);
                 return;
             }
 

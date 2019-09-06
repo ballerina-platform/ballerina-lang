@@ -3,7 +3,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 public function main() {
-    // Client endpoint configuration
+    // Client endpoint configuration.
     HelloWorldBlockingClient helloWorldBlockingEp = new("http://localhost:9090");
 
     // Writes custom headers to request message.

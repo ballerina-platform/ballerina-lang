@@ -130,13 +130,23 @@ public class SourcePruner {
         List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());
+        List<CommonToken> rhsDefaultTokens = rhsTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
         List<Integer> lhsDefaultTokenTypes = lhsDefaultTokens.stream()
                 .map(CommonToken::getType)
                 .collect(Collectors.toList());
-        lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens); 
+        List<Integer> rhsDefaultTokenTypes = rhsDefaultTokens.stream()
+                .map(CommonToken::getType)
+                .collect(Collectors.toList());
+        lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens);
         lsContext.put(CompletionKeys.LHS_DEFAULT_TOKENS_KEY, lhsDefaultTokens); 
         lsContext.put(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY, lhsDefaultTokenTypes); 
         lsContext.put(CompletionKeys.RHS_TOKENS_KEY, rhsTokens);
+        lsContext.put(CompletionKeys.RHS_DEFAULT_TOKENS_KEY, rhsDefaultTokens);
+        lsContext.put(CompletionKeys.RHS_DEFAULT_TOKEN_TYPES_KEY, rhsDefaultTokenTypes);
+        lsContext.put(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY,
+                sourcePruneCtx.get(SourcePruneKeys.FORCE_CAPTURED_STATEMENT_WITH_PARENTHESIS_KEY));
 
         // Update document manager
         documentManager.setPrunedContent(path, tokenStream.getText());

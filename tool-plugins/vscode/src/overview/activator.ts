@@ -65,6 +65,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	}
 
 	ballerinaExtInstance.onProjectTreeElementClicked((construct) => {
+		if (projectOverviewPanel) {
+			projectOverviewPanel.reveal();
+		}
 		updateSelectedConstruct(construct);
 	});
 
@@ -124,6 +127,8 @@ function openFileOverview(langClient: ExtendedLangClient) {
 		if (!(activeEditor && activeEditor.document && activeEditor.document.languageId === "ballerina")) {
 			return;
 		}
+		didChangeDisposable.dispose();
+		didChangeActiveEditorDisposable.dispose();
 		openFileOverview(langClient);
 	});
 
@@ -135,7 +140,7 @@ function openFileOverview(langClient: ExtendedLangClient) {
 			getCommonWebViewOptions()
 		);
 
-		ballerinaExtInstance.addWebviewPanel("file", fileOverviewPanel);
+		ballerinaExtInstance.addWebviewPanel('file', fileOverviewPanel);
 	}
 
 	fileOverviewRpcHandler = WebViewRPCHandler.create(fileOverviewPanel, langClient);

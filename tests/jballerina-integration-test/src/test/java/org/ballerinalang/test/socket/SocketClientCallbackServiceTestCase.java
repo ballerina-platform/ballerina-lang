@@ -88,7 +88,7 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
 
     @Test(description = "Check read timeout")
     public void testSocketReadTimeout() {
-        LogLeecher timeoutLeecher = new LogLeecher("Read timed out");
+        LogLeecher timeoutLeecher = new LogLeecher("read timed out");
         serverInstance.addLogLeecher(timeoutLeecher);
         try (SocketChannel socketChannel = SocketChannel.open()) {
             socketChannel.configureBlocking(true);

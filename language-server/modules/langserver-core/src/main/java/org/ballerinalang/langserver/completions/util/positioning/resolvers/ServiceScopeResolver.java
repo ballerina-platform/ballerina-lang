@@ -58,7 +58,7 @@ public class ServiceScopeResolver extends CursorPositionResolver {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
-            treeVisitor.setNextNode(bSymbol);
+            treeVisitor.setNextNode(bSymbol, node);
             treeVisitor.forceTerminateVisitor();
             return true;
         }

@@ -64,7 +64,12 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERE
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
+ * <p>
  * Represent an array in ballerina.
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @since 0.995.0
  */
@@ -549,8 +554,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
 
         for (int i = 0; i < size; i++) {
-            BType type = TypeChecker.getType(refValues[i]);
-            sj.add(StringUtils.getStringValue(strand, refValues[i], type));
+            sj.add(StringUtils.getStringValue(strand, refValues[i]));
         }
         return sj.toString();
     }

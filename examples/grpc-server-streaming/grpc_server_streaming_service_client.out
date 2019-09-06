@@ -1,6 +1,6 @@
 # Create a Ballerina project and a module inside it.
-# Copy generated stub file `grpc_server_streaming_pb.bal` inside the module.
-# For example, if you create a module named `client`, copy the stub file in the `client` module.
+# Copy generated stub file `grpc_server_streaming_pb.bal` to the module.
+# For example, if you create a module named `client`, copy the stub file to the `client` module.
 
 # Add new Ballerina file `grpc_server_streaming_client.bal` inside the `client` module and add client implementation.
 

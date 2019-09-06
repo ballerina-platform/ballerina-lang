@@ -28,12 +28,9 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Parser rule based variable definition statement context resolver.
@@ -47,29 +44,36 @@ public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
     @Override
     public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        BLangNode scopeNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
-        List<Integer> lhsTokenTypes = lhsTokens.stream().map(CommonToken::getType).collect(Collectors.toList());
+        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> lhsTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         int invocationOrDelimiterTokenType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        if (invocationOrDelimiterTokenType > -1) {
-            completionItems.addAll(getDelimiterBasedCompletionItems(ctx));
-            ctx.put(CompletionKeys.ITEM_SORTER_KEY, ActionAndFieldAccessContextItemSorter.class);
-            return completionItems;
-        }
-        
+
         if (lhsTokenTypes.contains(BallerinaParser.ASSIGN)) {
             return this.getProvider(BallerinaParser.VariableDefinitionStatementContext.class).getCompletions(ctx);
         }
 
+        if (invocationOrDelimiterTokenType == BallerinaParser.COLON) {
+            String pkgName = lhsTokens.get(lhsTokenTypes.indexOf(invocationOrDelimiterTokenType) - 1).getText();
+            completionItems.addAll(this.getTypesInPackage(visibleSymbols, pkgName, ctx));
+            ctx.put(CompletionKeys.ITEM_SORTER_KEY, ActionAndFieldAccessContextItemSorter.class);
+            return completionItems;
+        }
+
         completionItems.addAll(this.getBasicTypes(visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
-        completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
 
-        if (scopeNode instanceof BLangService) {
-            completionItems.addAll(this.getResourceSnippets(ctx));
-            completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
-        }
+        completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(ctx));
+        completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_REMOTE_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_INIT_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_ATTACH_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_DETACH_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_START_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_GRACEFUL_STOP_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_IMMEDIATE_STOP_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
+        completionItems.add(Snippet.KW_PRIVATE.get().build(ctx));
 
         return completionItems;
     }

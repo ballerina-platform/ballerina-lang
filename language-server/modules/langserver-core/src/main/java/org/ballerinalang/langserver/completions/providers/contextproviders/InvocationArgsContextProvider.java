@@ -53,6 +53,11 @@ public class InvocationArgsContextProvider extends LSCompletionProvider {
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+
+        if (this.isAnnotationAccessExpression(context)) {
+            return this.getProvider(AnnotationAccessExpressionContextProvider.class).getCompletions(context);
+        }
+
         if (invocationOrDelimiterTokenType > -1) {
             Either<List<CompletionItem>, List<SymbolInfo>> filtered = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);

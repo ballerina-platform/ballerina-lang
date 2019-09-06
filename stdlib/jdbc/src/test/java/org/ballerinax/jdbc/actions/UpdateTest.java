@@ -93,7 +93,7 @@ public class UpdateTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
-        Assert.assertTrue(returns[5].stringValue().contains("Failed to execute update query:"));
+        Assert.assertTrue(returns[5].stringValue().contains("failed to execute update query:"));
         Assert.assertEquals(returns[6].stringValue(), "42501");
         Assert.assertEquals(returns[7].stringValue(), "{ballerinax/java.jdbc}DatabaseError");
         Assert.assertEquals(((BInteger) returns[8]).intValue(), -5501);
@@ -249,7 +249,7 @@ public class UpdateTest {
     public void testInsertBoolDataAsIntsInvalidParams() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsIntsInvalidParams", args);
         Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/java.jdbc}ApplicationError"));
-        Assert.assertTrue(returns[0].stringValue().contains("Invalid integer value \"91\" specified for boolean"));
+        Assert.assertTrue(returns[0].stringValue().contains("invalid integer value \"91\" specified for boolean"));
     }
 
     @Test(groups = UPDATE_TEST)

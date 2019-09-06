@@ -6,4 +6,4 @@ Authorization failure
 
 # Since `generalUser2` has `scope2` the invocation will succeeded.
 $ curl -k -u generalUser2:password https://localhost:9090/hello/sayHello
-Hello, World!
+Hello, World!!!

@@ -37,16 +37,18 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  * @since 0.995
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "nats",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.NATS,
         functionName = "externPublish",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Producer", structPackage = "ballerina/nats"),
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = "Producer",
+                structPackage = Constants.NATS_PACKAGE),
         isPublic = true
 )
 public class Publish {
 
     public static Object externPublish(Strand strand, ObjectValue producerObject, String subject, Object data,
-                                 Object replyTo) {
+                                       Object replyTo) {
         Object connection = producerObject.get("connection");
 
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
@@ -54,8 +56,8 @@ public class Publish {
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
 
             if (natsConnection == null) {
-                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while publishing message to " +
-                        "subject " + subject + ". NATS connection doesn't exist.");
+                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
+                        ". NATS connection doesn't exist.");
             }
             byte[] byteContent = convertDataIntoByteArray(data);
             try {
@@ -65,12 +67,12 @@ public class Publish {
                     natsConnection.publish(subject, byteContent);
                 }
             } catch (IllegalArgumentException | IllegalStateException ex) {
-                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while publishing message to " +
-                        "subject " + subject + ". " + ex.getMessage());
+                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
+                        ". " + ex.getMessage());
             }
         } else {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while publishing message to " +
-                    "subject " + subject + ". Producer is logically disconnected.");
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
+                    ". Producer is logically disconnected.");
         }
         return null;
     }

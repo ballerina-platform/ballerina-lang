@@ -7,4 +7,4 @@ $ ballerina run --observe tracing.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9797
 ballerina: started Prometheus HTTP listener 0.0.0.0:9797
 ballerina: started publishing tracers to Jaeger on localhost:5775
-[ballerina/http] started HTTP/WS listener 0.0.0.0:9090
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9234

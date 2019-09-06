@@ -30,6 +30,8 @@ type WebSocketConnector object {
         string text = "";
         if (data is byte[]) {
             text = check strings:fromBytes(data);
+        } else if (data is json) {
+            text = data.toJsonString();
         } else {
             text = data.toString();
         }

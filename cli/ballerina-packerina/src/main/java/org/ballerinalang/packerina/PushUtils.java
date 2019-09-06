@@ -272,7 +272,9 @@ public class PushUtils {
                     // Throw errors in the following scenarios if they are not available in central.
                     // 1. If dependency is from a different org.
                     // 2. If dependency has same org as manifest but the dependency name is not from the project.
-                    if (!dependency.getOrgName().equals(manifest.getProject().getOrgName()) ||
+                    if (!"ballerina".equals(dependency.getOrgName()) &&
+                        !"ballerinax".equals(dependency.getOrgName()) &&
+                        !dependency.getOrgName().equals(manifest.getProject().getOrgName()) ||
                         (dependency.getOrgName().equals(manifest.getProject().getOrgName()) &&
                          !ProjectDirs.isModuleExist(sourceRootPath, dependency.getModuleName()))) {
                         if (!isDependencyAvailableInRemote(dependency)) {
@@ -310,6 +312,10 @@ public class PushUtils {
             while (depsIterator.hasNext()) {
                 Dependency dep = depsIterator.next();
                 if (isDependencyAvailableInRemote(dep)) {
+                    depsIterator.remove();
+                }
+                
+                if ("ballerina".equals(dep.getOrgName()) || "ballerinax".equals(dep.getOrgName())) {
                     depsIterator.remove();
                 }
             }

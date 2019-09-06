@@ -979,6 +979,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
+
+        //if the varSymbol is invokable and if it is a function pointer which is not a function parameter
+        if (varSymbol.type.tag == TypeTags.INVOKABLE &&
+                    varNode.expr != null && varNode.expr.getKind() == NodeKind.LAMBDA) {
+            BLangFunction lambdaFunc = ((BLangLambdaFunction) varNode.expr).function;
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
+            invokableSymbol.params = lambdaFunc.symbol.params;
+        }
     }
 
     @Override
@@ -1048,22 +1056,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             env.scope.define(xmlnsSymbol.name, xmlnsSymbol);
             bLangXMLAttribute.symbol = xmlnsSymbol;
         }
-    }
-
-    /**
-     * Checks whether the given expression type is allowed as an expression in a constant.
-     *
-     * @param expression the expression which needs to be checked
-     * @return {@code true} if the given expression is allowed, {@code false} otherwise.
-     */
-    boolean isValidConstantExpression(BLangExpression expression) {
-        switch (expression.getKind()) {
-            case LITERAL:
-            case NUMERIC_LITERAL:
-            case RECORD_LITERAL_EXPR:
-                return true;
-        }
-        return false;
     }
 
     // Private methods
@@ -1176,8 +1168,6 @@ public class SymbolEnter extends BLangNodeVisitor {
      */
     private void populatePackageNode(BLangTestablePackage pkgNode, List<BLangImportPackage> enclPkgImports) {
         populatePackageNode(pkgNode);
-        // Remove recurring imports from the testable package which appears in the enclosing bLangPackage
-        pkgNode.getImports().removeIf(enclPkgImports::contains);
     }
 
     /**
@@ -1596,15 +1586,15 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void validateResourceFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
+        if (Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)
+                && (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)
+                || Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE))) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.SERVICE_FUNCTION_INVALID_MODIFIER);
+        }
         if (!Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.RESOURCE)) {
             return;
         }
         funcNode.symbol.flags |= Flags.RESOURCE;
-
-        if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE) ||
-                Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_WITH_VISIBILITY_QUALIFIER);
-        }
 
         if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);

@@ -43,7 +43,7 @@ public class TopLevelNodeScopeResolver extends CursorPositionResolver {
 
         if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol)) {
             treeVisitor.forceTerminateVisitor();
-            treeVisitor.setNextNode(bSymbol);
+            treeVisitor.setNextNode(bSymbol, node);
             return true;
         }
 

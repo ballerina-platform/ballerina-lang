@@ -7,6 +7,6 @@ function testSignatureHelp () {
     } else if (condition == 2) {
         
     } else {
-        testString.concat("")
+        testString.indexOf()
     }
 }

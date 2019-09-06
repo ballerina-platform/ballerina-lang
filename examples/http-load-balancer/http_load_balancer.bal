@@ -16,7 +16,7 @@ http:LoadBalanceClient lbBackendEP = new({
 });
 
 
-// Create an HTTP service bound to the endpoint (`loadBlancerEP`).
+// Create an HTTP service bound to the endpoint (`loadBalancerEP`).
 @http:ServiceConfig {
     basePath: "/lb"
 }
@@ -25,27 +25,24 @@ service loadBalancerDemoService on new http:Listener (9090) {
     @http:ResourceConfig {
         path: "/"
     }
-    // Parameters include a reference to the
-    // caller endpoint and an object of the request data.
     resource function roundRobin(http:Caller caller, http:Request req) {
         json requestPayload = { "name": "Ballerina" };
         var response = lbBackendEP->post("/", requestPayload);
-        // If a response is returned, the normal process runs.
-        // If the service does not get the expected response,
-        // the error-handling logic is executed.
+        // If a response is returned, the normal process runs. If the service
+        // does not get the expected response, the error-handling logic is
+        // executed.
         if (response is http:Response) {
             var responseToCaller = caller->respond(response);
-            if (responseToCaller is error) {
-                log:printError("Error sending response",
-                                err = responseToCaller);
+            if (responseToCaller is http:ListenerError) {
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
             outResponse.setPayload(<string>response.detail()?.message);
             var responseToCaller = caller->respond(outResponse);
-            if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+            if (responseToCaller is http:ListenerError) {
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -61,8 +58,8 @@ service mock1 on backendEP {
     }
     resource function mock1Resource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock1 resource was invoked.");
-        if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+        if (responseToCaller is http:ListenerError) {
+            handleRespondResult(responseToCaller);
         }
     }
 }
@@ -76,8 +73,8 @@ service mock2 on backendEP {
     }
     resource function mock2Resource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock2 resource was invoked.");
-        if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+        if (responseToCaller is http:ListenerError) {
+            handleRespondResult(responseToCaller);
         }
     }
 }
@@ -91,8 +88,15 @@ service mock3 on backendEP {
     }
     resource function mock3Resource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock3 resource was invoked.");
-        if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+        if (responseToCaller is http:ListenerError) {
+            handleRespondResult(responseToCaller);
         }
+    }
+}
+
+// Function to handle respond results
+function handleRespondResult(http:ListenerError? result) {
+    if (result is http:ListenerError) {
+        log:printError("Error sending response from mock service", result);
     }
 }

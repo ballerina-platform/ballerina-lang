@@ -42,8 +42,13 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * <p>
  * Iterator implementation for table data types.
- *
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ * 
  * @since 0.995.0
  */
 public class TableIterator implements DataIterator {

@@ -81,6 +81,7 @@ dependencies {
     dist 'org.ow2.asm:asm-analysis:7.1'
     dist 'org.ow2.asm:asm-tree:7.1'
     dist 'org.ow2.asm:asm-util:7.1'
+    dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
 
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')

@@ -1,4 +1,5 @@
 // This is the server implementation for the secured connection (HTTPS) scenario.
+import ballerina/grpc;
 import ballerina/io;
 
 public function main() {

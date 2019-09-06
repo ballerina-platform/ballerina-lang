@@ -67,9 +67,14 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KE
 import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdate;
 
 /**
+ * <p>
  * Structure that represents the mapping between key value pairs in ballerina.
  * A map cannot contain duplicate keys; each key can map to at most one value.
- *
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ * 
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  *
@@ -466,8 +471,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             for (Map.Entry<K, V> kvEntry : this.entrySet()) {
                 K key = kvEntry.getKey();
                 V value = kvEntry.getValue();
-                BType type = TypeChecker.getType(value);
-                sj.add(key + "=" + StringUtils.getStringValue(strand, value, type));
+                sj.add(key + "=" + StringUtils.getStringValue(strand, value));
             }
             return sj.toString();
         } finally {

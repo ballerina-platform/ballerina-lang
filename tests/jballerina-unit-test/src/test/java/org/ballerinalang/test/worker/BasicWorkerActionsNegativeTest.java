@@ -33,7 +33,7 @@ public class BasicWorkerActionsNegativeTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/actions-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 11, "Worker actions negative test error count");
+        Assert.assertEquals(result.getErrorCount(), 26, "Worker actions negative test error count");
     }
 
     @Test(description = "Test negative scenarios of worker actions")
@@ -58,7 +58,21 @@ public class BasicWorkerActionsNegativeTest {
                 "top level statement in a worker", 81, 19);
         BAssertUtil.validateError(result, index++, "invalid worker flush expression for 'w2', there are no " +
                 "worker send statements to 'w2' from 'w1'", 91, 22);
-        BAssertUtil.validateError(result, index, "invalid usage of receive expression, var not allowed",
-                112, 21);
+        BAssertUtil.validateError(result, index++, "invalid usage of receive expression, var not allowed", 112, 21);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wy'", 142, 26);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wiy'", 153, 28);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wix'", 159, 26);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 160, 26);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 166, 26);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 167, 21);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'lw1'", 172, 22);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wy'", 196, 30);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wy'", 198, 26);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wiy'", 210, 32);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wix'", 216, 30);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 217, 30);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 218, 75);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 225, 30);
+        BAssertUtil.validateError(result, index++, "unsupported worker reference 'wx'", 226, 25);
     }
 }

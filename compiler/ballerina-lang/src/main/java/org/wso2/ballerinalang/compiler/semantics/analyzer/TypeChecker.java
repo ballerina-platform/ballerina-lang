@@ -1090,7 +1090,28 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (expType == symTable.noType) {
-            resultType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+            BType workerValueType = ((BFutureType) syncSendExpr.workerType).constraint;
+
+            switch (workerValueType.tag) {
+                case TypeTags.UNION:
+                    LinkedHashSet<BType> compatibleReturnTypes = new LinkedHashSet<>(
+                            (((BUnionType) workerValueType).getMemberTypes().stream()
+                                     .filter(memType -> memType.tag == TypeTags.ERROR)
+                                     .collect(Collectors.toSet())));
+
+                    if (compatibleReturnTypes.isEmpty()) {
+                        resultType = symTable.nilType;
+                    } else {
+                        compatibleReturnTypes.add(symTable.nilType);
+                        resultType = BUnionType.create(null, compatibleReturnTypes);
+                    }
+                    break;
+                case TypeTags.ERROR:
+                    resultType = BUnionType.create(null, workerValueType, symTable.nilType);
+                    break;
+                default:
+                    resultType = symTable.nilType;
+            }
         } else {
             resultType = expType;
         }
@@ -3059,6 +3080,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkObjectFunctionInvocationExpr(BLangInvocation iExpr, BObjectType objectType) {
+        if (objectType.getKind() == TypeKind.SERVICE &&
+                !(iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                (Names.SELF.equals(((BLangSimpleVarRef) iExpr.expr).symbol.name)))) {
+            dlog.error(iExpr.pos, DiagnosticCode.SERVICE_FUNCTION_INVALID_INVOCATION);
+            return;
+        }
         // check for object attached function
         Name funcName =
                 names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value, iExpr.name.value));
@@ -3266,6 +3293,9 @@ public class TypeChecker extends BLangNodeVisitor {
             if (iExpr.symbol.tag == SymTag.VARIABLE) {
                 if (i < paramTypes.size()) {
                     checkTypeParamExpr(arg, this.env, expectedType);
+                    if (nonRestParams.size() > i) {
+                        requiredParams.remove(nonRestParams.get(i));
+                    }
                     continue;
                 }
                 // if no such parameter, too many arg have been given.
@@ -4693,7 +4723,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isConst(BLangExpression expression) {
-        if (symbolEnter.isValidConstantExpression(expression)) {
+
+        if (ConstantAnalyzer.isValidConstantExpressionNode(expression)) {
             return true;
         }
 

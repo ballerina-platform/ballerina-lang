@@ -224,6 +224,13 @@ public class SourcePruneTest {
                 {"src_prune_config77.json"},
                 // Type Descriptor
                 {"src_prune_config82.json"},
+                // Invalid source without semicolon after close parenthesis
+                {"src_prune_config83.json"},
+                {"src_prune_config84.json"},
+                {"src_prune_config85.json"},
+                {"src_prune_config86.json"},
+                {"src_prune_config87.json"},
+                {"src_prune_config88.json"},
         };
     }
 }
