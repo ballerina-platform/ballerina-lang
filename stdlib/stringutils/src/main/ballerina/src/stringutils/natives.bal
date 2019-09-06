@@ -77,7 +77,7 @@ public function replaceAll(string originalString, string regex, string replaceme
 # Replaces the first substring that matches the given sequence from the provided string, with the specified literal
 # replacement sequence.
 #
-# + originalString - original string
+# + originalString - the original string
 # + stringToReplace - string to replace
 # + replacement - replacement string
 # + return - the resultant string
