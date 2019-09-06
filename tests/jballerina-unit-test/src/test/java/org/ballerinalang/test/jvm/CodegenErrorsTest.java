@@ -25,30 +25,30 @@ import org.testng.annotations.Test;
  *
  * @since 1.0
  */
-@Test(groups = { "brokenOnJBallerina" })
+@Test
 public class CodegenErrorsTest {
 
     @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "too-large-method.bal:17:1:: method is too large: 'getXML'")
+            expectedExceptionsMessageRegExp = "error: .:too-large-method.bal:17:1: method is too large: 'getXML'")
     public void testTooLargeMethod() {
-        BCompileUtil.compile("test-src/jvm/too-large-method.bal");
+        BCompileUtil.compileInProc("test-src/jvm/too-large-method.bal");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "too-large-object-field.bal:18:9:: method is too large: '__init'")
+            expectedExceptionsMessageRegExp = "error: .:too-large-object-field.bal:18:9: method is too large: '__init'")
     public void testTooLargeObjectMethod() {
-        BCompileUtil.compile("test-src/jvm/too-large-object-field.bal");
+        BCompileUtil.compileInProc("test-src/jvm/too-large-object-field.bal");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "too-large-object-method.bal:18:5:: method is too large: 'getXML'")
+            expectedExceptionsMessageRegExp = "error: .:too-large-object-method.bal:18:5: method is too large: 'getXML'")
     public void testTooLargeObjectField() {
-        BCompileUtil.compile("test-src/jvm/too-large-object-method.bal");
+        BCompileUtil.compileInProc("test-src/jvm/too-large-object-method.bal");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = ".:1:1:: method is too large: '..<init>'")
+            expectedExceptionsMessageRegExp = "error: .:1:1: method is too large: '..<init>'")
     public void testTooLargePackageVar() {
-        BCompileUtil.compile("test-src/jvm/too-large-package-variable.bal");
+        BCompileUtil.compileInProc("test-src/jvm/too-large-package-variable.bal");
     }
 }
