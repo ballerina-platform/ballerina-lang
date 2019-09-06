@@ -16,14 +16,40 @@
 
 import ballerinax/java;
 
-# Splits a string around matches of the given delimiter.
+# Checks whether the given string contains a particular substring.
 #
-# + receiver - original string
-# + delimiter - delimiter
-# + return - array of strings
-public function split(string receiver, string delimiter) returns string[] {
-    handle res = splitExternal(java:fromString(receiver), java:fromString(delimiter));
-    return getBallerinaStringArray(res);
+# + originalString - original string to check
+# + substring - string to match
+# + return - `true` if the original string contains the substring, `false` otherwise
+public function contains(string originalString, string substring) returns boolean {
+    return containsExternal(java:fromString(originalString), java:fromString(substring));
+}
+
+# Checks if two strings are equal, ignoring the case of the strings.
+#
+# + firstString - first string to compare
+# + secondString - second string to compare
+# + return - `true` if two strings are the same, `false` if the strings does not match
+public function equalsIgnoreCase(string firstString, string secondString) returns boolean {
+    return equalsIgnoreCaseExternal(java:fromString(firstString), java:fromString(secondString));
+}
+
+# Returns the last index of the provided substring within a string.
+#
+# + originalString - string to look at
+# + substring - string to look for
+# + return - starting point of the last appearence of the provided substring
+public function lastIndexOf(string originalString, string substring) returns int {
+    return lastIndexOfExternal(java:fromString(originalString), java:fromString(substring));
+}
+
+# Checks whether the given string matches the provided regex.
+#
+# + stringToMatch - string to match with the regex
+# + regex - regex to match with the string
+# + return - `true` if the provided string is matched with the regex, `false` otherwise
+public function matches(string stringToMatch, string regex) returns boolean {
+    return matchesExternal(java:fromString(stringToMatch), java:fromString(regex));
 }
 
 # Replaces each substring of this string that matches the literal target sequence with the specified literal
@@ -37,9 +63,61 @@ public function replace(string originalText, string textToReplace, string replac
     return replaceExternal(java:fromString(originalText), java:fromString(textToReplace), java:fromString(replacement));
 }
 
+# Replaces each substring which matches the given regular expression, from the given original string value, with the
+# specified replacement string.
+#
+# + originalString - original string
+# + regex - Regex to find substrings to replace
+# + replacement - replacement string
+# + return - the resultant string
+public function replaceAll(string originalString, string regex, string replacement) returns string {
+    return replaceAllExternal(java:fromString(originalString), java:fromString(regex), java:fromString(replacement));
+}
+
+# Replaces the first substring that matches the given sequence, from the provided string, with the specified literal
+# replacement sequence.
+#
+# + originalString - original string
+# + stringToReplace - string to replace
+# + replacement - replacement string
+# + return - the resultant string
+public function replaceFirst(string originalString, string stringToReplace, string replacement) returns string {
+    return replaceFirstExternal(java:fromString(originalString),
+                                java:fromString(stringToReplace),
+                                java:fromString(replacement));
+}
+
+# Splits a string around matches of the given delimiter.
+#
+# + receiver - original string
+# + delimiter - delimiter
+# + return - array of strings
+public function split(string receiver, string delimiter) returns string[] {
+    handle res = splitExternal(java:fromString(receiver), java:fromString(delimiter));
+    return getBallerinaStringArray(res);
+}
+
 // Interoperable external functions.
-function splitExternal(handle receiver, handle delimiter) returns handle = @java:Method {
-    name: "split",
+function containsExternal(handle originalString, handle substring) returns boolean = @java:Method {
+    name: "contains",
+    class: "java.lang.String",
+    paramTypes: ["java.lang.String"]
+} external;
+
+function equalsIgnoreCaseExternal(handle firstString, handle secondString) returns boolean = @java:Method {
+    name: "equalsIgnoreCase",
+    class: "java.lang.String",
+    paramTypes: ["java.lang.String"]
+} external;
+
+function lastIndexOfExternal(handle originalString, handle substring) returns int = @java:Method {
+    name: "lastIndexOf",
+    class: "java.lang.String",
+    paramTypes: ["java.lang.String"]
+} external;
+
+function matchesExternal(handle stringToMatch, handle regex) returns boolean = @java:Method {
+    name: "matches",
     class: "java.lang.String",
     paramTypes: ["java.lang.String"]
 } external;
@@ -48,6 +126,25 @@ function replaceExternal(handle originalText, handle textToReplace, handle repla
     name: "replace",
     class: "java.lang.String",
     paramTypes: ["java.lang.String", "java.lang.String"]
+} external;
+
+function replaceAllExternal(handle originalString, handle regex, handle replacement) returns string = @java:Method {
+    name: "replaceAll",
+    class: "java.lang.String",
+    paramTypes: ["java.lang.String", "java.lang.String"]
+} external;
+
+function replaceFirstExternal(handle originalString, handle stringToReplace, handle replacement) returns
+                            string = @java:Method {
+    name: "replaceFirst",
+    class: "java.lang.String",
+    paramTypes: ["java.lang.String", "java.lang.String"]
+} external;
+
+function splitExternal(handle receiver, handle delimiter) returns handle = @java:Method {
+    name: "split",
+    class: "java.lang.String",
+    paramTypes: ["java.lang.String"]
 } external;
 
 function getBallerinaStringArray(handle h) returns string[] = @java:Constructor {
