@@ -405,13 +405,11 @@ public class HttpUtil {
     }
 
     private static String getErrorMessage(ErrorValue error) {
-        String errorMsg = error.getReason();
-        //TODO Test whether error.getDetails() can be casted to (MapValue)
         MapValue errorDetails = (MapValue) error.getDetails();
         if (!errorDetails.isEmpty()) {
-            errorMsg = errorMsg.concat(COLON + errorDetails.get(HTTP_ERROR_MESSAGE));
+            return errorDetails.get(HTTP_ERROR_MESSAGE).toString();
         }
-        return errorMsg;
+        return error.getReason();
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
