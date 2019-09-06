@@ -75,9 +75,9 @@ public class ToolUtil {
     /**
      * List distributions in the local and remote.
      * @param outStream stream outputs need to be printed
-     * @param isRemote option to list distributions in the central
+     * @param isLocal option to list distributions only in the local
      */
-    public static void listDistributions(PrintStream outStream, boolean isRemote) {
+    public static void listDistributions(PrintStream outStream, boolean isLocal) {
         try {
             outStream.println("Distributions available locally: \n");
             String currentBallerinaVersion = getCurrentBallerinaVersion();
@@ -92,7 +92,7 @@ public class ToolUtil {
             }
             outStream.println();
 
-            if (isRemote) {
+            if (!isLocal) {
                 outStream.println("Distributions available remotely: \n");
                 MapValue distributions = getDistributions();
                 for (int i = 0; i < distributions.getArrayValue("list").size(); i++) {

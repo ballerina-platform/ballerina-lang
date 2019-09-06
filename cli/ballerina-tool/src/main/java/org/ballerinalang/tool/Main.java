@@ -54,9 +54,9 @@ public class Main {
 
     public static void main(String... args) {
         try {
-            ToolUtil.checkForUpdate(outStream, args);
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
+            ToolUtil.checkForUpdate(outStream, args);
         } catch (BLangRuntimeException e) {
             errStream.println(e.getMessage());
             Runtime.getRuntime().exit(1);
@@ -534,8 +534,8 @@ public class Main {
         @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
-        @CommandLine.Option(names = {"--remote"}, hidden = true)
-        private boolean remoteFlag;
+        @CommandLine.Option(names = {"--local"}, hidden = true)
+        private boolean localFlag;
 
         private CommandLine parentCmdParser;
 
@@ -546,7 +546,7 @@ public class Main {
             }
 
             if (listCommands == null) {
-                ToolUtil.listDistributions(outStream, remoteFlag);
+                ToolUtil.listDistributions(outStream, localFlag);
                 return;
             } else if (listCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
