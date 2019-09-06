@@ -3,7 +3,7 @@
         "line": 3,
         "character": 4
     },
-    "source": "service/source/httpServiceBodyResourceCompletion.bal",
+    "source": "service/source/websocketServiceBodyResourceCompletion1.bal",
     "items": [
         {
             "label": "public",
