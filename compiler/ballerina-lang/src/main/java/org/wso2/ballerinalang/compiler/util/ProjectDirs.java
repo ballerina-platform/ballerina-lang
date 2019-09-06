@@ -42,6 +42,12 @@ public class ProjectDirs {
     private static PathMatcher sourceFileMatcher = FileSystems.getDefault().getPathMatcher(
             "glob:*" + BLANG_SOURCE_EXT);
 
+    private static PathMatcher testFileMatcher = FileSystems.getDefault().getPathMatcher(
+            "glob:../src/*/tests/**" + BLANG_SOURCE_EXT);
+
+    private static PathMatcher testResourceFileMatcher = FileSystems.getDefault().getPathMatcher(
+            "glob:../src/*/tests/resources/**" + BLANG_SOURCE_EXT);
+
     public static boolean isSourceFile(Path path) {
         return !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS) && sourceFileMatcher.matches(path);
     }
@@ -105,35 +111,9 @@ public class ProjectDirs {
         
         // Resolve package path with the source root
         Path pkgPath = sourceRoot.resolve(pkg);
-        // Construct a relative path between the package path and the ballerina source file path.
-        // Lets assume source root is "/home/user/project" and pkg is "a".
-        //  * If the source path is "/home/user/project/a/a.bal", then after relativizing the relative path will be
-        //    a.bal
-        //  * If the source path is "/home/user/project/a/foo/foo.bal", then after relativizing the relative path will
-        //    be foo/foo.bal
-        //  * If the source path is "/home/user/project/a/tests/test.bal", then after relativizing the relative path
-        //    will be tests/test.bal
         Path relativizePath = pkgPath.relativize(sourcePath);
-        // CASE 2: Check if the parent is null, if its null then it's a source file directly inside the package and i
-        // should be added to the the bLangPackage. Else its a source file inside another directory of the package or
-        // its a test source inside the "tests" directory
-        if (relativizePath.getParent() == null) {
-            return false;
-        }
-        // CASE 3: The source file can be a file inside another directory of the package or can be a test source inside
-        // the "tests" directory. Get the file name of the element that is closest to the root in the directory
-        // hierarchy i.e. which has index 0.
-        Path rootPath = relativizePath.getName(0);
-        if (rootPath != null) {
-            Path rootFileName = rootPath.getFileName();
-            if (rootFileName != null) {
-                // Check if the root file name is equal to the "tests" directory, if its equal the source is from the
-                // tests folder and it should be added to the testable package. Else if its not equal it should be added
-                // to the bLangPackage.
-                return ProjectDirConstants.TEST_DIR_NAME.equals(rootFileName.toString());
-            }
-        }
-        return false;
+        // Bal files should be inside tests directory but not in test resources
+        return testFileMatcher.matches(relativizePath) && !testResourceFileMatcher.matches(relativizePath);
     }
 
     /**

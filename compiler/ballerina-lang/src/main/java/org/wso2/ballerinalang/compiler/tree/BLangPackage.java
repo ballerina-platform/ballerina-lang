@@ -237,6 +237,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public boolean containsTestablePkg() {
         return testablePkgs.stream().findAny().isPresent();
     }
+
     @Override
     public NodeKind getKind() {
         return NodeKind.PACKAGE;
@@ -250,6 +251,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public Set<Flag> getFlags() {
         return flagSet;
     }
+
+    public boolean hasTestablePackage() {
+        return this.testablePkgs.size() > 0;
+    }
+
     /**
      * This class collect diagnostics.
      *
