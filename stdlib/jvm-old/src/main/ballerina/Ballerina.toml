@@ -8,13 +8,13 @@ target = "java8"
     [[platform.libraries]]
     artifactId = "jvm"
     version = "@project.version@"
-    path = "../libs/ballerina-jvm-old-1.0.0-beta.jar"
+    path = "../externals/jvm.jar"
     groupId = "ballerina"
     modules = ["jvm"]
 
     [[platform.libraries]]
     artifactId = "asm"
     version = "6.2.1"
-    path = "../../../../distribution/bootstrapper/build/dist/pack0/jballerina-tools-1.0.0-alpha2/bre/lib/asm-7.1.jar"
+    path = "../externals/asm.jar"
     groupId = "org.ow2.asm"
     modules = ["jvm"]
