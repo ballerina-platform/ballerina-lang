@@ -111,7 +111,7 @@ public class BatchUpdateTest {
     @Test(groups = BATCH_UPDATE_TEST)
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testFailedBatchUpdate", args);
-        Assert.assertTrue(returns[0].stringValue().contains("Failed to execute batch update:"));
+        Assert.assertTrue(returns[0].stringValue().contains("failed to execute batch update:"));
         Assert.assertEquals(((BInteger) returns[1]).intValue(), -3);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), -3);
     }

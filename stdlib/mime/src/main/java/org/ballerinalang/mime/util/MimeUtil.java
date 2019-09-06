@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -59,6 +58,8 @@ import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_SUB_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.MimeConstants.FORM_DATA_PARAM;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_LENGTH;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
@@ -141,7 +142,7 @@ public class MimeUtil {
             MimeTypeParameterList parameterList = mimeType.getParameters();
             return parameterList.get(parameterName);
         } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
+            throw MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
         }
     }
 
@@ -158,8 +159,7 @@ public class MimeUtil {
             MimeTypeParameterList parameterList = mimeType.getParameters();
             return parameterList.get(parameterName);
         } catch (MimeTypeParseException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
-                    "Error while parsing Content-Type value: " + e.getMessage());
+            throw MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
         }
     }
 
@@ -222,7 +222,7 @@ public class MimeUtil {
             mediaType.set(SUFFIX_FIELD, suffix);
             mediaType.set(PARAMETER_MAP_FIELD, parameterMap);
         } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
+            throw new ErrorValue(INVALID_CONTENT_TYPE, e.getMessage());
         }
         return mediaType;
     }
@@ -545,7 +545,7 @@ public class MimeUtil {
                 contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
             }
         } catch (NumberFormatException e) {
-            throw new BallerinaException("Invalid content length");
+            throw MimeUtil.createError(INVALID_CONTENT_LENGTH, "Invalid content length");
         }
         return contentLength;
     }

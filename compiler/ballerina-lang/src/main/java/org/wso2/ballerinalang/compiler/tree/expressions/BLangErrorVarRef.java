@@ -67,6 +67,11 @@ public class BLangErrorVarRef extends BLangVariableReference implements ErrorVar
     }
 
     @Override
+    public BLangType getTypeNode() {
+        return this.typeNode;
+    }
+
+    @Override
     public String toString() {
         return "error (" + reason + ", " + detail + ")";
     }

@@ -15,7 +15,7 @@ public function main() {
 
     // Initializes the timer scheduler using the interval value.
     // The delay will be equal to the interval as an initial delay is not provided.
-    task:Scheduler timer = new({ intervalInMillis: intervalInMillis });
+    task:Scheduler timer = new({ intervalInMillis: intervalInMillis, initialDelayInMillis: 0 });
 
     // Define a person object
     Person person = { name: "Sam", age: 0, maxAge: 10 };
@@ -46,6 +46,7 @@ public function main() {
 
     // While loop will stop the function from exiting until the service ends.
     while (person.age < person.maxAge) {
+        runtime:sleep(2000);
         // Waits until the age of the person reaches the max age.
     }
 
@@ -79,7 +80,7 @@ service service1 = service {
 service service2 = service {
     resource function onTrigger(Person person) {
         if (person.age == 5) {
-            io:println(person.name + " started schooling at age " + person.age.toString());
+            io:println(person.name + " started schooling");
         }
     }
 };

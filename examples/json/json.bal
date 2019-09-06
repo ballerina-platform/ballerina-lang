@@ -24,15 +24,19 @@ public function main() {
     json j6 = { name: "apple", color: "red", price: j2 };
     io:println(j6);
 
+    // The `.toJsonString()` defined for `json` values returns a `string` that
+    // represents the value in JSON format.
+    io:println(j6.toJsonString());
+
     // Create a JSON Array. This is equivalent to a `json[]`.
     json j7 = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    io:println(j7);
+    io:println(j7.toJsonString());
 
     // The `.mergeJson()` method can be used to merge two `json` values.
     // If either of the two values is `null`, the result of `.mergeJson()` is
     // the other value.
-    json|error j8 = j5.mergeJson(j7);
-    io:println(j8);
+    json j8 = checkpanic j5.mergeJson(j7);
+    io:println(j8.toJsonString());
 
     // `.mergeJson()` can also be used to merge two JSON objects.
     // Where both `json` values are mappings, for each entry in the second,
@@ -41,8 +45,8 @@ public function main() {
     // key in the first mapping, `.mergeJson()` is called recursively.
     json j9 = { name: "Anne", age: null, marks: { math: 90, language: 95 } };
     json j10 = { name: (), age: 20, marks: { physics: 85 } };
-    json|error j11 = j9.mergeJson(j10);
-    io:println(j11);
+    json j11 = checkpanic j9.mergeJson(j10);
+    io:println(j11.toJsonString());
 
     // Reference equality checks between `j9` and `j11` evaluate to true since
     // the `j9` itself is updated and returned if the merge is successful.
@@ -54,19 +58,14 @@ public function main() {
     json|error j12 = j2.mergeJson(j3);
     io:println(j12);
 
-    // The `.toJsonString()` defined for `json` values returns a `string` that
-    // represents the value in JSON format.
-    json j13 = { hello: "world" };
-    string s = j13.toJsonString();
-    io:println(s);
-
     // The `.fromJsonString()` defined on `string` values attempts parsing the
     // string expected to be in the JSON format and returns the represented JSON value 
     // if successful. This method returns an error if the string cannot be parsed.
-    json|error j14 = s.fromJsonString();
-    io:println(j14);
+    string s = j6.toJsonString();
+    json j13 = checkpanic s.fromJsonString();
+    io:println(j13.toJsonString());
 
     // The value would be equal to the original value from which the string
     // was created.
-    io:println(j13 == j14);
+    io:println(j6 == j13);
 }

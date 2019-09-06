@@ -61,10 +61,19 @@ task deleteBalBuildLog(type: Delete) {
   delete buildLog
 }
 
+task copySelfToExternal(type: Copy) {
+    dependsOn jar
+    from "$buildDir/libs/"
+    include "*.jar"
+    into "$buildDir/externals"
+    rename '.*', "${project.ext.moduleName}.jar"
+}
+
 task createOldBirJar(type: Exec) {
     dependsOn deleteBalBuildLog
     dependsOn configurations.balo
     dependsOn convertDuplicateSrcToProject
+    dependsOn copySelfToExternal
     workingDir "$buildDir/duplicate-src"
     dependsOn jar
 

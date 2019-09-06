@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.nats.Constants;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -34,10 +35,12 @@ import static org.ballerinalang.nats.Constants.COUNTDOWN_LATCH;
  * @since 0.995
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "nats",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.NATS,
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
-                structPackage = "ballerina/nats"),
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = Constants.NATS_LISTENER,
+                structPackage = Constants.NATS_PACKAGE),
         isPublic = true
 )
 public class Start {

@@ -320,16 +320,8 @@
                 "url": "xml-namespaces"
             },
             {
-                "name": "XML Attributes",
-                "url": "xml-attributes"
-            },
-            {
                 "name": "XML Functions",
                 "url": "xml-functions"
-            },
-            {
-                "name": "XML Access",
-                "url": "xml-access"
             }
         ]
     },
@@ -372,10 +364,6 @@
                 "url": "error-handling"
             },
             {
-                "name": "Error Lifting",
-                "url": "error-lifting"
-            },
-            {
                 "name": "Check",
                 "url": "check"
             },
@@ -412,10 +400,6 @@
             {
                 "name": "Fork Variable Access",
                 "url": "fork-variable-access"
-            },
-            {
-                "name": "Lock",
-                "url": "locks"
             }
         ]
     },
@@ -519,6 +503,10 @@
             {
                 "name": "File Path",
                 "url": "filepath"
+            },
+            {
+                "name": "File",
+                "url": "file"
             },
             {
                 "name": "Task Scheduler Appointment",
@@ -786,28 +774,6 @@
             }
         ]
     },
- 	{
-        "title": "WebSub",
-        "column": 1,
-        "category": "Working over the network",
-        "samples": [{
-                "name": "Internal Hub Sample",
-                "url": "websub-internal-hub-sample"
-            },
-            {
-                "name": "Remote Hub Sample",
-                "url": "websub-remote-hub-sample"
-            },
-            {
-                "name": "Hub Client Sample",
-                "url": "websub-hub-client-sample"
-            },
-            {
-                "name": "Service Integration Sample",
-                "url": "websub-service-integration-sample"
-            }
-        ]
-    },
     {
         "title": "Database",
         "column": 2,
@@ -933,41 +899,6 @@
         ]
     },
     {
-        "title": "RabbitMQ",
-        "column": 3,
-        "category": "Working over the network",
-        "samples": [
-            {
-                "name": "Producer",
-                "url": "rabbitmq-producer"
-            },
-            {
-                "name": "Consumer",
-                "url": "rabbitmq-consumer"
-            },
-            {
-                "name": "Consumer Acknowledgements",
-                "url": "rabbitmq-consumer-with-client-acknowledgement"
-            },
-            {
-                "name": "QoS Settings",
-                "url": "rabbitmq-consumer-with-qos-settings"
-            },
-            {
-                "name": "Data Binding",
-                "url": "rabbitmq-consumer-with-data-binding"
-            },
-            {
-                "name": "Transaction Producer",
-                "url": "rabbitmq-transaction-producer"
-            },
-            {
-                "name": "Transaction Consumer",
-                "url": "rabbitmq-transaction-consumer"
-            }
-        ]
-    },
-    {
         "title": "Socket",
         "column": 3,
         "category": "Working over the network",
@@ -1008,8 +939,33 @@
         ]
     },
     {
-        "title": "Streams",
+        "title": "XML Access",
         "column": 0,
+        "category": "Experimental features",
+        "samples": [
+            {
+                "name": "XML Attributes",
+                "url": "xml-attributes"
+            },
+            {
+                "name": "XML Access",
+                "url": "xml-access"
+            }
+        ]
+    },
+    {
+        "title": "Lock",
+        "column": 0,
+        "category": "Experimental features",
+        "samples": [{
+            "name": "Lock",
+            "url": "locks"
+        }
+        ]
+    },
+    {
+        "title": "Streams",
+        "column": 1,
         "category": "Experimental features",
         "samples": [{
                 "name": "Streams",
@@ -1039,7 +995,7 @@
     },
     {
         "title": "Transactions",
-        "column": 1,
+        "column": 2,
         "category": "Experimental features",
         "samples": [{
                 "name": "Local Transactions",
@@ -1061,7 +1017,7 @@
     },
     {
         "title": "Table Queries",
-        "column": 2,
+        "column": 3,
         "category": "Experimental features",
         "samples": [{
                 "name": "Table Queries",

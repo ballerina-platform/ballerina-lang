@@ -1,9 +1,10 @@
 
 import {
     DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration,
-    debug, ExtensionContext, window,
+    debug, ExtensionContext, window, commands,
     DebugSession,
-    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer
+    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer,
+    Uri
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -93,7 +94,13 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Thenable<DebugAdapterDescriptor> {
         const port = session.configuration.debugServer;
         const ballerinaPath = ballerinaExtInstance.getBallerinaHome();
-
+        const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides/vscode-plugin/run-and-debug/";
+        const showDetails: string = 'More Details';
+        window.showWarningMessage("Stepping over code lines with action invocations may not work properly. Click \"More Details\" for workarounds", showDetails).then((selection)=>{
+            if (showDetails === selection) {
+                commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
+            }
+        });
         if (session.configuration.isDebugDevMode) {
             return Promise.resolve(new DebugAdapterServer(port));
         } else {
