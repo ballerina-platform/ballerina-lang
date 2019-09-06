@@ -45,6 +45,7 @@ public class BallerinaErrorReasons {
     public static final String DIVISION_BY_ZERO_ERROR = BALLERINA_PREFIX.concat("DivisionByZero");
     public static final String ARITHMETIC_OPERATION_ERROR = BALLERINA_PREFIX.concat("ArithmeticOperationError");
     public static final String JAVA_NULL_REFERENCE_ERROR = BALLERINA_PREFIX.concat("JavaNullReferenceError");
+    public static final String JAVA_CLASS_NOT_FOUND_ERROR = BALLERINA_PREFIX.concat("JavaClassNotFoundError");
 
     // TODO: 8/28/19 Errors we should be able to remove once all migration is done.
     public static final String BALLERINA_PREFIXED_CLONE_ERROR = BALLERINA_PREFIX.concat("CloneError");

@@ -4,7 +4,7 @@ import ballerina/log;
 // This is a client endpoint configured to connect to the HTTPS service.
 // As this is a 1-way SSL connection, the client needs to provide
 // trust store file path and its password.
-http:ClientEndpointConfig clientEPConfig = {
+http:ClientConfiguration clientEPConfig = {
     secureSocket: {
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

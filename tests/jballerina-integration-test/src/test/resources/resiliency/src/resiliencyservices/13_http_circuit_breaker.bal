@@ -24,7 +24,7 @@ int actualCount = 0;
 
 listener http:Listener circuitBreakerEP06 = new(9312);
 
-http:ClientEndpointConfig conf06 = {
+http:ClientConfiguration conf06 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowInMillis: 60000,

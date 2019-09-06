@@ -1,15 +1,18 @@
 NAME
-    Ballerina self-update - Update to latest tool version
+       Ballerina self-update - Update to latest tool version
 
 SYNOPSIS
-    ballerina self-update
+       ballerina self-update
+
 
 DESCRIPTION
-     Ballerina self-update command will update to provided version.
+       Ballerina self-update command will update to provided version.
+
 
 OPTIONS
-     Ballerina self-update command takes no options.
+       Ballerina self-update command takes no options.
+
 
 EXAMPLES
-     Update current tool to latest.
-     $ ballerina self-update
+       Update current tool to latest.
+       $ ballerina self-update

@@ -78,19 +78,19 @@ public type CacheConfig record {|
 public type HttpCachingClient client object {
 
     public string url = "";
-    public ClientEndpointConfig config = {};
+    public ClientConfiguration config = {};
     public HttpClient httpClient;
     public HttpCache cache;
     public CacheConfig cacheConfig = {};
 
     # Takes a service URL, a `CliendEndpointConfig` and a `CacheConfig` and builds an HTTP client capable of
     # caching responses. The `CacheConfig` instance is used for initializing a new HTTP cache for the client and
-    # the `ClientEndpointConfig` is used for creating the underlying HTTP client.
+    # the `ClientConfiguration` is used for creating the underlying HTTP client.
     #
     # + url - The URL of the HTTP endpoint to connect to
     # + config - The configurations for the client endpoint associated with the caching client
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
-    public function __init(string url, ClientEndpointConfig config, CacheConfig cacheConfig) {
+    public function __init(string url, ClientConfiguration config, CacheConfig cacheConfig) {
         var httpSecureClient = createHttpSecureClient(url, config);
         if (httpSecureClient is HttpClient) {
             self.httpClient = httpSecureClient;
@@ -319,7 +319,7 @@ public type HttpCachingClient client object {
 # + config - The configurations for the client endpoint associated with the caching client
 # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
 # + return - An `HttpCachingClient` instance which wraps the base `Client` with a caching layer
-public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
+public function createHttpCachingClient(string url, ClientConfiguration config, CacheConfig cacheConfig)
                                                                                       returns HttpClient|ClientError {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
     log:printDebug(function() returns string {

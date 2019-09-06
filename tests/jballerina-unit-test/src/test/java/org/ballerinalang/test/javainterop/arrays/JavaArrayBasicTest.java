@@ -78,6 +78,34 @@ public class JavaArrayBasicTest {
         Assert.assertEquals(((BHandleValue) returns[0]).getValue(), parts);
     }
 
+    @Test(description = "Test creating a new instance of Java string array in Ballerina ")
+    public void testNewJStringArrayInstanceFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "testNewJStringArrayInstanceFunction");
+        Assert.assertEquals(returns.length, 1);
+
+        BHandleValue handleValue = (BHandleValue) returns[0];
+        String[] parts = (String[]) handleValue.getValue();
+        Assert.assertEquals(parts.length, 4);
+        Assert.assertEquals(parts[0], "Ballerina");
+        Assert.assertEquals(parts[1], "Programming");
+        Assert.assertEquals(parts[2], "Language");
+        Assert.assertEquals(parts[3], "Specification");
+    }
+
+    @Test(description = "Test creating a new instance of Java int array in Ballerina ")
+    public void testNewJIntArrayInstanceFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "testNewJIntArrayInstanceFunction");
+        Assert.assertEquals(returns.length, 1);
+
+        BHandleValue handleValue = (BHandleValue) returns[0];
+        int[] parts = (int[]) handleValue.getValue();
+        Assert.assertEquals(parts.length, 4);
+        Assert.assertEquals(parts[0], 10);
+        Assert.assertEquals(parts[1], 100);
+        Assert.assertEquals(parts[2], 1000);
+        Assert.assertEquals(parts[3], 10000);
+    }
+
     @Test(description = "Test java:getArrayElement function in ballerinax/java module")
     public void testGetArrayElementMethod() {
         BValue[] returns = BRunUtil.invoke(result, "testGetArrayElementMethod");

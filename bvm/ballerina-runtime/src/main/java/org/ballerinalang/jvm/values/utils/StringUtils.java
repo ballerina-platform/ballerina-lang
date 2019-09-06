@@ -40,13 +40,14 @@ public class StringUtils {
      * Returns the human-readable string value of Ballerina values.
      * @param strand  the strand in which the value reside
      * @param value The value on which the function is invoked
-     * @param type The type of value on which the function is invoked
      * @return String value of the value
      */
-    public static String getStringValue(Strand strand, Object value, BType type) {
+    public static String getStringValue(Strand strand, Object value) {
         if (value == null) {
             return "";
         }
+
+        BType type = TypeChecker.getType(value);
 
         if (type.getTag() < TypeTags.JSON_TAG) {
             return String.valueOf(value);
