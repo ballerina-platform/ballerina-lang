@@ -84,7 +84,7 @@ public class ParseHeader {
 
         // set parse error
         ErrorValue mimeError = MimeUtil.createError(READING_HEADER_FAILED, errMsg);
-        String httpErrorMessage = "MimeError occurred while parsing the header";
+        String httpErrorMessage = "mimeError occurred while parsing the header";
         return HttpUtil.createHttpError(httpErrorMessage, HttpErrorType.GENERIC_CLIENT_ERROR, mimeError);
     }
 }

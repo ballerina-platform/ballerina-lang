@@ -131,17 +131,17 @@ public abstract class AbstractHTTPAction {
             setOutboundReqHeaders(outboundRequest, port, host);
 
         } catch (MalformedURLException e) {
-            throw HttpUtil.createHttpError("Malformed url specified. " + e.getMessage(),
+            throw HttpUtil.createHttpError("malformed URL specified. " + e.getMessage(),
                                            HttpErrorType.GENERIC_CLIENT_ERROR);
         } catch (Exception e) {
-            throw HttpUtil.createHttpError("Failed to prepare request. " + e.getMessage(),
+            throw HttpUtil.createHttpError("failed to prepare request. " + e.getMessage(),
                                            HttpErrorType.GENERIC_CLIENT_ERROR);
         }
     }
 
     private static String getServiceUri(String serviceUri) {
         if (serviceUri.isEmpty()) {
-            throw HttpUtil.createHttpError("Service uri is not defined correctly.", HttpErrorType.GENERIC_CLIENT_ERROR);
+            throw HttpUtil.createHttpError("service uri is not defined correctly.", HttpErrorType.GENERIC_CLIENT_ERROR);
         }
         return serviceUri;
     }
