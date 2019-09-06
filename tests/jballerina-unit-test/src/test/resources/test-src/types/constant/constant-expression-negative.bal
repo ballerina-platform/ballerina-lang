@@ -14,24 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'float as floats;
+const CI1 = 1;
 
-function testIsFinite() returns [boolean, boolean] {
-    float f = 12.34;
-    float inf = 1.0/0.0;
-    return [f.isFinite(), inf.isFinite()];
-}
+const CI2 = 1 + 2;      // type is required for constants with expressions
 
-function testIsInfinite() returns [boolean, boolean] {
-    float f = 12.34;
-    float inf = 1.0/0.0;
-    return [f.isInfinite(), inf.isInfinite()];
-}
+const map<int> CIMap1 = { v1 : 1 + 2, v2 : 2 * 5}; // const expressions are not yet supported here
 
-function testSum() returns float {
-    return floats:sum(12.34, 23.45, 34.56);
-}
+const int CI3  = 1/0; // invalid constant expression, reason '/ by zero'
 
-function testFloatConsts() returns [float,float] {
-    return [floats:NaN, floats:Infinity];
-}
+const int CI4  = 0/0; // invalid constant expression, reason '/ by zero'
