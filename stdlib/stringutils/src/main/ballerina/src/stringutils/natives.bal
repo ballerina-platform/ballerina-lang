@@ -18,7 +18,7 @@ import ballerinax/java;
 
 # Checks whether the given string contains a particular substring.
 #
-# + originalString - the original string 
+# + originalString - the original string
 # + substring - string to match
 # + return - `true` if the original string contains the substring or `false` otherwise
 public function contains(string originalString, string substring) returns boolean {
@@ -46,7 +46,7 @@ public function hashCode(string stringValue) returns int {
 #
 # + originalString - the original string
 # + substring - string to look for
-# + return - starting point of the last appearence of the provided substring
+# + return - starting point of the last appearance of the provided substring
 public function lastIndexOf(string originalString, string substring) returns int {
     return lastIndexOfExternal(java:fromString(originalString), java:fromString(substring));
 }
@@ -105,6 +105,14 @@ public function split(string receiver, string delimiter) returns string[] {
     return getBallerinaStringArray(res);
 }
 
+# Returns a boolean value of a given string.
+#
+# + stringValue - string value to convert to boolean
+# + return - boolean value of the string
+public function toBoolean(string stringValue) returns boolean {
+    return toBooleanExternal(java:fromString(stringValue));
+}
+
 // Interoperable external functions.
 function containsExternal(handle originalString, handle substring) returns boolean = @java:Method {
     name: "contains",
@@ -158,6 +166,12 @@ function splitExternal(handle receiver, handle delimiter) returns handle = @java
 function hashCodeExternal(handle stringValue) returns int = @java:Method {
     name: "hashCode",
     class: "java.lang.String",
+    paramTypes: ["java.lang.String"]
+} external;
+
+function toBooleanExternal(handle stringValue) returns boolean = @java:Method {
+    name: "valueOf",
+    class: "java.lang.Boolean",
     paramTypes: ["java.lang.String"]
 } external;
 

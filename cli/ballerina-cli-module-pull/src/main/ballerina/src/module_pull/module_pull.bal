@@ -17,7 +17,6 @@
 import ballerina/file;
 import ballerina/filepath;
 import ballerina/http;
-import ballerina/internal;
 import ballerina/io;
 import ballerina/lang.'int as lint;
 import ballerina/stringutils;
@@ -136,7 +135,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
         } else if (statusCode != "200") {
             var resp = httpResponse.getJsonPayload();
             if (resp is json) {
-                if (statusCode == "404" && isBuild && internal:contains(resp.message.toString(), "module not found")) {
+                if (statusCode == "404" && isBuild && stringutils:contains(resp.message.toString(), "module not found")) {
                     // To ignore printing the error
                     panic createError("");
                 } else {
@@ -165,10 +164,10 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
 
             string [] uriParts = stringutils:split(resolvedURI,"/");
             string moduleVersion = uriParts[uriParts.length() - 3];
-            boolean valid = internal:matches(moduleVersion, VERSION_REGEX);
+            boolean valid = stringutils:matches(moduleVersion, VERSION_REGEX);
 
             if (valid) {
-                string moduleName = modulePath.substring(internal:lastIndexOf(modulePath, "/") + 1, modulePath.length());
+                string moduleName = modulePath.substring(stringutils:lastIndexOf(modulePath, "/") + 1, modulePath.length());
                 string baloFile = uriParts[uriParts.length() - 1];
 
                 // adding version to the module path
@@ -322,7 +321,7 @@ function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel d
             completed = true;
         }
         numberOfBytesWritten = checkpanic writeBytes(dest, readContent, startVal);
-        
+
         totalCount = totalCount + readCount;
         float percentage = totalCount / baloSize;
         noOfBytesRead = totalCount.toString() + "/" + baloSize.toString();

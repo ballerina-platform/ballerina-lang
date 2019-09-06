@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/stringutils;
@@ -314,7 +313,7 @@ public type Request object {
             } else {
                 contentTypeHeaderValue = mediaType.primaryType + "/" + mediaType.subType;
             }
-            if (!(internal:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, contentTypeHeaderValue))) {
+            if (!(stringutils:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, contentTypeHeaderValue))) {
                 string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
                 mime:InvalidContentTypeError typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
                 return getGenericClientError(message, typeError);

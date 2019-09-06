@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
 import ballerina/stringutils;
 
 # The `StreamJoinProcessor` object is responsible for  performing SQLish joins between two or more streams.
@@ -75,7 +74,7 @@ public type StreamJoinProcessor object {
                 var s = self.unidirectionalStream;
                 if (s is string) {
                     // unidirectional
-                    if (internal:equalsIgnoreCase(s, originStream)) {
+                    if (stringutils:equalsIgnoreCase(s, originStream)) {
                         triggerJoin = true;
                     }
                 } else {
@@ -88,7 +87,7 @@ public type StreamJoinProcessor object {
                     // join events according to the triggered side
                     string? value = self.lhsStream;
                     string returnVal = value is string ? value : "";
-                    if (internal:equalsIgnoreCase(returnVal, originStream)) {
+                    if (stringutils:equalsIgnoreCase(returnVal, originStream)) {
                         // triggered from LHS
                         Window? rWindow = self.rhsWindow;
                         if (rWindow is Window) {

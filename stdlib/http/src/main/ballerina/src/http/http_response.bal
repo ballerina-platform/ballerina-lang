@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/crypto;
 import ballerina/time;
-import ballerina/internal;
+import ballerina/stringutils;
 
 # Represents an HTTP response.
 #
@@ -112,7 +112,7 @@ public type Response object {
         entity.setHeader(headerName, headerValue);
 
         // TODO: see if this can be handled in a better manner
-        if (internal:equalsIgnoreCase(SERVER, headerName)) {
+        if (stringutils:equalsIgnoreCase(SERVER, headerName)) {
             self.server = headerValue;
         }
     }
