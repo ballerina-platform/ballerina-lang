@@ -30,8 +30,12 @@ import org.wso2.transport.http.netty.contract.exceptions.RequestCancelledExcepti
 import org.wso2.transport.http.netty.contract.exceptions.SslException;
 import org.wso2.transport.http.netty.contract.exceptions.UnresolvedHostException;
 
+import java.nio.channels.ClosedChannelException;
+
 import static org.wso2.transport.http.netty.contract.Constants.COLON;
 import static org.wso2.transport.http.netty.contract.Constants.ERROR_COULD_NOT_RESOLVE_HOST;
+import static org.wso2.transport.http.netty.contract.Constants.SECURITY;
+import static org.wso2.transport.http.netty.contract.Constants.SSL;
 import static org.wso2.transport.http.netty.contract.Constants.SSL_CONNECTION_ERROR;
 import static org.wso2.transport.http.netty.contract.Constants.UNKNOWN_HOST_EXCEPTION;
 
@@ -122,32 +126,70 @@ public class ConnectionAvailabilityFuture {
     }
 
     private void notifyErrorState(ChannelFuture channelFuture, Throwable cause) {
-        ClientConnectorException connectorException;
         String socketAddress = null;
         if (channelFuture.channel().remoteAddress() != null) {
             socketAddress = channelFuture.channel().remoteAddress().toString();
         }
-        if (channelFuture.isDone() && channelFuture.isCancelled()) {
+        ClientConnectorException connectorException =
+                createSpecificExceptionFromGeneric(channelFuture, cause, socketAddress);
+
+        listener.onFailure(connectorException);
+    }
+
+    private ClientConnectorException createSpecificExceptionFromGeneric(ChannelFuture channelFuture, Throwable cause,
+                                                                        String socketAddress) {
+        ClientConnectorException connectorException;
+        if (isRequestCancelled(channelFuture)) {
             connectorException = new RequestCancelledException("Request cancelled: " + socketAddress,
-                    HttpResponseStatus.BAD_GATEWAY.code());
-        } else if (!channelFuture.isDone() && !channelFuture.isSuccess() && !channelFuture.isCancelled() && (
-                channelFuture.cause() == null)) {
+                                                               HttpResponseStatus.BAD_GATEWAY.code());
+        } else if (isConnectionTimeout(channelFuture)) {
             connectorException = new ConnectionTimedOutException("Connection timeout: " + socketAddress,
-                    HttpResponseStatus.BAD_GATEWAY.code());
-        } else if (cause.toString().contains("javax.net.ssl") || cause.toString().contains("security")) {
-            connectorException = new SslException(
-                    SSL_CONNECTION_ERROR + COLON + cause.getMessage() + socketAddress,
-                    HttpResponseStatus.BAD_GATEWAY.code());
-        } else if (cause.toString().contains(UNKNOWN_HOST_EXCEPTION)) {
+                                                                 HttpResponseStatus.BAD_GATEWAY.code());
+        } else if (isSslException(cause)) {
+            connectorException = new SslException(SSL_CONNECTION_ERROR + COLON + cause.getMessage() + socketAddress,
+                                                  HttpResponseStatus.BAD_GATEWAY.code());
+        } else if (isUnknownHost(cause)) {
             connectorException = new UnresolvedHostException(ERROR_COULD_NOT_RESOLVE_HOST + COLON +
                     cause.getMessage(), HttpResponseStatus.BAD_GATEWAY.code());
+        } else if (cause instanceof ClosedChannelException) {
+            connectorException = new ClientConnectorException("Remote host: " + socketAddress
+                    + " closed the connection while SSL handshake", HttpResponseStatus.BAD_GATEWAY.code());
         } else {
-            connectorException = new ClientConnectorException(channelFuture.cause().getMessage(),
-                    HttpResponseStatus.BAD_GATEWAY.code());
+            connectorException = handleInGenericWay(channelFuture);
         }
+
         if (channelFuture.cause() != null) {
             connectorException.initCause(channelFuture.cause());
         }
-        listener.onFailure(connectorException);
+        return connectorException;
+    }
+
+    private boolean isUnknownHost(Throwable cause) {
+        return cause.toString().contains(UNKNOWN_HOST_EXCEPTION);
+    }
+
+    private boolean isRequestCancelled(ChannelFuture channelFuture) {
+        return channelFuture.isDone() && channelFuture.isCancelled();
+    }
+
+    private ClientConnectorException handleInGenericWay(ChannelFuture channelFuture) {
+        ClientConnectorException connectorException;
+        if (channelFuture.cause() != null) {
+            connectorException = new ClientConnectorException(channelFuture.cause().getMessage(),
+                                                              HttpResponseStatus.BAD_GATEWAY.code());
+        } else {
+            connectorException = new ClientConnectorException("Generic client error",
+                    HttpResponseStatus.BAD_GATEWAY.code());
+        }
+        return connectorException;
+    }
+
+    private boolean isSslException(Throwable cause) {
+        return cause.toString().contains(SSL) || cause.toString().contains(SECURITY);
+    }
+
+    private boolean isConnectionTimeout(ChannelFuture channelFuture) {
+        return !channelFuture.isDone() && !channelFuture.isSuccess() && !channelFuture.isCancelled() && (
+                channelFuture.cause() == null);
     }
 }

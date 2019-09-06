@@ -155,6 +155,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
+        closeChannel(ctx);
+
         if (!idleTimeout) {
             if (!requestSet.isEmpty()) {
                 requestSet.forEach((key, inboundMsg) -> inboundMsg.listenerReqRespStateManager
@@ -163,11 +165,19 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 notifyErrorListenerAtConnectedState(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
             }
         }
+
         closeTargetChannels();
+
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
             handlerExecutor = null;
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        closeChannel(ctx);
+        LOG.warn("Exception occurred in SourceHandler : {}", cause.getMessage());
     }
 
     private void closeTargetChannels() {
@@ -201,7 +211,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             }
             String channelId = ctx.channel().id().asShortText();
             LOG.debug("Idle timeout has reached hence closing the connection {}", channelId);
-        } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
+        } else {
+            logTheErrorMsg(ctx, evt);
+        }
+    }
+
+    private void logTheErrorMsg(ChannelHandlerContext ctx, Object evt) {
+        if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
             LOG.debug("Server upgrade event received");
         } else if (evt instanceof SslCloseCompletionEvent) {
             LOG.debug("SSL close completion event received");

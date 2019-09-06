@@ -93,7 +93,8 @@ public class ReceivingEntityBody implements SenderState {
     }
 
     @Override
-    public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
+    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
+                                                   HttpResponseFuture httpResponseFuture, String channelID) {
         senderReqRespStateManager.nettyTargetChannel.pipeline().remove(IDLE_STATE_HANDLER);
         senderReqRespStateManager.nettyTargetChannel.close();
         handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),

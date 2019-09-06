@@ -450,6 +450,9 @@ public class HttpCarbonMessage {
 
     public synchronized void setIoException(IOException ioException) {
         this.ioException = ioException;
+        if (Constants.HTTP_1_1_VERSION.equalsIgnoreCase(httpVersion)) {
+            contentObservable.removeListener();
+        }
     }
 
     public Http2MessageStateContext getHttp2MessageStateContext() {

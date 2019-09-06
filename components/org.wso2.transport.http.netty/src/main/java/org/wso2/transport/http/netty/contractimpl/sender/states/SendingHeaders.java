@@ -190,7 +190,8 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
+    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
+                                                   HttpResponseFuture httpResponseFuture, String channelID) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
         senderReqRespStateManager.nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
         senderReqRespStateManager.nettyTargetChannel.close();

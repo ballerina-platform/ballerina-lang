@@ -134,7 +134,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeoutTriggered = true;
-            targetChannel.senderReqRespStateManager.handleIdleTimeoutConnectionClosure(
+            targetChannel.senderReqRespStateManager.handleIdleTimeoutConnectionClosure(this,
                     httpResponseFuture, ctx.channel().id().asLongText());
         } else if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
             HttpClientUpgradeHandler.UpgradeEvent upgradeEvent = (HttpClientUpgradeHandler.UpgradeEvent) evt;
@@ -142,7 +142,13 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 executePostUpgradeActions(ctx);
             }
             ctx.fireUserEventTriggered(evt);
-        } else if (evt instanceof Http2ConnectionPrefaceAndSettingsFrameWrittenEvent) {
+        } else {
+            logTheErrorMsg(evt);
+        }
+    }
+
+    private void logTheErrorMsg(Object evt) {
+        if (evt instanceof Http2ConnectionPrefaceAndSettingsFrameWrittenEvent) {
             LOG.debug("Connection Preface and Settings frame written");
         } else if (evt instanceof SslCloseCompletionEvent) {
             LOG.debug("SSL close completion event received");
