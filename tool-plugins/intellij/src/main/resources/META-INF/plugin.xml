@@ -86,6 +86,9 @@
         <annotator language="Ballerina"
                    implementationClass="io.ballerina.plugins.idea.highlighting.semantic.BallerinaAnnotator"/>
 
+        <highlightErrorFilter implementation="io.ballerina.plugins.idea.BallerinaHighlightErrorFilter"
+                              id="BallerinaHighlightErrorFilter"/>
+
         <!-- file templates -->
         <internalFileTemplate name="Ballerina File"/>
         <internalFileTemplate name="Ballerina Main"/>

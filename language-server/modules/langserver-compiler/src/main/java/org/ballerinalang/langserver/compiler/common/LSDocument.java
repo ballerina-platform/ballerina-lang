@@ -196,7 +196,7 @@ public class LSDocument {
         }
         List<File> fileList = Arrays.asList(files);
         return fileList.stream()
-                .filter(file -> !file.isDirectory())
+                .filter(file -> file.isDirectory() && !file.isHidden())
                 .map(File::getName)
                 .collect(Collectors.toList());
     }

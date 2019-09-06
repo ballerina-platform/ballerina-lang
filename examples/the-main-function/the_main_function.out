@@ -1,20 +1,31 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 
-# Use the ballerina `run` command to invoke the `main` function specifying `add`
-# as the string argument for `operation` and `10` and `20` as the integer arguments
-# with which the operation is to be performed. `10` would be set as the value for
-# `initialValue` and `20` would be passed as an argument for the rest parameter.
-$ ballerina run the_main_function.bal add 10 20
-Result: 30
+# Use the ballerina `run` command to invoke the `main` function specifying `Alice`
+# as the string argument for `name`. `18` would be set as the value for
+# `age` and `Freshman` would be set as the value for `year`.
+$  ballerina run the_main_function.bal Alice
+Name: Alice, Age: 18, Year: Freshman
 
-# Use the ballerina `run` command to invoke the `main` function specifying `add`
-# as the string argument for `operation` and `40` as the integer value for
-# `initialValue`. Both arguments are specified as named arguments.
-$ ballerina run the_main_function.bal -operation=add -initialValue=40
-Result: 40
+# Use the ballerina `run` command to invoke the `main` function specifying `Alice`
+# as the string argument for `name` and `20` as the integer value for
+# `age`. Both arguments are specified as positional arguments.
+$ ballerina run the_main_function.bal Alice 20
+Name: Alice, Age: 20, Year: Freshman
 
-# Use the ballerina `run` command to invoke the `main` function specifying `unknown op`
-# as the string argument for `operation`. The `error` returned would be printed.
-$ ballerina run the_main_function.bal "unknown op"
-error unknown operation
+# Use the ballerina `run` command to invoke the `main` function specifying `Alice`
+# as the string argument for `name` and `Sophomore` as the string argument for
+# `year`. The value for `year` is specified as a named argument.
+$ ballerina run the_main_function.bal Alice -year=Sophomore
+Name: Alice, Age: 18, Year: Sophomore
+
+# Use the ballerina `run` command to invoke the `main` function specifying values for
+# all parameters, including the rest parameter. All arguments are specified as
+# positional arguments.
+$ ballerina run the_main_function.bal Alice 20 Sophomore math physics
+Name: Alice, Age: 20, Year: Sophomore, Module(s): math physics
+
+# Use the ballerina `run` command to invoke the `main` function specifying an invalid 
+# string as the argument for `name`. The `error` returned would be printed.
+$ ballerina run the_main_function.bal Ali
+error: InvalidName message=invalid length

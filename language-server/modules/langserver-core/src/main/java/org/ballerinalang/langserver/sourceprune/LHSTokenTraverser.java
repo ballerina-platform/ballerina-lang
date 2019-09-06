@@ -37,6 +37,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> blockRemoveKWTerminals;
     private boolean removeBlock;
     private int rightParenthesisCount;
+    private int leftParenthesisCount;
     private int rightBraceCount;
     private int rightBracketCount;
     private int ltSymbolCount;
@@ -55,6 +56,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         this.capturedAssignToken = false;
         this.forcedProcessedToken = false;
         this.rightParenthesisCount = 0;
+        this.leftParenthesisCount = 0;
         this.rightBraceCount = 0;
         this.rightBracketCount = 0;
         this.ltSymbolCount = 0;
@@ -91,6 +93,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         
         sourcePruneContext.put(SourcePruneKeys.REMOVE_DEFINITION_KEY, this.removeBlock);
         sourcePruneContext.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, this.rightParenthesisCount);
+        sourcePruneContext.put(SourcePruneKeys.LEFT_PARAN_COUNT_KEY, this.leftParenthesisCount);
         sourcePruneContext.put(SourcePruneKeys.RIGHT_BRACE_COUNT_KEY, this.rightBraceCount);
         sourcePruneContext.put(SourcePruneKeys.LT_COUNT_KEY, this.ltSymbolCount);
         sourcePruneContext.put(SourcePruneKeys.GT_COUNT_KEY, this.gtSymbolCount);
@@ -112,6 +115,15 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 this.rightParenthesisCount--;
                 this.processToken(token);
                 this.forcedProcessedToken = true;
+                return false;
+            } else if (this.incompleteStatementWithParenthesis(tokenStream, token)) {
+                /*
+                Since there are no right parenthesis associated with this left parenthesis, increment the left count
+                 */
+                this.leftParenthesisCount++;
+                this.processToken(token);
+                this.forcedProcessedToken = true;
+                this.sourcePruneContext.put(SourcePruneKeys.FORCE_CAPTURED_STATEMENT_WITH_PARENTHESIS_KEY, true);
                 return false;
             } else if (tokenToLeft.isPresent() && 
                     (BallerinaParser.IF == tokenToLeft.get().getType() ||
@@ -222,6 +234,41 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                     && nextDefaultToken.get().getType() != BallerinaParser.LEFT_BRACE;
         }
         
+        return false;
+    }
+
+    private boolean incompleteStatementWithParenthesis(TokenStream tokenStream, Token token) {
+        Token referenceToken = this.processedTokens.isEmpty() ? token : this.processedTokens.get(0);
+        Optional<Token> tokenOneToRight = CommonUtil.getNextDefaultToken(tokenStream, referenceToken.getTokenIndex());
+        if (!tokenOneToRight.isPresent()) {
+            return true;
+        }
+        int nextTokenType = tokenOneToRight.get().getType();
+        
+        if (nextTokenType == BallerinaParser.RIGHT_PARENTHESIS) {
+            Optional<Token> tokenTwoToRight = CommonUtil.getNextDefaultToken(tokenStream,
+                    tokenOneToRight.get().getTokenIndex());
+            
+            if (tokenTwoToRight.isPresent()) {
+                /*
+                This is to cover the following case,
+                Eg: function (int , int ) returns (s<cursor>) sumFunction = ...
+                 */
+                Optional<Token> tokenThreeToRight = CommonUtil.getNextDefaultToken(tokenStream,
+                        tokenTwoToRight.get().getTokenIndex());
+                if (tokenThreeToRight.isPresent() && tokenThreeToRight.get().getType() == BallerinaParser.ASSIGN) {
+                    return false;
+                }
+            }
+            if (!this.pruneTokens) {
+                // In the case of complete source without errors
+                return tokenTwoToRight.isPresent() && (tokenTwoToRight.get().getType() == BallerinaParser.SEMICOLON
+                        || tokenTwoToRight.get().getType() == BallerinaParser.LEFT_BRACE);
+            }
+            return !tokenTwoToRight.isPresent() || !(tokenTwoToRight.get().getType() == BallerinaParser.SEMICOLON
+                    || tokenTwoToRight.get().getType() == BallerinaParser.LEFT_BRACE);
+        }
+
         return false;
     }
 }

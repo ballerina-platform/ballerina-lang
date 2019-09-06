@@ -338,7 +338,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getMainFunctionSnippet() {
-        String snippet = "public function main(string... args) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "public function main() {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.MAIN_FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);

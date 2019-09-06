@@ -141,8 +141,9 @@ public final class BFunctionCompletionItemBuilder {
             String paramDescription = "- " + type + parameter.getName() + ": " + parameter.getDescription();
             if (defaultVal.isPresent()) {
                 joiner.add(paramDescription + "(Defaultable)");
+            } else {
+                joiner.add(paramDescription);
             }
-            joiner.add(paramDescription);
         }
         String paramsStr = joiner.toString();
         if (!paramsStr.isEmpty()) {

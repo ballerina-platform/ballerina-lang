@@ -702,6 +702,13 @@ public abstract class LSCompletionProvider {
                 (defaultTokens.get(tokenSize - 1) == BallerinaParser.RIGHT_PARENTHESIS
                 || defaultTokens.get(tokenSize - 2) == BallerinaParser.RIGHT_PARENTHESIS);
     }
+
+    protected boolean isAnnotationAccessExpression(LSContext context) {
+        List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        int annotationAccessIndex = defaultTokenTypes.indexOf(BallerinaParser.ANNOTATION_ACCESS);
+
+        return annotationAccessIndex > -1;
+    }
     // Private Methods
 
     /**
