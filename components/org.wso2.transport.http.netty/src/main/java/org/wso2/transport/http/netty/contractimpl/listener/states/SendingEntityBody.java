@@ -72,6 +72,7 @@ public class SendingEntityBody implements ListenerState {
     private boolean headRequest;
     private List<HttpContent> contentList = new ArrayList<>();
     private HttpCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage outboundResponseMsg;
     private ChannelHandlerContext sourceContext;
     private SourceHandler sourceHandler;
 
@@ -101,10 +102,12 @@ public class SendingEntityBody implements ListenerState {
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundRespListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+
         headRequest = outboundRespListener.getRequestDataHolder().getHttpMethod().equalsIgnoreCase(HTTP_HEAD_METHOD);
         inboundRequestMsg = outboundRespListener.getInboundRequestMsg();
         sourceContext = outboundRespListener.getSourceContext();
         sourceHandler = outboundRespListener.getSourceHandler();
+        this.outboundResponseMsg = outboundResponseMsg;
 
         ChannelFuture outboundChannelFuture;
         if (httpContent instanceof LastHttpContent) {
@@ -142,14 +145,20 @@ public class SendingEntityBody implements ListenerState {
 
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
-        // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
+        IOException connectionClose = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
+        outboundResponseMsg.setIoException(connectionClose);
+        outboundRespStatusFuture.notifyHttpListener(connectionClose);
+
         LOG.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
     }
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx) {
-        // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
+        IOException connectionClose = new IOException(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
+        outboundResponseMsg.setIoException(connectionClose);
+        outboundRespStatusFuture.notifyHttpListener(connectionClose);
+
         LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
         return null;
     }
