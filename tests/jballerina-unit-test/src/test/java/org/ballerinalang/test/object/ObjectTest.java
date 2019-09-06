@@ -404,12 +404,19 @@ public class ObjectTest {
     }
 
     @Test(description = "Negative test to test uninitialized object variables")
+    public void testObjectNonInitializableSemanticsNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_semantics_negative" +
+                ".bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "variable 'p' is not initialized", 5, 13);
+        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 5, 20);
+    }
+
+    @Test(description = "Negative test to test uninitialized object variables")
     public void testObjectNegativeTestForNonInitializable() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object 'Person'", 5, 13);
-        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 5, 13);
-        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 5, 35);
     }
 
     @Test(description = "Negative test to test returning different type without type name")
@@ -436,13 +443,19 @@ public class ObjectTest {
     }
 
     @Test(description = "Negative test to test self reference types")
-    public void testNonMatchingAttachedFunction() {
-        CompileResult result = BCompileUtil.compile("test-src/object/object_invalid_attached_func_def.bal");
+    public void testNonMatchingAttachedFunctionSemanticsNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_attached_func_def_semantics_negative.bal");
         int index = 0;
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found 'int'", 13, 16);
-        BAssertUtil.validateError(result, index++, "this function must return a result", 17, 5);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found 'string'", 23, 17);
+    }
+
+    @Test(description = "Negative test to test self reference types")
+    public void testNonMatchingAttachedFunction() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_attached_func_def_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 12, 5);
     }
 
     @Test(description = "Negative test to test initializing objects with only interface functions")

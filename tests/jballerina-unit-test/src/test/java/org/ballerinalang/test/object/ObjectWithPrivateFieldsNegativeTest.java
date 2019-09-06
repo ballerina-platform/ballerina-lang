@@ -56,7 +56,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateObjAccess1() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object/ObjectProject", "private-field1");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 19);
+        Assert.assertEquals(compileResult.getErrorCount(), 8);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
         int i = 0;
@@ -67,18 +67,31 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 42, 1);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 42, 73);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'FooFamily'", 16, 5);
-
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ParentFoo.__init'", 4, 24);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo'", 4, 32);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo'", 4, 32);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.__init'", 4, 32);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.__init'", 4, 32);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 8, 13);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 12, 43);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.__init'", 12, 43);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 16, 13);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 16, 47);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.__init'", 16, 47);
+        // TODO: {enableCodeAnalyzerTests} following won't get captured after (typeChecker, semanticAnalyzer) &
+        //  codeAnalyzer separation.
+        //
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'ParentFoo.__init'", 4, 24);
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'ChildFoo'", 4, 32);
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'ChildFoo'", 4, 32);
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'ChildFoo.__init'", 4, 32);
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'ChildFoo.__init'", 4, 32);
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'PrivatePerson'", 8, 13);
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'PrivatePerson'", 12, 43);
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'PrivatePerson.__init'", 12, 43);
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'PrivatePerson'", 16, 13);
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'PrivatePerson'", 16, 47);
+        //        BAssertUtil.validateError(compileResult, i++,
+        //                expectedErrMsg1 + "'PrivatePerson.__init'", 16, 47);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(compileResult, i++, "unknown type 'PrivatePerson'", 20, 5);
     }
@@ -87,7 +100,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateObjAccess2() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object/ObjectProject", "private-field2");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 9);
+        Assert.assertEquals(compileResult.getErrorCount(), 8);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
         int i = 0;
@@ -98,7 +111,6 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 42, 73);
 
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'FooFamily'", 16, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'FooFamily'", 5, 13);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'address'", 10, 13);
         BAssertUtil.validateError(compileResult, i++,
                 "undefined field 'address' in object 'testorg/org.foo.baz:1.0.0:FooEmployee'", 10, 13);

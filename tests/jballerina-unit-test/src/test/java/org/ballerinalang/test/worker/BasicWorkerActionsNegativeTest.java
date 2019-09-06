@@ -28,37 +28,42 @@ import org.testng.annotations.Test;
  */
 public class BasicWorkerActionsNegativeTest {
 
-    private CompileResult result;
+    private CompileResult resultNegative, resultSemanticsNegative;
 
     @BeforeClass
     public void setup() {
-        this.result = BCompileUtil.compile("test-src/workers/actions-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 11, "Worker actions negative test error count");
+        resultNegative = BCompileUtil.compile("test-src/workers/actions-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile("test-src/workers/actions-semantics-negative.bal");
+    }
+
+    @Test(description = "Test negative scenarios of worker actions")
+    public void testWorkerActionsSemanticsNegative() {
+        int index = 0;
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 4, "Worker actions semantics negative test error" +
+                " count");
+        BAssertUtil.validateError(resultSemanticsNegative, index++, "invalid type for worker send 'Person', expected anydata",
+                44, 22);
+        BAssertUtil.validateError(resultSemanticsNegative, index++, "undefined worker 'w4'", 46, 17);
+        BAssertUtil.validateError(resultSemanticsNegative, index++, "variable assignment is required",
+                61, 9);
+        BAssertUtil.validateError(resultSemanticsNegative, index, "invalid usage of receive expression, var not allowed",
+                112, 21);
     }
 
     @Test(description = "Test negative scenarios of worker actions")
     public void testNegativeWorkerActions() {
         int index = 0;
-        BAssertUtil.validateError(result, index++, "invalid type for worker send 'Person', expected anydata",
-                42, 9);
-        BAssertUtil.validateError(result, index++, "invalid type for worker send 'Person', expected anydata",
-                44, 22);
-        BAssertUtil.validateError(result, index++, "invalid worker flush expression for 'w4', there are " +
-                "no worker send statements to 'w4' from 'w1'", 46, 17);
-        BAssertUtil.validateError(result, index++, "undefined worker 'w4'", 46, 17);
-        BAssertUtil.validateError(result, index++, "invalid worker flush expression for 'w1', there are no " +
-                "worker send statements to 'w1' from 'w3'", 61, 9);
-        BAssertUtil.validateError(result, index++, "variable assignment is required",
-                61, 9);
-        BAssertUtil.validateError(result, index++, "invalid worker send statement position, must be a top " +
+        Assert.assertEquals(resultNegative.getErrorCount(), 5, "Worker actions negative test error count");
+        BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w1', there are no " +
+                "worker send statements to 'w1' from 'w3'", 61, 17);
+        BAssertUtil.validateError(resultNegative, index++, "invalid worker send statement position, must be a top " +
                 "level statement in a worker", 74, 13);
-        BAssertUtil.validateError(result, index++, "action invocation as an expression not allowed here",
+        BAssertUtil.validateError(resultNegative, index++, "action invocation as an expression not allowed here",
                 78, 15);
-        BAssertUtil.validateError(result, index++, "invalid worker receive statement position, must be a " +
+        BAssertUtil.validateError(resultNegative, index++, "invalid worker receive statement position, must be a " +
                 "top level statement in a worker", 81, 19);
-        BAssertUtil.validateError(result, index++, "invalid worker flush expression for 'w2', there are no " +
+        BAssertUtil.validateError(resultNegative, index, "invalid worker flush expression for 'w2', there are no " +
                 "worker send statements to 'w2' from 'w1'", 91, 22);
-        BAssertUtil.validateError(result, index, "invalid usage of receive expression, var not allowed",
-                112, 21);
+
     }
 }
