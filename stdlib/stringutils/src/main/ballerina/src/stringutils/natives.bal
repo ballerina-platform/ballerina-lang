@@ -74,7 +74,7 @@ public function replaceAll(string originalString, string regex, string replaceme
     return replaceAllExternal(java:fromString(originalString), java:fromString(regex), java:fromString(replacement));
 }
 
-# Replaces the first substring that matches the given sequence, from the provided string, with the specified literal
+# Replaces the first substring that matches the given sequence from the provided string, with the specified literal
 # replacement sequence.
 #
 # + originalString - original string
