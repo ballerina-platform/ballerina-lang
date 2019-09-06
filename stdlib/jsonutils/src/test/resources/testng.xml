@@ -23,7 +23,7 @@
     <listeners>
         <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
     </listeners>
-    <test name="ballerina-lang-stdlib-utils-xml-test-suite" parallel="false">
+    <test name="ballerina-lang-stdlib-jsonutils-test-suite" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
             <run>

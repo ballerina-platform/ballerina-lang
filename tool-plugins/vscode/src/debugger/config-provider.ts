@@ -1,9 +1,10 @@
 
 import {
     DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration,
-    debug, ExtensionContext, window,
+    debug, ExtensionContext, window, commands,
     DebugSession,
-    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer
+    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer,
+    Uri
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -99,9 +100,16 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         // Ensure that start script can be executed
         if (isUnix()) {
             child_process.exec("chmod +x " + startScriptPath);
-        } else {
-            startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
         }
+        const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides/vscode-plugin/run-and-debug/";
+        const showDetails: string = 'Learn More';
+        window.showWarningMessage("Stepping over code lines with action invocations may not work properly. Click \"Learn More\" for workarounds", showDetails).then((selection)=>{
+            if (showDetails === selection) {
+                commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
+            }
+        });
+        startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
+        
 
         const serverProcess = child_process.spawn(startScriptPath, [
             port.toString()

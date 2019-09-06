@@ -41,7 +41,7 @@ service echoServer on new  socket:Listener(61598) {
                     }
                 }
             } else {
-                log:printInfo("Client left: " + caller.remotePort.toString());
+                log:printInfo("Client left: " + caller.id.toString());
             }
         } else {
             io:println(result);

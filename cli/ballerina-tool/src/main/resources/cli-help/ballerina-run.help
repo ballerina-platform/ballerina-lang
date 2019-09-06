@@ -11,22 +11,20 @@ DESCRIPTION
     convenient command which will build the program and execute it.
 
     If a Ballerina source file (.bal file) or a module is
-    given, the run command build and runs it. The compilation
-    is done internally for single bal files and executable will not be created.
+    given, the run command builds and runs it. The compilation
+    is done internally for single bal files and the executable will not
+    be created.
 
     You may use the Ballerina build command to compile a source and
     provide the generated binary file (.jar file) to the run command.
     The binary runs much faster than a source file, because the source
     file run requires a compilation phase.
 
-    You must have either a public function or a service(s) or both in
-    order to run a program or a module. The function to run [:function]
-    could also be specified, and if no function is specified and a
-    function named 'main' would be considered the function to run if
-    such a function exists.
+    You must have either a public 'main' function or a service(s) or both
+    in order to run a program or a module.
 
-    When both a function to run and services are present, run executes
-    services first and then executes the main function.
+    When both a 'main' function and services are present, run executes
+    the 'main' function first and then starts the services.
 
 OPTIONS
     -e <key=value>
@@ -80,12 +78,9 @@ OPTIONS
         the program design.
 
 DEFAULT BEHAVIOR
-    Runs the function ('main' or specified function) in the given
-    program or module.
-    If a function is specified but not present, the run command fails.
-    If no function is specified and there is no main function defined,
-    it will look for a service.
-    If no main function or service is present, the run command will fail.
+    Runs the 'main' function in the given program or module, if present.
+    If no 'main' function is defined, it will look for a service.
+    If no 'main' function or service is present, the run command will fail.
 
 EXAMPLES
     Run the 'main' function and/or services in the hello source program

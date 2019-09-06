@@ -31,7 +31,7 @@ public function main() {
         // response.
         var payload = resp.getTextPayload();
         if (payload is string) {
-            // Log the retrieved text paylod.
+            // Log the retrieved text payload.
             log:printInfo(payload);
         } else {
             // If an error occurs while retrieving the text payload, log

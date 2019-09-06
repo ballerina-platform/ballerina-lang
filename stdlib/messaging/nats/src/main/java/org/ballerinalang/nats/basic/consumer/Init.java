@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.nats.Constants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,10 +40,12 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  * @since 0.995
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "nats",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.NATS,
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/nats"),
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = Constants.NATS_LISTENER,
+                structPackage = Constants.NATS_PACKAGE),
         isPublic = true
 )
 public class Init {

@@ -215,7 +215,7 @@ public class SQLDatasourceUtils {
             appendTimeZone(calendar, datetimeString);
             break;
         default:
-            throw new AssertionError("Invalid type " + type + " specified for datetime data");
+            throw new AssertionError("invalid type " + type + " specified for datetime data");
         }
         return datetimeString.toString();
     }

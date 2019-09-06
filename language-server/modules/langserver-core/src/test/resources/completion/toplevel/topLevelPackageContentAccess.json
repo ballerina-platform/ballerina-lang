@@ -1757,14 +1757,14 @@
       ]
     },
     {
-      "label": "LoadBalancerRounRobinRule",
+      "label": "LoadBalancerRoundRobinRule",
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
         "left": "Implementation of round robin load balancing strategy.\n"
       },
       "sortText": "190",
-      "insertText": "LoadBalancerRounRobinRule",
+      "insertText": "LoadBalancerRoundRobinRule",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

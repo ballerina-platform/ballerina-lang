@@ -536,10 +536,10 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth,
 // Handles open circuit state.
 function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig)
              returns (ClientError) {
-    updateRejectedRequestCount(circuitHealth, circuitBreakerInferredConfig);
     time:Time effectiveErrorTime = getEffectiveErrorTime(circuitHealth);
     int timeDif = time:currentTime().time - effectiveErrorTime.time;
     int timeRemaining = circuitBreakerInferredConfig.resetTimeInMillis - timeDif;
+    updateRejectedRequestCount(circuitHealth, circuitBreakerInferredConfig);
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining.toString() + " milliseconds.";
     UpstreamServiceUnavailableError httpConnectorErr = error(UPSTREAM_SERVICE_UNAVAILABLE, message = errorMessage);

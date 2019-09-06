@@ -2,3 +2,5 @@
 // the locks for each global or service level variable reference that is used within the block or for any
 // field access of an object or a record. When there is nested field access (e.g., a record within a record),
 // all the field accesses of the records will be locked.
+// Locks in Ballerina are currently an experimental feature.
+// Thus, use the --experimental flag to enable them.

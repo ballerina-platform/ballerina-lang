@@ -7,16 +7,19 @@ import ballerina/log;
 jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
     issuer: "ballerina",
     audience: "ballerina.io",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 http:BearerAuthHandler inboundJwtAuthHandler = new(inboundJwtAuthProvider);
 listener http:Listener ep = new(9090, config = {
     auth: {
-        authHandlers: [inboundJwtAuthHandler]
+        authHandlers: [inboundJwtAuthHandler],
+        scopes: ["hello"]
     },
     secureSocket: {
         keyStore: {

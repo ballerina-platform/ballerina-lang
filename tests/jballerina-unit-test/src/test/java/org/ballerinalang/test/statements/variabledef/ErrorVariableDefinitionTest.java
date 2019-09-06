@@ -221,7 +221,7 @@ public class ErrorVariableDefinitionTest {
     public void testNegativeErrorVariables() {
         CompileResult resultNegative = BCompileUtil.
                 compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 14);
+        Assert.assertEquals(resultNegative.getErrorCount(), 15);
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -236,18 +236,20 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 45, 28);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int', found 'map<(anydata|error)>'", 54, 18);
+                "redeclared symbol 'message'", 54, 26);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid error variable; expecting an error type but found 'int' in type definition", 55, 47);
+                "incompatible types: expected 'int', found 'map<(anydata|error)>'", 56, 18);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'boolean', found 'string'", 61, 17);
+                "invalid error variable; expecting an error type but found 'int' in type definition", 57, 47);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'string?'", 62, 16);
+                "incompatible types: expected 'boolean', found 'string'", 63, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'string?'", 68, 16);
+                "incompatible types: expected 'string', found 'string?'", 64, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "no new variables on left side", 73, 9);
+                "incompatible types: expected 'string', found 'string?'", 70, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "no new variables on left side", 74, 9);
+                "no new variables on left side", 75, 9);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "no new variables on left side", 76, 9);
     }
 }

@@ -51,7 +51,7 @@ public class BCursorTable extends TableValue {
 
     public int length() {
         throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
-                "The row count of a table returned from a database cannot be provided");
+                "the row count of a table returned from a database cannot be provided");
     }
 
     protected boolean isIteratorGenerationConditionMet() {
@@ -77,6 +77,6 @@ public class BCursorTable extends TableValue {
     @Override
     public Object copy(Map<Object, Object> refs) {
         throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
-                "A table returned from a database can not be cloned");
+                "a table returned from a database can not be cloned");
     }
 }
