@@ -72,8 +72,8 @@ public class HoverProviderTest {
         String expected = getExpectedValue(expectedFile);
 
         Assert.assertEquals(parser.parse(response).getAsJsonObject(), parser.parse(expected).getAsJsonObject(),
-                            "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
-                        + " character:" + position.getCharacter());
+                            "Did not match the hover content for " + expectedFile + " and position line:" +
+                                    position.getLine() + " character:" + position.getCharacter());
     }
 
     @Test(description = "Test Hover for current package's records", dataProvider = "hoverCurrentPackageRecordPosition")
@@ -82,8 +82,8 @@ public class HoverProviderTest {
         String expected = getExpectedValue(expectedFile);
 
         Assert.assertEquals(parser.parse(response).getAsJsonObject(), parser.parse(expected).getAsJsonObject(),
-                            "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
-                        + " character:" + position.getCharacter());
+                            "Did not match the hover content for " + expectedFile + " and position line:" +
+                                    position.getLine() + " character:" + position.getCharacter());
     }
 
     @Test(description = "Test Hover for stdlib actions", dataProvider = "hoverActionPosition")
@@ -92,8 +92,8 @@ public class HoverProviderTest {
         String expected = getExpectedValue(expectedFile);
 
         Assert.assertEquals(parser.parse(response).getAsJsonObject(), parser.parse(expected).getAsJsonObject(),
-                            "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
-                        + " character:" + position.getCharacter());
+                            "Did not match the hover content for " + expectedFile + " and position line:" +
+                                    position.getLine() + " character:" + position.getCharacter());
     }
 
     @AfterClass
