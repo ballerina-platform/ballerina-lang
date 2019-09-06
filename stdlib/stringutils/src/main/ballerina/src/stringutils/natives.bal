@@ -18,18 +18,18 @@ import ballerinax/java;
 
 # Checks whether the given string contains a particular substring.
 #
-# + originalString - original string to check
+# + originalString - the original string 
 # + substring - string to match
-# + return - `true` if the original string contains the substring, `false` otherwise
+# + return - `true` if the original string contains the substring or `false` otherwise
 public function contains(string originalString, string substring) returns boolean {
     return containsExternal(java:fromString(originalString), java:fromString(substring));
 }
 
-# Checks if two strings are equal, ignoring the case of the strings.
+# Checks if two strings are equal ignoring the case of the strings.
 #
 # + firstString - first string to compare
 # + secondString - second string to compare
-# + return - `true` if two strings are the same, `false` if the strings does not match
+# + return - `true` if the two strings are the same or`false` if the strings do not match
 public function equalsIgnoreCase(string firstString, string secondString) returns boolean {
     return equalsIgnoreCaseExternal(java:fromString(firstString), java:fromString(secondString));
 }
@@ -44,7 +44,7 @@ public function hashCode(string stringValue) returns int {
 
 # Returns the last index of the provided substring within a string.
 #
-# + originalString - string to look at
+# + originalString - the original string
 # + substring - string to look for
 # + return - starting point of the last appearence of the provided substring
 public function lastIndexOf(string originalString, string substring) returns int {
@@ -76,18 +76,18 @@ public function replace(string originalText, string textToReplace, string replac
 #
 # + originalString - original string
 # + regex - Regex to find substrings to replace
-# + replacement - replacement string
+# + replacement - the replacement string
 # + return - the resultant string
 public function replaceAll(string originalString, string regex, string replacement) returns string {
     return replaceAllExternal(java:fromString(originalString), java:fromString(regex), java:fromString(replacement));
 }
 
-# Replaces the first substring that matches the given sequence, from the provided string, with the specified literal
+# Replaces the first substring that matches the given sequence from the provided string, with the specified literal
 # replacement sequence.
 #
-# + originalString - original string
+# + originalString - the original string
 # + stringToReplace - string to replace
-# + replacement - replacement string
+# + replacement - the replacement string
 # + return - the resultant string
 public function replaceFirst(string originalString, string stringToReplace, string replacement) returns string {
     return replaceFirstExternal(java:fromString(originalString),
@@ -97,7 +97,7 @@ public function replaceFirst(string originalString, string stringToReplace, stri
 
 # Splits a string around matches of the given delimiter.
 #
-# + receiver - original string
+# + receiver - the original string
 # + delimiter - delimiter
 # + return - array of strings
 public function split(string receiver, string delimiter) returns string[] {
