@@ -339,7 +339,7 @@ class JInterop {
     static Class<?> loadClass(String className) {
         try {
             return Class.forName(className.replace("/", "."));
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
             throw new JInteropException(CLASS_NOT_FOUND_REASON, e.getMessage(), e);
         }
     }
