@@ -336,6 +336,9 @@ function testIndirectErrorMatchPattern() returns string {
         ER ( message = m, ...var rest) => {
             return <string>m;
         }
+        error(reason, ...var rest) => {
+            return reason;
+        }
     }
     return "Default";
 }

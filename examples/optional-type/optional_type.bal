@@ -8,9 +8,9 @@ function getValue(string key) returns string? {
 
     // In Ballerina, the `nil` type that is provided as `()` contains a single value named "nil". This is used
     // to represent the absence of any other value.
-    // The "nil" value is written as `()`.
+    // The `nil` value is written as `()`.
     // `null` is syntactic sugar for "nil" that is to be used with JSON values because JSON uses `null`.
-    // "return ();" here is the same as "return;". Not having a return statement at the end is also the same as
+    // `return ();` here is the same as `return;`. Not having a return statement at the end is also the same as
     // explicitly returning `()`.
     return ();
 }

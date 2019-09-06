@@ -81,7 +81,8 @@ public abstract class CompletionTest {
 //            obj.add("position", configJsonObject.get("position"));
 //            obj.add("source", configJsonObject.get("source"));
 //            obj.add("items", resultList);
-//            Files.write(RES_DIR.resolve(configJsonPath), obj.toString().getBytes(StandardCharsets.UTF_8));
+//            java.nio.file.Files.write(RES_DIR.resolve(configJsonPath),
+//                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
             // This will print nice comparable text in IDE
 //            Assert.assertEquals(responseItemList.toString(), expectedList.toString(),

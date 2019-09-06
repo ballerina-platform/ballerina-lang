@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 11,
+    "character": 23
+  },
+  "source": "annotation/source/annotationAccessExpression5.bal",
+  "items": [
+    {
+      "label": "ResourceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "ResourceConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ParamOrderConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "ParamOrderConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ServiceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "ServiceConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketServiceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "WebSocketServiceConfig",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

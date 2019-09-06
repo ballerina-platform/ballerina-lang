@@ -1,7 +1,7 @@
 import ballerina/log;
 import ballerina/rabbitmq;
 
-// Creates a ballerina RabbitMQ connection that allows reusability if necessary.
+// Creates a ballerina RabbitMQ connection that allows re-usability if necessary.
 rabbitmq:Connection connection = new({ host: "localhost", port: 5672 });
 
 listener rabbitmq:Listener channelListener = new(connection);

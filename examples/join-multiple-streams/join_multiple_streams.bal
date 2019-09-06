@@ -68,9 +68,9 @@ listener http:Listener productMaterialListener = new (9090);
 }
 service productMaterialService on productMaterialListener {
 
-    // Initializes the function, which contains streaming queries.
-    // TODO: issue #17267
-    () ftr = initRealtimeProductionAlert();
+    public function __init() {
+        initRealtimeProductionAlert();
+    }
 
     @http:ResourceConfig {
         methods: ["POST"],

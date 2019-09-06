@@ -160,6 +160,9 @@ public class LSAnnotationCache {
             case LISTENER:
                 annotationMap = listenerAnnotations;
                 break;
+            case EXTERNAL:
+                annotationMap = externalAnnotations;
+                break;
             default:
                 annotationMap = new HashMap<>();
                 break;

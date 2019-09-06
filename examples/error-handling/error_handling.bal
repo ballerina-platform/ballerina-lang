@@ -13,14 +13,12 @@ type InvalidAccountTypeError error<INVALID_ACC_TYPE_REASON, InvalidAccountTypeEr
 
 function getTypeId(string accountType) returns int | InvalidAccountTypeError {
     match accountType {
-        "checking" => return 1;
-        "savings" => return 2;
+        "checking" => { return 1; }
+        "savings" => { return 2; }
     }
 
-    // When a constant reason is used in the error definition
-    // it is not required to specify the reason when creating an error value of that type.
-    // If a reason is passed, the value should be the constant used in the error definition.
-    InvalidAccountTypeError e = error(accountType = accountType);
+    // When a constant reason is used in the error definition we can use error type name as the error constructor.
+    InvalidAccountTypeError e = InvalidAccountTypeError(accountType = accountType);
     return e;
 }
 

@@ -65,7 +65,7 @@ service multipartResponseDecoder on multipartEP {
         var returnResult = clientEP->get("/multiparts/encode_out_response");
         http:Response res = new;
         if (returnResult is http:Response) {
-            // Extracts the bodyparts from the response.
+            // Extracts the body parts from the response.
             var parentParts = returnResult.getBodyParts();
             if (parentParts is mime:Entity[]) {
                 //Loops through body parts.

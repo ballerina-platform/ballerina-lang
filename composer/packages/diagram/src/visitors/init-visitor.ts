@@ -121,6 +121,7 @@ export const visitor: Visitor = {
                 node.viewState = new WorkerViewState();
             }
             currentWorker = node;
+            (currentWorker.viewState as WorkerViewState).returnStatements = [];
         }
     },
 

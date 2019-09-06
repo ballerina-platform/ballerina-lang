@@ -37,7 +37,7 @@ string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
 RemotePublishConfig remotePublishConfig = {};
 boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
-http:ClientEndpointConfig? hubClientConfig = ();
+http:ClientConfiguration? hubClientConfig = ();
 
 HubPersistenceStore? hubPersistenceStoreImpl = ();
 boolean hubPersistenceEnabled = false;

@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
@@ -49,8 +50,10 @@ public class RuntimeUtils {
     private static PrintStream errStream = System.err;
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
+    private static Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
 
     private static final PrintStream stderr = System.err;
+    private static FileHandler handler;
 
     /**
      * Used to handle rest args passed in to the main method.
@@ -164,14 +167,17 @@ public class RuntimeUtils {
         // The fileHandle had to be created on demand, since the log file is getting created at the handler init.
         // Which result in empty ballerina-internal.log files always getting created.
         Level logLevel = Level.ALL;
-        java.util.logging.Logger crashLogger = java.util.logging.Logger.getLogger(CRASH_LOGGER);
 
         try {
-            FileHandler handler = new FileHandler(initBRELogHandler(), true);
-            handler.setFormatter(new DefaultLogFormatter());
-            crashLogger.addHandler(handler);
-            crashLogger.setUseParentHandlers(false);
-            crashLogger.setLevel(logLevel);
+            synchronized (crashLogger) {
+                if (handler == null) {
+                    handler = new FileHandler(initBRELogHandler(), true);
+                    handler.setFormatter(new DefaultLogFormatter());
+                    crashLogger.addHandler(handler);
+                    crashLogger.setUseParentHandlers(false);
+                    crashLogger.setLevel(logLevel);
+                }
+            }
         } catch (IOException ioException) {
             stderr.print("error initializing crash logger");
         }

@@ -1,5 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run error-lifting.bal
-The status code: response error {}
-The status code:

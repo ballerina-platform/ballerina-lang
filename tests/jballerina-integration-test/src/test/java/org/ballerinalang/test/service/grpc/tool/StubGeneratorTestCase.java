@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 
 import java.io.File;
@@ -359,7 +358,7 @@ public class StubGeneratorTestCase {
     private void validateConstantNode(CompileResult compileResult, String constantName) {
         for (BLangConstant constant : ((BLangPackage) compileResult.getAST()).constants) {
             if (constantName.equals(constant.getName().getValue())) {
-                assertEquals(((BLangTypeConversionExpr) constant.expr).targetType.tsymbol.name.value, "sentiment",
+                assertEquals(constant.symbol.type.tsymbol.name.value, "sentiment",
                         "Symbol value of the constant is not correct");
                 return;
             }

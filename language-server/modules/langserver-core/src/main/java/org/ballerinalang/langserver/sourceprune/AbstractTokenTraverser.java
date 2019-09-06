@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 abstract class AbstractTokenTraverser {
     int lastProcessedToken = -1;
-    private boolean pruneTokens;
+    protected boolean pruneTokens;
     List<CommonToken> processedTokens = new ArrayList<>();
 
     AbstractTokenTraverser(boolean pruneTokens) {

@@ -61,9 +61,9 @@ public class ModuleExecutionFlowTests {
                 "a:ABC listener __immediateStop called, service name - ModB\n" +
                 "a:ABC listener __immediateStop called, service name - ModA";
 
-        String expectedErrorString = "error: error returned while initializing module B";
+        String expectedErrorString = "error: error returned while initializing module B ";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
-        Assert.assertTrue(output.errorOutput.contains(expectedErrorString), "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
     @Test
@@ -81,9 +81,9 @@ public class ModuleExecutionFlowTests {
                 "a:ABC listener __immediateStop called, service name - ModB\n" +
                 "a:ABC listener __immediateStop called, service name - ModA";
 
-        String expectedErrorString = "error: error returned while starting module B";
+        String expectedErrorString = "error: error returned while starting module B ";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
-        Assert.assertTrue(output.errorOutput.contains(expectedErrorString), "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ModuleExecutionFlowTests {
         String expectedErrorString = "error: panicked while initializing module B \n" +
                 "\tat unit-tests.b:__init(main.bal:6)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
-        Assert.assertTrue(output.errorOutput.contains(expectedErrorString), "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
     @Test
@@ -122,7 +122,7 @@ public class ModuleExecutionFlowTests {
         String expectedErrorString = "error: panicked while starting module B \n" +
                 "\tat unit-tests.a.ABC:__start(main.bal:23)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
-        Assert.assertTrue(output.errorOutput.contains(expectedErrorString), "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
     @Test
@@ -157,9 +157,9 @@ public class ModuleExecutionFlowTests {
                 "a:ABC listener __immediateStop called, service name - ModB\n" +
                 "a:ABC listener __immediateStop called, service name - ModA";
 
-        String expectedErrorString = "error: error returned while executing main method";
+        String expectedErrorString = "error: error returned while executing main method ";
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
-        Assert.assertTrue(output.errorOutput.contains(expectedErrorString), "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
     @Test
@@ -178,7 +178,7 @@ public class ModuleExecutionFlowTests {
         String expectedErrorString = "error: panicked while executing main method \n" +
                 "\tat unit-tests.c:main(main.bal:12)";
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
-        Assert.assertTrue(output.errorOutput.contains(expectedErrorString), "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
     private ExitDetails run(CompileResult compileResult, String[] args) {

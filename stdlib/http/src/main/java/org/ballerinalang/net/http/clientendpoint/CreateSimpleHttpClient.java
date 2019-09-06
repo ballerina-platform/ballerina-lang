@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http.clientendpoint;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,6 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
@@ -70,7 +70,7 @@ public class CreateSimpleHttpClient {
         try {
             url = new URL(urlString);
         } catch (MalformedURLException e) {
-            throw new BallerinaException("Malformed URL: " + urlString);
+            throw HttpUtil.createHttpError("Malformed URL: " + urlString, HttpErrorType.GENERIC_CLIENT_ERROR);
         }
         scheme = url.getProtocol();
         Map<String, Object> properties =

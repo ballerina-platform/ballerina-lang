@@ -29,7 +29,7 @@ public function main() {
     // to convert some data types that are defined in the record to JSON.
     json|error j = json.constructFrom(theRevenant);
     if (j is json) {
-        io:println(j);
+        io:println(j.toJsonString());
         io:println(j.writer.lname);
     }
 

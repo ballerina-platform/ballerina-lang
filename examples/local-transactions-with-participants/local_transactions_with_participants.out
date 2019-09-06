@@ -23,3 +23,5 @@ Local participant panicked.
 2018-12-04 20:14:08,437 INFO  [ballerina/log] - Running 2-phase commit for transaction: 2e0c1784-1b17-42e8-a864-ae20d3a25c65:$anon$.$1
 2018-12-04 20:14:08,438 INFO  [ballerina/log] - Local prepare failed, aborting..
 Transaction aborted
+[ballerina/http] started HTTP/WS listener 10.100.7.118:64310
+[ballerina/http] stopped HTTP/WS listener 10.100.7.118:64310

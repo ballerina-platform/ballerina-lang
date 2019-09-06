@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/io;
 
 // Creates a new client with the backend URL.
-http:Client clientEndpoint = new("https://postman-echo.com");
+http:Client clientEndpoint = new("http://postman-echo.com");
 
 public function main() {
     io:println("GET request:");
@@ -12,30 +12,17 @@ public function main() {
     handleResponse(response);
 
     io:println("\nPOST request:");
-    // Sets a `string` payload to the message to be sent to the endpoint.
-    http:Request req = new;
-    req.setPayload("POST: Hello World");
     // Sends a `POST` request to the specified endpoint.
-    response = clientEndpoint->post("/post", req);
-    // Handles the response.
-    handleResponse(response);
-
-    io:println("\nDELETE request:");
-    // Sets a `string` payload to the message to be sent to the endpoint.
-    req.setPayload("DELETE: Hello World");
-    // Sends a `DELETE` request to the specified endpoint.
-    response = clientEndpoint->delete("/delete", req);
+    response = clientEndpoint->post("/post", "POST: Hello World");
     // Handles the response.
     handleResponse(response);
 
     io:println("\nUse custom HTTP verbs:");
-    // Sets a `string` payload to the message, which will be sent to the endpoint.
-    req.setPayload("CUSTOM: Hello World");
     // Uses the `execute()` remote function for custom HTTP verbs.
-    response = clientEndpoint->execute("COPY", "/get", req);
+    response = clientEndpoint->execute("COPY", "/get", "CUSTOM: Hello World");
 
-    // Reinitializes the request.
-    req = new;
+    // Initializes a request.
+    http:Request req = new;
     req.addHeader("Sample-Name", "http-client-connector");
     // The `get()`, `head()`, and `options()` can have the optional `message` parameter,
     // which will be a request or a payload.
@@ -58,7 +45,7 @@ function handleResponse(http:Response|error response) {
         var msg = response.getJsonPayload();
         if (msg is json) {
             // Prints the received `json` response.
-            io:println(msg);
+            io:println(msg.toJsonString());
         } else {
             io:println("Invalid payload received:" , msg.reason());
         }

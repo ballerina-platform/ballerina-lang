@@ -448,4 +448,8 @@ public class ConfigRegistry {
     public boolean isInitialized() {
         return isInitialized;
     }
+
+    public void setInitialized(boolean initialized) {
+        isInitialized = initialized;
+    }
 }

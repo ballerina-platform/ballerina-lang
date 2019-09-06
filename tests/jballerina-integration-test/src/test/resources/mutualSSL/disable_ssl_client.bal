@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-http:ClientEndpointConfig disableSslClientConf = {
+http:ClientConfiguration disableSslClientConf = {
     secureSocket:{
         disable:true
     }
