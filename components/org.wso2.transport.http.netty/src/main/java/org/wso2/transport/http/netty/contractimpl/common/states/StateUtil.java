@@ -54,7 +54,7 @@ public class StateUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(StateUtil.class);
 
-    public static final String ILLEGAL_STATE_ERROR = "is not a dependant action of this state";
+    public static final String ILLEGAL_STATE_ERROR = "is not a valid action of this state";
     public static final String CONNECTOR_NOTIFYING_ERROR =
             "Error while notifying error state to server-connector listener";
 

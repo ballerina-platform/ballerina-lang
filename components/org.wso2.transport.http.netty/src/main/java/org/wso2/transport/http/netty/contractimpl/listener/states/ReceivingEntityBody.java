@@ -142,6 +142,8 @@ public class ReceivingEntityBody implements ListenerState {
             handleIncompleteInboundMessage(inboundRequestMsg,
                                            IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY);
         });
+        listenerReqRespStateManager.state
+                = new ResponseCompleted(listenerReqRespStateManager, sourceHandler, inboundRequestMsg);
         return outboundRespFuture;
     }
 

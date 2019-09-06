@@ -49,6 +49,7 @@ import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
 import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
+import org.wso2.transport.http.netty.contractimpl.common.http2.Http2ExceptionHandler;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceConnectionHandlerBuilder;
@@ -66,6 +67,8 @@ import javax.net.ssl.SSLEngine;
 import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_ACCESS_LOG_HANDLER;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRACE_LOG_HANDLER;
+import static org.wso2.transport.http.netty.contract.Constants.SECURITY;
+import static org.wso2.transport.http.netty.contract.Constants.SSL;
 import static org.wso2.transport.http.netty.contract.Constants.TRACE_LOG_DOWNSTREAM;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setSslHandshakeTimeOut;
 
@@ -124,6 +127,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                     SslHandler sslHandler = keystoreHttp2SslContext.newHandler(ch.alloc());
                     setSslHandshakeTimeOut(sslConfig, sslHandler);
                     serverPipeline.addLast(sslHandler, new Http2PipelineConfiguratorForServer(this));
+                    serverPipeline.addLast(Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler());
                 }
             } else {
                 configureH2cPipeline(serverPipeline);
@@ -418,6 +422,16 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             if (ctx != null && ctx.channel().isActive()) {
                 ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
             }
+        }
+
+        @Override
+        protected void handshakeFailure(ChannelHandlerContext ctx, Throwable cause) {
+            if (cause.toString().contains(SSL) || cause.toString().contains(SECURITY)) {
+                while (cause.getCause() != null && cause.getCause() != cause) {
+                    cause = cause.getCause();
+                }
+            }
+            LOG.warn("{} TLS handshake failed:", ctx.channel(), cause.getMessage());
         }
     }
 
