@@ -1,5 +1,5 @@
 NAME
-    Ballerina dist list - List available ballerina
+    Ballerina dist list - List available ballerina distributions
 
 SYNOPSIS
     ballerina dist list
@@ -8,8 +8,8 @@ DESCRIPTION
      Ballerina dist list List available ballerina distributions available
 
 OPTIONS
-     --remote
-        List distributions available in the central server
+     --local
+        List distributions available in the local
 
 EXAMPLES
      List available Ballerina versions
