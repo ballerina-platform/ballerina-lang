@@ -152,7 +152,8 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     if (!isEntry || dlogger.getErrorCount() > 0) {
         return;
     }
-
+    injectDefaultParamInits(module);
+    injectDefaultParamInitsToAttachedFuncs(module);
     // create dependant modules flat array
     createDependantModuleFlatArray();
     // enrich current package with package initializers

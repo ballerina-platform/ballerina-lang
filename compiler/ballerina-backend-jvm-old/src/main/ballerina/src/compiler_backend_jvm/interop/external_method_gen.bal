@@ -25,6 +25,17 @@ type OldStyleExternalFunctionWrapper record {|
     string jMethodVMSig;
 |};
 
+public type JavaMethodCall record  {|
+    bir:DiagnosticPos pos;
+    bir:VarRef?[] args;
+    bir:TerminatorKind kind;
+    bir:VarRef? lhsOp;
+    string jClassName;
+    string jMethodVMSig;
+    string name;
+    bir:BasicBlock thenBB;
+|};
+
 type ExternalFunctionWrapper JInteropFunctionWrapper | OldStyleExternalFunctionWrapper;
 
 function genJMethodForBExternalFunc(bir:Function birFunc,
@@ -34,177 +45,103 @@ function genJMethodForBExternalFunc(bir:Function birFunc,
     var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
 
     if extFuncWrapper is OldStyleExternalFunctionWrapper {
-        genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType);
+        genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
     } else {
         genJMethodForBExternalFuncInterop(extFuncWrapper, cw, birModule);
     }
 }
 
-function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extFuncWrapper,
-                                            jvm:ClassWriter cw,
-                                            bir:Package birModule,
-                                            bir:BType? attachedType = ()) {
+function injectDefaultParamInits(bir:Package module) {
 
-    var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
+    // filter out functions.
+    bir:Function?[] functions = module.functions;
+    if (functions.length() > 0) {
+        int funcSize = functions.length();
+        int count  = 3;
 
-    // Create a local variable for the strand
-    BalToJVMIndexMap indexMap = new;
-    bir:VariableDcl strandVarDcl = { typeValue: "string", name: { value: "$_strand_$" }, kind: "ARG" };
-    int strandParamIndex = indexMap.getIndex(strandVarDcl);
-
-    // generate method desc
-    bir:Function birFunc = extFuncWrapper.func;
-    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue["retType"]);
-    int access = ACC_PUBLIC;
-    string selfParamName = "$_self_$";
-    int selfParamIndex = -1;
-    if attachedType is () {
-        access += ACC_STATIC;
-    } else {
-        bir:VariableDcl selfVar = { typeValue: attachedType, name: { value: "$_self_$" }, kind: "ARG" };
-        selfParamIndex = indexMap.getIndex(selfVar);
-    }
-
-    jvm:MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, birModule);
-    ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
-    LabelGenerator labelGen = new();
-    TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
-    mv.visitCode();
-
-    jvm:Label? tryStart = ();
-    jvm:Label? tryEnd = ();
-    jvm:Label? tryHandler = ();
-    boolean isRemote = (birFunc.flags & bir:REMOTE) == bir:REMOTE;
-    if (isRemote) {
-        tryStart = labelGen.getLabel("try-start");
-        tryEnd = labelGen.getLabel("try-end");
-        tryHandler = labelGen.getLabel("try-handler");
-        mv.visitLabel(<jvm:Label>tryStart);
-    }
-
-    jvm:Label paramLoadLabel = labelGen.getLabel("param_load");
-    mv.visitLabel(paramLoadLabel);
-    mv.visitLineNumber(birFunc.pos.sLine, paramLoadLabel);
-
-    // birFunc.localVars contains all the function parameters as well as added boolean parameters to indicate the
-    //  availability of default values.
-    // The following line cast localvars to function params. This is guaranteed not to fail.
-    // Get a JVM method local variable index for the parameter
-    bir:FunctionParam?[] birFuncParams = [];
-    foreach var birLocalVarOptional in birFunc.localVars {
-        if (birLocalVarOptional is bir:FunctionParam) {
-            birFuncParams[birFuncParams.length()] =  birLocalVarOptional;
-            _ = indexMap.getIndex(<bir:FunctionParam>birLocalVarOptional);
+        // Generate classes for other functions.
+        while (count < funcSize) {
+            bir:Function birFunc = <bir:Function>functions[count];
+            count = count + 1;
+            var extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, attachedType = ());
+            if extFuncWrapper is OldStyleExternalFunctionWrapper {
+                desugarOldExternFuncs(module, extFuncWrapper, birFunc);
+                enrichWithDefaultableParamInits(birFunc);
+            } else if (!(extFuncWrapper is JMethodFunctionWrapper) && !(extFuncWrapper is JFieldFunctionWrapper)) {
+                enrichWithDefaultableParamInits(birFunc);
+            }
         }
     }
 
-    // Generate if blocks to check and set default values to parameters
+}
+
+
+function desugarOldExternFuncs(bir:Package module, OldStyleExternalFunctionWrapper extFuncWrapper,
+                                    bir:Function birFunc) {
+    bir:BType retType = <bir:BType>birFunc.typeValue["retType"];
+
+    bir:VarRef? retRef = ();
+    if (!(retType is bir:BTypeNil)) {
+        retRef = {variableDcl:getVariableDcl(birFunc.localVars[0]), typeValue:retType};
+    }
+
+    nextId = -1;
+    nextVarId = -1;
+
+    bir:BasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, prefix = "wrapperGen");
+    bir:BasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, prefix = "wrapperGen");
+
+    bir:VarRef?[] args = [];
+
+    bir:VariableDcl? receiver = birFunc.receiver;
+    if (!(receiver is ())) {
+        bir:VarRef argRef = {variableDcl:receiver, typeValue:receiver.typeValue};
+        args[args.length()] = argRef;
+    }
+
+    bir:FunctionParam?[] birFuncParams = birFunc.params;
+
     int birFuncParamIndex = 0;
-    int paramDefaultsBBIndex = 0;
-    foreach var birFuncParamOptional in birFuncParams {
-        var birFuncParam = <bir:FunctionParam>birFuncParamOptional;
-        // Skip boolean function parameters to indicate the existence of default values
-        if (birFuncParamIndex % 2 !== 0 || !birFuncParam.hasDefaultExpr) {
-            // Skip the loop if:
-            //  1) This birFuncParamIndex had an odd value: indicates a generated boolean parameter
-            //  2) This function param doesn't have a default value
-            birFuncParamIndex += 1;
-            continue;
-        }
-
-        // The following boolean parameter indicates the existence of a default value
-        var isDefaultValueExist = <bir:FunctionParam>birFuncParams[birFuncParamIndex + 1];
-        mv.visitVarInsn(ILOAD, indexMap.getIndex(isDefaultValueExist));
-
-        // Gen the if not equal logic
-        jvm:Label paramNextLabel = labelGen.getLabel(birFuncParam.name.value + "next");
-        mv.visitJumpInsn(IFNE, paramNextLabel);
-
-        bir:BasicBlock?[] basicBlocks = birFunc.paramDefaultBBs[paramDefaultsBBIndex];
-        generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1,
-                            -1, strandParamIndex, true, birModule, currentPackageName, attachedType, false);
-        mv.visitLabel(paramNextLabel);
-
-        birFuncParamIndex += 1;
-        paramDefaultsBBIndex += 1;
-    }
-
-    // Load function parameters of the target Java method to the stack..
-    if attachedType is () {
-        mv.visitVarInsn(ALOAD, strandParamIndex);
-    } else {
-        // check whether function params already include the self
-        mv.visitVarInsn(ALOAD, selfParamIndex);
-        mv.visitVarInsn(ALOAD, strandParamIndex);
-    }
-
-    birFuncParamIndex = 0;
     while (birFuncParamIndex < birFuncParams.length()) {
-        var birFuncParam = <bir:FunctionParam>birFuncParams[birFuncParamIndex];
-        int paramLocalVarIndex = indexMap.getIndex(birFuncParam);
-        generateVarLoad(mv, birFuncParam, currentPackageName, paramLocalVarIndex);
-        birFuncParamIndex += 2;
-    }
-
-    // if attached type, strand index is given by selfParamIndex
-    int strandIndex = attachedType is () ? strandParamIndex : selfParamIndex;
-    if (isRemote) {
-        string serviceOrConnectorName = birModule.versionValue.value;
-        if attachedType is bir:BObjectType {
-            serviceOrConnectorName = getFullQualifiedRemoteFunctionName(
-                attachedType.moduleId.org, attachedType.moduleId.name, birModule.versionValue.value);
-        }
-        emitStartObservationInvocation(mv, strandIndex,
-                    birModule.versionValue.value, birFunc.name.value, "startCallableObservation");
+        bir:FunctionParam birFuncParam = <bir:FunctionParam>birFuncParams[birFuncParamIndex];
+        bir:VarRef argRef = {variableDcl:birFuncParam, typeValue:birFuncParam.typeValue};
+        args[args.length()] = argRef;
+        birFuncParamIndex += 1;
     }
 
     string jMethodName = birFunc.name.value;
-    mv.visitMethodInsn(INVOKESTATIC, extFuncWrapper.jClassName, jMethodName, extFuncWrapper.jMethodVMSig, false);
+    JavaMethodCall jCall = {pos:birFunc.pos, args:args, kind:bir:TERMINATOR_PLATFORM, lhsOp:retRef,
+                                jClassName:extFuncWrapper.jClassName, name:jMethodName, jMethodVMSig:extFuncWrapper.jMethodVMSig, thenBB:retBB};
+    beginBB.terminator = jCall;
 
-    // Handle return type
-    int returnVarRefIndex = -1;
-    bir:BType retType = <bir:BType>birFunc.typeValue["retType"];
-    if retType is bir:BTypeNil {
-    } else {
-        bir:VariableDcl retVarDcl = { typeValue: <bir:BType>retType, name: { value: "$_ret_var_$" }, kind: "LOCAL" };
-        returnVarRefIndex = indexMap.getIndex(retVarDcl);
-        generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
+    bir:Return ret = {pos:birFunc.pos, kind:bir:TERMINATOR_RETURN};
+    retBB.terminator = ret;
+
+    var cde = json.constructFrom(birFunc);
+    if (cde is json) {
+        io:println(cde.toJsonString());
     }
 
-    jvm:Label retLabel = labelGen.getLabel("return_lable");
-    mv.visitLabel(retLabel);
-    mv.visitLineNumber(birFunc.pos.sLine, retLabel);
-    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
-
-    if (isRemote) {
-        mv.visitTryCatchBlock(<jvm:Label>tryStart, <jvm:Label>tryEnd, <jvm:Label>tryHandler, ());
-        mv.visitLabel(<jvm:Label>tryEnd);
-        bir:VariableDcl throwableVarDcl = { typeValue: "string", name: { value: "$_throwable_$" } };
-        int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
-        emitStopObservationInvocation(mv, strandIndex);
-
-        jvm:Label l3 = new();
-        mv.visitLabel(l3);
-        mv.visitLabel(<jvm:Label>tryHandler);
-        mv.visitVarInsn(ASTORE, throwableVarIndex);
-        mv.visitVarInsn(ALOAD, strandIndex);
-        emitStopObservationInvocation(mv, strandIndex);
-
-        jvm:Label l5 = new();
-        mv.visitLabel(l5);
-        mv.visitVarInsn(ALOAD, throwableVarIndex);
-        mv.visitInsn(ATHROW);
+    var abc = json.constructFrom(birFunc);
+    if (abc is json) {
+        io:println(abc.toJsonString());
     }
-
-    mv.visitMaxs(200, 400);
-    mv.visitEnd();
 }
 
 function getExternalFunctionWrapper(bir:Package birModule, bir:Function birFunc,
                                     bir:BType? attachedType = ())
                                     returns ExternalFunctionWrapper {
 
+    var birFuncWrapper = lookupBIRFunctionWrapper(birModule, birFunc, attachedType = attachedType);
+    if (birFuncWrapper is ExternalFunctionWrapper) {
+        return birFuncWrapper;
+    } else {
+        panic error("cannot find function definition for : " + birFunc.name.value);// TODO improve
+    }
+}
+
+function lookupBIRFunctionWrapper(bir:Package birModule, bir:Function birFunc,
+                                    bir:BType? attachedType = ()) returns BIRFunctionWrapper {
     string lookupKey;
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
     string birFuncName = birFunc.name.value;
@@ -218,7 +155,7 @@ function getExternalFunctionWrapper(bir:Package birModule, bir:Function birFunc,
     }
 
     var birFuncWrapper = birFunctionMap[lookupKey];
-    if (birFuncWrapper is ExternalFunctionWrapper) {
+    if (birFuncWrapper is BIRFunctionWrapper) {
         return birFuncWrapper;
     } else {
         panic error("cannot find function definition for : " + lookupKey);
