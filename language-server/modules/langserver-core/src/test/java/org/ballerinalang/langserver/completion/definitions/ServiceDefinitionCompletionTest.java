@@ -45,8 +45,10 @@ public class ServiceDefinitionCompletionTest extends CompletionTest {
         return new Object[][] {
             {"serviceEndpointBind1.json", "service"},
             {"serviceEndpointBind2.json", "service"},
-            {"serviceEndpointBind3.json", "service"},
+            // This is an invalid case
+//            {"serviceEndpointBind3.json", "service"},
             {"serviceEndpointBind4.json", "service"},
+            {"serviceEndpointBind5.json", "service"},
             {"serviceBodyCompletion1.json", "service"},
             {"serviceBodyCompletion2.json", "service"},
             {"serviceBodyCompletion6.json", "service"},
