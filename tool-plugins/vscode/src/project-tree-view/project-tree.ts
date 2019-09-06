@@ -1,5 +1,3 @@
-import * as vscode from 'vscode';
-
 /**
  * This class is a container class for Tree data required for Ballerina Project Overview.
  */

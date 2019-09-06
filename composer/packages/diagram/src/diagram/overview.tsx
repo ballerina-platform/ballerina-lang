@@ -187,6 +187,23 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             selectedUri,
         } = this.getSelected(this.state.selectedConstruct);
 
+        if (!selectedASTs) {
+            if (this.state.selectedConstruct) {
+                const { subConstructName, constructName, moduleName } = this.state.selectedConstruct;
+                const name = subConstructName ? `${constructName}/${subConstructName}` : constructName;
+                const errorMessage = `Could not find a construct with name ${name} in module ${moduleName}`;
+                return <div style={{padding: 10}}><div className="ui visible message">{errorMessage}</div></div>;
+            }
+
+            if (this.props.docUri) {
+                const { docUri } = this.props;
+                const docUriFilename = docUri.substring(docUri.lastIndexOf("/") + 1);
+                // tslint:disable-next-line: max-line-length
+                const errorMessage = `Could not generate diagram for ${docUriFilename}. Please check for compilation errors`;
+                return <div style={{padding: 10}}><div className="ui visible message">{errorMessage}</div></div>;
+            }
+        }
+
         if (selectedASTs) {
             // Initialize AST node view state
             selectedASTs.forEach((ast) => {
@@ -218,6 +235,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     maxInvocationDepth={this.state.maxInvocationDepth}
                     reachedInvocationDepth={getReachedInvocationDepth()}
                 />
+                {}
                 <Diagram astList={selectedASTs}
                     langClient={this.props.langClient}
                     projectAst={modules}

@@ -6,13 +6,15 @@ import * as os from 'os';
 import { BallerinaExtension, ExtendedLangClient } from '../core/index';
 import { ProjectTreeElement } from './project-tree';
 
-const errorNode = new vscode.TreeItem(
-    "Couldn't create the project overview. Please make sure your code compiles successfully and refresh.",
-    vscode.TreeItemCollapsibleState.None);
+const errorNode: ProjectTreeElement = {
+    name: "Couldn't create the project overview. Please make sure your code compiles successfully and refresh.",
+    kind: 'Info',
+};
 
-const noBalFileNode = new vscode.TreeItem(
-    "Please open a ballerina file to see the ballerina project overview",
-    vscode.TreeItemCollapsibleState.None);
+const noBalFileNode: ProjectTreeElement = {
+    name: "Please open a ballerina project to see the ballerina project overview",
+    kind: 'Info',
+};
 
 interface ProjectAST {
     [moduleName: string]: {
@@ -166,6 +168,10 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                     path: activeSourceRoot,
                 });
             }
+        }
+
+        if (sourceRoots.length === 0) {
+            sourceRoots.push(noBalFileNode);
         }
 
         return sourceRoots;
