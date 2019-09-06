@@ -109,7 +109,7 @@ export const TopMenu = (props: TopMenuProps) => {
                         <Dropdown
                             text={maxInvocationDepth === -1 ?
                                 reachedInvocationDepth.toString() : maxInvocationDepth.toString()}
-                            className="menu-dropdown-small"
+                            className="menu-dropdown-mid"
                         >
                             <Dropdown.Menu>
                                 {
@@ -125,7 +125,7 @@ export const TopMenu = (props: TopMenuProps) => {
                                 }
                             </Dropdown.Menu>
                         </Dropdown>
-                        <Popup
+                        {/* <Popup
                             trigger={<Icon onClick={() => handleDepthSelect(-1)}  className="fw fw-expand-all"/>}
                             content="Expand all"
                             position="top center"
@@ -138,7 +138,7 @@ export const TopMenu = (props: TopMenuProps) => {
                             position="top center"
                             size="small"
                             inverted
-                        />
+                        /> */}
                     </Grid.Column>
                     <Grid.Column width={3} />
                 </Grid.Row>
