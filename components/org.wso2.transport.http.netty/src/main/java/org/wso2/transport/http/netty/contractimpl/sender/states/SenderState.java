@@ -75,8 +75,10 @@ public interface SenderState {
     /**
      * Handle channel closure occurred due to idle timeout.
      *
+     * @param targetHandler      the target handler
      * @param httpResponseFuture to notify the closure
      * @param channelID          the channel id
      */
-    void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID);
+    void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
+                                            HttpResponseFuture httpResponseFuture, String channelID);
 }

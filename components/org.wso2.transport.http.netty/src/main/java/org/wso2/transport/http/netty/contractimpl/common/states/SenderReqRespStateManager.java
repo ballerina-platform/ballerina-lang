@@ -64,7 +64,8 @@ public class SenderReqRespStateManager {
         state.handleAbruptChannelClosure(targetHandler, httpResponseFuture);
     }
 
-    public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
-        state.handleIdleTimeoutConnectionClosure(httpResponseFuture, channelID);
+    public void handleIdleTimeoutConnectionClosure(TargetHandler targetHandler,
+                                                   HttpResponseFuture httpResponseFuture, String channelID) {
+        state.handleIdleTimeoutConnectionClosure(targetHandler, httpResponseFuture, channelID);
     }
 }
