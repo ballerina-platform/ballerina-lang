@@ -4,7 +4,7 @@ import ballerina/log;
 
 kafka:ProducerConfig producerConfigs = {
     // Here, we create a producer config with optional parameters.
-    client.id - used for broker-side logging.
+    // client.id - used for broker-side logging.
     // `acks` - number of acknowledgments to complete the request.
     // `noRetries` - number of retries if record sending fails.
     // `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
@@ -23,7 +23,7 @@ public function main() {
     byte[] serializedMsg = msg1.toBytes();
 
     // Here, we create a producer config with optional parameters.
-    transactional.id - enable transactional message production.
+    // transactional.id - enable transactional message production.
     kafkaAdvancedTransactionalProduce(serializedMsg);
 }
 
