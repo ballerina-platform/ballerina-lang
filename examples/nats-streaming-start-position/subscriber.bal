@@ -18,7 +18,8 @@ service receiveNewOnly on lis {
         // Prints the incoming message in the console.
         string|error messageData = strings:fromBytes(message.getData());
         if (messageData is string) {
-            log:printInfo("Message Received to service receiveNewOnly: " + messageData);
+            log:printInfo("Message Received to service receiveNewOnly: "
+                                                                  + messageData);
         } else {
             log:printError("Error occurred while obtaining message data");
         }
@@ -41,7 +42,8 @@ service receiveFromBegining on lis {
         // Prints the incoming message in the console.
         string|error messageData = strings:fromBytes(message.getData());
         if (messageData is string) {
-            log:printInfo("Message Received to service receiveFromBegining: " + messageData);
+            log:printInfo("Message Received to service receiveFromBegining: "
+                                                                  + messageData);
         } else {
             log:printError("Error occurred while obtaining message data");
         }
@@ -64,7 +66,8 @@ service receiveFromLastReceived on lis {
         // Prints the incoming message in the console.
         string|error messageData = strings:fromBytes(message.getData());
         if (messageData is string) {
-            log:printInfo("Message Received to service receiveFromLastReceived: " + messageData);
+            log:printInfo("Message Received to service receiveFromLastReceived: "
+                                                                  + messageData);
         } else {
             log:printError("Error occurred while obtaining message data");
         }
@@ -88,7 +91,8 @@ service receiveFromGivenIndex on lis {
         // Prints the incoming message in the console.
         string|error messageData = strings:fromBytes(message.getData());
         if (messageData is string) {
-            log:printInfo("Message Received to service receiveFromGivenIndex: " + messageData);
+            log:printInfo("Message Received to service receiveFromGivenIndex: "
+                                                                  + messageData);
         } else {
             log:printError("Error occurred while obtaining message data");
         }
@@ -112,7 +116,8 @@ service receiveSinceTimeDelta on lis {
         // Prints the incoming message in the console.
         string|error messageData = strings:fromBytes(message.getData());
         if (messageData is string) {
-            log:printInfo("Message Received to service receiveSinceTimeDelta: " + messageData);
+            log:printInfo("Message Received to service receiveSinceTimeDelta: "
+                                                                  + messageData);
         } else {
             log:printError("Error occurred while obtaining message data");
         }
