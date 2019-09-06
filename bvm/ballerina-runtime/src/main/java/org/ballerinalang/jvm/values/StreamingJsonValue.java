@@ -29,8 +29,13 @@ import java.io.OutputStream;
 import java.io.Writer;
 
 /**
+ * <p>
  * {@link StreamingJsonValue} represent a JSON array generated from a {@link JSONDataSource}.
- * 
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ *  
  * @since 0.981.0
  */
 public class StreamingJsonValue extends ArrayValue {
