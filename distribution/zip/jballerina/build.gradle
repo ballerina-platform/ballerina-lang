@@ -142,6 +142,7 @@ dependencies {
     distBal project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-docker', configuration: 'baloImplementation')
 
     // Lang libs
     distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
@@ -198,6 +199,7 @@ dependencies {
     balSource project(path: ':ballerina-ldap', configuration: 'balSource')
     balSource project(path: ':ballerina-oauth2', configuration: 'balSource')
     balSource project(path: ':ballerina-jsonutils', configuration: 'balSource')
+    balSource project(path: ':ballerina-docker', configuration: 'balSource')
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
@@ -262,6 +264,7 @@ dependencies {
     dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
     dist project(':ballerina-jsonutils')
+    dist project(':ballerina-docker')
 
     // Lang libs
     dist project(':ballerina-lang:internal')
