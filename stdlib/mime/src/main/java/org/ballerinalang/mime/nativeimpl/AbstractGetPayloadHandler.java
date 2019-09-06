@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -80,7 +80,7 @@ public abstract class AbstractGetPayloadHandler {
                     updateDataSourceAndNotify(callback, entity, dataSource);
                 } catch (Exception e) {
                     createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
-                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + e.getMessage());
+                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + getErrorMsg(e));
                 } finally {
                     try {
                         inputStream.close();
@@ -105,18 +105,25 @@ public abstract class AbstractGetPayloadHandler {
 
     static Object createParsingEntityBodyFailedErrorAndNotify(NonBlockingCallback callback, String errMsg) {
         ErrorValue error = MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, errMsg);
+        return returnErrorValue(callback, error);
+    }
+
+    private static Object returnErrorValue(NonBlockingCallback callback, Object err) {
         if (callback != null) {
-            setReturnValuesAndNotify(callback, error);
+            setReturnValuesAndNotify(callback, err);
             return null;
         }
-        return error;
+        return err;
+    }
+
+    static String getErrorMsg(Throwable err) {
+        return err instanceof ErrorValue ? err.toString() : err.getMessage();
     }
 
     static void updateDataSource(ObjectValue entityObj, Object result) {
         EntityBodyHandler.addMessageDataSource(entityObj, result);
         removeByteChannel(entityObj);
     }
-
 
     static void updateJsonDataSource(ObjectValue entityObj, Object result) {
         EntityBodyHandler.addJsonMessageDataSource(entityObj, result);
@@ -146,7 +153,7 @@ public abstract class AbstractGetPayloadHandler {
         if (message != null) {
             return message;
         } else {
-            throw new BallerinaException("Empty content");
+            throw BallerinaErrors.createError("Empty content");
         }
     }
 

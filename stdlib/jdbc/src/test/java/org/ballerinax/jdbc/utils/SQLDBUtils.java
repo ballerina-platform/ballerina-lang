@@ -122,7 +122,9 @@ public class SQLDBUtils {
     private static String readFileToString(String path) {
         InputStream is;
         String fileAsString = null;
-        URL fileResource = BCompileUtil.class.getClassLoader().getResource(path);
+        // The name of a resource is a '/'-separated path name that identifies the resource.
+        // Hence regardless of the separator corresponding to the OS forward slash should be used.
+        URL fileResource = BCompileUtil.class.getClassLoader().getResource(path.replace("\\", "/"));
         try {
             is = new FileInputStream(fileResource.getFile());
             BufferedReader buf = new BufferedReader(new InputStreamReader(is));
@@ -134,7 +136,7 @@ public class SQLDBUtils {
             }
             fileAsString = sb.toString();
         } catch (IOException e) {
-            // Ignore here
+            log.error("File reading failed", e);
         }
         return fileAsString;
     }

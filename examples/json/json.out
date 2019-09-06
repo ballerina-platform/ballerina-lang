@@ -5,12 +5,12 @@ Apple
 5.36
 true
 false
+name=apple color=red price=5.36
 {"name":"apple", "color":"red", "price":5.36}
 [1, false, null, "foo", {"first":"John", "last":"Pala"}]
 [1, false, null, "foo", {"first":"John", "last":"Pala"}]
 {"name":"Anne", "age":20, "marks":{"math":90, "language":95, "physics":85}}
 true
-error {ballerina}MergeJsonError message=Cannot merge JSON values of types 'float' and 'boolean'
-{"hello":"world"}
-{"hello":"world"}
+error {ballerina/lang.value}MergeJsonError message=Cannot merge JSON values of types 'float' and 'boolean'
+{"name":"apple", "color":"red", "price":5.36}
 true

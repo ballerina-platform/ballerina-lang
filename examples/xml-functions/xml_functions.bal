@@ -39,10 +39,6 @@ public function main() {
     book.setChildren(content);
     io:println(book);
 
-    // Gets all the children elements of an XML element.
-    x = book.*;
-    io:println(x);
-
     // Retrieves a particular child of an XML element by its name.
     x = book.selectDescendants("name");
     io:println(x);

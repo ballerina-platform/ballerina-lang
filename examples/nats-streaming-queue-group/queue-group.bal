@@ -1,4 +1,4 @@
-import ballerina/encoding;
+import ballerina/lang.'string as strings;
 import ballerina/log;
 import ballerina/nats;
 
@@ -17,8 +17,13 @@ listener nats:StreamingListener lis = new(conn);
 }
 service firstQueueGroupMember on lis {
     resource function onMessage(nats:StreamingMessage message) {
-       // Prints the incoming message in the console.
-       log:printInfo("Message Received to first queue group member: " + encoding:byteArrayToString(message.getData()));
+        // Prints the incoming message in the console.
+        string|error messageData = strings:fromBytes(message.getData());
+        if (messageData is string) {
+            log:printInfo("Message Received to first queue group member: " + messageData);
+        } else {
+            log:printError("Error occurred while obtaining message data");
+        }
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
@@ -36,8 +41,13 @@ service firstQueueGroupMember on lis {
 }
 service secondQueueGroupMember on lis {
     resource function onMessage(nats:StreamingMessage message) {
-       // Prints the incoming message in the console.
-       log:printInfo("Message Received to second queue group member: " + encoding:byteArrayToString(message.getData()));
+        // Prints the incoming message in the console.
+        string|error messageData = strings:fromBytes(message.getData());
+        if (messageData is string) {
+            log:printInfo("Message Received to second queue group member: " + messageData);
+        } else {
+            log:printError("Error occurred while obtaining message data");
+        }
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
@@ -55,8 +65,13 @@ service secondQueueGroupMember on lis {
 }
 service thridQueueGroupMember on lis {
     resource function onMessage(nats:StreamingMessage message) {
-       // Prints the incoming message in the console.
-       log:printInfo("Message Received to third queue group member: " + encoding:byteArrayToString(message.getData()));
+        // Prints the incoming message in the console.
+        string|error messageData = strings:fromBytes(message.getData());
+        if (messageData is string) {
+            log:printInfo("Message Received to third queue group member: " + messageData);
+        } else {
+            log:printError("Error occurred while obtaining message data");
+        }
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {

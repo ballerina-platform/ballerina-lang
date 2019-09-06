@@ -146,7 +146,7 @@ public class DecimalValue {
         if (!isDecimalWithinIntRange(value)) {
             throw BallerinaErrors.createNumericConversionError(this.stringValue(), BTypes.typeDecimal, BTypes.typeInt);
         }
-        return Math.round(value.doubleValue());
+        return (long) Math.rint(value.doubleValue());
     }
 
     public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
@@ -164,11 +164,11 @@ public class DecimalValue {
                 throw BallerinaErrors.createNumericConversionError(POSITIVE_INF, BTypes.typeByte);
         }
 
-        long intVal = Math.round(this.value.doubleValue());
+        int intVal = (int) Math.rint(this.value.doubleValue());
         if (!isByteLiteral(intVal)) {
             throw BallerinaErrors.createNumericConversionError(value, BTypes.typeDecimal, BTypes.typeByte);
         }
-        return (int) intVal;
+        return intVal;
     }
 
     private static boolean isByteLiteral(long longValue) {

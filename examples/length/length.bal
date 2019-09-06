@@ -45,7 +45,7 @@ public function main() {
                   </book>`;
 
     // Print the number of content items in the XML element.
-    length = x1.*.elements().length();
+    length = x1.getChildren().elements().length();
     io:println("XML child elements size: ", length);
 
     // Define a tuple with two members.
@@ -61,19 +61,6 @@ public function main() {
     // Print the number of fields in the created `Student` record.
     length = stu.length();
     io:println("Field size in `Student` record: ", length);
-
-    // Create an in-memory `table` constrained by the `Student` type.
-    table<Student> tbStudent = table {
-        { key id, fname, lname, age },
-        [ { 1, "Mary", "Popins" , 17 },
-          { 2, "John", "Doe", 16 },
-          { 3, "Jim", "Carter", 17 }
-        ]
-    };
-
-    // Print the number of rows in the in-memory table.
-    length = tbStudent.length();
-    io:println("Row count in table : ", length);
 }
 
 type Student record {|

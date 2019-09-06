@@ -57,7 +57,7 @@ public class Ping {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().ping(ByteBuffer.wrap(binaryData.getBytes()));
-            WebSocketUtil.handleWebSocketCallback(callback, future);
+            WebSocketUtil.handleWebSocketCallback(callback, future, log);
         } catch (Exception e) {
             log.error("Error occurred when pinging", e);
             callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));

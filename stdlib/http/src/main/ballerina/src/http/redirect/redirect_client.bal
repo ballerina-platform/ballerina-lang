@@ -19,14 +19,14 @@ import ballerina/log;
 # Provides redirect functionality for HTTP client remote functions.
 #
 # + url - Target service url
-# + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
+# + config - HTTP ClientConfiguration to be used for HTTP client invocation
 # + redirectConfig - Configurations associated with redirect
 # + httpClient - HTTP client for outbound HTTP requests
 # + currentRedirectCount - Current redirect count of the HTTP client
 public type RedirectClient client object {
 
     public string url;
-    public ClientEndpointConfig config;
+    public ClientConfiguration config;
     public FollowRedirects redirectConfig;
     public HttpClient httpClient;
     public int currentRedirectCount = 0;
@@ -34,10 +34,10 @@ public type RedirectClient client object {
     # Create a redirect client with the given configurations.
     #
     # + url - Target service url
-    # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
+    # + config - HTTP ClientConfiguration to be used for HTTP client invocation
     # + redirectConfig - Configurations associated with redirect
     # + httpClient - HTTP client for outbound HTTP requests
-    public function __init(string url, ClientEndpointConfig config, FollowRedirects redirectConfig, HttpClient httpClient) {
+    public function __init(string url, ClientConfiguration config, FollowRedirects redirectConfig, HttpClient httpClient) {
         self.url = url;
         self.config = config;
         self.redirectConfig = redirectConfig;
@@ -341,8 +341,8 @@ function performRedirection(string location, RedirectClient redirectClient, Http
 }
 
 //Create a new HTTP client endpoint configuration with a given location as the url.
-function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndpointConfig {
-    ClientEndpointConfig newEpConfig = {
+function createNewEndpointConfig(ClientConfiguration config) returns ClientConfiguration {
+    ClientConfiguration newEpConfig = {
         http1Settings: config.http1Settings,
         http2Settings: config.http2Settings,
         circuitBreaker: config.circuitBreaker,

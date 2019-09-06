@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.HEADER_NOT_FOUND;
 
 /**
  * Get the header value associated with the given header name.
@@ -47,13 +48,13 @@ public class GetHeader {
 
     public static String getHeader(Strand strand, ObjectValue entityObj, String headerName) {
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
-            throw BallerinaErrors.createError("Http Header does not exist!");
+            throw BallerinaErrors.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         if (httpHeaders != null && httpHeaders.get(headerName) != null && !httpHeaders.get(headerName).isEmpty()) {
             return httpHeaders.get(headerName);
         } else {
-            throw BallerinaErrors.createError("Http Header does not exist!");
+            throw BallerinaErrors.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
     }
 }

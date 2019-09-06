@@ -8,6 +8,15 @@ public class OpenApiPropertyType {
     private String propertyName;
     private String propertyType;
     private boolean isArray;
+    private boolean isRestRecord;
+
+    public boolean isRestRecord() {
+        return isRestRecord;
+    }
+
+    public void setRestRecord(boolean restRecord) {
+        isRestRecord = restRecord;
+    }
 
     public String getPropertyName() {
         return propertyName;

@@ -220,7 +220,7 @@ public class WebSocketDispatcher {
         WebSocketService wsService = connectionInfo.getService();
         AttachedFunction onPingMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
-            pingAutomatically(controlMessage);
+            pongAutomatically(controlMessage);
             return;
         }
         BType[] paramTypes = onPingMessageResource.getParameterType();
@@ -377,7 +377,7 @@ public class WebSocketDispatcher {
                 WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT, onIdleTimeoutCallback, null, bValues);
     }
 
-    private static void pingAutomatically(WebSocketControlMessage controlMessage) {
+    private static void pongAutomatically(WebSocketControlMessage controlMessage) {
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
         webSocketConnection.pong(controlMessage.getByteBuffer()).addListener(future -> {
             Throwable cause = future.cause();

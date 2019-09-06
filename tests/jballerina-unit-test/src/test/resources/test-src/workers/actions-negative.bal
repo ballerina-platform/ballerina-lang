@@ -134,3 +134,56 @@ function getStdId() returns future<int> {
     future <int> id = start getId();
     return id;
 }
+
+public function workerAsAFutureTest() returns int {
+    worker wx returns int {
+        any a = <- wy;
+        "h" -> wy;
+        future<int> fi = wy; // illegal peer worker ref
+        return wait fi;
+    }
+
+    worker wy returns int {
+        "a" -> wx;
+        string k = <- wx;
+
+        fork {
+            worker wix returns int {
+                int ji = <- wiy;
+                var fwiy = wiy; // illegal peer worker ref within a worker
+
+                return 0;
+            }
+            worker wiy {
+                0 -> wix;
+                _ = wait wix; // illegal peer worker ref within a worker
+                _ = wait wx; // illegal peer worker ref within a worker
+            }
+        }
+
+        future<int>  wixF = wix;
+        int wixK = wait wix;
+        future<int> fn = wx; // illegal peer worker ref within a worker
+        return wait wx; // illegal peer worker ref within a worker
+    }
+
+    function () returns int lambda0 = function () returns int {
+        worker lw0 {
+            _ = wait lw1; // illegal peer worker ref within a worker
+        }
+
+        worker lw1 {
+
+        }
+        return 1+2;
+    };
+
+    future<int> fLambda0 = start lambda0();
+
+    function () returns int lambda1 = function () returns int {
+        return wait fLambda0;
+    };
+    future<int> fLambda1 = start lambda1();
+
+    return wait wy;
+}

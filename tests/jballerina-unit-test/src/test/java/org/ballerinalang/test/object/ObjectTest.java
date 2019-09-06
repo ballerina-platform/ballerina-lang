@@ -573,7 +573,7 @@ public class ObjectTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
         Assert.assertEquals(returns[0].stringValue(), "{age:20, name:\"John\"}");
-        Assert.assertEquals(out.toString().trim(), "{age:20, name:\"John\"}");
+        Assert.assertEquals(out.toString().trim(), "{\"age\":20, \"name\":\"John\"}");
     }
 
     @Test

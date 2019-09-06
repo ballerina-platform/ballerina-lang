@@ -62,7 +62,8 @@ public class GetText extends AbstractGetPayloadHandler {
             }
         } catch (Exception ex) {
             return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                        "Error occurred while extracting text data from entity : " + ex.getMessage());
+                                                               "Error occurred while extracting text data from entity" +
+                                                                       " : " + getErrorMsg(ex));
         }
         return result;
     }

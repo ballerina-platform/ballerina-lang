@@ -29,5 +29,6 @@ public enum AnnotationNodeKind {
     RECORD,
     OBJECT,
     TYPE,
+    EXTERNAL,
     ANNOTATION
 }

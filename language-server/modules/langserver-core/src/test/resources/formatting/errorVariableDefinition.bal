@@ -125,3 +125,23 @@ function testErrorBindingPattern6() returns string {
 
     return "";
 }
+
+function testIndirectErrorVariableDef1() {
+    SMS e = error("the reason", message = "msg"); var    SMS( message= message ,other = other ,...rest) = e;
+}
+
+function testIndirectErrorVariableDef2() {
+    SMS e = error("the reason", message = "msg");
+ var
+              SMS
+               (
+ message = message
+        ,
+ other = other
+                ,
+ ...rest
+       )
+            =
+ e
+              ;
+}
