@@ -413,8 +413,8 @@ public class ToolUtil {
      */
     public static void checkForUpdate(PrintStream printStream, String[] args) {
         try {
-            boolean isRunCommand = Arrays.stream(args).anyMatch("run"::equals);
-            if (!isRunCommand) {
+            //Update check will be done only for build command
+            if (Arrays.stream(args).anyMatch("build"::equals)) {
                 String version = getCurrentBallerinaVersion();
                 if (OSUtils.updateNotice(version)) {
                     Version currentVersion = new Version(version);
