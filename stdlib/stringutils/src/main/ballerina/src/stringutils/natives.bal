@@ -18,7 +18,7 @@ import ballerinax/java;
 
 # Checks whether the given string contains a particular substring.
 #
-# + originalString - original string to check
+# + originalString - the original string 
 # + substring - string to match
 # + return - `true` if the original string contains the substring, `false` otherwise
 public function contains(string originalString, string substring) returns boolean {
