@@ -30,6 +30,7 @@ import org.wso2.transport.http.netty.contract.exceptions.RequestCancelledExcepti
 import org.wso2.transport.http.netty.contract.exceptions.SslException;
 import org.wso2.transport.http.netty.contract.exceptions.UnresolvedHostException;
 
+import java.net.UnknownHostException;
 import java.nio.channels.ClosedChannelException;
 
 import static org.wso2.transport.http.netty.contract.Constants.COLON;
@@ -148,7 +149,7 @@ public class ConnectionAvailabilityFuture {
         } else if (isSslException(cause)) {
             connectorException = new SslException(SSL_CONNECTION_ERROR + COLON + cause.getMessage() + socketAddress,
                                                   HttpResponseStatus.BAD_GATEWAY.code());
-        } else if (isUnknownHost(cause)) {
+        } else if (cause instanceof UnknownHostException) {
             connectorException = new UnresolvedHostException(ERROR_COULD_NOT_RESOLVE_HOST + COLON +
                     cause.getMessage(), HttpResponseStatus.BAD_GATEWAY.code());
         } else if (cause instanceof ClosedChannelException) {
@@ -162,10 +163,6 @@ public class ConnectionAvailabilityFuture {
             connectorException.initCause(channelFuture.cause());
         }
         return connectorException;
-    }
-
-    private boolean isUnknownHost(Throwable cause) {
-        return cause.toString().contains(UNKNOWN_HOST_EXCEPTION);
     }
 
     private boolean isRequestCancelled(ChannelFuture channelFuture) {
