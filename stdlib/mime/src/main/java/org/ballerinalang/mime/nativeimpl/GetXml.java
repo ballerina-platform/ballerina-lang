@@ -20,7 +20,6 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -32,7 +31,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 
 /**
  * Get the entity body in xml form.

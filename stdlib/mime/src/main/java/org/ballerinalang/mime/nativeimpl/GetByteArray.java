@@ -21,7 +21,6 @@ package org.ballerinalang.mime.nativeimpl;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.jvm.values.utils.StringUtils;
