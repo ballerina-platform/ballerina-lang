@@ -18,20 +18,12 @@
 package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.ballerinalang.util.LaunchListener;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-
-import java.util.ServiceLoader;
 
 /**
  * Native function ballerina.test:stopServices.
@@ -52,18 +44,18 @@ public class StopServices extends BlockingNativeCallableUnit {
      */
     @Override
     public void execute(Context ctx) {
-        String moduleName = ctx.getStringArgument(0);
-
-        for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
-            PackageInfo servicesPackage = programFile.getEntryPackage();
-            if (servicesPackage == null ||
-                !servicesPackage.getPkgPath().equals(TesterinaUtils.getFullModuleName(moduleName))) {
-                continue;
-            }
-            BVMExecutor.executeFunction(programFile, servicesPackage.getStopFunctionInfo());
-            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-            listeners.forEach(listener -> listener.afterRunProgram(true));
-            break;
-        }
+//        String moduleName = ctx.getStringArgument(0);
+//
+//        for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
+//            PackageInfo servicesPackage = programFile.getEntryPackage();
+//            if (servicesPackage == null ||
+//                !servicesPackage.getPkgPath().equals(TesterinaUtils.getFullModuleName(moduleName))) {
+//                continue;
+//            }
+//            BVMExecutor.executeFunction(programFile, servicesPackage.getStopFunctionInfo());
+//            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
+//            listeners.forEach(listener -> listener.afterRunProgram(true));
+//            break;
+//        }
     }
 }

@@ -303,10 +303,10 @@ int actualRequestNumber = 0;
 
 public type MockClient client object {
     public string url = "";
-    public http:ClientEndpointConfig config = {};
+    public http:ClientConfiguration config = {};
     public http:HttpClient httpClient;
 
-    public function __init(string url, http:ClientEndpointConfig? config = ()) {
+    public function __init(string url, http:ClientConfiguration? config = ()) {
         http:HttpClient simpleClient = new(url);
         self.url = url;
         self.config = config ?: {};

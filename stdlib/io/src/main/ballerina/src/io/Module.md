@@ -17,7 +17,7 @@ io:ReadableByteChannel | io:Error readableByteChannel = io:openReadableFile("som
 
 // Here is how 100 bytes are read from the channel.
 if (readableByteChannel is io:ReadableByteChannel) {
-    [byte[], int] | io:Error result = readableByteChannel.read(100);
+    byte[] | io:Error result = readableByteChannel.read(100);
 }
 
 // Open a file in write mode.

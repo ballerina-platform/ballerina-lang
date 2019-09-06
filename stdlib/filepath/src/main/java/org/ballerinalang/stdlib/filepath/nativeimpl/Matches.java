@@ -54,7 +54,7 @@ public class Matches {
                 matcher = fs.getPathMatcher(pattern);
             }
         } catch (PatternSyntaxException ex) {
-            return Utils.getPathError("INVALID_PATTERN", ex);
+            return Utils.getPathError(Constants.INVALID_PATTERN_ERROR, "Invalid pattern " + pattern);
         }
         if (inputPath == null) {
             return false;

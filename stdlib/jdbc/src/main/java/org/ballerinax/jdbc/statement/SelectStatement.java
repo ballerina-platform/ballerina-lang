@@ -64,7 +64,7 @@ public class SelectStatement extends AbstractSQLStatement {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         checkAndObserveSQLAction(strand, datasource, query);
-        String errorMessagePrefix = "Failed to execute select query: ";
+        String errorMessagePrefix = "failed to execute select query: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource);

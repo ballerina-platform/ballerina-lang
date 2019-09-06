@@ -62,8 +62,8 @@ dependencies {
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
     dist 'info.picocli:picocli:4.0.1'
-    dist 'org.apache.kafka:kafka-clients:2.0.0'
-    dist 'org.apache.kafka:kafka_2.11:2.0.0'
+    dist 'org.apache.kafka:kafka-clients:2.0.1'
+    dist 'org.apache.kafka:kafka_2.11:2.0.1'
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
     dist 'io.ballerina.messaging:broker-common:0.970.0'
     dist 'io.ballerina.messaging:broker-coordination:0.970.0'
@@ -129,13 +129,17 @@ dependencies {
     distBal project(path: ':ballerina-time', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-java', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-java-arrays', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-xslt', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-kafka', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-nats', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
 
     // Lang libs
     distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
@@ -181,13 +185,17 @@ dependencies {
     balSource project(path: ':ballerina-time', configuration: 'balSource')
     balSource project(path: ':ballerina-transactions', configuration: 'balSource')
     balSource project(path: ':ballerina-java', configuration: 'balSource')
+    balSource project(path: ':ballerina-java-arrays', configuration: 'balSource')
     balSource project(path: ':ballerina-xslt', configuration: 'balSource')
     balSource project(path: ':ballerina-kafka', configuration: 'balSource')
     balSource project(path: ':ballerina-nats', configuration: 'balSource')
+    balSource project(path: ':ballerina-stringutils', configuration: 'balSource')
     balSource project(path: ':ballerina-utils', configuration: 'balSource')
     balSource project(path: ':ballerina-jwt', configuration: 'balSource')
     balSource project(path: ':ballerina-ldap', configuration: 'balSource')
     balSource project(path: ':ballerina-oauth2', configuration: 'balSource')
+    balSource project(path: ':ballerina-xmlutils', configuration: 'balSource')
+    balSource project(path: ':ballerina-jsonutils', configuration: 'balSource')
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
@@ -238,6 +246,7 @@ dependencies {
     dist project(':ballerina-tool')
     dist project(':ballerina-transactions')
     dist project(':ballerina-java')
+    dist project(':ballerina-java-arrays')
     dist project(':ballerina-xslt')
     dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
@@ -245,9 +254,12 @@ dependencies {
     dist project(':tracing-extensions:ballerina-jaeger-extension')
     dist project(':ballerina-kafka')
     dist project(':ballerina-nats')
+    dist project(':ballerina-stringutils')
     dist project(':ballerina-jwt')
     dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
+    dist project(':ballerina-xmlutils')
+    dist project(':ballerina-jsonutils')
 
     // Lang libs
     dist project(':ballerina-lang:internal')

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import static org.ballerinalang.mime.nativeimpl.AbstractGetPayloadHandler.getErrorMsg;
 import static org.ballerinalang.mime.util.HeaderUtil.isMultipart;
 import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
@@ -61,7 +62,7 @@ public class GetBodyPartsAsChannel {
         } catch (Throwable err) {
             log.error("Error occurred while constructing a byte channel out of body parts", err);
             return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Error occurred while constructing a byte " +
-                    "channel out of body parts : " + err.getMessage());
+                    "channel out of body parts : " + getErrorMsg(err));
         }
     }
 }

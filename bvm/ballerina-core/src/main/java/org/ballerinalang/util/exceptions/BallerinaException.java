@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.util.exceptions;
 
-import org.ballerinalang.bre.Context;
-
 /**
  * This is the runtime exception occurs at executing ballerina code.
  *
@@ -27,12 +25,7 @@ import org.ballerinalang.bre.Context;
 public class BallerinaException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
-    private transient Context context;
     private String detail = null;
-
-    public BallerinaException() {
-        super();
-    }
 
     /**
      * Constructs a new {@link BallerinaException} with the specified error reason message.
@@ -54,17 +47,6 @@ public class BallerinaException extends RuntimeException {
         this.detail = detail;
     }
 
-    /**
-     * Constructs a new {@link BallerinaException} with ballerina context.
-     *
-     * @param message Error message
-     * @param context Ballerina context
-     */
-    public BallerinaException(String message, Context context) {
-        super(message);
-        this.context = context;
-    }
-
 
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message and cause.
@@ -78,33 +60,12 @@ public class BallerinaException extends RuntimeException {
 
 
     /**
-     * Constructs a new {@link BallerinaException} with the specified detail message, cause and ballerina context.
-     *
-     * @param message Error message
-     * @param cause   Cause
-     * @param context Ballerina context
-     */
-    public BallerinaException(String message, Throwable cause, Context context) {
-        super(message, cause);
-        this.context = context;
-    }
-
-
-    /**
      * Constructs a new {@link BallerinaException} with the cause.
      *
      * @param cause Throwable to wrap by a ballerina exception
      */
     public BallerinaException(Throwable cause) {
         super(cause);
-    }
-
-    public BallerinaException(Context stack) {
-        this.context = stack;
-    }
-
-    public Context getContext() {
-        return this.context;
     }
 
     public String getDetail() {

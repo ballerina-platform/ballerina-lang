@@ -204,7 +204,7 @@ public class CommandUtil {
         }
 
         // Only supported for top-level nodes
-        return (bLangNode.getLeft().parent instanceof BLangPackage);
+        return (bLangNode.getLeft() != null && bLangNode.getLeft().parent instanceof BLangPackage);
     }
 
     /**

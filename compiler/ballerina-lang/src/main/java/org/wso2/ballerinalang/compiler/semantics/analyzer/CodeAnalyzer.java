@@ -963,7 +963,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             // Rest pattern in previous binding-pattern can bind to all the error details,
             // hence current error pattern is not reachable.
-            if (precedingErrVar.restDetail != null) {
+            if (precedingErrVar.restDetail != null && isDirectErrorBindingPattern(precedingErrVar)) {
                 return true;
             }
 
@@ -1004,6 +1004,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         return precedingVar.getKind() == NodeKind.VARIABLE;
+    }
+
+    private boolean isDirectErrorBindingPattern(BLangErrorVariable precedingErrVar) {
+        return precedingErrVar.typeNode == null;
     }
 
     /**
@@ -1276,6 +1280,31 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void checkWorkerPeerWorkerUsageInsideWorker(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
+        if ((symbol.flags & Flags.WORKER) == Flags.WORKER) {
+            // Current location is a worker lambda
+            // And refering symbol is in a toplevel function.
+            boolean isInFunctionTopLevel = symbol.owner != null
+                    && symbol.owner.owner != null
+                    && symbol.owner.owner.getKind() == SymbolKind.PACKAGE;
+            if (env.scope.owner != null
+                    && (((BInvokableSymbol) env.scope.owner).flags & Flags.WORKER) == Flags.WORKER
+                    && isInFunctionTopLevel
+                    && env.scope.lookup(symbol.name).symbol == null) {
+                if (referingForkedWorkerOutOfFork(symbol, env)) {
+                    return;
+                }
+                dlog.error(pos, DiagnosticCode.INVALID_WORKER_REFERRENCE, symbol.name);
+            }
+        }
+    }
+
+    private boolean referingForkedWorkerOutOfFork(BSymbol symbol, SymbolEnv env) {
+        return (symbol.flags & Flags.FORKED) == Flags.FORKED
+                && env.enclInvokable.getKind() == NodeKind.FUNCTION
+                && ((BLangFunction) env.enclInvokable).anonForkName == null;
+    }
+
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
 
@@ -1465,6 +1494,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
         BLangExpression expr = exprStmtNode.expr;
+
+        if (expr.getKind() == NodeKind.WORKER_SYNC_SEND) {
+            return;
+        }
+
         while (expr.getKind() == NodeKind.MATCH_EXPRESSION ||
                 expr.getKind() == NodeKind.CHECK_EXPR ||
                 expr.getKind() == NodeKind.CHECK_PANIC_EXPR) {
@@ -1753,7 +1787,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
-        /* ignore */
+        switch (varRefExpr.parent.getKind()) {
+            // Referring workers for worker interactions are allowed, hence skip the check.
+            case WORKER_RECEIVE:
+            case WORKER_SEND:
+            case WORKER_SYNC_SEND:
+                return;
+            default:
+                if (varRefExpr.type != null && varRefExpr.type.tag == TypeTags.FUTURE) {
+                    checkWorkerPeerWorkerUsageInsideWorker(varRefExpr.pos, varRefExpr.symbol, this.env);
+                }
+        }
     }
 
     public void visit(BLangRecordVarRef varRefExpr) {
@@ -1770,17 +1814,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         analyzeExpr(fieldAccessExpr.expr);
-        if (fieldAccessExpr.expr.type.tag == TypeTags.XML) {
-            checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, fieldAccessExpr.pos);
-        }
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
-        if (indexAccessExpr.expr.type.tag == TypeTags.XML) {
-            checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, indexAccessExpr.pos);
-        }
     }
 
     public void visit(BLangInvocation invocationExpr) {
@@ -2065,7 +2103,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
 
-        checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ATTRIBUTES_ACCESS, xmlAttributeAccessExpr.pos);
         analyzeExpr(xmlAttributeAccessExpr.expr);
         analyzeExpr(xmlAttributeAccessExpr.indexExpr);
     }
@@ -2413,7 +2450,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
         this.typeChecker.checkExpr(send.expr, send.env, receive.type);
-        types.checkType(send, send.type, receive.matchingSendsError);
+        types.checkType(send, receive.matchingSendsError, send.type);
         addImplicitCast(send.expr.type, receive);
         receive.sendExpression = send;
     }

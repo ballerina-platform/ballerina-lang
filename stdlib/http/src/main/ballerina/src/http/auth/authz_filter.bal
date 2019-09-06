@@ -73,22 +73,13 @@ public type AuthzFilter object {
 function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized) returns boolean {
     Response response = new;
     response.statusCode = 403;
-    if (authorized is boolean) {
-        if (!authorized) {
-            response.setTextPayload("Authorization failure.");
-            var err = caller->respond(response);
-            if (err is error) {
-                panic <error> err;
-            }
-            return false;
-        }
-    } else {
-        response.setTextPayload("Authorization failure. " + <string>authorized.reason());
-        var err = caller->respond(response);
-        if (err is error) {
-            panic <error> err;
-        }
-        return false;
+    if (authorized is boolean && authorized) {
+        return authorized;
     }
-    return true;
+    response.setTextPayload("Authorization failure.");
+    var err = caller->respond(response);
+    if (err is error) {
+        panic <error> err;
+    }
+    return false;
 }

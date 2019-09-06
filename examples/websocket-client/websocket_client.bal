@@ -6,7 +6,11 @@ public function main() {
     http:WebSocketClient wsClientEp = new ("ws://echo.websocket.org",
                             config = {callbackService: ClientService});
     // Pushes a text message to the server.
-    checkpanic wsClientEp->pushText("Hello World!");
+    var err = wsClientEp->pushText("Hello World!");
+    if (err is error) {
+        // Prints the error.
+        io:println(err);
+    }
 }
 // The client callback service, which handles backend responses.
 service ClientService = @http:WebSocketServiceConfig {} service {

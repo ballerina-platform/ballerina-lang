@@ -24,12 +24,13 @@ import org.ballerinalang.openapi.typemodel.OpenApiSchemaType;
 import org.ballerinalang.openapi.typemodel.OpenApiType;
 
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static org.ballerinalang.openapi.OpenApiMesseges.BAL_KEYWORDS;
 
 /**
  * This Class will handle the type matching of a given OpenApi Object.
@@ -83,7 +84,7 @@ public class TypeMatchingUtil {
             final Schema schemaValue = schema.getValue();
             final String schemaName = schema.getKey();
 
-            schemaType.setSchemaName(delimeterizeUnescapedIdentifires(StringUtils.capitalize(schemaName)));
+            schemaType.setSchemaName(delimeterizeUnescapedIdentifires(StringUtils.capitalize(schemaName), true));
 
             if (schemaValue instanceof ObjectSchema) {
                 if (schemaValue.getProperties() != null) {
@@ -141,26 +142,76 @@ public class TypeMatchingUtil {
 
     public static List<OpenApiPropertyType> getSchemaPropertyTypes(Map<String, Schema> property) {
 
-        SchemaParser schemaParser = new SchemaParser();
-        Class schemaParserClass = schemaParser.getClass();
         List<OpenApiPropertyType> propertyTypes = new ArrayList<>();
 
         for (Object propertyObject : property.entrySet()) {
             OpenApiPropertyType propertyType = new OpenApiPropertyType();
 
             String propName = (String) ((Map.Entry) propertyObject).getKey();
-            Class schemaTypeClass = ((Map.Entry) propertyObject).getValue().getClass();
-            String schemaTypeClassName = schemaTypeClass.getName();
-            String[] schemaMethodName = schemaTypeClassName.split("\\.");
-            try {
-                schemaParserClass.getDeclaredMethod("parse" + schemaMethodName[schemaMethodName.length - 1],
-                        Object.class, OpenApiPropertyType.class).invoke(schemaParserClass.newInstance(),
-                        ((Map.Entry) propertyObject).getValue(), propertyType);
-            } catch (IllegalAccessException | InvocationTargetException
-                    | NoSuchMethodException | InstantiationException e) {
-                outStream.println(e.getLocalizedMessage());
+
+            Schema schema = (Schema) ((Map.Entry) propertyObject).getValue();
+            String type = schema.getType();
+
+            if (type != null) {
+                switch (type) {
+                    case "string":
+                        propertyType.setPropertyType("string");
+                        break;
+                    case "array":
+                        if (schema instanceof  ArraySchema) {
+                            ArraySchema arrayObj = (ArraySchema) schema;
+                            if (arrayObj.getItems() != null) {
+                                final Schema<?> items = arrayObj.getItems();
+                                propertyType.setIsArray(true);
+                                if (items.getType() != null) {
+                                    propertyType.setPropertyType(
+                                            delimeterizeUnescapedIdentifires(items.getType(), false));
+                                } else if (items.get$ref() != null) {
+                                    final String[] referenceType = items.get$ref().split("/");
+                                    propertyType.setPropertyType(
+                                            delimeterizeUnescapedIdentifires(
+                                                    referenceType[referenceType.length - 1], false));
+                                }
+                            }
+                        }
+                        break;
+                    case "integer":
+                    case "number":
+                        propertyType.setPropertyType("int");
+                        break;
+                    case "boolean":
+                        propertyType.setPropertyType("boolean");
+                        break;
+                    case "object":
+                        Schema schemaObj = (Schema) schema;
+                        if (schemaObj.get$ref() != null && schemaObj.get$ref().startsWith("#")) {
+                            String[] ref = schemaObj.get$ref().split("/");
+                            propertyType.setPropertyType(
+                                    delimeterizeUnescapedIdentifires(
+                                            StringUtils.capitalize(ref[ref.length - 1]), false));
+                        } else if (schemaObj.getAdditionalProperties() != null
+                                && schemaObj.getAdditionalProperties() instanceof  Schema) {
+                            Schema addSchema = (Schema) schemaObj.getAdditionalProperties();
+
+                            if (addSchema.get$ref() != null) {
+                                String[] ref = addSchema.get$ref().split("/");
+                                propertyType.setPropertyType(
+                                        delimeterizeUnescapedIdentifires(
+                                                StringUtils.capitalize(ref[ref.length - 1]), false));
+                            }
+                        }
+                        break;
+                    default:
+                        outStream.println("Unsupported schema type " + type);
+                        break;
+                }
+            } else if (schema.get$ref() != null) {
+                String[] ref = schema.get$ref().split("/");
+                propertyType.setPropertyType(
+                        delimeterizeUnescapedIdentifires(StringUtils.capitalize(ref[ref.length - 1]), false));
             }
-            propertyType.setPropertyName(delimeterizeUnescapedIdentifires(propName));
+
+            propertyType.setPropertyName(delimeterizeUnescapedIdentifires(propName, true));
             propertyTypes.add(propertyType);
         }
 
@@ -186,17 +237,19 @@ public class TypeMatchingUtil {
                     if (schema instanceof ArraySchema) {
                         final Schema<?> arrayItems = ((ArraySchema) schema).getItems();
                         if (arrayItems.getType() != null) {
-                            schemaType.setItemType(arrayItems.getType());
+                            schemaType.setItemType(
+                                    delimeterizeUnescapedIdentifires(arrayItems.getType(), false));
                             schemaType.setItemName(arrayItems.getType().toLowerCase(Locale.ENGLISH));
                         } else if (arrayItems.get$ref() != null) {
                             final String[] ref = arrayItems.get$ref().split("/");
-                            schemaType.setItemType(StringUtils.capitalize(ref[ref.length - 1]));
+                            schemaType.setItemType(delimeterizeUnescapedIdentifires(
+                                    StringUtils.capitalize(ref[ref.length - 1]), false));
                             schemaType.setItemName(ref[ref.length - 1].toLowerCase(Locale.ENGLISH));
                         }
                     }
                     break;
                 default:
-                    schemaType.setSchemaType(schema.getType());
+                    schemaType.setSchemaType(delimeterizeUnescapedIdentifires(schema.getType(), false));
                     break;
             }
         }
@@ -207,8 +260,11 @@ public class TypeMatchingUtil {
 
         if (schema.get$ref() != null) {
             String[] refArray = schema.get$ref().split("/");
-            schemaType.setreference(StringUtils.capitalize(refArray[refArray.length - 1]));
-            schemaType.setItemName(refArray[refArray.length - 1].toLowerCase(Locale.ENGLISH));
+            schemaType.setreference(delimeterizeUnescapedIdentifires(
+                    StringUtils.capitalize(refArray[refArray.length - 1]), false));
+            schemaType.setUnescapedItemName(refArray[refArray.length - 1].toLowerCase(Locale.ENGLISH));
+            schemaType.setItemName(delimeterizeUnescapedIdentifires(
+                    refArray[refArray.length - 1].toLowerCase(Locale.ENGLISH), true));
         }
     }
 
@@ -224,13 +280,13 @@ public class TypeMatchingUtil {
             operation.setOperationType(nextOp.getKey().toString());
 
             if (nextOp.getValue().getOperationId() != null) {
-                operation.setOperationName(nextOp.getValue().getOperationId()
-                        .replace(" ", "_"));
+                operation.setOperationName(delimeterizeUnescapedIdentifires(nextOp.getValue().getOperationId()
+                        .replace(" ", "_"), false));
             } else {
-                String resName = "resource_" + "_" + nextOp.getKey().toString().toLowerCase(Locale.ENGLISH)
+                String resName = "resource_" + nextOp.getKey().toString().toLowerCase(Locale.ENGLISH)
                         + path.replaceAll("/", "_")
                         .replaceAll("[{}]", "");
-                operation.setOperationName(resName);
+                operation.setOperationName(delimeterizeUnescapedIdentifires(resName, false));
                 outStream.println("warning : `" + resName + "` is used as the resource name since the " +
                         "operation id is missing for " + path + " " + nextOp.getKey());
             }
@@ -312,7 +368,7 @@ public class TypeMatchingUtil {
 
             getTypesFromSchema(nextParam.getSchema(), parameterSchema);
 
-            parameter.setParamName(nextParam.getName());
+            parameter.setParamName(delimeterizeUnescapedIdentifires(nextParam.getName(), true));
             parameter.setParamType(parameterSchema);
             parameterList.add(parameter);
         }
@@ -333,7 +389,7 @@ public class TypeMatchingUtil {
             final Map.Entry<String, MediaType> entry = requestBody.getContent().entrySet().iterator().next();
             OpenApiSchemaType schemaType = new OpenApiSchemaType();
             final MediaType entryValue = entry.getValue();
-            schemaType.setSchemaType(entry.getKey());
+            schemaType.setSchemaType(delimeterizeUnescapedIdentifires(entry.getKey(), false));
 
             if (entryValue.getSchema() != null) {
                 getTypesFromSchema(entryValue.getSchema(), schemaType);
@@ -346,10 +402,24 @@ public class TypeMatchingUtil {
         return requestBodyType;
     }
 
-    public static String delimeterizeUnescapedIdentifires(String identifier) {
-        //check if identifier starts with a number or contains spaces in between
-        if (Character.isDigit(identifier.charAt(0))) {
-            identifier = "'" + identifier;
+    /**
+     * This will escape special characters in ballerina identifiers.
+     *
+     * @param identifier - identifier string
+     * @param isVar - is a variable name or type
+     * @return escaped string
+     */
+    public static String delimeterizeUnescapedIdentifires(String identifier, boolean isVar) {
+        if (identifier.matches("^[a-zA-Z0-9_]*$")
+                && !BAL_KEYWORDS.stream().anyMatch(identifier::equals) && !isVar) {
+            return identifier;
+        }
+        if (!identifier.matches("[a-zA-Z]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
+            if ((isVar && BAL_KEYWORDS.stream().anyMatch(identifier::equals))
+                    || !BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
+                identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+(){}|.$])", "\\\\$1");
+                identifier = "'" + identifier;
+            }
         }
         return identifier;
     }
