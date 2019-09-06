@@ -103,7 +103,8 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         }
         const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides/vscode-plugin/run-and-debug/";
         const showDetails: string = 'Learn More';
-        window.showWarningMessage("Stepping over code lines with action invocations may not work properly. Click \"Learn More\" for workarounds", showDetails).then((selection)=>{
+        window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known limitations and workarounds.",
+            showDetails).then((selection)=>{
             if (showDetails === selection) {
                 commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
             }
