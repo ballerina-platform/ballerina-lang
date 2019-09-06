@@ -29,11 +29,12 @@ import java.math.BigInteger;
 import java.math.MathContext;
 
 /**
+ * <p>
  * The {@link DecimalValue} represents a decimal value in Ballerina.
- * <br/>
- * <br/>
+ * </p>
+ * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
- * 
+ * </p> 
  * @since 0.995.0
  */
 public class DecimalValue {

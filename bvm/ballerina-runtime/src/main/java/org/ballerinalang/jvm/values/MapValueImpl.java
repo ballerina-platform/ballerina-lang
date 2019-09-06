@@ -67,11 +67,13 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KE
 import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdate;
 
 /**
+ * <p>
  * Structure that represents the mapping between key value pairs in ballerina.
  * A map cannot contain duplicate keys; each key can map to at most one value.
- * <br/>
- * <br/>
+ * </p>
+ * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values

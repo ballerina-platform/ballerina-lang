@@ -24,10 +24,12 @@ import org.ballerinalang.jvm.types.BTypes;
 import java.util.Map;
 
 /**
+ * <p>
  * Represents an XML qualified name in ballerina.
- * <br/>
- * <br/>
+ * </p>
+ * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @since 0.995.0
  */

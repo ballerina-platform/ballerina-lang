@@ -40,11 +40,13 @@ import java.util.StringJoiner;
 import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
 
 /**
+ * <p>
  * The {@code {@link TableValue}} represents a two dimensional data set in Ballerina.
- * <br/>
- * <br/>
+ * </p>
+ * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
- * 
+ * </p>
+ *  
  * @since 0.995.0
  */
 public class TableValue implements RefValue, CollectionValue {

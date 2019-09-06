@@ -25,11 +25,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * <p>
  * Represents an iterator of a Ballerina {@code {@link CollectionValue}}.
- * <br/>
- * <br/>
+ * </p>
+ * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
- * 
+ * </p>
+ *  
  * @since 0.995.0
  */
 public interface IteratorValue extends RefValue, Iterator {

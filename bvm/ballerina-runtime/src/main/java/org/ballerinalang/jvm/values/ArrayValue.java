@@ -64,10 +64,12 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERE
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
+ * <p>
  * Represent an array in ballerina.
- * <br/>
- * <br/>
+ * </p>
+ * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @since 0.995.0
  */

@@ -42,8 +42,10 @@ import javax.xml.namespace.QName;
  * <li>processing instruction</li>
  * <li>sequence of above</li>
  * </ul>
- * <br/>
+ * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ * 
  * @param <T> Type of the underlying impl
  * @since 0.995.0
  */

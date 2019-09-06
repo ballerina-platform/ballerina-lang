@@ -24,15 +24,17 @@ import org.ballerinalang.jvm.types.BTypes;
 import java.util.Map;
 
 /**
+ * <p>
  * Ballerina runtime value representation of a *type*.
  *
  * {@code typedesc} is used to describe type of a value in Ballerina.
  * For example {@code typedesc} of number 5 is {@code int}, where as {@code typedesc} of a record value is the
  * record type that used to create this particular value instance.
- * <br/>
- * <br/>
+ * </p>
+ * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
- * 
+ * </p>
+ *  
  * @since 0.995.0
  */
 public class TypedescValue implements RefValue {

@@ -23,10 +23,12 @@ import org.ballerinalang.jvm.types.BObjectType;
 import java.util.HashMap;
 
 /**
+ * <p>
  * Interface to be implemented by all the ballerina objects.
- * <br/>
- * <br/>
+ * </p>
+ * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @since 0.995.0
  */
