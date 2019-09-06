@@ -53,7 +53,7 @@ public class Resolve {
             }
             return uri.toString();
         } catch (URISyntaxException e) {
-            return HttpUtil.createHttpError("error occurred while resolving uri. " + e.getMessage());
+            return HttpUtil.createHttpError("error occurred while resolving URI. " + e.getMessage());
         }
     }
 }

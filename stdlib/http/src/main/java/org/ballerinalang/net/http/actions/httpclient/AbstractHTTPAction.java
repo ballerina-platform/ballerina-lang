@@ -141,7 +141,7 @@ public abstract class AbstractHTTPAction {
 
     private static String getServiceUri(String serviceUri) {
         if (serviceUri.isEmpty()) {
-            throw HttpUtil.createHttpError("service uri is not defined correctly.", HttpErrorType.GENERIC_CLIENT_ERROR);
+            throw HttpUtil.createHttpError("service URI is not defined correctly.", HttpErrorType.GENERIC_CLIENT_ERROR);
         }
         return serviceUri;
     }
