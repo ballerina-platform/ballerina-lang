@@ -49,32 +49,16 @@ OPTIONS
 
 
 EXAMPLES
-<<<<<<< HEAD
        Build hello source program
        $ ballerina build hello.bal
-       This will generate a hello-executable.jar file.
+       This will generate a hello.jar file.
 
        Build hello module
        $ ballerina build hello
-       This will generate a hello-executable.jar output file and place
+       This will generate a hello.jar output file and place
        within <project-root>/target/bin directory.
 
        Build all the modules that have entry points in a project in to executables.
        $ ballerina build
        This will generate executable jar files and place them within
        <project-root>/target/bin directory.
-=======
-    Build hello source program
-    $ ballerina build hello.bal
-    This will generate a hello.jar file.
-
-    Build hello module
-    $ ballerina build hello
-    This will generate a hello.jar output file and place
-    within <project-root>/target/bin directory.
-
-    Build all the modules that have entry points in a project in to executables.
-    $ ballerina build
-    This will generate executable jar files and place them within
-    <project-root>/target/bin directory.
->>>>>>> Remove -executable from other locations
