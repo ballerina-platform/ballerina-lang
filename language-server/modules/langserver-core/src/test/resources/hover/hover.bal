@@ -1,4 +1,3 @@
-
 import ballerina/http;
 import ballerina/io;
 
@@ -13,6 +12,22 @@ type Person record {
     int age;
 };
 
+# This is a simple Fruit
+type Fruit object {
+    string name;
+    # Create a new Fruit
+    public function __init(string name) {
+	    self.name = name;
+    }
+};
+
+# This is a Apple
+type Apple object {
+    # Create a new Apple
+    public function __init() {
+    }
+};
+
 # Test function to show current package works
 #
 # + s - string parameter 
@@ -22,22 +37,6 @@ function test1 (string s, int sd) returns int{
     int a = 0;
     return a;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 public function main (string... args) {
     string s = "mars";
@@ -53,6 +52,9 @@ public function main (string... args) {
     if(testPerson.name == "mike"){
 
     }
+    Fruit fruit = new("");
+    Apple apple = new;
+    Fruit fruit2 = new Fruit("");
 }
 
 service testService on new http:Listener(8080) {

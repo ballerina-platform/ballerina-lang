@@ -61,7 +61,7 @@ public class HoverProviderTest {
         String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
         String expected = getExpectedValue(expectedFile);
 
-        Assert.assertEquals(parser.parse(expected).getAsJsonObject(), parser.parse(response).getAsJsonObject(),
+        Assert.assertEquals(parser.parse(response).getAsJsonObject(), parser.parse(expected).getAsJsonObject(),
                 "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
                 + " character:" + position.getCharacter());
     }
@@ -71,8 +71,8 @@ public class HoverProviderTest {
         String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
         String expected = getExpectedValue(expectedFile);
 
-        Assert.assertEquals(parser.parse(expected).getAsJsonObject(), parser.parse(response).getAsJsonObject(),
-                "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
+        Assert.assertEquals(parser.parse(response).getAsJsonObject(), parser.parse(expected).getAsJsonObject(),
+                            "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
                         + " character:" + position.getCharacter());
     }
 
@@ -81,8 +81,8 @@ public class HoverProviderTest {
         String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
         String expected = getExpectedValue(expectedFile);
 
-        Assert.assertEquals(parser.parse(expected).getAsJsonObject(), parser.parse(response).getAsJsonObject(),
-                "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
+        Assert.assertEquals(parser.parse(response).getAsJsonObject(), parser.parse(expected).getAsJsonObject(),
+                            "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
                         + " character:" + position.getCharacter());
     }
 
@@ -91,8 +91,8 @@ public class HoverProviderTest {
         String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
         String expected = getExpectedValue(expectedFile);
 
-        Assert.assertEquals(parser.parse(expected).getAsJsonObject(), parser.parse(response).getAsJsonObject(),
-                "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
+        Assert.assertEquals(parser.parse(response).getAsJsonObject(), parser.parse(expected).getAsJsonObject(),
+                            "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
                         + " character:" + position.getCharacter());
     }
 
@@ -106,10 +106,10 @@ public class HoverProviderTest {
     public Object[][] getBuiltinFunctionPositions() {
         log.info("Test textDocument/hover for builtin functions");
         return new Object[][]{
-                {new Position(43, 11), "builtin-function1.json"},
-                {new Position(44, 19), "builtin-function2.json"},
-                {new Position(59, 60), "hoverOverConstant.json"},
-                {new Position(57, 35), "builtin-service1.json"}
+                {new Position(42, 11), "builtin-function1.json"},
+                {new Position(43, 19), "builtin-function2.json"},
+                {new Position(61, 60), "hoverOverConstant.json"},
+                {new Position(59, 35), "builtin-service1.json"}
         };
     }
 
@@ -117,7 +117,7 @@ public class HoverProviderTest {
     public Object[][] getCurrentPackageFunctionPositions() {
         log.info("Test textDocument/hover for current package functions");
         return new Object[][]{
-                {new Position(45, 14), "currentPkg-function1.json"}
+                {new Position(44, 14), "currentPkg-function1.json"}
         };
     }
 
@@ -137,9 +137,12 @@ public class HoverProviderTest {
     public Object[][] getCurrentPackageStructPositions() {
         log.info("Test textDocument/hover for current package records");
         return new Object[][]{
-                {new Position(46, 7), "currentPkg-record.json"},
-                {new Position(51, 22), "currentPkg-record.json"},
-                {new Position(52, 11), "currentPkg-record.json"}
+                {new Position(45, 7), "currentPkg-record.json"},
+                {new Position(50, 22), "currentPkg-record.json"},
+                {new Position(51, 11), "currentPkg-record.json"},
+                {new Position(54, 20), "new-keyword-1.json"},
+                {new Position(55, 20), "new-keyword-2.json"},
+                {new Position(56, 20), "new-keyword-3.json"},
         };
     }
 
@@ -147,7 +150,7 @@ public class HoverProviderTest {
     public Object[][] getActionPositions() {
         log.info("Test textDocument/hover for actions");
         return new Object[][]{
-                {new Position(65, 60), "hover-over-async-send.json"},
+                {new Position(67, 60), "hover-over-async-send.json"},
         };
     }
 
