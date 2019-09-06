@@ -29,6 +29,7 @@ export interface OverviewProps extends CommonDiagramProps {
     initialSelectedConstruct?: ConstructIdentifier;
 }
 export interface OverviewState {
+    errored: boolean;
     modules: ProjectAST;
     selectedConstruct?: ConstructIdentifier | undefined;
     mode: DiagramMode;
@@ -70,6 +71,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.setPanZoomComp = this.setPanZoomComp.bind(this);
         this.setMaxInvocationDepth = this.setMaxInvocationDepth.bind(this);
         this.state = {
+            errored: false,
             maxInvocationDepth: -1,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
@@ -84,6 +86,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             const { selectedConstruct } = this.state;
             this.getAST(selectedConstruct.sourceRoot, selectedConstruct.filePath).then((ast) => {
                 this.setState({
+                    errored: !Boolean(ast),
                     maxInvocationDepth: -1,
                     modules: ast ? ast : {},
                     selectedConstruct,
@@ -95,6 +98,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         if (this.props.docUri) {
             this.getAST(undefined, this.props.docUri).then((ast) => {
                 this.setState({
+                    errored: !Boolean(ast),
                     maxInvocationDepth: -1,
                     modules: ast ? ast : {},
                 });
@@ -147,6 +151,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
             this.getAST(selectedConstruct.sourceRoot, selectedConstruct.filePath).then((ast) => {
                 this.setState({
+                    errored: !Boolean(ast),
                     maxInvocationDepth: -1,
                     modules: ast ? ast : {},
                     selectedConstruct,
@@ -171,6 +176,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         if (this.props.docUri) {
             this.getAST(undefined, this.props.docUri).then((ast) => {
                 this.setState({
+                    errored: !Boolean(ast),
                     maxInvocationDepth: -1,
                     modules: ast ? ast : {},
                 });
@@ -195,7 +201,8 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                 return <div style={{padding: 10}}><div className="ui visible message">{errorMessage}</div></div>;
             }
 
-            if (this.props.docUri) {
+            console.log(this.state.errored);
+            if (this.props.docUri && this.state.errored) {
                 const { docUri } = this.props;
                 const docUriFilename = docUri.substring(docUri.lastIndexOf("/") + 1);
                 // tslint:disable-next-line: max-line-length
