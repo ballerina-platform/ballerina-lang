@@ -2137,7 +2137,7 @@ function generateDiagnosticPos(bir:DiagnosticPos pos, jvm:MethodVisitor mv) {
 }
 
 function cleanupFunctionName(string functionName) returns string {
-    return stringutils:replaceAll(functionName, "[\\.:/<>]", "_");
+    return internal:replaceAll(functionName, "[\\.:/<>]", "_");
 }
 
 function getVariableDcl(bir:VariableDcl? localVar) returns bir:VariableDcl {

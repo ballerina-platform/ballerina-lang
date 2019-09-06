@@ -34,7 +34,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-config-api", configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
 
     // transitive
     baloImplementation project(path: ":ballerina-system", configuration: 'baloImplementation')
@@ -77,7 +76,6 @@ dependencies {
     implementation project(':ballerina-utils')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-stringutils')
 }
 
 artifacts {
