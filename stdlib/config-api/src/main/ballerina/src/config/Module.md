@@ -16,12 +16,12 @@ The Config API provides the capability to feed sensitive data (e.g., passwords) 
 
 ### Setting configurations
 
-To specify a configuration file explicitly, the `--b7a.config=<path to configuration file>` property can be used. If 
+To specify a configuration file explicitly, the `--b7a.config.file=<path to configuration file>` property can be used. If 
 this property is not set when 
 running a project, Ballerina looks for a `ballerina.conf` file in the project root. When running a single file or a `.balx`, it's picked from the same directory in which the `.balx` or source resides. The path to the configuration file can either be an absolute or a relative path. 
 
 ```sh
-ballerina run my-program.bal --b7a.config=/path/to/conf/file/custom-config-file-name.conf 
+ballerina run my-program.bal --b7a.config.file=/path/to/conf/file/custom-config-file-name.conf 
 ```
 
 A configuration file should conform to the TOML format. Ballerina only supports the following features of TOML: value types (string, int, float and boolean), tables, and nested tables. 

@@ -20,7 +20,7 @@ $ ballerina run config_api.bal
 ballerina: enter secret for config value decryption:
 
 
-# To specify a configuration file explicitly, use the `--b7a.config=<path to configuration file>` property.
+# To specify a configuration file explicitly, use the `--b7a.config.file=<path to configuration file>` property.
 # If this property is not set, Ballerina looks for a `ballerina.conf` file in the directory in which the source files
 # are located. The path to the configuration file can be either an absolute or a relative path.
 # To run this example, place the following configurations in a file and provide its path.
@@ -29,7 +29,7 @@ ballerina: enter secret for config value decryption:
 # http.port=8085
 # keystore.password="@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}"
 # ```
-$ ballerina run config_api.bal --b7a.config=path/to/conf/file/custom-config-file-name.conf
+$ ballerina run config_api.bal --b7a.config.file=path/to/conf/file/custom-config-file-name.conf
 ballerina: enter secret for config value decryption:
 
 ballerina: started HTTPS/WSS listener 0.0.0.0:8085
