@@ -2461,6 +2461,8 @@ public class FormattingNodeTree {
             boolean isAsync = false;
             boolean isCheck = false;
             boolean isActionOrFieldInvocation = false;
+            boolean annotationAvailable = node.has("annotationAttachments")
+                    && node.getAsJsonArray("annotationAttachments").size() > 0;
             JsonObject identifierWhitespace = null;
             String expressionName = null;
 
@@ -2507,7 +2509,7 @@ public class FormattingNodeTree {
                                         + indentation);
                         isCheck = true;
                     } else if (text.equals(Tokens.START) && !isActionOrFieldInvocation) {
-                        if (isCheck) {
+                        if (isCheck || annotationAvailable) {
                             invocationWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         } else {
                             invocationWS.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
@@ -2692,6 +2694,18 @@ public class FormattingNodeTree {
 
                 iterateAndFormatMembers(indentation.isEmpty() ? indentWithParentIndentation : indentation,
                         argumentExpressions);
+            }
+
+            if (node.has("annotationAttachments")) {
+                JsonArray annotationAttachments = node.getAsJsonArray("annotationAttachments");
+                for (JsonElement annotationAttachment : annotationAttachments) {
+                    annotationAttachment.getAsJsonObject().add(FormattingConstants.FORMATTING_CONFIG,
+                            this.getFormattingConfig(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt(),
+                                    formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(),
+                                    formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
+                                    false, this.getWhiteSpaceCount(indentWithParentIndentation),
+                                    true));
+                }
             }
 
             if (node.has(FormattingConstants.EXPRESSION)) {
