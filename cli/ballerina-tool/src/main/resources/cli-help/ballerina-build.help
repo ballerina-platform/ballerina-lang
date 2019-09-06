@@ -15,7 +15,7 @@ DESCRIPTION
 
        Building a single Ballerina file will create an executable .jar file in the
        current directory. The name of the executable file will be
-       <ballerina-file-name>-executable.jar.
+       <ballerina-file-name>.jar.
 
        If the output file is specified with the -o flag, the output
        will be written to the given output file name. The -o flag will only work
@@ -49,6 +49,7 @@ OPTIONS
 
 
 EXAMPLES
+<<<<<<< HEAD
        Build hello source program
        $ ballerina build hello.bal
        This will generate a hello-executable.jar file.
@@ -62,3 +63,18 @@ EXAMPLES
        $ ballerina build
        This will generate executable jar files and place them within
        <project-root>/target/bin directory.
+=======
+    Build hello source program
+    $ ballerina build hello.bal
+    This will generate a hello.jar file.
+
+    Build hello module
+    $ ballerina build hello
+    This will generate a hello.jar output file and place
+    within <project-root>/target/bin directory.
+
+    Build all the modules that have entry points in a project in to executables.
+    $ ballerina build
+    This will generate executable jar files and place them within
+    <project-root>/target/bin directory.
+>>>>>>> Remove -executable from other locations
