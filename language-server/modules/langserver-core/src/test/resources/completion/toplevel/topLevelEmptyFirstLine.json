@@ -84,6 +84,29 @@
       ]
     },
     {
+      "label": "service/webSocketClient",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "service ${1:clientCallbackService} = @http:WebSocketServiceConfig {} service {\n\tresource function onText(http:WebSocketClient wsEp, string text) {\n\t\t\n\t}\n\tresource function onClose(http:WebSocketClient wsEp, int statusCode, string reason) {\n\t\t\n\t}\n};",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "service/webSub",
       "kind": "Snippet",
       "detail": "Snippet",

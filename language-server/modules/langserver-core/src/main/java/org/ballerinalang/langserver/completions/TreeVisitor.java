@@ -887,13 +887,20 @@ public class TreeVisitor extends LSNodeVisitor {
         return symbolEnv;
     }
 
-    public void setNextNode(BSymbol symbol) {
+    public void setNextNode(BSymbol symbol, BLangNode node) {
         if (symbol instanceof BServiceSymbol) {
             lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.SERVICE);
         } else if (symbol instanceof BInvokableSymbol && (symbol.flags & Flags.RESOURCE) == Flags.RESOURCE) {
             lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.RESOURCE);
         } else if (symbol instanceof BInvokableSymbol) {
-            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.FUNCTION);
+            if (node instanceof BLangSimpleVariableDef
+                    && ((BLangSimpleVariableDef) node).var.expr instanceof BLangLambdaFunction
+                    && ((BLangLambdaFunction) ((BLangSimpleVariableDef) node).var.expr).function.flagSet
+                    .contains(Flag.WORKER)) {
+                lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.WORKER);
+            } else {
+                lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.FUNCTION);
+            }
         } else if (symbol instanceof BVarSymbol && (symbol.flags & Flags.LISTENER) == Flags.LISTENER) {
             lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.LISTENER);
         } else if (symbol instanceof BRecordTypeSymbol) {
