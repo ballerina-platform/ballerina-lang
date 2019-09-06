@@ -31,9 +31,9 @@ import org.testng.annotations.Test;
 public class ForeachNegativeTests {
 
     @Test
-    public void testSemanticErrors() {
-        CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 24);
+    public void testForeachSemanticsNegative() {
+        CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-semantics-negative.bal");
+        Assert.assertEquals(compile.getErrorCount(), 21);
         int index = 0;
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'string' in type definition", 37, 17);
@@ -52,9 +52,6 @@ public class ForeachNegativeTests {
                 "'string' in type definition", 82, 17);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'json' in type definition", 91, 17);
-        BAssertUtil.validateError(compile, index++, "unreachable code", 104, 9);
-        BAssertUtil.validateError(compile, index++, "unreachable code", 109, 9);
-        BAssertUtil.validateError(compile, index++, "continue cannot be used outside of a loop", 111, 5);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'string' in type definition", 117, 17);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 127, 9);
@@ -67,5 +64,16 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 169, 13);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 183, 13);
         BAssertUtil.validateError(compile, index, "cannot assign a value to final 'status'", 198, 9);
+    }
+
+    @Test
+
+    public void testForeachNegative() {
+        CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-negative.bal");
+        Assert.assertEquals(compile.getErrorCount(), 3);
+        int index = 0;
+        BAssertUtil.validateError(compile, index++, "unreachable code", 8, 9);
+        BAssertUtil.validateError(compile, index++, "unreachable code", 13, 9);
+        BAssertUtil.validateError(compile, index, "continue cannot be used outside of a loop", 15, 5);
     }
 }
