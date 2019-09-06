@@ -460,37 +460,47 @@ public class FreezeAndIsFrozenTest {
     public void testFreezeAndIsFrozenSemanticsNegativeCases() {
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 26);
         int index = 0;
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'PersonObj', found 'anydata'", 19, 19);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', found 'stream<int>'", 22, 9);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', found 'map<PersonObj>'", 30,
-                      9);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'PersonObj', found 'anydata'", 19, 19);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found 'stream<int>'", 22, 9);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found 'map<PersonObj>'", 30, 9);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected 'anydata', found 'map<(stream<int>|PersonObj)>'", 33, 9);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', found 'PersonObj[]'", 38, 9);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found 'PersonObj[]'", 38, 9);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected 'anydata', found '(PersonObjTwo|PersonObj)?[]'", 41, 10);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected 'anydata', found '[(PersonObj|PersonObjTwo),PersonObjTwo]'", 48,
-                      9);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', found 'Department'", 53, 9);
+                9);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found 'Department'", 53, 9);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected 'anydata', found 'map<(string|PersonObj)>'", 58, 32);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', "
-                + "found 'map<[(string|PersonObj),(FreezeAllowedDepartment|float)]>'", 61, 26);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found 'map<[(string|PersonObj)," +
+                        "(FreezeAllowedDepartment|float)]>'", 61, 26);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected 'anydata', found '(boolean|PersonObj|float)?[]'", 64, 39);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected 'anydata', found '(boolean|PersonObj|float)?[]'", 66, 16);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', found '[(string|PersonObj),"
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found '[(string|PersonObj),"
                 + "(FreezeAllowedDepartment|float)]'", 69, 60);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected 'anydata', found 'FreezeAllowedDepartment'", 72, 35);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', found '(string|PersonObj)'",
-                      75, 27);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'any', found 'error'", 80, 9);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', found 'error'", 80, 9);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found '(string|PersonObj)'", 75, 27);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'any', found 'error'", 80, 9);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found 'error'", 80, 9);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected 'anydata', found 'map<(string|PersonObj)>'", 90, 39);
         validateError(semanticsNegativeResult, index++,
@@ -502,10 +512,10 @@ public class FreezeAndIsFrozenTest {
                       21);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected 'anydata', found '(int|Department|PersonObj)'", 122, 42);
-        validateError(semanticsNegativeResult, index++, "incompatible types: expected 'anydata', found '(anydata|error)'", 129,
-                      19);
-        validateError(semanticsNegativeResult, index, "incompatible types: expected 'anydata', found '(anydata|error)'", 129,
-                      19);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'anydata', found '(anydata|error)'", 129, 19);
+        validateError(semanticsNegativeResult, index,
+                "incompatible types: expected 'anydata', found '(anydata|error)'", 129, 19);
     }
 
     @Test

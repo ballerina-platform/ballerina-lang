@@ -297,8 +297,8 @@ public class TupleVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'string', found 'int'", 45, 10);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'int', found 'string'", 46, 10);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'float', found 'boolean'", 47, 10);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'[string,int,float]', found '[float,boolean,int]'",
-                52, 20);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'[string,int,float]', found '[float," +
+                        "boolean,int]'", 52, 20);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'string', found 'int'", 62, 17);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'int', found 'string'", 62, 21);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'float', found 'boolean'", 63, 10);
@@ -307,7 +307,8 @@ public class TupleVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'FooObj', found 'BarObj'", 72, 42);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 72, 52);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'Foo', found 'Bar'", 81, 25);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'[BarObj,FooObj]', found 'FooObj'", 81, 30);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'[BarObj,FooObj]', found 'FooObj'", 81,
+                30);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 81, 38);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'int', found 'Bar'", 90, 36);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'Foo', found 'int'", 90, 41);
@@ -321,10 +322,10 @@ public class TupleVariableReferenceTest {
                 134, 36);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 139, 84);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid binding pattern, variable reference 'm[var1]' cannot " +
-                "be used with binding pattern", 160, 6);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid binding pattern, variable reference 'm[var2]' cannot " +
-                "be used with binding pattern", 160, 18);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid binding pattern, variable reference 'm[var1]' cannot be used with binding pattern", 160, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid binding pattern, variable reference 'm[var2]' cannot be used with binding pattern", 160, 18);
     }
 
     @Test

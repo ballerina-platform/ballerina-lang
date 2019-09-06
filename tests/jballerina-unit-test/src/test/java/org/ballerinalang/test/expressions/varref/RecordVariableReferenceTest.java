@@ -188,7 +188,8 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i, undefinedSymbol + "'format'", 43, 48);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, undefinedSymbol + "'theMap'", 43, 61);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "variable assignment is required", 94, 5);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 95, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "incompatible types: expected 'Bar', found 'string'", 95, 12);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'string', found 'Bar'", 95, 27);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
@@ -209,12 +210,13 @@ public class RecordVariableReferenceTest {
                 "unknown type 'Data'", 128, 6);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'map<int>', found 'map<anydata>'", 161, 16);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'map<error>', found 'map'",
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "incompatible types: expected 'map<error>', found 'map'",
                 164, 16);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid binding pattern, variable reference 'm[var1]' cannot " +
-                "be used with binding pattern", 198, 12);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid binding pattern, variable reference 'm[var2]' cannot " +
-                "be used with binding pattern", 198, 36);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid binding pattern, variable reference 'm[var1]' cannot be used with binding pattern", 198, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid binding pattern, variable reference 'm[var2]' cannot be used with binding pattern", 198, 36);
 
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }

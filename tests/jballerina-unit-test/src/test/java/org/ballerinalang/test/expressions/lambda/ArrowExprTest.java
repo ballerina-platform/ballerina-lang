@@ -43,7 +43,8 @@ public class ArrowExprTest {
     @BeforeClass
     public void setup() {
         basic = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression.bal");
-        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression-semantics-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression-semantics-" +
+                "negative.bal");
         resultNegative = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression-negative.bal");
     }
 

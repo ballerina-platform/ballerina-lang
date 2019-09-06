@@ -158,8 +158,8 @@ public class MapAccessExprTest {
         Assert.assertEquals(resultSemanticsNegative.getDiagnostics().length, 2);
         int index = 0;
         // testMapAccessWithIndex
-        BAssertUtil.validateError(resultSemanticsNegative, index++, "incompatible types: expected 'string', found 'int'",
-                                  4, 20);
+        BAssertUtil.validateError(resultSemanticsNegative, index++, "incompatible types: expected 'string', found " +
+                        "'int'", 4, 20);
         // accessAllFields
         BAssertUtil.validateError(resultSemanticsNegative, index++, "cannot get all fields from a map", 9, 13);
     }

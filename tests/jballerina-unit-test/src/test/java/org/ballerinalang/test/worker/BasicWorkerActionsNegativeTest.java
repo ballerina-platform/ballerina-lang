@@ -41,13 +41,13 @@ public class BasicWorkerActionsNegativeTest {
         int index = 0;
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 4, "Worker actions semantics negative test error" +
                 " count");
-        BAssertUtil.validateError(resultSemanticsNegative, index++, "invalid type for worker send 'Person', expected anydata",
-                44, 22);
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
+                "invalid type for worker send 'Person', expected anydata", 44, 22);
         BAssertUtil.validateError(resultSemanticsNegative, index++, "undefined worker 'w4'", 46, 17);
         BAssertUtil.validateError(resultSemanticsNegative, index++, "variable assignment is required",
                 61, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, index, "invalid usage of receive expression, var not allowed",
-                112, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, index,
+                "invalid usage of receive expression, var not allowed", 112, 21);
     }
 
     @Test(description = "Test negative scenarios of worker actions")
