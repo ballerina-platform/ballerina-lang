@@ -48,7 +48,6 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -285,8 +284,8 @@ public class CodeActionTest {
     public Object[][] testGenCodeActionDataProvider() {
         log.info("Test textDocument/codeAction for test generation");
         return new Object[][]{
-                {"testGenFunctionCodeAction.json", Paths.get("testgen", "src", "module1", "functions.bal")},
-                {"testGenServiceCodeAction.json", Paths.get("testgen", "src", "module2", "services.bal")}
+//                {"testGenFunctionCodeAction.json", Paths.get("testgen", "src", "module1", "functions.bal")},
+//                {"testGenServiceCodeAction.json", Paths.get("testgen", "src", "module2", "services.bal")}
         };
     }
 
