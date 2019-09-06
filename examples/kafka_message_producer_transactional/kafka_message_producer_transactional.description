@@ -1,0 +1,2 @@
+// This example shows you how to do transactional message produce where messages can be sent
+// to multiple topic partitions atomically using same KafkaProducerClient instance.
