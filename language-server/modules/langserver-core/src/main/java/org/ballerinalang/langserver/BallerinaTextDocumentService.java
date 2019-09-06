@@ -89,9 +89,7 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -114,7 +112,6 @@ import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncSymbolInfo;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFunctionInvocationDetails;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_DIR_NAME;
 
 /**
  * Text document service implementation for ballerina.
