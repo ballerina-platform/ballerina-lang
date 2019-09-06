@@ -24,7 +24,7 @@ import ballerina/config;
 # + poolOptions - Properties for the connection pool configuration. Refer `PoolOptions` for more details
 # + dbOptions - A map of DB specific properties. These properties will have an effect only if the dataSourceClassName is
 #               provided in poolOptions
-public type ClientEndpointConfig record {|
+public type ClientConfiguration record {|
     string url = "";
     string username = "";
     string password = "";

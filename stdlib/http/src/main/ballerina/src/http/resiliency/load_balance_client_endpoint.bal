@@ -24,7 +24,7 @@ import ballerina/mime;
 # + failover - Whether to fail over in case of a failure
 public type LoadBalanceClient client object {
 
-    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
+    public LoadBalanceClientConfiguration loadBalanceClientConfig;
     public Client?[] loadBalanceClientsArray;
     public LoadBalancerRule lbRule;
     public boolean failover;
@@ -32,7 +32,7 @@ public type LoadBalanceClient client object {
     # Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
     #
     # + loadBalanceClientConfig - The configurations for the load balance client endpoint
-    public function __init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) {
+    public function __init(LoadBalanceClientConfiguration loadBalanceClientConfig) {
         self.loadBalanceClientConfig = loadBalanceClientConfig;
         self.failover = loadBalanceClientConfig.failover;
         var lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
@@ -44,8 +44,8 @@ public type LoadBalanceClient client object {
             if (lbRule is LoadBalancerRule) {
                 self.lbRule = lbRule;
             } else {
-                LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
-                self.lbRule = loadBalancerRounRobinRule;
+                LoadBalancerRoundRobinRule loadBalancerRoundRobinRule = new;
+                self.lbRule = loadBalancerRoundRobinRule;
             }
         }
     }
@@ -209,12 +209,10 @@ public type LoadBalanceClient client object {
 
 # Represents an error occurred in an remote function of the Load Balance connector.
 #
-# + statusCode - HTTP status code of the `LoadBalanceActionError`
 # + httpActionErr - Array of errors occurred at each endpoint
 # + message - An explanation of the error
 # + cause - The original error which resulted in a `LoadBalanceActionError`
 public type LoadBalanceActionErrorData record {|
-    int statusCode = 0;
     error?[] httpActionErr = [];
     string message?;
     error cause?;
@@ -241,7 +239,7 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
              returns Response|ClientError {
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     //TODO: workaround to initialize a type inside a function. Change this once fix is available.
-    LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode: 500, message: "", httpActionErr:[]};
+    LoadBalanceActionErrorData loadBalanceActionErrorData = {message: "", httpActionErr:[]};
     int lbErrorIndex = 0;
     Request loadBalancerInRequest = request;
     mime:Entity requestEntity = new;
@@ -299,7 +297,6 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
     string message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
     AllLoadBalanceEndpointsFailedError err = error(ALL_LOAD_BALANCE_ENDPOINTS_FAILED,
                                                     message = message,
-                                                    statusCode = STATUS_INTERNAL_SERVER_ERROR,
                                                     httpActionError = loadBalanceActionErrorData.httpActionErr);
     return err;
 }
@@ -323,7 +320,7 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # + retryConfig - Retry related options
 # + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
-public type LoadBalanceClientEndpointConfiguration record {|
+public type LoadBalanceClientConfiguration record {|
     string httpVersion = HTTP_1_1;
     ClientHttp1Settings http1Settings = {};
     ClientHttp2Settings http2Settings = {};
@@ -342,9 +339,9 @@ public type LoadBalanceClientEndpointConfiguration record {|
     boolean failover = true;
 |};
 
-function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
-                                                     TargetService target) returns ClientEndpointConfig {
-    ClientEndpointConfig clientEPConfig = {
+function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientConfiguration lbConfig,
+                                                     TargetService target) returns ClientConfiguration {
+    ClientConfiguration clientEPConfig = {
         http1Settings: lbConfig.http1Settings,
         http2Settings: lbConfig.http2Settings,
         circuitBreaker:lbConfig.circuitBreaker,
@@ -362,13 +359,13 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
     return clientEPConfig;
 }
 
-function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
+function createLoadBalanceHttpClientArray(LoadBalanceClientConfiguration loadBalanceClientConfig)
                                                                                     returns Client?[]|error {
     Client cl;
     Client?[] httpClients = [];
     int i = 0;
     foreach var target in loadBalanceClientConfig.targets {
-        ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
+        ClientConfiguration epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
         cl =  new(target.url , epConfig);
         httpClients[i] = cl;
         i += 1;

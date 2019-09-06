@@ -21,7 +21,6 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 
 import java.util.List;
 
@@ -61,7 +60,8 @@ public class SignatureParams {
             int varTag = paramType.getTag();
             if (varTag != TypeTags.STRING_TAG && varTag != TypeTags.INT_TAG && varTag != TypeTags.BOOLEAN_TAG &&
                     varTag != TypeTags.FLOAT_TAG) {
-                throw new BallerinaConnectorException("incompatible resource signature parameter type");
+                throw HttpUtil.createHttpError("incompatible resource signature parameter type",
+                                               HttpErrorType.GENERIC_LISTENER_ERROR);
             }
             paramCount++;
         }
@@ -75,8 +75,8 @@ public class SignatureParams {
             this.entityBody = entityBodyParamType;
             paramCount++;
         } else {
-            throw new BallerinaConnectorException("incompatible entity-body type : " +
-                    entityBodyParamType.getName());
+            throw HttpUtil.createHttpError("incompatible entity-body type : " + entityBodyParamType.getName(),
+                                           HttpErrorType.GENERIC_LISTENER_ERROR);
         }
     }
 

@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -48,7 +49,7 @@ public class PrintAny {
         for (int i = 0; i < values.size(); i++) {
             value = values.get(i);
             if (value != null) {
-                out.print(value.toString());
+                out.print(StringUtils.getStringValue(strand, value));
             }
         }
     }

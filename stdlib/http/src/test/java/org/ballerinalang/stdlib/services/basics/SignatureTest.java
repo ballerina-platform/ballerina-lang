@@ -87,7 +87,6 @@ public class SignatureTest {
     public void testSignatureWithInvalidBodyIntParam() {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/invalid-body-param.bal").getPath()).getAbsolutePath());
-        // BServiceUtil.runService(compileResult);
     }
 
     @Test

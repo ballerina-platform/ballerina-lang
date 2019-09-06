@@ -14,16 +14,38 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/regex;
+const FOO = "foo";
 
-function testSplit() returns string[] {
-    string testStr = "amal,,kamal,,nimal,,sunimal,";
-    string[] arr = regex:split(testStr, ",,");
-    return arr;
-}
+type FooError error<FOO>;
+type TrxError error<string, TrxErrorData>;
 
-function testReplace() returns string {
-    string testStr = "Hello Amal!!! Nimal!!!";
-    string newStr = regex:replace(testStr, "!!!", "!");
-    return newStr;
+type TrxErrorData record {|
+    string message?;
+    error cause?;
+|};
+
+public function main() {
+    worker w1 returns FooError|TrxError? {
+        int j = 25;
+        if (false) {
+            return FooError();
+        }
+
+        j = <- w2;
+
+        if (1 == 2) {
+            TrxError e = error("trxError");
+            return e;
+        }
+        j = <- w2;
+        j = <- w2;
+    }
+
+    worker w2 returns boolean|error {
+        int i = 2;
+        TrxError? success = i ->> w1;
+        success = i ->> w1;
+        () k = i ->> w1;
+        return true;
+    }
 }

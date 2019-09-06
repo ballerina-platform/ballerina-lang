@@ -133,11 +133,12 @@ dependencies {
     distBal project(path: ':ballerina-xslt', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-kafka', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-nats', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-regex', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
 
     // Lang libs
@@ -188,11 +189,12 @@ dependencies {
     balSource project(path: ':ballerina-xslt', configuration: 'balSource')
     balSource project(path: ':ballerina-kafka', configuration: 'balSource')
     balSource project(path: ':ballerina-nats', configuration: 'balSource')
-    balSource project(path: ':ballerina-regex', configuration: 'balSource')
+    balSource project(path: ':ballerina-stringutils', configuration: 'balSource')
     balSource project(path: ':ballerina-utils', configuration: 'balSource')
     balSource project(path: ':ballerina-jwt', configuration: 'balSource')
     balSource project(path: ':ballerina-ldap', configuration: 'balSource')
     balSource project(path: ':ballerina-oauth2', configuration: 'balSource')
+    balSource project(path: ':ballerina-xmlutils', configuration: 'balSource')
     balSource project(path: ':ballerina-jsonutils', configuration: 'balSource')
 
     // Lang Libs
@@ -252,10 +254,11 @@ dependencies {
     dist project(':tracing-extensions:ballerina-jaeger-extension')
     dist project(':ballerina-kafka')
     dist project(':ballerina-nats')
-    dist project(':ballerina-regex')
+    dist project(':ballerina-stringutils')
     dist project(':ballerina-jwt')
     dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
+    dist project(':ballerina-xmlutils')
     dist project(':ballerina-jsonutils')
 
     // Lang libs
