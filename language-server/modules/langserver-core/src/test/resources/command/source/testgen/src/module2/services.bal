@@ -12,7 +12,7 @@ service httpsService on securedListener {
     }
 }
 
-service wsService on new http:WebSocketListener(9094) {
+service wsService on new http:Listener(9094) {
     resource function onOpen(http:WebSocketCaller caller) {
     }
     resource function onText(http:WebSocketCaller caller, string text, boolean finalFrame) {
@@ -50,7 +50,7 @@ listener http:Listener securedListener = new(9090, config = {
         }
     });
 
-listener http:WebSocketListener securedListener2 = new(9090, config = {
+listener http:Listener securedListener2 = new(9090, config = {
         auth: {
             authHandlers: [basicAuthHandler2]
         },

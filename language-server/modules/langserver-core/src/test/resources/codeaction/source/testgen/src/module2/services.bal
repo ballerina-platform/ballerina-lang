@@ -12,7 +12,7 @@ service httpsService on securedListener {
     }
 }
 
-service wsService on new http:WebSocketListener(9094) {
+service wsService on new http:Listener(9094) {
     resource function onOpen(http:WebSocketCaller caller) {
     }
     resource function onText(http:WebSocketCaller caller, string text) {
@@ -53,7 +53,7 @@ listener http:Listener securedListener = new (9092, {
     }
 });
 
-listener http:WebSocketListener securedListener2 = new http:WebSocketListener(9092, {
+listener http:Listener securedListener2 = new http:Listener(9092, {
     host: "0.0.0.0",
     secureSocket: {
         keyStore: {
