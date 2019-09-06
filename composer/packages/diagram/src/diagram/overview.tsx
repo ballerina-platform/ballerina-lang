@@ -174,7 +174,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }
 
         if (this.props.docUri) {
-            this.getAST(undefined, this.props.docUri).then((ast) => {
+            this.getAST(this.props.sourceRootUri, this.props.docUri).then((ast) => {
                 this.setState({
                     errored: !Boolean(ast),
                     maxInvocationDepth: -1,
