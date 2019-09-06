@@ -16,10 +16,29 @@
 
 import ballerina/xmlutils;
 
+type Person record {
+    int id;
+    int age = -1;
+    decimal salary;
+    string name;
+    boolean married;
+};
+
 function testToJson() returns json|error {
     var x1 = xml `<!-- outer comment -->`;
     var x2 = xml `<name>supun</name>`;
     xml x3 = x1 + x2;
     json|error j = xmlutils:toJSON(x3);
     return j;
+}
+
+public function testFromTable() returns string {
+    table<Person> personTable = table{
+        { key id, age, salary, name, married },
+        [ { 1, 30,  300.5, "Mary", true },
+          { 2, 20,  300.5, "John", true }
+        ]
+    };
+
+    return xmlutils:fromTable(personTable).toString();
 }

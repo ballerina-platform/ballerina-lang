@@ -246,7 +246,7 @@ public class TableIterator implements DataIterator {
                 value = rs.getDouble(index);
                 break;
             case TypeTags.DECIMAL_TAG:
-                value = rs.getBigDecimal(index);
+                value = new DecimalValue(rs.getBigDecimal(index));
                 break;
             case TypeTags.BOOLEAN_TAG:
                 value = rs.getBoolean(index);

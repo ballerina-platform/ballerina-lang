@@ -25,6 +25,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -33,12 +34,32 @@ import org.testng.annotations.Test;
  * @since 1.0
  */
 public class XmlUtilsTest {
+
+    private CompileResult result;
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/xml-to-json-test.bal");
+    }
     @Test
     public void testToJsonFunction() {
-        CompileResult result = BCompileUtil.compile("test-src/xml-to-json-test.bal");
         BValue[] returns = BRunUtil.invoke(result, "testToJson");
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(((BMapType) returns[0].getType()).getConstrainedType().getTag(), TypeTags.JSON_TAG);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\"}");
+    }
+
+    @Test
+    public void testFromTableFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "testFromTable");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(),
+            "<results>" +
+                "<result>" +
+                    "<id>1</id><age>30</age><salary>300.5</salary><name>Mary</name><married>true</married>" +
+                "</result>" +
+                "<result>" +
+                    "<id>2</id><age>20</age><salary>300.5</salary><name>John</name><married>true</married>" +
+                "</result>" +
+                "</results>");
     }
 }

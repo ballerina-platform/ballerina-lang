@@ -29,3 +29,9 @@ public type XmlOptions record {
 # + options - xmlOptions struct for XML to JSON conversion properties
 # + return - JSON representation of the given XML
 public function toJSON(xml x, XmlOptions options = {}) returns json|error = external;
+
+# Converts a table to its xml representation.
+#
+# + tbl - The source table
+# + return - XML representation of source table
+public function fromTable(table<record{}> tbl) returns xml = external;

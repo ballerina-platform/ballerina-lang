@@ -16,6 +16,14 @@
 
 import ballerina/jsonutils;
 
+type Person record {
+    int id;
+    int age = -1;
+    decimal salary;
+    string name;
+    boolean married;
+};
+
 function testToXml() returns xml|error {
     json data = {
         name: "John",
@@ -23,4 +31,15 @@ function testToXml() returns xml|error {
     };
     xml|error x = jsonutils:toXML(data);
     return x;
+}
+
+public function testFromTable() returns string {
+    table<Person> personTable = table{
+        { key id, age, salary, name, married },
+        [ { 1, 30,  300.5, "Mary", true },
+          { 2, 20,  300.5, "John", true }
+        ]
+    };
+
+    return jsonutils:fromTable(personTable).toJsonString();
 }
