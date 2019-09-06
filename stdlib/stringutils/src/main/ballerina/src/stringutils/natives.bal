@@ -25,7 +25,7 @@ public function contains(string originalString, string substring) returns boolea
     return containsExternal(java:fromString(originalString), java:fromString(substring));
 }
 
-# Checks if two strings are equal, ignoring the case of the strings.
+# Checks if two strings are equal ignoring the case of the strings.
 #
 # + firstString - first string to compare
 # + secondString - second string to compare
