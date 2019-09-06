@@ -4,7 +4,7 @@ NAME
 SYNOPSIS
     ballerina run [--offline]
                   [--sourceroot]
-                  <balfile | module-name | executable-jar> [configs(--key=value)...] [--] [args...]
+                  <balfile | module-name | executable-jar> [configs (--key=value)...] [--] [args...]
 
 DESCRIPTION
     Run command executes the given program or module. This is a
@@ -27,7 +27,6 @@ DESCRIPTION
     the 'main' function first and then starts the services.
 
 OPTIONS
-
     --offline
         In a module build, the dependencies are always checked from
         the remote repository (Ballerina Central) to check for latest
@@ -49,16 +48,17 @@ OPTIONS
         path.
         
     configs(--key=value)...
-	        Sets Ballerina environment parameters as key/value pairs.
-	        If multiple parameters need to be provided, each parameter
-	        has to be specified using its own -e flag. Details of the
-	        environment parameters that the Ballerina standard library
-	        modules support can be found in the relevant API
-	        documentation.
+        Sets Ballerina environment parameters as key/value pairs.
+        If multiple parameters need to be provided, each parameter
+        has to be specified using its own -e flag. Details of the
+        environment parameters that the Ballerina standard library
+        modules support can be found in the relevant API
+        documentation.
 	        
-	--
-	        The optional argument ‘--’ terminates all configs. Any following arguments are treated as args to program 
-	        even they are start with '--'. This is required only if specific arg needs to start with '--'.
+    --
+        The optional argument ‘--’ terminates all configs. Any following 
+        arguments are treated as args to program even they are start with '--'. 
+        This is required only if specific arg needs to start with '--'.
 
     args...
         The list of command line arguments for the Ballerina program

@@ -320,8 +320,8 @@ public class RunCommand implements BLauncherCmd {
     public void printUsage(StringBuilder out) {
         out.append("  ballerina run [--off-line]\n" +
                            "                [--sourceroot]\n" +
-                           "                {<balfile> | module-name | executable-jar} [configs(--key=value)...] [--] " 
-                           + "[args...] \n");
+                           "                {<balfile> | module-name | executable-jar} [configs (--key=value)...] " 
+                           + "[--] [args...] \n");
     }
 
     @Override

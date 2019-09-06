@@ -70,5 +70,5 @@ OR
 
 The log level of `foo` can also be configured through the CLI as follows:
 ```bash
-$ ballerina run foo --\"<org-name>/foo.loglevel\"=DEBUG foo
+$ ballerina run foo --\"<org-name>/foo.loglevel\"=DEBUG
 ```
