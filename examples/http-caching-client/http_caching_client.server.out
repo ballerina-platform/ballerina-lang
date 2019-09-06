@@ -2,7 +2,7 @@
 # For clarity, only the relevant parts of the HTTP trace logs have been included here.
 # At the command line, navigate to the directory that contains the
 # `.bal` file and execute the `ballerina run` command by setting the `--b7a.http.tracelog.console=true` property to start the service.
-$ ballerina run --b7a.http.tracelog.console=true caching_proxy.bal
+$ ballerina run caching_proxy.bal --b7a.http.tracelog.console=true
 ballerina: deploying service(s) in 'caching_proxy.bal'
 ballerina: started HTTP/WS listener 0.0.0.0:9090
 # The caching proxy receives a request from a client.

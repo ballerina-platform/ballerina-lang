@@ -57,7 +57,7 @@ OPTIONS
 	        
     --
         The optional argument ‘--’ terminates all configs. Any succeeding 
-        arguments are treated as args of the program even if they start with '--'. 
+        arguments are treated as arguments of the program even if they start with '--'. 
         This is required only if a specific arg needs to start with '--'.
 
     args...

@@ -29,7 +29,7 @@ b7a.log.level="<LOG_LEVEL>"
 
 The log level can also be configured through a CLI parameter as follows:
 ```bash
-$ ballerina run --b7a.log.level=<LOG_LEVEL> program.bal
+$ ballerina run program.bal --b7a.log.level=<LOG_LEVEL>
 ```
 
 Log levels can be configured for modules either through a configuration file as `<MODULE_NAME>.loglevel="<LOG_LEVEL>"` or through a CLI parameter as `<MODULE_NAME>.loglevel=<LOG_LEVEL>`.
