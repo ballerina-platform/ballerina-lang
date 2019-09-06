@@ -5507,9 +5507,10 @@ public class FormattingNodeTree {
                     }
                 }
 
+                JsonArray variables = null;
                 // Update whitespaces of parameters.
                 if (node.has("variables")) {
-                    JsonArray variables = node.getAsJsonArray("variables");
+                    variables = node.getAsJsonArray("variables");
                     iterateAndFormatMembers(indentation, variables);
                 }
 
@@ -5522,6 +5523,23 @@ public class FormattingNodeTree {
                         annotationAttachment.getAsJsonObject().add(FormattingConstants.FORMATTING_CONFIG,
                                 annotationAttachmentFormattingConfig);
                     }
+                }
+
+                if (node.has("restVariable")) {
+                    JsonObject restVariable = node.getAsJsonObject("restVariable");
+                    JsonObject restParamFormatConfig;
+                    if (variables != null && variables.size() > 0) {
+                        restParamFormatConfig = this.getFormattingConfig(0, 1,
+                                this.getWhiteSpaceCount(indentation), false,
+                                this.getWhiteSpaceCount(useParentIndentation
+                                        ? indentWithParentIndentation : indentation), true);
+                    } else {
+                        restParamFormatConfig = this.getFormattingConfig(0, 0,
+                                this.getWhiteSpaceCount(indentation), false,
+                                this.getWhiteSpaceCount(useParentIndentation
+                                        ? indentWithParentIndentation : indentation), true);
+                    }
+                    restVariable.add(FormattingConstants.FORMATTING_CONFIG, restParamFormatConfig);
                 }
             } else if (node.has(FormattingConstants.TYPE_NODE)) {
                 node.getAsJsonObject(FormattingConstants.TYPE_NODE)
@@ -6201,14 +6219,21 @@ public class FormattingNodeTree {
                                         FormattingConstants.NEW_LINE + indentation);
                             }
                         } else if (text.equals(Tokens.ELLIPSIS)) {
-                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            if (!node.has(FormattingConstants.TYPE_NODE) && firstKeyword.equals(Tokens.ELLIPSIS)) {
+                                currentWS.addProperty(FormattingConstants.WS, this.getWhiteSpaces(formatConfig
+                                        .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                            } else {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            }
                         } else if (text.equals(Tokens.EQUAL)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         } else if (text.equals(Tokens.COLON)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                             isColonAvailable = true;
                         } else {
-                            if (node.has(FormattingConstants.IS_ANON_TYPE)
+                            if (!node.has(FormattingConstants.TYPE_NODE) && firstKeyword.equals(Tokens.ELLIPSIS)) {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            } else if (node.has(FormattingConstants.IS_ANON_TYPE)
                                     && node.get(FormattingConstants.IS_ANON_TYPE).getAsBoolean()) {
                                 currentWS.addProperty(FormattingConstants.WS,
                                         FormattingConstants.SINGLE_SPACE);
@@ -6233,7 +6258,6 @@ public class FormattingNodeTree {
                                                 ? this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
                                                 .getAsInt())
                                                 : FormattingConstants.SINGLE_SPACE);
-
                             }
                         }
                     }
