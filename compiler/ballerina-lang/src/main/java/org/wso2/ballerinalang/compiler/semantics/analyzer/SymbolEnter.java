@@ -979,6 +979,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
+
+        //if the varSymbol is invokable and if it is a function pointer which is not a function parameter
+        if (varSymbol.type.tag == TypeTags.INVOKABLE &&
+                    varNode.expr != null && varNode.expr.getKind() == NodeKind.LAMBDA) {
+            BLangFunction lambdaFunc = ((BLangLambdaFunction) varNode.expr).function;
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
+            invokableSymbol.params = lambdaFunc.symbol.params;
+        }
     }
 
     @Override

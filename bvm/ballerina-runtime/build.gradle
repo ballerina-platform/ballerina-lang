@@ -29,7 +29,6 @@ dependencies {
 
     implementation project(':ballerina-config')
     implementation project(':ballerina-logging')
-    implementation project(':ballerina-core')
 }
 
 

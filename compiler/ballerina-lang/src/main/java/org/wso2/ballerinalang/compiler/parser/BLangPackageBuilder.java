@@ -894,6 +894,7 @@ public class BLangPackageBuilder {
                                                                             BLangIdentifier bLangIdentifier) {
         BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(pos, bindingVarName);
+        simpleVariableNode.name.pos = pos;
         simpleVariableNode.pos = pos;
         if (this.bindingPatternIdentifierWS.size() > 0) {
             simpleVariableNode.addWS(this.bindingPatternIdentifierWS.pop());

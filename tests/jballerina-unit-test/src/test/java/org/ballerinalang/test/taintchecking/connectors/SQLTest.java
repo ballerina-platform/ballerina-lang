@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.965.0
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class SQLTest {
 
     @Test
@@ -59,6 +58,6 @@ public class SQLTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-untainted-query-tainted-return-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'anyValue'", 27, 26);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'anyValue'", 25, 26);
     }
 }

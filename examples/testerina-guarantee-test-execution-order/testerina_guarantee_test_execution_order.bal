@@ -20,7 +20,7 @@ function testFunction2() {
     test:assertTrue(true, msg = "Failed!");
 }
 
-// This is a rondom test function. This will randomly execute without depending on other functions.
+// This is a random test function. This will randomly execute without depending on other functions.
 // However,the other function does depend on this.
 @test:Config{}
 function testFunction3() {

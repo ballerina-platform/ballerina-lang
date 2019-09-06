@@ -851,10 +851,10 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     boolean isVoid = returnType is bir:BTypeNil;
     jvm:MethodVisitor mv;
     if (isVoid) {
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName,
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, cleanupFunctionName(lambdaName),
                                 io:sprintf("(%s[L%s;)V", closureMapsDesc, OBJECT), (), ());
     } else {
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName,
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, cleanupFunctionName(lambdaName),
                                 io:sprintf("(%s[L%s;)L%s;", closureMapsDesc, OBJECT, OBJECT), (), ());
     }
 
@@ -1259,7 +1259,7 @@ function getMainFunc(bir:Function?[] funcs) returns bir:Function? {
 function createFunctionPointer(jvm:MethodVisitor mv, string class, string lambdaName, boolean isVoid, int closureMapCount) {
     mv.visitTypeInsn(NEW, FUNCTION_POINTER);
     mv.visitInsn(DUP);
-    mv.visitInvokeDynamicInsn(class, lambdaName, isVoid, closureMapCount);
+    mv.visitInvokeDynamicInsn(class, cleanupFunctionName(lambdaName), isVoid, closureMapCount);
 
     // load null here for type, since these are fp's created for internal usages.
     mv.visitInsn(ACONST_NULL);
@@ -2282,11 +2282,11 @@ function logCompileError(error compileError, bir:Package|bir:TypeDef|bir:Functio
     string name;
     if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
         name = <string> detail.get("name");
-        err = error(io:sprintf("method is too large: '%s'", name));
         bir:Function? func = findBIRFunction(src, name);
         if (func is ()) {
             panic compileError;
         } else {
+            err = error(io:sprintf("method is too large: '%s'", func.name.value));
             pos = func.pos;
         }
     } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {

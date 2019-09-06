@@ -140,7 +140,7 @@ function openFileOverview(langClient: ExtendedLangClient) {
 			getCommonWebViewOptions()
 		);
 
-		ballerinaExtInstance.addWebviewPanel("file", fileOverviewPanel);
+		ballerinaExtInstance.addWebviewPanel('file', fileOverviewPanel);
 	}
 
 	fileOverviewRpcHandler = WebViewRPCHandler.create(fileOverviewPanel, langClient);

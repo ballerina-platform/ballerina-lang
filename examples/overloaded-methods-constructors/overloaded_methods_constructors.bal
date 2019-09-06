@@ -34,7 +34,7 @@ public function main() {
     var strBufferToAppend = newStringBuffer(java:fromString("and "));
     _ = appendString(strBufferToAppend, java:fromString("fun."));
 
-    // Append an instance of a `java.lang.StringBuffer` to another  `java.lang.StringBuffer` instance.
+    // Append an instance of a `java.lang.StringBuffer` to another `java.lang.StringBuffer` instance.
     _ = appendStringBuffer(strBuffer, strBufferToAppend);
 
     string? text = java:toString(strBuffer);
