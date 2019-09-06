@@ -597,7 +597,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.PULL);
+                printUsageInfo("dist-" + BallerinaCliCommands.PULL);
                 return;
             }
 
