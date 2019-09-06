@@ -3,7 +3,7 @@
 The `ballerina/config` module provides the Config API to read configurations from environment variables, TOML files, and command-line parameters and build a consolidated set of configurations.
 
 The precedence order for configuration lookup is as follows: 
-1. CLI configurations (used with the --)
+1. CLI arguments (used with the --)
 2. Environment variables 
 3. Configuration files in the TOML format
 

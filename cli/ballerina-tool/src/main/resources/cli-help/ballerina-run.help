@@ -56,9 +56,9 @@ OPTIONS
         documentation.
 	        
     --
-        The optional argument ‘--’ terminates all configs. Any succeeding 
-        arguments are treated as arguments of the program even if they start with '--'. 
-        This is required only if a specific arg needs to start with '--'.
+        The argument ‘--’ signals the end of Ballerina environment parameters.
+        Any arguments following '--' are treated as 
+        arguments to the program even if they start with '--'.
 
     args...
         The list of command line arguments for the Ballerina program
