@@ -1,2 +1,2 @@
-// Ballerina natively supports Kafka. Here is an example in which we create
-// a Kafka consumer group/group of concurrent consumers within a service.
+// Here is an example in which we create a Kafka consumer group/group
+// of concurrent consumers within a service.

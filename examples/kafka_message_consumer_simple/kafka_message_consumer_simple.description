@@ -1,2 +1,1 @@
-// Ballerina natively supports Kafka. Here is an example in which we create a
-// Kafka consumer service.
+// Here is an example in which we create a Kafka consumer service.
