@@ -963,7 +963,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             // Rest pattern in previous binding-pattern can bind to all the error details,
             // hence current error pattern is not reachable.
-            if (precedingErrVar.restDetail != null) {
+            if (precedingErrVar.restDetail != null && isDirectErrorBindingPattern(precedingErrVar)) {
                 return true;
             }
 
@@ -1004,6 +1004,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         return precedingVar.getKind() == NodeKind.VARIABLE;
+    }
+
+    private boolean isDirectErrorBindingPattern(BLangErrorVariable precedingErrVar) {
+        return precedingErrVar.typeNode == null;
     }
 
     /**
@@ -1810,17 +1814,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         analyzeExpr(fieldAccessExpr.expr);
-        if (fieldAccessExpr.expr.type.tag == TypeTags.XML) {
-            checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, fieldAccessExpr.pos);
-        }
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
-        if (indexAccessExpr.expr.type.tag == TypeTags.XML) {
-            checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ACCESS, indexAccessExpr.pos);
-        }
     }
 
     public void visit(BLangInvocation invocationExpr) {
@@ -2105,7 +2103,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
 
-        checkExperimentalFeatureValidity(ExperimentalFeatures.XML_ATTRIBUTES_ACCESS, xmlAttributeAccessExpr.pos);
         analyzeExpr(xmlAttributeAccessExpr.expr);
         analyzeExpr(xmlAttributeAccessExpr.indexExpr);
     }

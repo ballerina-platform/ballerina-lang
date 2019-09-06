@@ -44,55 +44,44 @@ public class Sort {
 
     public static ArrayValue sort(Strand strand, ArrayValue arr, FPValue<Object, Long> func) {
         checkIsArrayOnlyOperation(arr.getType(), "sort()");
-        return mergesort(arr, strand, func);
+        ArrayValue aux = new ArrayValue(arr.getType());
+        mergesort(arr, aux, 0, arr.size() - 1, strand, func);
+        return arr;
     }
 
-    // Adapted from https://algs4.cs.princeton.edu/14analysis/Mergesort.java.html
-    private static ArrayValue mergesort(ArrayValue input, Strand strand, FPValue<Object, Long> comparator) {
-        int n = input.size();
-
-        if (n <= 1) {
-            return input;
+    // Adapted from https://algs4.cs.princeton.edu/22mergesort/Merge.java.html
+    private static void mergesort(ArrayValue input, ArrayValue aux, int lo, int hi, Strand strand,
+                                  FPValue<Object, Long> comparator) {
+        if (hi <= lo) {
+            return;
         }
 
-        ArrayValue leftArr = new ArrayValue(input.getType());
-        ArrayValue rightArr = new ArrayValue(input.getType());
-        int leftArrSize = n / 2;
-        int rightArrSize = n - n / 2;
+        int mid = lo + (hi - lo) / 2;
+
+        mergesort(input, aux, lo, mid, strand, comparator);
+        mergesort(input, aux, mid + 1, hi, strand, comparator);
+
+        merge(input, aux, lo, mid, hi, strand, comparator);
+    }
+
+    private static void merge(ArrayValue input, ArrayValue aux, int lo, int mid, int hi, Strand strand,
+                              FPValue<Object, Long> comparator) {
         int elemTypeTag = input.elementType.getTag();
 
-        for (int i = 0; i < leftArrSize; i++) {
-            add(leftArr, elemTypeTag, i, input.get(i));
+        for (int i = lo; i <= hi; i++) {
+            add(aux, elemTypeTag, i, input.get(i));
         }
 
-        for (int i = 0; i < rightArrSize; i++) {
-            add(rightArr, elemTypeTag, i, input.get(i + n / 2));
-        }
-
-        return merge(mergesort(leftArr, strand, comparator),
-                     mergesort(rightArr, strand, comparator), strand, comparator);
-    }
-
-    private static ArrayValue merge(ArrayValue leftArr, ArrayValue rightArr, Strand strand,
-                                    FPValue<Object, Long> comparator) {
-        ArrayValue mergedArr = new ArrayValue(leftArr.getType());
-        int leftArrSize = leftArr.size();
-        int rightArrSize = rightArr.size();
-        int mergedArrSize = leftArrSize + rightArrSize;
-        int elemTypeTag = mergedArr.elementType.getTag();
-
-        for (int i = 0, j = 0, k = 0; k < mergedArrSize; k++) {
-            if (i >= leftArrSize) {
-                add(mergedArr, elemTypeTag, k, rightArr.get(j++));
-            } else if (j >= rightArrSize) {
-                add(mergedArr, elemTypeTag, k, leftArr.get(i++));
-            } else if (comparator.apply(new Object[]{strand, leftArr.get(i), true, rightArr.get(j), true}) <= 0) {
-                add(mergedArr, elemTypeTag, k, leftArr.get(i++));
+        for (int i = lo, j = mid + 1, k = lo; k <= hi; k++) {
+            if (i > mid) {
+                add(input, elemTypeTag, k, aux.get(j++));
+            } else if (j > hi) {
+                add(input, elemTypeTag, k, aux.get(i++));
+            } else if (comparator.apply(new Object[]{strand, aux.get(j), true, aux.get(i), true}) < 0) {
+                add(input, elemTypeTag, k, aux.get(j++));
             } else {
-                add(mergedArr, elemTypeTag, k, rightArr.get(j++));
+                add(input, elemTypeTag, k, aux.get(i++));
             }
         }
-
-        return mergedArr;
     }
 }

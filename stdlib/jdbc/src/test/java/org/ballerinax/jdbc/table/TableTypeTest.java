@@ -63,11 +63,11 @@ public class TableTypeTest {
     private static final String TABLE_TEST = "TableTest";
 
     private static final String TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD =
-            "Trying to assign a Nil value to a non-nillable field";
+            "trying to assign a Nil value to a non-nillable field";
     private static final String INVALID_UNION_FIELD_ASSIGNMENT =
-            "Corresponding Union type in the record is not an assignable nillable type";
+            "corresponding Union type in the record is not an assignable nillable type";
     private static final String TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_ARRAY_FIELD =
-            "Trying to assign an array containing NULL values to an array of a non-nillable element type";
+            "trying to assign an array containing NULL values to an array of a non-nillable element type";
     private static final double DELTA = 0.01;
 
     private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIRECTORY + DB_NAME_H2;
@@ -1314,7 +1314,7 @@ public class TableTypeTest {
         BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderInt", args);
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+        Assert.assertTrue(Pattern.matches(".*trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
     @Test(description = "Wrong order string test")
@@ -1322,7 +1322,7 @@ public class TableTypeTest {
         BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderString", args);
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+        Assert.assertTrue(Pattern.matches(".*trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
     @Test(description = "Wrong order boolean test")
@@ -1330,7 +1330,7 @@ public class TableTypeTest {
         BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderBoolean", args);
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+        Assert.assertTrue(Pattern.matches(".*trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
     @Test(description = "Wrong order float test")
@@ -1338,7 +1338,7 @@ public class TableTypeTest {
         BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderFloat", args);
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+        Assert.assertTrue(Pattern.matches(".*trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
     @Test(description = "Wrong order double test")
@@ -1346,7 +1346,7 @@ public class TableTypeTest {
         BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderDouble", args);
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+        Assert.assertTrue(Pattern.matches(".*trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
     @Test(description = "Wrong order long test")
@@ -1354,7 +1354,7 @@ public class TableTypeTest {
         BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderLong", args);
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+        Assert.assertTrue(Pattern.matches(".*trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
     @Test(description = "Wrong order blob test")
@@ -1362,7 +1362,7 @@ public class TableTypeTest {
         BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderBlobWrongOrder", args);
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+        Assert.assertTrue(Pattern.matches(".*trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
     @Test(description = "Correct order but wrong type blob test")
@@ -1370,7 +1370,7 @@ public class TableTypeTest {
         BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderBlobCorrectOrderWrongType", args);
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
+        Assert.assertTrue(Pattern.matches(".*trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
     @Test(description = "Greater number of parameters test")
@@ -1379,7 +1379,7 @@ public class TableTypeTest {
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
         Assert.assertTrue(Pattern.matches(
-                ".*Number of fields in the constraint type is greater than column count of the result set.*",
+                ".*number of fields in the constraint type is greater than column count of the result set.*",
                 retVal[0].stringValue()));
     }
 
@@ -1389,7 +1389,7 @@ public class TableTypeTest {
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
         Assert.assertTrue(Pattern.matches(
-                ".*Number of fields in the constraint type is lower than column count of the result set.*",
+                ".*number of fields in the constraint type is lower than column count of the result set.*",
                 retVal[0].stringValue()));
     }
 

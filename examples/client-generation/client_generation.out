@@ -2,7 +2,6 @@
 # `.bal` file, and execute the `ballerina build` command.
 $ ballerina build client_generation.bal
 Compiling source
-    client_generation.bal
-
-Generating executable
-    ./target/client_generation.balx
+        client_generation.bal 
+Generating executables
+        client_generation-executable.jar

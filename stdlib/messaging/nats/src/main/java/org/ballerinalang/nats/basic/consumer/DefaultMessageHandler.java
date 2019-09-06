@@ -33,9 +33,8 @@ import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
-import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
-import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.nats.Utils.bindDataToIntendedType;
 import static org.ballerinalang.nats.Utils.getAttachedFunction;
@@ -46,9 +45,8 @@ import static org.ballerinalang.nats.Utils.getAttachedFunction;
  * @since 1.0.0
  */
 public class DefaultMessageHandler implements MessageHandler {
-    /**
-     * Resource which the message should be dispatched.
-     */
+
+    // Resource which the message should be dispatched.
     private ObjectValue serviceObject;
     private Scheduler scheduler;
 
@@ -68,35 +66,55 @@ public class DefaultMessageHandler implements MessageHandler {
         AttachedFunction onMessage = getAttachedFunction(serviceObject, ON_MESSAGE_RESOURCE);
         BType[] parameterTypes = onMessage.getParameterType();
         if (parameterTypes.length == 1) {
-            Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE, new ResponseCallback(), null, msgObj,
-                    Boolean.TRUE);
+            dispatch(msgObj);
         } else {
             BType intendedTypeForData = parameterTypes[1];
-            dispatch(msgObj, intendedTypeForData, message.getData());
+            dispatchWithDataBinding(msgObj, intendedTypeForData, message.getData());
         }
 
     }
 
-    private void dispatch(ObjectValue msgObj, BType intendedType, byte[] data) {
-        AttachedFunction[] attachedFunctions = serviceObject.getType().getAttachedFunctions();
-        boolean onErrorResourcePresent = Arrays.stream(attachedFunctions)
-                .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
+    /**
+     * Dispatch only the message to the onMessage resource.
+     *
+     * @param msgObj Message object
+     */
+    private void dispatch(ObjectValue msgObj) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch),
+                null, msgObj, Boolean.TRUE);
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
+        }
+    }
+
+    /**
+     * Dispatch message and type bound data to the onMessage resource.
+     *
+     * @param msgObj       Message object
+     * @param intendedType Message type for data binding
+     * @param data         Message data
+     */
+    private void dispatchWithDataBinding(ObjectValue msgObj, BType intendedType, byte[] data) {
         try {
             Object typeBoundData = bindDataToIntendedType(data, intendedType);
-            Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE, new ResponseCallback(), null,
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE,
+                    new ResponseCallback(countDownLatch), null,
                     msgObj, true, typeBoundData, true);
+            countDownLatch.await();
         } catch (NumberFormatException e) {
-            if (onErrorResourcePresent) {
-                ErrorValue dataBindError = Utils
-                        .createNatsError("The received message is unsupported by the resource signature");
-                Executor.submit(scheduler, serviceObject, ON_ERROR_RESOURCE, new ResponseCallback(), null,
-                        msgObj, true, dataBindError, true);
-            }
+            ErrorValue dataBindError = Utils
+                    .createNatsError("The received message is unsupported by the resource signature");
+            ErrorHandler.dispatchError(serviceObject, scheduler, msgObj, dataBindError);
         } catch (ErrorValue e) {
-            if (onErrorResourcePresent) {
-                Executor.submit(scheduler, serviceObject, ON_ERROR_RESOURCE, new ResponseCallback(), null,
-                        msgObj, true, e, true);
-            }
+            ErrorHandler.dispatchError(serviceObject, scheduler, msgObj, e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
         }
     }
 
@@ -104,12 +122,18 @@ public class DefaultMessageHandler implements MessageHandler {
      * Represents the callback which will be triggered upon submitting to resource.
      */
     public static class ResponseCallback implements CallableUnitCallback {
+        private CountDownLatch countDownLatch;
+
+        ResponseCallback(CountDownLatch countDownLatch) {
+            this.countDownLatch = countDownLatch;
+        }
+
         /**
          * {@inheritDoc}
          */
         @Override
         public void notifySuccess() {
-            // Nothing to do on success
+            countDownLatch.countDown();
         }
 
         /**
@@ -118,8 +142,7 @@ public class DefaultMessageHandler implements MessageHandler {
         @Override
         public void notifyFailure(ErrorValue error) {
             ErrorHandlerUtils.printError(error);
+            countDownLatch.countDown();
         }
     }
 }
-
-

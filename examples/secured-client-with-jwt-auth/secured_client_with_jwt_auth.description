@@ -3,7 +3,10 @@
 // The `jwt:OutboundJWTAuthProvider` is initialized with/without passing
 // the JWT issuer configurations as a record. If the JWT issuer configurations
 // are passed, a new JWT will be issued and it will be used for the outbound
-// authentication. The `http:BearerAuthHandler` is initialized by  providing
+// authentication. If the JWT issuer configurations are not passed,
+// a JWT will be searched in `runtime:AuthenticationContext` and it will be
+// used for the outbound authentication.
+// The `http:BearerAuthHandler` is initialized by  providing
 // the created `jwt:OutboundBasicAuthProvider`. An additional `auth` field is
 // added to the HTTP client endpoint initialization in order to secure the
 // simple HTTP client endpoint.

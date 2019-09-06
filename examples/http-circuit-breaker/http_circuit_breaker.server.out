@@ -1,12 +1,12 @@
 # To start the services, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run http_circuit_breaker.bal
-[ballerina/http] started HTTP/WS listener 0.0.0.0:8080
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9090
-2018-04-23 15:35:04,407 INFO  [ballerina/http] - CircuitBreaker failure threshold exceeded. Circuit tripped from CLOSE to OPEN state.
-2018-04-23 15:35:31,257 INFO  [ballerina/http] - CircuitBreaker reset timeout reached. Circuit switched from OPEN to HALF_OPEN state.
-2018-04-23 15:35:33,032 INFO  [ballerina/http] - CircuitBreaker trial run  was successful. Circuit switched from HALF_OPEN to CLOSE state.
-2018-04-23 15:35:37,621 INFO  [ballerina/http] - CircuitBreaker failure threshold exceeded. Circuit tripped from CLOSE to OPEN state.
-2018-04-23 15:35:38,041 ERROR [] - Error sending response from mock service : {ballerina/http}HTTPError {message:"Connection between remote client and host is closed"}
-2018-04-23 15:35:50,612 INFO  [ballerina/http] - CircuitBreaker reset timeout reached. Circuit switched from OPEN to HALF_OPEN state.
-2018-04-23 15:35:51,613 INFO  [ballerina/http] - CircuitBreaker trial run  was successful. Circuit switched from HALF_OPEN to CLOSE state.
+[ballerina/http] started HTTP/WS listener 0.0.0.0:8080
+2019-09-04 17:08:02,595 INFO  [ballerina/log] - CircuitBreaker failure threshold exceeded. Circuit tripped from CLOSE to OPEN state.
+2019-09-04 17:08:12,514 INFO  [ballerina/log] - CircuitBreaker reset timeout reached. Circuit switched from OPEN to HALF_OPEN state.
+2019-09-04 17:08:14,993 INFO  [ballerina/log] - CircuitBreaker trial run  was successful. Circuit switched from HALF_OPEN to CLOSE state.
+2019-09-04 17:08:20,003 ERROR [ballerina/log] - Error sending response from mock service : error {ballerina/http}GenericListenerError message=Connection between remote client and host is closed
+2019-09-04 17:08:22,082 INFO  [ballerina/log] - CircuitBreaker failure threshold exceeded. Circuit tripped from CLOSE to OPEN state.
+2019-09-04 17:08:32,755 INFO  [ballerina/log] - CircuitBreaker reset timeout reached. Circuit switched from OPEN to HALF_OPEN state.
+2019-09-04 17:08:35,268 INFO  [ballerina/log] - CircuitBreaker trial run  was successful. Circuit switched from HALF_OPEN to CLOSE state.

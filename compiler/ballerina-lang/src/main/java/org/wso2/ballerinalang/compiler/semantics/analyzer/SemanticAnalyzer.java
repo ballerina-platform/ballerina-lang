@@ -178,6 +178,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private StreamsQuerySemanticAnalyzer streamsQuerySemanticAnalyzer;
     private BLangDiagnosticLog dlog;
     private TypeNarrower typeNarrower;
+    private ConstantAnalyzer constantAnalyzer;
     private ConstantValueResolver constantValueResolver;
 
     private SymbolEnv env;
@@ -210,6 +211,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.streamsQuerySemanticAnalyzer = StreamsQuerySemanticAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
+        this.constantAnalyzer = ConstantAnalyzer.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
     }
 
@@ -2404,55 +2406,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
         }
 
-        BLangExpression expression = constant.expr;
-        if (!symbolEnter.isValidConstantExpression(expression)) {
-            dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
-            return;
-        }
 
         constant.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.CONST);
             annotationAttachment.accept(this);
         });
 
-        if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR && constant.typeNode == null) {
+        BLangExpression expression = constant.expr;
+        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
+                && constant.typeNode == null) {
             constant.type = symTable.semanticError;
-            dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
-            return;
+            dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
+            return; // This has to return, because constant.symbol.type is required for further validations.
         }
 
         typeChecker.checkExpr(expression, env, constant.symbol.type);
 
         // Check nested expressions.
-        checkConstantExpression(expression);
-    }
-
-    // Private methods
-
-    private void checkConstantExpression(BLangExpression expression) {
-        // Recursively check whether all the nested expressions in the provided expression are constants or can be
-        // evaluated to constants.
-        switch (expression.getKind()) {
-            case LITERAL:
-            case NUMERIC_LITERAL:
-                break;
-            case SIMPLE_VARIABLE_REF:
-                BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
-                // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
-                if (symbol != null && (symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
-                    dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
-                }
-                break;
-            case RECORD_LITERAL_EXPR:
-                ((BLangRecordLiteral) expression).keyValuePairs.forEach(pair -> {
-                    checkConstantExpression(pair.key.expr);
-                    checkConstantExpression(pair.valueExpr);
-                });
-                break;
-            default:
-                dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
-                break;
-        }
+        constantAnalyzer.visit(constant);
     }
 
     // TODO: 7/10/19 Remove this once const support is added for lists. A separate method is introduced temporarily
@@ -2660,7 +2631,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
             if (annotationSymbol.points.stream().anyMatch(attachPoint -> !attachPoint.source)) {
-                checkConstantExpression(annAttachmentNode.expr);
+                constantAnalyzer.analyzeExpr(annAttachmentNode.expr);
                 return;
             }
             checkAnnotConstantExpression(annAttachmentNode.expr);

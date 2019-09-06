@@ -30,38 +30,41 @@ import org.ballerinalang.nats.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 
 /**
- * Extern function to stop the NATS subscriber.
+ * Extern function to gracefully stop the NATS subscriber.
  *
- * @since 0.995
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "nats",
-        functionName = "stop",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
-                structPackage = "ballerina/nats"),
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.NATS,
+        functionName = "gracefulStop",
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = Constants.NATS_LISTENER,
+                structPackage = Constants.NATS_PACKAGE),
         isPublic = true
 )
-public class Stop {
+public class GracefulStop {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Stop.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GracefulStop.class);
 
-    public static void stop(Strand strand, ObjectValue listenerObject) {
+    public static void gracefulStop(Strand strand, ObjectValue listenerObject) {
         ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
         if (connectionObject == null) {
-            LOG.debug("Connection object reference not exists. Possibly connection already closed.");
+            LOG.debug("Connection object reference does not exist. Possibly the connection is already closed.");
             return;
         }
         Connection natsConnection =
                 (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
         if (natsConnection == null) {
-            LOG.debug("NATS connection not exists. Possibly connection already closed.");
-            listenerObject.set(Constants.CONNECTION_OBJ, null);
+            LOG.debug("NATS connection does not exist. Possibly the connection is already closed.");
             return;
         }
         @SuppressWarnings("unchecked")
@@ -72,11 +75,16 @@ public class Stop {
                 ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
 
         if (clientsCount == 0) {
-            // Actual NATS connection is not used in any other clients. So we can close the actual connection.
             try {
-                natsConnection.close();
+                // Wait for the drain to succeed, passed 0 to wait forever.
+                natsConnection.drain(Duration.ZERO);
             } catch (InterruptedException e) {
-                throw Utils.createNatsError("Listener interrupted while closing NATS connection");
+                Thread.currentThread().interrupt();
+                throw Utils.createNatsError("Listener interrupted on graceful stop.");
+            } catch (TimeoutException e) {
+                throw Utils.createNatsError("Timeout error occurred, on graceful stop.");
+            } catch (IllegalStateException e) {
+                throw Utils.createNatsError("Connection is already closed.");
             }
         }
     }

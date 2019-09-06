@@ -50,6 +50,8 @@ function testBasicErrorVariable2() {
 
     var error (reason11, ... detail11) = err1;
     var error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
+    var error (reason13, message = message, ...rest) = err1;
+    var error (reason14, message = message, ...rest2) = err1;
 
     int detail = detail11; // incompatible types: expected 'int', found 'map<anydata|error>'
     var error (reason11, detail = detail11) = 12; // invalid error variable; expecting an error type but found 'int' in type definition
