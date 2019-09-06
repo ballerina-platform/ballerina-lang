@@ -189,10 +189,20 @@ public class TypeMatchingUtil {
                             propertyType.setPropertyType(
                                     delimeterizeUnescapedIdentifires(
                                             StringUtils.capitalize(ref[ref.length - 1]), false));
+                        } else if (schemaObj.getAdditionalProperties() != null
+                                && schemaObj.getAdditionalProperties() instanceof  Schema) {
+                            Schema addSchema = (Schema) schemaObj.getAdditionalProperties();
+
+                            if (addSchema.get$ref() != null) {
+                                String[] ref = addSchema.get$ref().split("/");
+                                propertyType.setPropertyType(
+                                        delimeterizeUnescapedIdentifires(
+                                                StringUtils.capitalize(ref[ref.length - 1]), false));
+                            }
                         }
                         break;
                     default:
-                        outStream.println(type);
+                        outStream.println("Unsupported schema type " + type);
                         break;
                 }
             } else if (schema.get$ref() != null) {
@@ -254,7 +264,7 @@ public class TypeMatchingUtil {
                     StringUtils.capitalize(refArray[refArray.length - 1]), false));
             schemaType.setUnescapedItemName(refArray[refArray.length - 1].toLowerCase(Locale.ENGLISH));
             schemaType.setItemName(delimeterizeUnescapedIdentifires(
-                    refArray[refArray.length - 1].toLowerCase(Locale.ENGLISH), false));
+                    refArray[refArray.length - 1].toLowerCase(Locale.ENGLISH), true));
         }
     }
 
@@ -400,7 +410,8 @@ public class TypeMatchingUtil {
      * @return escaped string
      */
     public static String delimeterizeUnescapedIdentifires(String identifier, boolean isVar) {
-        if (identifier.matches("^[a-zA-Z0-9_]*$") && !BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
+        if (identifier.matches("^[a-zA-Z0-9_]*$")
+                && !BAL_KEYWORDS.stream().anyMatch(identifier::equals) && !isVar) {
             return identifier;
         }
         if (!identifier.matches("[a-zA-Z]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
