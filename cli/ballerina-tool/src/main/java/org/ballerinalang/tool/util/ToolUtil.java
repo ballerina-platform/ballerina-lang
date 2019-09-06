@@ -274,12 +274,6 @@ public class ToolUtil {
         }
     }
 
-    public static void selfUpdate(PrintStream printStream) {
-        //TODO: Need to implement
-        printStream.println("Self update service is not availalble. " +
-                "Please visit https://ballerina.io/downloads/ to get latest tools");
-    }
-
     public static void remove(PrintStream outStream, String version) {
         boolean isCurrentVersion = false;
         try {
