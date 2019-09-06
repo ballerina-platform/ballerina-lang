@@ -26,8 +26,8 @@ function testLength() returns int {
     return "Hello Ballerina!".length();
 }
 
-function testSubString() returns string {
-    return str.substring(6, 9);
+function testSubString() returns [string,string, string] {
+    return [str.substring(6, 9), str.substring(6), strings:substring(str,6)];
 }
 
 function testIterator() returns string[] {
