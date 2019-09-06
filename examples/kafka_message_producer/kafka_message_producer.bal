@@ -19,8 +19,9 @@ import ballerina/log;
 
 kafka:ProducerConfig producerConfigs = {
     // Here we create a producer configs with optional parameters client.id - used for broker side logging.
-    // acks - number of acknowledgments for request complete,
-    // noRetries - number of retries if record send fails.
+    // `acks` - number of acknowledgments for request complete,
+    // `noRetries` - number of retries if record send fails.
+    // `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
     bootstrapServers: "localhost:9092",
     clientId:"basic-producer",
     acks:"all",
@@ -34,11 +35,11 @@ public function main () {
     byte[] serializedMsg = msg.toBytes();
     var sendResult = kafkaProducer->send(serializedMsg, "test-kafka-topic");
     if (sendResult is error) {
-        log:printError("Kafka producer failed to send data", err = sendResult);
+        log:printError("Kafka producer failed to send data", sendResult);
     }
     var flushResult = kafkaProducer->flushRecords();
     if (flushResult is error) {
-        log:printError("Kafka producer failed to flush the records", err = flushResult);
+        log:printError("Kafka producer failed to flush the records", flushResult);
     }
 }
 

@@ -14,11 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/kafka;
 import ballerina/io;
+import ballerina/kafka;
 import ballerina/lang.'string as strings;
 import ballerina/log;
 
+// `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
 kafka:ConsumerConfig consumerConfigs = {
     bootstrapServers: "localhost:9092",
     groupId: "group-id",
@@ -39,7 +40,7 @@ service kafkaService on consumer {
         // Commit offsets returned for returned records, marking them as consumed.
         var commitResult = kafkaConsumer->commit();
         if (commitResult is error) {
-            log:printError("Error occurred while committing the offsets for the consumer ", err = commitResult);
+            log:printError("Error occurred while committing the offsets for the consumer ", commitResult);
         }
     }
 }

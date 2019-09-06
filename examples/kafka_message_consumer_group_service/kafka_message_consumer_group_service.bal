@@ -14,11 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/kafka;
 import ballerina/io;
+import ballerina/kafka;
 import ballerina/lang.'string as strings;
 import ballerina/log;
 
+// `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
 kafka:ConsumerConfig consumerConfigs = {
     bootstrapServers: "localhost:9092",
     concurrentConsumers: 2,
