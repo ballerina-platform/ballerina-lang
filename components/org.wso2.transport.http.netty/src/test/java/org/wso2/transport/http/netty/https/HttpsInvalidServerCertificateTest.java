@@ -57,6 +57,9 @@ public class HttpsInvalidServerCertificateTest {
 
     @BeforeClass
     public void setup() {
+        httpsServer = TestUtil.startHttpsServer(TestUtil.HTTPS_SERVER_PORT,
+                                                new MockServerInitializer(testValue, TEXT_PLAIN, 200));
+
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         String trustStoreFilePath = "/simple-test-config/cacerts.p12";
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
@@ -64,8 +67,6 @@ public class HttpsInvalidServerCertificateTest {
         senderConfiguration.setTrustStorePass(trustStorePassword);
         senderConfiguration.setHostNameVerificationEnabled(false);
         senderConfiguration.setScheme(HTTPS_SCHEME);
-        httpsServer = TestUtil.startHttpsServer(TestUtil.HTTPS_SERVER_PORT,
-                new MockServerInitializer(testValue, TEXT_PLAIN, 200));
         connectorFactory = new DefaultHttpWsConnectorFactory();
         httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
@@ -82,7 +83,7 @@ public class HttpsInvalidServerCertificateTest {
             assertNotNull(listener.getThrowables());
             assertEquals(listener.getThrowables().get(0).getMessage(),
                     "SSL connection failed:unable to find valid certification path to requested "
-                            + "targetlocalhost/127.0.0.1:9004");
+                            + "target localhost/127.0.0.1:9004");
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running HttpsCertificateInvalid test case", e);
         }
