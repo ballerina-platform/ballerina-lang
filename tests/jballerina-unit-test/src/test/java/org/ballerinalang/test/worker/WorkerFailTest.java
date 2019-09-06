@@ -91,12 +91,23 @@ public class WorkerFailTest {
     }
 
     @Test
-    public void invalidReciveWithErrorReturnTest() {
+    public void invalidReceiveWithErrorReturnTest() {
         CompileResult result =
                 BCompileUtil.compile("test-src/workers/invalid-receive-with-error-return.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
         Assert.assertTrue(message.contains("incompatible types"), message);
+    }
+
+    @Test
+    public void invalidReceiveWithErrorUnionReturnTest() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/workers/invalid_receive_with_union_error_return_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'TrxError?', found 'FooError?'", 46, 29);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'TrxError?', " +
+                                          "found '(FooError|TrxError)?'", 47, 19);
+        BAssertUtil.validateError(result, 2, "incompatible types: expected '()', found '(FooError|TrxError)?'", 48, 16);
     }
 
     @Test

@@ -21,7 +21,6 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
@@ -43,6 +42,7 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.MimeConstants.MAX_THRESHOLD_PERCENTAGE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 
 /**
@@ -66,7 +66,8 @@ public class MultipartDecoder {
                 populateBallerinaParts(entity, mimeParts);
             }
         } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error occurred while decoding body parts from inputstream " + e.getMessage());
+            throw MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
+                                       "Error occurred while decoding body parts from inputstream " + e.getMessage());
         }
     }
 

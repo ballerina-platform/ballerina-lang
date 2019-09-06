@@ -20,22 +20,11 @@ package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.nats.basic.consumer.DefaultMessageHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.nats.Constants;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.List;
 
-import static org.ballerinalang.nats.Constants.NATS_ERROR_CODE;
-import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
-import static org.ballerinalang.nats.Utils.getMessageObject;
 
 /**
  * ConnectionListener to track the status of a {@link Connection Connection}.
@@ -45,57 +34,55 @@ import static org.ballerinalang.nats.Utils.getMessageObject;
 public class DefaultConnectionListener implements ConnectionListener {
 
     private static final PrintStream console;
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultConnectionListener.class);
-    private final Scheduler scheduler;
-    private final List<ObjectValue> serviceList;
+    private boolean printDisconnected = true;
 
-    DefaultConnectionListener(Scheduler scheduler, List<ObjectValue> serviceList) {
-        this.scheduler = scheduler;
-        this.serviceList = serviceList;
+    DefaultConnectionListener() {
     }
 
     @Override
     public void connectionEvent(Connection conn, Events type) {
         switch (type) {
-            case CONNECTED : {
-                console.println("[ballerina/nats] Connection established with server "
-                        + conn.getConnectedUrl());
+            case CONNECTED: {
+                // The connection has successfully completed the handshake with the gnatsd
+                printToConsole("Connection established with server " + conn.getConnectedUrl());
                 break;
             }
             case CLOSED: {
-                String message = conn.getLastError() != null ? "Connection closed." + conn.getLastError() :
-                        "Connection closed.";
-                ErrorValue errorValue = BallerinaErrors.createError(NATS_ERROR_CODE, message);
-                LOG.warn(message);
-                for (ObjectValue service : serviceList) {
-                    boolean onErrorResourcePresent = Arrays.stream(service.getType().getAttachedFunctions())
-                            .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
-                    if (onErrorResourcePresent) {
-                        Executor.submit(scheduler, service, ON_ERROR_RESOURCE,
-                                new DefaultMessageHandler.ResponseCallback(), null, getMessageObject(null),
-                                Boolean.TRUE, errorValue, Boolean.TRUE);
-                    }
-                }
+                // The connection is permanently closed, either by manual action or failed reconnects
+                printToConsole(conn.getLastError() != null ? "Connection closed." + conn.getLastError() :
+                        "Connection closed.");
                 break;
             }
             case RECONNECTED: {
-                LOG.debug("Connection reconnected with server " + conn.getConnectedUrl());
+                // The connection was connected, lost its connection and successfully reconnected
+                printToConsole("Connection reconnected with server " + conn.getConnectedUrl());
+                printDisconnected = true;
                 break;
             }
             case DISCONNECTED: {
-                LOG.debug("Connection disconnected with server " + conn.getConnectedUrl());
+                // The connection lost its connection, but may try to reconnect if configured to.
+                if (printDisconnected) {
+                    printToConsole("Connection disconnected with server " + conn.getLastError());
+                    printDisconnected = false;
+                }
                 break;
             }
             case RESUBSCRIBED: {
-                LOG.debug("Subscriptions reestablished with server " + conn.getConnectedUrl());
+                // The connection was reconnected and the server has been notified of all subscriptions
+                printToConsole("Subscriptions re-established with server " + conn.getConnectedUrl());
                 break;
             }
             case DISCOVERED_SERVERS: {
-                LOG.debug("Server discovered. List of connected servers "
+                // The connection was told about new servers from, from the current server.
+                printToConsole("Server discovered. List of connected servers "
                         + Arrays.toString(conn.getServers().toArray()));
                 break;
             }
         }
+    }
+
+    private void printToConsole(String message) {
+        console.println(Constants.MODULE + message);
     }
 
     static {

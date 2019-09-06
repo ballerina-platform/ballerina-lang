@@ -19,17 +19,18 @@
 package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +92,8 @@ public class EntityBodyHandler {
         try {
             fileChannel = (FileChannel) Files.newByteChannel(path, options);
         } catch (IOException e) {
-            throw new BallerinaException("Error occurred while creating a file channel from a temporary file");
+            throw BallerinaErrors.createError(IOConstants.ErrorCode.GenericError.errorCode(),
+                                              "Error occurred while creating a file channel from a temporary file");
         }
         return new TempFileIOChannel(fileChannel, temporaryFilePath);
     }
@@ -164,7 +166,7 @@ public class EntityBodyHandler {
         try {
             byteData = MimeUtil.getByteArray(inputStream);
         } catch (IOException ex) {
-            throw new BallerinaException("Error occurred while reading input stream :" + ex.getMessage());
+            throw BallerinaErrors.createError("Error occurred while reading input stream :" + ex.getMessage());
         }
         return new ArrayValue(byteData);
     }
@@ -183,7 +185,7 @@ public class EntityBodyHandler {
         try {
             return constructJsonDataSource(entityObj, byteChannel.getInputStream());
         } catch (IOException e) {
-            throw new BallerinaException(e.getMessage());
+            throw BallerinaErrors.createError(e.getMessage());
         } finally {
             closeByteChannel(byteChannel);
         }
@@ -221,12 +223,12 @@ public class EntityBodyHandler {
     public static XMLValue constructXmlDataSource(ObjectValue entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            throw new BallerinaException("Empty xml payload");
+            throw BallerinaErrors.createError("Empty xml payload");
         }
         try {
             return constructXmlDataSource(entityObj, byteChannel.getInputStream());
         } catch (IOException e) {
-            throw new BallerinaException(e.getMessage());
+            throw BallerinaErrors.createError(e.getMessage());
         } finally {
             closeByteChannel(byteChannel);
         }
@@ -264,12 +266,12 @@ public class EntityBodyHandler {
     public static String constructStringDataSource(ObjectValue entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            throw new BallerinaException("String payload is null");
+            throw BallerinaErrors.createError("String payload is null");
         }
         try {
             return constructStringDataSource(entityObj, byteChannel.getInputStream());
         } catch (IOException e) {
-            throw new BallerinaException(e.getMessage());
+            throw BallerinaErrors.createError(e.getMessage());
         } finally {
             closeByteChannel(byteChannel);
         }

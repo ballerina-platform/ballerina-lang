@@ -570,6 +570,33 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                                     getCurrentPos(ctx.Identifier()), isPublic, isTypeAvailable);
     }
 
+    @Override
+    public void exitConstDivMulModExpression(BallerinaParser.ConstDivMulModExpressionContext ctx) {
+
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+    @Override
+    public void exitConstAddSubExpression(BallerinaParser.ConstAddSubExpressionContext ctx) {
+
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+    @Override
+    public void exitConstGroupExpression(BallerinaParser.ConstGroupExpressionContext ctx) {
+
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.createGroupExpression(getCurrentPos(ctx), getWS(ctx));
+    }
+
     /**
      * {@inheritDoc}
      */

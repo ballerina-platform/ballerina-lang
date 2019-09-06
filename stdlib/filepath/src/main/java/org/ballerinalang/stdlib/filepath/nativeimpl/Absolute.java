@@ -44,7 +44,7 @@ public class Absolute {
             String absolutePath = FileSystems.getDefault().getPath(inputPath).toAbsolutePath().toString();
             return  absolutePath;
         } catch (InvalidPathException ex) {
-            return Utils.getPathError("INVALID_PATH", ex);
+            return Utils.getPathError(Constants.INVALID_PATH_ERROR, "Invalid path " + inputPath);
         }
     }
 

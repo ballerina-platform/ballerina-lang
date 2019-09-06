@@ -22,7 +22,7 @@ int forceOpenStateCount = 0;
 
 listener http:Listener circuitBreakerEP01 = new(9307);
 
-http:ClientEndpointConfig conf01 = {
+http:ClientConfiguration conf01 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowInMillis: 60000,

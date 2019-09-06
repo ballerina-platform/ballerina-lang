@@ -33,10 +33,11 @@ public class OpenApiMesseges {
     public static final String OPENAPI_CLIENT_EXCEPTION = "Error occurred when generating client for openapi contract";
 
 
-    public static final String CONTRACT_SERVICE_MANDATORY = "A service name is mandatory to generate an " +
-            "OpenApi contract.";
-    public static final String CONTRACT_BALLERINA_DOC_MANDATORY = "Please specify a ballerina document path in " +
-            "order generate an OpenApi contract for the service ";
+    public static final String CONTRACT_SERVICE_MANDATORY = "A service name is mandatory to generate an OpenApi " +
+            "contract. \nballerina openapi gen-contract [moduleName]:serviceName [-i: ballerinaFile]";
+    public static final String CONTRACT_BALLERINA_DOC_MANDATORY = "Please specify a ballerina document path in" +
+            " order generate an OpenApi contract for the service \nballerina openapi gen-contract " +
+            "[moduleName]:serviceName [-i: ballerinaFile]";
 
 
 
@@ -74,7 +75,7 @@ public class OpenApiMesseges {
             "private", "public", "record", "remote", "resource", "retries", "retry", "return", "returns", "service",
             "source", "start", "stream", "string", "table", "transaction", "try", "type", "typedesc", "typeof",
             "trap", "throw", "wait", "while", "with", "worker", "var", "version", "xml", "xmlns", "BOOLEAN_LITERAL",
-            "NULL_LITERAL", "ascending", "descending", "foreach", "map"};
+            "NULL_LITERAL", "ascending", "descending", "foreach", "map", "group", "from", "default"};
 
     public static final List<String> BAL_KEYWORDS;
     static {

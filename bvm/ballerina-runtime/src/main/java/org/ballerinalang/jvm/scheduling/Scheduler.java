@@ -238,6 +238,7 @@ public class Scheduler {
             } catch (Throwable e) {
                 panic = e;
                 notifyChannels(item, panic);
+              
                 if (!(e instanceof ErrorValue)) {
                     RuntimeUtils.printCrashLog(e);
                 }

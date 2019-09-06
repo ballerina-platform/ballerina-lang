@@ -250,6 +250,7 @@ public abstract class LSCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.DEF_MAIN_FUNCTION));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSOCKET));
+        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WS_CLIENT));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSUB));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_GRPC));
         completionItems.add(getStaticItem(context, Snippet.DEF_ANNOTATION));
@@ -551,25 +552,48 @@ public abstract class LSCompletionProvider {
             return items;
         }
         BLangService service = (BLangService) symbolEnvNode;
-        
+
         if (service.listenerType == null) {
-            items.add(Snippet.DEF_RESOURCE_COMMON.get().build(ctx));
+            Optional<Boolean> webSocketClientService = isWebSocketClientService(service);
+            if (webSocketClientService.isPresent()) {
+                if (webSocketClientService.get()) {
+                    // Is a 'ws' client service
+                    addAllWSClientResources(ctx, items, service);
+                } else {
+                    // Is a 'ws' service
+                    addAllWSResources(ctx, items, service);
+                }
+            } else {
+                // Is ambiguous, suggest for all 'ws', 'ws-client' and 'http' services
+                items.add(Snippet.DEF_RESOURCE_HTTP.get().build(ctx));
+                items.add(Snippet.DEF_RESOURCE_COMMON.get().build(ctx));
+                addAllWSClientResources(ctx, items, service);
+                addAllWSResources(ctx, items, service);
+            }
             return items;
         }
-        
+
         String owner = service.listenerType.tsymbol.owner.name.value;
         String serviceTypeName = service.listenerType.tsymbol.name.value;
-        
+
         // Only http, grpc have generic resource templates, others will have generic resource snippet
         switch (owner) {
             case "http":
                 if ("Listener".equals(serviceTypeName)) {
-                    items.add(Snippet.DEF_RESOURCE_HTTP.get().build(ctx));
-                    break;
-                } else if ("WebSocketListener".equals(serviceTypeName)) {
-                    addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
-                    addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
-                    addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
+                    Optional<Boolean> webSocketService = isWebSocketService(service);
+                    if (webSocketService.isPresent()) {
+                        if (webSocketService.get()) {
+                            // Is a 'ws' service
+                            addAllWSResources(ctx, items, service);
+                        } else {
+                            // Is a 'http' service
+                            items.add(Snippet.DEF_RESOURCE_HTTP.get().build(ctx));
+                        }
+                    } else {
+                        // Is ambiguous, suggest both 'ws' and 'http'
+                        addAllWSResources(ctx, items, service);
+                        items.add(Snippet.DEF_RESOURCE_HTTP.get().build(ctx));
+                    }
                     break;
                 }
                 return items;
@@ -577,8 +601,7 @@ public abstract class LSCompletionProvider {
                 items.add(Snippet.DEF_RESOURCE_GRPC.get().build(ctx));
                 break;
             case "websub":
-                addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
-                addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
+                addAllWebsubResources(ctx, items, service);
                 break;
             default:
                 items.add(Snippet.DEF_RESOURCE_COMMON.get().build(ctx));
@@ -586,7 +609,34 @@ public abstract class LSCompletionProvider {
         }
         return items;
     }
-    
+
+    private void addAllWebsubResources(LSContext ctx, List<CompletionItem> items, BLangService service) {
+        addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
+    }
+
+    private void addAllWSClientResources(LSContext ctx, List<CompletionItem> items, BLangService service) {
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_TEXT.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_BINARY.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_PING.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_PONG.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_IDLE.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_ERROR.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_CLOSE.get(), service, items, ctx);
+    }
+
+    private void addAllWSResources(LSContext ctx, List<CompletionItem> items, BLangService service) {
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_BINARY.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_PING.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_PONG.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_IDLE.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_ERROR.get(), service, items, ctx);
+        addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
+    }
+
+
     protected Optional<SymbolInfo> getPackageSymbolFromAlias(LSContext context, String alias) {
         List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         if (alias.isEmpty()) {
@@ -651,6 +701,13 @@ public abstract class LSCompletionProvider {
         return tokenSize > 2 && defaultTokens.contains(BallerinaParser.FUNCTION) &&
                 (defaultTokens.get(tokenSize - 1) == BallerinaParser.RIGHT_PARENTHESIS
                 || defaultTokens.get(tokenSize - 2) == BallerinaParser.RIGHT_PARENTHESIS);
+    }
+
+    protected boolean isAnnotationAccessExpression(LSContext context) {
+        List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        int annotationAccessIndex = defaultTokenTypes.indexOf(BallerinaParser.ANNOTATION_ACCESS);
+
+        return annotationAccessIndex > -1;
     }
     // Private Methods
 
@@ -924,10 +981,59 @@ public abstract class LSCompletionProvider {
         return false;
     }
 
+    /**
+     * Returns a websocket service or not.
+     *
+     * Currently, both 'websocket' and 'http' services are attached into a common http:Listener.
+     * Thus, need to distinguish both.
+     *
+     * @param service   service
+     * @return  Optional boolean, empty when service has zero resources(ambiguous).
+     */
+    private Optional<Boolean> isWebSocketService(BLangService service) {
+        List<BLangFunction> resources = service.getResources();
+        if (resources.isEmpty()) {
+            return Optional.empty();
+        }
+        BLangFunction resource = resources.get(0);
+        if (!resource.requiredParams.isEmpty()) {
+            BLangType typeNode = resource.requiredParams.get(0).typeNode;
+            if (typeNode instanceof BLangUserDefinedType) {
+                BLangUserDefinedType node = (BLangUserDefinedType) typeNode;
+                if ("WebSocketCaller".equals(node.typeName.value)) {
+                    return Optional.of(true);
+                } else if ("Caller".equals(node.typeName.value)) {
+                    return Optional.of(false);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Boolean> isWebSocketClientService(BLangService service) {
+        List<BLangFunction> resources = service.getResources();
+        if (resources.isEmpty()) {
+            return Optional.empty();
+        }
+        BLangFunction resource = resources.get(0);
+        if (!resource.requiredParams.isEmpty()) {
+            BLangType typeNode = resource.requiredParams.get(0).typeNode;
+            if (typeNode instanceof BLangUserDefinedType) {
+                BLangUserDefinedType node = (BLangUserDefinedType) typeNode;
+                if ("WebSocketClient".equals(node.typeName.value)) {
+                    return Optional.of(true);
+                } else if ("WebSocketCaller".equals(node.typeName.value)) {
+                    return Optional.of(false);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     private void addIfNotExists(SnippetBlock snippet, BLangService service, List<CompletionItem> items, LSContext ctx) {
         boolean found = false;
         for (BLangFunction resource : service.getResources()) {
-            if (snippet.getLabel().equals(resource.name.value + " " + ItemResolverConstants.RESOURCE)) {
+            if (snippet.getLabel().endsWith(resource.name.value + " " + ItemResolverConstants.RESOURCE)) {
                 found = true;
             }
         }

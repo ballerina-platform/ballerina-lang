@@ -89,18 +89,22 @@ public class StatementContextProvider extends LSCompletionProvider {
             return this.getProvider(BallerinaParser.WorkerDeclarationContext.class).getCompletions(context);
         }
 
-        // Add the visible static completion items
-        ArrayList<CompletionItem> completionItems = new ArrayList<>(getStaticCompletionItems(context));
-        // Add the statement templates
-        Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters.get(StatementTemplateFilter.class)
-                .filterItems(context);
+        Boolean forceRemovedStmt = context.get(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        if (forceRemovedStmt == null || !forceRemovedStmt) {
+            // Add the visible static completion items
+            completionItems.addAll(getStaticCompletionItems(context));
+            // Add the statement templates
+            Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters.get(StatementTemplateFilter.class)
+                    .filterItems(context);
+            completionItems.addAll(this.getCompletionItemList(itemList, context));
+            completionItems.addAll(this.getTypeguardDestructuredItems(filteredList, context));
+        }
 
-        completionItems.addAll(this.getCompletionItemList(itemList, context));
         filteredList.removeIf(this.attachedOrSelfKeywordFilter());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
-        completionItems.addAll(this.getTypeguardDestructuredItems(filteredList, context));
         // Now we need to sort the completion items and populate the completion items specific to the scope owner
         // as an example, resource, action, function scopes are different from the if-else, while, and etc
         Class itemSorter = context.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
@@ -179,13 +183,6 @@ public class StatementContextProvider extends LSCompletionProvider {
                     return new SnippetBlock(label, snippet.toString(), detail,
                             SnippetBlock.SnippetType.SNIPPET).build(ctx);
                 }).collect(Collectors.toList());
-    }
-    
-    private boolean isAnnotationAccessExpression(LSContext context) {
-        List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
-        int annotationAccessIndex = defaultTokenTypes.indexOf(BallerinaParser.ANNOTATION_ACCESS);
-
-        return annotationAccessIndex > -1;
     }
 }
 

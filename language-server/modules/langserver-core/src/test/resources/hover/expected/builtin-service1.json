@@ -1,0 +1,12 @@
+{
+    "result": {
+        "contents": {
+            "kind": "markdown",
+            "value": "**Description**  \n  \nThis is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to  \nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations.  \n  \n"
+        }
+    },
+    "id": {
+        "left": "324"
+    },
+    "jsonrpc": "2.0"
+}

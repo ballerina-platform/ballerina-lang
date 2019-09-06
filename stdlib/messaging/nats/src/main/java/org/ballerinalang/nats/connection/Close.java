@@ -40,10 +40,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 0.995
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "nats",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.NATS,
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/nats"),
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = "Connection",
+                structPackage = Constants.NATS_PACKAGE),
         isPublic = true
 )
 public class Close {

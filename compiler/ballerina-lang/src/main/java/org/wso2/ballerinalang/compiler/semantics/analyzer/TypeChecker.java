@@ -1090,7 +1090,28 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (expType == symTable.noType) {
-            resultType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+            BType workerValueType = ((BFutureType) syncSendExpr.workerType).constraint;
+
+            switch (workerValueType.tag) {
+                case TypeTags.UNION:
+                    LinkedHashSet<BType> compatibleReturnTypes = new LinkedHashSet<>(
+                            (((BUnionType) workerValueType).getMemberTypes().stream()
+                                     .filter(memType -> memType.tag == TypeTags.ERROR)
+                                     .collect(Collectors.toSet())));
+
+                    if (compatibleReturnTypes.isEmpty()) {
+                        resultType = symTable.nilType;
+                    } else {
+                        compatibleReturnTypes.add(symTable.nilType);
+                        resultType = BUnionType.create(null, compatibleReturnTypes);
+                    }
+                    break;
+                case TypeTags.ERROR:
+                    resultType = BUnionType.create(null, workerValueType, symTable.nilType);
+                    break;
+                default:
+                    resultType = symTable.nilType;
+            }
         } else {
             resultType = expType;
         }
@@ -4693,7 +4714,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isConst(BLangExpression expression) {
-        if (symbolEnter.isValidConstantExpression(expression)) {
+
+        if (ConstantAnalyzer.isValidConstantExpressionNode(expression)) {
             return true;
         }
 
