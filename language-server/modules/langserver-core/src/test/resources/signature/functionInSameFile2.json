@@ -1,44 +1,35 @@
 {
   "position": {
-    "line": 5,
-    "character": 27
+    "line": 1,
+    "character": 16
   },
   "expected": {
     "result": {
       "signatures": [
         {
-          "label": "indexOf(string str, string substr, int startIndex)",
+          "label": "getGreeting(int year, string message)",
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "Searches for one string in another string."
+              "value": "Returns a sample greeting with the given content"
             }
           },
           "parameters": [
             {
-              "label": "str",
+              "label": "year",
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "the string in which to search"
+                  "value": "Year to print "
                 }
               }
             },
             {
-              "label": "substr",
+              "label": "message",
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "the string to search for"
-                }
-              }
-            },
-            {
-              "label": "startIndex",
-              "documentation": {
-                "right": {
-                  "kind": "markdown",
-                  "value": "index to start searching from"
+                  "value": "Greeting message to print "
                 }
               }
             }
@@ -47,9 +38,6 @@
       ],
       "activeSignature": 0,
       "activeParameter": 0
-    },
-    "id": {
-      "left": "324"
     },
     "jsonrpc": "2.0"
   }
