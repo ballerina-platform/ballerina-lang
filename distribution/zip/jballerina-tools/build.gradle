@@ -328,6 +328,7 @@ task generateDocs(type: JavaExec) {
     outputs.cacheIf { true }
 
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
+    systemProperty("version", project.version)
     def basePath = '/' + project.name + '-' + project.version + '/'
     systemProperty("ballerina.home", basePath)
     
