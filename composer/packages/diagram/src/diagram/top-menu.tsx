@@ -8,15 +8,15 @@ export interface TopMenuProps {
         type: DiagramMode;
     }>;
     handleModeChange: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, props: DropdownItemProps) => void;
-    handleBackClick: () => void;
-    handleFitClick: () => void;
-    handleZoomIn: () => void;
-    handleZoomOut: () => void;
+    handleBackClick: (e: React.MouseEvent) => void;
+    handleFitClick: (e: React.MouseEvent) => void;
+    handleZoomIn: (e: React.MouseEvent) => void;
+    handleZoomOut: (e: React.MouseEvent) => void;
     selectedModeText: string;
     openedState: boolean;
-    handleOpened: () => void;
-    handleClosed: () => void;
-    handleReset: () => void;
+    handleOpened: (e: React.MouseEvent) => void;
+    handleClosed: (e: React.MouseEvent) => void;
+    handleReset: (e: React.MouseEvent) => void;
     handleDepthSelect: (depth: number) => void;
     maxInvocationDepth: number;
     reachedInvocationDepth: number;
@@ -125,20 +125,6 @@ export const TopMenu = (props: TopMenuProps) => {
                                 }
                             </Dropdown.Menu>
                         </Dropdown>
-                        {/* <Popup
-                            trigger={<Icon onClick={() => handleDepthSelect(-1)}  className="fw fw-expand-all"/>}
-                            content="Expand all"
-                            position="top center"
-                            size="small"
-                            inverted
-                        />
-                        <Popup
-                            trigger={<Icon onClick={() => handleDepthSelect(0)} className="fw fw-collapse-all"/>}
-                            content="Collapse all"
-                            position="top center"
-                            size="small"
-                            inverted
-                        /> */}
                     </Grid.Column>
                     <Grid.Column width={3} />
                 </Grid.Row>
