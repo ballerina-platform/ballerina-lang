@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerinax/java.jdbc;
 
-// Create san endpoint for the first database named testdb1. Since this endpoint
+// Create san endpoint for the first database named `testDB1`. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.
 jdbc:Client testDB1 = new({
     url: "jdbc:h2:file:./xa-transactions/Testdb1",
@@ -10,7 +10,7 @@ jdbc:Client testDB1 = new({
     poolOptions: { maximumPoolSize: 5, isXA: true }
 });
 
-// Creates an endpoint for the second database named testdb2. Since this endpoint
+// Creates an endpoint for the second database named `testDB2`. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.
 jdbc:Client testDB2 = new({
     url: "jdbc:h2:file:./xa-transactions/Testdb2",

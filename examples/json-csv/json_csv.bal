@@ -20,7 +20,7 @@ function writeCsv(json[] content, string path) returns error? {
         [string [], string []] result = getFields(<map<json>> content[recIndex]);
         var [headers, fields] = result;
         if (recIndex == 0) {
-            //We ignore the result as this would mean a nill return
+            //We ignore the result as this would mean a `nil` return
             check csvch.write(headers);
         }
         check csvch.write(fields);
