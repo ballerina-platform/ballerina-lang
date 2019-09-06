@@ -71,7 +71,7 @@ public class GetXml extends AbstractGetPayloadHandler {
             }
         } catch (Exception ex) {
             return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                 "Error occurred while extracting xml data from entity : " + ex.getMessage());
+                                 "Error occurred while extracting xml data from entity : " + getErrorMsg(ex));
         }
         return result;
     }
