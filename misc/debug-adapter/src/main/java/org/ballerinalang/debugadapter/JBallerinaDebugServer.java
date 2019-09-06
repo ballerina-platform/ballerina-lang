@@ -104,6 +104,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     public static final String DEBUGGER_TERMINATED = "Debugger terminated";
+    public static final String DEBUGGER_FAILED_TO_ATTACH = "Debugger failed to attach";
     private IDebugProtocolClient client;
     private VirtualMachine debuggee;
     private int systemExit = 1;
@@ -247,7 +248,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             this.eventBus.startListening();
 
         } catch (IOException | IllegalConnectorArgumentsException e) {
-            LOGGER.error("Debugger failed to attach");
+            this.sendOutput(DEBUGGER_FAILED_TO_ATTACH, STDERR);
+            LOGGER.error(DEBUGGER_FAILED_TO_ATTACH);
             return CompletableFuture.completedFuture(null);
         }
         return CompletableFuture.completedFuture(null);
