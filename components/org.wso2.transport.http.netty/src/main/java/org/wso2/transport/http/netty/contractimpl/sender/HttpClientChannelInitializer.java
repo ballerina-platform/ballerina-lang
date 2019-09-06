@@ -49,6 +49,7 @@ import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.http2.Http2ExceptionHandler;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
+import org.wso2.transport.http.netty.contractimpl.listener.HttpExceptionHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpTraceLoggingHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.ClientFrameListener;
@@ -60,6 +61,8 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import static io.netty.handler.logging.LogLevel.TRACE;
+import static org.wso2.transport.http.netty.contract.Constants.SECURITY;
+import static org.wso2.transport.http.netty.contract.Constants.SSL;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setHostNameVerfication;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setSslHandshakeTimeOut;
 
@@ -144,6 +147,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             } else {
                 configureHttpPipeline(clientPipeline, targetHandler);
             }
+            clientPipeline.addLast(Constants.HTTP_EXCEPTION_HANDLER, new HttpExceptionHandler());
         }
     }
 
@@ -195,6 +199,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             }
         }
         clientPipeline.addLast(new Http2PipelineConfiguratorForClient(targetHandler, connectionAvailabilityFuture));
+        clientPipeline
+                .addLast(Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler(http2ConnectionHandler));
     }
 
     public TargetHandler getTargetHandler() {
@@ -229,6 +235,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      * @param pipeline the client channel pipeline
      */
     private void configureHttp2Pipeline(ChannelPipeline pipeline) {
+        Util.safelyRemoveHandlers(pipeline, Constants.HTTP2_EXCEPTION_HANDLER);
         pipeline.addLast(Constants.CONNECTION_HANDLER, http2ConnectionHandler);
         pipeline.addLast(Constants.HTTP2_TARGET_HANDLER, http2TargetHandler);
         pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
@@ -313,6 +320,11 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
         @Override
         protected void handshakeFailure(ChannelHandlerContext ctx, Throwable cause) {
+            if (cause.toString().contains(SSL) || cause.toString().contains(SECURITY)) {
+                while (cause.getCause() != null && cause.getCause() != cause) {
+                    cause = cause.getCause();
+                }
+            }
             connectionAvailabilityFuture.notifyFailure(cause);
             ctx.close();
         }
