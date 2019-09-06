@@ -18,26 +18,20 @@ kafka:ProducerConfig producerConfigs = {
 kafka:Producer kafkaProducer = new (producerConfigs);
 
 public function main() {
-    string msg1 = "Hello World Transaction Message 1";
-    string msg2 = "Hello World Transaction Message 2";
-    byte[] serializedMsg1 = msg1.toBytes();
-    byte[] serializedMsg2 = msg2.toBytes();
+    string msg1 = "Hello World Transaction Message";
+    byte[] serializedMsg = msg1.toBytes();
 
     // Here we create a producer configs with optional parameter transactional.id - enable transactional message production.
-    kafkaAdvancedTransactionalProduce(serializedMsg1, serializedMsg2);
+    kafkaAdvancedTransactionalProduce(serializedMsg);
 }
 
-function kafkaAdvancedTransactionalProduce(byte[] msg1, byte[] msg2) {
+function kafkaAdvancedTransactionalProduce(byte[] msg) {
     // Kafka transactions allows messages to be send multiple partition atomically on KafkaProducerClient. Kafka Local transactions can only be used
     // when you are sending multiple messages using the same KafkaProducerClient instance.
     transaction {
-        var sendResult1 = kafkaProducer->send(msg1, "test-kafka-topic", partition = 0);
-        if (sendResult1 is error) {
-            log:printError("Kafka producer failed to send first message", sendResult1);
-        }
-        var sendResult2 = kafkaProducer->send(msg2, "test-kafka-topic", partition = 0);
-        if (sendResult2 is error) {
-            log:printError("Kafka producer failed to send second message", sendResult2);
+        var sendResult = kafkaProducer->send(msg, "test-kafka-topic", partition = 0);
+        if (sendResult is error) {
+            log:printError("Kafka producer failed to send first message", sendResult);
         }
     } committed {
         io:println("Transaction committed");
