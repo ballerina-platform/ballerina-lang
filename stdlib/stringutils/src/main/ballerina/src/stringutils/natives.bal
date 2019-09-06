@@ -89,7 +89,7 @@ public function replaceFirst(string originalString, string stringToReplace, stri
 
 # Splits a string around matches of the given delimiter.
 #
-# + receiver - original string
+# + receiver - the original string
 # + delimiter - delimiter
 # + return - array of strings
 public function split(string receiver, string delimiter) returns string[] {
