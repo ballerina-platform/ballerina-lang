@@ -68,7 +68,7 @@ public function replace(string originalText, string textToReplace, string replac
 #
 # + originalString - original string
 # + regex - Regex to find substrings to replace
-# + replacement - replacement string
+# + replacement - the replacement string
 # + return - the resultant string
 public function replaceAll(string originalString, string regex, string replacement) returns string {
     return replaceAllExternal(java:fromString(originalString), java:fromString(regex), java:fromString(replacement));
