@@ -212,7 +212,7 @@ public class FunctionsWithDefaultableArguments {
         BValue[] returns = BRunUtil.invoke(result, "testUsingParamValues");
         Assert.assertTrue(returns[0] instanceof BString);
 
-        Assert.assertEquals(returns[0].stringValue(), "hellohellohelloworldworldhellosamplevalue");
+        Assert.assertEquals(returns[0].stringValue(), "hellohelloasyncworldworldasyncsamplevalue");
     }
 
     @Test
@@ -228,6 +228,6 @@ public class FunctionsWithDefaultableArguments {
         BValue[] returns = BRunUtil.invoke(result, "testUsingParamValuesInAttachedFunc");
         Assert.assertTrue(returns[0] instanceof BString);
 
-        Assert.assertEquals(returns[0].stringValue(), "hellohellohelloworldworldhellosamplevalue");
+        Assert.assertEquals(returns[0].stringValue(), "hellohelloasyncworldworldasyncsamplevalue");
     }
 }

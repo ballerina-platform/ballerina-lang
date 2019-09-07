@@ -178,28 +178,6 @@ public type ObjectGenerator object {
 
             string methodSig = "";
 
-            if (isExternFunc(func)) {
-                mv.visitVarInsn(ALOAD, 1);
-                mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
-                jvm:Label blockedOnExternLabel = new;
-                mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-                mv.visitVarInsn(ALOAD, 1);
-                mv.visitInsn(ICONST_0);
-                mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
-
-                if (!(retType is () || retType is bir:BTypeNil)) {
-                    mv.visitVarInsn(ALOAD, 1);
-                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
-                    mv.visitInsn(ARETURN);
-                } else {
-                    mv.visitInsn(ACONST_NULL);
-                    mv.visitInsn(ARETURN);
-                }
-
-                mv.visitLabel(blockedOnExternLabel);
-            }
-
             // use index access, since retType can be nil.
             methodSig = getMethodDesc(paramTypes, retType);
 

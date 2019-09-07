@@ -202,7 +202,7 @@ function asyncRet() returns string {
 
 function asyncRetWithVal(string a = "sample") returns string {
     runtime:sleep(50);
-    return a + "hello";
+    return a + "async";
 }
 
 function testUsingParamValues() returns string {
