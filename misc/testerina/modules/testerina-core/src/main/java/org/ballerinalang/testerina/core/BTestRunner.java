@@ -330,6 +330,11 @@ public class BTestRunner {
         //packageInit = false;
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
+
+        if (!bLangPackage.hasTestablePackage()) {
+            return;
+        }
+
         if (suite == null) {
             throw LauncherUtils.createLauncherException("No test suite found for [module]: "
                     + bLangPackage.packageID.getName());

@@ -27,6 +27,7 @@ import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -42,21 +43,21 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  */
 public class RunTestsTask implements Task {
     private String configPath = null;
-    
+
     public RunTestsTask() {}
-    
+
     public RunTestsTask(Path configPath) {
         if (null != configPath) {
             this.configPath = configPath.toAbsolutePath().toString();
         }
     }
-    
+
     @Override
     public void execute(BuildContext buildContext) {
         // load configurations
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         loadConfigurations(sourceRootPath, this.configPath);
-    
+
         Map<BLangPackage, TestarinaClassLoader> programFileMap = new HashMap<>();
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
@@ -75,6 +76,10 @@ public class RunTestsTask implements Task {
                 // }
                 Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
                 Path modulejarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID).getFileName();
+                // subsitute test jar if module jar if tests not exists
+                if (Files.notExists(jarPath)) {
+                    jarPath = modulejarPath;
+                }
                 String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
                 TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath,
                         Paths.get(sourceRootPath.toString(), "target", "tmp").toFile(),
@@ -87,7 +92,7 @@ public class RunTestsTask implements Task {
             TesterinaUtils.executeTests(sourceRootPath, programFileMap, buildContext.out(), buildContext.err());
         }
     }
-    
+
     /**
      * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
      *
