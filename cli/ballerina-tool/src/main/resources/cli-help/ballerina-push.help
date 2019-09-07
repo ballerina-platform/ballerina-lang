@@ -1,5 +1,5 @@
 NAME
-       ballerina push - Push module to Ballerina Central
+       ballerina push - push module to Ballerina Central
 
 SYNOPSIS
        ballerina push <module-name> [--no-build] [--repository home]

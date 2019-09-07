@@ -1,5 +1,5 @@
 NAME
-        ballerina pull - Pull module from Ballerina Central
+        ballerina pull - pull module from Ballerina Central
 
 SYNOPSIS
         ballerina pull <org-name>/<module-name>[:version]
