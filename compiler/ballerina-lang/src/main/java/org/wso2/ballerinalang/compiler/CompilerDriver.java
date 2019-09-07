@@ -299,11 +299,11 @@ public class CompilerDriver {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
-        return (!isToolingCompilation && checkNextPhase(nextPhase) && dlog.errorCount > 0);
+        return (checkNextPhase(nextPhase) && dlog.errorCount > 0);
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
-        return nextPhase == CompilerPhase.CODE_ANALYZE ||
+        return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
                 nextPhase == CompilerPhase.TAINT_ANALYZE ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN ||
                 nextPhase == CompilerPhase.DESUGAR;
