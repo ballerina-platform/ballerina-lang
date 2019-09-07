@@ -128,10 +128,10 @@ The CREATE statement is executed via the `update` remote function of the client.
 var returned = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, age INT, 
                                name VARCHAR(255), PRIMARY KEY (id))");
 if (returned is jdbc:UpdateResult) {
-    io:println("Students table create status in DB: " + returned.updatedRowCount);
+    io:println("Students table create status in DB: ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Students table creation failed: " + <string>err.detail()["message"]);
+    io:println("Students table creation failed: ", <string>err.detail()["message"]);
 }
 ```
 
@@ -145,10 +145,10 @@ In the first example, query parameter values are passed directly into the query 
 ```ballerina
 var returned = testDB->update("INSERT INTO student(age, name) values (23, 'john')");
 if (returned is jdbc:UpdateResult) {
-    io:println("Inserted row count to Students table: " + returned.updatedRowCount);
+    io:println("Inserted row count to Students table: ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Insert to Students table failed: " + <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", <string>err.detail()["message"]);
 }
 ```
 
@@ -162,10 +162,10 @@ string name = "Anne";
 int age = 8;
 var returned = testDB->update("INSERT INTO student(age, name) values (?, ?)", age, name);
 if (returned is jdbc:UpdateResult) {
-    io:println("Inserted row count to Students table: " + returned.updatedRowCount);
+    io:println("Inserted row count to Students table: ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Insert to Students table failed: " + <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", <string>err.detail()["message"]);
 }
 ```
 
@@ -178,10 +178,10 @@ jdbc:Parameter p1 = { sqlType: jdbc:TYPE_VARCHAR, value: "James" };
 jdbc:Parameter p2 = { sqlType: jdbc:TYPE_INTEGER, value: 10 };
 var returned = testDB->update("INSERT INTO student(age, name) values (?, ?)", p2, p1);
 if (returned is jdbc:UpdateResult) {
-    io:println("Inserted row count to Students table: " + returned.updatedRowCount);
+    io:println("Inserted row count to Students table: ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Insert to Students table failed: " + <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", <string>err.detail()["message"]);
 }
 ```
 
@@ -197,11 +197,11 @@ var retWithKey = testDB->update("INSERT INTO student (age, name) values (?, ?)",
 if (retWithKey is jdbc:UpdateResult) {
     int count = retWithKey.updatedRowCount;
     int generatedKey = <int>retWithKey.generatedKeys["GENERATED_KEY"];
-    io:println("Inserted row count: " + count);
-    io:println("Generated key: " + generatedKey);
+    io:println("Inserted row count: ", count);
+    io:println("Generated key: ", generatedKey);
 } else {
     error err = retWithKey;
-    io:println("Insert to table failed: " + <string>err.detail()["message"]);
+    io:println("Insert to table failed: ", <string>err.detail()["message"]);
 }
 ```
 
@@ -217,8 +217,8 @@ This table can be iterated only once.
 // Define a type to represent the results set.
 type Student record {
     int id;
-    string name;
     int age;
+    string name;
 };
 
 // Select the data from the table. Query Parameters are passed directly. Similar to `update` examples,
@@ -227,11 +227,11 @@ var selectRet = testDB->select("SELECT * FROM student WHERE id<? AND age>?", Stu
 if (selectRet is table<Student>) {
     // Iterating returned table.
     foreach var row in selectRet {
-        io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
+        io:println("Student:", row.id, "|", row.name, "|", row.age);
     }
 } else {
     error err = selectRet;
-    io:println("Select data from student table failed: " + <string>err.detail()["message"]);
+    io:println("Select data from student table failed: ", <string>err.detail()["message"]);
 }
 ```
 
@@ -242,10 +242,10 @@ the client.
 ```ballerina
 var returned = testDB->update("UPDATE student SET name = 'Jones' WHERE age = ?", 23);
 if (returned is jdbc:UpdateResult) {
-    io:println("Updated row count in Students table: " + returned.updatedRowCount);
+    io:println("Updated row count in Students table: ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Insert to Students table failed: " + <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", <string>err.detail()["message"]);
 }
 ```
 
@@ -268,14 +268,14 @@ jdbc:Parameter para4 = { sqlType: jdbc:TYPE_INTEGER, value: 6 };
 jdbc:Parameter[] parameters2 = [para3, para4];
 
 // Do the batch update by passing the batches.
-jdbc:BatchUpdateResult ret = testDB->batchUpdate("INSERT INTO Students(name, age) values (?, ?)", 
+jdbc:BatchUpdateResult ret = testDB->batchUpdate("INSERT INTO Student(name, age) values (?, ?)", 
                                                  false, parameters1, parameters2);
 error? e = ret.returnedError;
 if (e is error) {
-    io:println("Error occurred:" + <string>e.detail()["message"]);
+    io:println("Error occurred:", <string>e.detail()["message"]);
 } else {
-    io:println("Batch item 1 update count: " + ret.updatedRowCount[0]);
-    io:println("Batch item 2 update count: " + ret.updatedRowCount[1]);
+    io:println("Batch item 1 update count: ", ret.updatedRowCount[0]);
+    io:println("Batch item 2 update count: ", ret.updatedRowCount[1]);
 }
 ```
 
@@ -288,13 +288,13 @@ The first example shows how to create and call a simple stored procedure that in
 // Create the stored procedure.
 var returned = testDB->update("CREATE PROCEDURE INSERTDATA (IN pName VARCHAR(255), IN pAge INT)
                            BEGIN
-                              INSERT INTO Students(name, age) values (pName, pAge);
+                              INSERT INTO Student(name, age) values (pName, pAge);
                            END");
 if (returned is jdbc:UpdateResult) {
-    io:println("Stored proc creation status: : " + returned.updatedRowCount);
+    io:println("Stored proc creation status: : ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Stored proc creation failed: " + <string>err.detail()["message"]);
+    io:println("Stored proc creation failed: ", <string>err.detail()["message"]);
 }
 
 // Call the stored procedure.
@@ -303,7 +303,7 @@ if (retCall is ()|table<record {}>[]) {
     io:println("Call operation successful");
 } else {
     error err = retCall;
-    io:println("Stored procedure call failed: " + <string>err.detail()["message"]);
+    io:println("Stored procedure call failed: ", <string>err.detail()["message"]);
 }
 ```
 This next example shows how to create and call a stored procedure that accepts `INOUT` and `OUT` parameters.
@@ -312,14 +312,14 @@ This next example shows how to create and call a stored procedure that accepts `
 // Create the stored procedure.
 var returned = testDB->update("CREATE PROCEDURE GETCOUNT (INOUT pID INT, OUT pCount INT)
                            BEGIN
-                                SELECT COUNT(*) INTO pID FROM Students WHERE id = pID;
-                                SELECT COUNT(*) INTO pCount FROM Students WHERE id = 2;
+                                SELECT COUNT(*) INTO pID FROM Student WHERE id = pID;
+                                SELECT COUNT(*) INTO pCount FROM Student WHERE id = 2;
                            END");
 if (returned is jdbc:UpdateResult) {
-    io:println("Stored proc creation status: : " + returned.updatedRowCount);
+    io:println("Stored proc creation status: : ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Stored procedure creation failed:  " + <string>err.detail()["message"]);
+    io:println("Stored procedure creation failed:  ", <string>err.detail()["message"]);
 }
 
 // Call the stored procedure.
@@ -334,6 +334,6 @@ if (retCall is ()|table<record {}>[]) {
     io:println(param2.value);
 } else {
     error err = retCall;
-    io:println("Stored procedure call failed: " + <string>err.detail()["message"]);
+    io:println("Stored procedure call failed: ", <string>err.detail()["message"]);
 }
 ```
