@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 import { BallerinaExtension } from '../core';
 import { ProjectTreeProvider } from './project-overview';
 import { TM_EVENT_OPEN_PROJECT_OVERVIEW_VIA_TREE_VIEW, CMP_PROJECT_OVERVIEW } from '../telemetry';
-import { ProjectTreeElement } from './project-tree';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const reporter = ballerinaExtInstance.telemetryReporter;
@@ -26,7 +25,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         });
     });
 
-    (projectTreeProvider.getChildren() as Promise<ProjectTreeElement[]>).then((elements) => {
-        ballerinaProjectTree.reveal(elements[0], { expand: true, focus: false, select: false });
-    });
+    const treeViewChildren = projectTreeProvider.getRoots();
+    if (treeViewChildren.length > 1) {
+        ballerinaProjectTree.reveal(treeViewChildren[0], { expand: true, focus: false, select: false });
+    }
 }
