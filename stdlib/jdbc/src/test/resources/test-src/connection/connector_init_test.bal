@@ -216,7 +216,7 @@ function testConnectionFailure(string jdbcURL) {
 function getJsonConversionResult(table<record {}> | error tableOrError) returns json {
     json retVal;
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult =jsonutils:fromTable( tableOrError);
+        var jsonConversionResult = jsonutils:fromTable(tableOrError);
         retVal = jsonConversionResult;
     } else {
         retVal = {"Error": <string>tableOrError.detail()["message"]};
