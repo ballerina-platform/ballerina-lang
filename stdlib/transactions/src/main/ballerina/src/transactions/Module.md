@@ -34,4 +34,3 @@ transaction {
     log:printInfo("Initiated transaction aborted");
 }
 ```
-        
