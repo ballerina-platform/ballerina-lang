@@ -53,7 +53,6 @@ import org.ballerinalang.tool.util.BCompileUtil;
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -261,8 +260,6 @@ public class BTestRunner {
             }
 
             // set the debugger
-            ProgramFile programFile = compileResult.getProgFile();
-            // processProgramFile(programFile);
         });
         registry.setTestSuitesCompiled(true);
     }
@@ -368,6 +365,35 @@ public class BTestRunner {
                 // we do nothing here
             }
         });
+        // Add all functions of the test function to test suite
+        if (bLangPackage.hasTestablePackage()) {
+            BLangPackage testablePackage = bLangPackage.getTestablePkg();
+            String testClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                    bLangPackage.packageID.name.value,
+                    bLangPackage.packageID.name.value);
+
+            Class<?> testInitClazz = classLoader.loadClass(testClassName);
+            suite.setTestInitFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.initFunction));
+            suite.setTestStartFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.startFunction));
+            suite.setTestStopFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.stopFunction));
+
+            testablePackage.functions.stream().forEach(function -> {
+                try {
+                    String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                            bLangPackage.packageID.name.value,
+                            getClassName(function));
+                    Class<?> functionClass = classLoader.loadClass(functionClassName);
+                    suite.addTestUtilityFunction(new TesterinaFunction(functionClass,
+                            function));
+                } catch (RuntimeException e) {
+                    // we do nothing here
+                }
+            });
+        }
+
         resolveFunctions(suite);
         int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);

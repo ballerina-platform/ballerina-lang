@@ -64,7 +64,12 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERE
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
+ * <p>
  * Represent an array in ballerina.
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @since 0.995.0
  */
@@ -549,8 +554,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
 
         for (int i = 0; i < size; i++) {
-            BType type = TypeChecker.getType(refValues[i]);
-            sj.add(StringUtils.getStringValue(strand, refValues[i], type));
+            sj.add(StringUtils.getStringValue(strand, refValues[i]));
         }
         return sj.toString();
     }
@@ -1022,28 +1026,20 @@ public class ArrayValue implements RefValue, CollectionValue {
                 refValues[i] = booleanValues[i];
             }
             booleanValues = null;
-        }
-
-        if (elementType == BTypes.typeInt) {
+        } else if (elementType == BTypes.typeInt) {
             for (int i = 0; i < this.size(); i++) {
                 refValues[i] = intValues[i];
             }
             intValues = null;
-        }
-
-        if (elementType == BTypes.typeString) {
+        } else if (elementType == BTypes.typeString) {
             System.arraycopy(stringValues, 0, refValues, 0, this.size());
             stringValues = null;
-        }
-
-        if (elementType == BTypes.typeFloat) {
+        } else if (elementType == BTypes.typeFloat) {
             for (int i = 0; i < this.size(); i++) {
                 refValues[i] = floatValues[i];
             }
             floatValues = null;
-        }
-
-        if (elementType == BTypes.typeByte) {
+        } else if (elementType == BTypes.typeByte) {
             for (int i = 0; i < this.size(); i++) {
                 refValues[i] = (byteValues[i]);
             }
@@ -1119,49 +1115,44 @@ public class ArrayValue implements RefValue, CollectionValue {
             return;
         }
 
-        int arrayElementTypeTag = arrayElementType.getTag();
+        switch (arrayElementType.getTag()) {
+            case TypeTags.BYTE_TAG:
+                byteValues = (byte[]) newArrayInstance(Byte.TYPE);
+                for (int i = 0; i < this.size(); i++) {
+                    byteValues[i] = (byte) anyToByte(this.get(i));
+                }
+                break;
+            case TypeTags.INT_TAG:
+                intValues = (long[]) newArrayInstance(Long.TYPE);
+                for (int i = 0; i < this.size(); i++) {
+                    intValues[i] = anyToInt(this.get(i));
+                }
+                break;
+            case TypeTags.FLOAT_TAG:
+                floatValues = (double[]) newArrayInstance(Double.TYPE);
+                for (int i = 0; i < this.size(); i++) {
+                    floatValues[i] = anyToFloat(this.get(i));
+                }
+                break;
+            case TypeTags.DECIMAL_TAG:
+                for (int i = 0; i < this.size(); i++) {
+                    refValues[i] = anyToDecimal(this.get(i));
+                }
 
-        if (arrayElementTypeTag == TypeTags.BYTE_TAG) {
-            byteValues = (byte[]) newArrayInstance(Byte.TYPE);
-            for (int i = 0; i < this.size(); i++) {
-                byteValues[i] = (byte) anyToByte(this.get(i));
-            }
-        }
-
-        if (arrayElementTypeTag == TypeTags.INT_TAG) {
-            intValues = (long[]) newArrayInstance(Long.TYPE);
-            for (int i = 0; i < this.size(); i++) {
-                intValues[i] = anyToInt(this.get(i));
-            }
-        }
-
-        if (arrayElementTypeTag == TypeTags.FLOAT_TAG) {
-            floatValues = (double[]) newArrayInstance(Double.TYPE);
-            for (int i = 0; i < this.size(); i++) {
-                floatValues[i] = anyToFloat(this.get(i));
-            }
-        }
-
-        if (arrayElementTypeTag == TypeTags.DECIMAL_TAG) {
-            for (int i = 0; i < this.size(); i++) {
-                refValues[i] = anyToDecimal(this.get(i));
-            }
-
-            switch (this.elementType.getTag()) {
-                case TypeTags.BYTE_TAG:
-                    byteValues = null;
-                    break;
-                case TypeTags.INT_TAG:
-                    intValues = null;
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    floatValues = null;
-                    break;
-            }
-
-            this.elementType = arrayElementType;
-            this.arrayType = type;
-            return;
+                switch (this.elementType.getTag()) {
+                    case TypeTags.BYTE_TAG:
+                        byteValues = null;
+                        break;
+                    case TypeTags.INT_TAG:
+                        intValues = null;
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        floatValues = null;
+                        break;
+                }
+                this.elementType = arrayElementType;
+                this.arrayType = type;
+                return;
         }
 
         this.elementType = arrayElementType;

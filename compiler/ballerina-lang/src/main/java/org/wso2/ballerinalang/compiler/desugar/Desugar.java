@@ -87,7 +87,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
@@ -213,6 +212,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -277,7 +277,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
 
     private BLangStatementLink currentLink;
-    private Stack<BLangWorker> workerStack = new Stack<>();
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
 
     private SymbolEnv env;
@@ -646,20 +645,16 @@ public class Desugar extends BLangNodeVisitor {
                                          .filter(a -> Transactions.isTransactionsAnnotation(a.pkgAlias.value,
                                                                                             a.annotationName.value))
                                          .collect(Collectors.toList());
+        funcNode.body = rewrite(funcNode.body, fucEnv);
+        funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
+        if (funcNode.returnTypeNode != null) {
+            funcNode.returnTypeAnnAttachments.forEach(attachment -> rewrite(attachment, env));
+        }
+        if (Symbols.isNative(funcNode.symbol)) {
+            funcNode.externalAnnAttachments.forEach(attachment -> rewrite(attachment, env));
+        }
         if (participantAnnotation.isEmpty()) {
             // function not annotated for transaction participation.
-            funcNode.body = rewrite(funcNode.body, fucEnv);
-
-            funcNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
-
-            if (funcNode.returnTypeNode != null) {
-                funcNode.returnTypeAnnAttachments.forEach(attachment ->  rewrite(attachment, env));
-            }
-
-            if (Symbols.isNative(funcNode.symbol)) {
-                funcNode.externalAnnAttachments.forEach(attachment ->  rewrite(attachment, env));
-            }
-
             result = funcNode;
             return;
         }
@@ -669,7 +664,6 @@ public class Desugar extends BLangNodeVisitor {
         //
         //function beginLocalParticipant(string transactionBlockId, function () committedFunc,
         //                               function () abortedFunc, function () trxFunc) returns error|any {
-
         result = desugarParticipantFunction(funcNode, participantAnnotation);
     }
 
@@ -679,8 +673,13 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt onCommitBody = null;
         BLangBlockStmt onAbortBody = null;
         funcNode.requiredParams.forEach(bLangSimpleVariable -> bLangSimpleVariable.symbol.closure = true);
-        BType trxReturnType = BUnionType.create(null, symTable.errorType, symTable.nilType, symTable.anyType);
+        // If it is attached function set the receiver symbol as a closure variable.
+        if (funcNode.receiver != null) {
+            funcNode.receiver.symbol.closure = true;
+        }
+        BType trxReturnType = BUnionType.create(null, symTable.errorType, symTable.anyType);
         BLangType trxReturnNode = ASTBuilderUtil.createTypeNode(trxReturnType);
+        // Desuger onCommit and onAbort functions
         BLangLambdaFunction commitFunc = createLambdaFunction(funcNode.pos, "$anonOnCommitFunc$",
                                                               ASTBuilderUtil.createTypeNode(symTable.nilType));
         BLangLambdaFunction abortFunc = createLambdaFunction(funcNode.pos, "$anonOnAbortFunc$",
@@ -759,15 +758,66 @@ public class Desugar extends BLangNodeVisitor {
                                                             getParticipantFunctionName(funcNode), SymTag.FUNCTION);
         BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,
                                                                        getTransactionBlockId());
-        if (!funcNode.body.stmts.isEmpty()) {
-            // We need to add cast to any type for function return statement since $anonTrxParticipantFunc$ return 
-            // any|error.
-            BLangReturn bLangReturn = (BLangReturn) funcNode.body.stmts.get(funcNode.body.stmts.size() - 1);
-            bLangReturn.expr = addConversionExprIfRequired(bLangReturn.expr, trxReturnNode.type);
-        }
-        BLangLambdaFunction trxMainFunc = createLambdaFunction(funcNode.pos, "$anonTrxParticipantFunc$",
-                                                               Collections.emptyList(),
-                                                               trxReturnNode, funcNode.body);
+
+        // Wrapper function will be created with transaction participant function body to handle conditional return 
+        // values.
+        // Then wrapper lambda function will be call through another lambda function which return anydata or 
+        // error. They that will be passed to beginParticipant function. Original transaction participant body will 
+        // be replace by beginParticipant invocation.
+        //  ex .
+        //  function participant(){
+        //      *participant body*
+        // }
+        //
+        //  function participant(){
+        //      beginParticipant(transactionBlockId, trxMainFunc, commintFunct, abortFunc);
+        // }
+        //
+        //  function trxMainFunc() returns anydata|error{
+        //      var wrapper = function () retruns <particpantReturnType> {
+        //          *participant body*
+        //       }
+        //      return <anydata|error>wrapper();
+        // }
+        //
+        BLangLambdaFunction trxMainWrapperFunc = createLambdaFunction(funcNode.pos, "$anonTrxWrapperFunc$",
+                                                                      Collections.emptyList(),
+                                                                      funcNode.returnTypeNode,
+                                                                      funcNode.body);
+        
+        
+
+        funcNode.requiredParams.forEach(var -> trxMainWrapperFunc.function.closureVarSymbols
+                .add(new ClosureVarSymbol(var.symbol, var.pos)));
+        BLangBlockStmt trxMainBody = ASTBuilderUtil.createBlockStmt(funcNode.pos);
+        BLangLambdaFunction trxMainFunc
+                = createLambdaFunction(funcNode.pos, "$anonTrxParticipantFunc$", Collections.emptyList(),
+                                       trxReturnNode, trxMainBody);
+        trxMainWrapperFunc.cachedEnv = trxMainFunc.function.clonedEnv;
+        commitFunc.cachedEnv = env.createClone();
+        abortFunc.cachedEnv = env.createClone();
+        BVarSymbol wrapperSym = new BVarSymbol(0, names.fromString("$wrapper$1"), this.env.scope.owner.pkgID,
+                                               trxMainWrapperFunc.type, trxMainFunc.function.symbol);
+        BLangSimpleVariable wrapperFuncVar = ASTBuilderUtil.createVariable(funcNode.pos, "$wrapper$1",
+                                                                           trxMainWrapperFunc.type, trxMainWrapperFunc,
+                                                                           wrapperSym);
+
+        BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(funcNode.pos, trxMainBody);
+        variableDef.var = wrapperFuncVar;
+
+        BLangSimpleVarRef wrapperVarRef = rewrite(ASTBuilderUtil.createVariableRef(variableDef.pos, 
+                                                                         wrapperFuncVar.symbol), env);
+        BLangInvocation wrapperInvocation = new BFunctionPointerInvocation(trxMainWrapperFunc.pos, wrapperVarRef, 
+                                                                           wrapperFuncVar.symbol, 
+                                                                           trxMainWrapperFunc.function.symbol.retType);
+        BLangReturn wrapperReturn = ASTBuilderUtil.createReturnStmt(funcNode.pos, addConversionExprIfRequired
+                (wrapperInvocation, trxReturnNode.type));
+
+        trxMainWrapperFunc.function.receiver = funcNode.receiver;
+        trxMainFunc.function.receiver = funcNode.receiver;
+        trxMainBody.stmts.add(wrapperReturn);
+        rewrite(trxMainFunc.function, env);
+
         List<BLangExpression> requiredArgs = Lists.of(transactionBlockId, trxMainFunc, commitFunc, abortFunc);
         BLangInvocation participantInvocation
                 = ASTBuilderUtil.createInvocationExprMethod(funcNode.pos, invokableSymbol, requiredArgs,
@@ -776,6 +826,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatement stmt = ASTBuilderUtil.createReturnStmt(funcNode.pos, addConversionExprIfRequired
                 (participantInvocation, funcNode.symbol.retType));
         funcNode.body = ASTBuilderUtil.createBlockStmt(funcNode.pos, Lists.of(rewrite(stmt, env)));
+        
         return funcNode;
     }
 
@@ -800,14 +851,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
-    }
-
-    @Override
-    public void visit(BLangWorker workerNode) {
-        this.workerStack.push(workerNode);
-        workerNode.body = rewrite(workerNode.body, env);
-        this.workerStack.pop();
-        result = workerNode;
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -2684,6 +2727,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$",
                                                                   Collections.emptyList(),
                                                                   otherReturnNode, transactionNode.abortedBody);
+        trxMainFunc.cachedEnv = env.createClone();
+        trxOnRetryFunc.cachedEnv = env.createClone();
+        trxCommittedFunc.cachedEnv = env.createClone();
+        trxAbortedFunc.cachedEnv = env.createClone();
 
         // Retrive the symbol for beginTransactionInitiator function.
         BSymbol trxModSym = env.enclPkg.imports
@@ -2880,6 +2927,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
+        recordLiteral.keyValuePairs.sort((v1, v2) -> Boolean.compare(v1.key.computedKey, v2.key.computedKey));
+
         // Process the key-val pairs in the record literal
         recordLiteral.keyValuePairs.forEach(keyValue -> {
             BLangExpression keyExpr = keyValue.key.expr;
@@ -4187,7 +4236,18 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        constant.expr = rewriteExpr(constant.expr);
+
+        BConstantSymbol constSymbol = constant.symbol;
+        if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
+            if (constSymbol.literalType.tag != TypeTags.NIL && constSymbol.value.value == null) {
+                throw new IllegalStateException();
+            }
+            BLangLiteral literal = ASTBuilderUtil.createLiteral(constant.expr.pos, constSymbol.literalType,
+                    constSymbol.value.value);
+            constant.expr = rewriteExpr(literal);
+        } else {
+            constant.expr = rewriteExpr(constant.expr);
+        }
         constant.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = constant;
     }

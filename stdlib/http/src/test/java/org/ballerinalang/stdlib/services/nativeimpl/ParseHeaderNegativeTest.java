@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.services.nativeimpl;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -30,6 +29,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ERROR_MESSAGE_FIELD_NAME;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
 /**
@@ -53,7 +53,7 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(
-                ((BMap) ((BError) returnVals[0]).getDetails()).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue(),
+                ((BMap) ((BError) returnVals[0]).getDetails()).get(ERROR_MESSAGE_FIELD_NAME).stringValue(),
                 "failed to parse: header value cannot be null");
     }
 
@@ -66,8 +66,8 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(
-                ((BMap) ((BError) returnVals[0]).getDetails()).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue(),
-                "failed to parse: invalid header value: ;a = 2");
+                ((BMap) ((BError) returnVals[0]).getDetails()).get(ERROR_MESSAGE_FIELD_NAME).stringValue(),
+                "failed to parse: error {ballerina/mime}InvalidHeaderValue message=invalid header value: ;a = 2");
     }
 
     @Test(description = "Test function with invalid param values")
@@ -79,8 +79,8 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(
-                ((BMap) ((BError) returnVals[0]).getDetails()).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue(),
-                "failed to parse: invalid header parameter: a =");
+                ((BMap) ((BError) returnVals[0]).getDetails()).get(ERROR_MESSAGE_FIELD_NAME).stringValue(),
+                "failed to parse: error {ballerina/mime}InvalidHeaderParam message=invalid header parameter: a =");
     }
 
     @Test(description = "Test function with invalid param values")
@@ -92,8 +92,8 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(
-                ((BMap) ((BError) returnVals[0]).getDetails()).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue(),
-                "failed to parse: invalid header parameter: =");
+                ((BMap) ((BError) returnVals[0]).getDetails()).get(ERROR_MESSAGE_FIELD_NAME).stringValue(),
+                "failed to parse: error {ballerina/mime}InvalidHeaderParam message=invalid header parameter: =");
     }
 
     @Test(description = "Test function with invalid param values")
@@ -105,7 +105,7 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(
-                ((BMap) ((BError) returnVals[0]).getDetails()).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue(),
-                "failed to parse: invalid header parameter: = 2");
+                ((BMap) ((BError) returnVals[0]).getDetails()).get(ERROR_MESSAGE_FIELD_NAME).stringValue(),
+                "failed to parse: error {ballerina/mime}InvalidHeaderParam message=invalid header parameter: = 2");
     }
 }

@@ -16,27 +16,32 @@
  * under the License.
  *
  */
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
 import * as _ from 'lodash';
 
 import { BallerinaExtension, ExtendedLangClient, ConstructIdentifier, ballerinaExtInstance } from '../core';
 import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChangeEvent, 
 	workspace, WebviewPanel } from 'vscode';
 
-import {render} from './renderer';
+import { render } from './renderer';
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
-import { TM_EVENT_OPEN_PROJECT_OVERVIEW_VIA_CMD, CMP_PROJECT_OVERVIEW } from '../telemetry';
+import { TM_EVENT_OPEN_FILE_OVERVIEW, CMP_FILE_OVERVIEW } from '../telemetry';
 
 const DEBOUNCE_WAIT = 500;
 
-let overviewPanel: WebviewPanel | undefined;
-let rpcHandler: WebViewRPCHandler;
+let projectOverviewPanel: WebviewPanel | undefined;
+let fileOverviewPanel: WebviewPanel | undefined;
+let projectOverviewRpcHandler: WebViewRPCHandler;
+let fileOverviewRpcHandler: WebViewRPCHandler;
 
-function updateWebView(docUri: Uri): void {
-	if (rpcHandler) {
-		rpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => {});
+function updateProjectOverview(docUri: Uri): void {
+	if (projectOverviewRpcHandler) {
+		projectOverviewRpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => {});
+	}
+}
+
+function updateFileOverview(docUri: Uri): void {
+	if (fileOverviewRpcHandler) {
+		fileOverviewRpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => {});
 	}
 }
 
@@ -47,145 +52,106 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 	function updateSelectedConstruct(construct: ConstructIdentifier) {
 		// If Project Overview is already showing update it to show the selected construct
-		if (overviewPanel) {
-			if (rpcHandler) {
-				const { moduleName, constructName, subConstructName } = construct;
-				rpcHandler.invokeRemoteMethod("selectConstruct", [moduleName, constructName, subConstructName], () => {});
+		if (projectOverviewPanel) {
+			if (projectOverviewRpcHandler) {
+				const { sourceRoot, filePath, moduleName, constructName, subConstructName } = construct;
+				projectOverviewRpcHandler.invokeRemoteMethod("selectConstruct", [
+					sourceRoot, filePath, moduleName, constructName, subConstructName], () => {});
 			}
-			overviewPanel.reveal();
 		} else {
 			// If Project Overview is not yet opened open it and show the selected construct
-			openWebView(context, langClient, construct);
+			openProjectOverview(langClient, construct);
 		}
 	}
 
 	ballerinaExtInstance.onProjectTreeElementClicked((construct) => {
+		if (projectOverviewPanel) {
+			projectOverviewPanel.reveal();
+		}
 		updateSelectedConstruct(construct);
 	});
 
-	const projectOverviewDisposable = commands.registerCommand('ballerina.showProjectOverview', () => {
-		reporter.sendTelemetryEvent(TM_EVENT_OPEN_PROJECT_OVERVIEW_VIA_CMD, { component: CMP_PROJECT_OVERVIEW });
+	const fileOverviewDisposable = commands.registerCommand('ballerina.showFileOverview', () => {
+		reporter.sendTelemetryEvent(TM_EVENT_OPEN_FILE_OVERVIEW, { component: CMP_FILE_OVERVIEW });
 		return ballerinaExtInstance.onReady()
 		.then(() => {
-			openWebView(context, langClient);
+			openFileOverview(langClient);
 		}).catch((e) => {
-			reporter.sendTelemetryException(e, { component: CMP_PROJECT_OVERVIEW });
+			reporter.sendTelemetryException(e, { component: CMP_FILE_OVERVIEW });
 		});
 	});
-    context.subscriptions.push(projectOverviewDisposable);
+
+    context.subscriptions.push(fileOverviewDisposable);
 }
 
-function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, construct?: ConstructIdentifier) {
-	let sourceRoot: string|undefined;
-	let currentFilePath: string|undefined;
-
-	const openFolders = workspace.workspaceFolders;
-	if (openFolders) {
-		if (fs.existsSync(path.join(openFolders[0].uri.path, "Ballerina.toml"))) {
-			sourceRoot = openFolders[0].uri.path;
-		}
-	}
-
-	if (!sourceRoot) {
-		if (window.activeTextEditor) {
-			currentFilePath = window.activeTextEditor.document.fileName;
-			sourceRoot = getSourceRoot(currentFilePath, path.parse(currentFilePath).root);
-		}
-	}
-
-	if (!currentFilePath && !sourceRoot) {
-		return;
-	}
-
-	const options : {
-		currentUri?: string,
-		sourceRootUri?: string,
-		construct?: ConstructIdentifier
-	} = {
-		construct,
-	};
-
-	if (sourceRoot) {
-		options.sourceRootUri = Uri.file(sourceRoot).toString();
-	}
-
-	if (currentFilePath) {
-		options.currentUri = Uri.file(currentFilePath).toString();
-	}
-
-	const didChangeDisposable = workspace.onDidChangeTextDocument(
-		_.debounce((e: TextDocumentChangeEvent) => {
-		updateWebView( e.document.uri);
-	}, DEBOUNCE_WAIT));
-
-	const didChangeActiveEditorDisposable = window.onDidChangeActiveTextEditor((activeEditor) => {
-		if (!(activeEditor && activeEditor.document && activeEditor.document.languageId === "ballerina")) {
-			return;
-		}
-
-		const newCurrentFilePath = activeEditor.document.fileName;
-		const newSourceRoot = getSourceRoot(newCurrentFilePath, path.parse(newCurrentFilePath).root);
-	
-		const newOptions : {
-			currentUri: string,
-			sourceRootUri?: string,
-			construct?: ConstructIdentifier
-		} = {
-			currentUri: Uri.file(newCurrentFilePath).toString(),
-		};
-
-		let shouldRerender = false;
-		if (newSourceRoot) {
-			shouldRerender = sourceRoot !== newSourceRoot;
-			newOptions.sourceRootUri = Uri.file(newSourceRoot).toString();
-		} else {
-			shouldRerender = currentFilePath !== newCurrentFilePath;
-		}
-
-		if (shouldRerender) {
-			currentFilePath = newCurrentFilePath;
-			sourceRoot = newSourceRoot;
-			const html = render(context, langClient, newOptions);
-			if (overviewPanel && html) {
-				overviewPanel.webview.html = html;
-			}
-		}
-	});
-
-	if (!overviewPanel) {
-		overviewPanel = window.createWebviewPanel(
+function openProjectOverview(langClient: ExtendedLangClient, construct: ConstructIdentifier) {
+	if (!projectOverviewPanel) {
+		projectOverviewPanel = window.createWebviewPanel(
 			'projectOverview',
 			'Project Overview',
 			{ viewColumn: ViewColumn.One, preserveFocus: true },
 			getCommonWebViewOptions()
 		);
 
-		ballerinaExtInstance.addWebviewPanel("overview", overviewPanel);
+		ballerinaExtInstance.addWebviewPanel("overview", projectOverviewPanel);
 	}
 
-	rpcHandler = WebViewRPCHandler.create(overviewPanel, langClient);
-	const html = render(context, langClient, options);
-	if (overviewPanel && html) {
-		overviewPanel.webview.html = html;
+	projectOverviewRpcHandler = WebViewRPCHandler.create(projectOverviewPanel, langClient);
+	const html = render(construct);
+	if (projectOverviewPanel && html) {
+		projectOverviewPanel.webview.html = html;
 	}
 
-	overviewPanel.onDidDispose(() => {
-		overviewPanel = undefined;
+	const didChangeDisposable = workspace.onDidChangeTextDocument(
+		_.debounce((e: TextDocumentChangeEvent) => {
+		updateProjectOverview(e.document.uri);
+	}, DEBOUNCE_WAIT));
+
+	projectOverviewPanel.onDidDispose(() => {
+		projectOverviewPanel = undefined;
 		didChangeDisposable.dispose();
-		didChangeActiveEditorDisposable.dispose();
 	});
 }
 
-function getSourceRoot(currentPath: string, root: string): string|undefined {
-	if (fs.existsSync(path.join(currentPath, 'Ballerina.toml'))) {
-		if (currentPath !== os.homedir()) {
-			return currentPath;
-		}
-	}
-
-	if (currentPath === root) {
+function openFileOverview(langClient: ExtendedLangClient) {
+	if (!window.activeTextEditor) {
 		return;
 	}
 
-	return getSourceRoot(path.dirname(currentPath), root);
+	const didChangeDisposable = workspace.onDidChangeTextDocument(
+		_.debounce((e: TextDocumentChangeEvent) => {
+		updateFileOverview(e.document.uri);
+	}, DEBOUNCE_WAIT));
+
+	const didChangeActiveEditorDisposable = window.onDidChangeActiveTextEditor((activeEditor) => {
+		if (!(activeEditor && activeEditor.document && activeEditor.document.languageId === "ballerina")) {
+			return;
+		}
+		didChangeDisposable.dispose();
+		didChangeActiveEditorDisposable.dispose();
+		openFileOverview(langClient);
+	});
+
+	if (!fileOverviewPanel) {
+		fileOverviewPanel = window.createWebviewPanel(
+			'fileOverview',
+			'File Overview',
+			{ viewColumn: ViewColumn.Two, preserveFocus: true },
+			getCommonWebViewOptions()
+		);
+
+		ballerinaExtInstance.addWebviewPanel('file', fileOverviewPanel);
+	}
+
+	fileOverviewRpcHandler = WebViewRPCHandler.create(fileOverviewPanel, langClient);
+	const html = render({filePath: window.activeTextEditor.document.uri.toString(), constructName: "", moduleName: ""});
+	if (fileOverviewPanel && html) {
+		fileOverviewPanel.webview.html = html;
+	}
+
+	fileOverviewPanel.onDidDispose(() => {
+		fileOverviewPanel = undefined;
+		didChangeDisposable.dispose();
+		didChangeActiveEditorDisposable.dispose();
+	});
 }

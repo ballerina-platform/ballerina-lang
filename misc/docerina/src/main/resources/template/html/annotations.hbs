@@ -50,8 +50,12 @@
         <div class="main-wrapper">
              <h1>
                  {{> breadcrumb }}
-                 <span class="title-type">Annotations - </span> 
-                 <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
+                 <span class="title-type">Annotations - </span>
+                 {{#if project.isSingleFile}}
+                     {{project.sourceFileName}}
+                 {{else}}
+                     <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
+                 {{/if}}
             </h1>
             <div class="annotations">
                 <div class="data-wrapper">

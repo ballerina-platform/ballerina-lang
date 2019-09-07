@@ -31,7 +31,12 @@
         <div class="main-wrapper module-wrapper">
                 <h1>
                     {{> breadcrumb }}
-                    Module : <span class="modules">{{ module.id }}</span></h1>
+                    {{#if project.isSingleFile}}
+                        {{project.sourceFileName}}
+                    {{else}}
+                        Module : <span class="modules">{{ module.id }}</span>
+                    {{/if}}
+                </h1>
                     {{{ module.description }}}
 
             {{#if module.records}}

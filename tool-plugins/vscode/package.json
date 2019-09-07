@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "1.0.0-beta-SNAPSHOT",
+    "version": "1.0.0-rc1-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -124,24 +124,6 @@
                 "label": "Ballerina Debug",
                 "program": "/usr/local/Cellar/ballerina/0.991.0/libexec/lib/tools/debug-adapter/launcher/debug-adapter-launcher.sh",
                 "configurationAttributes": {
-                    "attach": {
-                        "required": [
-                            "port",
-                            "host",
-                            "script"
-                        ],
-                        "properties": {
-                            "host": {
-                                "type": "string",
-                                "description": "Remote debug server host",
-                                "default": "127.0.0.1"
-                            },
-                            "script": {
-                                "type": "string",
-                                "default": "${file}"
-                            }
-                        }
-                    },
                     "launch": {
                         "required": [
                             "script"
@@ -167,7 +149,30 @@
                             "networkLogs": {
                                 "type": "boolean",
                                 "default": true,
-                                "description": "Indicates whether to capture network logs ."
+                                "description": "Indicates whether to capture network logs."
+                            }
+                        }
+                    },
+                    "attach": {
+                        "required": [
+                            "debuggeePort",
+                            "debuggeeHost",
+                            "script"
+                        ],
+                        "properties": {
+                            "debuggeeHost": {
+                                "type": "string",
+                                "description": "Remote debug server host",
+                                "default": "127.0.0.1"
+                            },
+                            "debuggeePort": {
+                                "type": "string",
+                                "description": "Remote debug server port",
+                                "default": "5005"
+                            },
+                            "script": {
+                                "type": "string",
+                                "default": "${file}"
                             }
                         }
                     }
@@ -192,15 +197,15 @@
                         "request": "attach",
                         "name": "Ballerina Remote",
                         "host": "127.0.0.1",
-                        "port": 5000
+                        "port": "5005"
                     }
                 ]
             }
         ],
         "commands": [
             {
-                "command": "ballerina.showProjectOverview",
-                "title": "Project Overview",
+                "command": "ballerina.showFileOverview",
+                "title": "Show File Overview",
                 "icon": {
                     "dark": "./resources/images/icons/design-view-inverse.svg",
                     "light": "./resources/images/icons/design-view.svg"
@@ -257,6 +262,11 @@
             "editor/title": [
                 {
                     "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showFileOverview",
+                    "group": "navigation"
+                },
+                {
+                    "when": "resourceLangId == ballerina",
                     "command": "ballerina.showDocs",
                     "group": "navigation"
                 }
@@ -264,7 +274,7 @@
             "editor/context": [
                 {
                     "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showProjectOverview",
+                    "command": "ballerina.showFileOverview",
                     "group": "navigation"
                 },
                 {

@@ -62,23 +62,21 @@ public type Process object {
     
     private function doPipe(io:ReadableByteChannel input, io:WritableByteChannel output) {
         while (true) {
-            [byte[], int]|error result = input.read(self.BUF_SIZE);
-            if (result is error) {
+            byte[]|io:Error result = input.read(self.BUF_SIZE);
+            if (result is io:EofError) {
+                break;
+            } else if (result is io:Error) {
                 io:println("Error in pipe read: ", result);
                 break;
             } else {
-                if (result[1] <= 0) {
-                    break;
-                } else {
-                    int i = 0;
-                    while (i < result[1]) {
-                        var result2 = output.write(result[0], i);
-                        if (result2 is error) {
-                            io:println("Error in pipe write: ", result2);
-                            break;
-                        } else {
-                            i = i + result2;
-                        }
+                int i = 0;
+                while (i < result.length()) {
+                    var result2 = output.write(result, i);
+                    if (result2 is error) {
+                        io:println("Error in pipe write: ", result2);
+                        break;
+                    } else {
+                        i = i + result2;
                     }
                 }
             }

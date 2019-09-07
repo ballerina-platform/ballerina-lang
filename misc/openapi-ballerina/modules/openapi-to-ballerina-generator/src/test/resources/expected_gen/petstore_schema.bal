@@ -2,7 +2,7 @@ public type Pet record {
     int id;
     string name;
     string tag;
-    string type;
+    string 'type;
 };
 public type Dog record { 
     boolean bark;

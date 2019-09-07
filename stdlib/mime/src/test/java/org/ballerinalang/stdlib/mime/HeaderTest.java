@@ -121,7 +121,9 @@ public class HeaderTest {
     }
 
     @Test(description = "Test getting a value out of a non existence header", expectedExceptions =
-            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*error: Http Header does not exist!.*")
+            BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*HeaderNotFound message=Http header does not " +
+                  "exist.*")
     public void testNonExistenceHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistenceHeader");
         Assert.assertEquals(returns.length, 1);

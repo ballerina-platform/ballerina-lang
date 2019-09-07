@@ -18,23 +18,17 @@
 
 package org.ballerinalang.util;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -180,20 +174,5 @@ public class TableUtils {
             throw new BallerinaException("unsupported data type for array parameter");
         }
         return arrayData;
-    }
-
-    /**
-     * Creates an instance of {@code {@link BError}} representing an error.
-     *
-     * @param context The context
-     * @param throwable The Throwable object to be used
-     * @return error value
-     */
-    public static BError createTableOperationError(Context context, Throwable throwable) {
-        String detail = throwable.getMessage() != null ? throwable.getMessage() : DEFAULT_ERROR_DETAIL_MESSAGE;
-        BMap<String, BValue> tableErrorDetail = new BMap<>();
-        tableErrorDetail.put("message", new BString(detail));
-        return BLangVMErrors.createError(context, true, BTypes.typeError,
-                                         BallerinaErrorReasons.TABLE_OPERATION_ERROR, tableErrorDetail);
     }
 }

@@ -1,5 +1,5 @@
 import { Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
-    Invocation, Match, Return, Service, VariableDef, Visitor, WorkerSend } from "@ballerina/ast-model";
+    Invocation, Match, Return, Service, TypeDefinition, VariableDef, Visitor, WorkerSend } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
 
@@ -18,6 +18,10 @@ export const visitor: Visitor = {
             // by default hide all elements
             node.viewState.hidden = true;
         }
+    },
+
+    endVisitTypeDefinition(node: TypeDefinition) {
+        node.viewState.hidden = false;
     },
 
     endVisitService(node: Service) {

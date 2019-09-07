@@ -16,17 +16,9 @@
  */
 package org.ballerinalang.tool.util;
 
-import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.tool.LauncherUtils;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -66,39 +58,6 @@ public class BCompileUtil {
 
     //TODO find a way to remove below line.
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-
-//    Compile and setup methods
-    /**
-     * Compile and return the semantic errors. Error scenarios cannot use this method.
-     *
-     * @param sourceFilePath Path to source module/file
-     * @return compileResult
-     */
-    public static CompileResult compileAndSetup(String sourceFilePath) {
-        CompileResult compileResult = compile(sourceFilePath, CompilerPhase.CODE_GEN);
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-        BLangProgramRunner.runProgram(compileResult.getProgFile(), new BValue[0]);
-        return compileResult;
-    }
-
-    /**
-     * Compile and return the semantic errors. Error scenarios cannot use this method.
-     *
-     * @param obj this is to find the original callers location.
-     * @param sourceRoot  root path of the modules
-     * @param packageName name of the module to compile
-     * @return compileResult
-     */
-    public static CompileResult compileAndSetup(Object obj, String sourceRoot, String packageName) {
-        CompileResult compileResult = compile(obj, sourceRoot, packageName);
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-        BLangProgramRunner.runProgram(compileResult.getProgFile(), new BValue[0]);
-        return compileResult;
-    }
 
     /**
      * Compile and return the semantic errors.
@@ -349,10 +308,6 @@ public class BCompileUtil {
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage packageNode = compiler.compile(packageName);
         comResult.setAST(packageNode);
-        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
-        if (programFile != null) {
-            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
-        }
 
         return comResult;
     }
@@ -391,11 +346,6 @@ public class BCompileUtil {
             programFile = compiler.getExecutableProgram(packageNode);
         }
 
-        if (programFile != null) {
-            ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
-            pFile.setProgramFilePath(Paths.get(packageName));
-            comResult.setProgFile(pFile);
-        }
         return comResult;
     }
 
@@ -459,13 +409,6 @@ public class BCompileUtil {
         return sb.toString();
     }
 
-    public static BMap<String, BValue> createAndGetStruct(ProgramFile programFile, String packagePath,
-                                                          String structName) {
-        PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
-        StructureTypeInfo typeInfo = structPackageInfo.getStructInfo(structName);
-        return BLangVMStructs.createBStruct(typeInfo);
-    }
-
 
     /**
      * Used by IntelliJ IDEA plugin to provide semantic analyzing capability.
@@ -493,10 +436,6 @@ public class BCompileUtil {
         // compile
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage entryPackageNode = compiler.compile(fileName);
-        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPackageNode);
-        if (programFile != null) {
-            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
-        }
         Diagnostic[] diagnostics = comResult.getDiagnostics();
         return Arrays.stream(diagnostics).collect(Collectors.toList());
     }

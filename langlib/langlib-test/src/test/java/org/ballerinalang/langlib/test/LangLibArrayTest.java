@@ -36,6 +36,8 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the lang.array library.
@@ -153,19 +155,22 @@ public class LangLibArrayTest {
         assertEquals(arr.getInt(6), 87);
         assertEquals(arr.getInt(7), 98);
 
-        assertEquals(returns[1].getType().getTag(), TypeTags.ARRAY_TAG);
-        arr = (BValueArray) returns[1];
+        assertSame(returns[0], returns[1]);
+    }
+
+    @Test
+    public void testSort2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSort2");
+
+        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        BValueArray arr = (BValueArray) returns[0];
 
         assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
-        assertEquals(arr.size(), 8);
-        assertEquals(arr.getInt(0), 98);
-        assertEquals(arr.getInt(1), 34);
-        assertEquals(arr.getInt(2), 44);
-        assertEquals(arr.getInt(3), 87);
-        assertEquals(arr.getInt(4), 13);
-        assertEquals(arr.getInt(5), 2);
-        assertEquals(arr.getInt(6), 1);
-        assertEquals(arr.getInt(7), 13);
+        assertEquals(arr.size(), 100);
+
+        for (int i = 1; i < arr.size(); i++) {
+            assertTrue(arr.getInt(i) > arr.getInt(i - 1));
+        }
     }
 
     @Test

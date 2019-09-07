@@ -150,20 +150,20 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName)));
     }
 
-    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
-    public void testSearch() throws BallerinaTestException {
-        String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
-                balServer.getServerHome(), false);
-
-        // Check if the search results contains the following.
-        Assert.assertTrue(actualMsg.contains("Ballerina Central"));
-        Assert.assertTrue(actualMsg.contains("NAME"));
-        Assert.assertTrue(actualMsg.contains("DESCRIPTION"));
-        Assert.assertTrue(actualMsg.contains("DATE"));
-        Assert.assertTrue(actualMsg.contains("VERSION"));
-        Assert.assertTrue(actualMsg.contains(datePushed));
-        Assert.assertTrue(actualMsg.contains("0.1.0"));
-    }
+//    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
+//    public void testSearch() throws BallerinaTestException {
+//        String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
+//                balServer.getServerHome(), false);
+//
+//        // Check if the search results contains the following.
+//        Assert.assertTrue(actualMsg.contains("Ballerina Central"));
+//        Assert.assertTrue(actualMsg.contains("NAME"));
+//        Assert.assertTrue(actualMsg.contains("DESCRIPTION"));
+//        Assert.assertTrue(actualMsg.contains("DATE"));
+//        Assert.assertTrue(actualMsg.contains("VERSION"));
+//        Assert.assertTrue(actualMsg.contains(datePushed));
+//        Assert.assertTrue(actualMsg.contains("0.1.0"));
+//    }
 
     @Test(description = "Test push all packages in project to central")
     public void testPushAllPackages() throws Exception {
@@ -204,7 +204,7 @@ public class PackagingTestCase extends BaseTest {
         LogLeecher clientLeecherOne = new LogLeecher(orgName + "/" + firstPackage + ":0.1.0 [project repo -> central]");
         LogLeecher clientLeecherTwo = new LogLeecher(orgName + "/" + secondPackage +
                                                              ":0.1.0 [project repo -> central]");
-        balClient.runMain("push", new String[0], envVariables, new String[]{},
+        balClient.runMain("push", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{clientLeecherOne, clientLeecherTwo}, projectPath.toString());
         clientLeecherOne.waitForText(5000);
         clientLeecherTwo.waitForText(5000);

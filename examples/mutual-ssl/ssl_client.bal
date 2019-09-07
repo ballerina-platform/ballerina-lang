@@ -4,7 +4,7 @@ import ballerina/log;
 // Create a client configuration to be passed to the client endpoint.
 // Configure the `keyStoreFile`, `keyStorePassword`, `trustStoreFile`, and
 // The`trustStorePassword`, which is required to enable mutual SSL.
-http:ClientEndpointConfig clientEPConfig = {
+http:ClientConfiguration clientEPConfig = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -31,7 +31,7 @@ public function main() {
         // response.
         var payload = resp.getTextPayload();
         if (payload is string) {
-            // Log the retrieved text paylod.
+            // Log the retrieved text payload.
             log:printInfo(payload);
         } else {
             // If an error occurs while retrieving the text payload, log

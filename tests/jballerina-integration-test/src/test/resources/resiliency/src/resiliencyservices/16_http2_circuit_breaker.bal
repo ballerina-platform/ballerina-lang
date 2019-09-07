@@ -4,7 +4,7 @@ import ballerina/runtime;
 
 listener http:Listener circuitBreakerEP07 = new(9315, { httpVersion: "2.0" });
 
-http:ClientEndpointConfig conf07 = {
+http:ClientConfiguration conf07 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowInMillis: 60000,

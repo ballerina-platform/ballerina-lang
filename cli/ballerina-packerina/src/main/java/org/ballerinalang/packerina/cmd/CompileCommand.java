@@ -27,7 +27,6 @@ import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
-import org.ballerinalang.packerina.task.CreateDocsTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateLockFileTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
@@ -246,7 +245,6 @@ public class CompileCommand implements BLauncherCmd {
                 .addTask(new CopyModuleJarTask())
                 .addTask(new RunTestsTask(configFilePath), this.skipTests)  // run tests
                 .addTask(new CreateLockFileTask())  // create a lock file
-                .addTask(new CreateDocsTask())  // generate API docs
                 .build();
     
         taskExecutor.executeTasks(buildContext);

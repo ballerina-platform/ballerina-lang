@@ -17,10 +17,13 @@
 package org.ballerinalang.jvm.scheduling;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.jvm.values.ChannelDetails;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
@@ -37,6 +40,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.GLOBAL_TRANSACTION_ID;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.TRANSACTION_URL;
 import static org.ballerinalang.jvm.scheduling.SchedulerItem.POISON_PILL;
 
 /**
@@ -233,7 +238,10 @@ public class Scheduler {
             } catch (Throwable e) {
                 panic = e;
                 notifyChannels(item, panic);
-                logger.error("Strand died", e);
+              
+                if (!(e instanceof ErrorValue)) {
+                    RuntimeUtils.printCrashLog(e);
+                }
             } finally {
                 strandHolder.get().strand = null;
             }
@@ -284,6 +292,9 @@ public class Scheduler {
                     if (item.future.callback != null) {
                         if (item.future.panic != null) {
                             item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
+                            if (item.future.transactionLocalContext != null) {
+                                item.future.transactionLocalContext.notifyLocalRemoteParticipantFailure();
+                            }
                         } else {
                             item.future.callback.notifySuccess();
                         }
@@ -405,6 +416,7 @@ public class Scheduler {
             newStrand.observerContext = parent.observerContext;
         }
         FutureValue future = new FutureValue(newStrand, callback, constraint);
+        infectResourceFunction(newStrand, future);
         future.strand.frames = new Object[100];
         return future;
     }
@@ -412,6 +424,18 @@ public class Scheduler {
     public void poison() {
         for (int i = 0; i < numThreads; i++) {
             runnableList.add(POISON_PILL);
+        }
+    }
+
+    private void infectResourceFunction(Strand strand, FutureValue futureValue) {
+        String gTransactionId = (String) strand.getProperty(GLOBAL_TRANSACTION_ID);
+        if (gTransactionId != null) {
+            String globalTransactionId = strand.getProperty(GLOBAL_TRANSACTION_ID).toString();
+            String url = strand.getProperty(TRANSACTION_URL).toString();
+            TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
+                                                                                             url, "2pc");
+            strand.setLocalTransactionContext(transactionLocalContext);
+            futureValue.transactionLocalContext = transactionLocalContext;
         }
     }
 }

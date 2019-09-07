@@ -34,10 +34,18 @@ public class DebuggerAttachingVM {
     private int port;
     private VirtualMachine vm;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebuggerAttachingVM.class);
+    private String hostname = "";
 
     public DebuggerAttachingVM(int port) {
         this.port = port;
+        this.hostname = "";
     }
+
+    public DebuggerAttachingVM(int port, String hostname) {
+        this.port = port;
+        this.hostname = hostname;
+    }
+
     public VirtualMachine initialize() throws IOException, IllegalConnectorArgumentsException {
         AttachingConnector ac = Bootstrap.virtualMachineManager().attachingConnectors()
                 .stream()
@@ -46,13 +54,19 @@ public class DebuggerAttachingVM {
                 .orElseThrow(() -> new RuntimeException("Unable to locate ProcessAttachingConnector"));
 
         Map<String, Connector.Argument> defaultArgs = ac.defaultArguments();
-        Connector.IntegerArgument arg = (Connector.IntegerArgument) defaultArgs
+
+        Connector.IntegerArgument debugPort = (Connector.IntegerArgument) defaultArgs
                 .get("port");
+        debugPort.setValue(this.port);
+        defaultArgs.put("port", debugPort);
 
-        arg.setValue(this.port);
-        defaultArgs.put("port", arg);
+        if (this.hostname.length() > 0) {
+            Connector.StringArgument hostname = (Connector.StringArgument) defaultArgs.get("hostname");
+            hostname.setValue(this.hostname);
+            defaultArgs.put("hostname", hostname);
+        }
 
-        LOGGER.info("Debugger is attaching to: " + this.port);
+        LOGGER.info("Debugger is attaching to: " + this.hostname + ":" + this.port);
         vm = ac.attach(defaultArgs);
         return vm;
     }

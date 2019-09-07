@@ -19,7 +19,6 @@ package org.ballerinalang.model.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.XMLNodeType;
@@ -28,15 +27,12 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
-import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -175,12 +171,6 @@ public final class BXMLSequence extends BXML<BValueArray> {
 
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
         if (sequence.size() == 1) {
             ((BXMLItem) sequence.getRefValue(0)).setAttributes(attributes);
         }
@@ -270,12 +260,6 @@ public final class BXMLSequence extends BXML<BValueArray> {
      */
     @Override
     public void setChildren(BXML<?> seq) {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
@@ -288,12 +272,6 @@ public final class BXMLSequence extends BXML<BValueArray> {
      */
     @Override
     public void addChildren(BXML<?> seq) {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
@@ -471,12 +449,6 @@ public final class BXMLSequence extends BXML<BValueArray> {
 
     @Override
     public void removeAttribute(String qname) {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
@@ -538,27 +510,10 @@ public final class BXMLSequence extends BXML<BValueArray> {
 
     @Override
     public void removeChildren(String qname) {
-        synchronized (this) {
-            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
-            }
-        }
-
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
         ((BXMLItem) sequence.getRefValue(0)).removeChildren(qname);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
-        if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            this.freezeStatus = freezeStatus;
-            Arrays.stream(sequence.refValues).forEach(val -> val.attemptFreeze(freezeStatus));
-        }
     }
 }

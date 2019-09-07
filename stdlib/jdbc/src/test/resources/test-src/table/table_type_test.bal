@@ -1585,7 +1585,6 @@ function testToJsonAndLengthof(string jdbcURL) returns @tainted [int, int] {
                   boolean_type, string_type from DataTable", ());
 
     json result = getJsonConversionResult(selectRet);
-
     json[] jArray = checkpanic json[].constructFrom(result);
 
     // get the length before accessing
@@ -1595,6 +1594,7 @@ function testToJsonAndLengthof(string jdbcURL) returns @tainted [int, int] {
     json j = jArray[0];
     int afterLen = jArray.length();
     checkpanic testDB.stop();
+
     return [beforeLen, afterLen];
 }
 

@@ -71,8 +71,7 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
 
         if (!Strings.isNullOrEmpty(sdkVersion) && !Strings.isNullOrEmpty(pluginVersion)) {
             // Compares the major and minor version numbers between the ballerina sdk and the plugin.
-            if (!getMajorVersion(sdkVersion).equals(getMajorVersion(pluginVersion))
-                    || !getMinorVersion(sdkVersion).equals(getMinorVersion(pluginVersion))) {
+            if (!sdkVersion.trim().equals(pluginVersion.trim())) {
                 return createPanel(module, sdkVersion, pluginVersion, false);
             }
         } else if (Strings.isNullOrEmpty(sdkVersion)) {
@@ -82,8 +81,7 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
             if (!Strings.isNullOrEmpty(sdkVersion) && !Strings.isNullOrEmpty(pluginVersion)) {
                 // Compares the major and minor version numbers between the auto detected ballerina version and
                 // the plugin.
-                if (!getMajorVersion(sdkVersion).equals(getMajorVersion(pluginVersion))
-                        || !getMinorVersion(sdkVersion).equals(getMinorVersion(pluginVersion))) {
+                if (!sdkVersion.trim().equals(pluginVersion.trim())) {
                     return createPanel(module, sdkVersion, pluginVersion, true);
                 }
             }

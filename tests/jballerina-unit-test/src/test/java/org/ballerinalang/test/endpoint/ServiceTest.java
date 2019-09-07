@@ -19,6 +19,7 @@ package org.ballerinalang.test.endpoint;
 
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BCompileUtil.ExitDetails;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -26,6 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BCompileUtil.run;
 
 /**
  * Services test.
@@ -34,11 +36,11 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class ServiceTest {
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error: startError.*", enabled = false)
+    @Test
     public void testServiceInitNegativeTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_negative.bal");
-        BRunUtil.invoke(compileResult, "test1");
+        ExitDetails output = run(compileResult, new String[]{});
+        Assert.assertTrue(output.errorOutput.contains("error: startError"));
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
@@ -71,6 +73,7 @@ public class ServiceTest {
     @Test
     public void testServiceBasicsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_basic_negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 17);
         int errIdx = 0;
         validateError(compileResult, errIdx++, "resource function can not be invoked with in a service", 9, 9);
         validateError(compileResult, errIdx++, "redeclared symbol 'name1'", 19, 9);
@@ -79,17 +82,23 @@ public class ServiceTest {
         validateError(compileResult, errIdx++, "invalid listener attachment", 19, 18);
         validateError(compileResult, errIdx++, "redeclared symbol 'MyService$$service$2.foo'", 30, 14);
         validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 58, 12);
-        validateError(compileResult, errIdx++,
-                                  "a resource function cannot have an explicit visibility qualifier", 64, 5);
-        validateError(compileResult, errIdx++,
-                                  "a resource function cannot have an explicit visibility qualifier", 68, 5);
+        validateError(compileResult, errIdx++, "service methods cannot have explicit visibility qualifiers", 64, 5);
+        validateError(compileResult, errIdx++, "service methods cannot have explicit visibility qualifiers", 68, 5);
+        validateError(compileResult, errIdx++, "service methods cannot have explicit visibility qualifiers", 72, 5);
+        validateError(compileResult, errIdx++, "service methods cannot have explicit visibility qualifiers", 76, 5);
         validateError(compileResult, errIdx++, "invalid resource function return type 'string?', expected a subtype " +
-                "of 'error?' containing '()'", 74, 37);
+                "of 'error?' containing '()'", 82, 37);
         validateError(compileResult, errIdx++, "invalid resource function return type 'error', expected a subtype of " +
-                "'error?' containing '()'", 78, 37);
+                "'error?' containing '()'", 86, 37);
         validateError(compileResult, errIdx++, "invalid resource function return type '(FooErr|BarErr)', expected a " +
-                "subtype of 'error?' containing '()'", 90, 37);
-        Assert.assertEquals(compileResult.getErrorCount(), errIdx);
+                "subtype of 'error?' containing '()'", 98, 37);
+        validateError(compileResult, errIdx++, "service method call is allowed only within the type descriptor",
+                120, 9);
+        validateError(compileResult, errIdx++, "service method call is allowed only within the type descriptor",
+                121, 9);
+        validateError(compileResult, errIdx++, "service method call is allowed only within the type descriptor",
+                122, 9);
+        validateError(compileResult, errIdx, "service method call is allowed only within the type descriptor",
+                123, 9);
     }
-
 }

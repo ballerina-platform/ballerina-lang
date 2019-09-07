@@ -31,7 +31,7 @@ public type Client client object {
     private http:Client httpClientEndpoint;
     private http:FollowRedirects? followRedirects = ();
 
-    public function __init(string url, http:ClientEndpointConfig? config = ()) {
+    public function __init(string url, http:ClientConfiguration? config = ()) {
         self.hubUrl = url;
         self.httpClientEndpoint = new (self.hubUrl, config);
         self.followRedirects = config?.followRedirects;

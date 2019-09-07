@@ -331,8 +331,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.MOD, intType, floatType, floatType, InstructionCodes.FMOD);
         defineBinaryOperator(OperatorKind.MOD, decimalType, intType, decimalType, InstructionCodes.DMOD);
         defineBinaryOperator(OperatorKind.MOD, intType, decimalType, decimalType, InstructionCodes.DMOD);
-        defineBinaryOperator(OperatorKind.MOD, decimalType, floatType, decimalType, InstructionCodes.DMOD);
-        defineBinaryOperator(OperatorKind.MOD, floatType, decimalType, decimalType, InstructionCodes.DMOD);
         defineBinaryOperator(OperatorKind.BITWISE_AND, byteType, byteType, byteType, InstructionCodes.IAND);
         defineBinaryOperator(OperatorKind.BITWISE_AND, byteType, intType, byteType, InstructionCodes.IAND);
         defineBinaryOperator(OperatorKind.BITWISE_AND, intType, byteType, byteType, InstructionCodes.IAND);

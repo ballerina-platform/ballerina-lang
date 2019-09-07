@@ -1,4 +1,5 @@
 // This is the client implementation for the unary non blocking scenario.
+import ballerina/grpc;
 import ballerina/io;
 
 int total = 0;

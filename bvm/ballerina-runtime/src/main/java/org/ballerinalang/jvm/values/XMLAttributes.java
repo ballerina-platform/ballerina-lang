@@ -24,9 +24,13 @@ import org.ballerinalang.jvm.types.BTypes;
 import java.util.Map;
 
 /**
+ * <p>
  * The {@code BXMLAttributes} represents a XML attributes map in ballerina, denoted by 'foo@',
  * where foo is an xml variable.
- *
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p> 
  * @since 0.995.0
  */
 public final class XMLAttributes implements RefValue {

@@ -37,7 +37,7 @@ stream<OutOfStockAlert> oredrAlertStream = new;
 
 function initOutOfStockAlert() {
     // Whenever an order event is published to the `orderStream`, it is matched against the `itemStockTable` through
-    //the `queryItemTable` function. If there is a match, an alert event is published to the `oredrAlertStream`.
+    //the `queryItemTable` function. If there is a match, an alert event is published to the `orderAlertStream`.
     forever {
         from orderStream window length(1) as itemOrder
         join queryItemTable(itemOrder.itemName, itemOrder.orderingAmount) as item
@@ -70,7 +70,7 @@ public function main() {
     Order order1 = { itemName: "Pen", orderingAmount: 5};
     Order order2 = { itemName: "Book", orderingAmount: 2};
 
-    // Whenever the `oredrAlertStream` stream receives an event from the streaming rules defined in the `forever`
+    // Whenever the `orderAlertStream` stream receives an event from the streaming rules defined in the `forever`
     // block, the `printOutOfStocksAlert` function is invoked.
     oredrAlertStream.subscribe(printOutOfStocksAlert);
 

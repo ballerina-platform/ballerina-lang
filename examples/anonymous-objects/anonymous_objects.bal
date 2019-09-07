@@ -30,7 +30,7 @@ public function main() {
         age: 25,
         address: new("Colombo", "Sri Lanka")
     };
-    io:println(john);
+    io:println(john.address);
 
     // Since anonymous objects do not have a type name associated with them,
     // the object descriptor itself has to be specified when declaring
@@ -50,5 +50,5 @@ public function main() {
     } adr = new("London", "UK");
 
     Person jane = { name: "Jane Doe", age: 20, address: adr };
-    io:println(jane);
+    io:println(jane.address);
 }

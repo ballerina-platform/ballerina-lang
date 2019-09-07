@@ -85,7 +85,7 @@ public class PoolKey {
                 valueHashCode = ((Boolean) value ? 1 : 0);
                 break;
             default:
-                throw new AssertionError("Type " + type.getName() + " shouldn't have occurred");
+                throw new AssertionError("type " + type.getName() + " shouldn't have occurred");
             }
             hashCode = hashCode + keyHashCode + valueHashCode;
         }

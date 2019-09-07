@@ -80,14 +80,14 @@ public class GetTable {
                 records.add(delimitedChannel.read());
             }
             return getTable(typedescValue, records);
-        } catch (BallerinaIOException e) {
+        } catch (BallerinaIOException | BallerinaException e) {
             String msg = "failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
             return IOUtils.createError(msg);
         }
     }
 
-    private static TableValue getTable(TypedescValue typedescValue, List records) throws BallerinaException {
+    private static TableValue getTable(TypedescValue typedescValue, List records) {
         BType describingType = typedescValue.getDescribingType();
         TableValue table = new TableValue(new BTableType(describingType), null, null);
         BStructureType structType = (BStructureType) describingType;

@@ -49,11 +49,11 @@ dependencies {
     implementation project(':ballerina-mime')
     implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
-    implementation project(':ballerina-encoding')
     implementation project(':ballerina-system')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-task')
     implementation project(':ballerina-internal')
+    implementation project(':ballerina-stringutils')
     testCompile project(':ballerina-tool')
     testCompile 'org.slf4j:slf4j-simple'
 
@@ -73,8 +73,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
 
     // transitive
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
