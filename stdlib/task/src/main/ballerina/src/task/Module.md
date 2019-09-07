@@ -49,9 +49,9 @@ int count = 0;
 service timerService on timer {
     // This resource triggers when the timer goes off.
     resource function onTrigger() {
-        count = count + 1;
         log:printInfo("Cleaning up...");
         log:printInfo(string.convert(count));
+        count = count + 1;
     }
 }
 ```
@@ -76,9 +76,9 @@ import ballerina/task;
 // an appointment should run.
 task:AppointmentConfiguration appointmentConfiguration = {
     // This cron expression will schedule the appointment once every 2 seconds.
-    appointmentDetails: "0/2 * * * * ?",
+    appointmentDetails: "* * * * * ?",
     // Number of recurrences will limit the number of times the timer runs.
-    noOfRecurrences: 11
+    noOfRecurrences: 10
 };
 
 // Initialize the listener using pre defined configurations.
@@ -90,9 +90,9 @@ int count = 0;
 service appointmentService on appointment {
     // This resource triggers when the appointment is due.
     resource function onTrigger() {
-        count = count + 1;
         log:printInfo("Cleaning up...");
         log:printInfo(string.convert(count));
+        count = count + 1;
     }
 }
 ```
@@ -134,12 +134,12 @@ public function createTimer(int interval, int delay, int recurrences) {
     
     var result  = timer.attach(timerService);
     if (result is error) {
-        log:printError("Error attaching service: ", err = result);
+        log:printError("Error attaching service: ", result);
         return;
     }
     result = timer.start();
     if (result is error) {
-        log:printError("Error attaching service: ", err = result);
+        log:printError("Error attaching service: ", result);
         return;
     }
 }
@@ -167,12 +167,12 @@ public function createAppointment(string cronExpression, int recurrences) {
     
     var result  = appointment.attach(appointmentService);
     if (result is error) {
-        log:printError("Error attaching service: ", err = result);
+        log:printError("Error attaching service: ", result);
         return;
     }
     result = appointment.start();
     if (result is error) {
-        log:printError("Error attaching service: ", err = result);
+        log:printError("Error attaching service: ", result);
         return;
     }
 }
