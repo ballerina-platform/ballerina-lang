@@ -1,17 +1,21 @@
 NAME
         ballerina pull - pull module from Ballerina Central
 
+
 SYNOPSIS
         ballerina pull <org-name>/<module-name>[:version]
+
 
 DESCRIPTION
          Pull the given module from Ballerina Central
          (https://central.ballerina.io/) repository and install to home
          repository. By default, the module will be placed in the
-         .ballerina home repository of the user.
+         '.ballerina' home repository of the user.
+
 
 OPTIONS
          Ballerina pull command takes no options.
+
 
 EXAMPLES
          Pull Gmail connector by WSO2 from Ballerina Central

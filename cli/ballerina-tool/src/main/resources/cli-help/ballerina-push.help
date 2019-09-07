@@ -1,6 +1,7 @@
 NAME
        ballerina push - push module to Ballerina Central
 
+
 SYNOPSIS
        ballerina push <module-name> [--no-build] [--repository home]
 
@@ -14,17 +15,17 @@ DESCRIPTION
 
        Before pushing modules to central,
 
-       1) Ballerina central access token needs to be added to Settings.xml 
-       in home repository(<USER_HOME>/.ballerina/) 
-       before pushing modules to central. A token can be created 
+       1) Ballerina central access token needs to be added to 'Settings.toml' 
+       in home repository(<USER_HOME>/.ballerina/). A token can be created 
        by resgistering on Ballerina Central (https://central.ballerina.io/).
        
-       
-       2) Organization name needs to be specified 
-       for org-name in project’s Ballerina.toml file.
+       2) Organization name needs to be specified as org-name 
+       in the project’s Ballerina.toml file.
+
 
 OPTIONS
-       Ballerina pull command takes no options.
+       Ballerina push command takes no options.
+
 
 EXAMPLES
        Push math module to Ballerina Central after building it
