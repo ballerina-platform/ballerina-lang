@@ -106,15 +106,15 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
                                       "Generating executables\n" +
-                                      "\thello_world-executable.jar\n");
+                                      "\thello_world.jar\n");
         
         Assert.assertTrue(Files.exists(this.testResources
                 .resolve("valid-bal-file")
-                .resolve("hello_world-executable.jar")));
+                .resolve("hello_world.jar")));
     
         Files.delete(this.testResources
                 .resolve("valid-bal-file")
-                .resolve("hello_world-executable.jar"));
+                .resolve("hello_world.jar"));
     
         readOutput(true);
     }
@@ -166,10 +166,10 @@ public class BuildCommandTest extends CommandTest {
                                       "\thello_world.bal\n" +
                                       "Generating executables\n" +
                                       "\t" +
-                                      helloExecutableTmpDir.toAbsolutePath().resolve("hello_world-executable.jar") +
+                                      helloExecutableTmpDir.toAbsolutePath().resolve("hello_world.jar") +
                                       "\n");
     
-        Assert.assertTrue(Files.exists(helloExecutableTmpDir.toAbsolutePath().resolve("hello_world-executable.jar")));
+        Assert.assertTrue(Files.exists(helloExecutableTmpDir.toAbsolutePath().resolve("hello_world.jar")));
     
         // create executable in a different path with .jar extension
         buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
@@ -207,15 +207,15 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" + "" +
                                       "Generating executables\n" + "" +
-                                      "\thello_world-executable.jar\n");
+                                      "\thello_world.jar\n");
         
         Assert.assertTrue(Files.exists(this.testResources
                 .resolve("valid-bal-file")
-                .resolve("hello_world-executable.jar")));
+                .resolve("hello_world.jar")));
         
         Files.delete(this.testResources
                 .resolve("valid-bal-file")
-                .resolve("hello_world-executable.jar"));
+                .resolve("hello_world.jar"));
     
         readOutput(true);
     }
@@ -290,11 +290,11 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" + "" +
                                       "Generating executables\n" + "" +
-                                      "\thello_world-executable.jar\n");
+                                      "\thello_world.jar\n");
         
-        Assert.assertTrue(Files.exists(sourceRoot.resolve("hello_world-executable.jar")));
+        Assert.assertTrue(Files.exists(sourceRoot.resolve("hello_world.jar")));
     
-        Files.delete(sourceRoot.resolve("hello_world-executable.jar"));
+        Files.delete(sourceRoot.resolve("hello_world.jar"));
     
         readOutput(true);
     }
@@ -343,7 +343,7 @@ public class BuildCommandTest extends CommandTest {
                                       "\ttarget" + File.separator + "balo" + File.separator +
                 "foo-2019r3-any-1.2.0.balo\n" +
                                       "Generating executables\n" +
-                                      "\ttarget" + File.separator + "bin" + File.separator + "foo-executable.jar\n");
+                                      "\ttarget" + File.separator + "bin" + File.separator + "foo.jar\n");
 
         // Commented out below since it does a system exit and prevent rest of the test running.
         // CleanCommand cleanCommand = new CleanCommand(sourceRoot);
@@ -459,8 +459,7 @@ public class BuildCommandTest extends CommandTest {
         Path bin = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME)
                 .resolve(ProjectDirConstants.BIN_DIR_NAME);
         Assert.assertTrue(Files.exists(bin));
-        Assert.assertTrue(Files.exists(bin.resolve("mymodule" + ProjectDirConstants.EXEC_SUFFIX +
-                                                   ProjectDirConstants.BLANG_COMPILED_JAR_EXT)));
+        Assert.assertTrue(Files.exists(bin.resolve("mymodule" + ProjectDirConstants.BLANG_COMPILED_JAR_EXT)));
     }
 
     @Test(dependsOnMethods = {"testBuildCommand"})
