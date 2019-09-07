@@ -1,5 +1,6 @@
 ## Module overview
-The `ballerina/time` module provides implementations related to time, date, time zones, and durations. 
+
+This module provides implementations related to time, date, time zones, and durations. 
 
 The module has two main types as [Time](time.html#Time) and [TimeZone](time.html#TimeZone). The type `Time` represents a time associated with a given time zone. It has `time` and `zone` as attributes. The type `TimeZone` represents the time zone associated with a given time. It has `id` and `offset` as attributes. An `id` can be one of the following:
 

@@ -1,5 +1,7 @@
 ## Module overview
+
 This module provides an implementation for connecting to a remote socket server or acts as a server for an incoming socket request. The module facilitates two types of endpoints called `Client` and `Listener`.
+
 ## Samples
 ### TCP Listener endpoints
 The sample given below shows how a listener is used to listen to the incoming socket request. The `onConnect(socket:Caller)` resource function gets invoked when a new client is connected. The new client is represented using the `socket:Caller`.
