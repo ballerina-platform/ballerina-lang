@@ -4,9 +4,9 @@ NAME
 
 SYNOPSIS
        ballerina run [--offline]
-                  [--sourceroot <path>]
-                  <balfile | module-name | executable-jar>
-                  [(--key=value)...] [--] [args...]
+                     [--sourceroot <path>]
+                     <balfile | module-name | executable-jar>
+                     [(--key=value)...] [--] [args...]
 
 
 DESCRIPTION
