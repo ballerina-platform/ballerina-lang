@@ -51,7 +51,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
-import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
 
 /**

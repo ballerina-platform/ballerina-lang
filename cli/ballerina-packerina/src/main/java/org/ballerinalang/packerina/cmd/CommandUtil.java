@@ -99,8 +99,8 @@ public class CommandUtil {
 
             Path manifest = path.resolve("Ballerina.toml");
             Path src = path.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
-            Path test = path.resolve("tests");
-            Path testResources = test.resolve("resources");
+            //Path test = path.resolve("tests");
+            //Path testResources = test.resolve("resources");
             Path gitignore = path.resolve(".gitignore");
 
 
