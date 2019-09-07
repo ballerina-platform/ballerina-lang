@@ -10,10 +10,12 @@ The `jwt:InboundJwtAuthProvider` is another implementation of the `auth:InboundA
 jwt:InboundJwtAuthProvider jwtAuthProvider = new({
     issuer: "example",
     audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 ```
@@ -25,12 +27,14 @@ The `jwt:OutboundJwtAuthProvider` is another implementation of the `auth:Outboun
 ```ballerina
 jwt:OutboundJwtAuthProvider jwtAuthProvider = new({
     issuer: "example",
-    audience: "ballerina",
-    keyAlias: "ballerina",
-    keyPassword: "ballerina",
-    keyStore: {
-        path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-        password: "ballerina"
+    audience: ["ballerina"],
+    keyStoreConfig: {
+        keyAlias: "ballerina",
+        keyPassword: "ballerina",
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
     }
 });
 ```
@@ -44,7 +48,7 @@ import ballerina/jwt;
 
 public function main() {
     crypto:KeyStore keyStore = { path: "${ballerina.home}/bre/security/ballerinaKeystore.p12", password: "ballerina" };
-    jwt:JWTIssuerConfig config = {
+    jwt:JwtKeyStoreConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -73,12 +77,14 @@ import ballerina/jwt;
 
 public function main() {
     crypto:TrustStore trustStore = { path: "${ballerina.home}/bre/security/ballerinaTruststore.p12", password: "ballerina" };
-    jwt:JWTValidatorConfig config = {
+    jwt:JwtValidatorConfig config = {
         issuer: "wso2",
-        certificateAlias: "ballerina",
         audience: "ballerina",
-        clockSkew: 60,
-        trustStore: trustStore
+        clockSkewInSeconds: 60,
+        trustStoreConfig: {
+            certificateAlias: "ballerina",
+            trustStore: trustStore
+        }
     };
 
     jwt:JwtPayload|error result = jwt:validateJwt(jwtToken, config);
