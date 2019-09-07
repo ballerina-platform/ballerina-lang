@@ -29,3 +29,4 @@ EXAMPLES
 
        Add a module with a service
        $ ballerina add myservice --template service
+       
