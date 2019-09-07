@@ -42,6 +42,8 @@ dependencies {
     implementation project(':ballerina-java-arrays')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-streams')
+    implementation project(':ballerina-jsonutils')
+    implementation project(':ballerina-xmlutils')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'
@@ -87,6 +89,8 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')

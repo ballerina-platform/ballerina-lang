@@ -70,7 +70,7 @@ public class CreateSimpleHttpClient {
         try {
             url = new URL(urlString);
         } catch (MalformedURLException e) {
-            throw HttpUtil.createHttpError("Malformed URL: " + urlString, HttpErrorType.GENERIC_CLIENT_ERROR);
+            throw HttpUtil.createHttpError("malformed URL: " + urlString, HttpErrorType.GENERIC_CLIENT_ERROR);
         }
         scheme = url.getProtocol();
         Map<String, Object> properties =

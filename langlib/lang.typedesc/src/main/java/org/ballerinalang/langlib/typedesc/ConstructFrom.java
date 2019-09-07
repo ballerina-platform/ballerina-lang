@@ -18,10 +18,8 @@
 
 package org.ballerinalang.langlib.typedesc;
 
-import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
-import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
@@ -31,7 +29,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -92,19 +89,6 @@ public class ConstructFrom {
         List<BType> convertibleTypes = getConvertibleTypes(inputValue, convertType);
 
         if (convertibleTypes.size() == 0) {
-            // This would not work when the target is a union, but this is OK since table to JSON/XML conversion
-            // uses this method temporarily.
-            if (inputValType.getTag() == TypeTags.TABLE_TAG) {
-                switch (convertType.getTag()) {
-                    case TypeTags.JSON_TAG:
-                        return JSONUtils.toJSON((TableValue) inputValue);
-                    case TypeTags.XML_TAG:
-                        return XMLFactory.tableToXML((TableValue) inputValue);
-                    default:
-                        break;
-                }
-            }
-
             return createConversionError(inputValue, convertType);
         } else if (convertibleTypes.size() > 1) {
             return createConversionError(inputValue, convertType, AMBIGUOUS_TARGET);

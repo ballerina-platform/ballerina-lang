@@ -47,6 +47,7 @@ public class TableConstants {
 
     static final String SQL_TYPE_BIGINT = "BIGINT";
     static final String SQL_TYPE_DOUBLE = "DOUBLE";
+    static final String SQL_TYPE_DECIMAL = "DECIMAL";
     static final String SQL_TYPE_BOOLEAN = "BOOLEAN";
     static final String SQL_TYPE_BLOB = "BLOB";
     static final String SQL_TYPE_ARRAY = "ARRAY";

@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.preloading;
 
-import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.BufferedReader;
@@ -27,8 +26,6 @@ import java.nio.charset.Charset;
  * Launcher Terminator Implementation for Mac.
  */
 public class TerminatorMac extends TerminatorUnix {
-    private final String processIdentifier = "org.ballerinalang.langserver.launchers.stdio.Main";
-    private static final Logger LOGGER = Logger.getInstance(TerminatorMac.class);
 
     /**
      * Get find process command.
@@ -43,12 +40,17 @@ public class TerminatorMac extends TerminatorUnix {
         return cmd;
     }
 
-    /**
-     * Terminate running ballerina program.
-     */
     public void terminate() {
+        terminate(LS_PROCESS_ID);
+        terminate(DEBUG_PROCESS_ID);
+    }
+
+    /**
+     * Terminates a given ballerina program.
+     */
+    private void terminate(String processName) {
         int processID;
-        String[] findProcessCommand = getFindProcessCommand(processIdentifier);
+        String[] findProcessCommand = getFindProcessCommand(processName);
         BufferedReader reader = null;
         try {
             Process findProcess = Runtime.getRuntime().exec(findProcessCommand);
@@ -66,7 +68,7 @@ public class TerminatorMac extends TerminatorUnix {
                 }
             }
         } catch (Throwable e) {
-            LOGGER.error("Launcher was unable to find the process ID for " + processIdentifier + ".");
+            LOGGER.error("Launcher was unable to find the process ID for " + processName + ".");
         } finally {
             if (reader != null) {
                 IOUtils.closeQuietly(reader);

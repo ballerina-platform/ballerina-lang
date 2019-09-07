@@ -24,6 +24,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -33,12 +34,26 @@ import org.testng.annotations.Test;
  */
 public class JsonUtilsTest {
 
+    private CompileResult result;
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/json-to-xml-test.bal");
+    }
+
     @Test
     public void testToXmlFunction() {
-        CompileResult result = BCompileUtil.compile("test-src/json-to-xml-test.bal");
         BValue[] returns = BRunUtil.invoke(result, "testToXml");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.XML_TAG);
         Assert.assertEquals(returns[0].stringValue(), "<name>John</name><age>30</age>");
+    }
+
+    @Test
+    public void testFromTableFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "testFromTable");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"id\":1, \"age\":30, \"salary\":\"300.5\", \"name\":\"Mary\", \"married\":true}, " +
+                    "{\"id\":2, \"age\":20, \"salary\":\"300.5\", \"name\":\"John\", \"married\":true}]");
     }
 }
