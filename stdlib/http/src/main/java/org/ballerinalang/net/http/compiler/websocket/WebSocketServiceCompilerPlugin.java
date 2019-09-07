@@ -14,8 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.http.compiler;
 
+package org.ballerinalang.net.http.compiler.websocket;
+
+import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -24,7 +26,6 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -49,7 +50,7 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
                 )
         }
 )
-public class WebSocketServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
+public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog = null;
 
@@ -81,6 +82,6 @@ public class WebSocketServiceCompilerPlugin extends AbstractTransportCompilerPlu
             }
         }
         resources.forEach(
-                res -> WebSocketResourceValidator.validate(res, dlog, isResourceReturnsErrorOrNil(res), false));
+                res -> new WebSocketServiceResourceValidator(dlog, res).validate());
     }
 }

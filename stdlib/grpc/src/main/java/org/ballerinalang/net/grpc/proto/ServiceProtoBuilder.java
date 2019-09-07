@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.grpc.proto;
 
+import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -55,7 +56,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -84,7 +84,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesT
 @SupportedResourceParamTypes(
         expectedListenerType = @SupportedResourceParamTypes.Type(packageName = PROTOCOL_PACKAGE_GRPC, name = LISTENER),
         paramTypes = {@SupportedResourceParamTypes.Type(packageName = PROTOCOL_PACKAGE_GRPC, name = CALLER)})
-public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
+public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog;
     private static final PrintStream error = System.err;
@@ -110,18 +110,8 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
     public void process(ServiceNode service, List<AnnotationAttachmentNode> annotations) {
         try {
             final BLangService serviceNode = (BLangService) service;
-            // Validate service resource return type. expected error|()
-            List<BLangFunction> resources = serviceNode.getResources();
-            boolean validReturnType = true;
-            for (BLangFunction resourceNode : resources) {
-                if (!isResourceReturnsErrorOrNil(resourceNode)) {
-                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.pos,
-                            "Invalid return type: expected error?");
-                    validReturnType = false;
-                }
-            };
 
-            if (validReturnType && ServiceDefinitionValidator.validate(serviceNode, dlog)) {
+            if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
                 Optional<BLangConstant> rootDescriptor = Optional.empty();
                 Optional<BLangFunction> descriptorMapFunc = Optional.empty();
                 BLangNode serviceParentNode = serviceNode.parent;
