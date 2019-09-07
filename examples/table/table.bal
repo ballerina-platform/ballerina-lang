@@ -1,4 +1,6 @@
 import ballerina/io;
+import ballerina/jsonutils;
+import ballerina/xmlutils;
 
 type Employee record {
     int id;
@@ -71,19 +73,11 @@ public function main() {
     }
 
     // This converts the `table` to JSON format.
-    var retValJson = typedesc<json>.constructFrom(tb);
-    if (retValJson is json) {
-        io:println("JSON: ", retValJson);
-    } else {
-        io:println("Error in table to json conversion");
-    }
+    json retValJson = jsonutils:fromTable(tb);
+    io:println("JSON: ", retValJson);
 
     // This converts the `table` to XML format.
-    var retValXml = typedesc<xml>.constructFrom(tb);
-    if (retValXml is xml) {
-        io:println("XML: ", retValXml);
-    } else {
-        io:println("Error in table to xml conversion");
-    }
+    xml retValXml = xmlutils:fromTable(tb);
+    io:println("XML: ", retValXml);
 }
 
