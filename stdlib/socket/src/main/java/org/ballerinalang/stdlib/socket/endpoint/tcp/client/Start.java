@@ -82,20 +82,20 @@ public class Start {
             selectorManager.start();
         } catch (SelectorInitializeException e) {
             log.error(e.getMessage(), e);
-            error = SocketUtils.createSocketError("Unable to initialize the selector");
+            error = SocketUtils.createSocketError("unable to initialize the selector");
         } catch (CancelledKeyException e) {
-            error = SocketUtils.createSocketError("Unable to start the client socket");
+            error = SocketUtils.createSocketError("unable to start the client socket");
         } catch (AlreadyBoundException e) {
-            error = SocketUtils.createSocketError("Client socket is already bound to a port");
+            error = SocketUtils.createSocketError("client socket is already bound to a port");
         } catch (UnsupportedAddressTypeException e) {
             log.error("Address not supported", e);
-            error = SocketUtils.createSocketError("Provided address is not supported");
+            error = SocketUtils.createSocketError("provided address is not supported");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            error = SocketUtils.createSocketError("Unable to start the client socket: " + e.getMessage());
-        } catch (Throwable e) {
+            error = SocketUtils.createSocketError("unable to start the client socket: " + e.getMessage());
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
-            error = SocketUtils.createSocketError("Unable to start the socket client.");
+            error = SocketUtils.createSocketError("unable to start the socket client.");
         }
         if (error != null) {
             try {

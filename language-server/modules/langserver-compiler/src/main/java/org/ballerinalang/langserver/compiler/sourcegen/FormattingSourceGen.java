@@ -580,6 +580,17 @@ public class FormattingSourceGen {
                     && !parentKind.equals("ForkJoin")) {
                 node.addProperty("skip", true);
             }
+
+            // If variable def(worker) contains a invocation skip the generating source form this node.
+            if (node.has("isWorker")
+                    && node.get("isWorker").getAsBoolean()
+                    && node.has("variable")
+                    && node.getAsJsonObject("variable").has("initialExpression")
+                    && node.getAsJsonObject("variable").getAsJsonObject("initialExpression").has("kind")
+                    && node.getAsJsonObject("variable").getAsJsonObject("initialExpression").get("kind").getAsString()
+                    .equals("Invocation")) {
+                node.addProperty("skip", true);
+            }
         }
 
         if ("Variable".equals(kind)) {

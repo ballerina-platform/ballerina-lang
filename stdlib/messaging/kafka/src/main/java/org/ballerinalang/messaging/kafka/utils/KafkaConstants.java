@@ -45,8 +45,8 @@ public class KafkaConstants {
             KAFKA_PACKAGE_NAME);
 
     // Kafka log messages
-    public static final String SERVICE_STARTED = "[ballerina/kafka] started kafka listener";
-    public static final String SERVICE_STOPPED = "[ballerina/kafka] stopped kafka listener";
+    public static final String SERVICE_STARTED = "[ballerina/kafka] started kafka listener ";
+    public static final String SERVICE_STOPPED = "[ballerina/kafka] stopped kafka listener ";
     public static final String KAFKA_SERVERS = "[ballerina/kafka] kafka servers: ";
     public static final String SUBSCRIBED_TOPICS = "[ballerina/kafka] subscribed topics: ";
 

@@ -16,14 +16,42 @@
 
 import ballerina/stringutils;
 
-function testSplit() returns string[] {
-    string testStr = "amal,,kamal,,nimal,,sunimal,";
-    string[] arr = stringutils:split(testStr, ",,");
-    return arr;
+function testContains(string originalString, string substring) returns boolean {
+    return stringutils:contains(originalString, substring);
+}
+
+function testEqualsIgnoreCase(string firstString, string secondString) returns boolean {
+    return stringutils:equalsIgnoreCase(firstString, secondString);
+}
+
+function testHashCode(string stringValue) returns int {
+    return stringutils:hashCode(stringValue);
+}
+
+function testLastIndexOf(string originalString, string substring) returns int {
+    return stringutils:lastIndexOf(originalString, substring);
+}
+
+function testMatches(string stringToMatch, string regex) returns boolean {
+    return stringutils:matches(stringToMatch, regex);
 }
 
 function testReplace() returns string {
     string testStr = "Hello Amal!!! Nimal!!!";
     string newStr = stringutils:replace(testStr, "!!!", "!");
     return newStr;
+}
+
+function testReplaceAll(string original, string regex, string replacement) returns string {
+    return stringutils:replaceAll(original, regex, replacement);
+}
+
+function testReplaceFirst(string original, string stringToReplace, string replacement) returns string {
+    return stringutils:replaceFirst(original, stringToReplace, replacement);
+}
+
+function testSplit() returns string[] {
+    string testStr = "amal,,kamal,,nimal,,sunimal,";
+    string[] arr = stringutils:split(testStr, ",,");
+    return arr;
 }

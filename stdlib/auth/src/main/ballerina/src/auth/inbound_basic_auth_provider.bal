@@ -17,6 +17,7 @@
 import ballerina/config;
 import ballerina/crypto;
 import ballerina/internal;
+import ballerina/stringutils;
 
 # Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
 #
@@ -129,5 +130,5 @@ function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return groupsArr;
     }
-    return internal:split(groupString, ",");
+    return stringutils:split(groupString, ",");
 }

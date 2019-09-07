@@ -153,28 +153,28 @@
                             }
                         }
                     },
-                    "attach": {	
-                        "required": [	
-                            "debuggeePort",	
-                            "debuggeeHost",	
+                    "attach": {
+                        "required": [
+                            "debuggeePort",
+                            "debuggeeHost",
                             "script"
-                        ],	
-                        "properties": {	
-                            "debuggeeHost": {	
-                                "type": "string",	
-                                "description": "Remote debug server host",	
-                                "default": "127.0.0.1"	
-                            },	
+                        ],
+                        "properties": {
+                            "debuggeeHost": {
+                                "type": "string",
+                                "description": "Remote debug server host",
+                                "default": "127.0.0.1"
+                            },
                             "debuggeePort": {
-                                "type": "string",	
-                                "description": "Remote debug server port",	
+                                "type": "string",
+                                "description": "Remote debug server port",
                                 "default": "5005"
                             },
-                            "script": {	
+                            "script": {
                                 "type": "string",
-                                "default": "${file}"	
-                            }	
-                        }	
+                                "default": "${file}"
+                            }
+                        }
                     }
                 },
                 "initialConfigurations": [
@@ -192,11 +192,11 @@
                         "script": "${file}",
                         "debugTests": true
                     },
-                    {	
-                        "type": "ballerina",	
-                        "request": "attach",	
-                        "name": "Ballerina Remote",	
-                        "host": "127.0.0.1",	
+                    {
+                        "type": "ballerina",
+                        "request": "attach",
+                        "name": "Ballerina Remote",
+                        "host": "127.0.0.1",
                         "port": "5005"
                     }
                 ]

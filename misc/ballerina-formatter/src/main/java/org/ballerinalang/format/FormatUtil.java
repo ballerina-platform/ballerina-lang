@@ -35,8 +35,10 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,6 +64,7 @@ import static org.ballerinalang.langserver.compiler.format.TextDocumentFormatUti
 public class FormatUtil {
     static final String CMD_NAME = "format";
     private static final PrintStream outStream = System.err;
+    private static EmptyPrintStream emptyPrintStream;
 
     /**
      * Execute formatter.
@@ -259,9 +262,12 @@ public class FormatUtil {
      * @param sourceRoot source root
      * @return {@link List<BLangPackage>} list of BLangPackages
      */
-    private static List<BLangPackage> compileProject(Path sourceRoot) {
+    private static List<BLangPackage> compileProject(Path sourceRoot) throws UnsupportedEncodingException {
+        emptyPrintStream = new EmptyPrintStream();
         CompilerContext context = getCompilerContext(sourceRoot);
         Compiler compiler = Compiler.getInstance(context);
+        // Set an EmptyPrintStream to hide unnecessary outputs from compiler.
+        compiler.setOutStream(emptyPrintStream);
         return compiler.compilePackages(false);
     }
 
@@ -272,9 +278,12 @@ public class FormatUtil {
      * @param moduleName name of the module to be compiled
      * @return {@link BLangPackage} ballerina package
      */
-    private static BLangPackage compileModule(Path sourceRoot, String moduleName) {
+    private static BLangPackage compileModule(Path sourceRoot, String moduleName) throws UnsupportedEncodingException {
+        emptyPrintStream = new EmptyPrintStream();
         CompilerContext context = getCompilerContext(sourceRoot);
         Compiler compiler = Compiler.getInstance(context);
+        // Set an EmptyPrintStream to hide unnecessary outputs from compiler.
+        compiler.setOutStream(emptyPrintStream);
         return compiler.compile(moduleName);
     }
 
@@ -285,11 +294,14 @@ public class FormatUtil {
      * @param packageName package name of the file
      * @return {@link BLangPackage} ballerina package
      */
-    private static BLangPackage compileFile(Path sourceRoot, String packageName) {
+    private static BLangPackage compileFile(Path sourceRoot, String packageName) throws UnsupportedEncodingException {
+        emptyPrintStream = new EmptyPrintStream();
         CompilerContext context = getCompilerContext(sourceRoot);
         // Set the SourceDirectory to process this compilation as a program directory.
         context.put(SourceDirectory.class, new FileSystemProgramDirectory(sourceRoot));
         Compiler compiler = Compiler.getInstance(context);
+        // Set an EmptyPrintStream to hide unnecessary outputs from compiler.
+        compiler.setOutStream(emptyPrintStream);
         return compiler.compile(packageName);
     }
 
@@ -401,5 +413,18 @@ public class FormatUtil {
         String pattern = Pattern.quote(File.separator);
         String[] splitedTokens = moduleName.split(pattern);
         return splitedTokens[splitedTokens.length - 1];
+    }
+
+    /**
+     * Empty print stream extending the print stream.
+     */
+    static class EmptyPrintStream extends PrintStream {
+        EmptyPrintStream() throws UnsupportedEncodingException {
+            super(new OutputStream() {
+                @Override
+                public void write(int b) {
+                }
+            }, true, "UTF-8");
+        }
     }
 }

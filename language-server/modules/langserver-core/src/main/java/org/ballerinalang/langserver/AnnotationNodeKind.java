@@ -30,5 +30,6 @@ public enum AnnotationNodeKind {
     OBJECT,
     TYPE,
     EXTERNAL,
-    ANNOTATION
+    ANNOTATION,
+    WORKER
 }

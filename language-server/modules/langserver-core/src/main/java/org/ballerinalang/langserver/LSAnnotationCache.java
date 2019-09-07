@@ -66,6 +66,7 @@ public class LSAnnotationCache {
     private static HashMap<PackageID, List<BAnnotationSymbol>> externalAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> varAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> constAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> workerAnnotations = new HashMap<>();
     private static LSAnnotationCache lsAnnotationCache = null;
     private static List<PackageID> processedPackages = new ArrayList<>();
     
@@ -163,6 +164,9 @@ public class LSAnnotationCache {
             case EXTERNAL:
                 annotationMap = externalAnnotations;
                 break;
+            case WORKER:
+                annotationMap = workerAnnotations;
+                break;
             default:
                 annotationMap = new HashMap<>();
                 break;
@@ -248,6 +252,9 @@ public class LSAnnotationCache {
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CONST)) {
                     addAttachment(annotationSymbol, constAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.WORKER)) {
+                    addAttachment(annotationSymbol, workerAnnotations, bPackageSymbol.pkgID);
                 }
             }
         });

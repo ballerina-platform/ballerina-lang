@@ -1168,8 +1168,6 @@ public class SymbolEnter extends BLangNodeVisitor {
      */
     private void populatePackageNode(BLangTestablePackage pkgNode, List<BLangImportPackage> enclPkgImports) {
         populatePackageNode(pkgNode);
-        // Remove recurring imports from the testable package which appears in the enclosing bLangPackage
-        pkgNode.getImports().removeIf(enclPkgImports::contains);
     }
 
     /**
@@ -1588,15 +1586,15 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void validateResourceFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
+        if (Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)
+                && (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)
+                || Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE))) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.SERVICE_FUNCTION_INVALID_MODIFIER);
+        }
         if (!Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.RESOURCE)) {
             return;
         }
         funcNode.symbol.flags |= Flags.RESOURCE;
-
-        if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE) ||
-                Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_WITH_VISIBILITY_QUALIFIER);
-        }
 
         if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);

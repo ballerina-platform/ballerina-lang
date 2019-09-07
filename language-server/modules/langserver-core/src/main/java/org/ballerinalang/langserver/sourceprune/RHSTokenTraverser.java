@@ -36,6 +36,7 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
     private int ltTokenCount;
     private List<Integer> rhsTraverseTerminals;
     private boolean definitionRemoved;
+    private boolean forcedProcessedToken;
 
     RHSTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
         super(pruneTokens);
@@ -45,6 +46,7 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
         this.ltTokenCount = sourcePruneContext.get(SourcePruneKeys.LT_COUNT_KEY);
         this.rhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY);
         this.definitionRemoved = sourcePruneContext.get(SourcePruneKeys.REMOVE_DEFINITION_KEY);
+        this.forcedProcessedToken = false;
         this.processedTokens = new ArrayList<>();
     }
 
@@ -68,7 +70,10 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
             } else if (BallerinaParser.LT == type) {
                 ltTokenCount++;
             }
-            this.processToken(token.get());
+            if (!this.forcedProcessedToken) {
+                processToken(token.get());
+            }
+            this.forcedProcessedToken = false;
             tokenIndex = token.get().getTokenIndex() + 1;
             token = tokenIndex > tokenStream.size() - 1 ? Optional.empty() : Optional.of(tokenStream.get(tokenIndex));
         }
@@ -86,16 +91,19 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
         if (type == BallerinaParser.GT && this.ltTokenCount > 0) {
             this.ltTokenCount--;
             this.processToken(token);
+            this.forcedProcessedToken = true;
             return false;
         }
         if (type == BallerinaParser.RIGHT_PARENTHESIS && this.leftParenthesisCount > 0) {
             this.leftParenthesisCount--;
             this.processToken(token);
+            this.forcedProcessedToken = true;
             return false;
         }
         if (type == BallerinaParser.RIGHT_BRACKET && this.leftBracketCount > 0) {
             this.leftBracketCount--;
             this.processToken(token);
+            this.forcedProcessedToken = true;
             return false;
         }
         /*
@@ -122,19 +130,23 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
                 || this.lastProcessedToken == BallerinaParser.COLON)) {
             this.leftBraceCount++;
             this.processToken(token);
+            this.forcedProcessedToken = true;
             return false;
         }
         if (type == BallerinaParser.RIGHT_BRACE && this.leftBraceCount > 0) {
             this.leftBraceCount--;
             this.processToken(token);
+            this.forcedProcessedToken = true;
             return false;
         }
         if (this.leftBraceCount > 0 || this.leftParenthesisCount > 0) {
             this.processToken(token);
+            this.forcedProcessedToken = true;
             return false;
         }
         if (type == BallerinaParser.SEMICOLON || type == BallerinaParser.COMMA) {
             this.processToken(token);
+            this.forcedProcessedToken = true;
         }
         
         return true;

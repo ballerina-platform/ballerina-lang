@@ -234,6 +234,13 @@ public class TableUtils {
         return arrayData;
     }
 
+    public static ErrorValue createTableOperationError(Throwable throwable, String errorSuffix) {
+        String detail = throwable.getMessage() != null ?
+                errorSuffix + ": " + throwable.getMessage() :
+                DEFAULT_ERROR_DETAIL_MESSAGE;
+        return BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR, detail);
+    }
+
     public static ErrorValue createTableOperationError(Throwable throwable) {
         String detail = throwable.getMessage() != null ? throwable.getMessage() : DEFAULT_ERROR_DETAIL_MESSAGE;
         return BallerinaErrors

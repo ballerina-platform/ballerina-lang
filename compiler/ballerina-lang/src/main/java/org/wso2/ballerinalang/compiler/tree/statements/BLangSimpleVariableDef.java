@@ -34,6 +34,7 @@ public class BLangSimpleVariableDef extends BLangStatement implements VariableDe
 
     // TODO: remove this and apply the property as a flag set.
     public boolean isInFork = false;
+    public boolean isWorker = false;
 
     @Override
     public BLangSimpleVariable getVariable() {
@@ -53,6 +54,11 @@ public class BLangSimpleVariableDef extends BLangStatement implements VariableDe
     @Override
     public boolean getIsInFork() {
         return this.isInFork;
+    }
+
+    @Override
+    public boolean getIsWorker() {
+        return this.isWorker;
     }
 
     @Override

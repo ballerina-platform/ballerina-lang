@@ -52,8 +52,6 @@ BALLERINA COMMANDS
         dist update     Update to latest distribution version
         dist remove     Delete locally installed distribution version
 
-        self-update     Update to latest tool version
-
         format          Formats Ballerina source code
 
         encrypt         Encrypt sensitive data

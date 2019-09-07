@@ -69,6 +69,20 @@ public class CreateJarTask implements Task {
             BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir,
                     entryBir.toString(), jarOutput.toString(), this.dumpBir,
                     projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+
+            // If there is a testable package we will create testable jar.
+            if (module.hasTestablePackage()) {
+                // get the bir path of the module
+                Path testBir = buildContext.getTestBirPathFromTargetCache(module.packageID);
+
+                // get the jar path of the module.
+                Path testJarOutput = buildContext.getTestJarPathFromTargetCache(module.packageID);
+
+                BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir,
+                        testBir.toString(), testJarOutput.toString(), this.dumpBir,
+                        projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+            }
+
         }
         ConfigRegistry.getInstance().setInitialized(false);
     }
