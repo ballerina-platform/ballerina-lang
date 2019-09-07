@@ -198,6 +198,9 @@ public class TypeMatchingUtil {
                                 propertyType.setPropertyType(
                                         delimeterizeUnescapedIdentifires(
                                                 StringUtils.capitalize(ref[ref.length - 1]), false));
+                            } else if (addSchema.getType() != null) {
+                                propertyType.setPropertyType(delimeterizeUnescapedIdentifires(
+                                        addSchema.getType(), false));
                             }
                         } else if (schemaObj.getType() == null || schemaObj.getType().equals("object")) {
                             propertyType.setPropertyType("any");
