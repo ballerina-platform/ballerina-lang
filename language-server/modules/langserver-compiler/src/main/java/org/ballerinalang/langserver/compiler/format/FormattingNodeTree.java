@@ -965,6 +965,7 @@ public class FormattingNodeTree {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, true);
             String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean isGrouped = node.has("grouped") && node.get("grouped").getAsBoolean();
 
             // Preserve line separations that already available.
             this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
@@ -972,7 +973,15 @@ public class FormattingNodeTree {
 
             // Update whitespace for type node.
             if (node.has(FormattingConstants.TYPE)) {
-                node.getAsJsonObject(FormattingConstants.TYPE).add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+                JsonObject typeFormatConfig = formatConfig;
+                if (isGrouped) {
+                    typeFormatConfig = this.getFormattingConfig(0, 0, 0, false,
+                            this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
+                                    .getAsBoolean() ? indentationOfParent : indentation),
+                            formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean());
+                }
+                node.getAsJsonObject(FormattingConstants.TYPE).add(FormattingConstants.FORMATTING_CONFIG,
+                        typeFormatConfig);
             }
 
             // Update whitespace for constraint.
@@ -988,12 +997,25 @@ public class FormattingNodeTree {
                 JsonObject wsItem = item.getAsJsonObject();
                 if (this.noHeightAvailable(wsItem.get(FormattingConstants.WS).getAsString())) {
                     String text = wsItem.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals(Tokens.LESS_THAN) || text.equals(Tokens.GREATER_THAN)
+                    if (text.equals(Tokens.OPENING_PARENTHESES) && isGrouped) {
+                        if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
+                            wsItem.addProperty(FormattingConstants.WS,
+                                    this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                        } else if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                            wsItem.addProperty(FormattingConstants.WS,
+                                    this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                            + indentation);
+                        } else {
+                            wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        }
+                    } else if (text.equals(Tokens.LESS_THAN) || text.equals(Tokens.GREATER_THAN)
                             || text.equals(Tokens.CLOSING_BRACE) || text.equals(Tokens.OBJECT)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     } else if (text.equals(Tokens.TYPEDESC)) {
                         wsItem.addProperty(FormattingConstants.WS,
                                 this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES) && isGrouped) {
+                        wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
             }

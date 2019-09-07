@@ -18,3 +18,7 @@ function name3() {
     name2({a: "apple", b: "banana",c:
     "cherry"});
 }
+
+function  tableReturnFunction ()   returns    (   table<any>  )   {
+    return;
+}
