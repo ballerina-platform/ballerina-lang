@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,7 @@ import java.util.Optional;
 public class TopLevelScopeProvider extends LSCompletionProvider {
     public TopLevelScopeProvider() {
         this.attachmentPoints.add(BLangPackage.class);
+        this.attachmentPoints.add(BLangTestablePackage.class);
     }
 
     @Override

@@ -16,8 +16,8 @@
 
 import ballerina/bir;
 import ballerina/io;
-import ballerina/internal;
 import ballerina/jvm;
+import ballerina/stringutils;
 
 type TerminatorGenerator object {
     jvm:MethodVisitor mv;
@@ -96,7 +96,7 @@ type TerminatorGenerator object {
 
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
-    
+
     function genFieldLockTerm(bir:FieldLock lockIns, string funcName, int localVarOffset, bir:BType? attachedType) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
         string lockClass = "L" + LOCK_VALUE + ";";
@@ -143,7 +143,7 @@ type TerminatorGenerator object {
                     var lockName = computeLockNameFromString(fieldName);
                     self.loadVar(localLock.localVar);
                     self.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-                    self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);               
+                    self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
                 }
             } else {
                 error err = error( "JVM field unlock generation is not supported for type " +
@@ -152,7 +152,7 @@ type TerminatorGenerator object {
             }
 
         }
-    
+
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
@@ -232,7 +232,7 @@ type TerminatorGenerator object {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitVarInsn(ALOAD, 0);
             loadChannelDetails(self.mv, channels);
-            self.mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, "handleWorkerError", 
+            self.mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, "handleWorkerError",
                 io:sprintf("(L%s;L%s;[L%s;)V", REF_VALUE, STRAND, CHANNEL_DETAILS), false);
         }
     }
@@ -245,7 +245,7 @@ type TerminatorGenerator object {
         self.mv.visitVarInsn(ALOAD, 0);
         loadChannelDetails(self.mv, channels);
         self.mv.visitVarInsn(ALOAD, retIndex);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleChannelError", io:sprintf("([L%s;L%s;)V", 
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleChannelError", io:sprintf("([L%s;L%s;)V",
             CHANNEL_DETAILS, ERROR_VALUE), false);
     }
 
@@ -379,7 +379,7 @@ type TerminatorGenerator object {
         self.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodName);
     }
 
-    private function genBuiltinTypeAttachedFuncCall(bir:Call callIns, string orgName, string moduleName, 
+    private function genBuiltinTypeAttachedFuncCall(bir:Call callIns, string orgName, string moduleName,
                                                     int localVarOffset) {
         string methodLookupName = callIns.name.value;
         int? optionalIndex = methodLookupName.indexOf(".");
@@ -388,7 +388,7 @@ type TerminatorGenerator object {
         self.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodLookupName);
     }
 
-    private function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset, 
+    private function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset,
                                    string methodName, string methodLookupName) {
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -539,7 +539,7 @@ type TerminatorGenerator object {
         createFunctionPointer(self.mv, currentClass, lambdaName, isVoid, 0);
         lambdas[lambdaName] = callIns;
         lambdaIndex += 1;
-        
+
         self.submitToScheduler(callIns.lhsOp, localVarOffset);
     }
 
@@ -567,7 +567,7 @@ type TerminatorGenerator object {
                                  kind: "ARG" };
         int resultIndex = self.getJVMIndexOfVarRef(tempVar);
         self.mv.visitVarInsn(ASTORE, resultIndex);
-        
+
         // assign result if result available
         jvm:Label afterIf = new;
         self.mv.visitVarInsn(ALOAD, resultIndex);
@@ -608,16 +608,16 @@ type TerminatorGenerator object {
         if (fpCall.isAsync) {
             // Load the scheduler from strand
             self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));    
+            self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
         } else {
             // load function ref, going to directly call the fp
             self.loadVar(fpCall.fp.variableDcl);
         }
-        
+
         // create an object array of args
         self.mv.visitIntInsn(BIPUSH, fpCall.args.length() * 2 + 1);
         self.mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        
+
         // load strand
         self.mv.visitInsn(DUP);
 
@@ -652,7 +652,7 @@ type TerminatorGenerator object {
         if (fpCall.isAsync) {
             // load function ref now
             self.loadVar(fpCall.fp.variableDcl);
-            self.submitToScheduler(fpCall.lhsOp, localVarOffset);           
+            self.submitToScheduler(fpCall.lhsOp, localVarOffset);
         } else if (isVoid) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "accept", io:sprintf("(L%s;)V", OBJECT), false);
         } else {
@@ -685,38 +685,38 @@ type TerminatorGenerator object {
         }
         self.mv.visitFieldInsn(GETFIELD, STRAND, "wdChannels", io:sprintf("L%s;", WD_CHANNELS));
         self.mv.visitLdcInsn(ins.channelName.value);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;", 
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;",
             STRING_VALUE, WORKER_DATA_CHANNEL), false);
         self.loadVar(ins.dataOp.variableDcl);
         addBoxInsn(self.mv, ins.dataOp.typeValue);
         self.mv.visitVarInsn(ALOAD, localVarOffset);
 
         if (!ins.isSync) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "sendData", io:sprintf("(L%s;L%s;)V", OBJECT, 
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "sendData", io:sprintf("(L%s;L%s;)V", OBJECT,
                 STRAND), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "syncSendData", io:sprintf("(L%s;L%s;)L%s;", 
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "syncSendData", io:sprintf("(L%s;L%s;)L%s;",
                 OBJECT, STRAND, OBJECT), false);
             bir:VarRef? lhsOp = ins.lhsOp;
             if (lhsOp is bir:VarRef) {
                 self.storeToVar(lhsOp.variableDcl);
             }
-        } 
+        }
     }
 
     function genWorkerReceiveIns(bir:WorkerReceive ins, string funcName, int localVarOffset) {
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         if (!ins.isSameStrand) {
             self.mv.visitFieldInsn(GETFIELD, STRAND, "parent", io:sprintf("L%s;", STRAND));
-        }     
+        }
         self.mv.visitFieldInsn(GETFIELD, STRAND, "wdChannels", io:sprintf("L%s;", WD_CHANNELS));
         self.mv.visitLdcInsn(ins.channelName.value);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;", 
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;",
             STRING_VALUE, WORKER_DATA_CHANNEL), false);
- 
+
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "tryTakeData", io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
-        
+
         bir:VariableDcl tempVar = { typeValue: "any",
                                  name: { value: "wrkMsg" },
                                  kind: "ARG" };
@@ -739,11 +739,11 @@ type TerminatorGenerator object {
     function genFlushIns(bir:Flush ins, string funcName, int localVarOffset) {
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         loadChannelDetails(self.mv, ins.workerChannels);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleFlush", 
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleFlush",
                 io:sprintf("([L%s;)L%s;", CHANNEL_DETAILS, ERROR_VALUE), false);
         self.storeToVar(ins.lhsOp.variableDcl);
     }
-        
+
     function submitToScheduler(bir:VarRef? lhsOp, int localVarOffset) {
         bir:BType? futureType = lhsOp?.typeValue;
         boolean isVoid = false;
@@ -826,7 +826,7 @@ function loadChannelDetails(jvm:MethodVisitor mv, bir:ChannelDetail[] channels) 
 
 
 function cleanupObjectTypeName(string typeName) returns string {
-    int index = internal:lastIndexOf(typeName, ".");
+    int index = stringutils:lastIndexOf(typeName, ".");
     if (index > 0) {
         return typeName.substring(index + 1, typeName.length());
     } else {
@@ -841,7 +841,7 @@ function isExternStaticFunctionCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) r
 
     if (callIns is bir:Call) {
         if (callIns.isVirtual) {
-            return false; 
+            return false;
         }
         methodName = callIns.name.value;
         orgName = callIns.pkgID.org;

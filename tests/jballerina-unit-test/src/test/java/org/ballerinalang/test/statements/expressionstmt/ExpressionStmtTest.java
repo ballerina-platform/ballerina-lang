@@ -50,11 +50,14 @@ public class ExpressionStmtTest {
     @Test
     public void testInvalid2Statements() {
         CompileResult result = BCompileUtil.compile("test-src/statements/expression/expression-stmt2-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 4);
+        Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "variable assignment is required", 3, 5);
         BAssertUtil.validateError(result, 1, "variable assignment is required", 5, 5);
         BAssertUtil.validateError(result, 2, "variable assignment is required", 7, 5);
-        BAssertUtil.validateError(result, 3, "invalid statement", 9, 5);
+        // TODO: {enableCodeAnalyzerTests} following won't get captured after (typeChecker, semanticAnalyzer) &
+        //  codeAnalyzer separation.
+        //
+        //        BAssertUtil.validateError(result, 3, "invalid statement", 9, 5);
     }
 
 }

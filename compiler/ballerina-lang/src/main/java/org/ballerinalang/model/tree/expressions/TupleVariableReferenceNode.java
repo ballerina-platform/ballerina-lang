@@ -39,4 +39,6 @@ public interface TupleVariableReferenceNode extends VariableReferenceNode {
 
     List<? extends ExpressionNode> getExpressions();
 
+    ExpressionNode getRestParam();
+
 }

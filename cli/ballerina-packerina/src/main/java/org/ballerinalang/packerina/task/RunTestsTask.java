@@ -73,7 +73,9 @@ public class RunTestsTask implements Task {
                     //     <org-name>/<package-name>:<version>
                     //         No tests found
                 // }
-                Path jarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
+                Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
+                Path modulejarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID).getFileName();
+                String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
                 JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(jarPath,
                         Paths.get(sourceRootPath.toString(), "target", "tmp").toFile());
                 programFileMap.put(bLangPackage, classLoader);

@@ -36,4 +36,5 @@ public interface TupleDestructureNode extends StatementNode {
 
     void setExpression(ExpressionNode expression);
 
+    ExpressionNode getRestParam();
 }

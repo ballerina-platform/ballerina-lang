@@ -15,9 +15,7 @@
 // under the License.
 
 type Foo object {
-    *map<string>;
     *Bar;
-    *int;
 };
 
 type Bar abstract object {
@@ -25,6 +23,3 @@ type Bar abstract object {
     string y;
 };
 
-type XXX object {
-    *YYY;   // non existing type
-};

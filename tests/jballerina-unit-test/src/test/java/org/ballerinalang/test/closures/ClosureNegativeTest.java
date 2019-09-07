@@ -28,10 +28,10 @@ import org.testng.annotations.Test;
  */
 public class ClosureNegativeTest {
 
-    @Test(description = "Test private field access")
-    public void testPrivateFieldAccess() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/closures/closure-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 18);
+    @Test(description = "Test semantics of private field access")
+    public void testSemanticsOfPrivateFieldAccess() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/closures/closure-semantic-negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 14);
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'functionR'", 6, 56);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'methodInt3'", 17, 44);
@@ -46,10 +46,17 @@ public class ClosureNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 84, 40);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 84, 44);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 87, 36);
-        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 96, 24);
-        BAssertUtil.validateError(compileResult, index++, "variable 'a' is not initialized", 108, 22);
-        BAssertUtil.validateError(compileResult, index++, "variable 'count' is not initialized", 117, 9);
-        BAssertUtil.validateError(compileResult, index++, "variable 'b' is not initialized", 119, 9);
-        BAssertUtil.validateError(compileResult, index, "variable 'b' is not initialized", 119, 13);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 98, 24);
+    }
+
+    @Test(description = "Test private field access")
+    public void testPrivateFieldAccess() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/closures/closure-negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 4);
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "variable 'a' is not initialized", 5, 22);
+        BAssertUtil.validateError(compileResult, index++, "variable 'count' is not initialized", 14, 9);
+        BAssertUtil.validateError(compileResult, index++, "variable 'b' is not initialized", 16, 9);
+        BAssertUtil.validateError(compileResult, index, "variable 'b' is not initialized", 16, 13);
     }
 }

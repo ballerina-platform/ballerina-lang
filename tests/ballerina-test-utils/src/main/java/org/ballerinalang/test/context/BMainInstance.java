@@ -287,7 +287,7 @@ public class BMainInstance implements BMain {
      */
     private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties,
                         String[] clientArgs, LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
-        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + "-executable.jar").toFile().getPath(),
+        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
                        args, envProperties, clientArgs, leechers, commandDir);
     }
 
@@ -306,7 +306,7 @@ public class BMainInstance implements BMain {
                         LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
         String balFileName = Paths.get(balFile).getFileName().toString();
         String jarPath = Paths.get(Paths.get(commandDir).toString(), balFileName.substring(0, balFileName.length() -
-                4) + "-executable.jar").toString();
+                4) + ".jar").toString();
         executeJarFile(jarPath, args, envProperties, clientArgs, leechers, commandDir);
     }
 

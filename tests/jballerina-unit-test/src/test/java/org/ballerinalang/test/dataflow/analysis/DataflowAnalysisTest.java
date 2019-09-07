@@ -31,6 +31,16 @@ import org.testng.annotations.Test;
 public class DataflowAnalysisTest {
 
     @Test(description = "Test uninitialized variables")
+    public void testSemanticsOfUninitializedVariables() {
+        CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-semantics-negative" +
+                ".bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "undefined field 'f' in object 'Foo'", 312, 9);
+        BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 552, 12);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test(description = "Test uninitialized variables")
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
         int i = 0;
@@ -57,7 +67,6 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 269, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 290, 20);
         BAssertUtil.validateError(result, i++, "uninitialized field 'd'", 304, 5);
-        BAssertUtil.validateError(result, i++, "undefined field 'f' in object 'Foo'", 312, 9);
         BAssertUtil.validateError(result, i++, "variable 'd' is not initialized", 329, 16);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 385, 5);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 404, 13);
@@ -69,7 +78,6 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "unreachable code", 510, 9);
         BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 523, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 525, 5);
-        BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 552, 12);
         BAssertUtil.validateError(result, i++, "uninitialized field 'b'", 577, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 578, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 's'", 586, 14);

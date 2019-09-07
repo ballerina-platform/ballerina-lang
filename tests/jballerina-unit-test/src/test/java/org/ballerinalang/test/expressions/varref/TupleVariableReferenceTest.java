@@ -39,12 +39,14 @@ import org.testng.annotations.Test;
  */
 public class TupleVariableReferenceTest {
 
-    private CompileResult result, resultNegative;
+    private CompileResult result, resultNegative, resultSemanticsNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference.bal");
         resultNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference" +
+                "-semantics-negative.bal");
     }
 
     @Test(description = "Test tuple var reference 1")
@@ -276,58 +278,65 @@ public class TupleVariableReferenceTest {
     }
 
     @Test
-    public void testNegativeTupleVariablesReferences() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 38);
+    public void testTupleVariablesReferencesSemanticsNegative() {
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 35);
         int i = -1;
         String errorMsg1 = "incompatible types: expected ";
 
-        BAssertUtil.validateError(resultNegative, ++i, "tuple and expression size does not match", 19, 17);
-        BAssertUtil.validateError(resultNegative, ++i, "tuple and expression size does not match", 24, 17);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'string', found 'int'", 29, 18);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'string'", 29, 22);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'float', found 'boolean'", 29, 30);
-        BAssertUtil.validateError(resultNegative, ++i, "undefined symbol 'e'", 34, 15);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'string', found 'int'", 34, 21);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'string'", 34, 25);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'float', found 'boolean'", 34, 33);
-        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 's'", 40, 20);
-        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'i'", 40, 23);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'string', found 'int'", 45, 10);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'string'", 46, 10);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'float', found 'boolean'", 47, 10);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'[string,int,float]', found '[float,boolean,int]'",
-                52, 20);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'string', found 'int'", 62, 17);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'string'", 62, 21);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'float', found 'boolean'", 63, 10);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Foo', found 'Bar'", 72, 28);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'BarObj', found 'FooObj'", 72, 34);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'FooObj', found 'BarObj'", 72, 42);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 72, 52);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Foo', found 'Bar'", 81, 25);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'[BarObj,FooObj]', found 'FooObj'", 81, 30);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 81, 38);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'Bar'", 90, 36);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Foo', found 'int'", 90, 41);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'BarObj', found 'FooObj'", 90, 46);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'FooObj', found 'BarObj'", 90, 60);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 90, 69);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "tuple and expression size does not match", 19, 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "tuple and expression size does not match", 24, 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'string', found 'int'", 29, 18);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'int', found 'string'", 29, 22);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'float', found 'boolean'", 29, 30);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "undefined symbol 'e'", 34, 15);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'string', found 'int'", 34, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'int', found 'string'", 34, 25);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'float', found 'boolean'", 34, 33);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 's'", 40, 20);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'i'", 40, 23);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'string', found 'int'", 45, 10);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'int', found 'string'", 46, 10);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'float', found 'boolean'", 47, 10);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'[string,int,float]', found '[float," +
+                        "boolean,int]'", 52, 20);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'string', found 'int'", 62, 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'int', found 'string'", 62, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'float', found 'boolean'", 63, 10);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'Foo', found 'Bar'", 72, 28);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'BarObj', found 'FooObj'", 72, 34);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'FooObj', found 'BarObj'", 72, 42);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 72, 52);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'Foo', found 'Bar'", 81, 25);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'[BarObj,FooObj]', found 'FooObj'", 81,
+                30);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 81, 38);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'int', found 'Bar'", 90, 36);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'Foo', found 'int'", 90, 41);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'BarObj', found 'FooObj'", 90, 46);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'FooObj', found 'BarObj'", 90, 60);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 90, 69);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 127, 36);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found '[string,int,boolean,int,float,int]'",
                 134, 36);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 139, 84);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid binding pattern, variable reference 'm[var1]' cannot be used with binding pattern", 160, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid binding pattern, variable reference 'm[var2]' cannot be used with binding pattern", 160, 18);
+    }
+
+    @Test
+    public void testNegativeTupleVariablesReferences() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
-                "duplicate variable 'a'", 146, 9);
+                "duplicate variable 'a'", 20, 9);
         BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
-                "duplicate variable 'a'", 153, 10);
+                "duplicate variable 'a'", 27, 10);
         BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
-                "duplicate variable 'a'", 153, 13);
-        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference 'm[var1]' cannot " +
-                "be used with binding pattern", 160, 6);
-        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference 'm[var2]' cannot " +
-                "be used with binding pattern", 160, 18);
+                "duplicate variable 'a'", 27, 13);
     }
 }

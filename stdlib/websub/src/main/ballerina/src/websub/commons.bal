@@ -18,7 +18,6 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
-import ballerina/internal;
 import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
@@ -230,16 +229,16 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string signature = stringutils:replace(xHubSignature, method + "=", "");
     string generatedSignature = "";
 
-    if (internal:equalsIgnoreCase(method, SHA1)) {
+    if (stringutils:equalsIgnoreCase(method, SHA1)) {
         generatedSignature = crypto:hmacSha1(stringPayload.toBytes(), secret.toBytes()).toBase16();
-    } else if (internal:equalsIgnoreCase(method, SHA256)) {
+    } else if (stringutils:equalsIgnoreCase(method, SHA256)) {
         generatedSignature = crypto:hmacSha256(stringPayload.toBytes(), secret.toBytes()).toBase16();
     } else {
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Unsupported signature method: " + method);
         return webSubError;
     }
 
-    if (!internal:equalsIgnoreCase(signature, generatedSignature)) {
+    if (!stringutils:equalsIgnoreCase(signature, generatedSignature)) {
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Signature validation failed: Invalid Signature!");
         return webSubError;
     }
@@ -383,10 +382,10 @@ public function extractTopicAndHubUrls(http:Response response) returns @tainted 
             string url = linkConstituents[0].trim();
             url = stringutils:replace(url, "<", "");
             url = stringutils:replace(url, ">", "");
-            if (internal:contains(linkConstituents[1], "rel=\"hub\"")) {
+            if (stringutils:contains(linkConstituents[1], "rel=\"hub\"")) {
                 hubs[hubIndex] = url;
                 hubIndex += 1;
-            } else if (internal:contains(linkConstituents[1], "rel=\"self\"")) {
+            } else if (stringutils:contains(linkConstituents[1], "rel=\"self\"")) {
                 if (topic != "") {
                     error websubError = error(WEBSUB_ERROR_CODE, message = "Link Header contains > 1 self URLs");
                     return websubError;

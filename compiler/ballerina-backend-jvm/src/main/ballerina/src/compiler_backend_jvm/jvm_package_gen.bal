@@ -16,7 +16,6 @@
 
 import ballerina/bir;
 import ballerina/file;
-import ballerina/internal;
 import ballerina/io;
 import ballerina/jvm;
 import ballerina/stringutils;
@@ -159,7 +158,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     // enrich current package with package initializers
     enrichPkgWithInitializers(jvmClassMap, typeOwnerClass, module, dependentModuleArray);
 
-    // generate the shutdown listener class. 
+    // generate the shutdown listener class.
     generateShutdownSignalListener(module, typeOwnerClass, jarFile.pkgEntries);
 
     boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
@@ -236,7 +235,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
 
 function createDependantModuleFlatArray() {
     foreach var [k, id] in dependentModules.entries() {
-        dependentModuleArray[dependentModuleArray.length()] = id; 
+        dependentModuleArray[dependentModuleArray.length()] = id;
     }
 }
 
@@ -351,7 +350,7 @@ function getModuleLevelClassName(string orgName, string moduleName, string sourc
         className = cleanupName(moduleName) + "/" + className;
     }
 
-    if (!internal:equalsIgnoreCase(orgName, "$anon")) {
+    if (!stringutils:equalsIgnoreCase(orgName, "$anon")) {
         className = cleanupName(orgName) + "/" + className;
     }
 
@@ -364,7 +363,7 @@ function getPackageName(string orgName, string moduleName) returns string {
         packageName = cleanupName(moduleName) + "/";
     }
 
-    if (!internal:equalsIgnoreCase(orgName, "$anon")) {
+    if (!stringutils:equalsIgnoreCase(orgName, "$anon")) {
         packageName = cleanupName(orgName) + "/" + packageName;
     }
 
@@ -372,7 +371,7 @@ function getPackageName(string orgName, string moduleName) returns string {
 }
 
 function splitPkgName(string key) returns [string, string] {
-    int index = internal:lastIndexOf(key, "/");
+    int index = stringutils:lastIndexOf(key, "/");
     string pkgName = key.substring(0, index);
     string functionName = key.substring(index + 1, key.length());
     return [pkgName, functionName];
@@ -387,7 +386,7 @@ function cleanupSourceFileName(string name) returns string {
 }
 
 function cleanupPackageName(string pkgName) returns string {
-    int index = internal:lastIndexOf(pkgName, "/");
+    int index = stringutils:lastIndexOf(pkgName, "/");
     if (index > 0) {
         return pkgName.substring(0, index);
     } else {
@@ -395,7 +394,7 @@ function cleanupPackageName(string pkgName) returns string {
     }
 }
 
-# Java Class will be generate for each source file. This method add class mappings to globalVar and filters the 
+# Java Class will be generate for each source file. This method add class mappings to globalVar and filters the
 # functions based on their source file name and then returns map of associated java class contents.
 #
 # + module - The module
@@ -403,9 +402,9 @@ function cleanupPackageName(string pkgName) returns string {
 # + initClass - The module init class
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
-function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
+function generateClassNameMappings(bir:Package module, string pkgName, string initClass,
                                    map<bir:AsyncCall|bir:FPLoad> lambdaCalls) returns map<JavaClass> {
-    
+
     string orgName = module.org.value;
     string moduleName = module.name.value;
     string versionValue = module.versionValue.value;
@@ -421,7 +420,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
     if (functions.length() > 0) {
         int funcSize = functions.length();
         int count  = 0;
-        // Generate init class. Init function should be the first function of the package, hence check first 
+        // Generate init class. Init function should be the first function of the package, hence check first
         // function.
         bir:Function initFunc = <bir:Function>functions[0];
         string functionName = initFunc.name.value;
@@ -536,7 +535,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
     return jvmClassMap;
 }
 
-function getFunctionWrapper(bir:Function currentFunc, string orgName ,string moduleName, 
+function getFunctionWrapper(bir:Function currentFunc, string orgName ,string moduleName,
                             string versionValue,  string  moduleClass) returns BIRFunctionWrapper {
 
     bir:BInvokableType functionTypeDesc = currentFunc.typeValue;

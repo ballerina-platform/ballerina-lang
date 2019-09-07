@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
 import ballerina/lang.'int as langint;
 import ballerina/stringutils;
 import ballerina/system;
@@ -113,11 +112,11 @@ public type StreamEvent object {
         int index = 0;
         map<anydata>[] dArray = self.dataMap[alias] ?: [{}];
         if (aliasSplit.length() > 1) {
-            string replacedString = internal:replaceAll(aliasSplit[1], "]", "");
+            string replacedString = stringutils:replaceAll(aliasSplit[1], "]", "");
             string indexStr = replacedString.trim();
-            if (internal:contains(indexStr, "last")) {
+            if (stringutils:contains(indexStr, "last")) {
                 int lastIndex = dArray.length();
-                if (internal:contains(indexStr, "-")) {
+                if (stringutils:contains(indexStr, "-")) {
                     string[] vals = stringutils:split(indexStr, "-");
                     string subCount = vals[1].trim();
                     index = lastIndex - checkpanic langint:fromString(subCount);
