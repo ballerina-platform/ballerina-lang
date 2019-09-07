@@ -18,7 +18,7 @@ public function main() {
     log:printTrace("trace log");
     log:printWarn("warn log");
     // To set the log level of the API, use the following CLI parameter: <br>
-    // `-e b7a.log.level=[LOG_LEVEL]`
+    // `--b7a.log.level=[LOG_LEVEL]`
     //
     // To configure using a configuration file, place the entry given below in
     // the file:
@@ -32,7 +32,7 @@ public function main() {
     // log level to a module, provide the following configuration
     // `<MODULE_NAME>.loglevel`.
     //
-    // E.g., `-e foo.loglevel=DEBUG`
+    // E.g., `--foo.loglevel=DEBUG`
     Fruit apple = new("Apple");
     Fruit orange = new("Orange");
 

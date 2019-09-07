@@ -46,7 +46,7 @@ public class BLangConstants {
     public static final String BALLERINA_ARGS_INIT_PREFIX = "--";
     public static final int BALLERINA_ARGS_INIT_PREFIX_LENGTH = BALLERINA_ARGS_INIT_PREFIX.length();
     public static final String CONFIG_SEPARATOR = "=";
-    public static final String CONFIG_FILE_PROPERTY = "b7a.config";
+    public static final String CONFIG_FILE_PROPERTY = "b7a.config.file";
 
     public static final String EMPTY = "";
     public static final String ANON_ORG = "$anon";
