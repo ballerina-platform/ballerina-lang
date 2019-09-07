@@ -166,14 +166,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "internal",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "internal",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "jvm",
       "kind": "Module",
       "detail": "Package",

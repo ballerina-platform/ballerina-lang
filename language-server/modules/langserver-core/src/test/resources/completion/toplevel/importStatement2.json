@@ -198,14 +198,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/internal",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "ballerina/internal",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/jvm",
       "kind": "Module",
       "detail": "Package",
