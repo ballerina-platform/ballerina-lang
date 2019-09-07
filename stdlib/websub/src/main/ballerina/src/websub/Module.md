@@ -1,4 +1,5 @@
 ## Module overview
+
 This module contains an implementation of the W3C [**WebSub**](https://www.w3.org/TR/websub/) recommendation, which facilitates a push-based content delivery/notification mechanism between publishers and subscribers.
 
 This implementation supports introducing all WebSub components: subscribers, publishers, and hubs.

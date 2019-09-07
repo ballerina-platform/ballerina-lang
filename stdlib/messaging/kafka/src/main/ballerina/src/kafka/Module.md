@@ -1,7 +1,7 @@
-## Package overview
+## Module overview
 
-Ballerina Kafka Connector is used to connect Ballerina with Kafka Brokers. With the Kafka Connector, Ballerina can act as Kafka Consumers and Kafka Producers.
-This connector supports kafka 1.x.x and 2.0.0 versions.
+This module is used to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.
+This module supports kafka 1.x.x and 2.0.0 versions.
 
 ## Samples
 ### Simple Kafka Consumer

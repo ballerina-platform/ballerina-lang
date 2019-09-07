@@ -1,4 +1,5 @@
 ## Module overview
+
 This module contains functions to support gRPC protocol based communication. gRPC is a framework developed by Google
 to support the RPC (Remote Procedure Call) protocol. The gRPC protocol is layered over HTTP/2. This protocol only supports client-initiated communication.
 

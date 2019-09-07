@@ -1,4 +1,5 @@
 ## Module overview
+
 This module provides the following code generation capabilities to Ballerina:
 1. Generate the Ballerina code for a given OpenAPI definition.
 2. Generate the client stub for an existing Ballerina service at build time.
