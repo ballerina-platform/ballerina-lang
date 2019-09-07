@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
@@ -91,6 +92,7 @@ public class CompilerDriver {
     private final BIRGen birGenerator;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
+    private boolean isToolingCompilation;
 
 
     public static CompilerDriver getInstance(CompilerContext context) {
@@ -121,6 +123,8 @@ public class CompilerDriver {
         this.birGenerator = BIRGen.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
+        this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
+                && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
 
     public BLangPackage compilePackage(BLangPackage packageNode) {
@@ -299,7 +303,8 @@ public class CompilerDriver {
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
-        return nextPhase == CompilerPhase.TAINT_ANALYZE ||
+        return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
+                nextPhase == CompilerPhase.TAINT_ANALYZE ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN ||
                 nextPhase == CompilerPhase.DESUGAR;
     }

@@ -57,7 +57,7 @@ dependencies {
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.2.18'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.2.22'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
@@ -136,11 +136,13 @@ dependencies {
     distBal project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jwt', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-docker', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-kubernetes', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-istio', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-openshift', configuration: 'baloImplementation')
 
     // Lang libs
     distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
@@ -193,11 +195,13 @@ dependencies {
     balSource project(path: ':ballerina-stringutils', configuration: 'balSource')
     balSource project(path: ':ballerina-utils', configuration: 'balSource')
     balSource project(path: ':ballerina-jwt', configuration: 'balSource')
-    balSource project(path: ':ballerina-ldap', configuration: 'balSource')
     balSource project(path: ':ballerina-oauth2', configuration: 'balSource')
     balSource project(path: ':ballerina-xmlutils', configuration: 'balSource')
     balSource project(path: ':ballerina-jsonutils', configuration: 'balSource')
     balSource project(path: ':ballerina-docker', configuration: 'balSource')
+    balSource project(path: ':ballerina-kubernetes', configuration: 'balSource')
+    balSource project(path: ':ballerina-istio', configuration: 'balSource')
+    balSource project(path: ':ballerina-openshift', configuration: 'balSource')
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
@@ -258,11 +262,13 @@ dependencies {
     dist project(':ballerina-nats')
     dist project(':ballerina-stringutils')
     dist project(':ballerina-jwt')
-    dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
     dist project(':ballerina-xmlutils')
     dist project(':ballerina-jsonutils')
     dist project(':ballerina-docker')
+    dist project(':ballerina-kubernetes')
+    dist project(':ballerina-istio')
+    dist project(':ballerina-openshift')
 
     // Lang libs
     dist project(':ballerina-lang:internal')

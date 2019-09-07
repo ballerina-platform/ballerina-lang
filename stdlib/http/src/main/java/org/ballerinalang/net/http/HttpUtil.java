@@ -121,7 +121,6 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSI
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
-import static org.ballerinalang.net.http.HttpConstants.COLON;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
@@ -172,26 +171,20 @@ import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
-import static org.wso2.transport.http.netty.contract.Constants
-        .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY;
-import static org.wso2.transport.http.netty.contract.Constants
-        .REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
-import static org.wso2.transport.http.netty.contract.Constants
-        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.contract.Constants
-        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.contract.Constants
-        .REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
-import static org.wso2.transport.http.netty.contract.Constants
-        .REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 
 /**
  * Utility class providing utility methods.
@@ -405,13 +398,11 @@ public class HttpUtil {
     }
 
     private static String getErrorMessage(ErrorValue error) {
-        String errorMsg = error.getReason();
-        //TODO Test whether error.getDetails() can be casted to (MapValue)
         MapValue errorDetails = (MapValue) error.getDetails();
         if (!errorDetails.isEmpty()) {
-            errorMsg = errorMsg.concat(COLON + errorDetails.get(HTTP_ERROR_MESSAGE));
+            return errorDetails.get(HTTP_ERROR_MESSAGE).toString();
         }
-        return errorMsg;
+        return error.getReason();
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {

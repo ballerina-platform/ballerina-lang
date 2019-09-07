@@ -42,6 +42,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     baloCreat project(':lib-creator')
     testCompile project(':ballerina-tool')

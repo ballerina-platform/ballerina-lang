@@ -93,7 +93,5 @@ public class ProjectDirConstants {
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
 
-    public static final String EXEC_SUFFIX = "-executable";
-
     public static final String BLANG_PKG_DEFAULT_VERSION = "0.0.0";
 }

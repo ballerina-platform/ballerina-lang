@@ -309,7 +309,7 @@ type Foo object {
         self.b = e;
         self.c = c;
         self.e = e;
-        self.f = f;
+
     }
 
     function getA() returns int {
@@ -549,7 +549,7 @@ function testVariableAssignment() returns [string, boolean, int, string] {
 }
 
 function getPerson() returns Person {
-    return {name: "Peter", married: true, age: {age:12, format: "Y"}};
+    return {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ["a", 1]};
 }
 
 function testDataflow_12() returns string {

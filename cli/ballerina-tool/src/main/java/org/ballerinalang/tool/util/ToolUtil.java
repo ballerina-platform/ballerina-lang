@@ -54,7 +54,7 @@ import javax.net.ssl.X509TrustManager;
  * Ballerina tool utilities.
  */
 public class ToolUtil {
-    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/update-tool";
+    private static final String PRODUCTION_URL = "https://api.central.ballerina.io/1.0/update-tool";
     private static final String BALLERINA_TYPE = "jballerina";
     private static final String BALLERINA_TOOL_NAME = "ballerina";
 
@@ -194,7 +194,7 @@ public class ToolUtil {
 
                 String distributionType = distribution.split("-")[0];
                 String distributionVersion = distribution.replace(distributionType + "-", "");
-                URL url = new URL(STAGING_URL + "/distributions/" + distributionVersion);
+                URL url = new URL(PRODUCTION_URL + "/distributions/" + distributionVersion);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("user-agent",
@@ -334,7 +334,7 @@ public class ToolUtil {
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
         MapValue distributions;
-        URL url = new URL(STAGING_URL + "/distributions");
+        URL url = new URL(PRODUCTION_URL + "/distributions");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("user-agent",
@@ -421,8 +421,9 @@ public class ToolUtil {
                     String latestVersion = currentVersion.getLatest(versions.stream().toArray(String[]::new));
                     if (!latestVersion.equals(version)) {
                         printStream.println();
-                        printStream.println("New Ballerina " + latestVersion + " version is available");
-                        printStream.println("Please use \"ballerina dist update\" command to update");
+                        printStream.println("A new Ballerina version is available : " + latestVersion);
+                        printStream.println("You can download the installer of it from " +
+                                            "https://ballerina.io/downloads/.");
                         printStream.println();
                     }
                 }

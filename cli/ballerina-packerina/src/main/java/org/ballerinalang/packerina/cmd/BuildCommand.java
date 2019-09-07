@@ -405,7 +405,7 @@ public class BuildCommand implements BLauncherCmd {
         out.append("\n");
         out.append("Building a single Ballerina file will create an executable .jar file in the \n");
         out.append("current directory. The name of the executable file will be. \n");
-        out.append("<ballerina-file-name>-executable.jar. \n");
+        out.append("<ballerina-file-name>.jar. \n");
         out.append("\n");
         out.append("If the output file is specified with the -o flag, the output \n");
         out.append("will be written to the given output file name. The -o flag will only \n");

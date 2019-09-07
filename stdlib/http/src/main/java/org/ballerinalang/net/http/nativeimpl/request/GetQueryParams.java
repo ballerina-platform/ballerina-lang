@@ -69,7 +69,7 @@ public class GetQueryParams {
             requestObj.addNativeData(QUERY_PARAM_MAP, params);
             return params;
         } catch (Exception e) {
-            throw HttpUtil.createHttpError("Error while retrieving query param from message: " + e.getMessage(),
+            throw HttpUtil.createHttpError("error while retrieving query param from message: " + e.getMessage(),
                                            HttpErrorType.GENERIC_LISTENER_ERROR);
         }
     }

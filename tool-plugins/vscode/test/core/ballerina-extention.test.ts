@@ -40,6 +40,7 @@ suite("Ballerina Extension Core Tests", function () {
     });
 
     test("Test autoDetectBallerinaHome", function () {
+        this.skip();
         // Following should not throw an error all times.
         const { home } = ballerinaExtInstance.autoDetectBallerinaHome();
         if (home) {

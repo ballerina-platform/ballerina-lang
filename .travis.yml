@@ -35,28 +35,11 @@ install:
   - nvm use 8.9.0
   - npm install -g npm@'5.6.0'
 
-jobs:
-  include:
-    - stage: "Build and Check"
-      name: "Build without tests"
-      script:
-      - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-      - ./gradlew build --console=plain -x test -x createJavadoc --stacktrace -scan
-      # Killing background sleep loop
-      - kill %1
-    - stage: "Tests"
-      name: "Run Build + tests (without integration) - checks"
-      script:
-        - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew build -x :jballerina-integration-test:test -x check -x createJavadoc --stacktrace -scan
-        # Killing background sleep loop
-        - kill %1   
-    - script:
-        - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew :jballerina-integration-test:test --stacktrace -scan -x createJavadoc -Dorg.gradle.parallel=false
-        # Killing background sleep loop
-        - kill %1 
-      name:  "Integration tests"
+script:
+  - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+  - ./gradlew build --console=plain --stacktrace -scan -x createJavadoc -Dorg.gradle.parallel=false
+  # Killing background sleep loop
+  - kill %1
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

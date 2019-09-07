@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
 import ballerina/stringutils;
 
 # The `OutputProcess` object is responsible for sending the output (only the events of type `streams:CURRENT` to the
@@ -40,7 +39,7 @@ public type OutputProcess object {
                 map<anydata> outputData = {};
                 foreach var [k, v] in event.data.entries() {
                     string[] s = stringutils:split(k, "\\.");
-                    if (internal:equalsIgnoreCase(OUTPUT, s[0])) {
+                    if (stringutils:equalsIgnoreCase(OUTPUT, s[0])) {
                         outputData[s[1]] = v;
                     }
                 }

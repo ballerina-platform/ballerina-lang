@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  */
 public class ModuleExecutionFlowTests {
 
-    @Test
+    @Test(enabled = false)
     public void testModuleExecutionOrder() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj1", "c", false);
         ExitDetails output = run(compileResult, new String[]{});
@@ -49,7 +49,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testModuleInitReturningError() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj2", "c", false);
         ExitDetails output = run(compileResult, new String[]{});
@@ -66,7 +66,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testModuleStartReturningError() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj3", "c", false);
         ExitDetails output = run(compileResult, new String[]{});
@@ -86,7 +86,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testModuleInitPanic() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj4", "c", false);
         ExitDetails output = run(compileResult, new String[]{});
@@ -104,7 +104,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testModuleStartPanic() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj5", "c", false);
         ExitDetails output = run(compileResult, new String[]{});
@@ -125,7 +125,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testModuleStopPanic() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj6", "c", false);
         ExitDetails output = run(compileResult, new String[]{});
@@ -144,7 +144,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testModuleMainReturnError() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj7", "c", false);
         ExitDetails output = run(compileResult, new String[]{});
@@ -162,7 +162,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testModuleMainPanicError() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj8", "c", false);
         ExitDetails output = run(compileResult, new String[]{});

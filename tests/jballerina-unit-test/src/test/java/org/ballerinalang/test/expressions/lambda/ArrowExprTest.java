@@ -38,11 +38,13 @@ import org.testng.annotations.Test;
  */
 public class ArrowExprTest {
 
-    private CompileResult basic, resultNegative;
+    private CompileResult basic, resultNegative, resultSemanticsNegative;
 
     @BeforeClass
     public void setup() {
         basic = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression.bal");
+        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression-semantics-" +
+                "negative.bal");
         resultNegative = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression-negative.bal");
     }
 
@@ -213,34 +215,39 @@ public class ArrowExprTest {
     }
 
     @Test(description = "Test compile time errors for arrow expression")
-    public void testNegativeArrowExpr() {
+    public void testArrowExprSemanticsNegative() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 14);
-        BAssertUtil.validateError(resultNegative, i++,
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 12);
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "operator '/' not defined for 'string' and 'int'", 18, 54);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "incompatible types: expected 'boolean', found 'string'", 24, 19);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "invalid number of parameters used in arrow expression. expected: '2' but found '1'", 29, 58);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 31, 50);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "incompatible types: expected 'int', found 'boolean'", 35, 56);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "cannot infer types of the arrow expression with unknown invokable type", 39, 19);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "cannot infer types of the arrow expression with unknown invokable type", 40, 19);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "undefined symbol 'param1'", 45, 5);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "redeclared symbol 'param1'", 50, 50);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "undefined symbol 'closureVar'", 54, 61);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "undefined symbol 'm'", 60, 58);
-        BAssertUtil.validateError(resultNegative, i++,
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "invalid number of parameters used in arrow expression. expected: '0' but found '1'", 68, 40);
-        BAssertUtil.validateError(resultNegative, i++, "variable 'i' is not initialized", 74, 54);
-        BAssertUtil.validateError(resultNegative, i, "variable 'm' is not initialized", 74, 58);
+    }
+
+    @Test(description = "Test compile time errors for arrow expression")
+    public void testNegativeArrowExpr() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resultNegative, 0, "variable 'i' is not initialized", 20, 54);
+        BAssertUtil.validateError(resultNegative, 1, "variable 'm' is not initialized", 20, 58);
     }
 }

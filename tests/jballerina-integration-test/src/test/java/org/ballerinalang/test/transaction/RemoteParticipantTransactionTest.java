@@ -151,10 +151,9 @@ public class RemoteParticipantTransactionTest extends BaseTest {
                 "remoteParticipantStartNestedTransaction");
         HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        String target = " in initiator-trx remote1-excepted:[{ballerina}TransactionError:dynamically nested " +
-                "transactions are not allowed] onretry in initiator-trx " +
-                "remote1-excepted:[{ballerina}TransactionError:dynamically nested transactions are not allowed] " +
-                "onretry in initiator-trx remote1-excepted:[{ballerina}TransactionError:dynamically nested " +
+        String target = " in initiator-trx remote1-excepted:[dynamically nested " +
+                "transactions are not allowed] onretry in initiator-trx remote1-excepted:[dynamically nested " +
+                "transactions are not allowed] onretry in initiator-trx remote1-excepted:[dynamically nested " +
                 "transactions are not allowed] aborted";
         assertEquals(response.getData(), target, "payload mismatched");
     }

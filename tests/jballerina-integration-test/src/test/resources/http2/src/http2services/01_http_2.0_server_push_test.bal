@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/http;
-import ballerina/internal;
+import ballerina/stringutils;
 
 listener http:Listener frontendEP = new(9090);
 
@@ -84,7 +84,7 @@ service frontendHttpService on frontendEP {
         }
         // Check whether correct response received
         string responseStringPayload = responseJsonPayload.toString();
-        if (!(internal:contains(responseStringPayload, "main"))) {
+        if (!(stringutils:contains(responseStringPayload, "main"))) {
             json errMsg = { "error": "expected response message not received" };
             checkpanic caller->respond(errMsg);
             return;
@@ -118,7 +118,7 @@ service frontendHttpService on frontendEP {
             // check whether expected
             string expectedVal = promise.path.substring(1, 10);
             string promisedStringPayload = promisedJsonPayload.toString();
-            if (!(internal:contains(promisedStringPayload, expectedVal))) {
+            if (!(stringutils:contains(promisedStringPayload, expectedVal))) {
                 json errMsg = { "error": "expected promised response not received" };
                 checkpanic caller->respond(errMsg);
                 return;

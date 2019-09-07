@@ -3,7 +3,7 @@
 $ ballerina build websocket_basic_sample.bal
 
 # Run the sample using the `run` command on the jar file generated:
-$ ballerina run websocket_basic_sample-executable.jar
+$ ballerina run websocket_basic_sample.jar
 
 # To check the sample, use a Chrome or Firefox JavaScript console and run the following commands. <br>
 # Change `xml` to another sub protocol to observe the behavior of the WebSocket server.
