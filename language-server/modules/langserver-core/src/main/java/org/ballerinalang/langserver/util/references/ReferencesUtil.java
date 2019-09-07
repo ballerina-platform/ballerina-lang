@@ -238,7 +238,8 @@ public class ReferencesUtil {
         /*
         In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
          */
-        String currentCUnitName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY).replace("\\", "/");
+        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        String currentCUnitName = relativePath.replace("\\", "/");
         Optional<BLangPackage> currentPkg = modules.stream()
                 .filter(pkg -> pkg.symbol.getName().getValue().equals(currentPkgName))
                 .findAny();
@@ -247,13 +248,14 @@ public class ReferencesUtil {
             throw new UserErrorException("Not supported due to compilation failures!");
         }
 
-        Optional<BLangCompilationUnit> currentCUnit = currentPkg.get().getCompilationUnits().stream()
+        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, currentPkg.get());
+
+        Optional<BLangCompilationUnit> currentCUnit = sourceOwnerPkg.getCompilationUnits().stream()
                 .filter(cUnit -> cUnit.name.equals(currentCUnitName))
                 .findAny();
 
         SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, currentPkgName, position,
                                                                                      true);
-
         refVisitor.visit(currentCUnit.get());
 
         // Prune the found symbol references

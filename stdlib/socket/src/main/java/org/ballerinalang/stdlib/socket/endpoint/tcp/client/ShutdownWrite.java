@@ -59,12 +59,12 @@ public class ShutdownWrite {
                 socketChannel.shutdownOutput();
             }
         } catch (ClosedChannelException e) {
-            return SocketUtils.createSocketError("Socket is already closed");
+            return SocketUtils.createSocketError("socket is already closed");
         } catch (IOException e) {
             log.error("Unable to shutdown the write", e);
-            return SocketUtils.createSocketError("Unable to shutdown the write");
+            return SocketUtils.createSocketError("unable to shutdown the write");
         } catch (NotYetConnectedException e) {
-            return SocketUtils.createSocketError("Socket is not yet connected");
+            return SocketUtils.createSocketError("socket is not yet connected");
         }
         return null;
     }

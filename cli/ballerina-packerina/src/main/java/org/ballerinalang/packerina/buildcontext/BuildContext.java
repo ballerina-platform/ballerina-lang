@@ -399,6 +399,30 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             throw new BLangCompilerException("error creating bir_cache dir for module(s): " + targetBirCacheDir);
         }
     }
+
+    public Path getTestBirPathFromTargetCache(PackageID moduleID) {
+        try {
+            Files.createDirectories(targetBirCacheDir);
+            switch (this.getSourceType()) {
+                case SINGLE_BAL_FILE:
+                    SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                    String birFileName = singleFileContext.getBalFileNameWithoutExtension() + "-testable" +
+                    BLANG_COMPILED_PKG_BIR_EXT;
+                    return targetBirCacheDir.resolve(birFileName);
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    Path moduleBirCacheDir = Files.createDirectories(targetBirCacheDir
+                            .resolve(moduleID.orgName.value)
+                            .resolve(moduleID.name.value)
+                            .resolve(moduleID.version.value));
+                    return moduleBirCacheDir.resolve(moduleID.name.value + "-testable" + BLANG_COMPILED_PKG_BIR_EXT);
+                default:
+                    throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
+            }
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + targetBirCacheDir);
+        }
+    }
     
     public Path getJarPathFromTargetCache(PackageID moduleID) {
         try {
@@ -422,6 +446,33 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                     throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
             }
             
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + targetJarCacheDir);
+        }
+    }
+
+    public Path getTestJarPathFromTargetCache(PackageID moduleID) {
+        try {
+            Files.createDirectories(targetJarCacheDir);
+            switch (this.getSourceType()) {
+                case SINGLE_BAL_FILE:
+                    SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                    String birFileName = singleFileContext.getBalFileNameWithoutExtension() + "-testable"  +
+                            BLANG_COMPILED_JAR_EXT;
+                    return targetJarCacheDir.resolve(birFileName);
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    Path moduleBirCacheDir = Files.createDirectories(targetJarCacheDir
+                            .resolve(moduleID.orgName.value)
+                            .resolve(moduleID.name.value)
+                            .resolve(moduleID.version.value));
+                    return moduleBirCacheDir.resolve(moduleID.orgName.value + "-" +
+                            moduleID.name.value + "-" +
+                            moduleID.version.value + "-testable" + BLANG_COMPILED_JAR_EXT);
+                default:
+                    throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
+            }
+
         } catch (IOException e) {
             throw new BLangCompilerException("error creating bir_cache dir for module(s): " + targetJarCacheDir);
         }

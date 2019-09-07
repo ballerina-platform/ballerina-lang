@@ -1,6 +1,7 @@
 import ballerina/io;
 import ballerina/runtime;
 
+const annotation v1 on source worker;
 int globalResult = 0;
 
 function testAsyncNonNativeBasic1() returns int {
@@ -76,4 +77,20 @@ function infiniteFunc() {
     while (true) {
         i = i + 1;
     }
+}
+
+public function main() {
+    future<int> f1 =
+    @v1
+    start
+    foo
+    (
+    )
+    ;
+
+    future<int> f2 = @v1 start foo();
+}
+
+function foo() returns int {
+    return 1;
 }

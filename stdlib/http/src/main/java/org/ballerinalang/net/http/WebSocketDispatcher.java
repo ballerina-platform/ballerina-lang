@@ -29,7 +29,6 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -83,14 +82,14 @@ public class WebSocketDispatcher {
             WebSocketService service = servicesRegistry.getUriTemplate().matches(requestUri.getPath(), pathParams,
                     webSocketHandshaker);
             if (service == null) {
-                throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
+                throw new WebSocketException("no Service found to handle the service request: " + serviceUri);
             }
             HttpCarbonMessage msg = webSocketHandshaker.getHttpCarbonRequest();
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
-        } catch (BallerinaConnectorException | URITemplateException e) {
+        } catch (WebSocketException | URITemplateException e) {
             String message = "No Service found to handle the service request";
             webSocketHandshaker.cancelHandshake(404, message);
             log.error(message, e);
@@ -169,7 +168,7 @@ public class WebSocketDispatcher {
                 default:
                     //Throw an exception because a different type is invalid.
                     //Cannot reach here because of compiler plugin validation.
-                    throw new BallerinaConnectorException("Invalid resource signature.");
+                    throw new WebSocketException("Invalid resource signature.");
             }
         } catch (WebSocketException ex) {
             webSocketConnection.terminateConnection(1003, ex.detailMessage());

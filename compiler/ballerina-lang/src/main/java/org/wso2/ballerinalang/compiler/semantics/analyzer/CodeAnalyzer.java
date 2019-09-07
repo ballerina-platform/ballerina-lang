@@ -1282,21 +1282,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void checkWorkerPeerWorkerUsageInsideWorker(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
         if ((symbol.flags & Flags.WORKER) == Flags.WORKER) {
-            // Current location is a worker lambda
-            // And refering symbol is in a toplevel function.
-            boolean isInFunctionTopLevel = symbol.owner != null
-                    && symbol.owner.owner != null
-                    && symbol.owner.owner.getKind() == SymbolKind.PACKAGE;
-            if (env.scope.owner != null
-                    && (((BInvokableSymbol) env.scope.owner).flags & Flags.WORKER) == Flags.WORKER
-                    && isInFunctionTopLevel
-                    && env.scope.lookup(symbol.name).symbol == null) {
+            if (isCurrentPositionInWorker(env) && env.scope.lookup(symbol.name).symbol == null) {
                 if (referingForkedWorkerOutOfFork(symbol, env)) {
                     return;
                 }
                 dlog.error(pos, DiagnosticCode.INVALID_WORKER_REFERRENCE, symbol.name);
             }
         }
+    }
+
+    private boolean isCurrentPositionInWorker(SymbolEnv env) {
+        if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.WORKER)) {
+            return true;
+        }
+        if (env.enclEnv != null
+                && !(env.enclEnv.node.getKind() == NodeKind.PACKAGE
+                    || env.enclEnv.node.getKind() == NodeKind.OBJECT_TYPE)) {
+            return isCurrentPositionInWorker(env.enclEnv);
+        }
+        return false;
     }
 
     private boolean referingForkedWorkerOutOfFork(BSymbol symbol, SymbolEnv env) {

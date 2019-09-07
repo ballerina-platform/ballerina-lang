@@ -25,7 +25,10 @@ const debugConfigProvider: DebugConfigurationProvider = {
 };
 
 async function getModifiedConfigs(config: DebugConfiguration) {
-    const debuggeePort = await getPortPromise({ port: 5010, stopPort: 10000});
+    let debuggeePort = config.debuggeePort;
+    if (!debuggeePort) {
+        debuggeePort = await getPortPromise({ port: 5010, stopPort: 10000});
+    }
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
     if (!ballerinaHome) {
         ballerinaExtInstance.showMessageInstallBallerina();
@@ -75,8 +78,6 @@ async function getModifiedConfigs(config: DebugConfiguration) {
     if (!config.debugServer) {
         const debugServer = await getPortPromise({port: 10001, stopPort: 20000});
         config.debugServer = debugServer.toString();
-    } else {
-        config.isDebugDevMode;
     }
     return config;
 }
@@ -94,45 +95,43 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Thenable<DebugAdapterDescriptor> {
         const port = session.configuration.debugServer;
         const ballerinaPath = ballerinaExtInstance.getBallerinaHome();
+
+        let startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");
+        // Ensure that start script can be executed
+        if (isUnix()) {
+            child_process.exec("chmod +x " + startScriptPath);
+        }
         const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides/vscode-plugin/run-and-debug/";
-        const showDetails: string = 'More Details';
-        window.showWarningMessage("Stepping over code lines with action invocations may not work properly. Click \"More Details\" for workarounds", showDetails).then((selection)=>{
+        const showDetails: string = 'Learn More';
+        window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known limitations and workarounds.",
+            showDetails).then((selection)=>{
             if (showDetails === selection) {
                 commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
             }
         });
-        if (session.configuration.isDebugDevMode) {
-            return Promise.resolve(new DebugAdapterServer(port));
-        } else {
-            let startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");
-            // Ensure that start script can be executed
-            if (isUnix()) {
-                child_process.exec("chmod +x " + startScriptPath);
-            } else {
-                startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
-            }
-    
-            const serverProcess = child_process.spawn(startScriptPath, [
-                port.toString()
-            ]);
-    
-            log("Starting debug adapter: " + startScriptPath);
-            
-            return new Promise((resolve)=>{
-                serverProcess.stdout.on('data', (data) => {
-                    if (data.toString().includes('Debug server started')) {
-                        resolve();
-                    }
-                    log(`${data}`);
-                });
+        startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
         
-                serverProcess.stderr.on('data', (data) => {
-                    debugLog(`${data}`);
-                });
-            }).then(()=>{
-                ballerinaExtInstance.telemetryReporter.sendTelemetryEvent(TM_EVENT_START_DEBUG_SESSION);
-                return new DebugAdapterServer(port);
+
+        const serverProcess = child_process.spawn(startScriptPath, [
+            port.toString()
+        ]);
+
+        log("Starting debug adapter: " + startScriptPath);
+        
+        return new Promise((resolve)=>{
+            serverProcess.stdout.on('data', (data) => {
+                if (data.toString().includes('Debug server started')) {
+                    resolve();
+                }
+                log(`${data}`);
             });
-        }
+    
+            serverProcess.stderr.on('data', (data) => {
+                debugLog(`${data}`);
+            });
+        }).then(()=>{
+            ballerinaExtInstance.telemetryReporter.sendTelemetryEvent(TM_EVENT_START_DEBUG_SESSION);
+            return new DebugAdapterServer(port);
+        });
     }
 }
