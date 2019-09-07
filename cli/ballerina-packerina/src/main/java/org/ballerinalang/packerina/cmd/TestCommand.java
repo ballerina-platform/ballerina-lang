@@ -119,7 +119,7 @@ public class TestCommand implements BLauncherCmd {
 
     public void execute() {
         if (this.helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
         }
