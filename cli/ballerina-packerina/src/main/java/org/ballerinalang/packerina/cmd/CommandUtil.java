@@ -107,7 +107,8 @@ public class CommandUtil {
             Files.createFile(manifest);
             Files.createFile(gitignore);
             Files.createDirectory(src);
-            Files.createDirectory(test);
+            // todo enable this
+            //Files.createDirectory(test);
             Files.createDirectory(testResources);
 
             String defaultManifest = BCompileUtil.readFileAsString("new_cmd_defaults/manifest.toml");
