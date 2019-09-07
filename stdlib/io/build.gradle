@@ -43,6 +43,7 @@ dependencies {
     testCompile 'commons-codec:commons-codec'
     testCompile 'org.apache.ws.commons.axiom:axiom-dom'
     testCompile 'com.h2database:h2'
+    testCompile project(':ballerina-file')
 
     bir project(path: ':ballerina-time', configuration: 'bir')
 

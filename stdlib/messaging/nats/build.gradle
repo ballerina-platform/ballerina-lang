@@ -60,6 +60,8 @@ dependencies {
 
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testCompile project(':ballerina-file')
+    testCompile project(':ballerina-core')
 }
 
 createBalo {
