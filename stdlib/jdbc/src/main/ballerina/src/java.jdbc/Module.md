@@ -221,8 +221,9 @@ type Student record {
     int age;
 };
 
-// Select the data from the table.
-var selectRet = testDB->select("SELECT * FROM student", Student);
+// Select the data from the table. Query Parameters are passed directly. Similar to `update` examples,
+// parameters can be passed as `jdbc:Parameter`s as well.
+var selectRet = testDB->select("SELECT * FROM student WHERE id<? AND age>?", Student, 10, 12);
 if (selectRet is table<Student>) {
     // Iterating returned table.
     foreach var row in selectRet {
