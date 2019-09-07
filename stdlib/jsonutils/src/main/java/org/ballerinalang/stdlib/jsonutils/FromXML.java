@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *   Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,30 +19,38 @@
 package org.ballerinalang.stdlib.jsonutils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Converts a JSON to the corresponding XML representation.
+ * Converts a XML to the corresponding JSON representation.
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jsonutils", functionName = "toXML", isPublic = true
+        orgName = "ballerina", packageName = "jsonutils", functionName = "fromXML", isPublic = true
 )
-public class ToXML {
+public class FromXML {
 
     private static final String OPTIONS_ATTRIBUTE_PREFIX = "attributePrefix";
-    private static final String OPTIONS_ARRAY_ENTRY_TAG = "arrayEntryTag";
+    private static final String OPTIONS_PRESERVE_NS = "preserveNamespaces";
 
-    public static Object toXML(Strand strand, Object json, MapValue<?, ?> options) {
+    public static Object fromXML(Strand strand, XMLValue<?> xml, MapValue<?, ?> options) {
         try {
             String attributePrefix = (String) options.get(OPTIONS_ATTRIBUTE_PREFIX);
-            String arrayEntryTag = (String) options.get(OPTIONS_ARRAY_ENTRY_TAG);
-            return JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
+            boolean preserveNamespaces = ((Boolean) options.get(OPTIONS_PRESERVE_NS));
+            return XMLFactory.convertToJSON(xml, attributePrefix, preserveNamespaces);
         } catch (Throwable e) {
-            return BallerinaErrors.createError("{ballerina/jsonutils}Error", e.getMessage());
+            try {
+                BLangExceptionHelper.handleXMLException("{ballerina/jsonutils}Error", e);
+            } catch (Throwable ex) {
+                return BallerinaErrors.createError("{ballerina/jsonutils}Error", ex.getMessage());
+            }
         }
+        return null;
     }
 }

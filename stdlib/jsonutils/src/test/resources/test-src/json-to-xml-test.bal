@@ -24,13 +24,12 @@ type Person record {
     boolean married;
 };
 
-function testToXml() returns xml|error {
-    json data = {
-        name: "John",
-        age: 30
-    };
-    xml|error x = jsonutils:toXML(data);
-    return x;
+function testFromXML() returns json|error {
+    var x1 = xml `<!-- outer comment -->`;
+    var x2 = xml `<name>supun</name>`;
+    xml x3 = x1 + x2;
+    json|error j = jsonutils:fromXML(x3);
+    return j;
 }
 
 public function testFromTable() returns string {

@@ -18,8 +18,9 @@
 package org.ballerinalang.stdlib.jsonutils;
 
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -40,12 +41,12 @@ public class JsonUtilsTest {
         result = BCompileUtil.compile("test-src/json-to-xml-test.bal");
     }
 
-    @Test
-    public void testToXmlFunction() {
-        BValue[] returns = BRunUtil.invoke(result, "testToXml");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.XML_TAG);
-        Assert.assertEquals(returns[0].stringValue(), "<name>John</name><age>30</age>");
+    @Test(description = "Test jsonutils:fromXML function")
+    public void testFromXMLFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "testFromXML");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(((BMapType) returns[0].getType()).getConstrainedType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\"}");
     }
 
     @Test
