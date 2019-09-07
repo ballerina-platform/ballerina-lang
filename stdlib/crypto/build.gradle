@@ -36,6 +36,7 @@ dependencies {
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
+    testCompile project(':ballerina-file')
 }
 
 configurations.all {

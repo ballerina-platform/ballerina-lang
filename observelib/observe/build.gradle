@@ -47,6 +47,7 @@ dependencies {
     testCompile project(':ballerina-runtime')
     testCompile project(':ballerina-test-common')
     testCompile project(':ballerina-core')
+    testCompile project(':ballerina-file')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-api'
     testCompile 'org.slf4j:slf4j-simple'

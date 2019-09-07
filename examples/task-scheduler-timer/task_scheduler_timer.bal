@@ -25,8 +25,7 @@ public function main() {
 
     // Attaching the service to the timer. This will not start the timer.
     // However, it will attach the service to the timer and also passes the
-    // person object into the timer service.
-    // `attachment` will pass the object into the `onTrigger()` resource
+    // person object into the `onTrigger()` resource
     var attachResult = timer.attach(service1, attachment = person);
     if (attachResult is error) {
         io:println("Error attaching the service1.");
@@ -48,8 +47,8 @@ public function main() {
 
     // While loop will stop the function from exiting until the service ends.
     while (person.age < person.maxAge) {
-        runtime:sleep(2000);
         // Waits until the age of the person reaches the max age.
+        runtime:sleep(2000);
     }
 
     // Additional sleep to finish the onTrigger function.

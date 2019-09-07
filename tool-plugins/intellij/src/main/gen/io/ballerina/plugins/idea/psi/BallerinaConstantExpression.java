@@ -23,10 +23,4 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaConstantExpression extends PsiElement {
 
-  @Nullable
-  BallerinaRecordLiteral getRecordLiteral();
-
-  @Nullable
-  BallerinaSimpleLiteral getSimpleLiteral();
-
 }

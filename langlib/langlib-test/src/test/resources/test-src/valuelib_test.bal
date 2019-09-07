@@ -11,6 +11,15 @@ type Person record {
 
 };
 
+type Employee record {
+    int id;
+    int age = -1;
+    decimal salary;
+    string name;
+    boolean married;
+};
+
+
 function testToJsonString() returns map<string> {
     json aNil = ();
     json aString = "aString";
@@ -273,7 +282,12 @@ function testToString() returns string[] {
     Teacher varObj2 = new("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];
     xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
-
+    table<Employee> employeeTable = table{
+            { key id, age, salary, name, married },
+            [ { 1, 30,  300.5, "Mary", true },
+              { 2, 20,  300.5, "John", true }
+            ]
+        };
     varMap["varInt"] = varInt;
     varMap["varFloat"] = varFloat;
     varMap["varStr"] = varStr;
@@ -288,8 +302,10 @@ function testToString() returns string[] {
     varMap["varObj2"] = varObj2;
     varMap["varObjArr"] = varObjArr;
     varMap["varRecord"] = p;
+    varMap["varTable"] = employeeTable;
 
     return [varInt.toString(), varFloat.toString(), varStr.toString(), varNil.toString(), varBool.toString(),
             varDecimal.toString(), varJson.toString(), varXml.toString(), varArr.toString(), varErr.toString(),
-            varObj.toString(), varObj2.toString(), varObjArr.toString(), p.toString(), varMap.toString()];
+            varObj.toString(), varObj2.toString(), varObjArr.toString(), p.toString(), employeeTable.toString(),
+            varMap.toString()];
 }

@@ -31,6 +31,7 @@ public class OSUtils {
 
     /**
      * Returns name of the operating system running. null if not a unsupported operating system.
+     *
      * @return operating system
      */
     public static String getOperatingSystem() {
@@ -44,19 +45,19 @@ public class OSUtils {
         return null;
     }
 
-    private static boolean isWindows() {
+    public static boolean isWindows() {
         return (OS.contains("win"));
     }
 
-    private static boolean isMac() {
+    public static boolean isMac() {
         return (OS.contains("mac"));
     }
 
-    private static boolean isUnix() {
+    public static boolean isUnix() {
         return (OS.contains("nix") || OS.contains("nux") || OS.contains("aix"));
     }
 
-    private static boolean isSolaris() {
+    public static boolean isSolaris() {
         return (OS.contains("sunos"));
     }
 }

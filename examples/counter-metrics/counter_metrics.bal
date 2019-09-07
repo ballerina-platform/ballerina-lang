@@ -7,7 +7,7 @@ import ballerina/observe;
 observe:Counter globalCounter = new("total_orders",
                                     desc = "Total quantity required");
 
-// Make sure you start the service with `--observe`, or metrics enabled.
+// Make sure you start the service with '--b7a.observability.enabled=true', or metrics enabled.
 @http:ServiceConfig {
     basePath: "/online-store-service"
 }

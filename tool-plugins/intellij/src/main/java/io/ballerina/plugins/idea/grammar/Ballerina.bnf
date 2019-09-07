@@ -106,6 +106,8 @@
 
     extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
 
+    extends("(SimpleLiteralConst|RecordLiteralConst|ConstDivMulMod|ConstAddSub|ConstGroup)Expression") = ConstantExpression
+
     extends("(Simple|Array|Nullable|Union|Group|Tuple|Object)TypeName|(Inclusive|Exclusive)RecordTypeDescriptor|BinaryAndExpression") = TypeName
 
     extends("StaticMatch(OrExpression|(Simple|Record|List|Identifier)Literal)") = StaticMatchLiteral
@@ -205,7 +207,13 @@ ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* (public|
 AnnotationDefinition ::= public? const? annotation (TypeName identifier | identifier) (on AttachmentPoint (COMMA AttachmentPoint)*)? SEMICOLON {pin=3}
 
 ConstantDefinition ::= public? const (TypeName identifier  | identifier) ASSIGN ConstantExpression SEMICOLON  {pin=2}
-ConstantExpression ::=  SimpleLiteral | RecordLiteral
+
+ConstantExpression ::=  SimpleLiteralConstExpression | RecordLiteralConstExpression | ConstDivMulModExpression | ConstAddSubExpression | ConstGroupExpression
+SimpleLiteralConstExpression ::= SimpleLiteral
+RecordLiteralConstExpression ::= RecordLiteral
+ConstDivMulModExpression ::=   ConstantExpression (DIV | MUL) ConstantExpression
+ConstAddSubExpression ::=  ConstantExpression (ADD | SUB) ConstantExpression
+ConstGroupExpression ::= LEFT_PARENTHESIS ConstantExpression RIGHT_PARENTHESIS
 
 GlobalVariableDefinition ::= varDefinition
                             | listenerDefinition
