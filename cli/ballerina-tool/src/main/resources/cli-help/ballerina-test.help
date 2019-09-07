@@ -14,7 +14,7 @@ DESCRIPTION
        test sources and print a summary of test results. You can
        execute tests in a module, or an entire Ballerina project.
     
-        Use 'ballerina test <module-name>' to execute tests in the
+       Use 'ballerina test <module-name>' to execute tests in the
        specified module, or '-a' or '-all' to execute tests in all modules.
 
 
@@ -31,7 +31,7 @@ OPTIONS
             sourceroot.
 
        --config <config_file>
-            Provides the path to a Ballerina configuration file.
+            Provide the path to a Ballerina configuration file.
             The configuration file format is a subset of the TOML file
             format. It supports key/value pairs, tables, comments, and
             string, int, float and boolean value types.
