@@ -23,7 +23,6 @@ type Person object {
 public function main() {
     // Initializes a `Person` object.
     Person p1 = new(5, "John", "Doe");
-    
-    io:println(p1);
+
     io:println(p1.getFullName());
 }

@@ -18,13 +18,13 @@ type Person object {
 public function main() {
     // There are three ways to initialize a `Person` object.
     Person p1 = new;
-    io:println(p1);
+    io:println(p1.age);
 
     Person p2 = new();
-    io:println(p2);
+    io:println(p2.age);
 
     // This type of initialization is useful when you cannot determine the type of the object to be
     // created based on the context (e.g., when the left hand side is a union of object types).
     Person p3 = new Person();
-    io:println(p2);
+    io:println(p3.age);
 }
