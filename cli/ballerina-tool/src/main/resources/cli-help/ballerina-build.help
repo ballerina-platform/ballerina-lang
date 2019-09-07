@@ -1,6 +1,5 @@
 NAME
-       Ballerina build - Builds Ballerina module(s) and generates executable
-       outputs.
+       ballerina build - build Ballerina sources and generate executables.
 
 SYNOPSIS
        ballerina build [-o <output>] [--sourceroot] [--off-line] [--skip-tests]
@@ -8,44 +7,50 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Builds Ballerina module(s)/file and produces an executable jar file(s).
+       Build Ballerina module(s)/file and produces an executable jar file(s).
 
        Building a Ballerina project or a specific module in a project the
-       executable .jar files will be created in <project-root>/target/bin directory.
+       executable .jar files will be created in <project-root>/target/bin
+       directory.
 
-       Building a single Ballerina file will create an executable .jar file in the
-       current directory. The name of the executable file will be
+       Building a single Ballerina file will create an executable .jar file in
+       the current directory. The name of the executable file will be
        <ballerina-file-name>.jar.
 
-       If the output file is specified with the -o flag, the output
-       will be written to the given output file name. The -o flag will only work
-       for single files.
+       If the output file is specified with the -o flag, the output will be
+       written to the given output file name. The -o flag will only work for
+       single files.
 
 
 OPTIONS
-       -o <output>
-           Writes output to the given file. The provided output
-           filename may or may not contain the ‘.jar’ extension.
+       -o, --output <output>
+           Write output to the given file. The provided output filename may or
+           may not contain the ‘.jar’ extension.
 
        --sourceroot <path>
-           Provides the path to be taken as the root of the source.
-           Source will be looked up relative to the given source root
-           path.
+           Provide the path to be taken as the root of the source. Source will
+           be looked up relative to the given source root path.
 
        -c, --compile
            Compile the source without generating executable(s).
 
        -a, --all
-           Build or compile all the modules of a project.
+           Build or compile all the modules within a project.
 
        --off-line
-           Builds offline without downloading dependencies.
+           Build offline without downloading dependencies.
 
        --skip-tests
-           Skips test compilation and execution.
+           Skip test compilation and execution.
 
        --skip-lock
            Skip using the lock file to resolve dependencies.
+
+       --experimental
+           Enable experimental language features.
+
+       --config
+           Provide path to a configuration file when running tests.
 
 
 EXAMPLES
@@ -55,10 +60,11 @@ EXAMPLES
 
        Build hello module
        $ ballerina build hello
-       This will generate a hello.jar output file and place
-       within <project-root>/target/bin directory.
+       This will generate a hello.jar output file and place within
+       <project-root>/target/bin directory.
 
-       Build all the modules that have entry points in a project in to executables.
+       Build all the modules that have entry points in a project in to
+       executables.
        $ ballerina build
        This will generate executable jar files and place them within
        <project-root>/target/bin directory.
