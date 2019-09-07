@@ -408,7 +408,10 @@ public class ToolUtil {
     public static void checkForUpdate(PrintStream printStream, String[] args) {
         try {
             //Update check will be done only for build command
-            if (Arrays.stream(args).anyMatch("build"::equals)) {
+            boolean isBuildCommand = Arrays.stream(args).anyMatch("build"::equals);
+            boolean isHelpFlag = Arrays.stream(args).anyMatch(val -> val.equals("--help") || val.equals("-h"));
+
+            if (isBuildCommand && !isHelpFlag) {
                 String version = getCurrentBallerinaVersion();
                 if (OSUtils.updateNotice(version)) {
                     Version currentVersion = new Version(version);
