@@ -11,7 +11,7 @@ SYNOPSIS
 OPTIONS
        module-name
            The name of the new module in which the mock service from
-           the OpenAPI contract is created in.
+           the OpenAPI contract should be created.
        service-name
            The name of the ballerina service file.
        openapi-contract
