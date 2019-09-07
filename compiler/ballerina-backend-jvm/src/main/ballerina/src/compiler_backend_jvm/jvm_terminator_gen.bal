@@ -286,7 +286,7 @@ type TerminatorGenerator object {
                 // store return
                 self.storeReturnFromCallIns(callIns);
             }
-(
+
             self.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
 
             self.mv.visitLabel(blockedOnExternLabel);
