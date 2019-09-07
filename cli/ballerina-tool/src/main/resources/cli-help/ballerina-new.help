@@ -1,16 +1,17 @@
 NAME
-       Ballerina new - Create a Ballerina project
+       ballerina new - create a Ballerina project
+
 
 SYNOPSIS
        ballerina new <project-name>
 
 
 DESCRIPTION
-       Ballerina new command creates a new directory and initialize a
-       Ballerina project inside it.
+       Create a new directory and initialize a Ballerina project inside
+       the directory created.
 
-       The created set of artifacts includes a Ballerina.toml and Ballerina
-       project directory structure. You can use Ballerina.toml to manage
+       The created set of artifacts include a Ballerina.toml and Ballerina
+       project directory structure. You can use a Ballerina.toml file to manage
        the organization setting and version for the project.
 
        A Ballerina project is identified by the Ballerina.toml file. Ballerina
