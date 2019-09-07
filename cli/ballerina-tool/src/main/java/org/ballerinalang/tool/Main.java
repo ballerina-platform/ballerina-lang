@@ -189,7 +189,6 @@ public class Main {
 
             String output = "Ballerina " + properties.getProperty("ballerina.version") + "\n";
             output += "Language specification " + properties.getProperty("spec.version") + "\n";
-            output += "Ballerina tool " + properties.getProperty("tool.version") + "\n";
             outStream.print(output);
         } catch (Throwable ignore) {
             // Exception is ignored
