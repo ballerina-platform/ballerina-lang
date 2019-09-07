@@ -109,7 +109,7 @@ public class CommandUtil {
             Files.createDirectory(src);
             // todo enable this
             //Files.createDirectory(test);
-            Files.createDirectory(testResources);
+            //Files.createDirectory(testResources);
 
             String defaultManifest = BCompileUtil.readFileAsString("new_cmd_defaults/manifest.toml");
             String defaultGitignore = BCompileUtil.readFileAsString("new_cmd_defaults/gitignore");
