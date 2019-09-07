@@ -59,16 +59,6 @@ public class MainFunctionsTest {
     }
 
     @Test
-    public void testErrorReturningMain() {
-        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
-                + "test_main_with_error_return.bal");
-        BCompileUtil.ExitDetails result = BCompileUtil.run(compileResult, new String[]{});
-        assertTrue(result.consoleOutput.contains("error returning main invoked"),
-                            "expected the main function to be invoked");
-        assertTrue(result.errorOutput.contains("error return"), "invalid error reason");
-    }
-
-    @Test
     public void testErrorOrNilReturningMainReturningError() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
@@ -110,8 +100,17 @@ public class MainFunctionsTest {
                       17, 32);
         validateError(negativeResult, 3, "invalid type 'FooObject[]' as 'main' function parameter, expected anydata",
                       17, 57);
-        validateError(negativeResult, 4, "invalid 'main' function return type 'string', expected a subtype of 'error?'",
-                      17, 81);
+        validateError(negativeResult, 4, "invalid 'main' function return type 'string', expected a subtype of " +
+                              "'error?' containing '()'", 17, 81);
+    }
+
+    @Test
+    public void testInvalidErrorReturningMain() {
+        CompileResult negativeResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                                                                    "test_main_with_error_return_negative.bal");
+        assertEquals(negativeResult.getErrorCount(), 1);
+        validateError(negativeResult, 0, "invalid 'main' function return type 'error', expected a subtype of " +
+                "'error?' containing '()'", 17, 32);
     }
 
     private String runMain(CompileResult compileResult, String[] args) {

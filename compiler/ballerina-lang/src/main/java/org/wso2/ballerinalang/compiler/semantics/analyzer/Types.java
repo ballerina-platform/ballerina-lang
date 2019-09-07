@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -2654,6 +2655,30 @@ public class Types {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Validate if the return type of the given function is a subtype of `error?`, containing `()`.
+     *
+     * @param function          The function of which the return type should be validated
+     * @param diagnosticCode    The code to log if the return type is invalid
+     */
+    public void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
+        BType returnType = function.returnTypeNode.type;
+
+        if (returnType.tag == TypeTags.NIL) {
+            return;
+        }
+
+        if (returnType.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
+            if (returnType.isNullable() &&
+                    memberTypes.stream().allMatch(type -> type.tag == TypeTags.NIL || type.tag == TypeTags.ERROR)) {
+                return;
+            }
+        }
+
+        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.type.toString());
     }
 
     /**
