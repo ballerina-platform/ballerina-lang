@@ -107,14 +107,16 @@ public class LSCompilerUtil {
      * @param sourceRoot         The source root of the project
      * @param documentManager    {@link WorkspaceDocumentManager} Document Manager
      * @param compilerPhase      {@link CompilerPhase} Compiler Phase
+     * @param stopOnSemanticErrors Whether stop compilation on semantic errors
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
                                                          String sourceRoot,
                                                          WorkspaceDocumentManager documentManager,
-                                                         CompilerPhase compilerPhase) {
+                                                         CompilerPhase compilerPhase, boolean stopOnSemanticErrors) {
         LSContextManager lsContextManager = LSContextManager.getInstance();
-        CompilerContext context = lsContextManager.getCompilerContext(packageID, sourceRoot, documentManager);
+        CompilerContext context = lsContextManager.getCompilerContext(packageID, sourceRoot, documentManager,
+                stopOnSemanticErrors);
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
@@ -151,13 +153,15 @@ public class LSCompilerUtil {
      * @param packageRepository  Package Repository
      * @param sourceRoot         The source root of the project
      * @param documentManager    {@link WorkspaceDocumentManager} Document Manager
+     * @param stopOnSemanticErrors Whether stop compilation on semantic errors
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageRepository packageRepository,
                                                          String sourceRoot,
-                                                         WorkspaceDocumentManager documentManager) {
+                                                         WorkspaceDocumentManager documentManager,
+                                                         boolean stopOnSemanticErrors) {
         return prepareCompilerContext(null, packageRepository, sourceRoot,
-                documentManager, CompilerPhase.TAINT_ANALYZE);
+                documentManager, CompilerPhase.TAINT_ANALYZE, stopOnSemanticErrors);
     }
 
 
@@ -170,14 +174,15 @@ public class LSCompilerUtil {
      * @param lsDocument          LSDocument for Source Root
      * @param docManager {@link WorkspaceDocumentManager} Document Manager
      * @param compilerPhase {@link CompilerPhase} Compiler Phase
+     * @param stopOnSemanticErrors Whether stop compilation on semantic errors
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID pkgID, PackageRepository pkgRepo,
                                                          LSDocument lsDocument,
                                                          WorkspaceDocumentManager docManager,
-                                                         CompilerPhase compilerPhase) {
+                                                         CompilerPhase compilerPhase, boolean stopOnSemanticErrors) {
         CompilerContext context = prepareCompilerContext(pkgID, pkgRepo, lsDocument.getProjectRoot(), docManager,
-                                                         compilerPhase);
+                                                         compilerPhase, stopOnSemanticErrors);
         Path sourceRootPath = lsDocument.getProjectRootPath();
         if (lsDocument.isWithinProject()) {
             LangServerFSProjectDirectory projectDirectory =
@@ -199,13 +204,15 @@ public class LSCompilerUtil {
      * @param packageRepository Package Repository
      * @param sourceRoot        LSDocument for Source Root
      * @param documentManager {@link WorkspaceDocumentManager} Document Manager
+     * @param stopOnSemanticErrors Whether stop compilation on semantic errors
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
                                                          LSDocument sourceRoot,
-                                                         WorkspaceDocumentManager documentManager) {
+                                                         WorkspaceDocumentManager documentManager,
+                                                         boolean stopOnSemanticErrors) {
         return prepareCompilerContext(packageID, packageRepository, sourceRoot, documentManager,
-                                      CompilerPhase.COMPILER_PLUGIN);
+                                      CompilerPhase.COMPILER_PLUGIN, stopOnSemanticErrors);
     }
 
     private static boolean isSameFile(Path path1, Path path2) {

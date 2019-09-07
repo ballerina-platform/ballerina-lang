@@ -87,7 +87,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     List<BLangPackage> bLangPackage = LSModuleCompiler.getBLangPackages(symbolsContext,
                                                                                         workspaceDocumentManager,
                                                                                         LSCustomErrorStrategy.class,
-                                                                                        true, false);
+                                                                                        true, false, false);
                     bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
                         String unitName = compUnit.getName();
                         String sourceRoot = LSCompilerUtil.getProjectRoot(path);

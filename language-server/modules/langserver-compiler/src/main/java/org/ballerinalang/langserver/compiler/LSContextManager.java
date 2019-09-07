@@ -47,6 +47,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
 
 /**
  * This class will hold compiler contexts against the project directory.
@@ -76,7 +77,7 @@ public class LSContextManager {
      * @return compiler context
      */
     public CompilerContext getCompilerContext(@Nullable PackageID packageID, String projectDir,
-                                              WorkspaceDocumentManager documentManager) {
+                                              WorkspaceDocumentManager documentManager, boolean stopOnSemanticErrors) {
         CompilerContext compilerContext = contextMap.get(projectDir);
 
         // TODO: Remove this fix once proper compiler fix is introduced
@@ -98,6 +99,8 @@ public class LSContextManager {
         }
         clearCurrentPackage(packageID, compilerContext);
         compilationCounter++; // Not needed to be atomic since the if-check is a range
+        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
+        options.put(TOOLING_COMPILATION, Boolean.toString(!stopOnSemanticErrors));
         return compilerContext;
     }
 
@@ -134,7 +137,7 @@ public class LSContextManager {
      */
     public CompilerContext getBuiltInPackagesCompilerContext() {
         //TODO: Revisit explicitly retrieving WorkspaceDocumentManagerImpl as doc manager
-        return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance());
+        return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance(), false);
     }
 
     public CompilerContext createNewCompilerContext(String projectDir, WorkspaceDocumentManager documentManager) {
