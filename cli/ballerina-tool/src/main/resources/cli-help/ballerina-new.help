@@ -11,7 +11,7 @@ DESCRIPTION
        the directory created.
 
        The created set of artifacts include a Ballerina.toml and Ballerina
-       project directory structure. You can use Ballerina.toml to manage
+       project directory structure. You can use a Ballerina.toml file to manage
        the organization setting and version for the project.
 
        A Ballerina project is identified by the Ballerina.toml file. Ballerina
