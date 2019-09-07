@@ -52,7 +52,7 @@ DEFAULT BEHAVIOR
 
 
 EXAMPLES
-       Print usage details for the openapi command.
+       Print usage details for the OpenAPI command.
        $ ballerina openapi
        $ ballerina openapi -h
 
