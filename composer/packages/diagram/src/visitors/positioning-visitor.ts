@@ -198,9 +198,9 @@ class PositioningVisitor implements Visitor {
                         const expandedFunctionVS = expandedSubTree.viewState as FunctionViewState;
                         expandedFunctionVS.bBox.x = hiddenNodeViewState.bBox.x;
                         expandedFunctionVS.bBox.y = hiddenNodeViewState.bBox.y;
-                        ASTUtil.traversNode(expandedSubTree, this);
+                        ASTUtil.traversNode(expandedSubTree, new PositioningVisitor());
                     } else {
-                        ASTUtil.traversNode(hiddenNode, this);
+                        ASTUtil.traversNode(hiddenNode, new PositioningVisitor());
                     }
                 });
             }

@@ -4,6 +4,7 @@ import {
     ExpressionStatement, Foreach, Function as BalFunction, If, Invocation, Lambda,
     Literal, Match, MatchStaticPatternClause, MatchStructuredPatternClause, ObjectType,
     Panic, Return, Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
+    Visitor, WaitExpr, While, WorkerReceive, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
