@@ -21,6 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaConstantExpression extends PsiElement {
+public interface BallerinaConstDivMulModExpression extends BallerinaConstantExpression {
+
+  @NotNull
+  List<BallerinaConstantExpression> getConstantExpressionList();
+
+  @Nullable
+  PsiElement getDiv();
+
+  @Nullable
+  PsiElement getMul();
 
 }
