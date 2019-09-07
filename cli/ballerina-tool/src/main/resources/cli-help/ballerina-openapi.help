@@ -25,7 +25,7 @@ SUB COMMANDS
        gen-service
            Generate a Ballerina service from the OpenApi file. This
            generated service can be used as a code template to start the
-           service implementation. Generated sources contain service
+           service implementation. Generated sources contain a service
            definition, schema definition and  a copy of the OpenAPI contract
            which is used for the template generation.
 
