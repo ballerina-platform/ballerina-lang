@@ -43,6 +43,7 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-core')
+    testCompile project(':ballerina-file')
 }
 
 createBalo {

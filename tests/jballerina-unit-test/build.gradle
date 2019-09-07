@@ -81,7 +81,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-java-arrays', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
