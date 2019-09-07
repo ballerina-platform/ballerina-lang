@@ -136,7 +136,7 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 74, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 75, 13);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 78, 5);
-        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 91, 5);
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 92, 35);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 94, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 95, 13);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 99, 5);
