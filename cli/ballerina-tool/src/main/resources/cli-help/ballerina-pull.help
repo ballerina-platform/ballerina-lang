@@ -18,7 +18,7 @@ OPTIONS
 
 
 EXAMPLES
-         Pull Gmail connector by WSO2 from Ballerina Central
+         Pull the Gmail connector by WSO2 from Ballerina Central
          $ ballerina pull wso2/gmail
 
          Pull Bar module by Foo organization from Ballerina Central
