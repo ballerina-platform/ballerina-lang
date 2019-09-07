@@ -8,7 +8,7 @@ $ ballerina run log_api.bal
 2019-08-09 11:47:07,342 WARN  [ballerina/log] - warn log
 
 # If the log level is set to `TRACE`, logs of all log levels are logged.
-$ ballerina run -e b7a.log.level=TRACE log_api.bal
+$ ballerina run log_api.bal --b7a.log.level=TRACE 
 2019-08-09 11:48:04,411 DEBUG [ballerina/log] - debug log
 2019-08-09 11:48:04,415 ERROR [ballerina/log] - error log
 2019-08-09 11:48:04,416 ERROR [ballerina/log] - error log with cause : error error occurred
