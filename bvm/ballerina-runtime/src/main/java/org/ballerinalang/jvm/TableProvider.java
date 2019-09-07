@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableIterator;
 
@@ -210,8 +211,10 @@ public class TableProvider {
                 sb.append(TableConstants.SQL_TYPE_VARCHAR);
                 break;
             case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
                 sb.append(TableConstants.SQL_TYPE_DOUBLE);
+                break;
+            case TypeTags.DECIMAL_TAG:
+                sb.append(TableConstants.SQL_TYPE_DECIMAL);
                 break;
             case TypeTags.BOOLEAN_TAG:
                 sb.append(TableConstants.SQL_TYPE_BOOLEAN);
@@ -272,6 +275,9 @@ public class TableProvider {
                         break;
                     case TypeTags.FLOAT_TAG:
                         stmt.setDouble(index, (Double) params.getRefValue(index - 1));
+                        break;
+                    case TypeTags.DECIMAL_TAG:
+                        stmt.setBigDecimal(index, ((DecimalValue) params.getRefValue(index - 1)).value());
                         break;
                     case TypeTags.BOOLEAN_TAG:
                         stmt.setBoolean(index, (Boolean) params.getRefValue(index - 1));

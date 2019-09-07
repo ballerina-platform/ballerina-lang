@@ -39,6 +39,7 @@ dependencies {
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'com.h2database:h2'
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-test-utils')
