@@ -48,7 +48,7 @@ OPTIONS
 
 DEFAULT BEHAVIOR
        If no options or sub commands are provided, the help text for the 
-       the help file for The OpenAPI Tool.
+       OpenAPI Tool is shown.
 
 
 EXAMPLES
