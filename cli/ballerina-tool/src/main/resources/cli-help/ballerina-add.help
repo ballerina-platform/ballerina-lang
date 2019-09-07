@@ -11,7 +11,7 @@ DESCRIPTION
        Add a new Ballerina module to the project. The command should
        be run inside a Ballerina project.
 
-       Also different templates can be selected for the new module.
+       Also different templates can be selected to create the new module.
 
 
 OPTIONS
@@ -29,4 +29,3 @@ EXAMPLES
 
        Add a module with a service
        $ ballerina add myservice --template service
-       
