@@ -255,7 +255,7 @@ function nonAnydataTypes() returns string {
     match y {
         {var1: 12} => {return "a";} // pattern will not be matched
         {"var1": 12} => {return "a";} // pattern will not be matched
-        {foo(): 12} => {return "a";} // pattern will not be matched and invalid key
+        //{foo(): 12} => {return "a";} // pattern will not be matched and invalid key
     }
     return "Fail";
 }
@@ -276,7 +276,7 @@ function invalidSimpleVariable() returns string {
     string a = "A";
     match k {
         10 => {return "A";} // pattern will always be matched
-        a => {return "A";} // invalid literal for match pattern
+        // a => {return "A";} invalid literal for match pattern; moved to static_match_patterns_semantics_negative.bal
     }
 }
 

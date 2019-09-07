@@ -19,12 +19,7 @@
 import { getLibraryWebViewContent, getComposerWebViewOptions } from '../utils';
 import { ConstructIdentifier } from 'src/core';
 
-export function render(construct: ConstructIdentifier): string {
-    let constructID = undefined;
-    if(construct.constructName !== "" && construct.moduleName !== "") {
-        constructID = construct;
-    }
-
+export function render(sourceRootUri?: string, fileUri?: string, construct?: ConstructIdentifier): string {
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"></div>
     `;
@@ -73,7 +68,6 @@ export function render(construct: ConstructIdentifier): string {
 
     const scripts = `
         function loadedScript() {
-            let construct = ${JSON.stringify(construct)};
             function drawDiagram() {
                 try {
                     let width = window.innerWidth - 6;
@@ -82,9 +76,9 @@ export function render(construct: ConstructIdentifier): string {
                     const diagramOptions = {
                         target: document.getElementById("diagram"),
                         editorProps: {
-                            docUri: construct.filePath,
-                            sourceRootUri: construct.sourceRoot,
-                            initialSelectedConstruct: ${JSON.stringify(constructID)},
+                            docUri: ${JSON.stringify(fileUri)},
+                            sourceRootUri: ${JSON.stringify(sourceRootUri)},
+                            initialSelectedConstruct: ${JSON.stringify(construct)},
                             width,
                             height,
                             zoom,

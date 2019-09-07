@@ -55,6 +55,10 @@ public class BLangTupleVarRef extends BLangVariableReference implements TupleVar
         return expressions;
     }
 
+    @Override
+    public ExpressionNode getRestParam() {
+        return this.restParam;
+    }
 
     @Override
     public String toString() {

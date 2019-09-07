@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
 import ballerina/lang.'int as langint;
+import ballerina/stringutils;
 
 # The `OrderBy` object represents the desugared code of `order by` clause of a streaming query. This object takes 3
 # parameters to initialize itself. `nextProcessPointer` is the `process` method of the next processor. `fieldFuncs`
@@ -175,7 +175,7 @@ public type MergeSort object {
                 if (yFieldFuncResult is string) {
                     int c;
                     //odd indices contain the sort type (ascending/descending)
-                    if (internal:equalsIgnoreCase(self.sortTypes[fieldIndex], ASCENDING)) {
+                    if (stringutils:equalsIgnoreCase(self.sortTypes[fieldIndex], ASCENDING)) {
                         c = self.stringSort(xFieldFuncResult, yFieldFuncResult);
                     } else {
                         c = self.stringSort(yFieldFuncResult, xFieldFuncResult);
@@ -191,7 +191,7 @@ public type MergeSort object {
                 var yFieldFuncResult = fieldFunc(y.data);
                 if (yFieldFuncResult is (int|float)) {
                     int c;
-                    if (internal:equalsIgnoreCase(self.sortTypes[fieldIndex], ASCENDING)) {
+                    if (stringutils:equalsIgnoreCase(self.sortTypes[fieldIndex], ASCENDING)) {
                         c = self.numberSort(xFieldFuncResult, yFieldFuncResult);
                     } else {
                         c = self.numberSort(yFieldFuncResult, xFieldFuncResult);

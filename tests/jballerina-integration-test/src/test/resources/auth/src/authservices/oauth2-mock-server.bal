@@ -17,7 +17,6 @@
 import ballerina/crypto;
 import ballerina/config;
 import ballerina/http;
-import ballerina/internal;
 import ballerina/stringutils;
 
 // Values that the grant_type parameter can hold.
@@ -156,13 +155,13 @@ function getResponseForHeaderBearerRequest(http:Request req, string authorizatio
             string username = "";
             string password = "";
             foreach string param in params {
-                if (internal:contains(param, "grant_type")) {
+                if (stringutils:contains(param, "grant_type")) {
                     grantType = stringutils:split(param, "=")[1];
-                } else if (internal:contains(param, "scope")) {
+                } else if (stringutils:contains(param, "scope")) {
                     scopes = stringutils:split(param, "=")[1];
-                } else if (internal:contains(param, "username")) {
+                } else if (stringutils:contains(param, "username")) {
                     username = stringutils:split(param, "=")[1];
-                } else if (internal:contains(param, "password")) {
+                } else if (stringutils:contains(param, "password")) {
                     password = stringutils:split(param, "=")[1];
                 }
             }
@@ -182,7 +181,7 @@ function getResponseForHeaderBearerRequest(http:Request req, string authorizatio
 
 function getResponseForPostBodyBearerRequest(string payload, string bearer) returns http:Response {
     http:Response res = new;
-    if (internal:contains(payload, "client_id") && internal:contains(payload, "client_secret")) {
+    if (stringutils:contains(payload, "client_id") && stringutils:contains(payload, "client_secret")) {
         string[] params = stringutils:split(payload, "&");
         string grantType = "";
         string scopes = "";
@@ -191,17 +190,17 @@ function getResponseForPostBodyBearerRequest(string payload, string bearer) retu
         string clientId = "";
         string clientSecret = "";
         foreach string param in params {
-            if (internal:contains(param, "grant_type")) {
+            if (stringutils:contains(param, "grant_type")) {
                 grantType = stringutils:split(param, "=")[1];
-            } else if (internal:contains(param, "scope")) {
+            } else if (stringutils:contains(param, "scope")) {
                 scopes = stringutils:split(param, "=")[1];
-            } else if (internal:contains(param, "username")) {
+            } else if (stringutils:contains(param, "username")) {
                 username = stringutils:split(param, "=")[1];
-            } else if (internal:contains(param, "password")) {
+            } else if (stringutils:contains(param, "password")) {
                 password = stringutils:split(param, "=")[1];
-            } else if (internal:contains(param, "client_id")) {
+            } else if (stringutils:contains(param, "client_id")) {
                 clientId = stringutils:split(param, "=")[1];
-            } else if (internal:contains(param, "client_secret")) {
+            } else if (stringutils:contains(param, "client_secret")) {
                 clientSecret = stringutils:split(param, "=")[1];
             }
         }
@@ -229,13 +228,13 @@ function getResponseForNoBearerRequest(string payload, string bearer) returns ht
     string username = "";
     string password = "";
     foreach string param in params {
-        if (internal:contains(param, "grant_type")) {
+        if (stringutils:contains(param, "grant_type")) {
             grantType = stringutils:split(param, "=")[1];
-        } else if (internal:contains(param, "scope")) {
+        } else if (stringutils:contains(param, "scope")) {
             scopes = stringutils:split(param, "=")[1];
-        } else if (internal:contains(param, "username")) {
+        } else if (stringutils:contains(param, "username")) {
             username = stringutils:split(param, "=")[1];
-        } else if (internal:contains(param, "password")) {
+        } else if (stringutils:contains(param, "password")) {
             password = stringutils:split(param, "=")[1];
         }
     }
@@ -253,16 +252,16 @@ function getResponseForRefreshRequest(http:Request req, string authorizationHead
             string refreshToken = "";
             string scopes = "";
             foreach string param in params {
-                if (internal:contains(param, "grant_type")) {
+                if (stringutils:contains(param, "grant_type")) {
                     grantType = stringutils:split(param, "=")[1];
-                } else if (internal:contains(param, "refresh_token")) {
+                } else if (stringutils:contains(param, "refresh_token")) {
                     refreshToken = stringutils:split(param, "=")[1];
                     // If the refresh token contains the `=` symbol, then it is required to concatenate all the parts of the value since
                     // the String split breaks all those into separate parts.
                     if (param.endsWith("==")) {
                         refreshToken += "==";
                     }
-                } else if (internal:contains(param, "scope")) {
+                } else if (stringutils:contains(param, "scope")) {
                     scopes = stringutils:split(param, "=")[1];
                 }
             }
@@ -311,9 +310,9 @@ function getResponseForIntrospectRequest(http:Request req, string authorizationH
             string token = "";
             string tokenTypeHint = "";
             foreach string param in params {
-                if (internal:contains(param, "token")) {
+                if (stringutils:contains(param, "token")) {
                     token = stringutils:split(param, "=")[1];
-                } else if (internal:contains(param, "token_type_hint")) {
+                } else if (stringutils:contains(param, "token_type_hint")) {
                     tokenTypeHint = stringutils:split(param, "=")[1];
                 }
             }

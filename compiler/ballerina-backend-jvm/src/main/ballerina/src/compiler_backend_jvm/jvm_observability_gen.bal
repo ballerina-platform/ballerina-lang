@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
 import ballerina/io;
 import ballerina/jvm;
 import ballerina/stringutils;
@@ -43,7 +42,7 @@ function emitStartObservationInvocation(jvm:MethodVisitor mv, int strandIndex, s
 
 function cleanUpServiceName(string serviceName) returns string {
     string finalString = serviceName;
-    if (internal:contains(serviceName, "$$service$")) {
+    if (stringutils:contains(serviceName, "$$service$")) {
         finalString = stringutils:replace(serviceName, "$$service$", "_");
     }
     return finalString;

@@ -55,3 +55,7 @@ function testSplit() returns string[] {
     string[] arr = stringutils:split(testStr, ",,");
     return arr;
 }
+
+function testToBoolean(string stringValue) returns boolean {
+    return stringutils:toBoolean(stringValue);
+}
