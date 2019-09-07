@@ -105,6 +105,7 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
+                                      "\n" +
                                       "Generating executables\n" +
                                       "\thello_world.jar\n");
         
@@ -131,6 +132,7 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
+                                      "\n" +
                                       "Generating executables\n" +
                                       "\tfoo.jar\n");
 
@@ -146,6 +148,7 @@ public class BuildCommandTest extends CommandTest {
         buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
+                                      "\n" +
                                       "Generating executables\n" +
                                       "\tbar.jar\n");
 
@@ -164,6 +167,7 @@ public class BuildCommandTest extends CommandTest {
         buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
+                                      "\n" +
                                       "Generating executables\n" +
                                       "\t" +
                                       helloExecutableTmpDir.toAbsolutePath().resolve("hello_world.jar") +
@@ -181,6 +185,7 @@ public class BuildCommandTest extends CommandTest {
         buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" +
+                                      "\n" +
                                       "Generating executables\n" +
                                       "\t" +
                                       helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar") +
@@ -206,6 +211,7 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" + "" +
+                                      "\n" +
                                       "Generating executables\n" + "" +
                                       "\thello_world.jar\n");
         
@@ -289,6 +295,7 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                                       "\thello_world.bal\n" + "" +
+                                      "\n" +
                                       "Generating executables\n" + "" +
                                       "\thello_world.jar\n");
         
@@ -341,7 +348,8 @@ public class BuildCommandTest extends CommandTest {
                                       "\tbar/foo:1.2.0\n" +
                                       "\nCreating balos\n" +
                                       "\ttarget" + File.separator + "balo" + File.separator +
-                "foo-2019r3-any-1.2.0.balo\n" +
+                                      "foo-2019r3-any-1.2.0.balo\n" +
+                                      "\n" +
                                       "Generating executables\n" +
                                       "\ttarget" + File.separator + "bin" + File.separator + "foo.jar\n");
 
