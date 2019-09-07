@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/internal;
-import ballerina/jvm;
 import ballerina/bir;
+import ballerina/io;
+import ballerina/jvm;
+import ballerina/stringutils;
 
 public type ObjectGenerator object {
 
@@ -74,7 +74,7 @@ public type ObjectGenerator object {
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
         self.createLambdas(cw);
-        
+
         cw.visitEnd();
         var result = cw.toByteArray();
         if !(result is byte[]) {
@@ -128,7 +128,7 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
         mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
-        
+
         string lockClass = "L" + LOCK_VALUE + ";";
         foreach var field in fields {
             if (field is bir:BObjectField) {
@@ -190,7 +190,7 @@ public type ObjectGenerator object {
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitInsn(ICONST_0);
                 mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
-            
+
                 if (!(retType is () || retType is bir:BTypeNil)) {
                     mv.visitVarInsn(ALOAD, 1);
                     mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
@@ -290,7 +290,7 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", 
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
 
         // sort the fields before generating switch case
@@ -383,7 +383,7 @@ public type ObjectGenerator object {
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(Z)V", false);
         mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", io:sprintf("(L%s;)V", SCHEDULER) , false);
 
-        // Invoke the init-functions of referenced types. This is done to initialize the 
+        // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
 
         // Invoke the init-function of this type.
@@ -395,7 +395,7 @@ public type ObjectGenerator object {
     }
 
     private function createRecordInitWrapper(jvm:ClassWriter cw, string className, bir:TypeDef typeDef) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init", 
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init",
                                               io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), (), ());
         mv.visitCode();
         // load strand
@@ -403,7 +403,7 @@ public type ObjectGenerator object {
         // load value
         mv.visitVarInsn(ALOAD, 1);
 
-        // Invoke the init-functions of referenced types. This is done to initialize the 
+        // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         foreach (bir:BType? typeRef in typeDef.typeRefs) {
             if (typeRef is bir:BRecordType) {
@@ -449,7 +449,7 @@ function createLabelsforSwitch(jvm:MethodVisitor mv, int nameRegIndex, NamedNode
     foreach var node in nodes {
         if (node is NamedNode) {
             labels[i] = new jvm:Label();
-            hashCodes[i] = internal:hashCode(getName(node));
+            hashCodes[i] = stringutils:hashCode(getName(node));
             i += 1;
         }
     }
@@ -530,15 +530,15 @@ type NodeSorter object {
         self.quickSort(arr, 0, arr.length() - 1);
     }
 
-    private function quickSort(NamedNode?[] arr, int low, int high) { 
-        if (low < high) { 
+    private function quickSort(NamedNode?[] arr, int low, int high) {
+        if (low < high) {
             // pi is partitioning index, arr[pi] is now at right place
-            int pi = self.partition(arr, low, high); 
+            int pi = self.partition(arr, low, high);
 
-            // Recursively sort elements before partition and after partition 
-            self.quickSort(arr, low, pi - 1); 
-            self.quickSort(arr, pi + 1, high); 
-        } 
+            // Recursively sort elements before partition and after partition
+            self.quickSort(arr, low, pi - 1);
+            self.quickSort(arr, pi + 1, high);
+        }
     }
 
     private function partition(NamedNode?[] arr, int begin, int end) returns int {
@@ -558,7 +558,7 @@ type NodeSorter object {
     }
 
     private function getHash(any node) returns int {
-        return internal:hashCode(getName(node));
+        return stringutils:hashCode(getName(node));
     }
 
     private function swap(NamedNode?[] arr, int i, int j) {

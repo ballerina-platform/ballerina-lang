@@ -132,4 +132,31 @@ public class StringUtilsTest {
         Assert.assertEquals(returns[0].size(), 4);
         Assert.assertEquals(returns[0].stringValue(), "[\"amal\", \"kamal\", \"nimal\", \"sunimal,\"]");
     }
+
+    @Test(description = "Test toBoolean function")
+    public void testToBoolean() {
+        BValue[] inputs = {new BString("true")};
+        BValue[] returnValues = BRunUtil.invoke(result, "testToBoolean", inputs);
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(returnValues[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test toBoolean function")
+    public void testToBooleanFalse() {
+        BValue[] inputs = {new BString("false")};
+        BValue[] returnValues = BRunUtil.invoke(result, "testToBoolean", inputs);
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(returnValues[0] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test toBoolean function with invalid string")
+    public void testToBooleanInvalid() {
+        BValue[] inputs = {new BString("invalid_string")};
+        BValue[] returnValues = BRunUtil.invoke(result, "testToBoolean", inputs);
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(returnValues[0] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returnValues[0]).booleanValue());
+    }
 }

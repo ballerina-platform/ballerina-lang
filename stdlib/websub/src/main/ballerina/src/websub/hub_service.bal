@@ -18,7 +18,6 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
-import ballerina/internal;
 import ballerina/lang.'int as langint;
 import ballerina/log;
 import ballerina/stringutils;
@@ -293,7 +292,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     var decodedCallback = encoding:decodeUriComponent(callback, "UTF-8");
     string callbackToCheck = decodedCallback is error ? callback : decodedCallback;
 
-    string queryParams = (internal:contains(callbackToCheck, ("?")) ? "&" : "?")
+    string queryParams = (stringutils:contains(callbackToCheck, ("?")) ? "&" : "?")
         + HUB_MODE + "=" + mode
         + "&" + HUB_TOPIC + "=" + topic
         + "&" + HUB_CHALLENGE + "=" + challenge;
@@ -464,10 +463,10 @@ returns error? {
         if (subscriptionDetails.secret != "") {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
-            if (internal:equalsIgnoreCase(SHA1, hubSignatureMethod)) { //not recommended
+            if (stringutils:equalsIgnoreCase(SHA1, hubSignatureMethod)) { //not recommended
                 generatedSignature = crypto:hmacSha1(stringPayload.toBytes(),
                     subscriptionDetails.secret.toBytes()).toBase16();
-            } else if (internal:equalsIgnoreCase(SHA256, hubSignatureMethod)) {
+            } else if (stringutils:equalsIgnoreCase(SHA256, hubSignatureMethod)) {
                 generatedSignature = crypto:hmacSha256(stringPayload.toBytes(),
                     subscriptionDetails.secret.toBytes()).toBase16();
             }
