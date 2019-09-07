@@ -8,7 +8,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Add a new Ballerina module to the project. The command should
+       Add a new module to a Ballerina project. The command should
        be run inside a Ballerina project.
 
        Also different templates can be selected to create the new module.
