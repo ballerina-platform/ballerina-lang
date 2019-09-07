@@ -4,4 +4,4 @@ $ ballerina build client_generation.bal
 Compiling source
         client_generation.bal 
 Generating executables
-        client_generation-executable.jar
+        client_generation.jar

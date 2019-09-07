@@ -45,7 +45,6 @@ import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.EXEC_SUFFIX;
 
 /**
  * Test cases related to solving dependencies using paths in Ballerina.toml.
@@ -91,7 +90,7 @@ public class PathDependencyTestCase extends BaseTest {
         beeModuleBuildLeecher.waitForText(5000);
     
         // Build foo module of TestProject2
-        String bazModuleBaloFileName = "baz" + EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+        String bazModuleBaloFileName = "baz" + BLANG_COMPILED_JAR_EXT;
     
         String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
@@ -129,7 +128,7 @@ public class PathDependencyTestCase extends BaseTest {
         // Build modules of TestProject2
         String m1ModuleBaloFileName = "m1-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-2.0.0"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
-        String m2ModuleExecutableFileName = "m2" + EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+        String m2ModuleExecutableFileName = "m2" + BLANG_COMPILED_JAR_EXT;
         
         String m1BuildMsg = "target" + File.separator + "balo" + File.separator + m1ModuleBaloFileName;
         String m2BuildMsg = "target" + File.separator + "bin" + File.separator + m2ModuleExecutableFileName;
@@ -170,7 +169,7 @@ public class PathDependencyTestCase extends BaseTest {
         toml4jBuildLeecher.waitForText(5000);
 
         // Build foo module of TestProject2
-        String bazModuleBaloFileName = "baz" + EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+        String bazModuleBaloFileName = "baz" + BLANG_COMPILED_JAR_EXT;
 
         String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
@@ -266,7 +265,7 @@ public class PathDependencyTestCase extends BaseTest {
                 .collect(Collectors.toList());
         Files.write(jeeBalPath, replaced);
     
-        String jeeModuleBaloFileName = "jee" + EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+        String jeeModuleBaloFileName = "jee" + BLANG_COMPILED_JAR_EXT;
     
         String jeeExecutableFilePath = "target" + File.separator + "bin" + File.separator + jeeModuleBaloFileName;
         given().with().pollInterval(Duration.TEN_SECONDS).and()
@@ -344,7 +343,7 @@ public class PathDependencyTestCase extends BaseTest {
         beeModuleBuildLeecher.waitForText(5000);
         
         // Build foo module of TestProject2
-        String bazModuleBaloFileName = "baz" + EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+        String bazModuleBaloFileName = "baz" + BLANG_COMPILED_JAR_EXT;
         
         String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);

@@ -4,7 +4,16 @@ import ballerina/runtime;
 
 int count = 0;
 
-http:Client clientEndpoint = new("https://postman-echo.com");
+http:ClientConfiguration endpointConfig = {
+    secureSocket: {
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
+    }
+};
+
+http:Client clientEndpoint = new("https://postman-echo.com", endpointConfig);
 
 public function main() {
     // Asynchronously calls the function named `sum()`.
@@ -111,6 +120,7 @@ function squarePlusCube(future<int> f) returns int {
 
 function countInfinity() {
     while (true) {
+        runtime:sleep(1);
         count += 1;
     }
 }

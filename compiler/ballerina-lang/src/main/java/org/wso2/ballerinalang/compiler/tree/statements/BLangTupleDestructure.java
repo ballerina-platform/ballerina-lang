@@ -57,6 +57,11 @@ public class BLangTupleDestructure extends BLangStatement implements TupleDestru
     }
 
     @Override
+    public ExpressionNode getRestParam() {
+        return varRef.restParam;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }

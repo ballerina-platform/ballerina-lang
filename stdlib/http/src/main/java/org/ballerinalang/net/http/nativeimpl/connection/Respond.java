@@ -18,12 +18,13 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
@@ -105,13 +106,25 @@ public class Respond extends ConnectionAction {
             } else {
                 sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseObj, outboundResponseMsg);
             }
-        } catch (EncoderException e) {
+        } catch (ErrorValue e) {
+            unBlockStrand(strand);
+            log.debug(e.getPrintableStackTrace(), e);
+            return e;
+        } catch (Throwable e) {
+            unBlockStrand(strand);
             //Exception is already notified by http transport.
             String errorMessage = "Couldn't complete outbound response";
             log.debug(errorMessage, e);
             return HttpUtil.createHttpError(errorMessage, HttpErrorType.GENERIC_LISTENER_ERROR);
         }
         return null;
+    }
+
+    // Please refer #18763. This should be done through a JBallerina API which provides the capability
+    // of high level strand state handling - There is no such API ATM.
+    private static void unBlockStrand(Strand strand) {
+        strand.setState(State.RUNNABLE);
+        strand.blockedOnExtern = false;
     }
 
     private static void setCacheControlHeader(ObjectValue outboundRespObj, HttpCarbonMessage outboundResponse) {

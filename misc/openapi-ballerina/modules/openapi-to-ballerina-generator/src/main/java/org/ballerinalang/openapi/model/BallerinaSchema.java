@@ -194,15 +194,17 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
         List<Schema> allOf = cSchema.getAllOf();
 
         List<BallerinaSchema> childSchemas = new ArrayList<>();
-        for (Schema schema: allOf) {
-            childSchemas.add(new BallerinaSchema().buildContext(schema, openAPI));
-        }
-
-        childSchemas.forEach(schema -> {
-            if (schema.getProperties() != null) {
-                this.properties.addAll(schema.getProperties());
+        if (allOf != null) {
+            for (Schema schema: allOf) {
+                childSchemas.add(new BallerinaSchema().buildContext(schema, openAPI));
             }
-        });
+
+            childSchemas.forEach(schema -> {
+                if (schema.getProperties() != null) {
+                    this.properties.addAll(schema.getProperties());
+                }
+            });
+        }
     }
 
     /**

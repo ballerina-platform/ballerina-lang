@@ -444,7 +444,7 @@ public class BServerInstance implements BServer {
     private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties)
             throws BallerinaTestException {
         File commandDir = new File(balServer.getServerHome());
-        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + "-executable.jar").toFile().getPath(),
+        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
                        args, envProperties, commandDir);
     }
 
@@ -461,7 +461,7 @@ public class BServerInstance implements BServer {
         File commandDir = new File(balServer.getServerHome());
         String balFileName = Paths.get(balFile).getFileName().toString();
         String jarPath = Paths.get(commandDir.getAbsolutePath(), balFileName.substring(0, balFileName.length() -
-                4) + "-executable.jar").toString();
+                4) + ".jar").toString();
         executeJarFile(jarPath, args, envProperties, commandDir);
     }
 
