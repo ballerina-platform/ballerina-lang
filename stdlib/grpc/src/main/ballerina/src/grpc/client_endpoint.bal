@@ -87,15 +87,11 @@ public type AbstractClientEndpoint abstract object {
 # Represents client endpoint configuration.
 #
 # + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + httpVersion - The HTTP version understood by the client
-# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + poolConfig - Connection pool configuration
 # + secureSocket - SSL/TLS related options
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 public type ClientConfiguration record {|
     int timeoutInMillis = 60000;
-    string httpVersion = "2.0";
-    string forwarded = "disable";
     PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     Compression compression = COMPRESSION_AUTO;
