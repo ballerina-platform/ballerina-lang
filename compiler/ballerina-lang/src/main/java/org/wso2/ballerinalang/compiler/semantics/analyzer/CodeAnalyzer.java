@@ -226,7 +226,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
-    private final Stack<HashSet<BType>> returnTypes = new Stack<>();
+    private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private boolean withinAbortedBlock;
     private boolean withinCommittedBlock;
     private boolean isJSONContext;
@@ -369,7 +369,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
-        this.returnTypes.push(new HashSet<>());
+        this.returnTypes.push(new LinkedHashSet<>());
         this.resetFunction();
         if (Symbols.isNative(funcNode.symbol)) {
             return;
@@ -2499,11 +2499,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             funcNode.restParam.type);
         }
 
-        if (!types.isAssignable(funcNode.returnTypeNode.type,
-                                BUnionType.create(null, symTable.nilType, symTable.errorType))) {
-            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL,
-                            funcNode.returnTypeNode.type);
-        }
+        types.validateErrorOrNilReturn(funcNode, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL);
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
@@ -2519,12 +2515,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(funcNode.pos, DiagnosticCode.MODULE_INIT_CANNOT_HAVE_PARAMS);
         }
 
-        if (!funcNode.returnTypeNode.type.isNullable() ||
-                !types.isAssignable(funcNode.returnTypeNode.type,
-                                    BUnionType.create(null, symTable.nilType, symTable.errorType))) {
-            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL,
-                            funcNode.returnTypeNode.type);
-        }
+        types.validateErrorOrNilReturn(funcNode, DiagnosticCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL);
     }
 
     private void checkDuplicateNamedArgs(List<BLangExpression> args) {

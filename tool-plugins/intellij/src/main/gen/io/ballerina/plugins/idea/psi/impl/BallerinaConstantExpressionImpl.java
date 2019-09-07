@@ -27,7 +27,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaConstantExpressionImpl extends ASTWrapperPsiElement implements BallerinaConstantExpression {
+public abstract class BallerinaConstantExpressionImpl extends ASTWrapperPsiElement implements BallerinaConstantExpression {
 
   public BallerinaConstantExpressionImpl(@NotNull ASTNode node) {
     super(node);
@@ -40,18 +40,6 @@ public class BallerinaConstantExpressionImpl extends ASTWrapperPsiElement implem
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof BallerinaVisitor) accept((BallerinaVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaRecordLiteral getRecordLiteral() {
-    return findChildByClass(BallerinaRecordLiteral.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaSimpleLiteral getSimpleLiteral() {
-    return findChildByClass(BallerinaSimpleLiteral.class);
   }
 
 }

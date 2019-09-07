@@ -271,16 +271,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         //set function param flag to final
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
-        funcNode.annAttachments.forEach(annotationAttachment -> {
-            if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
-                annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
-            } else if (funcNode.attachedFunction) {
-                annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
-            }
-            annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
-            this.analyzeDef(annotationAttachment, funcEnv);
-        });
-        validateAnnotationAttachmentCount(funcNode.annAttachments);
+        if (!funcNode.flagSet.contains(Flag.WORKER)) {
+            // annotation validation for workers is done for the invocation.
+            funcNode.annAttachments.forEach(annotationAttachment -> {
+                if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
+                } else if (funcNode.attachedFunction) {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
+                }
+                annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
+                this.analyzeDef(annotationAttachment, funcEnv);
+            });
+            validateAnnotationAttachmentCount(funcNode.annAttachments);
+        }
 
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(annotationAttachment -> {

@@ -17,9 +17,6 @@
 package io.ballerina.plugins.idea.inspections;
 
 import com.google.common.base.Strings;
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
-import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
@@ -34,7 +31,6 @@ import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Provides wrong module type message if the ballerina file is not in a Ballerina module.
@@ -43,7 +39,6 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
         implements DumbAware {
 
     private static final Key<EditorNotificationPanel> KEY = Key.create("Plugin Version Mismatch");
-    private static final String BALLERINA_PLUGIN_ID = "io.ballerina";
 
     private final Project myProject;
 
@@ -67,7 +62,7 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
             return null;
         }
         String sdkVersion = BallerinaSdkService.getInstance(myProject).getSdkVersion(module);
-        String pluginVersion = getBallerinaPluginVersion();
+        String pluginVersion = BallerinaSdkUtils.getBallerinaPluginVersion();
 
         if (!Strings.isNullOrEmpty(sdkVersion) && !Strings.isNullOrEmpty(pluginVersion)) {
             // Compares the major and minor version numbers between the ballerina sdk and the plugin.
@@ -89,14 +84,6 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
         return null;
     }
 
-    @Nullable
-    private static String getBallerinaPluginVersion() {
-        IdeaPluginDescriptor balPluginDescriptor = PluginManager.getPlugin(PluginId.getId(BALLERINA_PLUGIN_ID));
-        if (balPluginDescriptor != null) {
-            return balPluginDescriptor.getVersion();
-        }
-        return null;
-    }
 
     @NotNull
     private String getMajorVersion(@NotNull String version) {

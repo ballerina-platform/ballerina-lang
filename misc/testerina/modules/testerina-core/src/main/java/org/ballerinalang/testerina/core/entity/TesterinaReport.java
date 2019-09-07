@@ -66,7 +66,6 @@ public class TesterinaReport {
 
         printTestSuiteResult(testSummary.passedTests.size(), testSummary.failedTests.size(), testSummary.skippedTests
                 .size());
-        outStream.println();
     }
 
     private void printTestSuiteResult(int passed, int failed, int skipped) {
