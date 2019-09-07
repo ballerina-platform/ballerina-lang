@@ -116,16 +116,6 @@ function desugarOldExternFuncs(bir:Package module, OldStyleExternalFunctionWrapp
 
     bir:Return ret = {pos:birFunc.pos, kind:bir:TERMINATOR_RETURN};
     retBB.terminator = ret;
-
-    var cde = json.constructFrom(birFunc);
-    if (cde is json) {
-        io:println(cde.toJsonString());
-    }
-
-    var abc = json.constructFrom(birFunc);
-    if (abc is json) {
-        io:println(abc.toJsonString());
-    }
 }
 
 function getExternalFunctionWrapper(bir:Package birModule, bir:Function birFunc,
