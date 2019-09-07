@@ -308,7 +308,7 @@ public class LockFileTestCase extends BaseTest {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{"-a", "-c", "--off-line"}, envVariables, new String[]{}, new
+            balClient.runMain("build", new String[]{"-a", "-c", "--offline"}, envVariables, new String[]{}, new
                     LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
             fooBuildLeecher.waitForText(10000);
             return Files.exists(testProj2Path.resolve(fooBaloFile));

@@ -3,7 +3,7 @@ NAME
        outputs.
 
 SYNOPSIS
-       ballerina build [-o <output>] [--sourceroot] [--off-line] [--skip-tests]
+       ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]
                        [--skip-lock] {<ballerina-file | module-name> | -a | --all}
 
 
@@ -38,7 +38,7 @@ OPTIONS
        -a, --all
            Build or compile all the modules of a project.
 
-       --off-line
+       --offline
            Builds offline without downloading dependencies.
 
        --skip-tests

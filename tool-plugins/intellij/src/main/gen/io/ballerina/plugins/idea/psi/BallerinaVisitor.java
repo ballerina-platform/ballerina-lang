@@ -204,6 +204,18 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitConstAddSubExpression(@NotNull BallerinaConstAddSubExpression o) {
+    visitConstantExpression(o);
+  }
+
+  public void visitConstDivMulModExpression(@NotNull BallerinaConstDivMulModExpression o) {
+    visitConstantExpression(o);
+  }
+
+  public void visitConstGroupExpression(@NotNull BallerinaConstGroupExpression o) {
+    visitConstantExpression(o);
+  }
+
   public void visitConstantDefinition(@NotNull BallerinaConstantDefinition o) {
     visitTopLevelDefinition(o);
   }
@@ -696,6 +708,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitRecordLiteralConstExpression(@NotNull BallerinaRecordLiteralConstExpression o) {
+    visitConstantExpression(o);
+  }
+
   public void visitRecordLiteralExpression(@NotNull BallerinaRecordLiteralExpression o) {
     visitExpression(o);
   }
@@ -790,6 +806,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
 
   public void visitSimpleLiteral(@NotNull BallerinaSimpleLiteral o) {
     visitPsiElement(o);
+  }
+
+  public void visitSimpleLiteralConstExpression(@NotNull BallerinaSimpleLiteralConstExpression o) {
+    visitConstantExpression(o);
   }
 
   public void visitSimpleLiteralExpression(@NotNull BallerinaSimpleLiteralExpression o) {

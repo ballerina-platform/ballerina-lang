@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecuto
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
-import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
@@ -142,9 +141,9 @@ public class CommandUtil {
     public static List<CodeAction> getCommandForNodeType(String topLevelNodeType, String docUri,
                                                          int line) {
         List<CodeAction> actions = new ArrayList<>();
-        if (CommonKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
-            actions.add(getInitializerGenerationCommand(docUri, line));
-        }
+//        if (CommonKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
+//            actions.add(getInitializerGenerationCommand(docUri, line));
+//        }
         actions.add(getDocGenerationCommand(topLevelNodeType, docUri, line));
         actions.add(getAllDocGenerationCommand(docUri));
         return actions;
@@ -1057,15 +1056,15 @@ public class CommandUtil {
         return action;
     }
 
-    private static CodeAction getInitializerGenerationCommand(String docUri, int line) {
-        CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
-        CommandArgument startLineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
-        List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, startLineArg));
-        CodeAction codeAction = new CodeAction(CommandConstants.CREATE_INITIALIZER_TITLE);
-        codeAction.setCommand(new Command(CommandConstants.CREATE_INITIALIZER_TITLE,
-                                          CreateObjectInitializerExecutor.COMMAND, args));
-        return codeAction;
-    }
+//    private static CodeAction getInitializerGenerationCommand(String docUri, int line) {
+//        CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
+//        CommandArgument startLineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
+//        List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, startLineArg));
+//        CodeAction codeAction = new CodeAction(CommandConstants.CREATE_INITIALIZER_TITLE);
+//        codeAction.setCommand(new Command(CommandConstants.CREATE_INITIALIZER_TITLE,
+//                                          CreateObjectInitializerExecutor.COMMAND, args));
+//        return codeAction;
+//    }
 
     private static String getContentOfRange(WorkspaceDocumentManager documentManager, String uri, Range range)
             throws WorkspaceDocumentException, IOException {

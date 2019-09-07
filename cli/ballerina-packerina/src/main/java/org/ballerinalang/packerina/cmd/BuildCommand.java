@@ -119,7 +119,7 @@ public class BuildCommand implements BLauncherCmd {
                                                                   "extension.")
     private String output;
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Builds/Compiles offline without downloading " +
+    @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
                                                               "dependencies.")
     private boolean offline;
 
@@ -414,7 +414,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina build [-o <output-file>] [--off-line] [--skip-tests] [--skip-lock] " +
+        out.append("  ballerina build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock] " +
                    "{<ballerina-file | module-name> | -a | --all} \n");
     }
 
