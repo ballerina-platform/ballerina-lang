@@ -26,7 +26,6 @@ The sample service given below handles a multipart request. It extracts the body
 
 ``` ballerina
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 
