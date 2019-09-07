@@ -415,7 +415,7 @@ export class BallerinaExtension {
             }
         } catch ({ message }) {
             // ballerina is installed, but ballerina home command is not found
-            isOldBallerinaDist = message.includes("ballerina: unknown command ''home''");
+            isOldBallerinaDist = message.includes("ballerina: unknown command 'home'");
             // ballerina is not installed
             isBallerinaNotFound = message.includes('command not found')
                 || message.includes('is not recognized as an internal or external command');
