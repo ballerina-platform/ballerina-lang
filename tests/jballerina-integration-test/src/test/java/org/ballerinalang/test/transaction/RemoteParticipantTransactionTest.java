@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for remote participant annotation.
