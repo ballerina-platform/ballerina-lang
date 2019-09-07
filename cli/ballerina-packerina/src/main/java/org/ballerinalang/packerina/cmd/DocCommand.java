@@ -298,15 +298,6 @@ public class DocCommand implements BLauncherCmd {
     public void printLongDesc(StringBuilder out) {
         out.append("Generates API Documentation for Ballerina module(s)/file. \n");
         out.append("\n");
-        out.append("Building a Ballerina project or a specific module in a project the \n");
-        out.append("executable \".jar\" files will be created in <project-root>/target/bin directory. \n");
-        out.append("\n");
-        out.append("Building a single Ballerina file will create an executable .jar file in the \n");
-        out.append("current directory. The name of the executable file will be. \n");
-        out.append("<ballerina-file-name>-executable.jar. \n");
-        out.append("\n");
-        out.append("If the output path is specified with the -o flag, the API Docs \n");
-        out.append("will be written to the given output folder. \n");
     }
 
     @Override
