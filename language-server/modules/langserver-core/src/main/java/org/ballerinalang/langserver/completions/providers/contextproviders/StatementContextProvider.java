@@ -71,10 +71,13 @@ public class StatementContextProvider extends LSCompletionProvider {
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 
+        if (inWorkerReturn != null && inWorkerReturn) {
+            return this.getProvider(BallerinaParser.WorkerDeclarationContext.class).getCompletions(context);
+        }
         if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
             return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
         }
-        if (inFunctionReturnParameterContext(context) && !(inWorkerReturn != null && inWorkerReturn)) {
+        if (inFunctionReturnParameterContext(context)) {
             /*
              Check added before the invocation token check, since the return parameter context can also include the
              following
@@ -87,9 +90,6 @@ public class StatementContextProvider extends LSCompletionProvider {
             Action invocation context
              */
             return this.getProvider(InvocationOrFieldAccessContextProvider.class).getCompletions(context);
-        }
-        if (inWorkerReturn != null && inWorkerReturn) {
-            return this.getProvider(BallerinaParser.WorkerDeclarationContext.class).getCompletions(context);
         }
 
         Boolean forceRemovedStmt = context.get(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
