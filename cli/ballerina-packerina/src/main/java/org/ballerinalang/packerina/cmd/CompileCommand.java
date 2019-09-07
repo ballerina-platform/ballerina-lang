@@ -84,7 +84,7 @@ public class CompileCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Compiles offline without downloading dependencies.")
+    @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading dependencies.")
     private boolean offline;
 
     @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies")
@@ -268,7 +268,7 @@ public class CompileCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina compile [<module-name>] [--off-line] [--skip-tests] [--skip-lock] \n");
+        out.append("  ballerina compile [<module-name>] [--offline] [--skip-tests] [--skip-lock] \n");
     }
 
     @Override

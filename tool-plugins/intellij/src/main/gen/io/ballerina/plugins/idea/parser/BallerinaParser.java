@@ -52,6 +52,8 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   public static final TokenSet[] EXTENDS_SETS_ = new TokenSet[] {
+    create_token_set_(CONSTANT_EXPRESSION, CONST_ADD_SUB_EXPRESSION, CONST_DIV_MUL_MOD_EXPRESSION, CONST_GROUP_EXPRESSION,
+      RECORD_LITERAL_CONST_EXPRESSION, SIMPLE_LITERAL_CONST_EXPRESSION),
     create_token_set_(STATIC_MATCH_IDENTIFIER_LITERAL, STATIC_MATCH_LIST_LITERAL, STATIC_MATCH_LITERAL, STATIC_MATCH_OR_EXPRESSION,
       STATIC_MATCH_RECORD_LITERAL, STATIC_MATCH_SIMPLE_LITERAL),
     create_token_set_(FIELD_VARIABLE_REFERENCE, FUNCTION_INVOCATION_REFERENCE, INVOCATION_REFERENCE, MAP_ARRAY_VARIABLE_REFERENCE,
@@ -976,7 +978,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     p = r; // pin = 2
     r = r && report_error_(b, ConstantDefinition_2(b, l + 1));
     r = p && report_error_(b, consumeToken(b, ASSIGN)) && r;
-    r = p && report_error_(b, ConstantExpression(b, l + 1)) && r;
+    r = p && report_error_(b, ConstantExpression(b, l + 1, -1)) && r;
     r = p && consumeToken(b, SEMICOLON) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -1008,18 +1010,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = TypeName(b, l + 1, -1);
     r = r && consumeToken(b, IDENTIFIER);
     exit_section_(b, m, null, r);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // SimpleLiteral | RecordLiteral
-  public static boolean ConstantExpression(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ConstantExpression")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NONE_, CONSTANT_EXPRESSION, "<constant expression>");
-    r = SimpleLiteral(b, l + 1);
-    if (!r) r = RecordLiteral(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -7359,6 +7349,101 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && consumeTokens(b, 1, IDENTIFIER, SEMICOLON);
     p = r; // pin = 2
     exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
+  // Expression root: ConstantExpression
+  // Operator priority table:
+  // 0: ATOM(SimpleLiteralConstExpression)
+  // 1: ATOM(RecordLiteralConstExpression)
+  // 2: BINARY(ConstDivMulModExpression)
+  // 3: BINARY(ConstAddSubExpression)
+  // 4: PREFIX(ConstGroupExpression)
+  public static boolean ConstantExpression(PsiBuilder b, int l, int g) {
+    if (!recursion_guard_(b, l, "ConstantExpression")) return false;
+    addVariant(b, "<constant expression>");
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, "<constant expression>");
+    r = SimpleLiteralConstExpression(b, l + 1);
+    if (!r) r = RecordLiteralConstExpression(b, l + 1);
+    if (!r) r = ConstGroupExpression(b, l + 1);
+    p = r;
+    r = r && ConstantExpression_0(b, l + 1, g);
+    exit_section_(b, l, m, null, r, p, null);
+    return r || p;
+  }
+
+  public static boolean ConstantExpression_0(PsiBuilder b, int l, int g) {
+    if (!recursion_guard_(b, l, "ConstantExpression_0")) return false;
+    boolean r = true;
+    while (true) {
+      Marker m = enter_section_(b, l, _LEFT_, null);
+      if (g < 2 && ConstDivMulModExpression_0(b, l + 1)) {
+        r = ConstantExpression(b, l, 2);
+        exit_section_(b, l, m, CONST_DIV_MUL_MOD_EXPRESSION, r, true, null);
+      }
+      else if (g < 3 && ConstAddSubExpression_0(b, l + 1)) {
+        r = ConstantExpression(b, l, 3);
+        exit_section_(b, l, m, CONST_ADD_SUB_EXPRESSION, r, true, null);
+      }
+      else {
+        exit_section_(b, l, m, null, false, false, null);
+        break;
+      }
+    }
+    return r;
+  }
+
+  // SimpleLiteral
+  public static boolean SimpleLiteralConstExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "SimpleLiteralConstExpression")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, SIMPLE_LITERAL_CONST_EXPRESSION, "<simple literal const expression>");
+    r = SimpleLiteral(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // RecordLiteral
+  public static boolean RecordLiteralConstExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "RecordLiteralConstExpression")) return false;
+    if (!nextTokenIsSmart(b, LEFT_BRACE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = RecordLiteral(b, l + 1);
+    exit_section_(b, m, RECORD_LITERAL_CONST_EXPRESSION, r);
+    return r;
+  }
+
+  // DIV | MUL
+  private static boolean ConstDivMulModExpression_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ConstDivMulModExpression_0")) return false;
+    boolean r;
+    r = consumeTokenSmart(b, DIV);
+    if (!r) r = consumeTokenSmart(b, MUL);
+    return r;
+  }
+
+  // ADD | SUB
+  private static boolean ConstAddSubExpression_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ConstAddSubExpression_0")) return false;
+    boolean r;
+    r = consumeTokenSmart(b, ADD);
+    if (!r) r = consumeTokenSmart(b, SUB);
+    return r;
+  }
+
+  public static boolean ConstGroupExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ConstGroupExpression")) return false;
+    if (!nextTokenIsSmart(b, LEFT_PARENTHESIS)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, null);
+    r = consumeTokenSmart(b, LEFT_PARENTHESIS);
+    p = r;
+    r = p && ConstantExpression(b, l, -1);
+    r = p && report_error_(b, consumeToken(b, RIGHT_PARENTHESIS)) && r;
+    exit_section_(b, l, m, CONST_GROUP_EXPRESSION, r, p, null);
     return r || p;
   }
 
