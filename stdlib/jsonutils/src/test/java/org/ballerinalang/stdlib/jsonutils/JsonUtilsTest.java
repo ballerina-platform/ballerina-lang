@@ -38,7 +38,7 @@ public class JsonUtilsTest {
     private CompileResult result;
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/json-to-xml-test.bal");
+        result = BCompileUtil.compile("test-src/jsonutils_test.bal");
     }
 
     @Test(description = "Test jsonutils:fromXML function")

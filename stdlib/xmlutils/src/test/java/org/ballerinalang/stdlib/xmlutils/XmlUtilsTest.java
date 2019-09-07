@@ -37,7 +37,7 @@ public class XmlUtilsTest {
     private CompileResult result;
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/xml-to-json-test.bal");
+        result = BCompileUtil.compile("test-src/xmlutils_test.bal");
     }
 
     @Test
