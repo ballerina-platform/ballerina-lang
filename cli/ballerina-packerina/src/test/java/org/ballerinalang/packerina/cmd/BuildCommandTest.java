@@ -392,7 +392,7 @@ public class BuildCommandTest extends CommandTest {
         zipFile(libs.resolve("json.jar").toFile(), "json.class");
 
         // Build the project
-        String[] compileArgs = {"--all"};
+        String[] compileArgs = {"--all", "--skip-tests"};
         BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("valid-project"), printStream,
                 printStream, false, true);
         new CommandLine(buildCommand).parse(compileArgs);
