@@ -2,9 +2,8 @@ import {
     Assignment, ASTKindChecker,
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant,
     ExpressionStatement, Foreach, Function as BalFunction, If, Invocation, Lambda,
-    Literal, Match, MatchStaticPatternClause, ObjectType,
+    Literal, Match, MatchStaticPatternClause, MatchStructuredPatternClause, ObjectType,
     Panic, Return, Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
-    Visitor, WaitExpr, While, WorkerReceive, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -360,6 +359,20 @@ class SizingVisitor implements Visitor {
         viewState.bBox.h = node.statement.viewState.bBox.h
             + config.statement.height; // To print literal
         viewState.bBox.label = DiagramUtils.getTextWidth(ASTUtil.genSource(node.literal)).text;
+    }
+
+    public endVisitMatchStructuredPatternClause(node: MatchStructuredPatternClause) {
+        const viewState: ViewState = node.viewState;
+
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
+            return;
+        }
+
+        viewState.bBox.w = node.statement.viewState.bBox.w;
+        viewState.bBox.h = node.statement.viewState.bBox.h
+            + config.statement.height; // To print literal
+        viewState.bBox.label = DiagramUtils.getTextWidth(ASTUtil.genSource(node.variableNode)).text;
     }
 
     public endVisitMatch(node: Match) {
