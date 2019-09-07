@@ -820,6 +820,7 @@ public class Main {
         @CommandLine.Option(names = { "--help", "-h", "?" }, hidden = true, description = "for more information")
         private boolean helpFlag;
 
+        // --debug flag is handled by ballerina.sh/ballerina.bat. It will launch ballerina with java debug options.
         @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
         private String debugPort;
 

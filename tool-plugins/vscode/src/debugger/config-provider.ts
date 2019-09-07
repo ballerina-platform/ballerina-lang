@@ -100,6 +100,8 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         // Ensure that start script can be executed
         if (isUnix()) {
             child_process.exec("chmod +x " + startScriptPath);
+        } else {
+            startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
         }
         const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides/vscode-plugin/run-and-debug/";
         const showDetails: string = 'Learn More';
@@ -109,8 +111,6 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
                 commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
             }
         });
-        startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
-        
 
         const serverProcess = child_process.spawn(startScriptPath, [
             port.toString()
