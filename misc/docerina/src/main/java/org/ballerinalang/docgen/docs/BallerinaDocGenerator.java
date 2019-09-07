@@ -380,7 +380,7 @@ public class BallerinaDocGenerator {
     }
 
     public static Map<String, ModuleDoc> generateModuleDocsFromBLangPackages(String sourceRoot,
-                                                                             List<BLangPackage> modules) throws IOException {
+                                                                     List<BLangPackage> modules) throws IOException {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
         for (BLangPackage bLangPackage : modules) {
             String moduleName = bLangPackage.packageID.name.toString();
