@@ -69,5 +69,5 @@ EXAMPLES
        and write the output to the client_project folder
        $ ballerina openapi gen-client helloclient hello.yaml -o client_project
 
-       Export an OpenApi definition for hello_service.bal for the hello service.
+       Export an OpenAPI definition for hello_service.bal for the hello service.
        $ ballerina openapi gen-contract hello -i hello_service.bal
