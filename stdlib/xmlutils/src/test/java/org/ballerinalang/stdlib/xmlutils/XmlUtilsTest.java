@@ -18,9 +18,8 @@
 package org.ballerinalang.stdlib.xmlutils;
 
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -40,12 +39,13 @@ public class XmlUtilsTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/xml-to-json-test.bal");
     }
+
     @Test
-    public void testToJsonFunction() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJson");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(((BMapType) returns[0].getType()).getConstrainedType().getTag(), TypeTags.JSON_TAG);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\"}");
+    public void testFromJSONFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "testFromJSON");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.XML_TAG);
+        Assert.assertEquals(returns[0].stringValue(), "<name>John</name><age>30</age>");
     }
 
     @Test
