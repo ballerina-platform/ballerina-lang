@@ -57,7 +57,7 @@ service hello on new http:Listener(8890) {
 string S1 = "";
 
 function baz(string id) {
-    log:printInfo("exe-baz-oncommittedFunc");
+    log:printInfo("exe-baz-oncommittedFunc in sep proc");
     S1 = S1 + " in-baz[oncommittedFunc]";
 }
 
