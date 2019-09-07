@@ -94,7 +94,12 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
         try {
             generator.generateClient(executionPath, argList.get(0), output);
         } catch (IOException | BallerinaOpenApiException e) {
-            throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
+            if (e.getLocalizedMessage() != null) {
+                throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+            } else {
+                throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
+            }
+
         }
     }
 

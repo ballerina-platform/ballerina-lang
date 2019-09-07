@@ -3,7 +3,7 @@
 $ ballerina build websocket_proxy_server.bal
 
 # Run the sample using the `run` command on the jar file generated:
-$ ballerina run websocket_proxy_server-executable.jar
+$ ballerina run websocket_proxy_server.jar
 
 # Now, this service can be invoked by any WebSocket client using the url "ws://localhost:9090/proxy/ws"
 
