@@ -99,6 +99,8 @@ public class Main {
 
             // set stop at positional to run command
             cmdParser.getSubcommands().get("run").setStopAtPositional(true);
+            cmdParser.getSubcommands().get("build").setStopAtPositional(true);
+            cmdParser.getSubcommands().get("test").setStopAtPositional(true);
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();

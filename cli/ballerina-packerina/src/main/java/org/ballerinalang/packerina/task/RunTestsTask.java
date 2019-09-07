@@ -42,21 +42,10 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  * Task for executing tests.
  */
 public class RunTestsTask implements Task {
-    private String configPath = null;
-
-    public RunTestsTask() {}
-
-    public RunTestsTask(Path configPath) {
-        if (null != configPath) {
-            this.configPath = configPath.toAbsolutePath().toString();
-        }
-    }
 
     @Override
     public void execute(BuildContext buildContext) {
-        // load configurations
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-        loadConfigurations(sourceRootPath, this.configPath);
 
         Map<BLangPackage, TestarinaClassLoader> programFileMap = new HashMap<>();
         List<BLangPackage> moduleBirMap = buildContext.getModules();
@@ -103,11 +92,11 @@ public class RunTestsTask implements Task {
         Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
             ConfigRegistry.getInstance().initRegistry(new LinkedHashMap<>(), configFilePath,
-                    ballerinaConfPath);
+                                                      ballerinaConfPath);
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
         } catch (IOException e) {
             throw createLauncherException("failed to read the specified configuration file: " +
-                                          ballerinaConfPath.toString());
+                                                  ballerinaConfPath.toString());
         } catch (RuntimeException e) {
             throw createLauncherException(e.getMessage());
         }
