@@ -16,30 +16,30 @@
 
 // Temporally moving old regex and string related functions to internal module.
 
-public function equalsIgnoreCase(string src, string trg) returns boolean = external;
+// public function equalsIgnoreCase(string src, string trg) returns boolean = external;
 
-public function matches(string src, string regex) returns boolean = external;
+// public function matches(string src, string regex) returns boolean = external;
 
-public function replace(string src, string regex, string replaceWith) returns string = external;
+// public function replace(string src, string regex, string replaceWith) returns string = external;
 
-public function replaceAll(string src, string regex, string replaceWith) returns string = external;
+// public function replaceAll(string src, string regex, string replaceWith) returns string = external;
 
-public function replaceFirst(string src, string regex, string replaceWith) returns string = external;
+// public function replaceFirst(string src, string regex, string replaceWith) returns string = external;
 
-public function toByteArray(string src, string encoding) returns byte[] = external;
+// public function toByteArray(string src, string encoding) returns byte[] = external;
 
-public function unescape(string src) returns string = external;
+// public function unescape(string src) returns string = external;
 
-public function hasPrefix(string src, string prefix) returns boolean = external;
+// public function hasPrefix(string src, string prefix) returns boolean = external;
 
-public function hasSuffix(string src, string suffix) returns boolean = external;
+// public function hasSuffix(string src, string suffix) returns boolean = external;
 
-public function lastIndexOf(string src, string subString) returns int = external;
+// public function lastIndexOf(string src, string subString) returns int = external;
 
-public function split(string src, string regex) returns string[] = external;
+// public function split(string src, string regex) returns string[] = external;
 
-public function contains(string src, string subString) returns boolean = external;
+// public function contains(string src, string subString) returns boolean = external;
 
-public function toBoolean(string src) returns boolean = external;
+// public function toBoolean(string src) returns boolean = external;
 
-public function hashCode(string src) returns int = external;
+// public function hashCode(string src) returns int = external;
