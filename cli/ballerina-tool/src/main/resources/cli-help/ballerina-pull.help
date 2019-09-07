@@ -8,7 +8,7 @@ SYNOPSIS
 
 DESCRIPTION
          Pull the given module from Ballerina Central
-         (https://central.ballerina.io/) repository and install to home
+         (https://central.ballerina.io/) and install it to home
          repository. By default, the module will be placed in the
          '.ballerina' home repository of the user.
 
