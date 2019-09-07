@@ -56,6 +56,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
 
 /**
  * Language server compiler implementation for Ballerina.
@@ -115,8 +116,7 @@ public class LSCompilerUtil {
                                                          WorkspaceDocumentManager documentManager,
                                                          CompilerPhase compilerPhase, boolean stopOnSemanticErrors) {
         LSContextManager lsContextManager = LSContextManager.getInstance();
-        CompilerContext context = lsContextManager.getCompilerContext(packageID, sourceRoot, documentManager,
-                stopOnSemanticErrors);
+        CompilerContext context = lsContextManager.getCompilerContext(packageID, sourceRoot, documentManager);
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
@@ -132,6 +132,7 @@ public class LSCompilerUtil {
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(true).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
+        options.put(TOOLING_COMPILATION, String.valueOf(stopOnSemanticErrors));
 
         // In order to capture the syntactic errors, need to go through the default error strategy
         context.put(DefaultErrorStrategy.class, null);

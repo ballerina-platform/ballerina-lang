@@ -77,7 +77,7 @@ public class LSContextManager {
      * @return compiler context
      */
     public CompilerContext getCompilerContext(@Nullable PackageID packageID, String projectDir,
-                                              WorkspaceDocumentManager documentManager, boolean stopOnSemanticErrors) {
+                                              WorkspaceDocumentManager documentManager) {
         CompilerContext compilerContext = contextMap.get(projectDir);
 
         // TODO: Remove this fix once proper compiler fix is introduced
@@ -99,8 +99,6 @@ public class LSContextManager {
         }
         clearCurrentPackage(packageID, compilerContext);
         compilationCounter++; // Not needed to be atomic since the if-check is a range
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(TOOLING_COMPILATION, Boolean.toString(!stopOnSemanticErrors));
         return compilerContext;
     }
 
@@ -137,7 +135,7 @@ public class LSContextManager {
      */
     public CompilerContext getBuiltInPackagesCompilerContext() {
         //TODO: Revisit explicitly retrieving WorkspaceDocumentManagerImpl as doc manager
-        return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance(), false);
+        return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance());
     }
 
     public CompilerContext createNewCompilerContext(String projectDir, WorkspaceDocumentManager documentManager) {
