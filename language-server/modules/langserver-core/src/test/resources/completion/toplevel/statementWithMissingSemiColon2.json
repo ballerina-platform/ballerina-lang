@@ -246,14 +246,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ClientEndpointConfig",
+      "label": "ClientConfiguration",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
       },
       "sortText": "180",
-      "insertText": "ClientEndpointConfig",
+      "insertText": "ClientConfiguration",
       "insertTextFormat": "Snippet"
     },
     {
@@ -305,7 +305,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+        "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
       },
       "sortText": "180",
       "insertText": "FollowRedirects",
@@ -338,7 +338,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+        "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
       },
       "sortText": "190",
       "insertText": "HttpFuture",
@@ -731,14 +731,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "FailoverClientEndpointConfiguration",
+      "label": "FailoverClientConfiguration",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
         "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
       },
       "sortText": "180",
-      "insertText": "FailoverClientEndpointConfiguration",
+      "insertText": "FailoverClientConfiguration",
       "insertTextFormat": "Snippet"
     },
     {
@@ -851,14 +851,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "LoadBalancerRounRobinRule",
+      "label": "LoadBalancerRoundRobinRule",
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
         "left": "Implementation of round robin load balancing strategy.\n"
       },
       "sortText": "190",
-      "insertText": "LoadBalancerRounRobinRule",
+      "insertText": "LoadBalancerRoundRobinRule",
       "insertTextFormat": "Snippet"
     },
     {
@@ -884,14 +884,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "LoadBalanceClientEndpointConfiguration",
+      "label": "LoadBalanceClientConfiguration",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
         "left": "The configurations related to the load balance client endpoint.\n"
       },
       "sortText": "180",
-      "insertText": "LoadBalanceClientEndpointConfiguration",
+      "insertText": "LoadBalanceClientConfiguration",
       "insertTextFormat": "Snippet"
     },
     {

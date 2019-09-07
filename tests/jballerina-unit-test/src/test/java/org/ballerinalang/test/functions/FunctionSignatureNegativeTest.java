@@ -29,9 +29,10 @@ import org.testng.annotations.Test;
 public class FunctionSignatureNegativeTest {
 
     @Test
-    public void testNegativeFuncSignature() {
+    public void testFuncSignatureSemanticsNegative() {
         int i = 0;
-        CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures" +
+                "-semantics-negative.bal");
         String tooManyArguments = "too many arguments in call to ";
         String notEnoughArguments = "not enough arguments in call to ";
 
@@ -39,8 +40,6 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'c'", 21, 19);
         BAssertUtil.validateError(result, i++, "invalid rest arguments", 29, 23);
-        BAssertUtil.validateError(result, i++, "this function must return a result", 32, 1);
-        BAssertUtil.validateError(result, i++, "invalid rest arguments", 33, 23);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml'", 40, 61);
         BAssertUtil.validateError(result, i++, "missing required parameter 'a' in call to " +
                 "'functionWithOnlyPositionalParams'()", 57, 9);
@@ -115,6 +114,13 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 127, 54);
 
         Assert.assertEquals(i, result.getErrorCount());
+    }
+
+    @Test
+    public void testNegativeFuncSignature() {
+        CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures-negative.bal");
+        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
+        Assert.assertEquals(1, result.getErrorCount());
     }
 
     @Test

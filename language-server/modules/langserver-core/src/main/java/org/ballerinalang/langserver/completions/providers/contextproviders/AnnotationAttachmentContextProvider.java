@@ -162,6 +162,11 @@ public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
                         completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }
                     break;
+                case WORKER:
+                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.WORKER)) {
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+                    }
+                    break;
                 default:
                     break;
             }

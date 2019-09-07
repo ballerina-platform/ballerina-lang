@@ -201,10 +201,10 @@ public class ErrorVariableReferenceTest {
     }
 
     @Test
-    public void testNegativeErrorVariables() {
+    public void testErrorVariablesSemanticsNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
-                "test-src/expressions/varref/error_variable_reference_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 18);
+                "test-src/expressions/varref/error_variable_reference_semantics_negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
@@ -242,9 +242,16 @@ public class ErrorVariableReferenceTest {
                                   "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 32);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 145, 19);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "variables in a binding pattern must be distinct; found duplicate variable 's'", 151, 24);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "variables in a binding pattern must be distinct; found duplicate variable 's'", 151, 36);
+    }
+
+    @Test
+    public void testNegativeErrorVariables() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/expressions/varref/error_variable_reference_negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resultNegative, 0,
+                "variables in a binding pattern must be distinct; found duplicate variable 's'", 22, 24);
+        BAssertUtil.validateError(resultNegative, 1,
+                "variables in a binding pattern must be distinct; found duplicate variable 's'", 22, 36);
     }
 }

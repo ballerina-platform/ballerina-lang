@@ -225,7 +225,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
-        if (!isWorker) {
+        if (!isWorker && funcNode.body != null) {
             // Fill the worker varDefs in the current function scope
             this.fillVisibleWorkerVarDefMaps(funcNode.body.stmts);
         }

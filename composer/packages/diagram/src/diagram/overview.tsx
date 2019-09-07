@@ -29,6 +29,7 @@ export interface OverviewProps extends CommonDiagramProps {
     initialSelectedConstruct?: ConstructIdentifier;
 }
 export interface OverviewState {
+    errored: boolean;
     modules: ProjectAST;
     selectedConstruct?: ConstructIdentifier | undefined;
     mode: DiagramMode;
@@ -70,6 +71,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.setPanZoomComp = this.setPanZoomComp.bind(this);
         this.setMaxInvocationDepth = this.setMaxInvocationDepth.bind(this);
         this.state = {
+            errored: false,
             maxInvocationDepth: -1,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
@@ -84,6 +86,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             const { selectedConstruct } = this.state;
             this.getAST(selectedConstruct.sourceRoot, selectedConstruct.filePath).then((ast) => {
                 this.setState({
+                    errored: !Boolean(ast),
                     maxInvocationDepth: -1,
                     modules: ast ? ast : {},
                     selectedConstruct,
@@ -95,6 +98,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         if (this.props.docUri) {
             this.getAST(undefined, this.props.docUri).then((ast) => {
                 this.setState({
+                    errored: !Boolean(ast),
                     maxInvocationDepth: -1,
                     modules: ast ? ast : {},
                 });
@@ -147,6 +151,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
             this.getAST(selectedConstruct.sourceRoot, selectedConstruct.filePath).then((ast) => {
                 this.setState({
+                    errored: !Boolean(ast),
                     maxInvocationDepth: -1,
                     modules: ast ? ast : {},
                     selectedConstruct,
@@ -159,7 +164,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             });
         }
 
-        this.handleReset();
+        this.reset();
     }
 
     public componentDidMount() {
@@ -169,8 +174,9 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }
 
         if (this.props.docUri) {
-            this.getAST(undefined, this.props.docUri).then((ast) => {
+            this.getAST(this.props.sourceRootUri, this.props.docUri).then((ast) => {
                 this.setState({
+                    errored: !Boolean(ast),
                     maxInvocationDepth: -1,
                     modules: ast ? ast : {},
                 });
@@ -195,7 +201,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                 return <div style={{padding: 10}}><div className="ui visible message">{errorMessage}</div></div>;
             }
 
-            if (this.props.docUri) {
+            if (this.props.docUri && this.state.errored) {
                 const { docUri } = this.props;
                 const docUriFilename = docUri.substring(docUri.lastIndexOf("/") + 1);
                 // tslint:disable-next-line: max-line-length
@@ -217,7 +223,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }
 
         return (
-            <div style={{height: "100%"}}>
+            <div style={{height: "100%"}} onClick={this.handleClosed}>
                 <TopMenu
                     modes={modes}
                     handleModeChange={this.handleModeChange}
@@ -368,7 +374,8 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         });
     }
 
-    private handleFitClick() {
+    private handleFitClick(e: React.MouseEvent) {
+        e.stopPropagation();
         if (!(this.panZoomElement && this.panZoomElement.parentElement && this.panZoomComp)) {
             return;
         }
@@ -381,7 +388,8 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.panZoomComp.moveTo(20, 20);
     }
 
-    private handleZoomIn() {
+    private handleZoomIn(e: React.MouseEvent) {
+        e.stopPropagation();
         if (!this.panZoomComp) {
             return;
         }
@@ -394,7 +402,8 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }));
     }
 
-    private handleZoomOut() {
+    private handleZoomOut(e: React.MouseEvent) {
+        e.stopPropagation();
         if (!this.panZoomComp) {
             return;
         }
@@ -407,19 +416,26 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }));
     }
 
-    private handleOpened() {
+    private handleOpened(e: React.MouseEvent) {
+        e.stopPropagation();
         this.setState({
             openedState: true,
         });
     }
 
-    private handleClosed() {
+    private handleClosed(e: React.MouseEvent) {
+        e.stopPropagation();
         this.setState({
             openedState: false,
         });
     }
 
-    private handleReset() {
+    private handleReset(e: React.MouseEvent) {
+        e.stopPropagation();
+        this.reset();
+    }
+
+    private reset() {
         if (this.panZoomComp && this.innitialPanZoomTransform) {
             const { x, y, scale } = this.innitialPanZoomTransform;
             this.panZoomComp.zoomAbs(0, 0, scale);

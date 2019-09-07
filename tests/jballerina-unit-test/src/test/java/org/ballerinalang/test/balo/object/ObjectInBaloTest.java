@@ -385,15 +385,22 @@ public class ObjectInBaloTest {
         BAssertUtil.validateError(result, 0, "cannot initialize abstract object 'testorg/foo:1.0.0:Country'", 4, 21);
     }
 
+    @Test (description = "Negative test to test undefined functions in object variables")
+    public void testObjectNegativeSemanticTestForNonInitializable() {
+        CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
+                "/object_with_non_defaultable_semantic_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object " +
+                "'testorg/foo:1.0.0:Architect'", 7, 13);
+    }
+
     @Test (description = "Negative test to test uninitialized object variables")
     public void testObjectNegativeTestForNonInitializable() {
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
                 "/object_with_non_defaultable_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object " +
-                "'testorg/foo:1.0.0:Architect'", 7, 13);
-        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 7, 13);
-        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 7, 35);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "variable 'p' is not initialized", 7, 13);
+        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 7, 19);
     }
 
     @Test(description = "Negative test to test returning different type without type name")

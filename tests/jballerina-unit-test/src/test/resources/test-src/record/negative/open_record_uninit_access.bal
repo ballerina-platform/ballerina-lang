@@ -22,7 +22,7 @@ public type Person record {
 function uninitAccess() {
     Person p;
     string name = p.name;
-    name = p["name"] ?: "";
+    name = "";
 
     p.age = 25;
     p["age"] = 30;

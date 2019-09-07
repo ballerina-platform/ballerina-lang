@@ -162,6 +162,7 @@ public final class Constants {
         public static final String ORACLE = "oracle";
         public static final String POSTGRESQL = "postgresql";
         public static final String MYSQL = "mysql";
+        public static final String MSSQL_SERVER = "microsoft sql server";
     }
 
     public static final String CONNECTOR_NAME = "ClientConnector";

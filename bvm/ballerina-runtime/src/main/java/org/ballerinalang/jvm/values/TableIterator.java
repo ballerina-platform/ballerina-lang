@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.TableResourceManager;
+import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -29,7 +30,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.sql.Array;
@@ -42,8 +42,13 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * <p>
  * Iterator implementation for table data types.
- *
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ * 
  * @since 0.995.0
  */
 public class TableIterator implements DataIterator {
@@ -76,7 +81,7 @@ public class TableIterator implements DataIterator {
         try {
             return rs.next();
         } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw TableUtils.createTableOperationError(e);
         }
     }
 
@@ -88,7 +93,7 @@ public class TableIterator implements DataIterator {
             }
             resourceManager.releaseResources();
         } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw TableUtils.createTableOperationError(e);
         }
     }
 
@@ -102,7 +107,7 @@ public class TableIterator implements DataIterator {
             String val = rs.getString(columnIndex);
             return rs.wasNull() ? null : val;
         } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw TableUtils.createTableOperationError(e);
         }
     }
 
@@ -112,7 +117,7 @@ public class TableIterator implements DataIterator {
             long val = rs.getLong(columnIndex);
             return rs.wasNull() ? null : val;
         } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw TableUtils.createTableOperationError(e);
         }
     }
 
@@ -122,7 +127,7 @@ public class TableIterator implements DataIterator {
             double val = rs.getDouble(columnIndex);
             return rs.wasNull() ? null : val;
         } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw TableUtils.createTableOperationError(e);
         }
     }
 
@@ -132,7 +137,7 @@ public class TableIterator implements DataIterator {
             boolean val = rs.getBoolean(columnIndex);
             return rs.wasNull() ? null : val;
         } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw TableUtils.createTableOperationError(e);
         }
     }
 
@@ -142,7 +147,7 @@ public class TableIterator implements DataIterator {
             Blob bValue = rs.getBlob(columnIndex);
             return rs.wasNull() ? null : new String(bValue.getBytes(1, (int) bValue.length()));
         } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw TableUtils.createTableOperationError(e);
         }
     }
 
@@ -152,7 +157,7 @@ public class TableIterator implements DataIterator {
             BigDecimal val = rs.getBigDecimal(columnIndex);
             return rs.wasNull() ? null : new DecimalValue(val);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw TableUtils.createTableOperationError(e);
         }
     }
 
@@ -165,7 +170,7 @@ public class TableIterator implements DataIterator {
                 objArray = data.getAttributes();
             }
         } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw TableUtils.createTableOperationError(e);
         }
         return objArray;
     }
@@ -175,7 +180,7 @@ public class TableIterator implements DataIterator {
         try {
             return generateArrayDataResult(rs.getArray(columnIndex));
         } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw TableUtils.createTableOperationError(e);
         }
     }
 
@@ -212,23 +217,23 @@ public class TableIterator implements DataIterator {
                     case TypeTags.UNION_TAG:
                         List<BType> members = ((BUnionType) sf.getFieldType()).getMemberTypes();
                         if (members.size() != 2) {
-                            throw new BallerinaException(
-                                    "Corresponding Union type in the record is not an assignable nillable type");
+                            throw TableUtils.createTableOperationError(
+                                    "corresponding Union type in the record is not an assignable nillable type");
                         }
                         if (members.get(0).getTag() == TypeTags.NULL_TAG) {
                             value = fetchValue(index, members.get(1));
                         } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
                             value = fetchValue(index, members.get(0));
                         } else {
-                            throw new BallerinaException(
-                                    "Corresponding Union type in the record is not an assignable nillable type");
+                            throw TableUtils.createTableOperationError(
+                                    "corresponding Union type in the record is not an assignable nillable type");
                         }
                         break;
                 }
                 bStruct.put(fieldName, value);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in generating next row of data :" + e.getMessage());
+            throw TableUtils.createTableOperationError("error in generating next row of data :" + e.getMessage());
         }
         return bStruct;
     }

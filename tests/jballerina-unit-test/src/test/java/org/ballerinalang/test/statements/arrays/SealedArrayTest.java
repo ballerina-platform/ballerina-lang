@@ -277,7 +277,7 @@ public class SealedArrayTest {
 
     @Test()
     public void testNegativeSealedArrays() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 24);
+        Assert.assertEquals(resultNegative.getErrorCount(), 23);
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 19, 30);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 25, 33);
@@ -285,7 +285,11 @@ public class SealedArrayTest {
                 30, 31);
         BAssertUtil.validateError(resultNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
                 31, 31);
-        BAssertUtil.validateError(resultNegative, i++, "variable 'sealedArray1' is not initialized", 37, 5);
+        // TODO: {enableCodeAnalyzerTests} following won't get captured after (typeChecker, semanticAnalyzer) &
+        //  codeAnalyzer separation.
+        //
+        //        BAssertUtil.validateError(resultNegative, i++,
+        //                "variable 'sealedArray1' is not initialized", 37, 5);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 37, 18);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 38, 18);
         BAssertUtil.validateError(resultNegative, i++, "invalid usage of sealed type: array not initialized", 39, 5);

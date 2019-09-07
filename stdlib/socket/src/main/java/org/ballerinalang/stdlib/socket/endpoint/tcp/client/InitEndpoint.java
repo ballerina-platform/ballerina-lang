@@ -71,10 +71,10 @@ public class InitEndpoint {
             client.addNativeData(SOCKET_SERVICE,
                     new SocketService(socketChannel, strand.scheduler, callbackService, readTimeout));
         } catch (SocketException e) {
-            returnValue = SocketUtils.createSocketError("Unable to bind the local socket port");
+            returnValue = SocketUtils.createSocketError("unable to bind the local socket port");
         } catch (IOException e) {
             log.error("Unable to initiate the client socket", e);
-            returnValue = SocketUtils.createSocketError("Unable to initiate the socket");
+            returnValue = SocketUtils.createSocketError("unable to initiate the socket");
         }
         return returnValue;
     }

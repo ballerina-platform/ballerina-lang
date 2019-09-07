@@ -34,7 +34,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * <p>
  * Interface to be implemented by all the reference types.
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @since 0.995.0
  */

@@ -49,7 +49,9 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
  */
 public class SocketUtils {
 
-    private static final String PACKAGE_SOCKET = "ballerina/socket";
+    private SocketUtils() {
+    }
+
     private static final String DETAIL_RECORD_TYPE_NAME = "Detail";
 
     /**
@@ -133,6 +135,7 @@ public class SocketUtils {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             executorService.shutdownNow();
         }
     }

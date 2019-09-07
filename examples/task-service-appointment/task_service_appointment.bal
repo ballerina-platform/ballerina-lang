@@ -6,10 +6,10 @@ import ballerina/task;
 // `AppointmentData` record for the `appointmentData` field. Optionally, a
 // `noOfRecurrences` can be provided to limit the number of executions.
 task:AppointmentConfiguration appointmentConfiguration = {
-    // This cron expression will schedule the appointment once every 2 seconds.
-    appointmentDetails: "0/2 * * * * ?",
+    // This cron expression will schedule the appointment every second.
+    appointmentDetails: "* * * * * ?",
     // Number of recurrences will limit the number of times the timer runs.
-    noOfRecurrences: 11
+    noOfRecurrences: 10
 };
 
 // Initialize the listener using pre defined configurations.
@@ -21,8 +21,8 @@ int count = 0;
 service appointmentService on appointment {
     // This resource triggers when the appointment is due.
     resource function onTrigger() {
-        count = count + 1;
         log:printInfo("Cleaning up...");
         log:printInfo(count.toString());
+        count = count + 1;
     }
 }

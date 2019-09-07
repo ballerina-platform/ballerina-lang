@@ -32,7 +32,8 @@ public function main() {
         io:println("File name: " + fileInfoResults.getName());
         io:println("File size: " + fileInfoResults.getSize().toString());
         io:println("Is directory: " + fileInfoResults.isDir().toString());
-        io:println("Modified at " + fileInfoResults.getLastModifiedTime().toString());
+        io:println("Modified at " +
+                        fileInfoResults.getLastModifiedTime().toString());
     }
 
     // Check whether the file or directory of the provided path exists.

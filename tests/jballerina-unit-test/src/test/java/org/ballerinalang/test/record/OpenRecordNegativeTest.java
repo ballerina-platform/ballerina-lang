@@ -107,7 +107,7 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test ambiguity resolution")
     public void testAmbiguityResolution() {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/open_record_ambiguity.bal");
-        assertEquals(result.getErrorCount(), 8);
+        assertEquals(result.getErrorCount(), 7);
         int index = 0;
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 36,
                       22);
@@ -119,7 +119,16 @@ public class OpenRecordNegativeTest {
         validateError(result, index++, "ambiguous type '(A|B|C)'", 71, 25);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 72, 25);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 73, 25);
-        validateError(result, index, "unnecessary condition: expression will always evaluate to 'true'", 78, 9);
+        // validateError(result, index, "unnecessary condition: expression will always evaluate to 'true'", 78, 9);
+    }
+
+    @Test(description = "Test uninitialized record access")
+    public void testUninitRecordAccessSemanticsNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/negative" +
+                "/open_record_uninit_access_semantics_negative.bal");
+        int index = 0;
+        validateError(compileResult, index++, "operator '?:' cannot be applied to type 'string'", 25, 12);
+        assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test(description = "Test uninitialized record access")
@@ -127,8 +136,6 @@ public class OpenRecordNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_uninit_access.bal");
         int index = 0;
         validateError(compileResult, index++, "variable 'p' is not initialized", 24, 19);
-        validateError(compileResult, index++, "operator '?:' cannot be applied to type 'string'", 25, 12);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 25, 12);
         validateError(compileResult, index++, "variable 'p' is not initialized", 27, 5);
         validateError(compileResult, index++, "variable 'p' is not initialized", 28, 5);
         validateError(compileResult, index++, "variable 'p' is not initialized", 30, 42);

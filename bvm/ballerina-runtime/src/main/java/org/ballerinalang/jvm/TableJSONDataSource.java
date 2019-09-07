@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
@@ -76,7 +75,7 @@ public class TableJSONDataSource implements JSONDataSource {
             this.df.moveToNext();
             return this.objGen.transform(this.df);
         } catch (IOException e) {
-            throw new BLangRuntimeException("error while geting next data", e);
+            throw TableUtils.createTableOperationError(e, "error while geting next data");
         }
     }
 

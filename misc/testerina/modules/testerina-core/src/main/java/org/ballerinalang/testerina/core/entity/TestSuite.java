@@ -37,6 +37,9 @@ public class TestSuite {
     private TesterinaFunction initFunction;
     private TesterinaFunction startFunction;
     private TesterinaFunction stopFunction;
+    private TesterinaFunction testInitFunction;
+    private TesterinaFunction testStartFunction;
+    private TesterinaFunction testStopFunction;
     private List<Test> tests = new ArrayList<>();
     private JBallerinaInMemoryClassLoader programFile;
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
@@ -261,6 +264,31 @@ public class TestSuite {
         return stopFunction;
     }
 
+
+    public TesterinaFunction getTestInitFunction() {
+        return testInitFunction;
+    }
+
+    public void setTestInitFunction(TesterinaFunction testInitFunction) {
+        this.testInitFunction = testInitFunction;
+    }
+
+    public TesterinaFunction getTestStartFunction() {
+        return testStartFunction;
+    }
+
+    public void setTestStartFunction(TesterinaFunction testStartFunction) {
+        this.testStartFunction = testStartFunction;
+    }
+
+    public TesterinaFunction getTestStopFunction() {
+        return testStopFunction;
+    }
+
+    public void setTestStopFunction(TesterinaFunction testStopFunction) {
+        this.testStopFunction = testStopFunction;
+    }
+
     public void setStopFunction(TesterinaFunction stopFunction) {
         this.stopFunction = stopFunction;
         this.stopFunction.scheduler = this.scheduler;
@@ -274,11 +302,22 @@ public class TestSuite {
             initFunction.bFunction.name.value = "$moduleInit";
             initFunction.scheduler = initScheduler;
             initFunction.invoke();
+            // Now we initialize the init of testable module.
+            if (testInitFunction != null) {
+                testInitFunction.scheduler = initScheduler;
+                testInitFunction.invoke();
+            }
             // As the start function we need to use $moduleStart to start all the dependent modules
             // properly.
             startFunction.bFunction.name.value = "$moduleStart";
             startFunction.scheduler = initScheduler;
             startFunction.invoke();
+
+            // Invoke start function of the testable module
+            if (testStartFunction != null) {
+                testStartFunction.scheduler = initScheduler;
+                testStartFunction.invoke();
+            }
 
             // Once the start function finish we will re start the scheduler with immortal true
             initScheduler.immortal = true;
@@ -292,6 +331,12 @@ public class TestSuite {
 
     public void stop() {
         if (stopFunction != null) {
+            // Invoke stop function of the testable module.
+            if (testStopFunction != null) {
+                testStopFunction.scheduler = scheduler;
+                testStopFunction.invoke();
+            }
+
             stopFunction.bFunction.name.value = "$moduleStop";
             stopFunction.directInvoke(new Class[]{});
         }

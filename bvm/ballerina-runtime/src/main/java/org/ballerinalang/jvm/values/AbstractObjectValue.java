@@ -35,7 +35,12 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERE
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
+ * <p>
  * Abstract class to be extended by all the ballerina objects.
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @since 0.995.0
  */

@@ -24,3 +24,17 @@ function name2() returns [int, [string, int, float]] {
 function searchPeople() returns (   [   string , int , float  ]  ) {
     return (  [ "" , 1 , 1.0 ] );
 }
+
+function testArrayToTupleAssignment3() returns [string, string[]] {
+    string[3] x = ["a", "b", "c"];
+     [string,  string ...]   [i,   ... j ] = x;
+    return [i, j];
+}
+
+function testArrayToTupleAssignment4() returns [string, string[]] {
+    string[3] x = ["a", "b", "c"];
+    [ string ,  string ...][i ,
+            ...
+j] = x;
+    return [i, j];
+}

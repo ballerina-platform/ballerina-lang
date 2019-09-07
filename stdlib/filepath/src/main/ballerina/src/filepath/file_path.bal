@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/log;
 import ballerina/system;
-import ballerina/internal;
+import ballerina/stringutils;
 
 boolean isWindows = system:getEnv("OS") != "";
 string pathSeparator = isWindows ? "\\" : "/";
@@ -167,7 +167,7 @@ public function normalize(string path) returns string|Error {
                 if (hasPrevious || (offset > 0) || isSlash(c0)) {
                     ignore[i] = true;
                     remaining = remaining - 1;
-                }  
+                }
             }
         }
         i = i + 1;
@@ -423,7 +423,7 @@ function nextSlashIndex(string path, int offset, int end) returns int|Error {
 
 function isLetter(string c) returns boolean {
     string regEx = "^[a-zA-Z]{1}$";
-    boolean|error letter = internal:matches(c,regEx);
+    boolean|error letter = stringutils:matches(c,regEx);
     if (letter is error) {
         log:printError("Error while checking input character is string", letter);
         return false;
@@ -459,7 +459,7 @@ function charAt(string input, int index) returns string|Error {
 
 function isSamePath(string base, string target) returns boolean {
     if (isWindows) {
-        return internal:equalsIgnoreCase(base, target);
+        return stringutils:equalsIgnoreCase(base, target);
     } else {
         return base == target;
     }
