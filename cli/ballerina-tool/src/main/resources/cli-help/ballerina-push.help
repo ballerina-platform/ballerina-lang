@@ -15,7 +15,7 @@ DESCRIPTION
 
        Before pushing modules to central,
 
-       1) Ballerina central access token needs to be added to 'Settings.toml' 
+       1) Ballerina Central access token needs to be added to 'Settings.toml' 
        in home repository(<USER_HOME>/.ballerina/). A token can be created 
        by resgistering on Ballerina Central (https://central.ballerina.io/).
        
