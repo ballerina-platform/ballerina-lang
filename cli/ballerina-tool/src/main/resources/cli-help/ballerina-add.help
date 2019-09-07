@@ -4,7 +4,7 @@ NAME
 
 SYNOPSIS
        ballerina add <module-name> [-t | --template <template-name>]
-                     [-l | --list ]
+                     [-l | --list]
 
 
 DESCRIPTION
