@@ -322,12 +322,18 @@ export class BallerinaExtension {
     showMessageInstallLatestBallerina(): any {
         const download: string = 'Download';
         const openSettings: string = 'Open Settings';
-        window.showWarningMessage(ballerinaExtInstance.getVersion() + INSTALL_NEW_BALLERINA, download, openSettings).then((selection) => {
+        const viewLogs: string = 'View Logs';
+        window.showWarningMessage(ballerinaExtInstance.getVersion() + INSTALL_NEW_BALLERINA, download, openSettings, viewLogs).then((selection) => {
             if (openSettings === selection) {
                 commands.executeCommand('workbench.action.openGlobalSettings');
             }
             if (download === selection) {
                 commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
+            } else if (viewLogs === selection) {
+                const balOutput = ballerinaExtInstance.getOutPutChannel();
+                if (balOutput) {
+                    balOutput.show();
+                }
             }
         });
     }
