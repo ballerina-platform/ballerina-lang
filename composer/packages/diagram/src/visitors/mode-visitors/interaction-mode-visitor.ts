@@ -1,6 +1,7 @@
 import { Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
     Invocation, Match, Return, Service, TypeDefinition, VariableDef, Visitor, WorkerSend } from "@ballerina/ast-model";
 import * as _ from "lodash";
+
 import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
 
 const currentState: {
@@ -28,12 +29,16 @@ export const visitor: Visitor = {
         node.viewState.hidden = false;
     },
 
-    beginVisitMatch(node: Match) {
+    endVisitMatch(node: Match) {
         const visibleClause = node.patternClauses.find((clause) => {
-            return clause.statement.viewState.hidden === false;
+            return !clause.viewState.hidden;
         });
         if (visibleClause) {
             node.viewState.hidden = false;
+            node.patternClauses.forEach((clause) => {
+                clause.viewState.hidden = false;
+                clause.statement.viewState.hidden = false;
+            });
         }
     },
 
@@ -48,6 +53,7 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
+        node.viewState.hidden = true;
         // if (node.parent.viewState.hidden !== false) {
         //     // if its already set to false that means its already checked for visibility
         //     node.parent.viewState.hidden = true;
@@ -58,6 +64,9 @@ export const visitor: Visitor = {
 
     endVisitBlock(node: Block) {
         const visitedNode = currentState.blocks.pop();
+        if (visitedNode && !visitedNode.viewState.hidden) {
+            node.viewState.hidden = false;
+        }
         const { blocks } = currentState;
         currentState.currentBlock = blocks.length > 0 ? blocks[blocks.length - 1] : undefined;
 

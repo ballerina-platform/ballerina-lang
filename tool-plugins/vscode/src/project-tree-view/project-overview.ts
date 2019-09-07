@@ -141,7 +141,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         return treeItem;
     }
 
-    private getRoots(): ProjectTreeElement[] {
+    public getRoots(): ProjectTreeElement[] {
         const openFolders = vscode.workspace.workspaceFolders;
         let sourceRoots: ProjectTreeElement[] = [];
         if (openFolders) {
