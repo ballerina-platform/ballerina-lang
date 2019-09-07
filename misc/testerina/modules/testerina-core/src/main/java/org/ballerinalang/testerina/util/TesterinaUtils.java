@@ -21,7 +21,6 @@ import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -110,7 +109,7 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param programFileMap map containing bLangPackage nodes along with their compiled program files
      */
-    public static void executeTests(Path sourceRootPath, Map<BLangPackage, JBallerinaInMemoryClassLoader>
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader>
             programFileMap) {
         executeTests(sourceRootPath, programFileMap, System.out, System.err);
     }
@@ -123,7 +122,7 @@ public class TesterinaUtils {
      * @param outStream      error stream for logging.
      * @param errStream      info stream for logging.
      */
-    public static void executeTests(Path sourceRootPath, Map<BLangPackage, JBallerinaInMemoryClassLoader>
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader>
             programFileMap, PrintStream outStream, PrintStream errStream) {
         // Set org-name and version to the Testerina Registry.
         setManifestConfigs(sourceRootPath);
