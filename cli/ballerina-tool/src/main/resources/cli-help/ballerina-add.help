@@ -3,7 +3,7 @@ NAME
 
 
 SYNOPSIS
-       ballerina add <module-name> [-t | --template <template-name>]
+       ballerina add <module-name> [-t <template-name> | --template <template-name>]
                      [-l | --list]
 
 
