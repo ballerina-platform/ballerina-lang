@@ -449,6 +449,7 @@ class SizingVisitor implements Visitor {
             if (!viewState.expandContext.collapsed && !viewState.hidden && !viewState.hiddenBlock) {
                 const labelText = viewState.expandContext.expandedSubTree.name.value;
                 viewState.expandContext.labelText = labelText;
+                viewState.expandContext.statementText = ASTUtil.genSource(node);
                 viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(labelText, {bold: true});
                 this.handleExpandedFn(viewState.expandContext.expandedSubTree, viewState);
             }

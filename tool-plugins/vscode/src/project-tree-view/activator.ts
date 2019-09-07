@@ -26,7 +26,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 
     const treeViewChildren = projectTreeProvider.getRoots();
-    if (treeViewChildren.length > 1) {
+    if (treeViewChildren.length > 0) {
         ballerinaProjectTree.reveal(treeViewChildren[0], { expand: true, focus: false, select: false });
     }
 }
