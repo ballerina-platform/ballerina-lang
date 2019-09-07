@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/runtime;
 
 int GLB = 0;
 
@@ -185,3 +186,51 @@ function testDefaultObject() returns [[string, int], [string, int]] {
 function foo7(string s, float b = 1.1, FooObject o = new("default", 100)) returns [string, float, FooObject] {
     return [s, b, o];
 }
+
+function testFuncWithAsyncDefaultParamExpression() returns string {
+    return funcWithAsyncDefaultParamExpression() + funcWithAsyncDefaultParamExpression("world") + funcWithAsyncDefaultParamExpression("sample", "value");
+}
+
+function funcWithAsyncDefaultParamExpression(string a1 = asyncRet(), string a2 = asyncRet()) returns string {
+    return a1 + a2;
+}
+
+function asyncRet() returns string {
+    runtime:sleep(50);
+    return "hello";
+}
+
+function asyncRetWithVal(string a = "sample") returns string {
+    runtime:sleep(50);
+    return a + "hello";
+}
+
+function testUsingParamValues() returns string {
+    return usingParamValues() + usingParamValues("world") + usingParamValues("sample", "value");
+}
+
+function usingParamValues(string a1 = asyncRet(), string a2 = asyncRetWithVal(a1)) returns string {
+    return a1 + a2;
+}
+
+public type Person object {
+
+    function funcWithAsyncDefaultParamExpression(string a1 = asyncRet(), string a2 = asyncRet()) returns string {
+        return a1 + a2;
+    }
+
+    function usingParamValues(string a1 = asyncRet(), string a2 = asyncRetWithVal(a1)) returns string {
+        return a1 + a2;
+    }
+};
+
+function testAttachedAsyncDefaultParam() returns string {
+    Person p = new;
+    return p.funcWithAsyncDefaultParamExpression() + p.funcWithAsyncDefaultParamExpression("world") + p.funcWithAsyncDefaultParamExpression("sample", "value");
+}
+
+function testUsingParamValuesInAttachedFunc() returns string {
+    Person p = new;
+    return p.usingParamValues() + p.usingParamValues("world") + p.usingParamValues("sample", "value");
+}
+
