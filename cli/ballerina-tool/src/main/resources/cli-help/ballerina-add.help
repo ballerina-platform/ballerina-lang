@@ -11,7 +11,7 @@ DESCRIPTION
        Add a new module to a Ballerina project. The command should
        be run inside a Ballerina project.
 
-       Also different templates can be selected to create the new module.
+       A template can also be specified when creating the new module.
 
 
 OPTIONS
