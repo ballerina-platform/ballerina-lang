@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/xmlutils;
+import ballerina/jsonutils;
 
 type Person record {
     int id;
@@ -24,11 +24,11 @@ type Person record {
     boolean married;
 };
 
-function testToJson() returns json|error {
+function testFromXML() returns json|error {
     var x1 = xml `<!-- outer comment -->`;
     var x2 = xml `<name>supun</name>`;
     xml x3 = x1 + x2;
-    json|error j = xmlutils:toJSON(x3);
+    json|error j = jsonutils:fromXML(x3);
     return j;
 }
 
@@ -40,5 +40,5 @@ public function testFromTable() returns string {
         ]
     };
 
-    return xmlutils:fromTable(personTable).toString();
+    return jsonutils:fromTable(personTable).toJsonString();
 }

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.jsonutils;
+package org.ballerinalang.stdlib.xmlutils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -29,20 +29,20 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jsonutils", functionName = "toXML", isPublic = true
+        orgName = "ballerina", packageName = "xmlutils", functionName = "fromJSON", isPublic = true
 )
-public class ToXML {
+public class FromJSON {
 
     private static final String OPTIONS_ATTRIBUTE_PREFIX = "attributePrefix";
     private static final String OPTIONS_ARRAY_ENTRY_TAG = "arrayEntryTag";
 
-    public static Object toXML(Strand strand, Object json, MapValue<?, ?> options) {
+    public static Object fromJSON(Strand strand, Object json, MapValue<?, ?> options) {
         try {
             String attributePrefix = (String) options.get(OPTIONS_ATTRIBUTE_PREFIX);
             String arrayEntryTag = (String) options.get(OPTIONS_ARRAY_ENTRY_TAG);
             return JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
         } catch (Throwable e) {
-            return BallerinaErrors.createError("{ballerina/jsonutils}Error", e.getMessage());
+            return BallerinaErrors.createError("{ballerina/xmlutils}Error", e.getMessage());
         }
     }
 }

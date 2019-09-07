@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.stdlib.jsonutils;
+package org.ballerinalang.stdlib.xmlutils;
 
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;

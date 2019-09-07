@@ -16,19 +16,19 @@
 
 # Type for XML options.
 #
-# + attributePrefix - attribute prefix of XML
-# + preserveNamespaces - preserve namespaces of XML
-public type XmlOptions record {
+# + attributePrefix - attribute prefix of JSON
+# + arrayEntryTag - array entry tag of JSON
+public type JsonOptions record {
     string attributePrefix = "@";
-    boolean preserveNamespaces = true;
+    string arrayEntryTag = "root";
 };
 
-# Converts a XML object to a JSON representation.
+# Converts a JSON object to an XML representation.
 #
-# + x - The xml source
-# + options - xmlOptions struct for XML to JSON conversion properties
-# + return - JSON representation of the given XML
-public function toJSON(xml x, XmlOptions options = {}) returns json|error = external;
+# + x - The json source
+# + options - JsonOptions struct for JSON to XML conversion properties
+# + return - XML representation of the given JSON
+public function fromJSON(json x, JsonOptions options = {}) returns xml|error = external;
 
 # Converts a table to its xml representation.
 #

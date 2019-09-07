@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.xmlutils;
+package org.ballerinalang.stdlib.jsonutils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLFactory;
@@ -32,23 +32,23 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "xmlutils", functionName = "toJSON", isPublic = true
+        orgName = "ballerina", packageName = "jsonutils", functionName = "fromXML", isPublic = true
 )
-public class ToJSON {
+public class FromXML {
 
     private static final String OPTIONS_ATTRIBUTE_PREFIX = "attributePrefix";
     private static final String OPTIONS_PRESERVE_NS = "preserveNamespaces";
 
-    public static Object toJSON(Strand strand, XMLValue<?> xml, MapValue<?, ?> options) {
+    public static Object fromXML(Strand strand, XMLValue<?> xml, MapValue<?, ?> options) {
         try {
             String attributePrefix = (String) options.get(OPTIONS_ATTRIBUTE_PREFIX);
             boolean preserveNamespaces = ((Boolean) options.get(OPTIONS_PRESERVE_NS));
             return XMLFactory.convertToJSON(xml, attributePrefix, preserveNamespaces);
         } catch (Throwable e) {
             try {
-                BLangExceptionHelper.handleXMLException("{ballerina/xmlutils}Error", e);
+                BLangExceptionHelper.handleXMLException("{ballerina/jsonutils}Error", e);
             } catch (Throwable ex) {
-                return BallerinaErrors.createError("{ballerina/xmlutils}Error", ex.getMessage());
+                return BallerinaErrors.createError("{ballerina/jsonutils}Error", ex.getMessage());
             }
         }
         return null;
