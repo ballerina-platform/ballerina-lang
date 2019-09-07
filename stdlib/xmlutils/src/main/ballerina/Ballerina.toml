@@ -1,4 +1,13 @@
 [project]
 org-name = "ballerina"
-version = "0.0.0"
+version = "1.0.0"
 
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    artifactId = "xmlutils"
+    version = "@project.version@"
+    path = "./lib/ballerina-xmlutils-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["xmlutils"]

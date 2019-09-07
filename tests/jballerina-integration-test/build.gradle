@@ -75,6 +75,8 @@ dependencies {
     implementation project(':ballerina-task')
     implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-jvm')
+    implementation project(':ballerina-jsonutils')
+    implementation project(':ballerina-xmlutils')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
@@ -116,6 +118,8 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-mime')

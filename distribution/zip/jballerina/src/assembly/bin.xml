@@ -132,6 +132,8 @@
                 <include>org.ballerinalang:ballerina-jwt:jar</include>
                 <include>org.ballerinalang:ballerina-ldap:jar</include>
                 <include>org.ballerinalang:ballerina-oauth2:jar</include>
+                <include>org.ballerinalang:ballerina-jsonutils:jar</include>
+                <include>org.ballerinalang:ballerina-xmlutils:jar</include>
 
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-runtime:jar</include>

@@ -277,7 +277,7 @@ public class TableProvider {
                         stmt.setDouble(index, (Double) params.getRefValue(index - 1));
                         break;
                     case TypeTags.DECIMAL_TAG:
-                        stmt.setBigDecimal(index, ((DecimalValue)params.getRefValue(index - 1)).value());
+                        stmt.setBigDecimal(index, ((DecimalValue) params.getRefValue(index - 1)).value());
                         break;
                     case TypeTags.BOOLEAN_TAG:
                         stmt.setBoolean(index, (Boolean) params.getRefValue(index - 1));
