@@ -9,15 +9,15 @@ This connector supports kafka 1.x.x and 2.0.0 versions.
 Following is a simple service which is subscribed to a topic 'test-kafka-topic' on remote Kafka broker cluster.
 
 ```ballerina
-import ballerina/kafka;
-import ballerina/encoding;
 import ballerina/io;
+import ballerina/kafka;
+import ballerina/lang. 'string;
 
 kafka:ConsumerConfig consumerConfigs = {
     bootstrapServers:"localhost:9092",
     groupId:"group-id",
     topics:["test-kafka-topic"],
-    pollingInterval:1000
+    pollingIntervalInMillis:1000
 };
 
 listener kafka:Consumer consumer = new(consumerConfigs);
@@ -34,9 +34,13 @@ service kafkaService on consumer {
 
 function processKafkaRecord(kafka:ConsumerRecord kafkaRecord) {
     byte[] serializedMsg = kafkaRecord.value;
-    string msg = encoding:byteArrayToString(serializedMsg);
-    // Print the retrieved Kafka record.
-    io:println("Topic: " + kafkaRecord.topic + " Received Message: " + msg);
+    string | error msg = 'string:fromBytes(serializedMsg);
+    if (msg is string) {
+        // Print the retrieved Kafka record.
+        io:println("Topic: ", kafkaRecord.topic, " Received Message: ", msg);
+    } else {
+        log:printError("Error occurred while converting message data", msg);
+    }
 }
 ````
 
@@ -97,7 +101,7 @@ kafka:ProducerConfig producerConfigs = {
     bootstrapServers: "localhost:9092",
     clientId:"basic-producer",
     acks:"all",
-    noRetries:3
+    retryCount:3
 };
 
 kafka:Producer kafkaProducer = new(producerConfigs);
