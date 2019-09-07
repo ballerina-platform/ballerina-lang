@@ -68,6 +68,8 @@ public class LangLibStringTest {
     public void testSubString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSubString");
         assertEquals(returns[0].stringValue(), "Bal");
+        assertEquals(returns[1].stringValue(), "Ballerina!");
+        assertEquals(returns[2].stringValue(), "Ballerina!");
     }
 
     @Test
