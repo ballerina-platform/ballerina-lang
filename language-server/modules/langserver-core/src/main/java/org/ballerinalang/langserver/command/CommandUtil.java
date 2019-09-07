@@ -855,7 +855,7 @@ public class CommandUtil {
         context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
-        LSModuleCompiler.getBLangPackages(context, docManager, LSCustomErrorStrategy.class, true, false);
+        LSModuleCompiler.getBLangPackages(context, docManager, LSCustomErrorStrategy.class, true, false, false);
 
         // Get the current package.
         BLangPackage currentPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
@@ -986,7 +986,7 @@ public class CommandUtil {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
         List<BLangPackage> bLangPackages = LSModuleCompiler.getBLangPackages(context, documentManager,
-                                                                             LSCustomErrorStrategy.class, true, false);
+                LSCustomErrorStrategy.class, true, false, false);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, bLangPackages);
         // Get the current package.
         BLangPackage currentBLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);

@@ -22,6 +22,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -479,6 +487,29 @@
             }
           },
           "newText": "import ballerina/lang.'array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/stringutils",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "stringutils",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/stringutils;\n"
         }
       ]
     },
