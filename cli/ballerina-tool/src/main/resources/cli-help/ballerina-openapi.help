@@ -1,8 +1,8 @@
 NAME
        The Ballerina OpenAPI Tool
 
-       Note: This is an Experimental tool ship under ballerina hence this will
-             only support limited set of functionality.
+       Note: This is an Experimental tool which is shipped under ballerina hence
+       this tool supports a limited set of functionality.
 
 
 SYNOPSIS
