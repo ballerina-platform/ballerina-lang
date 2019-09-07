@@ -13,10 +13,10 @@ type Person object {
         return 5;
     }
 
-    // return missing
-    function test2(int a, string name) returns string {
-
-    }
+    // return missing: moved to object_attached_func_def_negative
+    // function test2(int a, string name) returns string {
+    //
+    // }
 
     // return mismatch
     function test3(int a, string name) returns [int, string] {

@@ -16,7 +16,7 @@
 
 import ballerina/io;
 import ballerina/bir;
-import ballerina/internal;
+import ballerina/stringutils;
 
 public type JarFile record {|
     map<string> manifestEntries = {};
@@ -35,7 +35,7 @@ public function main(string... args) {
     string pathToEntryBir = <@untainted> args[0];
     string mapPath = <@untainted> args[1];
     string targetPath = args[2];
-    boolean dumpBir = internal:equalsIgnoreCase(args[3], "true");
+    boolean dumpBir = stringutils:equalsIgnoreCase(args[3], "true");
 
     var numCacheDirs = args.length() - 4;
     int i = 0;

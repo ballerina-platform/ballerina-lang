@@ -7,14 +7,42 @@
     "result": {
       "signatures": [
         {
-          "label": "concat()",
+          "label": "indexOf(string str, string substr, int startIndex)",
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "Concatenates zero or more strings."
+              "value": "Searches for one string in another string."
             }
           },
-          "parameters": []
+          "parameters": [
+            {
+              "label": "str",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "the string in which to search"
+                }
+              }
+            },
+            {
+              "label": "substr",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "the string to search for"
+                }
+              }
+            },
+            {
+              "label": "startIndex",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "index to start searching from"
+                }
+              }
+            }
+          ]
         }
       ],
       "activeSignature": 0,

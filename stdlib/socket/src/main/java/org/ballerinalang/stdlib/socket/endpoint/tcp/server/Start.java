@@ -89,21 +89,21 @@ public class Start {
             console.println(socketListenerStarted + channel.socket().getLocalPort());
         } catch (SelectorInitializeException e) {
             log.error(e.getMessage(), e);
-            callback.notifyFailure(SocketUtils.createSocketError("Unable to initialize the selector"));
+            callback.notifyFailure(SocketUtils.createSocketError("unable to initialize the selector"));
         } catch (CancelledKeyException e) {
-            callback.notifyFailure(SocketUtils.createSocketError("Server socket registration is failed"));
+            callback.notifyFailure(SocketUtils.createSocketError("server socket registration is failed"));
         } catch (AlreadyBoundException e) {
-            callback.notifyFailure(SocketUtils.createSocketError("Server socket service is already bound to a port"));
+            callback.notifyFailure(SocketUtils.createSocketError("server socket service is already bound to a port"));
         } catch (UnsupportedAddressTypeException e) {
             log.error("Address not supported", e);
-            callback.notifyFailure(SocketUtils.createSocketError("Provided address is not supported"));
+            callback.notifyFailure(SocketUtils.createSocketError("provided address is not supported"));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             callback.notifyFailure(
-                    SocketUtils.createSocketError("Unable to start the socket service: " + e.getMessage()));
+                    SocketUtils.createSocketError("unable to start the socket service: " + e.getMessage()));
         } catch (RejectedExecutionException e) {
             log.error(e.getMessage(), e);
-            callback.notifyFailure(SocketUtils.createSocketError("Unable to start the socket listener."));
+            callback.notifyFailure(SocketUtils.createSocketError("unable to start the socket listener."));
         }
         return null;
     }

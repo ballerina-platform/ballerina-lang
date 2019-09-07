@@ -390,6 +390,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Private Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getPrivateKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.PRIVATE_KEYWORD, "private ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Type Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -695,7 +705,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getReturnStatementSnippet() {
-        return new SnippetBlock(ItemResolverConstants.RETURN, "return;", ItemResolverConstants.STATEMENT_TYPE,
+        return new SnippetBlock(ItemResolverConstants.RETURN, "return ", ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
     }
 
@@ -710,8 +720,20 @@ public class SnippetGenerator {
                 + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:newResource}(http:Caller ${3:caller}, "
                 + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR +
                 "\t}" + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.SERVICE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+        return new SnippetBlock(ItemResolverConstants.SERVICE_HTTP, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET, httpImport);
+    }
+
+    /**
+     * Get Service Variable Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getServiceVarSnippet() {
+        String snippet = "service {"
+                + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "};";
+        return new SnippetBlock(ItemResolverConstants.SERVICE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET);
     }
 
     /**

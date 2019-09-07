@@ -90,7 +90,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "240",
-      "insertText": "return;",
+      "insertText": "return ",
       "insertTextFormat": "Snippet"
     },
     {

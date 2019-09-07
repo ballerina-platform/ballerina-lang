@@ -57,23 +57,23 @@ public class Write {
         final SocketChannel socketChannel = (SocketChannel) client.getNativeData(SocketConstants.SOCKET_KEY);
         byte[] byteContent = content.getBytes();
         if (log.isDebugEnabled()) {
-            log.debug("No of byte going to write[" + socketChannel.hashCode() + "]: " + byteContent.length);
+            log.debug(String.format("No of byte going to write[%d]: %d", socketChannel.hashCode(), byteContent.length));
         }
         ByteBuffer buffer = ByteBuffer.wrap(byteContent);
         int write;
         try {
             write = socketChannel.write(buffer);
             if (log.isDebugEnabled()) {
-                log.debug("No of byte written for the client[" + socketChannel.hashCode() + "]: " + write);
+                log.debug(String.format("No of byte written for the client[%d]: %d", socketChannel.hashCode(), write));
             }
             return (long) write;
         } catch (ClosedChannelException e) {
-            return SocketUtils.createSocketError("Client socket close already.");
+            return SocketUtils.createSocketError("client socket close already.");
         } catch (IOException e) {
             log.error("Unable to perform write[" + socketChannel.hashCode() + "]", e);
-            return SocketUtils.createSocketError("Write failed.");
+            return SocketUtils.createSocketError("write failed. " + e.getMessage());
         } catch (NotYetConnectedException e) {
-            return SocketUtils.createSocketError("Client socket not connected yet.");
+            return SocketUtils.createSocketError("client socket not connected yet.");
         }
     }
 }

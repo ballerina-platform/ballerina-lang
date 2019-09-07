@@ -166,6 +166,8 @@ public class FormattingTest {
                 {"expectedXMLAttributeAccessExpr.bal", "xmlAttributeAccessExpr.bal"},
                 {"expectedXMLQName.bal", "xmlQName.bal"},
                 {"expectedUnicodeCharTest.bal", "unicodeCharTest.bal"},
+                {"expectedTupleTypeRest.bal", "tupleTypeRest.bal"},
+                {"expectedTupleDestructure.bal", "tupleDestructure.bal"},
         };
     }
 

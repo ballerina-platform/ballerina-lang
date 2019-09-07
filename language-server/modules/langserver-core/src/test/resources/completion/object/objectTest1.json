@@ -1370,6 +1370,14 @@
       "sortText": "220",
       "insertText": "public ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "private",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "private ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

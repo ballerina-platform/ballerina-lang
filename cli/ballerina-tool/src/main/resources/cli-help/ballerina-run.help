@@ -87,7 +87,7 @@ EXAMPLES
     $ ballerina run hello.bal
 
     Run the 'main' function and/or services in the hello executable jar
-    $ ballerina run hello-executable.jar
+    $ ballerina run hello.jar
 
     Run the 'main' function and/or services in the hello module
     $ ballerina run hello

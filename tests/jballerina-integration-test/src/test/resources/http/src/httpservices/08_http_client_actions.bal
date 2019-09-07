@@ -148,6 +148,8 @@ service testService on new http:Listener(9098) {
             }
         }
 
+        future<error|http:Response> asyncInvocation = start clientEP2->get("/test1/greeting", ());
+
         http:Request httpReq = new;
         //Request as message
         var response3 = clientEP2->get("/test1/greeting", httpReq);

@@ -25,6 +25,9 @@ import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChange
 import { render } from './renderer';
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { TM_EVENT_OPEN_FILE_OVERVIEW, CMP_FILE_OVERVIEW } from '../telemetry';
+import * as path from 'path';
+import * as os from 'os';
+import * as fs from 'fs';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -97,7 +100,7 @@ function openProjectOverview(langClient: ExtendedLangClient, construct: Construc
 	}
 
 	projectOverviewRpcHandler = WebViewRPCHandler.create(projectOverviewPanel, langClient);
-	const html = render(construct);
+	const html = render(construct.sourceRoot, construct.filePath, construct);
 	if (projectOverviewPanel && html) {
 		projectOverviewPanel.webview.html = html;
 	}
@@ -140,11 +143,16 @@ function openFileOverview(langClient: ExtendedLangClient) {
 			getCommonWebViewOptions()
 		);
 
-		ballerinaExtInstance.addWebviewPanel("file", fileOverviewPanel);
+		ballerinaExtInstance.addWebviewPanel('file', fileOverviewPanel);
 	}
 
+	const activePath = window.activeTextEditor.document.uri.path;
+	const sourceRoot = getSourceRoot(activePath, path.parse(activePath).root);
+
 	fileOverviewRpcHandler = WebViewRPCHandler.create(fileOverviewPanel, langClient);
-	const html = render({filePath: window.activeTextEditor.document.uri.toString(), constructName: "", moduleName: ""});
+	const html = render(
+		sourceRoot ? Uri.parse(sourceRoot).toString(): undefined,
+		Uri.parse(activePath).toString(), undefined);
 	if (fileOverviewPanel && html) {
 		fileOverviewPanel.webview.html = html;
 	}
@@ -154,4 +162,18 @@ function openFileOverview(langClient: ExtendedLangClient) {
 		didChangeDisposable.dispose();
 		didChangeActiveEditorDisposable.dispose();
 	});
+}
+
+function getSourceRoot(currentPath: string, root: string): string|undefined {
+	if (fs.existsSync(path.join(currentPath, 'Ballerina.toml'))) {
+		if (currentPath !== os.homedir()) {
+			return currentPath;
+		}
+	}
+
+	if (currentPath === root) {
+		return;
+	}
+
+	return getSourceRoot(path.dirname(currentPath), root);
 }

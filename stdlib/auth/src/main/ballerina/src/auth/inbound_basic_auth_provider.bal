@@ -16,7 +16,7 @@
 
 import ballerina/config;
 import ballerina/crypto;
-import ballerina/internal;
+import ballerina/stringutils;
 
 # Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
 #
@@ -54,15 +54,15 @@ public type InboundBasicAuthProvider object {
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
         if (passwordFromConfig.startsWith(CONFIG_PREFIX)) {
             if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA256)) {
-                authenticated = internal:equalsIgnoreCase(
+                authenticated = stringutils:equalsIgnoreCase(
                                 crypto:hashSha256(password.toBytes()).toBase16(),
                                 extractHash(passwordFromConfig));
             } else if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA384)) {
-                authenticated = internal:equalsIgnoreCase(
+                authenticated = stringutils:equalsIgnoreCase(
                                 crypto:hashSha384(password.toBytes()).toBase16(),
                                 extractHash(passwordFromConfig));
             } else if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA512)) {
-                authenticated = internal:equalsIgnoreCase(
+                authenticated = stringutils:equalsIgnoreCase(
                                 crypto:hashSha512(password.toBytes()).toBase16(),
                                 extractHash(passwordFromConfig));
             } else {
@@ -103,7 +103,7 @@ function getScopes(string username, string tableName) returns string[] {
 # + configValue - Config value to extract the password from
 # + return - Password hash extracted from the configuration field
 function extractHash(string configValue) returns string {
-    return configValue.substring((<int> configValue.indexOf("{")) + 1, internal:lastIndexOf(configValue, "}"));
+    return configValue.substring((<int> configValue.indexOf("{")) + 1, stringutils:lastIndexOf(configValue, "}"));
 }
 
 # Reads the password hash for a user.
@@ -129,5 +129,5 @@ function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return groupsArr;
     }
-    return internal:split(groupString, ",");
+    return stringutils:split(groupString, ",");
 }

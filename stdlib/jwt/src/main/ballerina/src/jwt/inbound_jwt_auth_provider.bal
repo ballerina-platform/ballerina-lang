@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/internal;
 import ballerina/log;
+import ballerina/stringutils;
 import ballerina/time;
 
 # Represents inbound JWT auth provider.
@@ -40,7 +40,7 @@ public type InboundJwtAuthProvider object {
     # + credential - Jwt token extracted from the authentication header
     # + return - `true` if authentication is successful, othewise `false` or `auth:Error` occurred during JWT validation
     public function authenticate(string credential) returns @tainted (boolean|auth:Error) {
-        string[] jwtComponents = internal:split(credential, "\\.");
+        string[] jwtComponents = stringutils:split(credential, "\\.");
         if (jwtComponents.length() != 3) {
             return false;
         }
@@ -113,7 +113,7 @@ function setPrincipal(JwtPayload jwtPayload) {
         if (claims.hasKey(SCOPE)) {
             var scopeString = claims[SCOPE];
             if (scopeString is string) {
-                auth:setPrincipal(scopes = internal:split(scopeString, " "));
+                auth:setPrincipal(scopes = stringutils:split(scopeString, " "));
             }
         }
         if (claims.hasKey(USERNAME)) {

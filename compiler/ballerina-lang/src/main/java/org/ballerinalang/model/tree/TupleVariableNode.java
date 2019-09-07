@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+
 import java.util.List;
 
 /**
@@ -33,5 +35,7 @@ public interface TupleVariableNode extends VariableNode, AnnotatableNode, Docume
     List<? extends VariableNode> getVariables();
     
     void addVariable(VariableNode node);
+
+    BLangVariable getRestVariable();
 
 }
