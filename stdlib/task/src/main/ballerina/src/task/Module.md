@@ -1,6 +1,7 @@
 ## Module overview
 
-Task Listeners and Task Schedulers can be used to perform tasks periodically. This module provides the functionality to configure and manage Task Listeners and Task Schedulers.
+This module provides the functionality to configure and manage Task Listeners and Task Schedulers.
+Task Listeners and Task Schedulers can be used to perform tasks periodically.
 
 - [Task Listeners](#task-listeners)
     - [The Timer configuration for a Listener](#The-Timer-configuration-for-a-Listener)
