@@ -269,7 +269,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         try {
             LSContext astContext = new LSServiceOperationContext(LSContextOperation.DOC_SERVICE_AST);
             astContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class, false);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class, false,
+                    false);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
         } catch (CompilationFailedException | JSONGenerationException e) {

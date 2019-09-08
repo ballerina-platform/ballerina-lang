@@ -10,7 +10,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027object;",
+      "insertText": "lang.'object;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -26,7 +26,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027xml;",
+      "insertText": "lang.'xml;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -42,7 +42,15 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027array;",
+      "insertText": "lang.'array;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stringutils",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "stringutils",
       "insertTextFormat": "Snippet"
     },
     {
@@ -130,7 +138,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027string;",
+      "insertText": "lang.'string;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -155,14 +163,6 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "oauth2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "internal",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "internal",
       "insertTextFormat": "Snippet"
     },
     {
@@ -202,7 +202,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027future;",
+      "insertText": "lang.'future;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -210,7 +210,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027value;",
+      "insertText": "lang.'value;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -258,7 +258,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027float;",
+      "insertText": "lang.'float;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -282,7 +282,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027decimal;",
+      "insertText": "lang.'decimal;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -306,7 +306,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027table;",
+      "insertText": "lang.'table;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -330,7 +330,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027stream;",
+      "insertText": "lang.'stream;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -338,7 +338,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027error;",
+      "insertText": "lang.'error;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -346,7 +346,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027typedesc;",
+      "insertText": "lang.'typedesc;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -354,7 +354,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027map;",
+      "insertText": "lang.'map;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -362,7 +362,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang.\u0027int;",
+      "insertText": "lang.'int;",
       "insertTextFormat": "Snippet"
     },
     {

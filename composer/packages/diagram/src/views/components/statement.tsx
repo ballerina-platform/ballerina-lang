@@ -54,6 +54,7 @@ export const Statement: React.StatelessComponent<{
                 const expandedBBox = {
                     h: viewState.bBox.h,
                     statement: {
+                        fullText: viewState.expandContext.statementText,
                         text: viewState.expandContext.labelText,
                         textWidth: viewState.expandContext.labelWidth,
                         x: viewState.bBox.x + config.statement.padding.left,

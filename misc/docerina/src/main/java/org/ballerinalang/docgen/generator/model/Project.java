@@ -21,6 +21,8 @@ import java.util.List;
  * Represents a Ballerina Project.
  */
 public class Project {
+    public boolean isSingleFile;
+    public String sourceFileName;
     public String name;
     public String description;
     public String organization;
