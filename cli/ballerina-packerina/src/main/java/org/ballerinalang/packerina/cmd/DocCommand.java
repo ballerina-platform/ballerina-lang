@@ -103,7 +103,8 @@ public class DocCommand implements BLauncherCmd {
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
-                    "ballerina doc {<ballerina-file> | <module-name> | -a | --all}",
+                    "ballerina doc [-o <output>] [--sourceroot] [--off-line]\n" +
+                           "                     {<ballerina-file | module-name> | -a | --all}",
                     false);
             CommandUtil.exitError(true);
             return;
@@ -112,7 +113,7 @@ public class DocCommand implements BLauncherCmd {
         // if -a or --all flag is not given, then it is mandatory to give a module name or ballerina file as arg.
         if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
             CommandUtil.printError(this.errStream,
-                    "'doc' command requires a module name or a ballerina file to continue. use '-a' or " +
+                    "'doc' command requires a module name or a Ballerina file to continue. use '-a' or " +
                     "'--all' flag to generate api documentation for all the modules of the project.",
                     "ballerina doc {<ballerina-file> | <module-name> | -a | --all}",
                     false);
@@ -134,7 +135,7 @@ public class DocCommand implements BLauncherCmd {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(this.errStream,
-                            "you are not in a ballerina project.",
+                            "you are not in a Ballerina project.",
                             null,
                             false);
                     CommandUtil.exitError(true);
@@ -157,7 +158,7 @@ public class DocCommand implements BLauncherCmd {
             //// check if the given file exists.
             if (Files.notExists(sourcePath)) {
                 CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' ballerina file does not exist.",
+                        "'" + sourcePath + "' Ballerina file does not exist.",
                         null,
                         false);
                 CommandUtil.exitError(true);
@@ -167,7 +168,7 @@ public class DocCommand implements BLauncherCmd {
             //// check if the given file is a regular file and not a symlink.
             if (!Files.isRegularFile(sourcePath)) {
                 CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' is not ballerina file. check if it is a symlink or shortcut.",
+                        "'" + sourcePath + "' is not a Ballerina file. check if it is a symlink or a shortcut.",
                         null,
                         false);
                 CommandUtil.exitError(true);
@@ -178,7 +179,7 @@ public class DocCommand implements BLauncherCmd {
             //// output path should be provided
             if (null == this.output) {
                 CommandUtil.printError(this.errStream,
-                        "'-o' and '--output' flag is required for a single ballerina file.",
+                        "'-o' and '--output' flag is required for a single Ballerina file.",
                         "ballerina doc -o <output-path> <ballerina-file>",
                         false);
                 CommandUtil.exitError(true);
@@ -199,7 +200,7 @@ public class DocCommand implements BLauncherCmd {
             //// output flag cannot be set for projects
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                        "'-o' and '--output' flag is only supported for a single ballerina file.",
+                        "'-o' and '--output' flag is only supported for a single Ballerina file.",
                         null,
                         false);
                 CommandUtil.exitError(true);
@@ -249,7 +250,7 @@ public class DocCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid ballerina source path, it should either be a module name in a ballerina project or a " +
+                    "invalid Ballerina source path, it should either be a module name in a Ballerina project or a " +
                     "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension. use the -a or --all " +
                     "flag to generate docs for all modules.",
                     "ballerina doc {<ballerina-file> | <module-name> | -a | --all}",
