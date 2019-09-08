@@ -81,6 +81,9 @@ public class SSLHandlerFactory {
     public SSLContext createSSLContextFromKeystores(boolean isServer) {
         String protocol = sslConfig.getSSLProtocol();
         try {
+            if (sslConfig.useJavaDefaults() && !isServer) {
+                return SSLContext.getDefault();
+            }
             KeyManager[] keyManagers = null;
             if (sslConfig.getKeyStore() != null) {
                 KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
