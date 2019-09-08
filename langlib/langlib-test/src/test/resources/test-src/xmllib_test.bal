@@ -163,9 +163,12 @@ function testGetContentNegative() returns string {
     return t.getContent();
 }
 
-function testCreateElement() returns xml {
+function testCreateElement() returns [xml, xml, xml] {
     xml t = xml `hello world`;
-    return xmllib:createElement("elem", t);
+    xml r1 = xmllib:createElement("elem", t);
+    xml r2 = xmllib:createElement("elem");
+
+    return [r1, r1.getChildren(), r2.getChildren()];
 }
 
 function testCreateProcessingInstruction() returns xml {
@@ -192,4 +195,12 @@ function testForEach() returns xml {
         }
     }
     return r;
+}
+
+function testSlice() returns [xml, xml, xml] {
+    xml elemL = xml `<elemL>content</elemL>`;
+    xml elemN = xml `<elemN>content</elemN>`;
+    xml elemM = xml `<elemM>content</elemM>`;
+    xml elem = elemL + elemN + elemM;
+    return [elem.slice(0, 2), elem.slice(1), xmllib:slice(elem, 1)];
 }
