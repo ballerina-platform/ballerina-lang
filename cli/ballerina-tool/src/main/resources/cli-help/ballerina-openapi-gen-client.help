@@ -18,8 +18,7 @@ OPTIONS
            [Optional] The module name to use when generating the client.
 
        client-name
-           This value will be used as the client name when the client is
-           generated.
+           The client name to use when generating the client.
 
        openapi-file
            The location of the OpenAPI contract file which will be used to
