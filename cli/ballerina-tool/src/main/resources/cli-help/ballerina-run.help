@@ -1,19 +1,13 @@
 NAME
-       ballerina run - build and execute a Ballerina program
-
+       ballerina-run - Build and execute a Ballerina program
 
 SYNOPSIS
-       ballerina run [--offline]
-                     [--sourceroot <path>]
-                     <balfile | module-name | executable-jar>
-                     [(--key=value)...] [--] [args...]
+       ballerina run [<options>] <ballerina-file-path> | <module-name>
+                        | <executable-jar> [(--key=value)...] [--] [args...]
 
 
 DESCRIPTION
-       Execute the given .bal file, module, or program.
-
-       This is a convenient command which will build the program and execute
-       it.
+       Run builds and executes the given .bal file, module, or program.
 
        If a Ballerina source file (.bal file) or a module is given, the run
        command builds and runs it. Compilation is done internally and the
@@ -70,17 +64,17 @@ DEFAULT BEHAVIOR
 
 EXAMPLES
        Run the 'main' function and/or services in the hello .bal file
-       $ ballerina run hello.bal
+          → ballerina run hello.bal
 
        Run the 'main' function and/or services in the hello executable jar
-       $ ballerina run hello.jar
+          → ballerina run hello.jar
 
        Run the 'main' function and/or services in the hello module
-       $ ballerina run hello
+          → ballerina run hello
 
        Run the 'main' function in the math module with three program args:
        add, 10 and 5. If the second and third parameters of the 'main'
        function are of types int and int, the second and third arguments
        would be passed as integer values 10 and 5
-       $ ballerina run math add 10 5
+          → ballerina run math add 10 5
 
