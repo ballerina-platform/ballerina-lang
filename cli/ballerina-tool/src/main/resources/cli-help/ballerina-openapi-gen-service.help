@@ -24,7 +24,7 @@ DESCRIPTION
 
 OPTIONS
        <module-name>:<service-name>
-           The name of the ballerina service file along with the module in which
+           The name of the Ballerina service file along with the module in which
            the mock service from the OpenAPI contract should be created.
 
        <openapi-contract>
