@@ -172,6 +172,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Start Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStartKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.START_KEYWORD, "start ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Flush Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFlushKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FLUSH_KEYWORD, "flush ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Import Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

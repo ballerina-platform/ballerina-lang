@@ -941,6 +941,12 @@ public abstract class LSCompletionProvider {
         // Add the wait keyword
         CompletionItem waitKeyword = Snippet.KW_WAIT.get().build(context);
         completionItems.add(waitKeyword);
+        // Add the start keyword
+        CompletionItem startKeyword = Snippet.KW_START.get().build(context);
+        completionItems.add(startKeyword);
+        // Add the flush keyword
+        CompletionItem flushKeyword = Snippet.KW_FLUSH.get().build(context);
+        completionItems.add(flushKeyword);
         // Add the untaint keyword
         CompletionItem untaintKeyword = Snippet.KW_UNTAINT.get().build(context);
         completionItems.add(untaintKeyword);
