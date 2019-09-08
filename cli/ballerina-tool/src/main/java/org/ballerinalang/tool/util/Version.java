@@ -172,7 +172,7 @@ public class Version {
         boolean isLater = false;
         if (!version2.isSnapshot
                 && version2.getMajor() == version1.getMajor()
-                && version2.getMinor() == version1.getMinor()
+                && version2.getMinor() >= version1.getMinor()
                 && version2.getPatch() >= version1.getPatch()) {
             //When both versions are same pre releases we check latest
             if (version1.preRelease == version2.preRelease

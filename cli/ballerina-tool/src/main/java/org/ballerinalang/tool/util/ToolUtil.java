@@ -19,6 +19,7 @@ package org.ballerinalang.tool.util;
 
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.tool.Main;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -128,9 +130,12 @@ public class ToolUtil {
      * Provides used Ballerina tools version.
      * @return Used Ballerina tools version.
      */
-    private static String getCurrentToolsVersion() {
-        //TODO: Need to read folder
-        return "1.0.0-beta";
+    private static String getCurrentToolsVersion() throws IOException {
+        InputStream inputStream = Main.class.getResourceAsStream("/META-INF/tool.properties");
+        Properties properties = new Properties();
+        properties.load(inputStream);
+        return properties.getProperty("ballerina.version");
+
     }
 
     private static String getVersion(String path) throws IOException {
@@ -408,7 +413,10 @@ public class ToolUtil {
     public static void checkForUpdate(PrintStream printStream, String[] args) {
         try {
             //Update check will be done only for build command
-            if (Arrays.stream(args).anyMatch("build"::equals)) {
+            boolean isBuildCommand = Arrays.stream(args).anyMatch("build"::equals);
+            boolean isHelpFlag = Arrays.stream(args).anyMatch(val -> val.equals("--help") || val.equals("-h"));
+
+            if (isBuildCommand && !isHelpFlag) {
                 String version = getCurrentBallerinaVersion();
                 if (OSUtils.updateNotice(version)) {
                     Version currentVersion = new Version(version);
