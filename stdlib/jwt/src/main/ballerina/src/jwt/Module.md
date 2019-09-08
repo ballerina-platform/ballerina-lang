@@ -1,6 +1,6 @@
 ## Module Overview
 
-This module provides a inbound and outbound JWT authentication provider, which can be used to authenticate using a JWT and the functionality related to issuing a JWT and validating it.
+This module provides a inbound and outbound JWT authentication provider, which can be used to authenticate using a JWT and the functionality related to issuing and validating JWT.
 
 ### Inbound JWT Auth Provider
 
@@ -44,11 +44,12 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider = new({
 
 ```ballerina
 import ballerina/crypto;
-import ballerina/time;
 import ballerina/jwt;
+import ballerina/time;
 
 public function main() {
-    crypto:KeyStore keyStore = { path: "${ballerina.home}/bre/security/ballerinaKeystore.p12", password: "ballerina" };
+    crypto:KeyStore keyStore = { path: "${ballerina.home}/bre/security/ballerinaKeystore.p12", 
+                                 password: "ballerina" };
     jwt:JwtKeyStoreConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
@@ -77,7 +78,8 @@ import ballerina/crypto;
 import ballerina/jwt;
 
 public function main() {
-    crypto:TrustStore trustStore = { path: "${ballerina.home}/bre/security/ballerinaTruststore.p12", password: "ballerina" };
+    crypto:TrustStore trustStore = { path: "${ballerina.home}/bre/security/ballerinaTruststore.p12", 
+                                     password: "ballerina" };
     jwt:JwtValidatorConfig config = {
         issuer: "wso2",
         audience: "ballerina",

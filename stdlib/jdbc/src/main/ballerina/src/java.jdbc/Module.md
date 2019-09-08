@@ -48,7 +48,8 @@ The full list of client properties can be found listed under the `jdbc:PoolOptio
 
 There are 3 possible scenarios for connection pool handling.
 
-1. Global, shareable default connection pool  
+1. Global, shareable default connection pool
+
     If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
     a connection pool matching with the properties you provided already exists.
 
@@ -61,7 +62,8 @@ There are 3 possible scenarios for connection pool handling.
     });
     ```
 
-2. Client owned, unsharable connection pool  
+2. Client owned, unsharable connection pool
+
     If you define the `poolOptions` field inline, an unshareable connection pool will be created.
 
     ```ballerina
@@ -74,7 +76,8 @@ There are 3 possible scenarios for connection pool handling.
     });
     ```
 
-3. Local shareable connection pool  
+3. Local shareable connection pool
+
     If you create a record of type `jdbc:PoolOptions` and reuse that in the configuration of multiple clients, for each
     set of clients that connect to the same database instance with the same set of properties, a shared connection pool
     will be created.

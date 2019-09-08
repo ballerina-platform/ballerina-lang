@@ -1,5 +1,5 @@
 NAME
-       Ballerina encrypt - Encrypt sensitive configuration values
+       ballerina-encrypt - Encrypt sensitive configuration values
     
 SYNOPSIS
        ballerina encrypt
@@ -25,10 +25,6 @@ DESCRIPTION
        configuration values on demand.
 
 
-OPTIONS
-       Ballerina encrypt command takes no options.
-
-
 DEFAULT BEHAVIOUR
        AES, CBC mode with PKCS#5 padding will be used to encrypt the
        provided value by using the provided encryption key.
@@ -36,4 +32,4 @@ DEFAULT BEHAVIOUR
 
 EXAMPLES
        Encrypt sensitive data
-       $ ballerina encrypt
+          → ballerina encrypt
