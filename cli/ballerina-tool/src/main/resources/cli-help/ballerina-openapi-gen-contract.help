@@ -19,12 +19,12 @@ DESCRIPTION
 
        service-name
            The service name to use when generating the client.
-           This option will require either a valid ballerina file
-           or a valid ballerina module.
+           This option will require either a valid Ballerina file
+           or a valid Ballerina module.
 
        -i  <ballerina-file>
            [Optional if a module is provided] If provided,
-           the contract will be generated using provided ballerina file
+           the contract will be generated using the provided Ballerina file
            and the service name.
 
        -o  <contract-file>
