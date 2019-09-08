@@ -292,6 +292,7 @@ def examplesSpec = {
     path -> copySpec {
         from fileTree(project.rootDir.path + '/examples');
         into(path + '/examples')
+        exclude('**/**/tests')
     }
 }
 
