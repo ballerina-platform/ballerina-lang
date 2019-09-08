@@ -23,7 +23,7 @@ DESCRIPTION
 
 
 OPTIONS
-       -o <output>
+       -o <output>, --output <output>
            Write output to the given file. The provided output
            filename may or may not contain the ‘.jar’ extension.
 
