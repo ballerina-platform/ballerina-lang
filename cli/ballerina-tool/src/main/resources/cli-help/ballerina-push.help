@@ -8,14 +8,14 @@ SYNOPSIS
 
 DESCRIPTION
        Push the specified module to Ballerina Central repository or
-       if '-a' or '--all' option is specified, then pull all the modules
+       if '-a' or '--all' option is specified, then push all the modules
        in the current project.
 
-       By default, the Push command build the sources before pushing
+       By default, the push command builds the sources before pushing
        the module to Ballerina Central.
 
-       Before pushing modules to central:
-       1) Create an organization by registering with Ballerina central at
+       Before pushing modules to Ballerina Central:
+       1) Create an organization by registering with Ballerina Central at
           https://central.ballerina.io/.
        2) You will receive an access token with the registration, add it to
           the 'Settings.toml' in home repository (<USER_HOME>/.ballerina/).
