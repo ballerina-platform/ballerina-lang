@@ -3,12 +3,12 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/observe;
 
-//Create a gauge as a global varaible in the service with optional field description,
+//Create a gauge as a global variable in the service with optional field description,
 //and default statistics configurations = { timeWindow: 600000, buckets: 5,
 // percentiles: [0.33, 0.5, 0.66, 0.99] }.
 observe:Gauge globalGauge = new("global_gauge", "Global gauge defined");
 
-// Make sure you start the service with `--observe`, or metrics enabled.
+// Make sure you start the service with the '--b7a.observability.enabled=true' property or with metrics enabled.
 @http:ServiceConfig {
     basePath: "/online-store-service"
 }

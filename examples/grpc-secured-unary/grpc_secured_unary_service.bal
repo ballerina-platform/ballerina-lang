@@ -23,7 +23,7 @@ service HelloWorld on ep {
 
         if (err is grpc:Error) {
             log:printError("Error from Connector: " + err.reason() + " - "
-                                                    + <string> err.detail()["message"]);
+                                           + <string> err.detail()["message"]);
         } else {
             log:printInfo("Server send response : " + message);
         }

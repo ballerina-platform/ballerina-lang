@@ -284,11 +284,11 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             if (((BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
                 return Constants.SQLDataTypes.BINARY;
             } else {
-                throw new ApplicationException("Array data type " + type.getName() + " as a direct value is " +
+                throw new ApplicationException("array data type " + type.getName() + " as a direct value is " +
                         "supported only for byte type elements, use jdbc:Parameter instead");
             }
         default:
-            throw new ApplicationException("Unsupported data type " + type.getName() + " specified as a direct value " +
+            throw new ApplicationException("unsupported data type " + type.getName() + " specified as a direct value " +
                     "for sql operations, use jdbc:Parameter instead");
         }
     }
@@ -315,7 +315,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw ErrorGenerator.getSQLDatabaseError(e, "Error while cleaning sql resources: ");
+            throw ErrorGenerator.getSQLDatabaseError(e, "error while cleaning sql resources: ");
         }
     }
 
@@ -336,7 +336,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             }
             cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw ErrorGenerator.getSQLDatabaseError(e, "Error while cleaning sql resources: ");
+            throw ErrorGenerator.getSQLDatabaseError(e, "error while cleaning sql resources: ");
 
         }
     }
@@ -389,7 +389,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 conn = ((SQLTransactionContext) txContext).getConnection();
             }
         } catch (SQLException e) {
-            throw new SQLException("Error while getting the connection for " + Constants.CONNECTOR_NAME + ". "
+            throw new SQLException("error while getting the connection for " + Constants.CONNECTOR_NAME + ". "
                     + e.getMessage(), e.getSQLState(), e.getErrorCode());
         }
         return conn;

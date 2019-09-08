@@ -1,4 +1,4 @@
-import ballerina/encoding;
+import ballerina/lang.'string as strings;
 import ballerina/log;
 import ballerina/nats;
 
@@ -15,7 +15,12 @@ listener nats:StreamingListener lis = new(conn);
 service demoService on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
-       log:printInfo("Message Received: " + encoding:byteArrayToString(message.getData()));
+       string|error messageData = strings:fromBytes(message.getData());
+       if (messageData is string) {
+            log:printInfo("Message Received: " + messageData);
+       } else {
+            log:printError("Error occurred while obtaining message data");
+       }
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {

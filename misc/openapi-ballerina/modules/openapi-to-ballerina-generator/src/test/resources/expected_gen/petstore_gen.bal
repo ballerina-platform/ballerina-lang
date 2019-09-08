@@ -26,7 +26,7 @@ service petService on ep0, ep1 {
         methods:["POST"],
         path:"/pets"
     }
-    resource function resource__post_pets(http:Caller caller, http:Request req) returns error? {
+    resource function resource_post_pets(http:Caller caller, http:Request req) returns error? {
 
     }
 

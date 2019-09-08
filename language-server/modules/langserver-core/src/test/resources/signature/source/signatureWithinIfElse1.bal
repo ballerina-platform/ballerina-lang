@@ -3,7 +3,7 @@ function testSignatureHelp () {
     string testString = "Hello World!!";
 
     if (condition == 1) {
-        testString.concat("")
+        testString.indexOf()
     } else if (condition == 2) {
         
     } else {

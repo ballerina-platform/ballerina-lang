@@ -12,32 +12,34 @@ Outputs similar to the following should be available from the initiator and part
 
 Output from initiator:
 
-2018-12-04 19:38:12,557 INFO  [ballerina/log] - Initiating transaction...
-2018-12-04 19:38:12,580 INFO  [ballerina/log] - Created transaction: a958b772-be82-4d90-8044-6fb8be7f9a65
-2018-12-04 19:38:12,589 INFO  [ballerina/log] - Started transaction: a958b772-be82-4d90-8044-6fb8be7f9a65:$anon$.$1
-2018-12-04 19:38:13,111 INFO  [ballerina/log] - register called......
-2018-12-04 19:38:13,131 INFO  [ballerina/log] - Registered remote participant: 46d070c5-a010-4b9a-81f0-aadaf59cc476:$anon$.$1 for transaction: a958b772-be82-4d90-8044-6fb8be7f9a65
-2018-12-04 19:38:13,289 INFO  [ballerina/log] - Got response from bizservice
-2018-12-04 19:38:13,293 INFO  [ballerina/log] - Running 2-phase commit for transaction: a958b772-be82-4d90-8044-6fb8be7f9a65:$anon$.$1
-2018-12-04 19:38:13,297 INFO  [ballerina/log] - Preparing remote participant: 46d070c5-a010-4b9a-81f0-aadaf59cc476:$anon$.$1
-2018-12-04 19:38:13,317 INFO  [ballerina/log] - Remote participant: 46d070c5-a010-4b9a-81f0-aadaf59cc476:$anon$.$1 prepared
-2018-12-04 19:38:13,318 INFO  [ballerina/log] - Notify(commit) remote participant: http://192.168.8.100:53311/balcoordinator/participant/2pc/$anon$.$1
-2018-12-04 19:38:13,328 INFO  [ballerina/log] - Remote participant: 46d070c5-a010-4b9a-81f0-aadaf59cc476:$anon$.$1 committed
-2018-12-04 19:38:13,330 INFO  [ballerina/log] - Initiated transaction committed
-2018-12-04 19:38:13,332 INFO  [ballerina/log] - Sent response back to client
+[ballerina/http] started HTTP/WS listener 10.100.7.118:64337
+[ballerina/http] started HTTP/WS listener 0.0.0.0:8080
+2019-09-04 12:04:58,404 INFO  [ballerina/log] - Initiating transaction...
+2019-09-04 12:04:58,419 INFO  [ballerina/log] - Created transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a
+2019-09-04 12:04:58,423 INFO  [ballerina/log] - Started transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a:$anon$.$0
+2019-09-04 12:04:58,833 INFO  [ballerina/log] - Registered remote participant: f677d80b-710f-4e9c-9d46-c30782086581:$anon$.$0 for transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a
+2019-09-04 12:04:58,876 INFO  [ballerina/log] - Got response from bizservice
+2019-09-04 12:04:58,877 INFO  [ballerina/log] - Running 2-phase commit for transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a:$anon$.$0
+2019-09-04 12:04:58,899 INFO  [ballerina/log] - Preparing remote participant: f677d80b-710f-4e9c-9d46-c30782086581:$anon$.$0
+2019-09-04 12:04:58,927 INFO  [ballerina/log] - Remote participant: f677d80b-710f-4e9c-9d46-c30782086581:$anon$.$0 prepared
+2019-09-04 12:04:58,928 INFO  [ballerina/log] - Notify(commit) remote participant: http://10.100.7.118:64553/balcoordinator/participant/2pc/$anon$.$0
+2019-09-04 12:04:58,941 INFO  [ballerina/log] - Remote participant: f677d80b-710f-4e9c-9d46-c30782086581:$anon$.$0 committed
+2019-09-04 12:04:58,942 INFO  [ballerina/log] - Initiated transaction committed
+2019-09-04 12:04:58,945 INFO  [ballerina/log] - Sent response back to client
 
 Output from participant:
 
-2018-12-04 19:38:12,997 INFO  [ballerina/log] - register at: http://192.168.8.100:53310/balcoordinator/initiator/$anon$.$1/register
-2018-12-04 19:38:13,004 INFO  [ballerina/log] - Registering for transaction: a958b772-be82-4d90-8044-6fb8be7f9a65:$anon$.$1 with coordinator: http://192.168.8.100:53310/balcoordinator/initiator/$anon$.$1/register
-2018-12-04 19:38:13,005 INFO  [ballerina/log] - registering..
-2018-12-04 19:38:13,144 INFO  [ballerina/log] - Registered with coordinator for transaction: a958b772-be82-4d90-8044-6fb8be7f9a65
-2018-12-04 19:38:13,146 INFO  [ballerina/log] - Received update stockquote request
-2018-12-04 19:38:13,147 INFO  [ballerina/log] - Joined transaction: a958b772-be82-4d90-8044-6fb8be7f9a65:$anon$.$1
-2018-12-04 19:38:13,267 INFO  [ballerina/log] - Update stock quote request received.
-                            symbol:GOOG, price:227.96048357982156
-2018-12-04 19:38:13,287 INFO  [ballerina/log] - Sent response back to initiator
-2018-12-04 19:38:13,311 INFO  [ballerina/log] - Prepare received for transaction: a958b772-be82-4d90-8044-6fb8be7f9a65:$anon$.$1
-2018-12-04 19:38:13,312 INFO  [ballerina/log] - Prepared transaction: a958b772-be82-4d90-8044-6fb8be7f9a65
-2018-12-04 19:38:13,324 INFO  [ballerina/log] - Notify(commit) received for transaction: a958b772-be82-4d90-8044-6fb8be7f9a65:$anon$.$1
-2018-12-04 19:38:13,325 INFO  [ballerina/log] - Participated transaction: a958b772-be82-4d90-8044-6fb8be7f9a65:$anon$.$1 committed
+[ballerina/http] started HTTP/WS listener 10.100.7.118:64553
+[ballerina/http] started HTTP/WS listener 0.0.0.0:8889
+2019-09-04 12:04:58,683 INFO  [ballerina/log] - Registering for transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a:$anon$.$0 with coordinator: http://10.100.7.118:64337/balcoordinator/initiator/$anon$.$0/register
+2019-09-04 12:04:58,847 INFO  [ballerina/log] - Registered with coordinator for transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a
+2019-09-04 12:04:58,848 INFO  [ballerina/log] - participant registered: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a
+2019-09-04 12:04:58,851 INFO  [ballerina/log] - Received update stockquote request
+2019-09-04 12:04:58,852 INFO  [ballerina/log] - Joined transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a:$anon$.$0
+2019-09-04 12:04:58,858 INFO  [ballerina/log] - Update stock quote request received.
+                            symbol:GOOG, price:249.7214191144464
+2019-09-04 12:04:58,872 INFO  [ballerina/log] - Sent response back to initiator
+2019-09-04 12:04:58,917 INFO  [ballerina/log] - Prepare received for transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a:$anon$.$0
+2019-09-04 12:04:58,918 INFO  [ballerina/log] - Prepared transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a
+2019-09-04 12:04:58,935 INFO  [ballerina/log] - Notify(commit) received for transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a:$anon$.$0
+2019-09-04 12:04:58,936 INFO  [ballerina/log] - Participated transaction: 2c9584d2-e5d0-4dad-bfc1-946cc4c00f6a:$anon$.$0 committed

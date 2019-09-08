@@ -21,8 +21,8 @@ service infoService on new http:Listener(9092) {
             // Get the `string` value that is relevant to the key "name".
             string nameString = <string>msg.name;
             // Create XML payload and send back a response.
-            xml name = xml `<name>{{untaint nameString}}</name>`;
-            res.setXmlPayload(name);
+            xml name = xml `<name>${nameString}</name>`;
+            res.setXmlPayload(<@untained> name);
         } else {
             res.statusCode = 500;
             res.setPayload(<@untainted> <string>msg.detail()?.message);

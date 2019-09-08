@@ -1,4 +1,4 @@
-# If the request that was sent to the `retryDemoService` fails due to an error, the client tries sending the request again. 
+# If the request that was sent to the `retryDemoService` fails due to an error, the client tries sending the request again.
 $ curl -v http://localhost:9090/retry
 *   Trying ::1...
 * TCP_NODELAY set
@@ -10,9 +10,8 @@ $ curl -v http://localhost:9090/retry
 >
 < HTTP/1.1 200 OK
 < content-type: text/plain
-< date: Mon, 23 Apr 2018 11:51:11 +0530
-< cache-control: no-transform,public
-< server: ballerina/0.970.0-beta12-SNAPSHOT
+< date: Wed, 4 Sep 2019 15:47:53 +0530
+< server: ballerina/1.0.0-beta
 < content-length: 14
 <
 * Connection #0 to host localhost left intact

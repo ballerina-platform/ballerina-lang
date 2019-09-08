@@ -38,10 +38,10 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 /**
  * Providing the compiler add-ons for NATS basic consumer services.
  */
-@SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "nats",
-                                                                                      name = "Listener"),
+@SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName = Constants.NATS,
+                                                                                      name = Constants.NATS_LISTENER),
                              paramTypes = {
-                                     @SupportedResourceParamTypes.Type(packageName = "nats",
+                                     @SupportedResourceParamTypes.Type(packageName = Constants.NATS,
                                                                        name = "Message")
                              })
 public class NatsBasicConsumerServiceCompilerPlugin extends AbstractNatsConsumerServiceCompilerPlugin {

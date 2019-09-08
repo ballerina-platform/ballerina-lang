@@ -42,29 +42,19 @@ public class ObjectTypeReferenceTest {
     }
 
     @Test
-    public void testSimpleObjectTypeReferenceNegative_1() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 23);
+    public void testSimpleObjectTypeReferenceSemanticsNegative_1() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-semantics" +
+                "-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 32,
                 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 44, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 44, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 47, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getName' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 97, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 97, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 97, 6);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an abstract object", 101, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 110, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 110, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
                 "function through referenced type 'ObjectWithFunction'", 120, 5);
@@ -77,16 +67,42 @@ public class ObjectTypeReferenceTest {
     }
 
     @Test
-    public void testSimpleObjectTypeReferenceNegative_2() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+    public void testSimpleObjectTypeReferenceNegative_1() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 11);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 28, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 42, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 42, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 45, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 93, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 93, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 93, 6);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 96, 16);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'salary' is not initialized", 100, 16);
+    }
+
+    @Test
+    public void testSimpleObjectTypeReferenceSemanticsNegative_2() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-semantics" +
+                "-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an abstract object",
                 18, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 19, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 19, 6);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' is not an abstract object", 20, 6);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'YYY'", 29, 6);
+    }
+
+    @Test
+    public void testSimpleObjectTypeReferenceNegative_2() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 18, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 18, 6);
     }
 
     @Test

@@ -777,8 +777,11 @@ expression
     ;
 
 constantExpression
-    :   simpleLiteral
-    |   recordLiteral
+    :   simpleLiteral                                                       # constSimpleLiteralExpression
+    |   recordLiteral                                                       # constRecordLiteralExpression
+    |   constantExpression (DIV | MUL) constantExpression                   # constDivMulModExpression
+    |   constantExpression (ADD | SUB) constantExpression                   # constAddSubExpression
+    |   LEFT_PARENTHESIS constantExpression RIGHT_PARENTHESIS               # constGroupExpression
     ;
 
 typeDescExpr

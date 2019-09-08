@@ -14,6 +14,7 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/jsonutils;
 import ballerinax/java.jdbc;
 
 public type Customer record {
@@ -175,10 +176,8 @@ function testUpdateInMemory(string jdbcURL) returns @tainted [int, string] {
     var x = testDB->select("SELECT  * from Customers2", Customer);
     string s = "";
     if (x is table<Customer>) {
-        var res = typedesc<json>.constructFrom(x);
-        if (res is json) {
-            s = res.toJsonString();
-        }
+        var res = jsonutils:fromTable(x);
+        s = res.toJsonString();
     }
 
     checkpanic testDB.stop();
@@ -279,10 +278,8 @@ function testH2MemDBUpdate() returns [int, string] {
 
     string data = "";
     if (dt is table<record {}>) {
-        var j = typedesc<json>.constructFrom(dt);
-        if (j is json) {
-            data = io:sprintf("%s", j.toJsonString());
-        }
+        var j = jsonutils:fromTable(dt);
+        data = io:sprintf("%s", j.toJsonString());
     }
     int insertCount = 0;
     if (insertCountRet is jdbc:UpdateResult) {

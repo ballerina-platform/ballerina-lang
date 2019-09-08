@@ -89,7 +89,7 @@ public class GetByteArray extends AbstractGetPayloadHandler {
             }
         } catch (Exception ex) {
             createParsingEntityBodyFailedErrorAndNotify(callback,
-                                 "Error occurred while extracting blob data from entity : " + ex.getMessage());
+                                 "Error occurred while extracting blob data from entity : " + getErrorMsg(ex));
         }
         return result;
     }

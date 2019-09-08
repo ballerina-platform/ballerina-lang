@@ -35,13 +35,15 @@ import org.testng.annotations.Test;
  */
 public class MatchStructuredPatternsTest {
 
-    private CompileResult result, resultNegative, resultNegative2;
+    private CompileResult result, resultNegative, resultNegative2, resultSemanticsNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/structured_match_patterns.bal");
         resultNegative = BCompileUtil.compile(
                 "test-src/statements/matchstmt/structured_match_patterns_negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile(
+                "test-src/statements/matchstmt/structured_match_patterns_semantics_negative.bal");
         resultNegative2 = BCompileUtil.compile(
                 "test-src/statements/matchstmt/structured_match_patterns_unreachable_negative.bal");
     }
@@ -81,38 +83,44 @@ public class MatchStructuredPatternsTest {
     }
 
     @Test(description = "Test pattern will not be matched")
+    public void testPatternNotMatchedSemanticsNegative() {
+        int i = -1;
+        String invalidRecordPattern = "invalid record binding pattern; ";
+        String invalidTuplePattern = "invalid tuple variable; ";
+
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 33, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 34, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                invalidRecordPattern + "unknown field 'a' in record type 'ClosedFoo'", 37, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 39, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                invalidTuplePattern + "expecting a tuple type but found 'OpenedFoo' in type definition", 50, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid tuple binding pattern; member variable count mismatch with member type count", 60, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid record binding pattern with type '[string,int,ClosedFoo]'", 61, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 63, 20);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 65, 20);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
+    }
+
+    @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
-        String invalidRecordPattern = "invalid record binding pattern; ";
-        String invalidTuplePattern = "invalid tuple variable; ";
         String unreachablePattern =
                 "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
 
-        BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 33, 13);
-        BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 34, 13);
-        BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordPattern + "unknown field 'a' in record type 'ClosedFoo'", 37, 13);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 38, 9);
-        BAssertUtil.validateError(resultNegative, ++i,
-                invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 39, 13);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 49, 9);
-        BAssertUtil.validateError(resultNegative, ++i,
-                invalidTuplePattern + "expecting a tuple type but found 'OpenedFoo' in type definition", 50, 13);
-
-        BAssertUtil.validateError(resultNegative, ++i,
-                "invalid tuple binding pattern; member variable count mismatch with member type count", 60, 13);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern with type '[string,int,ClosedFoo]'", 61, 13);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 62, 9);
-        BAssertUtil.validateError(resultNegative, ++i,
-                invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 63, 20);
-        BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 65, 20);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 66, 13);
-        BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 75, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 35, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 45, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 55, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 57, 13);
+        BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 66, 9);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
@@ -136,7 +144,7 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 74, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 75, 13);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 78, 5);
-        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 91, 5);
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 92, 35);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 94, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 95, 13);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 99, 5);

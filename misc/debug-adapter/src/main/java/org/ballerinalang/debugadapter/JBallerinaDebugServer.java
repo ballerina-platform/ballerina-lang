@@ -103,6 +103,8 @@ import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
+    public static final String DEBUGGER_TERMINATED = "Debugger terminated";
+    public static final String DEBUGGER_FAILED_TO_ATTACH = "Debugger failed to attach";
     private IDebugProtocolClient client;
     private VirtualMachine debuggee;
     private int systemExit = 1;
@@ -149,17 +151,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         String path = args.getSource().getPath();
 
-        projectRoot = findProjectRoot(Paths.get(path));
-        if (projectRoot == null) {
-            // calculate projectRoot for single file
-            File file = new File(path);
-            File parentDir = file.getParentFile();
-            projectRoot = parentDir.toPath();
-        } else {
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            orgName = manifest.getProject().getOrgName();
-        }
-
         this.eventBus.setBreakpointsList(path, breakpoints);
 
         return CompletableFuture.completedFuture(breakpointsResponse);
@@ -171,10 +162,26 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(null);
     }
 
+    private void updateProjectRoot(String balFile) {
+        projectRoot = findProjectRoot(Paths.get(balFile));
+        if (projectRoot == null) {
+            // calculate projectRoot for single file
+            File file = new File(balFile);
+            File parentDir = file.getParentFile();
+            projectRoot = parentDir.toPath();
+        } else {
+            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+            orgName = manifest.getProject().getOrgName();
+        }
+    }
+
     @Override
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         nextVarReference.set(1);
         Launch launcher = new LaunchFactory().getLauncher(args);
+
+        String balFile = args.get("script").toString();
+        updateProjectRoot(balFile);
         try {
             launchedProcess = launcher.start();
         } catch (IOException e) {
@@ -227,7 +234,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         nextVarReference.set(1);
         try {
             int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
-            debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
+            String debuggeeHost = args.get("debuggeeHost") == null ? "" : args.get("debuggeeHost").toString();
+
+            String balFile = args.get("script").toString();
+            updateProjectRoot(balFile);
+
+            debuggee = new DebuggerAttachingVM(debuggeePort, debuggeeHost).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
@@ -235,9 +247,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             context.setDebuggee(debuggee);
             this.eventBus.startListening();
 
-        } catch (IOException e) {
+        } catch (IOException | IllegalConnectorArgumentsException e) {
+            this.sendOutput(DEBUGGER_FAILED_TO_ATTACH, STDERR);
+            LOGGER.error(DEBUGGER_FAILED_TO_ATTACH);
             return CompletableFuture.completedFuture(null);
-        } catch (IllegalConnectorArgumentsException e) {
         }
         return CompletableFuture.completedFuture(null);
     }
@@ -301,6 +314,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Source source = new Source();
         try {
             String sourcePath = stackFrame.location().sourcePath();
+            sourcePath = sourcePath != null ? sourcePath : "";
+            sourcePath = sourcePath.replaceFirst("tests" + File.separator + "tests", "tests");
             if (orgName.length() > 0 && sourcePath.startsWith(orgName)) {
                 sourcePath = sourcePath.replaceFirst(orgName, "src");
             }
@@ -651,7 +666,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private void exit(boolean terminateDebuggee) {
-        LOGGER.info("Debugger terminated");
         if (terminateDebuggee) {
             new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
         }
@@ -682,6 +696,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> terminate(TerminateArguments args) {
         this.exit(true);
+        LOGGER.info(DEBUGGER_TERMINATED);
+        sendOutput(DEBUGGER_TERMINATED, STDOUT);
         return CompletableFuture.completedFuture(null);
     }
 

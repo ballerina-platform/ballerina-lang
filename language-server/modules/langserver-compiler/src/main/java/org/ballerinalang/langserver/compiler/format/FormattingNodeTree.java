@@ -132,32 +132,23 @@ public class FormattingNodeTree {
             this.preserveHeight(node.getAsJsonArray(FormattingConstants.WS), useParentIndentation
                     ? indentWithParentIndentation : indentation);
 
-            // Update whitespace for annotation symbol, @.
-            JsonObject annotationSymbolWhitespace = ws.get(0).getAsJsonObject();
-            if (this.noHeightAvailable(annotationSymbolWhitespace.get(FormattingConstants.WS).getAsString())) {
-                if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
-                    annotationSymbolWhitespace.addProperty(FormattingConstants.WS,
-                            this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                                    indentWithParentIndentation);
-                } else {
-                    annotationSymbolWhitespace.addProperty(FormattingConstants.WS,
-                            this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals(Tokens.AT)) {
+                        if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
+                                            indentWithParentIndentation);
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                        }
+                    } else {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    }
                 }
-            } else if (this.noNewLine(annotationSymbolWhitespace.get(FormattingConstants.WS)
-                    .getAsString().charAt(0) + "")) {
-                if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
-                    annotationSymbolWhitespace.addProperty(FormattingConstants.WS,
-                            this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
-                } else {
-                    annotationSymbolWhitespace.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                            indentWithParentIndentation);
-                }
-            }
-
-            // Update whitespace for annotation identifier.
-            JsonObject identifierWhitespace = ws.get(ws.size() - 1).getAsJsonObject();
-            if (this.noHeightAvailable(identifierWhitespace.get(FormattingConstants.WS).getAsString())) {
-                identifierWhitespace.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
             }
 
             // Update whitespace for expression.
@@ -974,6 +965,7 @@ public class FormattingNodeTree {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, true);
             String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean isGrouped = node.has("grouped") && node.get("grouped").getAsBoolean();
 
             // Preserve line separations that already available.
             this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
@@ -981,7 +973,15 @@ public class FormattingNodeTree {
 
             // Update whitespace for type node.
             if (node.has(FormattingConstants.TYPE)) {
-                node.getAsJsonObject(FormattingConstants.TYPE).add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+                JsonObject typeFormatConfig = formatConfig;
+                if (isGrouped) {
+                    typeFormatConfig = this.getFormattingConfig(0, 0, 0, false,
+                            this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
+                                    .getAsBoolean() ? indentationOfParent : indentation),
+                            formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean());
+                }
+                node.getAsJsonObject(FormattingConstants.TYPE).add(FormattingConstants.FORMATTING_CONFIG,
+                        typeFormatConfig);
             }
 
             // Update whitespace for constraint.
@@ -997,12 +997,25 @@ public class FormattingNodeTree {
                 JsonObject wsItem = item.getAsJsonObject();
                 if (this.noHeightAvailable(wsItem.get(FormattingConstants.WS).getAsString())) {
                     String text = wsItem.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals(Tokens.LESS_THAN) || text.equals(Tokens.GREATER_THAN)
+                    if (text.equals(Tokens.OPENING_PARENTHESES) && isGrouped) {
+                        if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
+                            wsItem.addProperty(FormattingConstants.WS,
+                                    this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                        } else if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                            wsItem.addProperty(FormattingConstants.WS,
+                                    this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                            + indentation);
+                        } else {
+                            wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        }
+                    } else if (text.equals(Tokens.LESS_THAN) || text.equals(Tokens.GREATER_THAN)
                             || text.equals(Tokens.CLOSING_BRACE) || text.equals(Tokens.OBJECT)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     } else if (text.equals(Tokens.TYPEDESC)) {
                         wsItem.addProperty(FormattingConstants.WS,
                                 this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES) && isGrouped) {
+                        wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
             }
@@ -1306,14 +1319,24 @@ public class FormattingNodeTree {
             // Iterate and update whitespaces for error variable node.
             boolean reasonWSUpdated = false;
             boolean isEllipsisAvailable = false;
+            boolean isVarAvailable = false;
             for (JsonElement wsItem : ws) {
                 JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
-                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals(Tokens.ERROR)) {
+                    if (text.equals(Tokens.VAR)) {
+                        if (!isEllipsisAvailable) {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                            + indentation);
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        }
+                        isVarAvailable = true;
+                    } else if (text.equals(Tokens.ERROR)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         isEllipsisAvailable = false;
-                    } else if (text.equals(Tokens.OPENING_PARENTHESES)) {
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES) || text.equals(Tokens.EQUAL)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         isEllipsisAvailable = false;
                     } else if (text.equals(Tokens.ELLIPSIS)) {
@@ -1325,15 +1348,31 @@ public class FormattingNodeTree {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     } else {
                         if (reasonWSUpdated) {
-                            if (isEllipsisAvailable) {
+                            if (isEllipsisAvailable && isVarAvailable) {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                            } else if (isEllipsisAvailable) {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                             } else {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                             }
                         } else {
-                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                            reasonWSUpdated = true;
+                            if (isEllipsisAvailable && isVarAvailable) {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                            } else if (isEllipsisAvailable) {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            } else {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                                reasonWSUpdated = true;
+                            }
                         }
+                        isEllipsisAvailable = false;
+                    }
+                } else {
+                    if (text.equals(Tokens.VAR) && !isEllipsisAvailable) {
+                        isVarAvailable = true;
+                    } else if (text.equals(Tokens.ELLIPSIS)) {
+                        isEllipsisAvailable = true;
+                    } else {
                         isEllipsisAvailable = false;
                     }
                 }
@@ -1341,8 +1380,15 @@ public class FormattingNodeTree {
 
             // Handle type node formatting
             if (node.has(FormattingConstants.TYPE_NODE)) {
-                node.getAsJsonObject(FormattingConstants.TYPE_NODE).add(FormattingConstants.FORMATTING_CONFIG,
-                        formatConfig);
+                if (isVarAvailable) {
+                    node.getAsJsonObject(FormattingConstants.TYPE_NODE).add(FormattingConstants.FORMATTING_CONFIG,
+                            this.getFormattingConfig(0, 1, 0, false,
+                                    this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
+                                            .getAsBoolean() ? indentationOfParent : indentation), true));
+                } else {
+                    node.getAsJsonObject(FormattingConstants.TYPE_NODE).add(FormattingConstants.FORMATTING_CONFIG,
+                            formatConfig);
+                }
             }
 
             if (node.has("reason")) {
@@ -1354,12 +1400,24 @@ public class FormattingNodeTree {
 
             // Handle detail node formatting
             if (node.has("detail")) {
+                boolean noReason = !node.has("reason") || (node.has("reason")
+                        && !isReasonAvailable(node.getAsJsonObject("reason")));
                 JsonArray details = node.getAsJsonArray("detail");
-                for (JsonElement detail : details) {
-                    detail.getAsJsonObject().add(FormattingConstants.FORMATTING_CONFIG,
-                            this.getFormattingConfig(0, 1, 0, false,
-                                    this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
-                                            .getAsBoolean() ? indentationOfParent : indentation), true));
+                for (int i = 0; i < details.size(); i++) {
+                    JsonObject detail = details.get(i).getAsJsonObject();
+                    if (i == 0 && noReason) {
+                        detail.add(FormattingConstants.FORMATTING_CONFIG,
+                                this.getFormattingConfig(0, 0, 0, false,
+                                        this.getWhiteSpaceCount(formatConfig
+                                                .get(FormattingConstants.USE_PARENT_INDENTATION)
+                                                .getAsBoolean() ? indentationOfParent : indentation), true));
+                    } else {
+                        detail.add(FormattingConstants.FORMATTING_CONFIG,
+                                this.getFormattingConfig(0, 1, 0, false,
+                                        this.getWhiteSpaceCount(formatConfig
+                                                .get(FormattingConstants.USE_PARENT_INDENTATION)
+                                                .getAsBoolean() ? indentationOfParent : indentation), true));
+                    }
                 }
             }
 
@@ -1406,6 +1464,11 @@ public class FormattingNodeTree {
                 }
             }
 
+            if (node.has(FormattingConstants.TYPE_NODE)) {
+                node.getAsJsonObject(FormattingConstants.TYPE_NODE).add(FormattingConstants.FORMATTING_CONFIG,
+                        formatConfig);
+            }
+
             // Handle whitespaces for reason.
             if (node.has("reason")) {
                 node.getAsJsonObject("reason").add(FormattingConstants.FORMATTING_CONFIG,
@@ -1415,11 +1478,20 @@ public class FormattingNodeTree {
 
             // Handle whitespaces for detail.
             if (node.has("detail")) {
+                boolean noReason = !node.has("reason") || (node.has("reason")
+                        && !isReasonAvailable(node.getAsJsonObject("reason")));
                 JsonArray details = node.getAsJsonArray("detail");
-                for (JsonElement detail : details) {
-                    detail.getAsJsonObject().add(FormattingConstants.FORMATTING_CONFIG,
-                            this.getFormattingConfig(0, 1, 0, false,
-                                    this.getWhiteSpaceCount(indentation), true));
+                for (int i = 0; i < details.size(); i++) {
+                    JsonObject detail = details.get(i).getAsJsonObject();
+                    if (i == 0 && noReason) {
+                        detail.add(FormattingConstants.FORMATTING_CONFIG,
+                                this.getFormattingConfig(0, 0, 0, false,
+                                        this.getWhiteSpaceCount(indentation), true));
+                    } else {
+                        detail.add(FormattingConstants.FORMATTING_CONFIG,
+                                this.getFormattingConfig(0, 1, 0, false,
+                                        this.getWhiteSpaceCount(indentation), true));
+                    }
                 }
             }
 
@@ -1904,6 +1976,25 @@ public class FormattingNodeTree {
 
             // Update whitespaces for return type annotation attachments.
             modifyReturnTypeAnnotations(node, indentation);
+
+            if (node.has("externalAnnotationAttachments")) {
+                JsonArray externalAnnotationAttachments = node.getAsJsonArray("externalAnnotationAttachments");
+                for (int i = 0; i < externalAnnotationAttachments.size(); i++) {
+                    JsonObject externalAnnotationAttachment = externalAnnotationAttachments.get(i).getAsJsonObject();
+                    JsonObject annotationFormattingConfig;
+                    if (i == 0) {
+                        annotationFormattingConfig = this.getFormattingConfig(
+                                0, 1, 0,
+                                false, this.getWhiteSpaceCount(indentation), true);
+                    } else {
+                        annotationFormattingConfig = this.getFormattingConfig(1, 0,
+                                formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
+                                false, this.getWhiteSpaceCount(indentation), true);
+                    }
+
+                    externalAnnotationAttachment.add(FormattingConstants.FORMATTING_CONFIG, annotationFormattingConfig);
+                }
+            }
         }
     }
 
@@ -2317,7 +2408,12 @@ public class FormattingNodeTree {
                         dotAvailable = true;
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     } else {
-                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        if (dotAvailable) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            dotAvailable = false;
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        }
                     }
                 }
             }
@@ -2383,6 +2479,7 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatInvocationNode(JsonObject node) {
+        // TODO: Refactor checking the expression name to remove unnecessary arguments.
         if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
             JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
@@ -2392,6 +2489,8 @@ public class FormattingNodeTree {
             boolean isAsync = false;
             boolean isCheck = false;
             boolean isActionOrFieldInvocation = false;
+            boolean annotationAvailable = node.has("annotationAttachments")
+                    && node.getAsJsonArray("annotationAttachments").size() > 0;
             JsonObject identifierWhitespace = null;
             String expressionName = null;
 
@@ -2399,26 +2498,36 @@ public class FormattingNodeTree {
             this.preserveHeight(ws, indentWithParentIndentation);
 
             if (isExpressionAvailable) {
-                expressionName = node.getAsJsonObject(FormattingConstants.EXPRESSION).has("variableName") ?
-                        node.getAsJsonObject(FormattingConstants.EXPRESSION).get("variableName")
-                                .getAsJsonObject().get("value").getAsString() : null;
+                JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
+                expressionName = expression.has("variableName") ?
+                        expression.get("variableName").getAsJsonObject().get("value").getAsString() : null;
                 if (expressionName == null) {
-                    expressionName = node.getAsJsonObject(FormattingConstants.EXPRESSION).has(FormattingConstants.NAME)
-                            ? node.getAsJsonObject(FormattingConstants.EXPRESSION).get(FormattingConstants.NAME)
+                    expressionName = expression.has(FormattingConstants.NAME)
+                            ? expression.get(FormattingConstants.NAME)
                             .getAsJsonObject().get("value").getAsString() : null;
 
                     if (expressionName == null) {
-                        expressionName = node.getAsJsonObject(FormattingConstants.EXPRESSION).has("fieldName")
-                                ? node.getAsJsonObject(FormattingConstants.EXPRESSION).get("fieldName")
+                        expressionName = expression.has("fieldName")
+                                ? expression.get("fieldName")
                                 .getAsJsonObject().get("value").getAsString() : null;
 
                         if (expressionName == null) {
-                            JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
                             if (!expression.has(FormattingConstants.WS) && expression.get(FormattingConstants.KIND)
                                     .getAsString().equals("TypedescExpression") && expression.has("typeNode")) {
                                 JsonObject typeNode = expression.getAsJsonObject("typeNode");
                                 expressionName = typeNode.has("typeKind")
                                         ? typeNode.get("typeKind").getAsString() : null;
+                            }
+
+                            if (expressionName == null) {
+                                if (expression.get(FormattingConstants.KIND)
+                                        .getAsString().equals("IndexBasedAccessExpr")) {
+                                    JsonObject indexedExpr = expression
+                                            .getAsJsonObject(FormattingConstants.EXPRESSION);
+                                    expressionName = indexedExpr.has("variableName") ?
+                                            indexedExpr.get("variableName").getAsJsonObject().get("value").getAsString()
+                                            : null;
+                                }
                             }
                         }
                     }
@@ -2438,7 +2547,7 @@ public class FormattingNodeTree {
                                         + indentation);
                         isCheck = true;
                     } else if (text.equals(Tokens.START) && !isActionOrFieldInvocation) {
-                        if (isCheck) {
+                        if (isCheck || annotationAvailable) {
                             invocationWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         } else {
                             invocationWS.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
@@ -2540,12 +2649,33 @@ public class FormattingNodeTree {
                                     break;
                                 }
                             }
-                        } else if (argument.getAsJsonObject().get(FormattingConstants.KIND)
+                        }
+
+                        if (argument.getAsJsonObject().get(FormattingConstants.KIND)
                                 .getAsString().equals("TypedescExpression")
                                 && argument.getAsJsonObject().has("typeNode")) {
                             JsonObject typeNode = argument.getAsJsonObject().getAsJsonObject("typeNode");
                             if (typeNode.has(FormattingConstants.WS)) {
                                 for (JsonElement wsItem : typeNode.get(FormattingConstants.WS).getAsJsonArray()) {
+                                    JsonObject currentWS = wsItem.getAsJsonObject();
+                                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                                    if (text.equals(expressionName)) {
+                                        argument.getAsJsonObject()
+                                                .addProperty(FormattingConstants.SKIP_FORMATTING, true);
+                                        matchedArgument = argument.getAsJsonObject();
+                                        foundMatch = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (argument.getAsJsonObject().get(FormattingConstants.KIND).getAsString()
+                                .equals("IndexBasedAccessExpr")) {
+                            JsonObject indexedExpr = argument.getAsJsonObject()
+                                    .getAsJsonObject(FormattingConstants.EXPRESSION);
+                            if (indexedExpr.has(FormattingConstants.WS)) {
+                                for (JsonElement wsItem : indexedExpr.get(FormattingConstants.WS).getAsJsonArray()) {
                                     JsonObject currentWS = wsItem.getAsJsonObject();
                                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                                     if (text.equals(expressionName)) {
@@ -2592,12 +2722,33 @@ public class FormattingNodeTree {
                                     break;
                                 }
                             }
-                        } else if (argument.getAsJsonObject().get(FormattingConstants.KIND)
+                        }
+
+                        if (argument.getAsJsonObject().get(FormattingConstants.KIND)
                                 .getAsString().equals("TypedescExpression")
                                 && argument.getAsJsonObject().has("typeNode")) {
                             JsonObject typeNode = argument.getAsJsonObject().getAsJsonObject("typeNode");
                             if (typeNode.has(FormattingConstants.WS)) {
                                 for (JsonElement wsItem : typeNode.get(FormattingConstants.WS).getAsJsonArray()) {
+                                    JsonObject currentWS = wsItem.getAsJsonObject();
+                                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                                    if (text.equals(expressionName)) {
+                                        argument.getAsJsonObject()
+                                                .addProperty(FormattingConstants.SKIP_FORMATTING, true);
+                                        matchedArgument = argument.getAsJsonObject();
+                                        foundMatch = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (argument.getAsJsonObject().get(FormattingConstants.KIND).getAsString()
+                                .equals("IndexBasedAccessExpr")) {
+                            JsonObject indexedExpr = argument.getAsJsonObject()
+                                    .getAsJsonObject(FormattingConstants.EXPRESSION);
+                            if (indexedExpr.has(FormattingConstants.WS)) {
+                                for (JsonElement wsItem : indexedExpr.get(FormattingConstants.WS).getAsJsonArray()) {
                                     JsonObject currentWS = wsItem.getAsJsonObject();
                                     String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                                     if (text.equals(expressionName)) {
@@ -2623,6 +2774,18 @@ public class FormattingNodeTree {
 
                 iterateAndFormatMembers(indentation.isEmpty() ? indentWithParentIndentation : indentation,
                         argumentExpressions);
+            }
+
+            if (node.has("annotationAttachments")) {
+                JsonArray annotationAttachments = node.getAsJsonArray("annotationAttachments");
+                for (JsonElement annotationAttachment : annotationAttachments) {
+                    annotationAttachment.getAsJsonObject().add(FormattingConstants.FORMATTING_CONFIG,
+                            this.getFormattingConfig(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt(),
+                                    formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(),
+                                    formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
+                                    false, this.getWhiteSpaceCount(indentWithParentIndentation),
+                                    true));
+                }
             }
 
             if (node.has(FormattingConstants.EXPRESSION)) {
@@ -5210,28 +5373,40 @@ public class FormattingNodeTree {
             JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, true);
+            boolean declaredWithVar = node.has("declaredWithVar")
+                    && node.get("declaredWithVar").getAsBoolean();
 
             this.preserveHeight(ws, indentation);
 
-            if (node.has("declaredWithVar") && node.get("declaredWithVar").getAsBoolean()) {
-                JsonObject varWS = ws.get(0).getAsJsonObject();
-                JsonObject openingParenthesesWS = ws.get(1).getAsJsonObject();
-
-                if (this.noHeightAvailable(varWS.get(FormattingConstants.WS).getAsString())) {
-                    varWS.addProperty(FormattingConstants.WS,
-                            this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                                    indentation);
-                }
-
-                if (this.noHeightAvailable(openingParenthesesWS.get(FormattingConstants.WS).getAsString())) {
-                    openingParenthesesWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                }
-            } else {
-                JsonObject openingParenthesesWS = ws.get(0).getAsJsonObject();
-                if (this.noHeightAvailable(openingParenthesesWS.get(FormattingConstants.WS).getAsString())) {
-                    openingParenthesesWS.addProperty(FormattingConstants.WS,
-                            this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                                    indentation);
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals(Tokens.VAR)) {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
+                                        indentation);
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES) || text.equals(Tokens.OPENING_BRACKET)) {
+                        if (declaredWithVar) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
+                                            indentation);
+                        }
+                    } else if (text.equals(Tokens.ELLIPSIS)) {
+                        if (node.has("variableRefs")
+                                && node.getAsJsonArray("variableRefs").size() > 0) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        }
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES) || text.equals(Tokens.SEMICOLON)
+                            || text.equals(Tokens.CLOSING_BRACKET) || text.equals(Tokens.COMMA)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else if (text.equals(Tokens.EQUAL)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    }
                 }
             }
 
@@ -5241,16 +5416,11 @@ public class FormattingNodeTree {
                 modifyVariableReferences(formatConfig, indentation, varRefs);
             }
 
-            // Update closing parentheses whitespace.
-            JsonObject closingParenWS = ws.get(ws.size() - 3).getAsJsonObject();
-            if (this.noHeightAvailable(closingParenWS.get(FormattingConstants.WS).getAsString())) {
-                closingParenWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-            }
-
-            // Update assignment sign for tuple destruct.
-            JsonObject equalWS = ws.get(ws.size() - 2).getAsJsonObject();
-            if (this.noHeightAvailable(equalWS.get(FormattingConstants.WS).getAsString())) {
-                equalWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+            // Update rest variable.
+            if (node.has("restParam")) {
+                JsonObject restParamFormatConfig = this.getFormattingConfig(0, 0, 0,
+                        false, this.getWhiteSpaceCount(indentation), true);
+                node.getAsJsonObject("restParam").add(FormattingConstants.FORMATTING_CONFIG, restParamFormatConfig);
             }
 
             // Update whitespace for expression.
@@ -5258,14 +5428,8 @@ public class FormattingNodeTree {
                 JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
                 JsonObject expressionFormatConfig = this.getFormattingConfig(0, 1,
                         formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(), false,
-                        this.getWhiteSpaceCount(indentation), false);
+                        this.getWhiteSpaceCount(indentation), true);
                 expression.add(FormattingConstants.FORMATTING_CONFIG, expressionFormatConfig);
-            }
-
-            // Update semicolon whitespace
-            JsonObject semicolonWS = ws.get(ws.size() - 1).getAsJsonObject();
-            if (this.noHeightAvailable(semicolonWS.get(FormattingConstants.WS).getAsString())) {
-                semicolonWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
             }
         }
     }
@@ -5281,12 +5445,12 @@ public class FormattingNodeTree {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, true);
             String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
             boolean isGrouped = node.has(FormattingConstants.GROUPED)
                     && node.get(FormattingConstants.GROUPED).getAsBoolean();
 
             // Preserve available new lines and indent.
-            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
-                    ? indentationOfParent : indentation);
+            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation);
 
             // Iterate and update whitespaces for the node.
             for (JsonElement wsItem : ws) {
@@ -5306,18 +5470,32 @@ public class FormattingNodeTree {
                                             indentation);
                         }
                     } else if (text.equals(Tokens.CLOSING_BRACKET) || text.equals(Tokens.COMMA)
-                            || text.equals(Tokens.CLOSING_PARENTHESES)) {
+                            || text.equals(Tokens.CLOSING_PARENTHESES) || text.equals(Tokens.ELLIPSIS)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
                 }
             }
 
+            JsonArray memberTypeNodes = null;
             // Update the whitespaces for member types in tuple.
             if (node.has("memberTypeNodes")) {
-                JsonArray memberTypeNodes = node.getAsJsonArray("memberTypeNodes");
+                memberTypeNodes = node.getAsJsonArray("memberTypeNodes");
                 JsonObject memberFormatConfig = this.getFormattingConfig(0, 0, 0, false,
                         this.getWhiteSpaceCount(indentationOfParent), true);
                 modifyVariableReferences(memberFormatConfig, indentation, memberTypeNodes);
+            }
+
+            if (node.has("restParamType")) {
+                JsonObject restParamType = node.getAsJsonObject("restParamType");
+                JsonObject restParamFormatConfig;
+                if (memberTypeNodes != null && memberTypeNodes.size() > 0) {
+                    restParamFormatConfig = this.getFormattingConfig(0, 1, 0, false,
+                            this.getWhiteSpaceCount(useParentIndentation ? indentationOfParent : indentation), true);
+                } else {
+                    restParamFormatConfig = this.getFormattingConfig(0, 0, 0, false,
+                            this.getWhiteSpaceCount(useParentIndentation ? indentationOfParent : indentation), true);
+                }
+                restParamType.add(FormattingConstants.FORMATTING_CONFIG, restParamFormatConfig);
             }
         }
     }
@@ -5419,9 +5597,10 @@ public class FormattingNodeTree {
                     }
                 }
 
+                JsonArray variables = null;
                 // Update whitespaces of parameters.
                 if (node.has("variables")) {
-                    JsonArray variables = node.getAsJsonArray("variables");
+                    variables = node.getAsJsonArray("variables");
                     iterateAndFormatMembers(indentation, variables);
                 }
 
@@ -5434,6 +5613,23 @@ public class FormattingNodeTree {
                         annotationAttachment.getAsJsonObject().add(FormattingConstants.FORMATTING_CONFIG,
                                 annotationAttachmentFormattingConfig);
                     }
+                }
+
+                if (node.has("restVariable")) {
+                    JsonObject restVariable = node.getAsJsonObject("restVariable");
+                    JsonObject restParamFormatConfig;
+                    if (variables != null && variables.size() > 0) {
+                        restParamFormatConfig = this.getFormattingConfig(0, 1,
+                                this.getWhiteSpaceCount(indentation), false,
+                                this.getWhiteSpaceCount(useParentIndentation
+                                        ? indentWithParentIndentation : indentation), true);
+                    } else {
+                        restParamFormatConfig = this.getFormattingConfig(0, 0,
+                                this.getWhiteSpaceCount(indentation), false,
+                                this.getWhiteSpaceCount(useParentIndentation
+                                        ? indentWithParentIndentation : indentation), true);
+                    }
+                    restVariable.add(FormattingConstants.FORMATTING_CONFIG, restParamFormatConfig);
                 }
             } else if (node.has(FormattingConstants.TYPE_NODE)) {
                 node.getAsJsonObject(FormattingConstants.TYPE_NODE)
@@ -5806,10 +6002,12 @@ public class FormattingNodeTree {
             boolean isGrouped = node.has(FormattingConstants.GROUPED) &&
                     node.get(FormattingConstants.GROUPED).getAsBoolean();
             String indentation = this.getIndentation(formatConfig, true);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
 
             if (node.has(FormattingConstants.WS)) {
                 JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
-                this.preserveHeight(ws, indentation);
+                this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation);
 
                 // Iterate through WS to update horizontal whitespaces.
                 for (JsonElement wsItem : ws) {
@@ -5844,18 +6042,21 @@ public class FormattingNodeTree {
                         if (isGrouped) {
                             memberTypeFormatConfig = this.getFormattingConfig(0, 0,
                                     0, false,
-                                    this.getWhiteSpaceCount(indentation), true);
+                                    this.getWhiteSpaceCount(useParentIndentation ? indentationOfParent : indentation),
+                                    true);
                         } else {
                             memberTypeFormatConfig = this.getFormattingConfig(
                                     formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt(),
                                     formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(),
                                     formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
                                     formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean(),
-                                    this.getWhiteSpaceCount(indentation), false);
+                                    this.getWhiteSpaceCount(useParentIndentation ? indentationOfParent : indentation),
+                                    false);
                         }
                     } else {
                         memberTypeFormatConfig = this.getFormattingConfig(0, 1,
-                                0, false, this.getWhiteSpaceCount(indentation),
+                                0, false,
+                                this.getWhiteSpaceCount(useParentIndentation ? indentationOfParent : indentation),
                                 true);
                     }
 
@@ -5934,20 +6135,28 @@ public class FormattingNodeTree {
             JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
 
             node.getAsJsonObject(FormattingConstants.POSITION).addProperty(FormattingConstants.START_COLUMN,
                     this.getWhiteSpaceCount(indentation));
 
-            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
-                    ? this.getParentIndentation(formatConfig) : indentation);
+            this.preserveHeight(ws, useParentIndentation
+                    ? indentationOfParent : indentation);
 
-            // Update whitespaces for type.
-            JsonObject typeWhitespace = ws.get(0).getAsJsonObject();
-            if (this.noHeightAvailable(typeWhitespace.get(FormattingConstants.WS).getAsString())) {
-                typeWhitespace.addProperty(FormattingConstants.WS,
-                        this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
+            for (int i = 0; i < ws.size(); i++) {
+                JsonObject currentWS = ws.get(i).getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    if (i == 0) {
+                        currentWS.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
+                                .get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
                                 this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()) +
                                 indentation);
+                    } else {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                FormattingConstants.EMPTY_SPACE);
+                    }
+                }
             }
         }
     }
@@ -6100,14 +6309,21 @@ public class FormattingNodeTree {
                                         FormattingConstants.NEW_LINE + indentation);
                             }
                         } else if (text.equals(Tokens.ELLIPSIS)) {
-                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            if (!node.has(FormattingConstants.TYPE_NODE) && firstKeyword.equals(Tokens.ELLIPSIS)) {
+                                currentWS.addProperty(FormattingConstants.WS, this.getWhiteSpaces(formatConfig
+                                        .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                            } else {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            }
                         } else if (text.equals(Tokens.EQUAL)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         } else if (text.equals(Tokens.COLON)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                             isColonAvailable = true;
                         } else {
-                            if (node.has(FormattingConstants.IS_ANON_TYPE)
+                            if (!node.has(FormattingConstants.TYPE_NODE) && firstKeyword.equals(Tokens.ELLIPSIS)) {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            } else if (node.has(FormattingConstants.IS_ANON_TYPE)
                                     && node.get(FormattingConstants.IS_ANON_TYPE).getAsBoolean()) {
                                 currentWS.addProperty(FormattingConstants.WS,
                                         FormattingConstants.SINGLE_SPACE);
@@ -6132,7 +6348,6 @@ public class FormattingNodeTree {
                                                 ? this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
                                                 .getAsInt())
                                                 : FormattingConstants.SINGLE_SPACE);
-
                             }
                         }
                     }
@@ -7133,12 +7348,12 @@ public class FormattingNodeTree {
 
             if (i == 0) {
                 memberTypeFormatConfig = this.getFormattingConfig(0, 0,
-                        formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(), false,
-                        this.getWhiteSpaceCount(indentation), false);
+                        0, false,
+                        this.getWhiteSpaceCount(indentation), true);
             } else {
                 memberTypeFormatConfig = this.getFormattingConfig(0, 1,
-                        formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(), false,
-                        this.getWhiteSpaceCount(indentation), false);
+                        0, false,
+                        this.getWhiteSpaceCount(indentation), true);
             }
 
             memberType.add(FormattingConstants.FORMATTING_CONFIG, memberTypeFormatConfig);
@@ -7343,5 +7558,27 @@ public class FormattingNodeTree {
             }
         }
         return lineSeparationAvailable;
+    }
+
+    private boolean isReasonAvailable(JsonObject reason) {
+        boolean reasonAvailable = true;
+        if (!reason.has(FormattingConstants.WS)) {
+            if (reason.get(FormattingConstants.KIND).getAsString().equals("SimpleVariableRef")
+                    && reason.has("variableName")) {
+                JsonObject variableName = reason.getAsJsonObject("variableName");
+                String value = variableName.get(FormattingConstants.VALUE).getAsString();
+                if (value.equals("_")) {
+                    reasonAvailable = false;
+                }
+            } else if (reason.get(FormattingConstants.KIND).getAsString().equals("Variable")
+                    && reason.has(FormattingConstants.NAME)) {
+                JsonObject name = reason.getAsJsonObject(FormattingConstants.NAME);
+                String value = name.get(FormattingConstants.VALUE).getAsString();
+                if (value.equals("$reason$")) {
+                    reasonAvailable = false;
+                }
+            }
+        }
+        return reasonAvailable;
     }
 }

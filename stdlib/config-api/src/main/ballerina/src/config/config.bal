@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
 import ballerina/lang.'float as langfloat;
 import ballerina/lang.'int as langint;
+import ballerina/stringutils;
 import ballerina/system;
 
 type ValueType STRING|INT|FLOAT|BOOLEAN|MAP|ARRAY;
@@ -150,6 +150,6 @@ public function getAsMap(@untainted string key) returns map<any> {
 }
 
 function lookupEnvVar(string key) returns string {
-    string convertedKey = internal:replace(key, ".", "_");
+    string convertedKey = stringutils:replace(key, ".", "_");
     return system:getEnv(convertedKey);
 }

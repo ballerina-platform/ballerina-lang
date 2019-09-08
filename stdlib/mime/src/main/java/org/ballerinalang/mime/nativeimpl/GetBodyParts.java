@@ -32,6 +32,7 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 
 import java.util.Locale;
 
+import static org.ballerinalang.mime.nativeimpl.AbstractGetPayloadHandler.getErrorMsg;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
@@ -76,9 +77,9 @@ public class GetBodyParts {
                 return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Entity body is not a type of " +
                         "composite media type. Received content-type : " + baseType);
             }
-        } catch (Throwable e) {
+        } catch (Throwable err) {
             return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
-                    "Error occurred while extracting body parts from entity: " + e.getMessage());
+                    "Error occurred while extracting body parts from entity: " + getErrorMsg(err));
         }
     }
 }

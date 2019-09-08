@@ -5,10 +5,11 @@ SYNOPSIS
     ballerina dist list
 
 DESCRIPTION
-     Ballerina dist list List available ballerina distributions
+     Ballerina dist list List available ballerina distributions available
 
 OPTIONS
-     Ballerina dist list command takes no options.
+     --local
+        List distributions available in the local
 
 EXAMPLES
      List available Ballerina versions

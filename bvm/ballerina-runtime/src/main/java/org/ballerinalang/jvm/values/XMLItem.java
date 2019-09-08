@@ -50,9 +50,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
@@ -68,7 +71,9 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * <li>comment</li>
  * <li>processing instruction</li>
  * </ul>
- *
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p> 
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
@@ -541,7 +546,14 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            this.omNode.serializeAndConsume(outputStream);
+            if (this.omNode.getType() == OMNode.ELEMENT_NODE) {
+                // not using the xml-factory here because of the namespace serializing issues.
+                this.omNode.serializeAndConsume(outputStream);
+            } else {
+                XMLOutputFactory factory = XMLOutputFactory.newInstance();
+                XMLStreamWriter writer = factory.createXMLStreamWriter(outputStream);
+                this.omNode.serializeAndConsume(writer);
+            }
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
@@ -911,7 +923,7 @@ public final class XMLItem extends XMLValue<OMNode> {
 
         @Override
         public String stringValue() {
-            StringBuilder sb = new StringBuilder();
+            StringJoiner sj = new StringJoiner(" ");
             if (this.bXmlItem.nodeType != XMLNodeType.ELEMENT) {
                 return "{}";
             }
@@ -924,16 +936,16 @@ public final class XMLItem extends XMLValue<OMNode> {
                 if (prefix.isEmpty()) {
                     continue;
                 }
-                sb.append(namespaceOfPrefix + prefix + "=" + namespace.getNamespaceURI());
+                sj.add(namespaceOfPrefix + prefix + "=" + namespace.getNamespaceURI());
             }
 
             Iterator<OMAttribute> attrIterator = ((OMElement) this.bXmlItem.omNode).getAllAttributes();
             while (attrIterator.hasNext()) {
                 OMAttribute attr = attrIterator.next();
-                sb.append(attr.getQName().toString() + "=" + attr.getAttributeValue());
+                sj.add(attr.getQName().toString() + "=" + attr.getAttributeValue());
             }
 
-            return sb.toString();
+            return sj.toString();
         }
 
         @Override
@@ -1049,11 +1061,42 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         @Override
-        public Map<String, Object> getNativeDataMap() {
-            // TODO Auto-generated method stub
-            return super.getNativeDataMap();
+        public String remove(Object key) {
+            String attr = this.get(key);
+            this.bXmlItem.removeAttribute((String) key);
+            return attr;
         }
 
+        @Override
+        public Object frozenCopy(Map<Object, Object> refs) {
+            XMLAttributeMap copy = new XMLAttributeMap((XMLItem) bXmlItem.copy(refs));
+            if (!copy.isFrozen()) {
+                copy.freezeDirect();
+            }
+            return copy;
+        }
+
+        @Override
+        public String stringValue(Strand strand) {
+            return stringValue();
+        }
+
+        @Override
+        public synchronized void attemptFreeze(Status freezeStatus) {
+            this.bXmlItem.attemptFreeze(freezeStatus);
+        }
+
+        @Override
+        public void freezeDirect() {
+            this.bXmlItem.freezeDirect();
+        }
+
+        @Override
+        public synchronized boolean isFrozen() {
+            return this.bXmlItem.isFrozen();
+        }
+
+        // private methods
         private String getNamespaceOfPrefix() {
             OMNamespace defaultNs = ((OMElement) this.bXmlItem.omNode).getDefaultNamespace();
             String namespaceOfPrefix =

@@ -57,7 +57,7 @@ public class Read {
     public static Object read(Strand strand, ObjectValue client, long length) {
         final NonBlockingCallback callback = new NonBlockingCallback(strand);
         if (length != DEFAULT_EXPECTED_READ_LENGTH && length < 1) {
-            String msg = "Requested byte length need to be 1 or more";
+            String msg = "requested byte length need to be 1 or more";
             callback.setReturnValues(SocketUtils.createSocketError(msg));
             callback.notifySuccess();
             return null;

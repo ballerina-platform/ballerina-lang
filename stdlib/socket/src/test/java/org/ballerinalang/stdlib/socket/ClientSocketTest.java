@@ -98,7 +98,7 @@ public class ClientSocketTest {
         final BValue[] shutdownWritesResult = BRunUtil.invoke(socketClient, "shutdownWrite", args);
         BError error = (BError) shutdownWritesResult[0];
         Assert.assertEquals(((BMap) error.getDetails()).getMap().get("message").toString(),
-                "Client socket close already.");
+                "client socket close already.");
         Assert.assertEquals(mockSocketServer.getReceivedString(), firstMsg);
     }
 
@@ -118,7 +118,7 @@ public class ClientSocketTest {
         final BValue[] result = BRunUtil.invoke(socketClient, "invalidReadParam");
         BError error = (BError) result[0];
         Assert.assertEquals(((BMap) error.getDetails()).getMap().get("message").toString(),
-                "Requested byte length need to be 1 or more");
+                "requested byte length need to be 1 or more");
     }
 
     @Test(description = "Test invalid port", dependsOnMethods = "testInvalidReadParam")
@@ -126,6 +126,6 @@ public class ClientSocketTest {
         final BValue[] result = BRunUtil.invoke(socketClient, "invalidAddress");
         BError error = (BError) result[0];
         Assert.assertTrue(((BMap) error.getDetails()).getMap().get("message").toString()
-                .matches("^Unable to start the client socket: Connection refused.*"));
+                .matches("^unable to start the client socket: Connection refused.*"));
     }
 }

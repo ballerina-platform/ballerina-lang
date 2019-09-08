@@ -59,7 +59,7 @@ public class Stop {
             selectorManager.stop();
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            return SocketUtils.createSocketError("Unable to stop the socket listener: " + e.getMessage());
+            return SocketUtils.createSocketError("unable to stop the socket listener: " + e.getMessage());
         }
         return null;
     }

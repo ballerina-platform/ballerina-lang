@@ -30,7 +30,7 @@ public type ReadableByteChannel object {
     # + nBytes - Positive integer. Represents the number of bytes which should be read
     # + return - Content, the number of bytes read or `EofError` once channel reach to it end.
     #            `Error` if any error occurred.
-    public function read(@untainted int nBytes) returns @tainted [byte[], int]|Error = external;
+    public function read(@untainted int nBytes) returns @tainted byte[]|Error = external;
 
     # Encodes a given ReadableByteChannel with Base64 encoding scheme.
     #

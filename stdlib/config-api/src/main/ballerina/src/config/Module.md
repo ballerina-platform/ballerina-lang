@@ -1,25 +1,26 @@
 ## Module overview
 
-The `ballerina/config` module provides the Config API to read configurations from environment variables, TOML files, and command-line parameters, and build a consolidated set of configurations.
+This module provides the Config API to read configurations from environment variables, TOML files, and command-line parameters and build a consolidated set of configurations.
 
 The precedence order for configuration lookup is as follows: 
-1. CLI parameters (used with the -e flag)
+1. CLI arguments (used with the --)
 2. Environment variables 
 3. Configuration files in the TOML format
 
-If a configuration is defined in both a configuration file and as an environment variable, the environment variable takes precedence. Similarly, if the same is set as a CLI parameter, it replaces the value of the environment variable. This configuration resolution happens at the start of the program execution. Configurations can be set programmatically as well. 
+This configuration resolution happens at the start of the program execution. Configurations can be set programmatically as well. 
 
 The Config API provides the capability to feed sensitive data (e.g., passwords) to Ballerina programs securely by encrypting them. 
 
-
-## Samples
-
 ### Setting configurations
 
-To explicitly specify a configuration file, the `--config` or `-c` flag can be used. If this flag is not set when running a project, Ballerina looks for a `ballerina.conf` file in project root. When running a single file or a `.balx`, it's picked from the same directory as the `.balx` or source. The path to the configuration file can either be an absolute or a relative path. 
+To specify a configuration file explicitly, the `--b7a.config.file=<path to configuration file>` property can be used. If 
+this property is not set when 
+running a project, Ballerina looks for a `ballerina.conf` file in the project root. When running a single file or a
+ `.jar`, it's picked from the same directory in which the `.jar` or source resides. The path to the configuration
+  file can either be an absolute or a relative path. 
 
 ```sh
-ballerina run --config /path/to/conf/file/custom-config-file-name.conf my-program.bal
+ballerina run my-program.bal --b7a.config.file=/path/to/conf/file/custom-config-file-name.conf 
 ```
 
 A configuration file should conform to the TOML format. Ballerina only supports the following features of TOML: value types (string, int, float and boolean), tables, and nested tables. 
@@ -41,8 +42,8 @@ The following types can be given through a configuration file: `string`, `int`, 
 The same configs can be set using CLI parameters as follows.
 
 ```bash
-ballerina run -e b7a.http.tracelog.console=true -e b7a.http.tracelog.path=./trace.log
-  -e b7a.http.accesslog.console=true -e b7a.http.accesslog.path=./access.log my-program.bal
+ballerina run my-program.bal --b7a.http.tracelog.console=true --b7a.http.tracelog.path=./trace.log
+  --b7a.http.accesslog.console=true --b7a.http.accesslog.path=./access.log
 ```
 
 Configurations in a file can be overridden by environment variables. To override a particular configuration, an environment variable that matches the configuration key must be set. As periods are not allowed in environment variables, periods in a configuration key should be replaced by underscores.
@@ -57,7 +58,7 @@ $ set(x) b7a_http_tracelog_path=”./trace.log”
 $ set(x) b7a_http_accesslog_path=”./access.log”
 ```
 
-If the configurations need to be shared during runtime, they can be set using the `setConfig()` function. Such configs are also available to the entire Ballerina Virtual Machine (BVM). 
+If the configurations need to be shared during runtime, they can be set using the `setConfig()` function. 
 
 ```ballerina
 config:setConfig("john.country", "USA");

@@ -2,6 +2,6 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run panic.bal
 Record ID: 1, value: record1
-error: Record is nil {}
-	at readRecord(panic.bal:13)
-	   main(panic.bal:26)
+error: Record is nil
+        at panic:readRecord(panic.bal:13)
+           panic:main(panic.bal:27)

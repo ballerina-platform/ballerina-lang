@@ -149,7 +149,7 @@ public class PushUtils {
             String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
         
             // Push module to central
-            String urlWithModulePath = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/").toString();
+            String urlWithModulePath = RepoUtils.getRemoteRepoURL() + "/modules/";
             String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
         
             Optional<RuntimeException> exception = executor.executeMainFunction("module_push",
@@ -272,7 +272,9 @@ public class PushUtils {
                     // Throw errors in the following scenarios if they are not available in central.
                     // 1. If dependency is from a different org.
                     // 2. If dependency has same org as manifest but the dependency name is not from the project.
-                    if (!dependency.getOrgName().equals(manifest.getProject().getOrgName()) ||
+                    if (!"ballerina".equals(dependency.getOrgName()) &&
+                        !"ballerinax".equals(dependency.getOrgName()) &&
+                        !dependency.getOrgName().equals(manifest.getProject().getOrgName()) ||
                         (dependency.getOrgName().equals(manifest.getProject().getOrgName()) &&
                          !ProjectDirs.isModuleExist(sourceRootPath, dependency.getModuleName()))) {
                         if (!isDependencyAvailableInRemote(dependency)) {
@@ -312,6 +314,10 @@ public class PushUtils {
                 if (isDependencyAvailableInRemote(dep)) {
                     depsIterator.remove();
                 }
+                
+                if ("ballerina".equals(dep.getOrgName()) || "ballerinax".equals(dep.getOrgName())) {
+                    depsIterator.remove();
+                }
             }
         }
         
@@ -344,7 +350,7 @@ public class PushUtils {
     }
     
     private static boolean isDependencyAvailableInRemote(Dependency dep) throws IOException {
-        URI baseURI = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/");
+        URI baseURI = URI.create(RepoUtils.getRemoteRepoURL() + "/modules/");
         String moduleUrl = baseURI.toString() + dep.getOrgName() + "/" + dep.getModuleName();
         
         // append version to url if available

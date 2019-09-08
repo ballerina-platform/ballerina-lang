@@ -16,6 +16,7 @@
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -37,8 +38,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
+import static org.ballerinalang.net.grpc.GrpcUtil.getListenerConfig;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PORT;
-import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
 
 /**
  * Extern function for initializing gRPC server endpoint.
@@ -67,6 +68,8 @@ public class InitEndpoint extends AbstractGrpcNativeFunction {
             listenerObject.addNativeData(SERVER_CONNECTOR, httpServerConnector);
             listenerObject.addNativeData(SERVICE_REGISTRY_BUILDER, servicesRegistryBuilder);
             return null;
+        } catch (ErrorValue ex) {
+            return ex;
         } catch (Exception e) {
             LOG.error("Error while initializing service listener.", e);
             return MessageUtils.getConnectorError(e);

@@ -12,9 +12,18 @@ public class OpenApiSchemaType {
     private String reference;
     private String itemType;
     private String itemName;
+    private String unescapedItemName;
     private List<String> required;
     private List<OpenApiPropertyType> schemaProperties;
     private boolean isArray;
+
+    public String getUnescapedItemName() {
+        return unescapedItemName;
+    }
+
+    public void setUnescapedItemName(String unescapedItemName) {
+        this.unescapedItemName = unescapedItemName;
+    }
 
     public String getSchemaName() {
         return schemaName;

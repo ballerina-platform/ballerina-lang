@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
+import ballerina/stringutils;
 
 # The `StreamJoinProcessor` object is responsible for  performing SQLish joins between two or more streams.
 # The `onConditionFunc` is the lambda function which represents the where clause in the join clause. The joining
@@ -67,14 +67,14 @@ public type StreamJoinProcessor object {
             int i = 0;
             foreach var evt in streamEvents {
                 StreamEvent event = <StreamEvent> evt;
-                string[] values = internal:split(event.data.keys()[0], "\\.");
+                string[] values = stringutils:split(event.data.keys()[0], "\\.");
                 string originStream = values[0];
                 // resolve trigger according to join direction
                 boolean triggerJoin = false;
                 var s = self.unidirectionalStream;
                 if (s is string) {
                     // unidirectional
-                    if (internal:equalsIgnoreCase(s, originStream)) {
+                    if (stringutils:equalsIgnoreCase(s, originStream)) {
                         triggerJoin = true;
                     }
                 } else {
@@ -87,7 +87,7 @@ public type StreamJoinProcessor object {
                     // join events according to the triggered side
                     string? value = self.lhsStream;
                     string returnVal = value is string ? value : "";
-                    if (internal:equalsIgnoreCase(returnVal, originStream)) {
+                    if (stringutils:equalsIgnoreCase(returnVal, originStream)) {
                         // triggered from LHS
                         Window? rWindow = self.rhsWindow;
                         if (rWindow is Window) {

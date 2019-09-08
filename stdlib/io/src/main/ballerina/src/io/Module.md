@@ -17,7 +17,7 @@ io:ReadableByteChannel | io:Error readableByteChannel = io:openReadableFile("som
 
 // Here is how 100 bytes are read from the channel.
 if (readableByteChannel is io:ReadableByteChannel) {
-    [byte[], int] | io:Error result = readableByteChannel.read(100);
+    byte[] | io:Error result = readableByteChannel.read(100);
 }
 
 // Open a file in write mode.
@@ -37,7 +37,8 @@ The `CharacterChannel` is used to read and write characters. The charset encodin
 
  ```ballerina
 // Create a `ReadableCharacterChannel` from the `ReadableByteChannel`.
-io:ReadableCharacterChannel | io:Error readableCharChannel = new io:ReadableCharacterChannel(readableByteChannel, "UTF-8");
+io:ReadableCharacterChannel | io:Error readableCharChannel = 
+                        new io:ReadableCharacterChannel(readableByteChannel, "UTF-8");
 ```
 
 If a `ReadableCharacterChannel` points to a JSON or XML source, it can be read and then written, directly into a variable of
@@ -54,7 +55,8 @@ xml | io:Error result = readableCharChannel.readXml();
 
 ```ballerina
 // Create a `WritableCharacterChannel` from the `WritableByteChannel`.
-io:WritableCharacterChannel | io:Error writableCharChannel = new io:WritableCharacterChannel(writableByteChannel, "UTF-8");
+io:WritableCharacterChannel | io:Error writableCharChannel = 
+                        new io:WritableCharacterChannel(writableByteChannel, "UTF-8");
 ```
 
 ```ballerina
@@ -123,12 +125,12 @@ Ballerina supports performing data i/o operations
 Person object could be serialized into a file or a network socket in the following manner.
 
 ```ballerina
-public type Person record {
+public type Person record {|
     string name;
     int age;
     float income;
     boolean isMarried;
-};
+|};
 
 // Serialize record into binary.
 function serialize(Person p, io:WritableByteChannel byteChannel) {

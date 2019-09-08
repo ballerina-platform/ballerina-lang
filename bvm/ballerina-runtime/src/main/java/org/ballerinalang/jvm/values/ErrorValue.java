@@ -41,8 +41,13 @@ import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 
 /**
+ * <p>
  * Represent an error in ballerina.
- *
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ * 
  * @since 0.995.0
  */
 public class ErrorValue extends RuntimeException implements RefValue {
@@ -74,9 +79,8 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     @Override
     public String stringValue(Strand strand) {
-        BType type = TypeChecker.getType(details);
         return "error " + reason + Optional.ofNullable(details).map(details -> " " + StringUtils.getStringValue(strand,
-                details, type)).orElse("");
+                details)).orElse("");
     }
 
     @Override

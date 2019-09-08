@@ -75,7 +75,7 @@ public class GetJson extends AbstractGetPayloadHandler {
             }
         } catch (Exception ex) {
             return createParsingEntityBodyFailedErrorAndNotify(callback,
-                                 "Error occurred while extracting json data from entity: " + ex.getMessage());
+                                 "Error occurred while extracting json data from entity: " + getErrorMsg(ex));
         }
         return result;
     }

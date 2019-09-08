@@ -87,7 +87,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
 
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
         Optional<String> subRule = this.getSubRule(lhsTokens);
-        subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
+        subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinObjectTypeDefinition(rule, context));
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         List<CommonToken> lhsDefaultTokens = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
 
@@ -116,6 +116,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
             completionItems.add(Snippet.DEF_GRACEFUL_STOP_FUNCTION.get().build(context));
             completionItems.add(Snippet.DEF_IMMEDIATE_STOP_FUNCTION.get().build(context));
             completionItems.add(Snippet.KW_PUBLIC.get().build(context));
+            completionItems.add(Snippet.KW_PRIVATE.get().build(context));
         }
 
         return completionItems;

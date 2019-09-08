@@ -97,6 +97,7 @@ public enum DiagnosticCode {
     UNDEFINED_WORKER("undefined.worker"),
     INVALID_WORKER_JOIN_RESULT_TYPE("invalid.worker.join.result.type"),
     INVALID_WORKER_TIMEOUT_RESULT_TYPE("invalid.worker.timeout.result.type"),
+    INVALID_WORKER_REFERRENCE("invalid.worker.reference"),
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
@@ -151,6 +152,8 @@ public enum DiagnosticCode {
     SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),
     SERVICE_INVALID_OBJECT_TYPE("service.invalid.object.type"),
     SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
+    SERVICE_FUNCTION_INVALID_MODIFIER("service.function.invalid.modifier"),
+    SERVICE_FUNCTION_INVALID_INVOCATION("service.function.invalid.invocation"),
     SERVICE_SERVICE_TYPE_REQUIRED_ANONYMOUS("service.service.type.required.anonymous"),
     ENDPOINT_OBJECT_TYPE_REQUIRED("endpoint.object.type.required"),
     ENDPOINT_OBJECT_NEW_HAS_PARAM("endpoint.object.new.has.param"),
@@ -160,7 +163,6 @@ public enum DiagnosticCode {
 
     REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT("remote.function.in.non.client.object"),
     RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT("resource.function.in.non.service.object"),
-    RESOURCE_FUNCTION_WITH_VISIBILITY_QUALIFIER("resource.function.with.visibility.qualifier"),
     RESOURCE_FUNCTION_INVALID_RETURN_TYPE("resource.function.invalid.return.type"),
     REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
     INVALID_LISTENER_VARIABLE("invalid.listener.var"),
@@ -414,12 +416,13 @@ public enum DiagnosticCode {
     TAINTED_PARAM_NOT_ANNOTATED_TAINTED("tainted.param.not.annotated.tainted"),
 
     // Constants related codes.
-    ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST("only.simple.literals.can.be.assigned.to.const"),
-    TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS("type.required.for.const.with.record.literals"),
+    TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS("type.required.for.const.with.expressions"),
     CANNOT_UPDATE_CONSTANT_VALUE("cannot.update.constant.value"),
     CANNOT_ASSIGN_VALUE_TO_CONSTANT("cannot.assign.value.to.constant"),
     CANNOT_DEFINE_CONSTANT_WITH_TYPE("cannot.define.constant.with.type"),
     EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION("expression.is.not.a.constant.expression"),
+    INVALID_CONST_EXPRESSION("invalid.const.expression"),
+    CONSTANT_EXPRESSION_NOT_SUPPORTED("const.expression.not.supported"),
     KEY_NOT_FOUND("key.not.found"),
 
     // Anonymous functions related codes

@@ -820,7 +820,8 @@ public class CommonUtil {
         StringBuilder constraintName = new StringBuilder(getShallowBTypeName(bType, context));
         constraintName.append("<");
 
-        if (constraint.tsymbol.kind == SymbolKind.RECORD && constraint.tsymbol.name.value.contains("$anonType")) {
+        if (constraint.tsymbol != null && constraint.tsymbol.kind == SymbolKind.RECORD
+                && constraint.tsymbol.name.value.contains("$anonType")) {
             constraintName.append("record {}");
         } else {
             constraintName.append(getBTypeName(constraint, context, doSimplify));

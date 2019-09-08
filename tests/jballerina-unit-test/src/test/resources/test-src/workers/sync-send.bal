@@ -11,7 +11,7 @@ function process() returns string {
    worker w1 {
      int a = 10;
      a -> w2;
-     () result = a ->> w2;
+     a ->> w2;
      a -> w2;
      foreach var i in 1 ... 5 {
                            append = append + "w1";

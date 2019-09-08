@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.array;
 
 function testLength() returns int {
     int[] arr = [10, 20, 30, 40];
@@ -62,9 +63,12 @@ function testForeach() returns string {
     return result;
 }
 
-function testSlice() returns float[] {
+function testSlice() returns [float[], float[], float[]] {
     float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
-    return arr.slice(1, 4);
+    float[] r1 = arr.slice(1, 4);
+    float[] r2 = arr.slice(2);
+    float[] r3 = array:slice(arr, 3);
+    return [r1, r2, r3];
 }
 
 function testRemove() returns [string, string[]] {
@@ -290,4 +294,21 @@ function testTupleSetLengthToSameAsOriginal() returns boolean {
     [int, int] t = [1, 2];
     t.setLength(2);
     return t.length() == 2;
+}
+
+function testSort2() returns int[] {
+    int[] arr = [618917, 342612, 134235, 330412, 361634, 106132, 664844, 572601, 898935, 752462, 422849, 967630,
+    261402, 947587, 818112, 225958, 625762, 979376, -374104, 194169, 306130, 930271, 579739, 4141, 391419, 529224,
+    92583, 709992, 481213, 851703, 152557, 995605, 88360, 595013, 526619, 497868, -246544, 17351, 601903, 634524,
+    959892, 569029, 924409, 735469, -561796, 548484, 741307, 451201, 309875, 229568, 808232, 420862, 729149, 958388,
+    228636, 834740, -147418, 756897, 872064, 670287, 487870, 984526, 352034, 868342, 705354, 21468, 101992, 716704,
+    842303, 463375, 796488, -45917, 74477, 111826, 205038, 267499, 381564, 311396, 627858, 898090, 66917, 119980,
+    601003, 962077, 757150, 636247, 965398, 993533, 780387, 797889, 384359, -80982, 817361, 117263, 819125, 162680,
+    374341, 297625, 89008, 564847];
+
+    int[] sorted = arr.sort(function (int x, int y) returns int {
+        return x - y;
+    });
+
+    return sorted;
 }

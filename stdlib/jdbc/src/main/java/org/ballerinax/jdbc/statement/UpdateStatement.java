@@ -64,14 +64,12 @@ public class UpdateStatement extends AbstractSQLStatement {
 
     @Override
     public Object execute() {
-        //TODO: JBalMigration Commenting out transaction handling
-        //TODO: #16033
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         checkAndObserveSQLAction(strand, datasource, query);
         boolean isInTransaction = strand.isInTransaction();
-        String errorMessagePrefix = "Failed to execute update query: ";
+        String errorMessagePrefix = "failed to execute update query: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource);

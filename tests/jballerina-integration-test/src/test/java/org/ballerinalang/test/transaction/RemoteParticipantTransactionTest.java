@@ -25,7 +25,6 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -81,7 +80,6 @@ public class RemoteParticipantTransactionTest extends BaseTest {
     }
 
     @Test
-    @Ignore
     public void remoteParticipantTransactionSuccessTest() throws IOException {
         String url = serverInstance.getServiceURLHttp(initiatorServicePort,
                 "remoteParticipantTransactionSuccessTest");
@@ -126,7 +124,6 @@ public class RemoteParticipantTransactionTest extends BaseTest {
                 "onretry-block in-trx-block in-remote <payload-from-remote> in-trx-lastline " +
                 "in-baz[oncommittedFunc] committed-block after-trx";
         assertEquals(response.getData(), target, "payload mismatched");
-
     }
 
     @Test
@@ -146,10 +143,9 @@ public class RemoteParticipantTransactionTest extends BaseTest {
                 "remoteParticipantStartNestedTransaction");
         HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        String target = " in initiator-trx remote1-excepted:[{ballerina}TransactionError:dynamically nested " +
-                "transactions are not allowed] onretry in initiator-trx " +
-                "remote1-excepted:[{ballerina}TransactionError:dynamically nested transactions are not allowed] " +
-                "onretry in initiator-trx remote1-excepted:[{ballerina}TransactionError:dynamically nested " +
+        String target = " in initiator-trx remote1-excepted:[dynamically nested " +
+                "transactions are not allowed] onretry in initiator-trx remote1-excepted:[dynamically nested " +
+                "transactions are not allowed] onretry in initiator-trx remote1-excepted:[dynamically nested " +
                 "transactions are not allowed] aborted";
         assertEquals(response.getData(), target, "payload mismatched");
     }

@@ -143,7 +143,7 @@ public class FunctionGenerator {
                     list.add(generateTypeDefinition(importsAcceptor, currentPkgId, bLangExpression.type));
                 }
             }
-            return "(" + String.join(", ", list) + ")";
+            return "[" + String.join(", ", list) + "]";
         } else if (bLangNode instanceof BLangAssignment) {
             if (((BLangAssignment) bLangNode).declaredWithVar) {
                 return "any";
@@ -214,14 +214,14 @@ public class FunctionGenerator {
             if (addErrorTypeAtEnd) {
                 list.add("error");
             }
-            return "(" + String.join("|", list) + ")";
+            return String.join("|", list);
         } else if (bType instanceof BTupleType) {
             // Check for tuple type assignment eg. int, string
             List<String> list = new ArrayList<>();
             for (BType memberType : ((BTupleType) bType).tupleTypes) {
                 list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
             }
-            return "(" + String.join(", ", list) + ")";
+            return "[" + String.join(", ", list) + "]";
         } else if (bType instanceof BNilType) {
             return "()";
         } else if (bType instanceof BIntermediateCollectionType) {
@@ -246,7 +246,7 @@ public class FunctionGenerator {
             for (BType memberType : tupleTypes) {
                 list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
             }
-            return "(" + String.join(", ", list) + ")[]";
+            return "[" + String.join(", ", list) + "][]";
         } else if (bType instanceof BTableType) {
             return "table<record {}>";
         }
@@ -480,6 +480,9 @@ public class FunctionGenerator {
                 break;
             case "byte":
                 result = "0";
+                break;
+            case "table":
+                result = "table{}";
                 break;
             default:
                 result = "()";

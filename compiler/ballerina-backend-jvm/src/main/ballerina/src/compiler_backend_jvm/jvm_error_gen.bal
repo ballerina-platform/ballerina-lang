@@ -124,8 +124,20 @@ type DiagnosticLogger object {
                 pkgIdStr = orgName + ":" + moduleName;
             }
 
-            string positionStr = io:sprintf("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
-            string errorStr = io:sprintf("error: %s: %s %s", positionStr, log.err.reason(), log.err.detail());
+            string positionStr;
+            if (fileName == ".") {
+                positionStr = io:sprintf("%s:%s:%s", pkgIdStr, log.pos.sLine, log.pos.sCol);
+            } else {
+                positionStr = io:sprintf("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
+            }
+
+            string errorStr;
+            string detail = log.err.detail().toString();
+            if (detail == "") {
+                errorStr = io:sprintf("error: %s: %s", positionStr, log.err.reason());
+            } else {
+                errorStr = io:sprintf("error: %s: %s %s", positionStr, log.err.reason(), detail);
+            }
             print(errorStr);
         }
     }
