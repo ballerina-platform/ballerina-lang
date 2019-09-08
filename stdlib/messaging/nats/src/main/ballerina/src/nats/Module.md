@@ -8,6 +8,8 @@ the following functionalities.
 - Pub/Sub (Topics)
 - Request/Reply
 
+**Note:** The NATS module is not designed to use the Ballerina non-blocking thread model. Hence, the default thread pool size used in Ballerina (i.e., number of processers available * 2) may not deliver the optimal performance. Therefore, you can configure the thread pool size using the `BALLERINA_MAX_POOL_SIZE` environment variable as required.
+
 ## Basic Usage
 
 ### Setting up the connection
