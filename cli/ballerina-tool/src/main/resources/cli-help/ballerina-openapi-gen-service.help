@@ -29,7 +29,7 @@ OPTIONS
 
        <openapi-contract>
            The contract file location of the OpenAPI contract, which
-           is used to create the ballerina service.
+           is used to create the Ballerina service.
 
        -o, --output <dir-path>
            Output directory in which service should be generated. If this options
