@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.PrintStream;
-import java.net.URI;
 import java.util.Optional;
 
 /**
