@@ -317,7 +317,7 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
 # + registerAtURL - The URL of the coordinator.
 # + participantProtocols - The coordination protocals supported by the participant.
 # + return - TransactionContext if the registration is successful or an error in case of a failure.
-public function registerParticipantWithRemoteInitiator(string transactionId, string transactionBlockId,
+function registerParticipantWithRemoteInitiator(string transactionId, string transactionBlockId,
                                                        string registerAtURL, RemoteProtocol[] participantProtocols)
     returns TransactionContext|error {
 
