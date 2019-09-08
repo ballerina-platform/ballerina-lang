@@ -21,7 +21,7 @@
 import {
     workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext, IndentAction, WebviewPanel,
+    Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel,
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
@@ -290,8 +290,12 @@ export class BallerinaExtension {
                     reject(version);
                     return;
                 }
-                
-                resolve(version.split('\n')[0].replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
+                try {
+                    const parsedVersion = version.split('\n')[0].replace(/Ballerina /, '').replace(/[\n\t\r]/g, '');
+                    resolve(parsedVersion);
+                } catch (error) {   
+                    reject(error); 
+                }
             });
         });
     }
@@ -299,25 +303,37 @@ export class BallerinaExtension {
     showMessageInstallBallerina(): any {
         const download: string = 'Download';
         const openSettings: string = 'Open Settings';
-        window.showWarningMessage(INSTALL_BALLERINA, download, openSettings).then((selection) => {
+        const viewLogs: string = 'View Logs';
+        window.showWarningMessage(INSTALL_BALLERINA, download, openSettings, viewLogs).then((selection) => {
             if (openSettings === selection) {
                 commands.executeCommand('workbench.action.openGlobalSettings');
-            }
-            if (download === selection) {
+            } else if (download === selection) {
                 commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
+            } else if (viewLogs === selection) {
+                const balOutput = ballerinaExtInstance.getOutPutChannel();
+                if (balOutput) {
+                    balOutput.show();
+                }
             }
+
         });
     }
 
     showMessageInstallLatestBallerina(): any {
         const download: string = 'Download';
         const openSettings: string = 'Open Settings';
-        window.showWarningMessage(ballerinaExtInstance.getVersion() + INSTALL_NEW_BALLERINA, download, openSettings).then((selection) => {
+        const viewLogs: string = 'View Logs';
+        window.showWarningMessage(ballerinaExtInstance.getVersion() + INSTALL_NEW_BALLERINA, download, openSettings, viewLogs).then((selection) => {
             if (openSettings === selection) {
                 commands.executeCommand('workbench.action.openGlobalSettings');
             }
             if (download === selection) {
                 commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
+            } else if (viewLogs === selection) {
+                const balOutput = ballerinaExtInstance.getOutPutChannel();
+                if (balOutput) {
+                    balOutput.show();
+                }
             }
         });
     }
@@ -415,10 +431,13 @@ export class BallerinaExtension {
             }
         } catch ({ message }) {
             // ballerina is installed, but ballerina home command is not found
-            isOldBallerinaDist = message.includes("ballerina: unknown command ''home''");
+            isOldBallerinaDist = message.includes("ballerina: unknown command 'home'");
             // ballerina is not installed
             isBallerinaNotFound = message.includes('command not found')
+                || message.includes('unknown command')
                 || message.includes('is not recognized as an internal or external command');
+            log("Error executing `ballerina home`. " + "\n<---- cmd output ---->\n" 
+                + message + "<---- cmd output ---->\n");
         }
        
         return {
@@ -460,6 +479,10 @@ export class BallerinaExtension {
 
     public getVersion(): string {
         return this.extension.packageJSON.version;
+    }
+
+    public getOutPutChannel(): OutputChannel | undefined {
+        return getOutputChannel();
     }
 }
 

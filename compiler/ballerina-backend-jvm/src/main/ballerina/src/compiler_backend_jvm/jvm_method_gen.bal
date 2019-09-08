@@ -110,7 +110,6 @@ function genJMethodForBFunc(bir:Function func,
     // panic if this strand is cancelled
     checkStrandCancelled(mv, localVarOffset);
 
-    bir:FunctionParam?[] functionParams = [];
     bir:VariableDcl?[] localVars = func.localVars;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
@@ -118,9 +117,6 @@ function genJMethodForBFunc(bir:Function func,
         if (localVar.kind != "ARG") {
             bir:BType bType = localVar.typeValue;
             genDefaultValue(mv, bType, index);
-        }
-        if (localVar is bir:FunctionParam) {
-            functionParams[functionParams.length()] =  localVar;
         }
         k += 1;
     }
@@ -170,29 +166,6 @@ function genJMethodForBFunc(bir:Function func,
     }
 
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, module);
-
-    int paramCounter = 0;
-    int paramBBCounter = 0;
-    while (paramCounter < functionParams.length()) {
-        var funcParam = functionParams[paramCounter];
-        if (funcParam is bir:FunctionParam && funcParam.hasDefaultExpr) {
-
-            // Load boolean in the next parameter of the related parameter
-            var isExistParam = getFunctionParam(functionParams[paramCounter + 1]);
-            mv.visitVarInsn(ILOAD, indexMap.getIndex(isExistParam));
-
-            // Gen the if not equal logic
-            jvm:Label paramNextLabel = labelGen.getLabel(funcParam.name.value + "next");
-            mv.visitJumpInsn(IFNE, paramNextLabel);
-
-            bir:BasicBlock?[] bbArray = func.paramDefaultBBs[paramBBCounter];
-            generateBasicBlocks(mv, bbArray, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                                stateVarIndex, localVarOffset, true, module, currentPackageName, attachedType);
-            mv.visitLabel(paramNextLabel);
-            paramBBCounter += 1;
-        }
-        paramCounter += 2;
-    }
 
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
@@ -316,7 +289,7 @@ function genJMethodForBFunc(bir:Function func,
     // Create Local Variable Table
     k = localVarOffset;
     // Add strand variable to LVT
-    mv.visitLocalVariable("__strand", io:sprintf("L%s;", STRAND), methodStartLabel, methodEndLabel, 0);
+    mv.visitLocalVariable("__strand", io:sprintf("L%s;", STRAND), methodStartLabel, methodEndLabel, localVarOffset);
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         jvm:Label startLabel = methodStartLabel;
@@ -1970,10 +1943,8 @@ type BalToJVMIndexMap object {
 };
 
 function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
-    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
-
     foreach var func in pkg.functions {
-        generateFrameClassForFunction(pkgName, func, pkgEntries);
+        generateFrameClassForFunction(pkg, func, pkgEntries);
     }
 
     foreach var typeDef in pkg.typeDefs {
@@ -1988,17 +1959,21 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
                 attachedType = typeDef?.typeValue;
             }
             foreach var func in attachedFuncs {
-                generateFrameClassForFunction(pkgName, func, pkgEntries, attachedType=attachedType);
+                generateFrameClassForFunction(pkg, func, pkgEntries, attachedType=attachedType);
             }
         }
     }
 }
 
-function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries,
+function generateFrameClassForFunction (bir:Package pkg, bir:Function? func, map<byte[]> pkgEntries,
                                         bir:BType? attachedType = ()) {
+    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     bir:Function currentFunc = getFunction(<@untainted> func);
     if (isExternFunc(currentFunc)) {
-        return;
+        var extFuncWrapper = getExternalFunctionWrapper(pkg, currentFunc, attachedType = attachedType);
+        if (!(extFuncWrapper is OldStyleExternalFunctionWrapper)) {
+            return;
+        }
     }
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);

@@ -124,6 +124,8 @@ public class StatementContextProvider extends LSCompletionProvider {
         completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(context));
         // Add the var keyword
         completionItems.add(Snippet.KW_VAR.get().build(context));
+        // Add the function keyword
+        completionItems.add(Snippet.KW_FUNCTION.get().build(context));
         // Add the error snippet
         completionItems.add(Snippet.DEF_ERROR.get().build(context));
         // Add the checkpanic keyword

@@ -50,7 +50,7 @@ public function getCodePoint(string str, int index) returns int = external;
 # + startIndex - the starting index, inclusive
 # + endIndex - the ending index, exclusive
 # + return - substring consisting of characters with index >= startIndex and < endIndex
-public function substring(string str, int startIndex, int endIndex) returns string = external; // TODO: #17395
+public function substring(string str, int startIndex, int endIndex = str.length()) returns string = external;
 
 # Lexicographically compares strings using their Unicode code points.
 # This orders strings in a consistent and well-defined way,

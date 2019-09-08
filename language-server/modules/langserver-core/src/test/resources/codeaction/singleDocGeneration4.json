@@ -10,18 +10,8 @@
     }
   },
   "expected": {
-    "size": 3,
+    "size": 2,
     "actions": {
-      "createConstructor": {
-        "title":"Create Initializer",
-        "command":"CREATE_INITIALIZER",
-        "arguments":[
-          {
-            "argumentK":"node.line",
-            "argumentV":"23"
-          }
-        ]
-      },
       "documentThis": {
         "title": "Document This",
         "command": "ADD_DOC",

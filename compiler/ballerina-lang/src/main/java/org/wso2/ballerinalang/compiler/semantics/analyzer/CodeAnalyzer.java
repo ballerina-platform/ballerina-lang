@@ -552,6 +552,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangMatchStaticBindingPatternClause patternClause) {
+        analyzeNode(patternClause.matchExpr, env);
+        analyzeNode(patternClause.body, env);
+        resetStatementReturns();
+    }
+
+    @Override
+    public void visit(BLangMatchStructuredBindingPatternClause patternClause) {
+        analyzeNode(patternClause.matchExpr, env);
+        analyzeNode(patternClause.body, env);
+        resetStatementReturns();
+    }
+
     private void analyzeMatchedPatterns(BLangMatch matchStmt, boolean staticLastPattern,
                                         boolean structuredLastPattern) {
         if (staticLastPattern && structuredLastPattern) {
@@ -580,6 +594,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean analyzeStructuredMatchPatterns(BLangMatch matchStmt) {
         if (matchStmt.exprTypes.isEmpty()) {
             return false;
+        }
+
+        for (BLangMatchStructuredBindingPatternClause patternClause : matchStmt.getStructuredPatternClauses()) {
+            analyzeNode(patternClause, env);
         }
 
         return analyseStructuredBindingPatterns(matchStmt.getStructuredPatternClauses(),
@@ -646,6 +664,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         List<BLangMatchStaticBindingPatternClause> matchedPatterns = new ArrayList<>();
         for (BLangMatchStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
+            analyzeNode(pattern, env);
+
             List<BType> matchedExpTypes = matchStmt.exprTypes
                     .stream()
                     .filter(exprType -> isValidStaticMatchPattern(exprType, pattern.literal))
