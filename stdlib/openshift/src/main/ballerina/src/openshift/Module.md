@@ -3,7 +3,7 @@ This module offers an annotation based OpenShift extension implementation for ba
 
 ### Annotation Usage Sample:
 
-```
+```ballerina
 import ballerina/http;
 import ballerina/log;
 import ballerina/kubernetes;
