@@ -23,8 +23,9 @@ DESCRIPTION
 
 OPTIONS
        [<module-name>:]<service-name>
-           The service name to use when generating the contract.
-           This option will require a valid Ballerina file with an optional module name.
+           The service name to use when generating the client.
+           This option will require either a valid Ballerina file
+           or a valid Ballerina module.
 
        -i, --ballerina-file  <ballerina-file>
            [Optional if a module is provided] If provided,
