@@ -2,18 +2,13 @@
 
 This module provides functions to interact with the runtime, the invocation context and to manage errors.
 
+## Samples
+
 ### Invocation Context
 
 The Invocation Context is a data holder that is created per request and preserved for a single request-response flow
 . It comprises of a unique ID, a `Principal` instance that includes user details, attribute map to hold context
  information and an `AuthenticationContext` instance that has the authentication related details if available.
-
-Additionally, there are some utility methods to
-* Retrieve the current call stack and the particular call stack frame for an error.
-* Halt a `worker` (sleep) for a given period of time.
-* Look up properties from the runtime context.
-
-### Samples
 
 The following sample shows how to access the Invocation Context, set data to it and access the same.
 ```ballerina
@@ -76,6 +71,27 @@ public function main() {
     }
 }
 ```
+
+The following sample shows how to halt the current `worker` for a given time period.
+```ballerina
+import ballerina/runtime;
+
+// Sleep the current worker for 5 seconds.
+runtime:sleep(5000);
+```
+
+The following sample shows how to access properties from the runtime. 
+```ballerina
+import ballerina/runtime;
+
+// Retrieve the property ‘ballerina version’ from the runtime.
+runtime:getProperty("ballerina.version");
+```
+
+### CallStack Element
+
+The runtime module includes a utility method to retrieve the current call stack and the particular call stack frame for
+ an error. 
 
 The following sample shows how to access the call stack and how to trap an error.
 

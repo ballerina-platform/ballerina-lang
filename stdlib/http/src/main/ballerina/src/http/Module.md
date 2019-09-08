@@ -16,6 +16,18 @@ The Ballerina circuit breaker supports tripping on HTTP error status codes and I
 
 `Client` endpoints support Certificate Revocation List (CRL), Online Certificate Status Protocol (OCSP), and OCSP Stapling for SSL/TLS connections. They also support HTTP2, keep-alive, chunking, HTTP caching, data compression/decompression, and authentication/authorization.
 
+A `Client` endpoint can be defined using the URL of the remote service that the client needs to connect with, as shown below:
+
+``` ballerina
+http:Client clientEndpoint = new("https://my-simple-backend.com");
+```
+The defined `Client` endpoint can be used to call a remote service as follows:
+
+``` ballerina
+// Send a GET request to the specified endpoint.
+var response = clientEndpoint->get("/get?id=123");
+```
+
 For more information, see [Client Endpoint Example](https://ballerina.io/learn/by-example/http-client-endpoint.html), [Circuit Breaker Example](https://ballerina.io/learn/by-example/http-circuit-breaker.html), [HTTP Redirects Example](https://ballerina.io/learn/by-example/http-redirects.html).
 
 ### Listener endpoints
@@ -23,6 +35,40 @@ For more information, see [Client Endpoint Example](https://ballerina.io/learn/b
 A `Service` represents a collection of network-accessible entry points and can be exposed via a `Listener` endpoint. A resource represents one such entry point and can have its own path, HTTP methods, body format, 'consumes' and 'produces' content types, CORS headers, etc. In resources, `http:caller` and `http:Request` are mandatory parameters while `path` and `body` are optional.
 
 When a `Service` receives a request, it is dispatched to the best-matched resource.
+
+A `Listener` endpoint can be defined as follows:
+
+```ballerina
+// Attributes associated with the `Listener` endpoint are defined here.
+listener http:Listener helloWorldEP = new(9090);
+```
+
+Then a `Service` can be defined and attached to the above `Listener` endpoint as shown below:
+
+```ballerina
+// By default, Ballerina assumes that the service is to be exposed via HTTP/1.1.
+@http:ServiceConfig { basePath: "/helloWorld" }
+service helloWorld on helloWorldEP {
+
+   // All resource functions are invoked with arguments of server connector and request.
+   @http:ResourceConfig {
+       methods: ["POST"],
+       path: "/{name}",
+       body: "message"
+   }
+   resource function sayHello(http:Caller caller, http:Request req, string name, string message) {
+       http:Response res = new;
+       // A util method that can be used to set string payload.
+       res.setPayload("Hello, World! I’m " + <@untainted> name + ". " + <@untainted> message);
+       // Sends the response back to the client.
+       var result = caller->respond(res);
+       if (result is http:ListenerError) {
+            error err = result;
+            log:printError("Error sending response", err = err);
+       }
+   }
+}
+```
 
 See [Listener Endpoint Example](https://ballerina.io/learn/by-example/http-data-binding.html), [HTTP CORS Example](https://ballerina.io/learn/by-example/http-cors.html), [HTTP Failover Example](https://ballerina.io/learn/by-example/http-failover.html), [HTTP Load Balancer Example](https://ballerina.io/learn/by-example/http-load-balancer.html)
 
@@ -83,51 +129,3 @@ This module supports two types of logs:
 To publish logs to a socket, both the host and port configurations must be provided.
 
 See [HTTP Access Logs Example](https://ballerina.io/learn/by-example/http-access-logs.html), [HTTP Trace Logs Example](https://ballerina.io/learn/by-example/http-trace-logs.html)
-
-## Samples
-
-A `Client` endpoint can be defined using the URL of the remote service that the client needs to connect with, as shown below:
-
-``` ballerina
-http:Client clientEndpoint = new("https://my-simple-backend.com");
-```
-The defined `Client` endpoint can be used to call a remote service as follows:
-
-``` ballerina
-// Send a GET request to the specified endpoint.
-var response = clientEndpoint->get("/get?id=123");
-```
-
-A `Listener` endpoint can be defined as follows:
-
-```ballerina
-// Attributes associated with the `Listener` endpoint are defined here.
-listener http:Listener helloWorldEP = new(9090);
-```
-
-Then a `Service` can be defined and attached to the above `Listener` endpoint as shown below:
-
-```ballerina
-// By default, Ballerina assumes that the service is to be exposed via HTTP/1.1.
-@http:ServiceConfig { basePath: "/helloWorld" }
-service helloWorld on helloWorldEP {
-
-   // All resource functions are invoked with arguments of server connector and request.
-   @http:ResourceConfig {
-       methods: ["POST"],
-       path: "/{name}",
-       body: "message"
-   }
-   resource function sayHello(http:Caller caller, http:Request req, string name, string message) {
-       http:Response res = new;
-       // A util method that can be used to set string payload.
-       res.setPayload("Hello, World! I’m " + <@untainted> name + ". " + <@untainted> message);
-       // Sends the response back to the client.
-       var result = caller->respond(res);
-       if (result is http:ListenerError) {
-            error err = result;
-            log:printError("Error sending response", err = err);
-       }
-   }
-}
-```

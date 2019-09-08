@@ -11,9 +11,6 @@ This configuration resolution happens at the start of the program execution. Con
 
 The Config API provides the capability to feed sensitive data (e.g., passwords) to Ballerina programs securely by encrypting them. 
 
-
-## Samples
-
 ### Setting configurations
 
 To specify a configuration file explicitly, the `--b7a.config.file=<path to configuration file>` property can be used. If 

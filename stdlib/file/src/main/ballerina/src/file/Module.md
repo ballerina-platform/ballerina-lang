@@ -3,7 +3,7 @@
 This module contains functions to perform file system based operations such as create, delete, rename the
 file/directory and retrieve metadata of the file.
 
-## Samples
+## Sample
 
 The sample given below uses the functions in the module to get the system-level information.
 

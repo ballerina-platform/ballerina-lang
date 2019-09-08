@@ -32,8 +32,6 @@ The client sends multiple requests while the server sends a single response to t
 #### Bidirectional Streaming
 The client and server send multiple requests and responses.
 
-## Samples
-
 ### Ballerina code generator tool
 
 Using below command to generate stub and sample code.

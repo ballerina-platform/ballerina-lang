@@ -2,8 +2,6 @@
 
 This module provides utility methods for obtaining reflective information about the Ballerina runtime.
 
-## Samples
-
 ### Get service annotations
 
 The sample below shows how to retrieve all the annotations of a service:

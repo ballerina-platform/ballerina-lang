@@ -2,9 +2,7 @@
 
 This module provides Ballerina transaction manager implementation.
 
-## Samples
-
-The sample given below uses the functions in the module to get the transaction information.
+The code snippet given below uses the functions in the module to get the transaction information.
 
 ```ballerina
 

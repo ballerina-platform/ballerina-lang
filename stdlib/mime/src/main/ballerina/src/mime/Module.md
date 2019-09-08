@@ -89,7 +89,7 @@ The sample request that is sent to the above service is shown below.
 curl -v -F "request={\"param1\": \"value1\"};type=application/json" -F "language=ballerina;type=text/plain" -F "upload=@/home/path-to-file/encode.txt;type=application/octet-stream"  http://localhost:9090/test/multipleparts -H "Expect:"
 ```
 ### Create a multipart request
-The sample given below creates a multipart request. It includes two body parts with `application/json` and `application/xml` content type.
+Following code snippet creates a multipart request. It includes two body parts with `application/json` and `application/xml` content type.
 
 ``` ballerina
 // Create a JSON body part.

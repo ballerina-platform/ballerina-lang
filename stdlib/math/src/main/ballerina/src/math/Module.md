@@ -12,33 +12,33 @@ import ballerina/math;
 public function main(string... args) {
 
    // Get the value of Pi from the ‘ballerina/math module’.
-   io:println("Value of Pi : " + math:PI.toString());
+   io:println("Value of Pi : ", math:PI.toString());
 
    // Get the value of E from the ‘ballerina/math module’.
-   io:println("Value of E  : " + math:E.toString());
+   io:println("Value of E  : ", math:E.toString());
 
    // Get the absolute value of the given floating point number. 
    float absoluteFloatValue = math:absFloat(-152.2544);
-   io:println("Absolute value of -152.2544 : " + absoluteFloatValue.toString());
+   io:println("Absolute value of -152.2544 : ", absoluteFloatValue.toString());
 
    // Get the absolute value of an integer.
    int absoluteIntValue = math:absInt(-152);
-   io:println("Absolute value of -152      : " + absoluteIntValue.toString());
+   io:println("Absolute value of -152 : ", absoluteIntValue.toString());
 
    // Get the Arc cosine of a given value.
    float acosValue = math:acos(0.027415567780803774);
-   io:println("Arc cosine of 0.027415567780803774  : " + acosValue.toString());
+   io:println("Arc cosine of 0.027415567780803774 : ", acosValue.toString());
 
    // Get the Arc Sine value of a given value.
    float arcSineValue = math:asin(0.027415567780803774);
-   io:println("Arc sine of 0.027415567780803774    : " + arcSineValue.toString());
+   io:println("Arc sine of 0.027415567780803774 : ", arcSineValue.toString());
 
    // Get the Arc Tangent value of a given value.
    float arcTangent = math:atan(0.027415567780803774);
-   io:println("Arc tangent of 0.027415567780803774 : " + arcTangent.toString());
+   io:println("Arc tangent of 0.027415567780803774 : ", arcTangent.toString());
 
    // Calculate the cubic root of a given value.
    float cubeRoot = math:cbrt(-27);
-   io:println("Cube root of -27   : " + cubeRoot.toString());
+   io:println("Cube root of -27 : ", cubeRoot.toString());
 }
 ```

@@ -38,8 +38,9 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider = new({
     }
 });
 ```
+## Samples
 
-#### Sample for issuing a JWT
+#### Issuing a JWT
 
 ```ballerina
 import ballerina/crypto;
@@ -70,7 +71,7 @@ public function main() {
 }
 ```
 
-#### Sample for validating a JWT
+#### Validating a JWT
 
 ```ballerina
 import ballerina/crypto;

@@ -2,7 +2,7 @@
 
 This module provides functions to retrieve information about the system and the current users of the system.
 
-## Samples
+## Sample
 
 The sample given below uses the functions in the module to get the system-level information.
 
