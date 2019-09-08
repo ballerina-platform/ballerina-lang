@@ -17,7 +17,7 @@ Accept: */*
 GET /hello HTTP/1.1
 Accept: */*
 host: localhost:8080
-user-agent: ballerina/1.0.0-rc1-SNAPSHOT
+user-agent: ballerina/1.0.0
 connection: keep-alive
 
 # The backend service responds with a `200 OK` and it contains `etag` and `cache-control` headers. This response can be cached and as such, the caching client caches it. As seen from the `max-age` directive of the 'cache-control` header, this response is valid for 15 seconds.
@@ -28,7 +28,7 @@ last-modified: Sun, 8 Sep 2019 12:35:46 +0530
 content-type: application/json
 cache-control: must-revalidate,public,max-age=15
 content-length: 27
-server: ballerina/1.0.0-rc1-SNAPSHOT
+server: ballerina/1.0.0
 date: Sun, 8 Sep 2019 12:35:46 +0530
 [2019-09-08 12:35:46,808] TRACE {http.tracelog.upstream} - [id: 0x91bab3cd, correlatedSource: 0x75aee346, host:/127.0.0.1:46172 - remote:localhost/127.0.0.1:8080] INBOUND: DefaultLastHttpContent(data: PooledSlicedByteBuf(ridx: 0, widx: 27, cap: 27/27, unwrapped: PooledUnsafeDirectByteBuf(ridx: 287, widx: 287, cap: 1024)), decoderResult: success), 27B
 {"message":"Hello, World!"}
@@ -41,7 +41,7 @@ last-modified: Sun, 8 Sep 2019 12:35:46 +0530
 content-type: application/json
 cache-control: must-revalidate,public,max-age=15
 date: Sun, 8 Sep 2019 12:35:46 +0530
-server: ballerina/1.0.0-rc1-SNAPSHOT
+server: ballerina/1.0.0
 content-length: 27, 27B
 {"message":"Hello, World!"}
 
@@ -61,7 +61,7 @@ content-type: application/json
 cache-control: must-revalidate,public,max-age=15
 date: Sun, 8 Sep 2019 12:35:46 +0530
 age: 14
-server: ballerina/1.0.0-rc1-SNAPSHOT
+server: ballerina/1.0.0
 content-length: 27, 27B
 {"message":"Hello, World!"}
 
@@ -78,7 +78,7 @@ GET /hello HTTP/1.1
 if-none-match: c854ce2c
 if-modified-since: Sun, 8 Sep 2019 12:35:46 +0530
 host: localhost:8080
-user-agent: ballerina/1.0.0-rc1-SNAPSHOT
+user-agent: ballerina/1.0.0
 connection: keep-alive
 content-length: 0
 
@@ -89,7 +89,7 @@ etag: c854ce2c
 last-modified: Sun, 8 Sep 2019 12:36:11 +0530
 cache-control: must-revalidate,public,max-age=15
 content-length: 0
-server: ballerina/1.0.0-rc1-SNAPSHOT
+server: ballerina/1.0.0
 date: Sun, 8 Sep 2019 12:36:11 +0530
 
 # The cached response is served yet again since the response has not changed.
@@ -101,7 +101,7 @@ date: Sun, 8 Sep 2019 12:36:11 +0530
 etag: c854ce2c
 last-modified: Sun, 8 Sep 2019 12:36:11 +0530
 age: 0
-server: ballerina/1.0.0-rc1-SNAPSHOT
+server: ballerina/1.0.0
 content-length: 27, 27B
 {"message":"Hello, World!"}
 
@@ -114,7 +114,7 @@ ballerina: started HTTP/WS listener 0.0.0.0:8080
 GET /hello HTTP/1.1
 Accept: */*
 host: localhost:8080
-user-agent: ballerina/1.0.0-rc1-SNAPSHOT
+user-agent: ballerina/1.0.0
 connection: keep-alive
 
 # The service responds with a `200 OK` with the relevant caching headers set.
@@ -125,7 +125,7 @@ last-modified: Sun, 8 Sep 2019 12:35:46 +0530
 content-type: application/json
 cache-control: must-revalidate,public,max-age=15
 content-length: 27
-server: ballerina/1.0.0-rc1-SNAPSHOT
+server: ballerina/1.0.0
 date: Sun, 8 Sep 2019 12:35:46 +0530, 27B
 {"message":"Hello, World!"}
 
@@ -135,7 +135,7 @@ GET /hello HTTP/1.1
 if-none-match: c854ce2c
 if-modified-since: Sun, 8 Sep 2019 12:35:46 +0530
 host: localhost:8080
-user-agent: ballerina/1.0.0-rc1-SNAPSHOT
+user-agent: ballerina/1.0.0
 connection: keep-alive
 content-length: 0
 
@@ -146,5 +146,5 @@ etag: c854ce2c
 last-modified: Sun, 8 Sep 2019 12:36:11 +0530
 cache-control: must-revalidate,public,max-age=15
 content-length: 0
-server: ballerina/1.0.0-rc1-SNAPSHOT
+server: ballerina/1.0.0
 date: Sun, 8 Sep 2019 12:36:11 +0530, 0B
