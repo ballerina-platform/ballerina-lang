@@ -30,6 +30,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 /**
  * Local function invocation test.
  *
@@ -411,5 +414,27 @@ public class XMLAttributesTest {
                         "xmlns:ns0=\"http://sample.com/wso2/a1\" xmlns:ns1=\"http://sample.com/wso2/b1\" " +
                         "xmlns:ns3=\"http://sample.com/wso2/d1\" name=\"Bar\"></Person>");
         Assert.assertEquals(((BMap) returns[3]).get("name").stringValue(), "Bar");
+    }
+
+    @Test
+    public void testPrintAttribMap() {
+        PrintStream original = System.out;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            BRunUtil.invoke(xmlAttrProgFile, "testPrintAttribMap");
+            Assert.assertEquals(outContent.toString(),
+                    "{http://sample.com/wso2/c1}ns0=http://sample.com/wso2/a1 " +
+                            "{http://sample.com/wso2/c1}ns1=http://sample.com/wso2/b1 " +
+                            "{http://sample.com/wso2/c1}ns3=http://sample.com/wso2/d1 name=Foo",
+                    "Invalid attribute map printed");
+        } finally {
+            try {
+                outContent.close();
+            } catch (Throwable t) {
+                // ignore
+            }
+            System.setOut(original);
+        }
     }
 }
