@@ -18,7 +18,7 @@ DESCRIPTION
            [Optional] The module name to use when generating the client.
 
        service-name
-           The client name to use when generating the client.
+           The service name to use when generating the client.
            This option will require either a valid ballerina file
            or a valid ballerina module.
 
@@ -32,7 +32,7 @@ DESCRIPTION
 
        -s
            If this option is provided, the generated contract will
-           not be bound to the given ballerina service.
+           not be bound to the given Ballerina service.
 
 
 EXAMPLES
