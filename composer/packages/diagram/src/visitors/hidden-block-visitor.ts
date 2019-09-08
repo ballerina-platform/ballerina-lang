@@ -23,7 +23,7 @@ export const visitor: Visitor = {
                 ASTUtil.traversNode(statementViewState.expandContext.expandedSubTree, visitor);
             }
 
-            if (stmt.viewState.hidden) {
+            if (stmt.viewState.hidden || stmt.viewState.hiddenBlock) {
                 if (!hiddenSet) {
                     const hiddenSetViewState = stmt.viewState as StmntViewState;
                     hiddenSet = true;
