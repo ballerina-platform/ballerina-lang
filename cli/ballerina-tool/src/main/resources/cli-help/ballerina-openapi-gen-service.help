@@ -15,7 +15,7 @@ SYNOPSIS
 
 DESCRIPTION
        Gen-service generates a Ballerina service from a given OpenAPI contract
-       in the provided output directory. If the output directory is not provided
+       in the provided output directory. If the output directory is not provided, the
        service will be generated in the current directory.
 
        Note: This is an experimental tool which only supports a limited
