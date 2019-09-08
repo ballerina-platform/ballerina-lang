@@ -2,7 +2,7 @@
 
 This module provides utility functions to manipulate built-in `string` data type. 
 
-### Examples
+### Samples
 
 #### Compare two strings ignoring the case
 ```ballerina

@@ -34,8 +34,6 @@ $ ballerina run program.bal --b7a.log.level=<LOG_LEVEL>
 
 Log levels can be configured for modules either through a configuration file as `<MODULE_NAME>.loglevel="<LOG_LEVEL>"` or through a CLI parameter as `<MODULE_NAME>.loglevel=<LOG_LEVEL>`.
 
-## Sample  
-
 The following code snippet depicts the usage of all the functions in the log API.
 ```ballerina
 // Logs the message at ERROR level

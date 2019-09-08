@@ -1,27 +1,12 @@
 NAME
-       Ballerina search - Search for modules within Ballerina Central
+       ballerina-search - Search Ballerina Central for modules
 
 SYNOPSIS
-       ballerina search <text>
+       ballerina search <keyword>
 
 
 DESCRIPTION
-       Searches Ballerina Central for the given text appearing in
+       Searches Ballerina Central for the given keyword appearing in
        organization name, module name, or module descriptions.
 
-       Search text is treated as case-insensitive when search is executed.
-
-
-OPTIONS
-       Ballerina search command takes no options.
-
-
-EXAMPLES
-       Search for Foo organization
-       $ ballerina search Foo
-
-       Search for Gmail connector
-       $ ballerina search Gmail
-
-       Search for modules from WSO2
-       $ ballerina search wso2
+       The keyword is treated as case-insensitive when search is executed.

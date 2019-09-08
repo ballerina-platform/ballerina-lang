@@ -4,28 +4,19 @@ import ballerina/runtime;
 
 int count = 0;
 
-http:ClientConfiguration endpointConfig = {
-    secureSocket: {
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
-    }
-};
-
-http:Client clientEndpoint = new("https://postman-echo.com", endpointConfig);
+http:Client clientEndpoint = new ("http://postman-echo.com");
 
 public function main() {
     // Asynchronously calls the function named `sum()`.
     future<int> f1 = start sum(40, 50);
-    // You can pass the value of the `future` variable 
+    // You can pass the value of the `future` variable
     // and call its results later.
     int result = squarePlusCube(f1);
     // Waits for the future `f1` to finish.
     _ = wait f1;
     io:println("SQ + CB = ", result);
 
-    // Calls the `countInfinity()` function, which runs forever 
+    // Calls the `countInfinity()` function, which runs forever
     // in asynchronous mode.
     future<()> f2 = start countInfinity();
 
@@ -34,10 +25,10 @@ public function main() {
     io:println("Counting done in one second: ", count);
 
     // Asynchronously invokes the action call `get()`.
-    future<http:Response|error> f3 = start clientEndpoint->get("/get?test=123");
+    future<http:Response | error> f3 = start clientEndpoint-> get("/get?test=123");
 
     // Waits for action call `f3` to finish.
-    http:Response|error response = wait f3;
+    http:Response | error response = wait f3;
     // Prints the response payload of the action call if successful or prints the
     // reason for the failure.
     if (response is http:Response) {
@@ -54,7 +45,7 @@ public function main() {
     // In this example,`f4` will finish before `f5` since `runtime:sleep()` is called
     // in the `greet()` function to delay its execution. The value returned
     // by the future that finishes first will be taken as the result.
-    int|string anyResult = wait f4 | f5;
+    int | string anyResult = wait f4 | f5;
     io:println(anyResult);
 
     // Asynchronously invokes the functions named `sum()`, `cube()`, and `greet()`.
@@ -68,7 +59,7 @@ public function main() {
     // The result of this `wait` action can be assigned to a map or a record.
     // If the result is a map, it will contain the returned values from each
     // future with the key as the name of the future (if a key is not provided).
-    map <int|string> resultMap = wait {first_field: f6, second_field: f7,
+    map<int | string> resultMap = wait {first_field: f6, second_field: f7,
                                             third_field: f8};
     io:println(resultMap);
 

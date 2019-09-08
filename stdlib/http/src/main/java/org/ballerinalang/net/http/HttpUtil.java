@@ -88,7 +88,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -169,6 +168,7 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE_N
 import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1_VERSION;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
@@ -1157,13 +1157,17 @@ public class HttpUtil {
             MapValue<String, Object> clientEndpointConfig, String scheme) {
         ProxyServerConfiguration proxyServerConfiguration;
         MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
-
+        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(senderConfiguration, secureSocket);
         } else if (scheme.equals(PROTOCOL_HTTPS)) {
-            throw createHttpError("To enable https you need to configure secureSocket record", HttpErrorType.SSL_ERROR);
+            if (httpVersion.equals(HTTP_2_0_VERSION)) {
+                throw createHttpError("To enable https you need to configure secureSocket record",
+                        HttpErrorType.SSL_ERROR);
+            } else {
+                senderConfiguration.useJavaDefaults();
+            }
         }
-        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (HTTP_1_1_VERSION.equals(httpVersion)) {
             MapValue<String, Object> http1Settings = (MapValue<String, Object>) clientEndpointConfig
                     .get(HttpConstants.HTTP1_SETTINGS);
@@ -1362,12 +1366,6 @@ public class HttpUtil {
         if (!clientParams.isEmpty()) {
             sslConfiguration.setParameters(clientParams);
         }
-    }
-
-    public static void setDefaultTrustStore(SslConfiguration sslConfiguration) {
-        sslConfiguration.setTrustStoreFile(String.valueOf(
-                Paths.get(System.getProperty("ballerina.home"), "bre", "security", "ballerinaTruststore.p12")));
-        sslConfiguration.setTrustStorePass("ballerina");
     }
 
     public static String sanitizeBasePath(String basePath) {

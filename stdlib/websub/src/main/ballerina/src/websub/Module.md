@@ -165,7 +165,7 @@ service websubSubscriber on websubEP {
 }
 ```
 
-Explicit intent verification can be done by introducing an ```onIntentVerification``` resource function.
+Explicit intent verification can be done by introducing an `onIntentVerification` resource function.
 ```ballerina
 import ballerina/http;
 import ballerina/log;

@@ -1,20 +1,16 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina test` command.
-# You need to have the ballerina-tools distribution
-# installed to execute this command.
-$ ballerina test testerina_guarantee_test_execution_order.bal
-Compiling tests
-    testerina_guarantee_test_execution_order.bal
+# For the moment `ballerina test` works only in projects.
+$ ballerina test test_module
+Compiling source
+        ballerinatest/test_module:0.1.0
+
+Creating balos
+        target/balo/test_module-2019r3-any-0.1.0.balo
 
 Running tests
-    testerina_guarantee_test_execution_order.bal
+    ballerinatest/test_module:0.1.0
 I'm in test function 3!
 I'm in test function 1!
 I'm in test function 2!
-        [pass] testFunction3
-        [pass] testFunction1
-        [pass] testFunction2
-
         3 passing
         0 failing
         0 skipped

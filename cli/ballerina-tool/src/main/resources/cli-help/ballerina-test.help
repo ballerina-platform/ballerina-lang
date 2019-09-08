@@ -1,16 +1,13 @@
 NAME
-       ballerina test - execute Ballerina tests
+       ballerina-test - Run module tests
 
 SYNOPSIS
-       ballerina test [--offline]
-                      [--sourceroot <path>]
-                      [--experimental] [--skip-lock]
-                      [--config <config_file>]
-                      [<module-name> | -a | --all]
+       ballerina test [<options>] <module-name> [(--key=value)...]
+       ballerina test -a | --all [<options>]
 
 
 DESCRIPTION
-       Compile and run Ballerina test sources and print a summary of
+       Test compiles and executes Ballerina test sources and print a summary of
        test results. You can execute tests in a module,
        or an entire Ballerina project.
     
@@ -30,22 +27,23 @@ OPTIONS
            executions will be relative to the path provided for
            sourceroot.
 
-       --config <config_file>
-           Provide the path to a Ballerina configuration file.
-           The configuration file format is a subset of the TOML file
-           format. It supports key/value pairs, tables, comments, and
-           string, int, float and boolean value types.
+       --experimental
+           Enable experimental language features.
 
        --skip-lock
            Build/Compile offline without downloading dependencies.
 
-       --experimental
-           Enable experimental language features.
+       (--key=value)...
+           Set Ballerina environment parameters as key/value pairs.
+           If multiple parameters need to be provided, each parameter
+           has to be prefixed with '--'. Details of the environment parameters
+           supported by the Ballerina standard library modules are specified
+           in the relevant API documentation.
 
 
 EXAMPLES
         Run all tests in the current project
-        $ ballerina test --all
+           → ballerina test --all
 
         Run tests in math module
-        $ ballerina test math
+           → ballerina test math

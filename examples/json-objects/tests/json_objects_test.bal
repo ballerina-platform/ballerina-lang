@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 anydata[] outputs = [];
 int counter = 0;

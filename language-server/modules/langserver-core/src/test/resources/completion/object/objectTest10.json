@@ -1133,6 +1133,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "start",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "start ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "flush",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "flush ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "untainted",
       "kind": "Keyword",
       "detail": "Keyword",

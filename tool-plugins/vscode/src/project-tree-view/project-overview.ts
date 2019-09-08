@@ -146,12 +146,12 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         let sourceRoots: ProjectTreeElement[] = [];
         if (openFolders) {
             sourceRoots = openFolders.filter((openFolder) => {
-                return fs.existsSync(path.join(openFolder.uri.path, "Ballerina.toml"));
+                return fs.existsSync(path.join(openFolder.uri.fsPath, "Ballerina.toml"));
             }).map((root) => {
                 return {
                     kind: 'ProjectRoot',
                     name: root.name,
-                    path: root.uri.path,
+                    path: root.uri.fsPath,
                 };
             });
         }

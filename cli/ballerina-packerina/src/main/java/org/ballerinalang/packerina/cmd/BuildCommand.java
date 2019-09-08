@@ -152,6 +152,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests.")
     private String configFilePath;
 
+    private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
+            "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all}";
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -161,18 +164,14 @@ public class BuildCommand implements BLauncherCmd {
         
         // check if there are too many arguments.
         if (this.argList != null && containsUserArgs(this.argList)) {
-            CommandUtil.printError(this.errStream,
-                    "too many arguments.",
-                    "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
-                    false);
-            
+            CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         
         if (this.nativeBinary) {
             CommandUtil.printError(this.errStream,
-                    "llvm native generation is not supported.",
+                    "LLVM native generation is not supported.",
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -182,7 +181,7 @@ public class BuildCommand implements BLauncherCmd {
         // if -a or --all flag is not given, then it is mandatory to give a module name or ballerina file as arg.
         if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
             CommandUtil.printError(this.errStream,
-                    "'build' command requires a module name or a ballerina file to build/compile. use '-a' or " +
+                    "'build' command requires a module name or a Ballerina file to build/compile. use '-a' or " +
                     "'--all' flag to build/compile all the modules of the project.",
                     "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
                     false);
@@ -203,9 +202,10 @@ public class BuildCommand implements BLauncherCmd {
             //// check if output flag is set
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                        "'-o' and '--output' flag is only supported for building a single ballerina file.",
-                        "ballerina build <ballerina-file> -o foo.jar",
-                        true);
+                                       "'-o' and '--output' flag is only supported for building a single Ballerina " +
+                                               "file.",
+                                       "ballerina build -o <output-file> <ballerina-file> ",
+                                       true);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -215,9 +215,10 @@ public class BuildCommand implements BLauncherCmd {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(this.errStream,
-                            "you are trying to build/compile a ballerina project but there is no Ballerina.toml file.",
-                            null,
-                            false);
+                                           "you are trying to build/compile a Ballerina project but there is no " +
+                                                   "Ballerina.toml file.",
+                                           null,
+                                           false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
@@ -230,10 +231,9 @@ public class BuildCommand implements BLauncherCmd {
             // when a single bal file is provided.
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
-                        "'-c' or '--compile' flag cannot be used on ballerina files. the flag can only be used with " +
-                        "ballerina projects.",
-                        null,
-                        false);
+                                       "'-c' or '--compile' flag cannot be used on Ballerina files. the flag can only" +
+                                               " be used with " +
+                                               "Ballerina projects.", null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             } else {
@@ -248,9 +248,9 @@ public class BuildCommand implements BLauncherCmd {
                 //// check if the given file exists.
                 if (Files.notExists(sourcePath)) {
                     CommandUtil.printError(this.errStream,
-                            "'" + sourcePath + "' ballerina file does not exist.",
-                            null,
-                            false);
+                                           "'" + sourcePath + "' Ballerina file does not exist.",
+                                           null,
+                                           false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
@@ -258,9 +258,10 @@ public class BuildCommand implements BLauncherCmd {
                 //// check if the given file is a regular file and not a symlink.
                 if (!Files.isRegularFile(sourcePath)) {
                     CommandUtil.printError(this.errStream,
-                            "'" + sourcePath + "' is not ballerina file. check if it is a symlink or shortcut.",
-                            null,
-                            false);
+                                           "'" + sourcePath +
+                                                   "' is not a Ballerina file. check if it is a symlink or a shortcut.",
+                                           null,
+                                           false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
@@ -273,16 +274,18 @@ public class BuildCommand implements BLauncherCmd {
             }
         } else if (Files.exists(
                 this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
-                   Files.isDirectory(
-               this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0)))) {
-            
+                Files.isDirectory(
+                        this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                                .resolve(this.argList.get(0)))) {
+
             // when building a ballerina module
             //// output flag cannot be set for projects
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                        "'-o' and '--output' flag is only supported for building a single ballerina file.",
-                        null,
-                        false);
+                                       "'-o' and '--output' flag is only supported for building a single Ballerina " +
+                                               "file.",
+                                       null,
+                                       false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -300,10 +303,10 @@ public class BuildCommand implements BLauncherCmd {
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
                 CommandUtil.printError(this.errStream,
-                        "you are trying to build/compile a module by giving the absolute path. you only need give " +
-                        "the name of the module.",
-                        "ballerina build [-c] <module-name>",
-                        true);
+                                       "you are trying to build/compile a module by giving the absolute path. you " +
+                                               "only need give the name of the module.",
+                                       "ballerina build [-c] <module-name>",
+                                       true);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -330,11 +333,13 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid ballerina source path, it should either be a module name in a ballerina project or a " +
-                    "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension. use the -a or --all " +
-                    "flag to build or compile all modules.",
-                    "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
-                    true);
+                                   "invalid Ballerina source path, it should either be a module name in a Ballerina " +
+                                           "project or a " +
+                                           "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX +
+                                           "\' extension. Use the -a or --all " +
+                                           "flag to build or compile all modules.",
+                                   "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
+                                   true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }

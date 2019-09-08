@@ -11,7 +11,7 @@ When creating a new inbound authentication provider, you need to implement the b
 
 #### Inbound Basic Auth Provider
 
-The `auth:InboundBasicAuthProvider` authenticates based on usernames and passwords stored in a configuration file. The `auth:InboundBasicAuthProvider` is an implementation of the `auth:InboundAuthProvider` interface, which uses the Ballerina configuration file to read usernames, passwords, scopes, and the relevant associations.
+The `auth:InboundBasicAuthProvider` is an implementation of the `auth:InboundAuthProvider` interface, which uses the Ballerina configuration file to read usernames, passwords, scopes, and the relevant associations.
 
 ```ballerina
 auth:InboundBasicAuthProvider basicAuthProvider = new;
@@ -34,7 +34,8 @@ When creating a new outbound authentication provider, you need to implement the 
 
 #### Outbound Basic Auth Provider
 
-The `auth:OutboundBasicAuthProvider` is used to authenticate external endpoints with the use of usernames and passwords provided in the configurations. The `auth:OutboundBasicAuthProvider` is an implementation of the `auth:OutboundAuthProvider` interface.
+The `auth:OutboundBasicAuthProvider` is an implementation of the `auth:OutboundAuthProvider` interface, which uses
+ usernames and passwords provided Ballerina configurations to authenticate external endpoints.
 
 ```ballerina
 auth:OutboundBasicAuthProvider basicAuthProvider = new({
