@@ -33,6 +33,12 @@ OPTIONS
        --skip-lock
            Build/Compile offline without downloading dependencies.
 
+       --debug
+           Start Ballerina in remote debugging mode.
+
+       --config
+           Path to the configuration file when running tests.
+
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
@@ -42,8 +48,8 @@ OPTIONS
 
 
 EXAMPLES
-        Run all tests in the current project
+        Run all tests in the current project.
            → ballerina test --all
 
-        Run tests in math module
+        Run tests in math module.
            → ballerina test math

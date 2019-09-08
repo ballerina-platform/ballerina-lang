@@ -12,7 +12,7 @@ DESCRIPTION
 OPTIONS
 
        -h, --help
-           Prints usage details of a command.
+           Print usage details of a command.
 
 
 BALLERINA COMMANDS
@@ -26,5 +26,5 @@ BALLERINA COMMANDS
 
 EXAMPLES
 
-       Get help on how to use the ballerina command
-       $ ballerina dist --help
+       Get help on how to use the ballerina command.
+          → ballerina dist --help

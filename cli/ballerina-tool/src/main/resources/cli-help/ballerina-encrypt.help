@@ -31,5 +31,5 @@ DEFAULT BEHAVIOUR
 
 
 EXAMPLES
-       Encrypt sensitive data
+       Encrypt sensitive data.
           → ballerina encrypt

@@ -20,7 +20,7 @@ DESCRIPTION
 
 
 OPTIONS
-       -o <output>
+       -o, --output <output>
            Build and store the module documentation in the specified directory.
            This is required if you are generating docs for a Ballerina file
            outside of a project.
@@ -30,6 +30,12 @@ OPTIONS
            Source will be looked up relative to the given source root
            path.
 
+       -e, --exclude
+           List of modules to be excluded.
+
+       --experimental
+           Enable experimental language features.
+
        --offline
            Build offline without downloading dependencies.
 
@@ -38,11 +44,11 @@ OPTIONS
 
 
 EXAMPLES
-       Generate API documentation for all modules in current project
+       Generate API documentation for all modules in current project.
           → ballerina doc -a
 
-       Generate API documentation for a single module
+       Generate API documentation for a single module.
           → ballerina doc hello
 
-       Generate API documentation for a Ballerina source file
+       Generate API documentation for a Ballerina source file.
           → ballerina doc -o ./apidocs helloworld.bal

@@ -69,7 +69,7 @@ EXAMPLES
           → ballerina openapi gen-service hellomock:hello hello.yaml
 
        Generate a Ballerina client with client name helloclient
-       and write the output to the client_project folder
+       and write the output to the client_project folder.
           → ballerina openapi gen-client helloclient hello.yaml -o client_project
 
        Export an OpenAPI definition for hello_service.bal for the hello service.

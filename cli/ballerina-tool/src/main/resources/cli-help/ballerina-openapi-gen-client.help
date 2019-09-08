@@ -32,5 +32,5 @@ OPTIONS
 
 
 EXAMPLES
-       Generate a Ballerina Client
+       Generate a Ballerina Client.
           → ballerina openapi gen-client helloclient hello.yaml -o client_project
