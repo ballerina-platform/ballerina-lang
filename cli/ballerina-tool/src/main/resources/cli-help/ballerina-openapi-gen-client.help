@@ -1,5 +1,6 @@
 NAME
-       ballerina openapi gen-client - generate mock Ballerina client for a given OpenAPI contract
+       ballerina openapi gen-client - generate a mock Ballerina client
+       for a given OpenAPI contract
 
 
 SYNOPSIS
