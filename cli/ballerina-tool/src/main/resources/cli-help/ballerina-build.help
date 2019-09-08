@@ -1,14 +1,13 @@
 NAME
-       Ballerina build - Builds Ballerina module(s) and generates executable
-       outputs.
+       ballerina-build - Build Ballerina module(s) and generate executables
 
 SYNOPSIS
-       ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]
-                       [--skip-lock] {<ballerina-file | module-name> | -a | --all}
+       ballerina build [<options>] <ballerina-file-path> | <module-name>
+       ballerina build -a | --all [<options>]
 
 
 DESCRIPTION
-       Builds Ballerina module(s)/file and produces an executable jar file(s).
+       Build compiles Ballerina sources and produces executable jar file(s).
 
        Building a Ballerina project or a specific module in a project the
        executable .jar files will be created in <project-root>/target/bin directory.
@@ -24,11 +23,11 @@ DESCRIPTION
 
 OPTIONS
        -o <output>
-           Writes output to the given file. The provided output
+           Write output to the given file. The provided output
            filename may or may not contain the ‘.jar’ extension.
 
        --sourceroot <path>
-           Provides the path to be taken as the root of the source.
+           Provide the path to be taken as the root of the source.
            Source will be looked up relative to the given source root
            path.
 
@@ -39,26 +38,26 @@ OPTIONS
            Build or compile all the modules of a project.
 
        --offline
-           Builds offline without downloading dependencies.
+           Build offline without downloading dependencies.
 
        --skip-tests
-           Skips test compilation and execution.
+           Skip test compilation and execution.
 
        --skip-lock
            Skip using the lock file to resolve dependencies.
 
 
 EXAMPLES
-       Build hello source program
-       $ ballerina build hello.bal
-       This will generate a hello.jar file.
+       Compile a Ballerina source file and create an executable jar.
+          → ballerina build hello.bal
 
-       Build hello module
-       $ ballerina build hello
-       This will generate a hello.jar output file and place
-       within <project-root>/target/bin directory.
+       Build the 'hello' module. This will generate a hello.jar file
+       in <project-root>/target/bin directory.
+          → ballerina build hello
 
-       Build all the modules that have entry points in a project in to executables.
-       $ ballerina build
-       This will generate executable jar files and place them within
-       <project-root>/target/bin directory.
+
+       Build all the modules that have entry points in a project in to
+       executables. This will generate executable jar files and place
+       them in '<project-root>/target/bin' directory.
+          → ballerina build -a
+
