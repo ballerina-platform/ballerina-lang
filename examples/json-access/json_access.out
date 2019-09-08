@@ -3,6 +3,6 @@
 $ ballerina run json_access.bal
 Mary
 Colombo 03
-error {ballerina}KeyNotFound message=Key 'age' not found in JSON mapping
+error {ballerina/lang.map}KeyNotFound message=Key 'age' not found in JSON mapping
 
 
