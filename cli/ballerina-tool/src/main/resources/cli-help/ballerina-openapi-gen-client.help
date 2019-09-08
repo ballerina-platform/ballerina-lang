@@ -4,14 +4,17 @@ NAME
 
 
 SYNOPSIS
-       ballerina openapi gen-client [<module-name>:]<client-name> <openapi-contract> [-o | --output <dir-path>]
+       ballerina openapi gen-client [<module-name>:]<client-name>
+                        <openapi-contract> [-o | --output <dir-path>]
 
 
 DESCRIPTION
-       Gen-client generates a Ballerina client for the provided OpenAPI contract in the optionally given directory path.
-       An optional module name can be provided with the client name.
+       Gen-client generates a Ballerina client for the provided OpenAPI
+       contract in the optionally given directory path. An optional module
+       name can be provided with the client name.
 
-       Note: This is an experimental tool which only supports a limited set of functionality.
+       Note: This is an experimental tool which only supports a limited
+       set of functionality.
 
 
 OPTIONS
