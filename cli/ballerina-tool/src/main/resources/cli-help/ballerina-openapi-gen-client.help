@@ -13,7 +13,7 @@ DESCRIPTION
        contract in the optionally given directory path. An optional module
        name can be provided with the client name.
 
-       Note: This is an experimental tool which only supports a limited
+       Note: This is an experimental tool, which only supports a limited
        set of functionality.
 
 
