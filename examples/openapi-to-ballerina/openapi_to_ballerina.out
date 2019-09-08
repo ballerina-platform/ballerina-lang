@@ -8,7 +8,7 @@ src/
 -- petservice.bal
 -- schema.bal
 
-# Run the following command the same Ballerina project to generate the service client from OpenAPI contract.
+# Run the following command in a Ballerina project to generate the service client from OpenAPI contract.
 $ ballerina openapi gen-client petservice_client openapi_to_ballerina.yaml
 Note: This is an Experimental tool ship under ballerina hence this will only support limited set of functionality.
 Client generated successfully.
