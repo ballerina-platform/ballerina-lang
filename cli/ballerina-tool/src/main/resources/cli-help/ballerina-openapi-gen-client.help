@@ -1,30 +1,31 @@
 NAME
-       ballerina openapi gen-client - generate a mock Ballerina client for a given OpenAPI contract
+       ballerina openapi gen-client - generate a mock Ballerina client
+       for a given OpenAPI contract
 
 
 SYNOPSIS
-       ballerina openapi gen-client [<module>:]<client-name> <openapi-file> [-o=<outputFileName>]
+       ballerina openapi gen-client [<module>:]<client-name>
+                                    <openapi-file> [-o=<outputFileName>]
 
 
 DESCRIPTION
-       Note: This is an experimental tool ship under ballerina and will only
-       support limited set of functionality.
+       Note: This is an experimental tool which only supports a
+       limited set of functionality.
 
 
 OPTIONS
        module
-           [ Optional ] This value will be used as the module name when the client is
-           generated.
+           [Optional] The module name to use when generating the client.
 
        client-name
-           This value will be used as the client name when the client is generated.
+           The client name to use when generating the client.
 
        openapi-file
-           The openapi contract file location which will be used to generate the
-           ballerina client.
+           The location of the OpenAPI contract file which will be used to
+           generate the  Ballerina client.
 
        -o
-           Output location for the generated ballerina client.
+           Output location for the generated Ballerina client.
 
 
 EXAMPLES
