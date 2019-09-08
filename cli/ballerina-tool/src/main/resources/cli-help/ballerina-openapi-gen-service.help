@@ -31,12 +31,12 @@ OPTIONS
            The contract file location of the OpenAPI contract, which
            is used to create the Ballerina service.
 
-       -o, --output <dir-path>
-           Output directory in which service should be generated. If this options
+       -o <dir-path>, --output <dir-path>
+           Output directory in which the service should be generated. If this option
            is not provided, the service is generated in the current directory.
 
        -c, --skip-bind
-           Copy the OpenAPI contract file to the projects resources directory
+           Copy the OpenAPI contract file to the project's resources directory
 
 
 DEFAULT BEHAVIOR

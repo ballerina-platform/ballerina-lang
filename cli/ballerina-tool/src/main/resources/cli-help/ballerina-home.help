@@ -1,5 +1,5 @@
 NAME
-       Ballerina-home - Print the path of current Ballerina distribution
+       ballerina-home - Print the path of the current Ballerina distribution
 
 SYNOPSIS
        ballerina <home>

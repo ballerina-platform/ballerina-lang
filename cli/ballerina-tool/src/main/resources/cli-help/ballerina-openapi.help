@@ -17,7 +17,7 @@ SYNOPSIS
        ballerina openapi gen-contract [<module-name>:]<service-name>
                                       [-i <ballerina-file> | --ballerina-file <ballerina-file>]
                                       [-o <openapi-contract> | --contract-location <openapi-contract>]
-                                      [-s| --skip-bind]
+                                      [-s | --skip-bind]
 
 
 DESCRIPTION

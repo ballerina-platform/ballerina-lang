@@ -5,7 +5,7 @@ NAME
 
 SYNOPSIS
        ballerina openapi gen-contract [<module-name>:]<service-name>
-                         [-i | --ballerina-file <ballerina-file>]
+                         [-i <ballerina-file> | --ballerina-file <ballerina-file>]
                          -o <openapi-contract> | --output <openapi-contract>
                          [-s | --skip-bind]
 
@@ -14,7 +14,7 @@ DESCRIPTION
        Gen-contract generates an OpenAPI contract from a given service to
        a provided output directory. If the module name is provided along
        with the service name, the Ballerina file is optional. If the module
-       name is not provided, ballerina file in which the service resides,
+       name is not provided, the Ballerina file in which the service resides,
        has to be provided.
 
        Note: This is an experimental tool, which only supports a limited
@@ -26,7 +26,7 @@ OPTIONS
            The service name to use when generating the contract.
            This option will require a valid Ballerina file with an optional module name.
 
-       -i, --ballerina-file  <ballerina-file>
+       -i  <ballerina-file>, --ballerina-file  <ballerina-file>
            [Optional if a module is provided] If provided,
            the contract will be generated using the provided Ballerina file
            and the service name.

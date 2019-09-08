@@ -1,11 +1,11 @@
 NAME
-    Ballerina-dist-use - Use a given distribution version
+    ballerina-dist-use - Use a given distribution version
 
 SYNOPSIS
     ballerina dist use <distribution-version>
 
 DESCRIPTION
-     Use pulls and use a given Ballerina version from project repository.
+     Use pulls and uses a given Ballerina version from project repository.
 
 OPTIONS
      Ballerina dist use command takes no options.
