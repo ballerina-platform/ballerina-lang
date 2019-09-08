@@ -60,12 +60,12 @@ EXAMPLES
           → ballerina build hello.bal
 
        Build the 'hello' module. This will generate a hello.jar file
-       in <project-root>/target/bin directory.
+       in the '<project-root>/target/bin' directory.
           → ballerina build hello
 
 
-       Build all the modules that have entry points in a project in to
+       Build all the modules that have entry points in a project into
        executables. This will generate executable jar files and place
-       them in '<project-root>/target/bin' directory.
+       them in the '<project-root>/target/bin' directory.
           → ballerina build -a
 

@@ -12,7 +12,7 @@ DESCRIPTION
        To build documentation for all modules of the current project,
        use -a or -all option.
 
-       This command writes the dodule documentation to the 'target/apidocs'
+       This command writes the module documentation to the 'target/apidocs'
        directory inside the project.
 
        If docs are being generated for a single ballerina file,
@@ -21,8 +21,8 @@ DESCRIPTION
 
 OPTIONS
        -o <output>
-           Build and store the module documentation in the spefified directory.
-           This is required if you are generating docs for a ballerina file
+           Build and store the module documentation in the specified directory.
+           This is required if you are generating docs for a Ballerina file
            outside of a project.
 
        --sourceroot <path>

@@ -2,8 +2,8 @@ NAME
        ballerina-test - Run module tests
 
 SYNOPSIS
-       ballerina build [<options>] <module-name> [(--key=value)...]
-       ballerina build -a | --all [<options>]
+       ballerina test [<options>] <module-name> [(--key=value)...]
+       ballerina test -a | --all [<options>]
 
 
 DESCRIPTION
