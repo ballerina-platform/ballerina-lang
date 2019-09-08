@@ -13,7 +13,7 @@ SYNOPSIS
 DESCRIPTION
        Gen-contract generates an OpenAPI contract from a given service to
        a provided output directory. If the module name is provided along
-       with the service name, the ballerina file is optional. If the module
+       with the service name, the Ballerina file is optional. If the module
        name is not provided, ballerina file in which the service resides,
        has to be provided.
 
