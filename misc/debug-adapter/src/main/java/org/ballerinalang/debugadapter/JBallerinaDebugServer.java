@@ -315,7 +315,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             String sourcePath = stackFrame.location().sourcePath();
             sourcePath = sourcePath != null ? sourcePath : "";
-            sourcePath = sourcePath.replaceAll("tests" + File.separator + "tests", "tests");
+            sourcePath = sourcePath.replaceFirst("tests" + File.separator + "tests", "tests");
             if (orgName.length() > 0 && sourcePath.startsWith(orgName)) {
                 sourcePath = sourcePath.replaceFirst(orgName, "src");
             }
