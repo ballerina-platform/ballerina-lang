@@ -1,2 +1,3 @@
 // The function specified with the `BeforeEach` annotation is executed before every test within the test suite.
 // This can be used for repeatedly initializing test level aspects before every test function.
+// For the moment `ballerina test` works only in projects.
