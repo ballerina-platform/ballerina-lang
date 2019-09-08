@@ -82,29 +82,13 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
     }
 
     public updateAST() {
-        if (this.state.selectedConstruct) {
-            const { selectedConstruct } = this.state;
-            this.getAST(selectedConstruct.sourceRoot, selectedConstruct.filePath).then((ast) => {
-                this.setState({
-                    errored: !Boolean(ast),
-                    maxInvocationDepth: -1,
-                    modules: ast ? ast : {},
-                    selectedConstruct,
-                });
+        this.getAST(this.props.sourceRootUri, this.props.docUri).then((ast) => {
+            this.setState({
+                errored: !Boolean(ast),
+                maxInvocationDepth: -1,
+                modules: ast ? ast : {}
             });
-            return;
-        }
-
-        if (this.props.docUri) {
-            this.getAST(undefined, this.props.docUri).then((ast) => {
-                this.setState({
-                    errored: !Boolean(ast),
-                    maxInvocationDepth: -1,
-                    modules: ast ? ast : {},
-                });
-            });
-            return;
-        }
+        });
     }
 
     public getAST(sourceRootUri: string | undefined, docUri: string | undefined): PromiseLike<ProjectAST | undefined> {
