@@ -1,46 +1,48 @@
 NAME
-       Ballerina doc - Generates API documentation
+       ballerina-doc - Build a Ballerina module's documentation
 
 SYNOPSIS
-       ballerina doc [-o <output>] [--sourceroot] [--off-line]
-                        {<ballerina-file | module-name> | -a | --all}
+       ballerina doc [<options>] <ballerina-file-path> | <module-name>
+       ballerina doc -a | --all [<options>]
 
 
 DESCRIPTION
-       Ballerina doc command generates API documentation for a given
-       module or a ballerina file.
+       Doc builds documentation for a given module or a ballerina file.
 
-       To generate docs for all modules of current project, use -a option.
+       To build documentation for all modules of the current project,
+       use -a or -all option.
 
-       API Documentation will be written to target/apidocs folder in
-       projects.
+       This command writes the dodule documentation to the 'target/apidocs'
+       directory inside the project.
 
        If docs are being generated for a single ballerina file,
        output path should be provided with -o option.
 
+
 OPTIONS
        -o <output>
-           Writes API Documentation to the given folder. This is required
-           if you are generating docs for a ballerina file outside of a
-           project.
+           Build and store the module documentation in the spefified directory.
+           This is required if you are generating docs for a ballerina file
+           outside of a project.
 
        --sourceroot <path>
-           Provides the path to be taken as the root of the source.
+           Provide the path to be taken as the root of the source.
            Source will be looked up relative to the given source root
            path.
 
        --offline
-           Builds offline without downloading dependencies.
+           Build offline without downloading dependencies.
 
        -a, --all
            Build documentation for all the modules of a project.
 
+
 EXAMPLES
        Generate API documentation for all modules in current project
-       $ ballerina doc -a
+          → ballerina doc -a
 
        Generate API documentation for a single module
-       $ ballerina doc mymodule
+          → ballerina doc hello
 
-       Generate API documentation for a file outside of a project
-       $ ballerina doc -o ./apidocs mybalfile.bal
+       Generate API documentation for a Ballerina source file
+          → ballerina doc -o ./apidocs helloworld.bal
