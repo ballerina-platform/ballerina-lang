@@ -1,11 +1,13 @@
 NAME
-       ballerina openapi gen-service - convert an OpenApi contract to a Ballerina mock service
+       ballerina openapi gen-service - convert an OpenApi contract to a
+       Ballerina mock service
 
        Note: This is an experimental tool which only supports
        a limited set of functionality.
 
 SYNOPSIS
-       ballerina openapi gen-service <module-name>:<service-name> <openapi-contract>
+       ballerina openapi gen-service <module-name>:<service-name>
+                                     <openapi-contract>
 
 
 OPTIONS
@@ -30,5 +32,6 @@ EXAMPLES
        Print the usage details of the command.
        $ ballerina openapi gen-service -h
 
-       Generate a Ballerina module (petstore) with a mock service named petstoreservice.
+       Generate a Ballerina module (petstore) with a mock service
+       named petstoreservice.
        $ ballerina openapi gen-service petstore:petstoreservice petstore.yaml
