@@ -6,7 +6,7 @@ NAME
 SYNOPSIS
        ballerina openapi gen-contract [<module-name>:]<service-name>
                          [-i | --ballerina-file <ballerina-file>]
-                         -o | --output <openapi-contract>
+                         -o <openapi-contract> | --output <openapi-contract>
                          [-s| --skip-bind]
 
 
