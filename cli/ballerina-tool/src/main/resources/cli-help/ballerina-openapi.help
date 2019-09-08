@@ -15,7 +15,7 @@ SYNOPSIS
                                     <openapi-contract> [-o <dir-path> | --output <dir-path>]
     
        ballerina openapi gen-contract [<module-name>:]<service-name>
-                                      [-i | --ballerina-file <ballerina-file>]
+                                      [-i <ballerina-file> | --ballerina-file <ballerina-file>]
                                       [-o | --contract-location <openapi-contract>]
                                       [-s| --skip-bind]
 
