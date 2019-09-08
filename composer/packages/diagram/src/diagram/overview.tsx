@@ -448,10 +448,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     private setMaxInvocationDepth(depth: number) {
         // reset any expandings
-        if (!this.state.selectedConstruct) {
-            return;
-        }
-
         const {
             selectedASTs
         } = this.getSelected(this.state.selectedConstruct);
