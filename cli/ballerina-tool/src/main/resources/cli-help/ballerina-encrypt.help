@@ -1,5 +1,5 @@
 NAME
-       Ballerina encrypt - Encrypt sensitive configuration values
+       ballerina encrypt - encrypt sensitive configuration values
     
 SYNOPSIS
        ballerina encrypt
