@@ -53,5 +53,5 @@ public function main() {
     
     p.checkAndModifyAge(10, 50);
 
-    io:println(p);
+    io:println(p.age);
 }

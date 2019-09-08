@@ -104,7 +104,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')

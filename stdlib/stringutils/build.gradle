@@ -36,6 +36,7 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-core')
+    testCompile project(':ballerina-file')
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 

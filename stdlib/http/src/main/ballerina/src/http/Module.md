@@ -20,7 +20,7 @@ For more information, see [Client Endpoint Example](https://ballerina.io/learn/b
 
 ### Listener endpoints
 
-A `Service` represents a collection of network-accessible entry points and can be exposed via a `Listener` endpoint. A resource represents one such entry point and can have its own path, HTTP methods, body format, 'consumes' and 'produces' content types, CORS headers, etc. In resources, `endpoint` and `http:Request` are mandatory parameters while `path` and `body` are optional.
+A `Service` represents a collection of network-accessible entry points and can be exposed via a `Listener` endpoint. A resource represents one such entry point and can have its own path, HTTP methods, body format, 'consumes' and 'produces' content types, CORS headers, etc. In resources, `http:caller` and `http:Request` are mandatory parameters while `path` and `body` are optional.
 
 When a `Service` receives a request, it is dispatched to the best-matched resource.
 
@@ -121,7 +121,7 @@ service helloWorld on helloWorldEP {
    resource function sayHello(http:Caller caller, http:Request req, string name, string message) {
        http:Response res = new;
        // A util method that can be used to set string payload.
-       res.setPayload("Hello, World! I’m " + untaint name + ". " + untaint message);
+       res.setPayload("Hello, World! I’m " + <@untainted> name + ". " + <@untainted> message);
        // Sends the response back to the client.
        var result = caller->respond(res);
        if (result is http:ListenerError) {

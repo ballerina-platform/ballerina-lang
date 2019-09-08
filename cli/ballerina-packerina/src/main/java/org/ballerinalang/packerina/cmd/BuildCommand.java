@@ -18,6 +18,7 @@
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.jvm.launch.LaunchUtils;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
@@ -159,7 +160,7 @@ public class BuildCommand implements BLauncherCmd {
         }
         
         // check if there are too many arguments.
-        if (this.argList != null && this.argList.size() > 1) {
+        if (this.argList != null && containsUserArgs(this.argList)) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
                     "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
@@ -361,8 +362,7 @@ public class BuildCommand implements BLauncherCmd {
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         // output path is the current directory if -o flag is not given.
         Path outputPath = null == this.output ? Paths.get(System.getProperty("user.dir")) : Paths.get(this.output);
-        Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
-        
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
@@ -374,7 +374,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
                 .addTask(new CreateJarTask(this.dumpBIR))    // create the jar
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
-                .addTask(new RunTestsTask(configFilePath), this.skipTests || isSingleFileBuild) // run tests
+                .addTask(new RunTestsTask(), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
                 .addTask(new CreateExecutableTask(skipCopyLibsFromDist), this.compile)  // create the executable.jar
                                                                                         // file
@@ -420,5 +420,9 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+    }
+
+    private boolean containsUserArgs(List<String> args) {
+        return LaunchUtils.initConfigurations(args.toArray(new String[0])).length > 1;
     }
 }

@@ -2,50 +2,18 @@
 
 This module provides the necessary utilities that are required to encode and decode content using different encoding mechanisms and algorithms.
 
-### Encoding byte array to hex string
+### Encoding a URL to Base64 encoded string
 
-The `encodeHex` function encodes provided byte array to an hex `string`.
+The `encodeBase64Url` function encodes provided URL to an base64 `string`.
 
-### Decoding hex string to byte array
+### Decoding a Base64 URL encoded string into byte array.
 
-The `decodeHex` function decodes a hex encoded `string` to a byte array.
+The `decodeBase64Url` function decodes a base64 encoded `string` to a byte array.
 
-### Encoding byte array to base64 string
+### Encoding a URI component into a string
 
-The `encodeBase64` function encodes provided byte array to an base64 `string`.
+The `encodeUriComponent` function can be used to encode a URI into a string using a provided charset.
 
-### Decoding base64 string to byte array
+### Decoding a encoded URI component into string
 
-The `decodeBase64` function decodes a base64 encoded `string` to a byte array.
-
-### Encoding byte array into a string
-
-The `byteArrayToString` function can be used to encode a byte array into a string using a provided charset.
-
-## Samples
-
-```ballerina
-import ballerina/encoding;
-import ballerina/io;
-
-public function main() returns error? {
-     // The string content to be hashed.
-     string text = "Hello Ballerina";
-     byte[] inputByteArr = input.toBytes();
-
-     string output = encoding:encodeHex(inputByteArr);
-     io:println("Hex encoded string : " + output);
-
-     // Hex encoded string, decoded back into a byte array.
-     inputByteArr = check encoding:decodeHex(output);
-
-     output = encoding:encodeBase64(inputByteArr);
-     io:println("Base64 encoded string : " + output);
-
-     // Base64 encoded string, decoded back into a byte array.
-     inputByteArr = check encoding:decodeBase64(output);
-
-     // Convert byte array into a string.
-     string finalString = encoding:byteArrayToString(inputByteArr);
-}
-```
+The `encodeUriComponent` function can be used to decode a URI into a string using a provided charset.

@@ -1,8 +1,7 @@
 ## Module overview
 
-NATS is a simple, secure, and high-performance open source messaging system for cloud-native applications.
-The 'ballerina/nats' module provides the capability to connect with NATS and Streaming servers and perform 
-the following functionalities.
+This module provides the capability to connect with NATS and NATS Streaming servers and performs the 
+following functionalities.
 
 - Point to point communication (Queues)
 - Pub/Sub (Topics)

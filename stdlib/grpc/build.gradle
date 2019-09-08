@@ -39,6 +39,7 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-logging')
+    implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-http')
@@ -56,7 +57,6 @@ dependencies {
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-lang:annotations')
     testCompile project(':ballerina-system')
-    testCompile project(':ballerina-internal')
     testCompile project(':ballerina-utils')
     testCompile project(':ballerina-core')
     testCompile 'org.slf4j:slf4j-simple'

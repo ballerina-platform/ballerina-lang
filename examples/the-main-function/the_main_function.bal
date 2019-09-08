@@ -12,7 +12,7 @@ public function main(string name,
                   returns error? {
 
     // Return an error if the name is invalid.
-    if (name.length() < 6) {
+    if (name.length() < 5) {
         error e = error("InvalidName", message = "invalid length");
         return e;
     }

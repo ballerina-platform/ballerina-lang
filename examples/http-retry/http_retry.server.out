@@ -3,10 +3,10 @@
 $ ballerina run http_retry.bal.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 [ballerina/http] started HTTP/WS listener 0.0.0.0:8080
-2019-09-04 15:47:25,980 INFO  [ballerina/log] - Request received from the client to delayed service.
-2019-09-04 15:47:30,998 INFO  [ballerina/log] - Request received from the client to delayed service.
-2019-09-04 15:47:31,012 ERROR [ballerina/log] - Error sending response from mock service : error {ballerina/http}GenericListenerError message=Connection between remote client and host is closed
-2019-09-04 15:47:36,004 ERROR [ballerina/log] - Error sending response from mock service : error {ballerina/http}GenericListenerError message=Connection between remote client and host is closed
-2019-09-04 15:47:39,005 INFO  [ballerina/log] - Request received from the client to delayed service.
-2019-09-04 15:47:44,007 ERROR [ballerina/log] - Error sending response from mock service : error {ballerina/http}GenericListenerError message=Connection between remote client and host is closed
-2019-09-04 15:47:53,016 INFO  [ballerina/log] - Request received from the client to healthy service.
+2019-09-04 15:47:25,980 INFO  [] - Request received from the client to delayed service.
+2019-09-04 15:47:30,998 INFO  [] - Request received from the client to delayed service.
+2019-09-04 15:47:31,012 ERROR [] - Error sending response from mock service : error {ballerina/http}GenericListenerError message=Connection between remote client and host is closed
+2019-09-04 15:47:36,004 ERROR [] - Error sending response from mock service : error {ballerina/http}GenericListenerError message=Connection between remote client and host is closed
+2019-09-04 15:47:39,005 INFO  [] - Request received from the client to delayed service.
+2019-09-04 15:47:44,007 ERROR [] - Error sending response from mock service : error {ballerina/http}GenericListenerError message=Connection between remote client and host is closed
+2019-09-04 15:47:53,016 INFO  [] - Request received from the client to healthy service.

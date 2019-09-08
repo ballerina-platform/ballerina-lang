@@ -99,6 +99,8 @@ public class Main {
 
             // set stop at positional to run command
             cmdParser.getSubcommands().get("run").setStopAtPositional(true);
+            cmdParser.getSubcommands().get("build").setStopAtPositional(true);
+            cmdParser.getSubcommands().get("test").setStopAtPositional(true);
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
@@ -161,8 +163,8 @@ public class Main {
                 throw LauncherUtils.createUsageExceptionWithHelp("internal error occurred");
             }
             if (errorMessage.contains(UNMATCHED_ARGUMENT_PREFIX)) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command '" + getFirstUnknownArg(errorMessage)
-                                                                 + "'");
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command "
+                                                                    + getFirstUnknownArg(errorMessage));
             }
             throw LauncherUtils.createUsageExceptionWithHelp(LauncherUtils.makeFirstLetterLowerCase(errorMessage));
         } catch (CommandLine.ParameterException e) {
@@ -189,7 +191,6 @@ public class Main {
 
             String output = "Ballerina " + properties.getProperty("ballerina.version") + "\n";
             output += "Language specification " + properties.getProperty("spec.version") + "\n";
-            output += "Ballerina tool " + properties.getProperty("tool.version") + "\n";
             outStream.print(output);
         } catch (Throwable ignore) {
             // Exception is ignored
@@ -307,7 +308,7 @@ public class Main {
 
             String userCommand = versionCommands.get(0);
             if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command " + userCommand);
             }
         }
 
@@ -363,7 +364,7 @@ public class Main {
 
             String userCommand = homeCommands.get(0);
             if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command " + userCommand);
             }
         }
 
@@ -554,7 +555,7 @@ public class Main {
 
             String userCommand = listCommands.get(0);
             if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command " + userCommand);
             }
         }
 
@@ -612,7 +613,7 @@ public class Main {
 
             String userCommand = pullCommands.get(0);
             if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command " + userCommand);
             }
         }
 
@@ -670,7 +671,7 @@ public class Main {
 
             String userCommand = useCommands.get(0);
             if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command " + userCommand);
             }
         }
 
@@ -726,7 +727,7 @@ public class Main {
 
             String userCommand = updateCommands.get(0);
             if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command " + userCommand);
             }
         }
 
@@ -784,7 +785,7 @@ public class Main {
 
             String userCommand = removeCommands.get(0);
             if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command " + userCommand);
             }
         }
 

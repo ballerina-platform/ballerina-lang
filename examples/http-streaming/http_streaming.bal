@@ -87,16 +87,31 @@ function setError(http:Response res, error err) {
     res.setPayload(<@untainted> <string> err.detail()?.message);
 }
 
-// Copies the content from the source channel to the destination channel.
-function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
-             returns error? {
-    int readCount = 1;
-    byte[] readContent;
-    while (readCount > 0) {
-        //Operation attempts to read a maximum of 1000 bytes.
-        readContent = check src.read(1000);
-        //Writes the given content into the channel.
-        var writeResult = check dst.write(readContent, 0);
+// Copies the content from the source channel to a destination channel.
+function copy(io:ReadableByteChannel src,
+              io:WritableByteChannel dst) returns error? {
+    // The below example shows how to read all the content from
+    // the source and copy it to the destination.
+    while (true) {
+        // The operation attempts to read a maximum of 1000 bytes and returns
+        // with the available content, which could be < 1000.
+        byte[]|io:Error result = src.read(1000);
+        if (result is io:EofError) {
+            break;
+        } else if (result is error) {
+            return <@untained> result;
+        } else {
+            // The operation writes the given content into the channel.
+            int i = 0;
+            while (i < result.length()) {
+                var result2 = dst.write(result, i);
+                if (result2 is error) {
+                    return result2;
+                } else {
+                    i = i + result2;
+                }
+            }
+        }
     }
     return;
 }

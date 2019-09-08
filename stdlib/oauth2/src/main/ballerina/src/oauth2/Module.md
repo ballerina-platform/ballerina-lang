@@ -10,7 +10,7 @@ The `oauth2:InboundOAuth2Provider` is another implementation of the `auth:Inboun
 oauth2:IntrospectionServerConfig introspectionServerConfig = {
     url: "https://localhost:9196/oauth2/token/introspect"
 };
-oauth2:OAuth2Provider oauth2Provider = new(introspectionServerConfig);
+oauth2:InboundOAuth2Provider oauth2Provider = new(introspectionServerConfig);
 ```
 
 ### Outbound OAuth2 Provider

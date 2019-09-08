@@ -232,8 +232,6 @@ public class CompileCommand implements BLauncherCmd {
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
     
-        Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
-    
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask())  // clean the target directory
                 .addTask(new CreateTargetDirTask()) //  create target directory.
@@ -243,7 +241,7 @@ public class CompileCommand implements BLauncherCmd {
                 .addTask(new CopyNativeLibTask())   // copy the native libs
                 .addTask(new CreateJarTask(this.dumpBIR))   // create the jar
                 .addTask(new CopyModuleJarTask())
-                .addTask(new RunTestsTask(configFilePath), this.skipTests)  // run tests
+                .addTask(new RunTestsTask(), this.skipTests)  // run tests
                 .addTask(new CreateLockFileTask())  // create a lock file
                 .build();
     

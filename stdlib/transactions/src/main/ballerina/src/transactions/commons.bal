@@ -327,9 +327,12 @@ public function registerParticipantWithRemoteInitiator(string transactionId, str
     // Register with the coordinator only if the participant has not already done so
     if (participatedTransactions.hasKey(participatedTxnId)) {
         string msg = "Already registered with initiator for transaction:" + participatedTxnId;
-        log:printError(msg);
-        error err = error(msg);
-        return err;
+        log:printInfo(msg);
+        TransactionContext txnCtx = {
+            transactionId:transactionId, transactionBlockId:transactionBlockId,
+            coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL
+        };
+        return txnCtx;
     }
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
 

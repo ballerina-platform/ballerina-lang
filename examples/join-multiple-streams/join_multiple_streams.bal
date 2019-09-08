@@ -68,7 +68,7 @@ listener http:Listener productMaterialListener = new (9090);
 }
 service productMaterialService on productMaterialListener {
 
-    public function __init() {
+    function __init() {
         initRealtimeProductionAlert();
     }
 

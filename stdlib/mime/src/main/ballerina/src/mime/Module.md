@@ -1,4 +1,5 @@
 ## Module Overview
+
 This module provides functions to encapsulate multiple body parts, such as attachments in a single message. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
 
 ### MIME specific terms 
@@ -26,7 +27,6 @@ The sample service given below handles a multipart request. It extracts the body
 
 ``` ballerina
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 

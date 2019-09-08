@@ -1,5 +1,6 @@
 ## Module overview
-The file path module implements the utility functions for manipulating the file path in a way that is compatible with 
+
+This module implements the utility functions for manipulating the file path in a way that is compatible with 
 the target operating system. 
 This module uses either forward slashes or backslashes, depending on the operating system.
 
