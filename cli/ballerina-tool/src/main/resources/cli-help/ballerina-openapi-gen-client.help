@@ -5,7 +5,7 @@ NAME
 
 SYNOPSIS
        ballerina openapi gen-client [<module-name>:]<client-name>
-                        <openapi-contract> [-o | --output <dir-path>]
+                        <openapi-contract> [-o <dir-path> | --output <dir-path>]
 
 
 DESCRIPTION
