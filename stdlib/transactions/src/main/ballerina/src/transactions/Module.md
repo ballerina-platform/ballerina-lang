@@ -1,6 +1,6 @@
 ## Module overview
 
-This module contains Ballerina transaction manager implementation.
+This module provides Ballerina transaction manager implementation.
 
 ## Samples
 

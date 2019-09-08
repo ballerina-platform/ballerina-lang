@@ -1,24 +1,11 @@
 ## Module Overview
 
-This module provides functions to encapsulate multiple body parts, such as attachments in a single message. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
+This module provides functions to encapsulate multiple body parts, such as attachments in a single message. The
+ communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in
+  the [RFC 2045 standard](https://www.ietf.org/rfc/rfc2045.txt).
 
-### MIME specific terms 
-The following terms are MIME specific and are extracted from the MIME specification.
-#### Entity
-This refers to the header fields and the content of a message, or a part of the body in a multipart entity. 
+> Entity refers to the header fields and the content of a message, or a part of the body in a multipart entity. 
 
-#### Body Part
-This refers to an entity that is inside a multipart entity.
-#### Body
-This is the body of an entity, which can be a body of a message or the body of a multipart entity.
-#### Header Fields
-Content-Type, Content-Transfer-Encoding, Content-ID, Content-Description, and Content-Disposition are some of the MIME header fields. These headers exist along with the other headers in the `Entity`.
-
-```
-Content-Type: image/jpeg
-Content-Disposition: attachment; filename=genome.jpeg;
-Content-Description: a complete map of the human genome
-```
 ### Modify and retrieve the data in an entity
 The module provides functions to set and get an entity body from different kinds of message types, such as XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader()`, etc. 
 ## Samples
@@ -84,7 +71,7 @@ function handleContent(mime:Entity bodyPart) returns @tainted string {
             // If the base type is ‘application/json’, get the JSON content from body part.
             var payload = bodyPart.getJson();
             if (payload is json) {
-                return payload.toString();
+                return payload.toJsonString();
             } else {
                 return "Error in parsing json payload";
             }
