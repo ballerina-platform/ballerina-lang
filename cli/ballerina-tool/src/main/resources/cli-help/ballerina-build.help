@@ -2,7 +2,8 @@ NAME
        ballerina-build - Build Ballerina module(s) and generate executables
 
 SYNOPSIS
-       ballerina build [<options>] <ballerina-file-path> | <module-name>
+       ballerina build [<options>]
+                       <ballerina-file-path> | <module-name> [(--key=value)...]
        ballerina build -a | --all [<options>]
 
 
@@ -45,6 +46,13 @@ OPTIONS
 
        --skip-lock
            Skip using the lock file to resolve dependencies.
+
+       (--key=value)...
+           Set Ballerina environment parameters as key/value pairs.
+           If multiple parameters need to be provided, each parameter
+           has to be prefixed with '--'. Details of the environment parameters
+           supported by the Ballerina standard library modules are specified
+           in the relevant API documentation.
 
 
 EXAMPLES
