@@ -43,7 +43,7 @@ public class SearchUtils {
     public static void searchInCentral(String query) {
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
         Proxy proxy = TomlParserUtils.readSettings().getProxy();
-        String urlWithModulePath = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/").toString();
+        String urlWithModulePath = RepoUtils.getRemoteRepoURL() + "/modules/";
         String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
         
         Optional<RuntimeException> exception = executor.executeMainFunction("module_search",
