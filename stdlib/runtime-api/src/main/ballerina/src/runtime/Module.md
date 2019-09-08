@@ -1,6 +1,6 @@
 ## Module overview
 
-This module includes functions to interact with the runtime, the invocation context and to manage errors.
+This module includes functions to interact with the runtime, the invocation context and to manage callStack element.
 
 ## Samples
 
@@ -62,11 +62,10 @@ The Invocation Context comprises of a unique ID, a `Principal` instance that inc
  }
  ```
 
-### Errors
+### CallStack Element
 
-The runtime module includes the `NullReferenceException` and `IllegalStateException` error types. These two error 
-types wrap the `error` type defined in the `ballerina/runtime` module. Furthermore, there are utility methods to 
-retrieve the current call stack and the particular call stack frame for an error. 
+The runtime module includes a utility method to retrieve the current call stack and the particular call stack frame for
+ an error. 
 
 The following sample shows how to access the call stack and how to trap an error.
 
