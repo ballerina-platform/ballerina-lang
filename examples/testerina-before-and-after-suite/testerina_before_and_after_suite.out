@@ -1,20 +1,17 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina test` command.
-# You need to have the ballerina-tools distribution
-# installed in order to run this command.
-$ ballerina test testerina_before_and_after_suite.bal
-Compiling tests
-    testerina_before_and_after_suite.bal
+# For the moment `ballerina test` works only in projects.
+$ ballerina test test_module
+Compiling source
+        ballerinatest/test_module:0.1.0
+
+Creating balos
+        target/balo/test_module-2019r3-any-0.1.0.balo
 
 Running tests
-    testerina_before_and_after_suite.bal
+    ballerinatest/test_module:0.1.0
 I'm the before suite function!
 I'm in test function 2!
 I'm in test function 1!
 I'm the after suite function!
-        [pass] testFunction2
-        [pass] testFunction1
-
         2 passing
         0 failing
         0 skipped

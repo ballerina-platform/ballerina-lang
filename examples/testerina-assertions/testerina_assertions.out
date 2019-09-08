@@ -1,25 +1,13 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina test` command.
-$ ballerina test testerina_assertions.bal
-Compiling tests
-    testerina_assertions.bal
+# For the moment `ballerina test` works only in projects.
+$ ballerina test test_module
+Compiling source
+        ballerinatest/test_module:0.1.0
+
+Creating balos
+        target/balo/test_module-2019r3-any-0.1.0.balo
 
 Running tests
-    testerina_assertions.bal
-    [pass] testAssertFail
-    [pass] testAssertFalse
-    [pass] testAssertTrue
-    [pass] testAssertNotEqualsJson
-    [pass] testAssertNotEqualsString
-    [pass] testAssertFloatArrayEquals
-    [pass] testAssertIntArrayEquals
-    [pass] testAssertStringArrayEquals
-    [pass] testAssertBooleanEquals
-    [pass] testAssertJsonEquals
-    [pass] testAssertStringEquals
-    [pass] testAssertFloatEquals
-    [pass] testAssertIntEquals
-
-    13 passing
-    0 failing
-    0 skipped
+    ballerinatest/test_module:0.1.0
+        13 passing
+        0 failing
+        0 skipped
