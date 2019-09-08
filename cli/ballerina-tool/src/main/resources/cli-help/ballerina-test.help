@@ -1,16 +1,13 @@
 NAME
-       ballerina test - execute Ballerina tests
+       ballerina-test - Run module tests
 
 SYNOPSIS
-       ballerina test [--offline]
-                      [--sourceroot <path>]
-                      [--experimental] [--skip-lock]
-                      [--config <config_file>]
-                      [<module-name> | -a | --all]
+       ballerina build [<options>] <module-name>
+       ballerina build -a | --all [<options>]
 
 
 DESCRIPTION
-       Compile and run Ballerina test sources and print a summary of
+       Test compiles and executes Ballerina test sources and print a summary of
        test results. You can execute tests in a module,
        or an entire Ballerina project.
     
@@ -45,7 +42,7 @@ OPTIONS
 
 EXAMPLES
         Run all tests in the current project
-        $ ballerina test --all
+           → ballerina test --all
 
         Run tests in math module
-        $ ballerina test math
+           → ballerina test math
