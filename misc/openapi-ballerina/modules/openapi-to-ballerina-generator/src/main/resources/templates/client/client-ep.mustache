@@ -43,7 +43,7 @@ public type {{cut info.title " "}}Client client object {
         return check {{{operationId}}}Ep->{{lower .}}("{{../../../key}}", request);{{/equals}}
     }
     {{/allMethods}}{{/if}}{{else}}
-    public remote function {{{operationId}}}({{#requestBody}}{{>reqBody}}{{/requestBody}}{{#pathParameters}}{{>pathParams}}{{#unless @last}}, {{/unless}}{{/pathParameters}}) returns http:Response | error {
+    public remote function {{{operationId}}}({{#requestBody}}{{>reqBody}}{{/requestBody}}{{#if requestBody}}{{#if pathParameters}}, {{/if}}{{/if}}{{#pathParameters}}{{>pathParams}}{{#unless @last}}, {{/unless}}{{/pathParameters}}) returns http:Response | error {
         http:Client {{{operationId}}}Ep = self.clientEp;
         http:Request request = new;{{#requestBody}}{{#equals requestBody.selectedMedia.mediaType "application/json"}}
         json {{{operationId}}}JsonBody = check json.constructFrom({{{operationId}}}Body);
