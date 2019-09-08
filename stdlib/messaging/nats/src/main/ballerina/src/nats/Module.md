@@ -1,7 +1,7 @@
 ## Module overview
 
 This module provides the capability to connect with NATS and NATS Streaming servers and performs the 
-following functionalities.
+following functionality.
 
 - Point to point communication (Queues)
 - Pub/Sub (Topics)
@@ -58,7 +58,7 @@ if (result is error) {
 }
 ```
 
-NOTE: Publish api supports the `byte[], boolean, string, int, float, decimal, xml, json, record {}` message types.
+> Publish api supports the `byte[], boolean, string, int, float, decimal, xml, json, record {}` message types.
 
 
 ### Listening to incoming messages

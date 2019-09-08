@@ -7,18 +7,17 @@ The precedence order for configuration lookup is as follows:
 2. Environment variables 
 3. Configuration files in the TOML format
 
-If a configuration is defined in both a configuration file and as an environment variable, the environment variable takes precedence. Similarly, if the same is set as a CLI parameter, it replaces the value of the environment variable. This configuration resolution happens at the start of the program execution. Configurations can be set programmatically as well. 
+This configuration resolution happens at the start of the program execution. Configurations can be set programmatically as well. 
 
 The Config API provides the capability to feed sensitive data (e.g., passwords) to Ballerina programs securely by encrypting them. 
-
-
-## Samples
 
 ### Setting configurations
 
 To specify a configuration file explicitly, the `--b7a.config.file=<path to configuration file>` property can be used. If 
 this property is not set when 
-running a project, Ballerina looks for a `ballerina.conf` file in the project root. When running a single file or a `.balx`, it's picked from the same directory in which the `.balx` or source resides. The path to the configuration file can either be an absolute or a relative path. 
+running a project, Ballerina looks for a `ballerina.conf` file in the project root. When running a single file or a
+ `.jar`, it's picked from the same directory in which the `.jar` or source resides. The path to the configuration
+  file can either be an absolute or a relative path. 
 
 ```sh
 ballerina run my-program.bal --b7a.config.file=/path/to/conf/file/custom-config-file-name.conf 
@@ -59,7 +58,7 @@ $ set(x) b7a_http_tracelog_path=”./trace.log”
 $ set(x) b7a_http_accesslog_path=”./access.log”
 ```
 
-If the configurations need to be shared during runtime, they can be set using the `setConfig()` function. Such configs are also available to the entire Ballerina Virtual Machine (BVM). 
+If the configurations need to be shared during runtime, they can be set using the `setConfig()` function. 
 
 ```ballerina
 config:setConfig("john.country", "USA");
