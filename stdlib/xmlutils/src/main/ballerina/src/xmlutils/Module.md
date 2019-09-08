@@ -2,10 +2,11 @@
 
 This module provides utility functions to manipulate built-in `xml` data type. This module helps to convert a `json` to an `xml`, or convert a `table` to an `xml`.
 
-### Examples
+### Samples
 
 #### Convert a `json` to an `xml`
 ```ballerina
+import ballerina/io;
 import ballerina/xmlutils;
 
 json personJson = {
@@ -13,19 +14,20 @@ json personJson = {
     age: 30
 };
 
-function convertJsonToXml() {
-    xml|error personXml = xmlutils:fromJSON(personJson);
-    
+public function main() {
+    xml | error personXml = xmlutils:fromJSON(personJson);
+
     if (personXml is error) {
-        // handle the error
+        io:println("An error occurred: ", personXml);
     } else {
-        // handle the xml 
+        io:println(personXml);
     }
 }
 ```
 
 #### Convert a `table` to an `xml`
 ```ballerina
+import ballerina/io;
 import ballerina/xmlutils;
 
 type Person record {
@@ -33,15 +35,16 @@ type Person record {
     string name;
 };
 
-function convertTableToXml() {
-    table<Person> peopleTable = table{
-        { key id, name },
+public function main() {
+    table<Person> peopleTable = table {
+        {key id, name},
         [
-            { 1, "Sam" },
-            { 2, "John" }
+            { 1, "Sam"},
+            { 2, "John"}
         ]
     };
-    
-    xml peopleXml = fromTable(peopleTable);
+
+    xml peopleXml = xmlutils:fromTable(peopleTable);
+    io:println(peopleXml);
 }
 ```
