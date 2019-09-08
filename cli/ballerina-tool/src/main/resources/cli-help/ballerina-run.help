@@ -56,7 +56,7 @@ OPTIONS
 
 
 DEFAULT BEHAVIOR
-       Run command run the 'main' function in the given program or module, if present.
+       Run command runs the 'main' function in the given program or module, if present.
        Then looks for a service, and starts the relevant listeners if services
        are present. If no 'main' function or service is present, the run
        command will fail.

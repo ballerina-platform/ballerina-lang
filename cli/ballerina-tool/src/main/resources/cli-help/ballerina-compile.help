@@ -1,5 +1,5 @@
 NAME
-       Ballerina-compile - Compile Ballerina module(s) and generates shareable
+       ballerina-compile - Compile Ballerina module(s) and generate shareable
        .balo file(s).
 
 SYNOPSIS
@@ -34,7 +34,7 @@ OPTIONS
 
 
 EXAMPLES
-       Compile all the module in a project.
+       Compile all the modules in a project.
           → ballerina compile
        This will generate .balo files for each module in ./target/balo directory of
        the project.
