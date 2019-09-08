@@ -5,7 +5,7 @@ This module contains functions to retrieve information about the system and the 
 * It provides information such as environment variables, username, user home directory path, and the current working
 directory.
 
-## Samples
+## Sample
 
 The sample given below uses the functions in the module to get the system-level information.
 
