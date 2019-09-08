@@ -101,6 +101,8 @@ public class ItemResolverConstants {
     public static final String CHECK_KEYWORD = "check";
     public static final String CHECKPANIC_KEYWORD = "checkpanic";
     public static final String WAIT_KEYWORD = "wait";
+    public static final String START_KEYWORD = "start";
+    public static final String FLUSH_KEYWORD = "flush";
     public static final String LISTENER_KEYWORD = "listener";
     public static final String RETURNS_KEYWORD = "returns";
     public static final String UNTAINTED_KEYWORD = "untainted";
