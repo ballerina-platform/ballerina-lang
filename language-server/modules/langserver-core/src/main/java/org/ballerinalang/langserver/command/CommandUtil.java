@@ -653,7 +653,7 @@ public class CommandUtil {
                 addErrorTypeAtEnd = false;
             }
             List<String> memberTypes = new ArrayList<>();
-            IntStream.range(0, tMembers.size() - 1)
+            IntStream.range(0, tMembers.size())
                     .forEachOrdered(value -> {
                         BType bType = tMembers.get(value);
                         String bTypeName = CommonUtil.getBTypeName(bType, context, true);

@@ -759,10 +759,12 @@ public class TreeVisitor extends LSNodeVisitor {
                 lsContext, this)) {
             return;
         }
+        Class backUpResolver = this.cursorPositionResolver;
         keyValuePairs.forEach(keyValue -> {
             this.cursorPositionResolver = RecordLiteralScopeResolver.class;
             this.acceptNode(keyValue, recordLiteralEnv);
         });
+        this.cursorPositionResolver = backUpResolver;
         this.blockOwnerStack.pop();
     }
 

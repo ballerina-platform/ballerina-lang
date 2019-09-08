@@ -337,7 +337,7 @@ task generateDocs(type: JavaExec) {
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
     def libs = "$buildDir/ballerina/"
-    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm,bir,jvm")
+    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm,bir,jvm,utils,ldap")
 }
 
 task createApiDocsZip(type: Zip) {

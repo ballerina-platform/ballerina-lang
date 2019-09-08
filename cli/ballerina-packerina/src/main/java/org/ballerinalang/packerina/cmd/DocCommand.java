@@ -76,7 +76,7 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--output", "-o"}, description = "Path to folder to which API docs will be written.")
     private String output;
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Compiles offline without downloading " +
+    @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading " +
                                                               "dependencies.")
     private boolean offline;
 

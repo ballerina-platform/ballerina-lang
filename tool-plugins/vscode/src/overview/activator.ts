@@ -146,7 +146,7 @@ function openFileOverview(langClient: ExtendedLangClient) {
 		ballerinaExtInstance.addWebviewPanel('file', fileOverviewPanel);
 	}
 
-	const activePath = window.activeTextEditor.document.uri.path;
+	const activePath = window.activeTextEditor.document.uri.fsPath;
 	const sourceRoot = getSourceRoot(activePath, path.parse(activePath).root);
 
 	fileOverviewRpcHandler = WebViewRPCHandler.create(fileOverviewPanel, langClient);
