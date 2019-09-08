@@ -17,7 +17,7 @@ DESCRIPTION
        name is not provided, ballerina file in which the service resides,
        has to be provided.
 
-       Note: This is an experimental tool which only supports a limited
+       Note: This is an experimental tool, which only supports a limited
        set of functionality.
 
 
