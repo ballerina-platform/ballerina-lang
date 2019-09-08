@@ -8,7 +8,7 @@ NAME
 SYNOPSIS
        ballerina openapi gen-service <module-name>:<service-name>
                                      <openapi-contract>
-                                     [-o | --output <dir-path>]
+                                     [-o <dir-path> | --output <dir-path>]
                                      [-c| --skip-bind]
 
        ballerina openapi gen-client [<module-name>:]<client-name>
