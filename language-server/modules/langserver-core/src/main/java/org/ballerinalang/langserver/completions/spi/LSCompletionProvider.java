@@ -252,7 +252,7 @@ public abstract class LSCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSOCKET));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WS_CLIENT));
-        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSUB));
+//        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSUB));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_GRPC));
         completionItems.add(getStaticItem(context, Snippet.DEF_ANNOTATION));
         completionItems.add(getStaticItem(context, Snippet.STMT_NAMESPACE_DECLARATION));
@@ -604,9 +604,9 @@ public abstract class LSCompletionProvider {
             case "grpc":
                 items.add(Snippet.DEF_RESOURCE_GRPC.get().build(ctx));
                 break;
-            case "websub":
-                addAllWebsubResources(ctx, items, service);
-                break;
+//            case "websub":
+//                addAllWebsubResources(ctx, items, service);
+//                break;
             default:
                 items.add(Snippet.DEF_RESOURCE_COMMON.get().build(ctx));
                 return items;
@@ -614,10 +614,10 @@ public abstract class LSCompletionProvider {
         return items;
     }
 
-    private void addAllWebsubResources(LSContext ctx, List<CompletionItem> items, BLangService service) {
-        addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
-    }
+//    private void addAllWebsubResources(LSContext ctx, List<CompletionItem> items, BLangService service) {
+//        addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
+//        addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
+//    }
 
     private void addAllWSClientResources(LSContext ctx, List<CompletionItem> items, BLangService service) {
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_TEXT.get(), service, items, ctx);
