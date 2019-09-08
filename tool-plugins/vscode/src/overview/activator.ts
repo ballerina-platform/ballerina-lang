@@ -151,8 +151,8 @@ function openFileOverview(langClient: ExtendedLangClient) {
 
 	fileOverviewRpcHandler = WebViewRPCHandler.create(fileOverviewPanel, langClient);
 	const html = render(
-		sourceRoot ? Uri.parse(sourceRoot).toString(): undefined,
-		Uri.parse(activePath).toString(), undefined);
+		sourceRoot ? Uri.parse(sourceRoot).toString(true): undefined,
+		Uri.parse(activePath).toString(true), undefined);
 	if (fileOverviewPanel && html) {
 		fileOverviewPanel.webview.html = html;
 	}
