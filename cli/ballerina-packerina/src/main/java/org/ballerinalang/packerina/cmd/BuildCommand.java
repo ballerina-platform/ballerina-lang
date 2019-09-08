@@ -161,9 +161,12 @@ public class BuildCommand implements BLauncherCmd {
             this.errStream.println(commandUsageInfo);
             return;
         }
-        
+
+        String[] args = LaunchUtils
+                .initConfigurations(this.argList == null ? new String[0] : this.argList.toArray(new String[0]));
+
         // check if there are too many arguments.
-        if (this.argList != null && containsUserArgs(this.argList)) {
+        if (args.length > 1) {
             CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -425,9 +428,5 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
-
-    private boolean containsUserArgs(List<String> args) {
-        return LaunchUtils.initConfigurations(args.toArray(new String[0])).length > 1;
     }
 }
