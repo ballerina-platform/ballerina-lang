@@ -1,5 +1,5 @@
 
-import { ASTNode, ASTUtil, Block, Visitor } from "@ballerina/ast-model";
+import { ASTKindChecker, ASTNode, ASTUtil, Block, Visitor } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { HiddenBlockContext } from "../view-model/hidden-block-context";
 import { StmntViewState } from "../view-model/index";
@@ -23,7 +23,7 @@ export const visitor: Visitor = {
                 ASTUtil.traversNode(statementViewState.expandContext.expandedSubTree, visitor);
             }
 
-            if (stmt.viewState.hidden) {
+            if (stmt.viewState.hidden || stmt.viewState.hiddenBlock) {
                 if (!hiddenSet) {
                     const hiddenSetViewState = stmt.viewState as StmntViewState;
                     hiddenSet = true;
@@ -39,6 +39,13 @@ export const visitor: Visitor = {
                         const hiddenSetNodeViewState = hiddenSetNode.viewState as StmntViewState;
                         hiddenSetViewState.hiddenBlockContext = new HiddenBlockContext();
                         hiddenSetNodeViewState.hidden = false;
+                        if (ASTKindChecker.isMatch(hiddenSetNode)) {
+                            hiddenSetNode.patternClauses.forEach((clause) => {
+                                clause.viewState.hidden = false;
+                                clause.statement.viewState.hidden = false;
+                            });
+                        }
+
                         hiddenSetNodeViewState.hiddenBlock = false;
                         hiddenSetNodeViewState.isInHiddenBlock = true;
                         hiddenSetNodeViewState.hiddenBlockContext = undefined;
@@ -48,6 +55,13 @@ export const visitor: Visitor = {
                     if (resetBlock) {
                         const hiddenSetNode = _.cloneDeep(stmt);
                         hiddenSetNode.viewState.hidden = false;
+                        if (ASTKindChecker.isMatch(hiddenSetNode)) {
+                            hiddenSetNode.patternClauses.forEach((clause) => {
+                                clause.viewState.hidden = false;
+                                clause.statement.viewState.hidden = false;
+                            });
+                        }
+
                         (hiddenSetNode.viewState as StmntViewState).isInHiddenBlock = true;
                         hiddenSetNodes.push(hiddenSetNode);
                     }

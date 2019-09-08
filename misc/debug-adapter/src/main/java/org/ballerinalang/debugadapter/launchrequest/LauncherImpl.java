@@ -22,6 +22,8 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.DebuggerAttachingVM;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,7 @@ import java.util.Map;
  * Launcher abstract implementation.
  */
 public abstract class LauncherImpl {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LauncherImpl.class);
     private final Map<String, Object> args;
     private String debuggeePort;
 
@@ -62,21 +65,21 @@ public abstract class LauncherImpl {
             command.add("--debug");
             command.add(debuggeePort);
         }
-        ArrayList<String> commandOptions = (ArrayList<String>) args.get("commandOptions");
-        commandOptions = commandOptions == null ? new ArrayList<>() : commandOptions;
-        command.addAll(commandOptions);
 
         command.add("--experimental");
+
+        command.add(balFile);
 
         boolean networkLogs = args.get("networkLogs") != null && (boolean) args.get("networkLogs");
         if (networkLogs && !debugTests) {
             Double networkLogsPort = (Double) args.get("networkLogsPort");
-            command.add("-e");
-            command.add("b7a.http.tracelog.host=localhost");
-            command.add("-e");
-            command.add("b7a.http.tracelog.port=" + networkLogsPort.intValue());
+            command.add("--b7a.http.tracelog.host=localhost");
+            command.add("--b7a.http.tracelog.port=" + networkLogsPort.intValue());
         }
-        command.add(balFile);
+
+        ArrayList<String> commandOptions = (ArrayList<String>) args.get("commandOptions");
+        commandOptions = commandOptions == null ? new ArrayList<>() : commandOptions;
+        command.addAll(commandOptions);
 
         ArrayList<String> scriptArguments = (ArrayList<String>) args.get("scriptArguments");
         scriptArguments = scriptArguments == null ? new ArrayList<>() : scriptArguments;
@@ -91,8 +94,8 @@ public abstract class LauncherImpl {
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
             return debuggee;
-        } catch (IOException e) {
-        } catch (IllegalConnectorArgumentsException e) {
+        } catch (IOException | IllegalConnectorArgumentsException e) {
+            LOGGER.error("Debugger failed to attach");
         }
         return null;
     }

@@ -15,6 +15,8 @@
 // under the License.
 import ballerina/http;
 import ballerina/log;
+import ballerina/jsonutils;
+import ballerina/xmlutils;
 import ballerinax/java.jdbc;
 
 jdbc:Client testDB = new({
@@ -33,14 +35,10 @@ service dataService on dataServiceListener {
 
         var selectRet = testDB->select("SELECT * FROM Data", ());
         if (selectRet is table<record {}>) {
-            var xmlConversionRet = typedesc<xml>.constructFrom(selectRet);
-            if (xmlConversionRet is xml) {
-                var responseToCaller = caller->respond(<@untainted> xmlConversionRet);
-                if (responseToCaller is error) {
-                    log:printError("Error sending response", responseToCaller);
-                }
-            } else {
-                panic xmlConversionRet;
+            var xmlConversionRet = xmlutils:fromTable(selectRet);
+            var responseToCaller = caller->respond(<@untainted> xmlConversionRet);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             error e = selectRet;
@@ -52,14 +50,10 @@ service dataService on dataServiceListener {
 
         var selectRet = testDB->select("SELECT * FROM Data", ());
         if (selectRet is table<record {}>) {
-            var jsonConversionRet = typedesc<json>.constructFrom(selectRet);
-            if (jsonConversionRet is json) {
-                var responseToCaller = caller->respond(<@untainted> jsonConversionRet);
-                if (responseToCaller is error) {
-                    log:printError("Error sending response", responseToCaller);
-                }
-            } else {
-                panic jsonConversionRet;
+            var jsonConversionRet = jsonutils:fromTable(selectRet);
+            var responseToCaller = caller->respond(<@untainted> jsonConversionRet);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             error e = selectRet;
@@ -71,15 +65,11 @@ service dataService on dataServiceListener {
 
         var selectRet = testDB->select("SELECT * FROM Data", ());
         if (selectRet is table<record {}>) {
-            var jsonConversionRet = typedesc<json>.constructFrom(selectRet);
-            if (jsonConversionRet is json) {
-                json j = { status: "200", resp: { value: jsonConversionRet } };
-                var responseToCaller = caller->respond(<@untainted> j);
-                if (responseToCaller is error) {
-                    log:printError("Error sending response", responseToCaller);
-                }
-            } else {
-                panic jsonConversionRet;
+            var jsonConversionRet = jsonutils:fromTable(selectRet);
+            json j = { status: "200", resp: { value: jsonConversionRet } };
+            var responseToCaller = caller->respond(<@untainted> j);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             error e = selectRet;

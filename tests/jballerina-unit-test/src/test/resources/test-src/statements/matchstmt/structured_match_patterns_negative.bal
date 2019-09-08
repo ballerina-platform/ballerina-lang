@@ -30,13 +30,9 @@ function testRecordInvalidPattern() returns string {
 
     ClosedFoo foo = {s: "S", i: 23};
     match foo {
-        var {s, i: integer, f: [a, b, c]} => {return "A";} // invalid record binding pattern
-        var {s, i: integer, f} => {return "A";} // invalid record binding pattern
         var {s, i: integer} => {return "A";}
         var {s} => {return "A";}
-        var {a} => {return "A";} // invalid record binding pattern;
         "12" => {return "A";} // pattern will not be matched
-        var [s, i] => {return "A";} // invalid tuple variable;
     }
 
     OpenedFoo foo1 = {s: "S", i: 23};
@@ -47,7 +43,6 @@ function testRecordInvalidPattern() returns string {
         var {s} => {return "A";}
         var {a} => {return "A";}
         "12" => {return "A";} // pattern will not be matched
-        var [s, i] => {return "A";} // invalid tuple variable;
     }
 
     return "Default";
@@ -57,12 +52,8 @@ function testTupleInvalidPattern() returns string {
     ClosedFoo foo = {s: "S", i: 23};
     [string, int, ClosedFoo] t = ["A", 12, foo];
     match t {
-        var [a, b] => {return "A";} // invalid tuple binding pattern;
-        var {s, i} => {return "A";} // invalid record binding pattern
         "12" => {return "A";} // pattern will not be matched
-        var [a, b, [d, e]] => {return "A";} // invalid tuple variable;
         var [a, b, {s}] => {return "A";}
-        var [a, b, {s, i, f}] => {return "A";} // invalid record binding pattern;
         var [a, b, {s, i}] => {return "A";} // unreachable
         var [a, b, c] => {return "A";}
     }

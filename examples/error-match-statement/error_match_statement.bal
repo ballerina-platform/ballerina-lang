@@ -36,7 +36,7 @@ function basicMatch(any|error v) {
         var [tVar1, tVar2] => { io:println("Matched a value with a tuple shape"); }
         var { message, fatal } =>
                             { io:println("Matched a value with a record shape"); }
-        // If the variable 'v' contains an `error` values of shape that matches `InvalidIdError'
+        // If the variable 'v' contains an `error` values of shape that matches `InvalidIdError`
         // it will be matched to `InvalidIdError` indirect error match pattern.
         var InvalidIdError(id = id) => { io:println("Matched `InvalidError` id=", id); }
         // If the variable `v` contains an `error` value, it will be matched

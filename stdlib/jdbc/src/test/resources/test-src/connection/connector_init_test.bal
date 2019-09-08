@@ -12,7 +12,7 @@
 // KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/jsonutils;
 import ballerinax/java.jdbc;
 
 jdbc:PoolOptions properties = {
@@ -216,12 +216,8 @@ function testConnectionFailure(string jdbcURL) {
 function getJsonConversionResult(table<record {}> | error tableOrError) returns json {
     json retVal;
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult =typedesc<json>.constructFrom( tableOrError);
-        if (jsonConversionResult is json) {
-            retVal = jsonConversionResult;
-        } else {
-            retVal = {"Error": <string>jsonConversionResult.detail().message};
-        }
+        var jsonConversionResult = jsonutils:fromTable(tableOrError);
+        retVal = jsonConversionResult;
     } else {
         retVal = {"Error": <string>tableOrError.detail()["message"]};
     }

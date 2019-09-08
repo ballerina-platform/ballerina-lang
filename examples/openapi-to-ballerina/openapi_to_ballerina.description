@@ -1,7 +1,7 @@
 // If you already have an OpenApi Specification(OAS)-3 document for your service(s),
-// you can use that to autogenerate Ballerina source code.
+// you can use that contract to generate a Ballerina source code.
 // Currently, Ballerina supports two types of code generation.
-// 'gen-service' generates a mock version of the Ballerina service for an input OAS definition.
+// 'gen-service' generates a mock version of the Ballerina service for a provided OAS definition.
 // `ballerina openapi gen-service <module-name>:<service-name> <openapi-contract>`
-// 'gen-client' generates a Ballerina client endpoint for an input OAS definition.
+// 'gen-client' generates a Ballerina client endpoint for a provided OAS definition.
 // `ballerina openapi gen-client [<module>:]<client-name> <openapi-file> [-o=<outputFileName>]`

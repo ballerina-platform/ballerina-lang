@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -45,8 +46,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_URL;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
-import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
+import static org.ballerinalang.net.grpc.GrpcUtil.getConnectionManager;
+import static org.ballerinalang.net.grpc.GrpcUtil.populateSenderConfigurations;
 
 /**
  * Extern function for initializing gRPC client endpoint.
@@ -100,6 +101,8 @@ public class Init {
 
             clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
             clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
+        } catch (ErrorValue ex) {
+            return ex;
         } catch (RuntimeException ex) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withCause(ex)));

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.0-beta</version>
+    <version>1.0.0-rc1</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -10,8 +10,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li> Added grammar fixes related to 2019R3 language specification compatibility. </li>
-        <li> Improved caret moving inside ballerina blocks. </li>
+        <li> Added plugin support for latest constant expression related changes. </li>
+        <li> Added debugger related fixes and improvements. </li>
       </ul>
     ]]>
     </change-notes>

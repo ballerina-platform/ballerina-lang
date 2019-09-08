@@ -3080,6 +3080,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkObjectFunctionInvocationExpr(BLangInvocation iExpr, BObjectType objectType) {
+        if (objectType.getKind() == TypeKind.SERVICE &&
+                !(iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                (Names.SELF.equals(((BLangSimpleVarRef) iExpr.expr).symbol.name)))) {
+            dlog.error(iExpr.pos, DiagnosticCode.SERVICE_FUNCTION_INVALID_INVOCATION);
+            return;
+        }
         // check for object attached function
         Name funcName =
                 names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value, iExpr.name.value));
@@ -3287,6 +3293,9 @@ public class TypeChecker extends BLangNodeVisitor {
             if (iExpr.symbol.tag == SymTag.VARIABLE) {
                 if (i < paramTypes.size()) {
                     checkTypeParamExpr(arg, this.env, expectedType);
+                    if (nonRestParams.size() > i) {
+                        requiredParams.remove(nonRestParams.get(i));
+                    }
                     continue;
                 }
                 // if no such parameter, too many arg have been given.

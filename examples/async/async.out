@@ -2,18 +2,10 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run async.bal
 SQ + CB = 737100
-false
-false
-true
-Counting done in one second: 15193240
-false
-true
-100
-false
-{"args":{"test":"123"},"headers":{"host":"postman-echo.com","accept-encoding":"deflate, gzip","user-agent":"ballerina/0.9xx","x-forwarded-port":"443","x-forwarded-proto":"https"},"url":"https://postman-echo.com/get?test=123"}
-true
+Counting done in one second: 0
+args=test=123 headers=x-forwarded-proto=https host=postman-echo.com user-agent=ballerina/1.0.0 x-forwarded-port=443 url=https://postman-echo.com/get?test=123
 400
-{"first_field":100, "second_field":27, "third_field":"Hello Moose!!"}
+first_field=100 second_field=27 third_field=Hello Moose!!
 first field of record --> 100
 second field of record --> 27
 third field of record --> Hello Moose!!

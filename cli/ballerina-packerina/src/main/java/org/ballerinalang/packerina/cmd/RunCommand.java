@@ -80,7 +80,7 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Builds offline without downloading dependencies and " +
+    @CommandLine.Option(names = {"--offline"}, description = "Builds offline without downloading dependencies and " +
                                                               "then run.")
     private boolean offline;
 
@@ -318,10 +318,10 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina run [--off-line]\n" +
+        out.append("  ballerina run [--offline]\n" +
                            "                [--sourceroot]\n" +
                            "                {<balfile> | module-name | executable-jar} [configs (--key=value)...] " 
-                           + "[args...] \n");
+                           + "[--] [args...] \n");
     }
 
     @Override

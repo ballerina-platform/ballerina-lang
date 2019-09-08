@@ -9,6 +9,7 @@ export class ExpandContext {
     public labelWidth: number = 0;
     public collapsed: boolean = true;
     public skipDepthCheck: boolean = false;
+    public statementText: string = "";
 
     constructor(expandableNode: Invocation, expandedSubTree: BalFunction, uri: string) {
         this.expandableNode = expandableNode;

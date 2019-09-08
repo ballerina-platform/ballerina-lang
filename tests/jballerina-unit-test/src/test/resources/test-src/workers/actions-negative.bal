@@ -30,20 +30,20 @@ type thirdRec record {
     int f4?;
 };
 
-type Person object {
-    public int age = 1;
-    public string name = "default";
+type Person record {
+    int age = 1;
+    string name = "default";
 };
 
 function workerActionFirstTest() {
     worker w1 {
-        Person p1 = new Person();
+        Person p1 = {};
         // Async send expr should be of anydata
         p1 -> w2;
         // Sync send expr should be of anydata
         var result = p1 ->> w2;
         // Invalid worker
-        var x = flush w4;
+        // var x = flush w4;
     }
     worker w2 returns error? {
         // Receive expr should get anydata
@@ -52,13 +52,13 @@ function workerActionFirstTest() {
              return err;
         }
         Person p2 = <- w1;
-        Person p3 = new Person();
+        Person p3 = {};
         p3 = <- w1;
         return;
     }
     worker w3 {
         // No send actions to particular worker
-        flush w1;
+        var x = flush w1;
     }
 }
 
@@ -109,7 +109,7 @@ function invalidReceiveUsage() {
             a -> w2;
         }
         worker w2 {
-            var a = <- w1;
+            int a = <- w1;
         }
     }
 }
@@ -187,3 +187,44 @@ public function workerAsAFutureTest() returns int {
 
     return wait wy;
 }
+
+type ObjFuncUsingWorkersAsFutureValues object {
+    function foo() returns int {
+        worker wx returns int {
+            any a = <- wy;
+            "h" -> wy;
+            future<int> fi = wy; // illegal peer worker ref
+            var f = function () {
+                _ = wait wy; // illegal peer worker ref within a worker
+            };
+            return wait fi;
+        }
+
+        worker wy returns int {
+            "a" -> wx;
+            string k = <- wx;
+
+            fork {
+                worker wix returns int {
+                    int ji = <- wiy;
+                    var fwiy = wiy; // illegal peer worker ref within a worker
+
+                    return 0;
+                }
+                worker wiy {
+                    0 -> wix;
+                    _ = wait wix; // illegal peer worker ref within a worker
+                    _ = wait wx; // illegal peer worker ref within a worker
+                    function (future<int>) returns future<int> f = (a) => wx; // illegal peer worker ref within a worker
+                    future<int> wxRef = f();
+                }
+            }
+
+            future<int>  wixF = wix;
+            int wixK = wait wix;
+            future<int> fn = wx; // illegal peer worker ref within a worker
+            return wait wx; // illegal peer worker ref within a worker
+        }
+        return wait wy;
+    }
+};

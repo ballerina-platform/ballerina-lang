@@ -226,7 +226,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
-    private final Stack<HashSet<BType>> returnTypes = new Stack<>();
+    private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private boolean withinAbortedBlock;
     private boolean withinCommittedBlock;
     private boolean isJSONContext;
@@ -369,7 +369,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
-        this.returnTypes.push(new HashSet<>());
+        this.returnTypes.push(new LinkedHashSet<>());
         this.resetFunction();
         if (Symbols.isNative(funcNode.symbol)) {
             return;
@@ -552,6 +552,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangMatchStaticBindingPatternClause patternClause) {
+        analyzeNode(patternClause.matchExpr, env);
+        analyzeNode(patternClause.body, env);
+        resetStatementReturns();
+    }
+
+    @Override
+    public void visit(BLangMatchStructuredBindingPatternClause patternClause) {
+        analyzeNode(patternClause.matchExpr, env);
+        analyzeNode(patternClause.body, env);
+        resetStatementReturns();
+    }
+
     private void analyzeMatchedPatterns(BLangMatch matchStmt, boolean staticLastPattern,
                                         boolean structuredLastPattern) {
         if (staticLastPattern && structuredLastPattern) {
@@ -580,6 +594,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean analyzeStructuredMatchPatterns(BLangMatch matchStmt) {
         if (matchStmt.exprTypes.isEmpty()) {
             return false;
+        }
+
+        for (BLangMatchStructuredBindingPatternClause patternClause : matchStmt.getStructuredPatternClauses()) {
+            analyzeNode(patternClause, env);
         }
 
         return analyseStructuredBindingPatterns(matchStmt.getStructuredPatternClauses(),
@@ -646,6 +664,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         List<BLangMatchStaticBindingPatternClause> matchedPatterns = new ArrayList<>();
         for (BLangMatchStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
+            analyzeNode(pattern, env);
+
             List<BType> matchedExpTypes = matchStmt.exprTypes
                     .stream()
                     .filter(exprType -> isValidStaticMatchPattern(exprType, pattern.literal))
@@ -1282,21 +1302,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void checkWorkerPeerWorkerUsageInsideWorker(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
         if ((symbol.flags & Flags.WORKER) == Flags.WORKER) {
-            // Current location is a worker lambda
-            // And refering symbol is in a toplevel function.
-            boolean isInFunctionTopLevel = symbol.owner != null
-                    && symbol.owner.owner != null
-                    && symbol.owner.owner.getKind() == SymbolKind.PACKAGE;
-            if (env.scope.owner != null
-                    && (((BInvokableSymbol) env.scope.owner).flags & Flags.WORKER) == Flags.WORKER
-                    && isInFunctionTopLevel
-                    && env.scope.lookup(symbol.name).symbol == null) {
+            if (isCurrentPositionInWorker(env) && env.scope.lookup(symbol.name).symbol == null) {
                 if (referingForkedWorkerOutOfFork(symbol, env)) {
                     return;
                 }
                 dlog.error(pos, DiagnosticCode.INVALID_WORKER_REFERRENCE, symbol.name);
             }
         }
+    }
+
+    private boolean isCurrentPositionInWorker(SymbolEnv env) {
+        if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.WORKER)) {
+            return true;
+        }
+        if (env.enclEnv != null
+                && !(env.enclEnv.node.getKind() == NodeKind.PACKAGE
+                    || env.enclEnv.node.getKind() == NodeKind.OBJECT_TYPE)) {
+            return isCurrentPositionInWorker(env.enclEnv);
+        }
+        return false;
     }
 
     private boolean referingForkedWorkerOutOfFork(BSymbol symbol, SymbolEnv env) {
@@ -2495,11 +2519,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             funcNode.restParam.type);
         }
 
-        if (!types.isAssignable(funcNode.returnTypeNode.type,
-                                BUnionType.create(null, symTable.nilType, symTable.errorType))) {
-            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL,
-                            funcNode.returnTypeNode.type);
-        }
+        types.validateErrorOrNilReturn(funcNode, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL);
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
@@ -2515,12 +2535,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(funcNode.pos, DiagnosticCode.MODULE_INIT_CANNOT_HAVE_PARAMS);
         }
 
-        if (!funcNode.returnTypeNode.type.isNullable() ||
-                !types.isAssignable(funcNode.returnTypeNode.type,
-                                    BUnionType.create(null, symTable.nilType, symTable.errorType))) {
-            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL,
-                            funcNode.returnTypeNode.type);
-        }
+        types.validateErrorOrNilReturn(funcNode, DiagnosticCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL);
     }
 
     private void checkDuplicateNamedArgs(List<BLangExpression> args) {

@@ -51,8 +51,8 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         cmd.execute();
 
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina OpenApi - Gen Service is a tool which will convert an OpenApi" +
-                " contract to a Ballerina mock service."));
+        Assert.assertTrue(output.contains("ballerina openapi gen-service - convert an OpenApi contract to a\n" +
+                                                  "       Ballerina mock service"));
     }
 
     @Test(description = "Test openapi gen-service without help option")
@@ -171,7 +171,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         Assert.assertTrue(output.contains("Could not resolve a valid OpenApi contract in "));
     }
 
-    @Test(description = "Test openapi gen-service for successful service generation")
+    @Test(description = "Test openapi gen-service for successful service generation", enabled = false)
     public void testSuccessfulServiceGeneration() throws IOException {
         Path petstoreYaml = RES_DIR.resolve(Paths.get("petstore.yaml"));
         String[] args = {"petsModule:petService", petstoreYaml.toString()};

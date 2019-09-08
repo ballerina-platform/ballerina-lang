@@ -50,9 +50,14 @@
         <div class="main-wrapper">
             <h1>
                 {{> breadcrumb }}
-                <span class="title-type">Clients - </span> 
-                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> : 
-                <span class="clients">{{ client.name }}</span> </h1>
+                <span class="title-type">Clients - </span>
+                {{#if project.isSingleFile}}
+                    {{project.sourceFileName}}
+                {{else}}
+                    <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> :
+                {{/if}}
+                <span class="clients">{{ client.name }}</span>
+            </h1>
             <p>{{{ client.description }}}</p>
 
             <div class="constants">

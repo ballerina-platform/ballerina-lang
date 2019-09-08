@@ -62,6 +62,11 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
     }
 
     @Override
+    public BLangVariable getRestVariable() {
+        return this.restVariable;
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.TUPLE_VARIABLE;
     }

@@ -160,18 +160,15 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
     public void testCompileBalProjectToml() throws IOException {
         Path sourceRoot = this.testResources.resolve("ballerina-toml");
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
-        new CommandLine(buildCommand).parse("-c", "foo");
+        new CommandLine(buildCommand).parse("-c", "foo", "--skip-tests");
         
         buildCommand.execute();
         String compileLog = readOutput(true);
         Assert.assertEquals(compileLog, "Compiling source\n" +
                                       "\tbar/foo:1.2.0\n" +
                                       "\nCreating balos\n" +
-                                      "\ttarget/balo/foo-2019r3-any-1.2.0.balo\n" +
-                                      "\n" +
-                                      "Running tests\n" +
-                                      "    bar/foo:1.2.0\n" +
-                                      "\tNo tests found\n\n");
+                                      "\ttarget/balo/foo-2019r3-any-1.2.0.balo\n"
+                                      );
         
         deleteDirectory(sourceRoot.resolve("target"));
         
@@ -215,7 +212,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         Files.createFile(libs.resolve("json.jar"));
 
         // Compile the project
-        String[] compileArgs = {"--all", "-c"};
+        String[] compileArgs = {"--all", "-c", "--skip-tests"};
         BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("valid-project"), printStream,
                 printStream, false, true);
         new CommandLine(buildCommand).parse(compileArgs);

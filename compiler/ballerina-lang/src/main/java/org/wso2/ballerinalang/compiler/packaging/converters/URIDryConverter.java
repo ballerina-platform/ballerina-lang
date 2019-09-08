@@ -137,13 +137,13 @@ public class URIDryConverter extends URIConverter {
                                 new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()))) {
                             String errorContent = errorStream.lines().collect(Collectors.joining("\n"));
                             this.errStream.println("error: could not connect to remote repository to find the latest " +
-                                                   "version of module: " + moduleID.toString() + ". use '--off-line' " +
+                                                   "version of module: " + moduleID.toString() + ". use '--offline' " +
                                                    "flag to build in offline mode. reason: " + errorContent);
                             setErrorLoggedStatusAsTrue();
                         }
                     } else if (statusCode == 500 && !loggedError) {
                         this.errStream.println("error: could not connect to remote repository to find the latest " +
-                                               "version of module: " + moduleID.toString() + ". use '--off-line' " +
+                                               "version of module: " + moduleID.toString() + ". use '--offline' " +
                                                "flag to build in offline mode.");
                         setErrorLoggedStatusAsTrue();
                     }

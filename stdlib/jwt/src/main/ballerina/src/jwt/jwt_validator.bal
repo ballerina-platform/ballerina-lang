@@ -17,10 +17,10 @@
 import ballerina/cache;
 import ballerina/crypto;
 import ballerina/encoding;
-import ballerina/internal;
 import ballerina/io;
 import ballerina/lang.'int as langint;
 import ballerina/lang.'string as strings;
+import ballerina/stringutils;
 import ballerina/time;
 
 # Represents JWT validator configurations.
@@ -74,7 +74,7 @@ public function validateJwt(string jwtToken, JwtValidatorConfig config) returns 
 }
 
 function getJwtComponents(string jwtToken) returns string[]|Error {
-    string[] jwtComponents = internal:split(jwtToken, "\\.");
+    string[] jwtComponents = stringutils:split(jwtToken, "\\.");
     if (jwtComponents.length() < 2 || jwtComponents.length() > 3) {
         return prepareError("Invalid JWT token.");
     }

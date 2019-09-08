@@ -16,8 +16,8 @@
 
 import ballerina/bir;
 import ballerina/io;
-import ballerina/internal;
 import ballerina/jvm;
+import ballerina/stringutils;
 
 string[] generatedInitFuncs = [];
 int nextId = -1;
@@ -110,7 +110,6 @@ function genJMethodForBFunc(bir:Function func,
     // panic if this strand is cancelled
     checkStrandCancelled(mv, localVarOffset);
 
-    bir:FunctionParam?[] functionParams = [];
     bir:VariableDcl?[] localVars = func.localVars;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
@@ -118,9 +117,6 @@ function genJMethodForBFunc(bir:Function func,
         if (localVar.kind != "ARG") {
             bir:BType bType = localVar.typeValue;
             genDefaultValue(mv, bType, index);
-        }
-        if (localVar is bir:FunctionParam) {
-            functionParams[functionParams.length()] =  localVar;
         }
         k += 1;
     }
@@ -170,29 +166,6 @@ function genJMethodForBFunc(bir:Function func,
     }
 
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, module);
-
-    int paramCounter = 0;
-    int paramBBCounter = 0;
-    while (paramCounter < functionParams.length()) {
-        var funcParam = functionParams[paramCounter];
-        if (funcParam is bir:FunctionParam && funcParam.hasDefaultExpr) {
-
-            // Load boolean in the next parameter of the related parameter
-            var isExistParam = getFunctionParam(functionParams[paramCounter + 1]);
-            mv.visitVarInsn(ILOAD, indexMap.getIndex(isExistParam));
-
-            // Gen the if not equal logic
-            jvm:Label paramNextLabel = labelGen.getLabel(funcParam.name.value + "next");
-            mv.visitJumpInsn(IFNE, paramNextLabel);
-
-            bir:BasicBlock?[] bbArray = func.paramDefaultBBs[paramBBCounter];
-            generateBasicBlocks(mv, bbArray, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                                stateVarIndex, localVarOffset, true, module, currentPackageName, attachedType);
-            mv.visitLabel(paramNextLabel);
-            paramBBCounter += 1;
-        }
-        paramCounter += 2;
-    }
 
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
@@ -316,7 +289,7 @@ function genJMethodForBFunc(bir:Function func,
     // Create Local Variable Table
     k = localVarOffset;
     // Add strand variable to LVT
-    mv.visitLocalVariable("__strand", io:sprintf("L%s;", STRAND), methodStartLabel, methodEndLabel, 0);
+    mv.visitLocalVariable("__strand", io:sprintf("L%s;", STRAND), methodStartLabel, methodEndLabel, localVarOffset);
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         jvm:Label startLabel = methodStartLabel;
@@ -362,60 +335,60 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
         mv.visitInsn(DUP);
 
         if (bType is bir:BTypeInt) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), "J");
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "J");
             mv.visitVarInsn(LSTORE, index);
         } else if (bType is bir:BTypeByte) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), "I");
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "I");
             mv.visitVarInsn(ISTORE, index);
         } else if (bType is bir:BTypeFloat) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), "D");
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "D");
             mv.visitVarInsn(DSTORE, index);
         } else if (bType is bir:BTypeString) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", STRING_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDecimal) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", DECIMAL_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeBoolean) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), "Z");
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "Z");
             mv.visitVarInsn(ISTORE, index);
         } else if (bType is bir:BMapType || bType is bir:BRecordType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", MAP_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTableType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", TABLE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BStreamType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", STREAM_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BArrayType ||
                     bType is bir:BTupleType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", ARRAY_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", OBJECT_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BErrorType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", ERROR_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BFutureType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", FUTURE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BInvokableType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", FUNCTION_POINTER));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDesc) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", TYPEDESC_VALUE));
             mv.visitVarInsn(ASTORE, index);
         }   else if (bType is bir:BTypeNil ||
@@ -424,15 +397,15 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
                     bType is bir:BUnionType ||
                     bType is bir:BJSONType ||
                     bType is bir:BFiniteType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", OBJECT));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BXMLType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", XML_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeHandle) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", HANDLE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else {
@@ -456,62 +429,62 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
         bir:BType bType = localVar.typeValue;
         if (bType is bir:BTypeInt) {
             mv.visitVarInsn(LLOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"), "J");
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "J");
         } else if (bType is bir:BTypeByte) {
             mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"), "I");
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "I");
         } else if (bType is bir:BTypeFloat) {
             mv.visitVarInsn(DLOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"), "D");
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "D");
         } else if (bType is bir:BTypeString) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", STRING_VALUE));
         } else if (bType is bir:BTypeDecimal) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", DECIMAL_VALUE));
         } else if (bType is bir:BTypeBoolean) {
             mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"), "Z");
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "Z");
         } else if (bType is bir:BMapType ||
                     bType is bir:BRecordType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", MAP_VALUE));
         } else if (bType is bir:BTableType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", TABLE_VALUE));
         } else if (bType is bir:BStreamType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", STREAM_VALUE));
         } else if (bType is bir:BArrayType ||
                     bType is bir:BTupleType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", ARRAY_VALUE));
         } else if (bType is bir:BErrorType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", ERROR_VALUE));
         } else if (bType is bir:BFutureType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", FUTURE_VALUE));
         } else if (bType is bir:BTypeDesc) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", TYPEDESC_VALUE));
         } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", OBJECT_VALUE));
         } else if (bType is bir:BInvokableType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", FUNCTION_POINTER));
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
@@ -520,15 +493,15 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
                     bType is bir:BJSONType ||
                     bType is bir:BFiniteType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", OBJECT));
         } else if (bType is bir:BXMLType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", XML_VALUE));
         } else if (bType is bir:BTypeHandle) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                      io:sprintf("L%s;", HANDLE_VALUE));
         } else {
             error err = error( "JVM generation is not supported for type " +
@@ -598,7 +571,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
     // process error entries
     bir:ErrorEntry?[] errorEntries = func.errorEntries;
     bir:ErrorEntry? currentEE = ();
-    string[] errorVarNames = []; 
+    string[] errorVarNames = [];
     jvm:Label endLabel = new;
     jvm:Label handlerLabel = new;
     jvm:Label jumpLabel = new;
@@ -637,7 +610,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             handlerLabel = new;
             jumpLabel = new;
             // start try for instructions.
-            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel, 
+            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel,
                                                 handlerLabel, jumpLabel);
         }
         while (m < insCount) {
@@ -763,7 +736,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 handlerLabel = new;
                 jumpLabel = new;
                 // start try for terminator if current block is trapped.
-                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel, 
+                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel,
                                                 handlerLabel, jumpLabel);
             }
             generateDiagnosticPos(terminator.pos, mv);
@@ -883,7 +856,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             mv.visitInsn(DUP);
 
             mv.visitFieldInsn(GETFIELD, STRAND, "returnValue", "Ljava/lang/Object;");
-            mv.visitInsn(ARETURN);   
+            mv.visitInsn(ARETURN);
         } else {
             mv.visitInsn(RETURN);
         }
@@ -951,7 +924,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             paramIndex += 1;
             i += 1;
             argIndex += 1;
-            
+
             if (!isBuiltinModule) {
                 addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
@@ -995,7 +968,7 @@ function genLoadDataForObjectAttachedLambdas(bir:AsyncCall ins, jvm:MethodVisito
     mv.visitInsn(ICONST_0);
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, STRAND);
-  
+
     mv.visitLdcInsn(cleanupObjectTypeName(ins.name.value));
     int objectArrayLength = paramTypes.length() - 1;
     if (!isBuiltinModule) {
@@ -1211,7 +1184,7 @@ function generateReturnType(bir:BType? bType) returns string {
     } else if (bType is bir:BArrayType ||
                 bType is bir:BTupleType) {
         return io:sprintf(")L%s;", ARRAY_VALUE);
-    } else if (bType is bir:BMapType || 
+    } else if (bType is bir:BMapType ||
                 bType is bir:BRecordType) {
         return io:sprintf(")L%s;", MAP_VALUE);
     } else if (bType is bir:BErrorType) {
@@ -1295,7 +1268,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
                                     name: { value: "argsdummy" },
                                     kind: "ARG" };
     _ = indexMap.getIndex(argsVar);
-    
+
     boolean isVoidFunction = userMainFunc is bir:Function && userMainFunc.typeValue?.retType is bir:BTypeNil;
 
     mv.visitTypeInsn(NEW, SCHEDULER);
@@ -1408,7 +1381,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
 function initConfigurations(jvm:MethodVisitor mv) {
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, 
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS,
                 "initConfigurations", io:sprintf("([L%s;)[L%s;", STRING_VALUE, STRING_VALUE), false);
     mv.visitVarInsn(ASTORE, 0);
 }
@@ -1450,8 +1423,8 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
     loadType(mv, anyType);
     mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
         io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
-    
-    
+
+
     mv.visitInsn(DUP);
     mv.visitInsn(DUP);
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
@@ -1460,7 +1433,7 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
     errorGen.printStackTraceFromFutureValue(mv, indexMap);
     mv.visitInsn(POP);
-    
+
     bir:VariableDcl futureVar = { typeValue: "any",
                                 name: { value: "startdummy" },
                                 kind: "ARG" };
@@ -1476,7 +1449,7 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_1);
         mv.visitFieldInsn(PUTFIELD, SCHEDULER, "immortal", "Z");
-        
+
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
     }
 }
@@ -1491,7 +1464,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     bir:BType returnType = <bir:BType> userMainFunc.typeValue?.retType;
     boolean isVoidFunc = returnType is bir:BTypeNil;
-    
+
     jvm:MethodVisitor mv;
     if (isVoidFunc) {
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$lambda$main$",
@@ -1532,7 +1505,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     mv.visitEnd();
 }
 
-function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, boolean hasRestParam, 
+function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, boolean hasRestParam,
     bir:AnnotationAttachment?[] annotAttachments) {
 
     // get defaultable arg names from function annotation
@@ -1550,7 +1523,7 @@ function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, b
             }
             break;
         }
-    }   
+    }
     // create function info array
     mv.visitIntInsn(BIPUSH, params.length());
     mv.visitTypeInsn(ANEWARRAY, io:sprintf("%s$ParamInfo", RUNTIME_UTILS));
@@ -1573,9 +1546,9 @@ function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, b
             // var varIndex = indexMap.getIndex(param);
             loadType(mv, param.typeValue);
         }
-        mv.visitMethodInsn(INVOKESPECIAL, io:sprintf("%s$ParamInfo", RUNTIME_UTILS), "<init>", 
+        mv.visitMethodInsn(INVOKESPECIAL, io:sprintf("%s$ParamInfo", RUNTIME_UTILS), "<init>",
             io:sprintf("(ZL%s;L%s;)V", STRING_VALUE, BTYPE), false);
-        mv.visitInsn(AASTORE);   
+        mv.visitInsn(AASTORE);
     }
 
      // load string[] that got parsed into to java main
@@ -1587,7 +1560,7 @@ function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, b
     }
 
      // invoke ArgumentParser.extractEntryFuncArgs()
-    mv.visitMethodInsn(INVOKESTATIC, ARGUMENT_PARSER, "extractEntryFuncArgs", 
+    mv.visitMethodInsn(INVOKESTATIC, ARGUMENT_PARSER, "extractEntryFuncArgs",
             io:sprintf("([L%s$ParamInfo;[L%s;Z)[L%s;", RUNTIME_UTILS, STRING_VALUE, OBJECT), false);
 }
 
@@ -1675,7 +1648,7 @@ function generateLambdaForDepModStopFunc(jvm:ClassWriter cw, string funcName, st
 }
 
 # Generate cast instruction from String to target type
-# 
+#
 # + targetType - target type to be casted
 # + mv - method visitor
 function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
@@ -1747,7 +1720,7 @@ function calculateModuleSpecialFuncName(bir:ModuleID id, string funcSuffix) retu
         funcName = moduleName + ":" + versionValue + "." + funcSuffix;
     }
 
-    if (!internal:equalsIgnoreCase(orgName, "$anon")) {
+    if (!stringutils:equalsIgnoreCase(orgName, "$anon")) {
         funcName = orgName  + "/" + funcName;
     }
 
@@ -1970,10 +1943,8 @@ type BalToJVMIndexMap object {
 };
 
 function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
-    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
-
     foreach var func in pkg.functions {
-        generateFrameClassForFunction(pkgName, func, pkgEntries);
+        generateFrameClassForFunction(pkg, func, pkgEntries);
     }
 
     foreach var typeDef in pkg.typeDefs {
@@ -1988,17 +1959,21 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
                 attachedType = typeDef?.typeValue;
             }
             foreach var func in attachedFuncs {
-                generateFrameClassForFunction(pkgName, func, pkgEntries, attachedType=attachedType);
+                generateFrameClassForFunction(pkg, func, pkgEntries, attachedType=attachedType);
             }
         }
     }
 }
 
-function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries,
+function generateFrameClassForFunction (bir:Package pkg, bir:Function? func, map<byte[]> pkgEntries,
                                         bir:BType? attachedType = ()) {
+    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     bir:Function currentFunc = getFunction(<@untainted> func);
     if (isExternFunc(currentFunc)) {
-        return;
+        var extFuncWrapper = getExternalFunctionWrapper(pkg, currentFunc, attachedType = attachedType);
+        if (!(extFuncWrapper is OldStyleExternalFunctionWrapper)) {
+            return;
+        }
     }
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
@@ -2012,7 +1987,7 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         bir:BType bType = localVar.typeValue;
-        var fieldName = internal:replace(localVar.name.value, "%","_");
+        var fieldName = stringutils:replace(localVar.name.value, "%","_");
         generateField(cw, bType, fieldName, false);
         k = k + 1;
     }
@@ -2043,16 +2018,16 @@ function getFrameClassName(string pkgName, string funcName, bir:BType? attachedT
 # Cleanup type name by replacing '$' with '_'.
 # + return - cleaned name
 function cleanupTypeName(string name) returns string {
-    return internal:replace(name, "$","_");
+    return stringutils:replace(name, "$","_");
 }
 
 function cleanupBalExt(string name) returns string {
-    return internal:replace(name, BAL_EXTENSION, "");
+    return stringutils:replace(name, BAL_EXTENSION, "");
 }
 
 function cleanupPathSeperators(string name) returns string {
    //TODO: should use file_path:getPathSeparator();
-   return internal:replace(name, WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
+   return stringutils:replace(name, WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
 }
 
 function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, boolean isPackage) {
@@ -2136,7 +2111,7 @@ function generateDiagnosticPos(bir:DiagnosticPos pos, jvm:MethodVisitor mv) {
 }
 
 function cleanupFunctionName(string functionName) returns string {
-    return internal:replaceAll(functionName, "[\\.:/<>]", "_");
+    return stringutils:replaceAll(functionName, "[\\.:/<>]", "_");
 }
 
 function getVariableDcl(bir:VariableDcl? localVar) returns bir:VariableDcl {
@@ -2237,7 +2212,7 @@ function getMapValueDesc(int count) returns string{
 
 function isInitInvoked(string item) returns boolean {
     foreach var listItem in generatedInitFuncs {
-        if (internal:equalsIgnoreCase(listItem, item)) {
+        if (stringutils:equalsIgnoreCase(listItem, item)) {
             return true;
         }
     }
@@ -2261,13 +2236,13 @@ function checkStrandCancelled(jvm:MethodVisitor mv, int localVarOffset) {
     mv.visitJumpInsn(IFEQ, notCancelledLabel);
     mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError", io:sprintf("()L%s;", ERROR_VALUE), false);
     mv.visitInsn(ATHROW);
-    
+
     mv.visitLabel(notCancelledLabel);
 }
 
 function stringArrayContains(string[] array, string item) returns boolean {
     foreach var listItem in array {
-        if (internal:equalsIgnoreCase(listItem, item)) {
+        if (stringutils:equalsIgnoreCase(listItem, item)) {
             return true;
         }
     }
@@ -2282,11 +2257,11 @@ function logCompileError(error compileError, bir:Package|bir:TypeDef|bir:Functio
     string name;
     if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
         name = <string> detail.get("name");
-        err = error(io:sprintf("method is too large: '%s'", name));
         bir:Function? func = findBIRFunction(src, name);
         if (func is ()) {
             panic compileError;
         } else {
+            err = error(io:sprintf("method is too large: '%s'", func.name.value));
             pos = func.pos;
         }
     } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {
@@ -2400,7 +2375,7 @@ function generateExecutionStopMethod(jvm:ClassWriter cw, string initClass, bir:P
 
         scheduleMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex, futureIndex);
     }
-    
+
     mv.visitInsn(RETURN);
     mv.visitMaxs(0,0);
     mv.visitEnd();

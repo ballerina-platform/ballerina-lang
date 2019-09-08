@@ -146,9 +146,9 @@ public class TableUtils {
                 break;
             case TypeTags.DECIMAL_TAG:
                 if (value == null) {
-                    stmt.setNull(index, Types.DOUBLE);
+                    stmt.setNull(index, Types.DECIMAL);
                 } else {
-                    stmt.setDouble(index, ((DecimalValue) data.get(fieldName)).floatValue());
+                    stmt.setBigDecimal(index, ((DecimalValue) data.get(fieldName)).decimalValue());
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
@@ -225,13 +225,20 @@ public class TableUtils {
                 arrayLength = value.size();
                 arrayData = new BigDecimal[arrayLength];
                 for (int i = 0; i < arrayLength; i++) {
-                    arrayData[i] = value.getRefValue(i);
+                    arrayData[i] = ((DecimalValue) value.getRefValue(i)).value();
                 }
                 break;
             default:
                 throw createTableOperationError("unsupported data type for array parameter");
         }
         return arrayData;
+    }
+
+    public static ErrorValue createTableOperationError(Throwable throwable, String errorSuffix) {
+        String detail = throwable.getMessage() != null ?
+                errorSuffix + ": " + throwable.getMessage() :
+                DEFAULT_ERROR_DETAIL_MESSAGE;
+        return BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR, detail);
     }
 
     public static ErrorValue createTableOperationError(Throwable throwable) {

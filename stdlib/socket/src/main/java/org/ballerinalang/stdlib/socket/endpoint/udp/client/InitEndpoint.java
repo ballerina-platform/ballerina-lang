@@ -90,18 +90,18 @@ public class InitEndpoint {
             selectorManager.start();
         } catch (SelectorInitializeException e) {
             log.error(e.getMessage(), e);
-            callback.notifyFailure(SocketUtils.createSocketError("Unable to initialize the selector"));
+            callback.notifyFailure(SocketUtils.createSocketError("unable to initialize the selector"));
             return null;
         } catch (SocketException e) {
-            callback.notifyFailure(SocketUtils.createSocketError("Unable to bind the local socket port"));
+            callback.notifyFailure(SocketUtils.createSocketError("unable to bind the local socket port"));
             return null;
         } catch (IOException e) {
             log.error("Unable to initiate the client socket", e);
-            callback.notifyFailure(SocketUtils.createSocketError("Unable to initiate the socket"));
+            callback.notifyFailure(SocketUtils.createSocketError("unable to initiate the socket: " + e.getMessage()));
             return null;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
-            callback.notifyFailure(SocketUtils.createSocketError("Unable to start the socket client."));
+            callback.notifyFailure(SocketUtils.createSocketError("unable to start the socket client."));
             return null;
         }
         selectorManager.registerChannel(new ChannelRegisterCallback(socketService, callback, OP_READ));

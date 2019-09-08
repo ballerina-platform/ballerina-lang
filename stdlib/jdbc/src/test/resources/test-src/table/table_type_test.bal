@@ -16,6 +16,8 @@
 
 import ballerina/io;
 import ballerina/time;
+import ballerina/xmlutils;
+import ballerina/jsonutils;
 import ballerinax/java.jdbc;
 
 type ResultPrimitive record {
@@ -404,13 +406,9 @@ function testToXmlWithinTransaction(string jdbcURL) returns [string, int] {
     transaction {
         var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
         if (dt is table<record {}>) {
-            var result = typedesc<xml>.constructFrom(dt);
-            if (result is xml) {
-                resultXml = io:sprintf("%s", result);
-                returnValue = 0;
-            } else {
-                resultXml = "<fail>error</fail>";
-            }
+            var result = xmlutils:fromTable(dt);
+            resultXml = io:sprintf("%s", result);
+            returnValue = 0;
         }
     }
     checkpanic testDB.stop();
@@ -430,13 +428,9 @@ function testToJsonWithinTransaction(string jdbcURL) returns [string, int] {
     transaction {
         var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
         if (dt is table<record {}>) {
-            var j = typedesc<json>.constructFrom(dt);
-            if (j is json) {
-                result = io:sprintf("%s", j.toJsonString());
-                returnValue = 0;
-            } else {
-                result = "<fail>error</fail>";
-            }
+            var j = jsonutils:fromTable(dt);
+            result = io:sprintf("%s", j.toJsonString());
+            returnValue = 0;
         }
     }
     checkpanic testDB.stop();
@@ -1601,14 +1595,10 @@ function testToJsonAndLengthof(string jdbcURL) returns @tainted [int, int] {
 function getJsonConversionResult(table<record {}> | error tableOrError) returns json {
     json retVal = {};
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = typedesc<json>.constructFrom(tableOrError);
-        if (jsonConversionResult is json) {
-            // Converting to string to make sure the json is built before returning.
-            string data = io:sprintf("%s", jsonConversionResult);
-            retVal = jsonConversionResult;
-        } else {
-            retVal = {"Error": <string>jsonConversionResult.detail()["message"]};
-        }
+        var jsonConversionResult = jsonutils:fromTable(tableOrError);
+        // Converting to string to make sure the json is built before returning.
+        string data = io:sprintf("%s", jsonConversionResult);
+        retVal = jsonConversionResult;
     } else {
         retVal = {"Error": <string>tableOrError.detail()["message"]};
     }
@@ -1618,15 +1608,10 @@ function getJsonConversionResult(table<record {}> | error tableOrError) returns 
 function getXMLConversionResult(table<record {}> | error tableOrError) returns xml {
     xml retVal = xml `<Error/>`;
     if (tableOrError is table<record {}>) {
-        var xmlConversionResult = typedesc<xml>.constructFrom(tableOrError);
-        if (xmlConversionResult is xml) {
-            // Converting to string to make sure the xml is built before returning.
-            _ = io:sprintf("%s", xmlConversionResult);
-            retVal = xmlConversionResult;
-        } else {
-            string errorXML = <string>xmlConversionResult.detail()["message"];
-            retVal = xml `<Error>{{errorXML}}</Error>`;
-        }
+        var xmlConversionResult = xmlutils:fromTable(tableOrError);
+        // Converting to string to make sure the xml is built before returning.
+        _ = io:sprintf("%s", xmlConversionResult);
+        retVal = xmlConversionResult;
     } else {
         string errorXML = <string>tableOrError.detail()["message"];
         retVal = xml `<Error>{{errorXML}}</Error>`;

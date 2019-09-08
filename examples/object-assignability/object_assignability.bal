@@ -34,7 +34,6 @@ public type Employee object {
 public function main() {
     // Creates an object of the type `Employee` and assigns that to a variable of the type `Person`.
     Person p1 = new Employee(50, "John", "street1");
-    io:println(p1);
 
     io:println(p1.getName());
 }

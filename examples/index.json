@@ -316,6 +316,14 @@
                 "url": "xml-literal"
             },
             {
+                "name": "XML Attributes",
+                "url": "xml-attributes"
+            },
+            {
+                "name": "XML Access",
+                "url": "xml-access"
+            },
+            {
                 "name": "XML Namespaces",
                 "url": "xml-namespaces"
             },
@@ -400,6 +408,10 @@
             {
                 "name": "Fork Variable Access",
                 "url": "fork-variable-access"
+            },
+            {
+                "name": "Async",
+                "url": "async"
             }
         ]
     },
@@ -899,6 +911,33 @@
         ]
     },
     {
+        "title": "Kafka",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [
+            {
+                "name": "Producer",
+                "url": "kafka_message_producer"
+            },
+            {
+                "name": "Consumer Service",
+                "url": "kafka_message_consumer_service"
+            },
+            {
+                "name": "Consumer Client",
+                "url": "kafka_message_consumer_simple"
+            },
+            {
+                "name": "Transactional Producer",
+                "url": "kafka_message_producer_transactional"
+            },
+            {
+                "name": "Consumer Groups",
+                "url": "kafka_message_consumer_group_service"
+            }
+        ]
+    },
+    {
         "title": "Socket",
         "column": 3,
         "category": "Working over the network",
@@ -935,21 +974,6 @@
             {
                 "name": "Secured Client with OAuth2",
                 "url": "secured-client-with-oauth2"
-            }
-        ]
-    },
-    {
-        "title": "XML Access",
-        "column": 0,
-        "category": "Experimental features",
-        "samples": [
-            {
-                "name": "XML Attributes",
-                "url": "xml-attributes"
-            },
-            {
-                "name": "XML Access",
-                "url": "xml-access"
             }
         ]
     },

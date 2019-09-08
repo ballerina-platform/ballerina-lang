@@ -189,7 +189,7 @@ public class CodeGenerator {
 
         if (serviceName != null) {
             api.getInfo().setTitle(serviceName);
-        } else if (StringUtils.isEmpty(api.getInfo().getTitle())) {
+        } else if (api.getInfo() == null || StringUtils.isEmpty(api.getInfo().getTitle())) {
             api.getInfo().setTitle(GeneratorConstants.UNTITLED_SERVICE);
         }
 
@@ -207,15 +207,17 @@ public class CodeGenerator {
                     Matcher.quoteReplacement("\\\\")));
         }
 
-        // modelPackage is not in use at the moment. All models will be written into same package as other src files.
-        // Therefore value set to modelPackage is ignored here
-        BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
-                .modelPackage(srcPackage);
-        definitionContext.setDefinitionPath(reldefinitionPath);
         List<GenSrcFile> sourceFiles;
 
         switch (type) {
             case GEN_CLIENT:
+                // modelPackage is not in use at the moment. All models will be written into same package
+                // as other src files.
+                // Therefore value set to modelPackage is ignored here
+                BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
+                        .modelPackage(srcPackage);
+                definitionContext.setDefinitionPath(reldefinitionPath);
+
                 sourceFiles = generateClient(definitionContext);
                 break;
             case GEN_SERVICE:

@@ -189,7 +189,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             }
             terminator.terminate();
         } catch (Exception e) {
-            LOG.error("Error occurred", e);
+            LOG.error("Error occurred when trying to terminate ballerina processes", e);
         }
     }
 

@@ -31,7 +31,7 @@ export async function highlightSnippets() {
         if (snippet.parentElement) {
             snippet.parentElement.classList.add("ballerina-snippet");
         }
-        monaco.editor.colorize(snippet.innerHTML, "ballerina", {})
+        monaco.editor.colorize(snippet.textContent, "ballerina", {})
             .then((coloredString) => {
                 snippet.innerHTML = coloredString;
             });

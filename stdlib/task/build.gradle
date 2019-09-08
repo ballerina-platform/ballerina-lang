@@ -46,6 +46,7 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
+    testCompile project(':ballerina-file')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
 }
 

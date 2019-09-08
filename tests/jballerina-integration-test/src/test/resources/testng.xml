@@ -67,7 +67,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCachingTestCase"/>
-<!--            <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>-->
+            <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>
         </classes>
     </test>
 
@@ -115,7 +115,7 @@
             <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
             <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
-            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
+<!--            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>-->
             <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
