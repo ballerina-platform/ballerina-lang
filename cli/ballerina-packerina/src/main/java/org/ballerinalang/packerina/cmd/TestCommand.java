@@ -132,7 +132,8 @@ public class TestCommand implements BLauncherCmd {
         if (this.argList != null && containsUserArgs(this.argList)) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
-                    "ballerina test [<module-name>] | -a | --all",
+                    "ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
+                           "                      [--config <config_file>] [<module-name> | -a | --all]",
                     false);
 
             CommandUtil.exitError(this.exitWhenFinish);
@@ -142,7 +143,7 @@ public class TestCommand implements BLauncherCmd {
         // if -a or --all flag is not given, then it is mandatory to give a module name or ballerina file as arg.
         if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
             CommandUtil.printError(this.errStream,
-                    "'test' command requires a module name or '-all | -a' flag " +
+                    "'test' command requires a module name or '-a | --all' flag " +
                             "to test all the modules of the project.",
                     "ballerina test <module-name> | -a | --all",
                     false);
@@ -164,7 +165,7 @@ public class TestCommand implements BLauncherCmd {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(this.errStream,
-                            "you are trying to test a ballerina project but there is no Ballerina.toml file.",
+                            "you are trying to test a Ballerina project but there is no Ballerina.toml file.",
                             null,
                             false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -228,7 +229,7 @@ public class TestCommand implements BLauncherCmd {
 
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid ballerina project",
+                    "invalid Ballerina project",
                     "ballerina test  <module-name> | -a | --all",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
