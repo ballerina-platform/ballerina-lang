@@ -11,9 +11,6 @@ If a configuration is defined in both a configuration file and as an environment
 
 The Config API provides the capability to feed sensitive data (e.g., passwords) to Ballerina programs securely by encrypting them. 
 
-
-## Samples
-
 ### Setting configurations
 
 To specify a configuration file explicitly, the `--b7a.config.file=<path to configuration file>` property can be used. If 
