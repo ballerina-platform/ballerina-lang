@@ -1,31 +1,42 @@
 NAME
-       ballerina add - add a new module to a Ballerina project
-
+       ballerina-add - Add a new module to an existing Ballerina project
 
 SYNOPSIS
        ballerina add <module-name> [-t <template-name> | --template <template-name>]
-                     [-l | --list]
+       ballerina add [-l | --list]
 
 
 DESCRIPTION
-       Add a new module to a Ballerina project. The command should
-       be run inside a Ballerina project.
+       Add creates a new directory and initializes Ballerina module inside
+       the 'src' directory of the project. The command should be run inside
+       the project root.
 
        A template can also be specified when creating the new module.
+       If a template is not specified, this command creates a module
+       with a 'main' function.
+
+       There are two built-in templates named: 'main' and 'service'.
+
+       You can download templates from Ballerina central as well.
+       In that case <template-name> becomes a qualified module name.
+
+           <org-name>/<module-name>[:<version>]
 
 
 OPTIONS
-       -t, --template
-           Add a module using a predefined template. The
-           default template is a module with a main.
+       -t, --template <template-name>
+           Add a module using a predefined template.
 
        -l, --list
-           List available templates.
+           List built-in and downloaded templates.
 
 
 EXAMPLES
-       Add a module with a main
-       $ ballerina add mymain
+       Add a module with a 'main' function
+          → ballerina add hello
 
-       Add a module with a service
-       $ ballerina add myservice --template service
+       Add a module with a Ballerina service
+          → ballerina add helloservice -t service
+
+       Create a module with a template available in Ballerina Central
+          → ballerina add greet --template abc/xyz:1.1.0
