@@ -218,6 +218,8 @@ public class LangLibXMLTest {
     public void testCreateElement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateElement");
         assertEquals((returns[0]).stringValue(), "<elem>hello world</elem>");
+        assertEquals((returns[1]).stringValue(), "hello world");
+        assertEquals((returns[2]).stringValue(), "");
     }
 
     @Test
@@ -243,5 +245,13 @@ public class LangLibXMLTest {
     public void testForEach() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
         Assert.assertEquals((returns[0]).size(), 3);
+    }
+
+    @Test
+    public void testSlice() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSlice");
+        Assert.assertEquals(returns[0].stringValue(), "<elemL>content</elemL><elemN>content</elemN>");
+        Assert.assertEquals(returns[1].stringValue(), "<elemN>content</elemN><elemM>content</elemM>");
+        Assert.assertEquals(returns[2].stringValue(), "<elemN>content</elemN><elemM>content</elemM>");
     }
 }
