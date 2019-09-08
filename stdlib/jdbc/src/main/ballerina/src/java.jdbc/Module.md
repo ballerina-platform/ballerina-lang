@@ -82,7 +82,7 @@ Once the client is created, database operations can be executed through that cli
 creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch 
 updating data. Samples for these operations can be found below. 
 
->**Note:** The JDBC client module is not designed to use the Ballerina non-blocking thread model. Hence, the default thread pool size used in Ballerina (i.e., number of processers available * 2) may not deliver the optimal performance. Therefore, you can configure the thread pool size using the `BALLERINA_MAX_POOL_SIZE` environment variable as required.
+>**Note:** The JDBC client module is not designed to use the Ballerina non-blocking thread model. The default thread pool size used in Ballerina is number of processers available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
 
 ## Samples
 

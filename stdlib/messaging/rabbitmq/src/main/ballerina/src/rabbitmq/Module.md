@@ -2,7 +2,7 @@
 
 [RabbitMQ](https://www.rabbitmq.com/) is one of the most popular open-source enterprise messaging systems, modeled on the Advanced Message Queuing Protocol (AMQP) standard. This guide covers Ballerina RabbitMQ module and its public API. This module contains functionality to support messaging with RabbitMQ broker (AMQP 0-9-1).
 
-**Note:** The RabbitMQ module is not designed to use the Ballerina non-blocking thread model. Hence, the default thread pool size used in Ballerina (i.e., number of processers available * 2) may not deliver the optimal performance. Therefore, you can configure the thread pool size using the `BALLERINA_MAX_POOL_SIZE` environment variable as required.
+>**Note:** The RabbitMQ module is not designed to use the Ballerina non-blocking thread model. The default thread pool size used in Ballerina is number of processers available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
 
 ## Samples
 
