@@ -29,7 +29,7 @@ OPTIONS
            Source will be looked up relative to the given source root
            path.
 
-       --off-line
+       --offline
            Builds offline without downloading dependencies.
 
        -a, --all
