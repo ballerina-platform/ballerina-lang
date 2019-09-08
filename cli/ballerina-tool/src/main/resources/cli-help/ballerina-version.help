@@ -6,8 +6,8 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Version prints the Ballerina distribution version, supported
-       language specification version, and the Ballerina tool version.
+       Version prints the Ballerina distribution version and the supported
+       language specification version.
 
        Note that 'ballerina -v' and 'ballerina –-version' are
        identical to 'ballerina version'.
