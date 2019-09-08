@@ -19,7 +19,7 @@ OPTIONS
            client is generated.
 
        client-name
-           This value will be used as the client name when the client is
+           The client name to use when generating the client.
            generated.
 
        openapi-file
