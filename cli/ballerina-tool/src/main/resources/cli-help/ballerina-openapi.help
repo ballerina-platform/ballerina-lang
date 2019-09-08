@@ -12,7 +12,7 @@ SYNOPSIS
                                      [-c| --skip-bind]
 
        ballerina openapi gen-client [<module-name>:]<client-name>
-                                    <openapi-contract> [-o | --output <dir-path>]
+                                    <openapi-contract> [-o <dir-path> | --output <dir-path>]
     
        ballerina openapi gen-contract [<module-name>:]<service-name>
                                       [-i | --ballerina-file <ballerina-file>]
