@@ -196,8 +196,9 @@
                         "type": "ballerina",
                         "request": "attach",
                         "name": "Ballerina Remote",
-                        "host": "127.0.0.1",
-                        "port": "5005"
+                        "script": "${file}",
+                        "debuggeeHost": "127.0.0.1",
+                        "debuggeePort": "5005"
                     }
                 ]
             }
