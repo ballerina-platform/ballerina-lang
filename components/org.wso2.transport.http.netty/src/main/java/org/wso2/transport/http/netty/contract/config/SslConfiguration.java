@@ -173,6 +173,10 @@ public class SslConfiguration {
         sslConfig.disableSsl();
     }
 
+    public void useJavaDefaults() {
+        sslConfig.setUseJavaDefaults();
+    }
+
     public SSLConfig getClientSSLConfig() {
         if (scheme == null || !scheme.equalsIgnoreCase(HTTPS_SCHEME)) {
             return null;
@@ -240,7 +244,7 @@ public class SslConfiguration {
     }
 
     private SSLConfig getSSLConfigForSender() {
-        if (sslConfig.isDisableSsl()) {
+        if (sslConfig.isDisableSsl() || sslConfig.useJavaDefaults()) {
             return sslConfig;
         }
         if ((sslConfig.getTrustStore() == null || sslConfig.getTrustStorePass() == null) && (

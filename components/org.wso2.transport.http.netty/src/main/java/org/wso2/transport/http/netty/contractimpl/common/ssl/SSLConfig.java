@@ -63,6 +63,7 @@ public class SSLConfig {
     private int sessionTimeOut;
     private long handshakeTimeOut;
     private boolean disableSsl = false;
+    private boolean useJavaDefaults = false;
 
     public SSLConfig() {}
 
@@ -334,5 +335,13 @@ public class SSLConfig {
 
     public void disableSsl() {
         this.disableSsl = true;
+    }
+
+    public boolean useJavaDefaults() {
+        return useJavaDefaults;
+    }
+
+    public void setUseJavaDefaults() {
+        this.useJavaDefaults = true;
     }
 }
