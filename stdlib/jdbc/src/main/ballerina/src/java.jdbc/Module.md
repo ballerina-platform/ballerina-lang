@@ -82,8 +82,6 @@ Once the client is created, database operations can be executed through that cli
 creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch 
 updating data. Samples for these operations can be found below. 
 
->**Note:** The default thread pool size used in the JDBC client module is number of processers available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
-
 ## Samples
 
 ### Creating a client
@@ -315,3 +313,4 @@ if (retCall is ()|table<record {}>[]) {
     io:println("Stored procedure call failed: " + <string>err.detail()["message"]);
 }
 ```
+>**Note:** The default thread pool size used in the JDBC client module is number of processers available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.

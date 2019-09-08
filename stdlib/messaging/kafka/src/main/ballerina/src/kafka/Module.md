@@ -3,8 +3,6 @@
 Ballerina Kafka Connector is used to connect Ballerina with Kafka Brokers. With the Kafka Connector, Ballerina can act as Kafka Consumers and Kafka Producers.
 This connector supports kafka 1.x.x and 2.0.0 versions.
 
->**Note:** The default thread pool size used in the Kafka module is number of processers available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
-
 ## Samples
 ### Simple Kafka Consumer
 
@@ -146,3 +144,6 @@ Please find the producer configuration parameters below:
 | connectionsMaxIdleTimeInMillis | Close idle connections after the number of milliseconds. |
 | transactionTimeoutInMillis | Timeout for transaction status update from the producer. |
 | enableIdempotence | Exactly one copy of each message is written in the stream when enabled. |
+
+>**Note:** The default thread pool size used in the Kafka module is number of processers available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
+
