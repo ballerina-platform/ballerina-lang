@@ -94,7 +94,7 @@ public class NewCommandTest extends CommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Ballerina new - Create a Ballerina project"));
+        Assert.assertTrue(readOutput().contains("ballerina new - create a Ballerina project"));
     }
 
     @Test(description = "Test new command with help flag")
@@ -105,7 +105,7 @@ public class NewCommandTest extends CommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Ballerina new - Create a Ballerina project"));
+        Assert.assertTrue(readOutput().contains("ballerina new - create a Ballerina project"));
     }
 
     @Test(description = "Test if directory already exists")
