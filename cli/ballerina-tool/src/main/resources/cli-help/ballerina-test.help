@@ -3,7 +3,7 @@ NAME
 
 SYNOPSIS
        ballerina build [<options>] <module-name> [(--key=value)...]
-       ballerina build -a | --all [<options>] [(--key=value)...]
+       ballerina build -a | --all [<options>]
 
 
 DESCRIPTION
