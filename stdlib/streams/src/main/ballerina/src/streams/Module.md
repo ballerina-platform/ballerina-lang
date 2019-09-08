@@ -138,6 +138,3 @@ public function initQuery() {
     }
 }
 ```
-
-For more information, please refer to
-[Ballerina Streams Reference](https://ballerina.io/learn/ballerina-streaming-reference/)
