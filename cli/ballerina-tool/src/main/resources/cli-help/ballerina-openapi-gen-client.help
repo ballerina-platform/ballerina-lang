@@ -15,8 +15,7 @@ DESCRIPTION
 
 OPTIONS
        module
-           [ Optional ] This value will be used as the module name when the
-           client is generated.
+           [Optional] The module name to use when generating the client.
 
        client-name
            This value will be used as the client name when the client is
