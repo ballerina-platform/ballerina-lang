@@ -110,9 +110,6 @@ public type ObjectGenerator object {
                                         string className, string typeName) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
-                if !isExternFunc(func) {
-                    addDefaultableBooleanVarsToSignature(func);
-                }
                 generateMethod(func, cw, self.module, attachedType = self.currentObjectType, isService = isService, serviceName = typeName);
             }
         }
@@ -180,28 +177,6 @@ public type ObjectGenerator object {
             bir:BType? retType = func.typeValue["retType"];
 
             string methodSig = "";
-
-            if (isExternFunc(func)) {
-                mv.visitVarInsn(ALOAD, 1);
-                mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
-                jvm:Label blockedOnExternLabel = new;
-                mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-                mv.visitVarInsn(ALOAD, 1);
-                mv.visitInsn(ICONST_0);
-                mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
-
-                if (!(retType is () || retType is bir:BTypeNil)) {
-                    mv.visitVarInsn(ALOAD, 1);
-                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
-                    mv.visitInsn(ARETURN);
-                } else {
-                    mv.visitInsn(ACONST_NULL);
-                    mv.visitInsn(ARETURN);
-                }
-
-                mv.visitLabel(blockedOnExternLabel);
-            }
 
             // use index access, since retType can be nil.
             methodSig = getMethodDesc(paramTypes, retType);
@@ -436,6 +411,40 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 };
+
+function injectDefaultParamInitsToAttachedFuncs(bir:Package module) {
+    bir:TypeDef?[] typeDefs = module.typeDefs;
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+        if (bType is bir:BObjectType && !bType.isAbstract) {
+            desugarObjectMethods(module, bType, typeDef.attachedFuncs);
+        } else if (bType is bir:BServiceType) {
+            desugarObjectMethods(module, bType, typeDef.attachedFuncs);
+        } else if (bType is bir:BRecordType) {
+            desugarObjectMethods(module, bType, typeDef.attachedFuncs);
+        }
+    }
+}
+
+function desugarObjectMethods(bir:Package module, bir:BType bType, bir:Function?[]? attachedFuncs) {
+    if (attachedFuncs is bir:Function?[]) {
+        foreach var func in attachedFuncs {
+            if (func is bir:Function) {
+                if isExternFunc(func) {
+                    var extFuncWrapper = lookupBIRFunctionWrapper(module, func, attachedType = bType);
+                    if extFuncWrapper is OldStyleExternalFunctionWrapper {
+                        // Note when this support new interop, update here as well TODO
+                        desugarOldExternFuncs(module, extFuncWrapper, func);
+                    }
+                } else {
+                    addDefaultableBooleanVarsToSignature(func);
+                }
+                enrichWithDefaultableParamInits(getFunction(<@untainted> func));
+            }
+        }
+    }
+}
 
 function createLabelsforSwitch(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,
         jvm:Label defaultCaseLabel) returns jvm:Label[] {

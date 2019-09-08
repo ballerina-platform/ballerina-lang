@@ -51,8 +51,8 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         cmd.execute();
 
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina OpenApi - Gen Service is a tool which will convert an OpenApi" +
-                " contract to a Ballerina mock service."));
+        Assert.assertTrue(output.contains("ballerina openapi gen-service - convert an OpenApi contract to a\n" +
+                                                  "       Ballerina mock service"));
     }
 
     @Test(description = "Test openapi gen-service without help option")

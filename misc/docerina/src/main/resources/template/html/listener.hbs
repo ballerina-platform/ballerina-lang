@@ -50,8 +50,12 @@
         <div class="main-wrapper">
             <h1>
                 {{> breadcrumb }}
-                <span class="title-type">Listener - </span> 
-                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
+                <span class="title-type">Listener - </span>
+                {{#if project.isSingleFile}}
+                    {{project.sourceFileName}}
+                {{else}}
+                    <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
+                {{/if}}
                  : <span class="listeners">{{ listener.name }}</span> 
             </h1>
             <p>{{{ listener.description }}}</p>

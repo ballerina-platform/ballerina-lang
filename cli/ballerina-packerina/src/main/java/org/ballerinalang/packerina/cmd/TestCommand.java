@@ -52,7 +52,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
-import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
 
 /**
@@ -115,12 +114,16 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
+    // --debug flag is handled by ballerina.sh/ballerina.bat. It will launch ballerina with java debug options.
+    @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
+    private String debugPort;
+
     @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests.")
     private String configFilePath;
 
     public void execute() {
         if (this.helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
         }

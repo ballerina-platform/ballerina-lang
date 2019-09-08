@@ -2,7 +2,7 @@ import {
     Assignment, ASTKindChecker,
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant,
     ExpressionStatement, Foreach, Function as BalFunction, If, Invocation, Lambda,
-    Literal, Match, MatchStaticPatternClause, ObjectType,
+    Literal, Match, MatchStaticPatternClause, MatchStructuredPatternClause, ObjectType,
     Panic, Return, Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
     Visitor, WaitExpr, While, WorkerReceive, WorkerSend
 } from "@ballerina/ast-model";
@@ -362,6 +362,20 @@ class SizingVisitor implements Visitor {
         viewState.bBox.label = DiagramUtils.getTextWidth(ASTUtil.genSource(node.literal)).text;
     }
 
+    public endVisitMatchStructuredPatternClause(node: MatchStructuredPatternClause) {
+        const viewState: ViewState = node.viewState;
+
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
+            return;
+        }
+
+        viewState.bBox.w = node.statement.viewState.bBox.w;
+        viewState.bBox.h = node.statement.viewState.bBox.h
+            + config.statement.height; // To print literal
+        viewState.bBox.label = DiagramUtils.getTextWidth(ASTUtil.genSource(node.variableNode)).text;
+    }
+
     public endVisitMatch(node: Match) {
         const viewState: ViewState = node.viewState;
 
@@ -449,6 +463,7 @@ class SizingVisitor implements Visitor {
             if (!viewState.expandContext.collapsed && !viewState.hidden && !viewState.hiddenBlock) {
                 const labelText = viewState.expandContext.expandedSubTree.name.value;
                 viewState.expandContext.labelText = labelText;
+                viewState.expandContext.statementText = ASTUtil.genSource(node);
                 viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(labelText, {bold: true});
                 this.handleExpandedFn(viewState.expandContext.expandedSubTree, viewState);
             }

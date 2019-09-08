@@ -1,47 +1,37 @@
 NAME
-       Ballerina push - Upload modules to Ballerina Central
+       ballerina-push - Push modules to Ballerina Central
 
 SYNOPSIS
-       ballerina push <module-name> [--no-build] [--repository home]
+       ballerina push <module-name>
+       ballerina push (-a | --all)
 
 
 DESCRIPTION
-       Uploads the given module to Ballerina Central
-       (https://central.ballerina.io/) repository.
+       Push the specified module to Ballerina Central repository or
+       if '-a' or '--all' option is specified, then push all the modules
+       in the current project.
 
-       By default, the sources will be built before pushing
-       the module to Ballerina Central
+       By default, the push command builds the sources before pushing
+       the module to Ballerina Central.
 
-       Before you can push, you must enter your Ballerina Central
-       access token in Settings.toml in your home repository
-       (<USER_HOME>/.ballerina/). To get your token, register
-       on Ballerina Central and visit the user dashboard at
-       https://central.ballerina.io/dashboard.
+       Before pushing modules to Ballerina Central:
+       1) Create an organization by registering with Ballerina Central at
+          https://central.ballerina.io/.
+       2) You will receive an access token with the registration, add it to
+          the 'Settings.toml' in home repository (<USER_HOME>/.ballerina/).
+       3) Add the created organization name and the version to the
+          'Ballerina.toml' file in the project directory.
 
-       When you push a module to Ballerina Central, the runtime will
-       validate organizations for the user against the org-name defined in
-       your project’s Ballerina.toml file. Therefore, when you have more
-       than one organization in Ballerina Central, be sure to pick the
-       organization name that you intend to push the module into and
-       set that as org-name in the project Ballerina.toml file.
+             [project]
+             org-name= "abc"
+             version= "1.0.0"
 
 
 OPTIONS
-       --no-build
-           Skip building before pushing. The sources will not be
-           built before pushing to Ballerina Central
-
-       --repository home
-           Push the module to the home repository. This is an alias
-           to the 'ballerina install' command
+       -a, --all
+           Push all the modules in the project
 
 
 EXAMPLES
-       Push math module to Ballerina Central after building it
-       $ ballerina push math
-
-       Push math module to Ballerina Central without building it
-       $ ballerina push math --no-build
-
-       Push math module to the home repository after building it
-       $ ballerina push math --repository home
+       Push the 'math' module to Ballerina Central after building it
+          → ballerina push math

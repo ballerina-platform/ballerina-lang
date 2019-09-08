@@ -102,7 +102,7 @@ public function reduce(Type[] arr, function(Type1 accum, Type val) returns Type1
 # + startIndex - index of first member to include in the slice
 # + endIndex - index of first member not to include in the slice
 # + return - array slice within specified range
-public function slice(Type[] arr, int startIndex, int endIndex) returns Type[] = external; // TODO: #17395
+public function slice(Type[] arr, int startIndex, int endIndex = arr.length()) returns Type[] = external;
 
 # Removes a member of an array.
 #
