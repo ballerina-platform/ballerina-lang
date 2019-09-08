@@ -179,7 +179,7 @@ public class EventBus {
         try {
             List<String> paths = referenceType.sourcePaths("");
             String balName = paths.size() > 0 ? paths.get(0) : "";
-
+            balName = balName.replaceAll("tests" + File.separator + "tests", "tests");
             Path path = Paths.get(breakpoint.getSource().getPath());
             Path projectRoot = findProjectRoot(path);
             String moduleName;
