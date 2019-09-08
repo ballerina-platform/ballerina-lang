@@ -26,7 +26,7 @@ OPTIONS
            The file path of the OpenAPI contract file which is used to
            generate the Ballerina client.
 
-       -o, --output <dir-path>
+       -o <dir-path>, --output <dir-path>
            Output location for the generated Ballerina client. If this option is not provided,
            the client is generated in the current directory.
 
