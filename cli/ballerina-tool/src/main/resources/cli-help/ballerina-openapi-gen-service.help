@@ -28,7 +28,7 @@ OPTIONS
            the mock service from the OpenAPI contract should be created.
 
        <openapi-contract>
-           The contract file location of the OpenAPI contract which
+           The contract file location of the OpenAPI contract, which
            is used to create the ballerina service.
 
        -o, --output <dir-path>
