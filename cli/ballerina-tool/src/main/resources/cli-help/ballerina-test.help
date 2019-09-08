@@ -3,16 +3,16 @@ NAME
 
 SYNOPSIS
        ballerina test [--offline]
-           [--sourceroot <path>]
-           [--experimental] [--skip-lock]
-           [--config <config_file>]
-           [<module-name> | -a | --all]
+                      [--sourceroot <path>]
+                      [--experimental] [--skip-lock]
+                      [--config <config_file>]
+                      [<module-name> | -a | --all]
 
 
 DESCRIPTION
-       Compile and run Ballerina
-       test sources and print a summary of test results. You can
-       execute tests in a module, or an entire Ballerina project.
+       Compile and run Ballerina test sources and print a summary of
+       test results. You can execute tests in a module,
+       or an entire Ballerina project.
     
        Use 'ballerina test <module-name>' to execute tests in the
        specified module, or '-a' or '-all' to execute tests in all modules.
@@ -26,21 +26,21 @@ OPTIONS
            the local artifacts will be used instead.
 
        --sourceroot <path>
-            Location of the remote project root with source files. All
-            executions will be relative to the path provided for
-            sourceroot.
+           Location of the remote project root with source files. All
+           executions will be relative to the path provided for
+           sourceroot.
 
        --config <config_file>
-            Provide the path to a Ballerina configuration file.
-            The configuration file format is a subset of the TOML file
-            format. It supports key/value pairs, tables, comments, and
-            string, int, float and boolean value types.
+           Provide the path to a Ballerina configuration file.
+           The configuration file format is a subset of the TOML file
+           format. It supports key/value pairs, tables, comments, and
+           string, int, float and boolean value types.
 
        --skip-lock
-            Build/Compile offline without downloading dependencies.
+           Build/Compile offline without downloading dependencies.
 
        --experimental
-            Enable experimental language features.
+           Enable experimental language features.
 
 
 EXAMPLES
