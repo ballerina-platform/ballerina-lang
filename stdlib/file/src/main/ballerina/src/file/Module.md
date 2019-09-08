@@ -5,7 +5,7 @@ This module contains functions to perform file system based operations.
 * It provides functions to perform file system based operations such as creating, deleting, renaming the
 file/directory and retrieving metadata of the file.
 
-## Samples
+## Sample
 
 The sample given below uses the functions in the module to get the system-level information.
 
