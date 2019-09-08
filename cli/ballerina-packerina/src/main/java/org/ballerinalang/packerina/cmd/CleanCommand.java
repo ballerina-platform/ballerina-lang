@@ -73,7 +73,7 @@ public class CleanCommand implements BLauncherCmd {
     
             Runtime.getRuntime().exit(0);
         } else {
-            this.outStream.println("'clean' command can only be executed from a ballerina project");
+            this.outStream.println("'clean' command can only be executed from a Ballerina project");
             Runtime.getRuntime().exit(1);
         }
     }
@@ -85,7 +85,7 @@ public class CleanCommand implements BLauncherCmd {
     
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Cleans the \"target\" directory of a ballerina project. \n");
+        out.append("Cleans the \"target\" directory of a Ballerina project. \n");
     }
     
     @Override

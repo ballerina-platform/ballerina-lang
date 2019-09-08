@@ -20,15 +20,15 @@ import ballerina/crypto;
 # provides includes functions to send request/error messages.
 public type Client client object {
 
-    private ClientEndpointConfig config = {};
+    private ClientConfiguration config = {};
     private string url;
 
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
     # record is used for endpoint initialization.
     #
     # + url - The server url.
-    # + config - - The ClientEndpointConfig of the endpoint.
-    public function __init(string url, ClientEndpointConfig? config = ()) {
+    # + config - - The ClientConfiguration of the endpoint.
+    public function __init(string url, ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
         error? err = self.init(self.url, self.config, globalGrpcClientConnPool);
@@ -37,7 +37,7 @@ public type Client client object {
         }
     }
 
-    function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig) returns error? = external;
+    function init(string url, ClientConfiguration config, PoolConfiguration globalPoolConfig) returns error? = external;
 
     # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #
@@ -87,15 +87,11 @@ public type AbstractClientEndpoint abstract object {
 # Represents client endpoint configuration.
 #
 # + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + httpVersion - The HTTP version understood by the client
-# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + poolConfig - Connection pool configuration
 # + secureSocket - SSL/TLS related options
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
-public type ClientEndpointConfig record {|
+public type ClientConfiguration record {|
     int timeoutInMillis = 60000;
-    string httpVersion = "2.0";
-    string forwarded = "disable";
     PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     Compression compression = COMPRESSION_AUTO;

@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 /**
  * Test cases for user defined documentation attachment in ballerina.
  */
-@Test(groups = "brokenOnJBallerina")
 public class ObjectDocumentationTest {
 
     private static final String CARRIAGE_RETURN_CHAR = "\r";

@@ -234,6 +234,29 @@
       ]
     },
     {
+      "label": "ballerina/stringutils",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "stringutils",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/stringutils;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/cache",
       "kind": "Module",
       "detail": "Package",
@@ -552,29 +575,6 @@
             }
           },
           "newText": "import ballerina/oauth2;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/internal",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "internal",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/internal;\n"
         }
       ]
     },
@@ -1152,6 +1152,30 @@
           "newText": "import ballerina/socket;\n"
         }
       ]
+    },
+    {
+      "label": "wait",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "wait ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "start",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "start ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "flush",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "flush ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

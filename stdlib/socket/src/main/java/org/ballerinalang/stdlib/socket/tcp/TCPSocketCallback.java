@@ -53,13 +53,14 @@ public class TCPSocketCallback implements CallableUnitCallback {
     public void notifyFailure(ErrorValue error) {
         String errorMsg = error.stringValue();
         if (log.isDebugEnabled()) {
-            log.debug("Socket resource dispatch failed: " + errorMsg);
+            log.debug(String.format("Socket resource dispatch failed: %s", errorMsg));
         }
         if (!executeFailureOnce) {
             // This is the first failure. Hence dispatching to onError.
             SelectorDispatcher.invokeOnError(socketService, new TCPSocketCallback(socketService, true), error);
         } else {
-            log.error("NotifyFailure hit twice, hence preventing error dispatching. Cause: " + errorMsg);
+            log.error(
+                    String.format("NotifyFailure hit twice, hence preventing error dispatching. Cause: %s", errorMsg));
         }
 
     }

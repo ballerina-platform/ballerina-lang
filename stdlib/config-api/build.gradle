@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
@@ -30,8 +30,8 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-internal')
     implementation project(':ballerina-tool')
+    implementation project(':ballerina-stringutils')
 
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
@@ -40,7 +40,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-tool')
     testCompile project(':ballerina-lang:annotations')
@@ -48,10 +49,9 @@ dependencies {
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-utils')
-    testCompile project(':ballerina-encoding')
     testCompile project(':ballerina-time')
-    testCompile project(':ballerina-internal')
     testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-file')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'

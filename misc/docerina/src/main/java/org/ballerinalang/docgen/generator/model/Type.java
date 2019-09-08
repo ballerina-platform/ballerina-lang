@@ -185,8 +185,23 @@ public class Type {
                         this.category = "types"; break;
                 case TypeTags
                         .ERROR: this.category = "errors"; break;
+                case TypeTags.INT:
+                case TypeTags.BYTE:
+                case TypeTags.FLOAT:
+                case TypeTags.DECIMAL:
+                case TypeTags.STRING:
+                case TypeTags.BOOLEAN:
+                case TypeTags.JSON:
+                case TypeTags.XML:
+                case TypeTags.NIL:
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.XMLNS:
+                case TypeTags.MAP: // TODO generate type for constraint type
+                case TypeTags.TABLE:
+                    this.category = "builtin"; break;
                 default:
-                    this.category = "UNKOWN";
+                    this.category = "UNKNOWN";
             }
 
         }

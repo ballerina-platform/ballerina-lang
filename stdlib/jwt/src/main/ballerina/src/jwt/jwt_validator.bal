@@ -17,10 +17,10 @@
 import ballerina/cache;
 import ballerina/crypto;
 import ballerina/encoding;
-import ballerina/internal;
 import ballerina/io;
 import ballerina/lang.'int as langint;
 import ballerina/lang.'string as strings;
+import ballerina/stringutils;
 import ballerina/time;
 
 # Represents JWT validator configurations.
@@ -59,26 +59,22 @@ public type CachedJwt record {|
 #
 # + jwtToken - JWT token that needs to be validated
 # + config - JWT validator config record
-# + return - If the JWT token is valid, return the JWT payload. Else, return an`Error` if token validation fails.
+# + return - If the JWT token is valid, return the JWT payload. Else, return an `Error` if token validation fails.
 public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
     JwtHeader header;
     JwtPayload payload;
     [header, payload]  = check decodeJwt(jwtToken);
 
     var jwtValidity = validateJwtRecords(jwtToken, header, payload, config);
-    if (jwtValidity is Error) {
-        return jwtValidity;
+    if (jwtValidity is ()) {
+        return payload;
     } else {
-        if (jwtValidity) {
-            return payload;
-        } else {
-            return prepareError("Invalid JWT token.");
-        }
+        return jwtValidity;
     }
 }
 
 function getJwtComponents(string jwtToken) returns string[]|Error {
-    string[] jwtComponents = internal:split(jwtToken, "\\.");
+    string[] jwtComponents = stringutils:split(jwtToken, "\\.");
     if (jwtComponents.length() < 2 || jwtComponents.length() > 3) {
         return prepareError("Invalid JWT token.");
     }
@@ -213,7 +209,7 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
 }
 
 function validateJwtRecords(string jwtToken, JwtHeader jwtHeader, JwtPayload jwtPayload,
-                            JwtValidatorConfig config) returns boolean|Error {
+                            JwtValidatorConfig config) returns Error? {
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
         return prepareError("Mandatory field signing algorithm(alg) is empty in the given JWT.");
     }
@@ -254,7 +250,7 @@ function validateJwtRecords(string jwtToken, JwtHeader jwtHeader, JwtPayload jwt
         }
     }
     //TODO : Need to validate jwt id (jti) and custom claims.
-    return true;
+    return ();
 }
 
 function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {

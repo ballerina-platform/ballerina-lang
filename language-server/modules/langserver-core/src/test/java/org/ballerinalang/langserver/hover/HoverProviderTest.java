@@ -108,7 +108,8 @@ public class HoverProviderTest {
         return new Object[][]{
                 {new Position(43, 11), "builtin-function1.json"},
                 {new Position(44, 19), "builtin-function2.json"},
-                {new Position(59, 60), "hoverOverConstant.json"}
+                {new Position(59, 60), "hoverOverConstant.json"},
+                {new Position(57, 35), "builtin-service1.json"}
         };
     }
 

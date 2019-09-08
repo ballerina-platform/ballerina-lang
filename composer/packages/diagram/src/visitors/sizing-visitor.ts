@@ -2,7 +2,7 @@ import {
     Assignment, ASTKindChecker,
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant,
     ExpressionStatement, Foreach, Function as BalFunction, If, Invocation, Lambda,
-    Literal, Match, MatchStaticPatternClause, ObjectType,
+    Literal, Match, MatchStaticPatternClause, MatchStructuredPatternClause, ObjectType,
     Panic, Return, Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
     Visitor, WaitExpr, While, WorkerReceive, WorkerSend
 } from "@ballerina/ast-model";
@@ -362,6 +362,20 @@ class SizingVisitor implements Visitor {
         viewState.bBox.label = DiagramUtils.getTextWidth(ASTUtil.genSource(node.literal)).text;
     }
 
+    public endVisitMatchStructuredPatternClause(node: MatchStructuredPatternClause) {
+        const viewState: ViewState = node.viewState;
+
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
+            return;
+        }
+
+        viewState.bBox.w = node.statement.viewState.bBox.w;
+        viewState.bBox.h = node.statement.viewState.bBox.h
+            + config.statement.height; // To print literal
+        viewState.bBox.label = DiagramUtils.getTextWidth(ASTUtil.genSource(node.variableNode)).text;
+    }
+
     public endVisitMatch(node: Match) {
         const viewState: ViewState = node.viewState;
 
@@ -449,6 +463,7 @@ class SizingVisitor implements Visitor {
             if (!viewState.expandContext.collapsed && !viewState.hidden && !viewState.hiddenBlock) {
                 const labelText = viewState.expandContext.expandedSubTree.name.value;
                 viewState.expandContext.labelText = labelText;
+                viewState.expandContext.statementText = ASTUtil.genSource(node);
                 viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(labelText, {bold: true});
                 this.handleExpandedFn(viewState.expandContext.expandedSubTree, viewState);
             }
@@ -650,27 +665,37 @@ class SizingVisitor implements Visitor {
                 containingWorkerName,
             } = waitinfo;
 
+            let workerNames: string[] = [];
             if (waitExpr.expression) {
-                const workerNames = extractWorkerNames(waitExpr.expression);
-                workerNames.forEach((workerName) => {
-                    if (workersMap[workerName]) {
-                        workersMap[workerName].view.returnStatements.forEach((returnStmt) => {
-                            (returnStmt.viewState as ReturnViewState).callerViewStates[containingWorkerName] =
-                                workersMap[containingWorkerName].view.lifeline;
+                workerNames = extractWorkerNames(waitExpr.expression);
+            }
 
-                            sendReceivePairs.push({
-                                receiveHolder: statement,
-                                receiveIndex: index,
-                                receivingWorkerName: containingWorkerName,
-                                sendHolder: returnStmt,
-                                sendIndex: workersMap[workerName].block.statements.length,
-                                // all returns should be after sends and receives
-                                sendingWorkerName: workerName,
-                            });
-                        });
+            if (waitExpr.keyValuePairs) {
+                waitExpr.keyValuePairs.forEach((pair) => {
+                    if (pair) {
+                        workerNames.push(pair.key.value);
                     }
                 });
             }
+
+            workerNames.forEach((workerName) => {
+                if (workersMap[workerName]) {
+                    workersMap[workerName].view.returnStatements.forEach((returnStmt) => {
+                        (returnStmt.viewState as ReturnViewState).callerViewStates[containingWorkerName] =
+                            workersMap[containingWorkerName].view.lifeline;
+
+                        sendReceivePairs.push({
+                            receiveHolder: statement,
+                            receiveIndex: index,
+                            receivingWorkerName: containingWorkerName,
+                            sendHolder: returnStmt,
+                            sendIndex: workersMap[workerName].block.statements.length,
+                            // all returns should be after sends and receives
+                            sendingWorkerName: workerName,
+                        });
+                    });
+                }
+            });
         });
 
         // 2. Pair up sends and receives
@@ -731,6 +756,16 @@ class SizingVisitor implements Visitor {
 
         // 4. Calculate heights
         sendReceivePairs.forEach((pair) => {
+            pair.sendHolder.viewState.bBox.paddingTop = 0;
+            pair.receiveHolder.viewState.bBox.paddingTop = 0;
+        });
+
+        if (workerHeightInfo.Default) {
+            workerHeightInfo.Default.currentHeight =
+                -(workersMap.Default.view.initHeight - (2 * config.statement.height));
+        }
+
+        sendReceivePairs.forEach((pair) => {
             const sendWorker = workersMap[pair.sendingWorkerName];
             for (let index = workerHeightInfo[sendWorker.view.name].currentIndex; index < pair.sendIndex; index++) {
                 workerHeightInfo[sendWorker.view.name].currentHeight +=
@@ -751,15 +786,12 @@ class SizingVisitor implements Visitor {
             const receiveHeight = workerHeightInfo[receiveWorker.view.name].currentHeight;
             (pair.sendHolder.viewState as WorkerSendViewState).isSynced = true;
             if (sendHeight > receiveHeight) {
-                pair.receiveHolder.viewState.bBox.paddingTop = sendHeight - receiveHeight;
+                if (pair.receiveHolder.viewState.bBox.paddingTop < (sendHeight - receiveHeight)) {
+                    pair.receiveHolder.viewState.bBox.paddingTop = sendHeight - receiveHeight;
+                }
             } else {
-                pair.sendHolder.viewState.bBox.paddingTop = receiveHeight - sendHeight;
-
-                // in this case the return statements label might appear on top of a receiving worker
-                // statement. following is to avoid it.
-                if (ASTKindChecker.isReturn(pair.sendHolder)) {
-                    pair.sendHolder.viewState.bBox.paddingTop += config.statement.height;
-                    pair.receiveHolder.viewState.bBox.paddingTop = config.statement.height;
+                if (pair.sendHolder.viewState.bBox.paddingTop < (receiveHeight - sendHeight)) {
+                    pair.sendHolder.viewState.bBox.paddingTop = receiveHeight - sendHeight;
                 }
             }
         });
@@ -796,7 +828,7 @@ class SizingVisitor implements Visitor {
 
 function extractWaitExpr(statement: ASTNode): WaitExpr | undefined {
     if (ASTKindChecker.isVariableDef(statement) && statement.variable.initialExpression &&
-    ASTKindChecker.isWaitExpr(statement.variable.initialExpression)) {
+        ASTKindChecker.isWaitExpr(statement.variable.initialExpression)) {
 
         return statement.variable.initialExpression;
     }

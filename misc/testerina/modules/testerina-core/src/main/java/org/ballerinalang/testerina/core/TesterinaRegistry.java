@@ -18,17 +18,14 @@
 package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.testerina.core.entity.TestSuite;
-import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Keep a registry of {@code {@link ProgramFile}} instances.
+ * Keep a registry of instances.
  * This is required to modify the runtime behavior.
  */
 public class TesterinaRegistry {
@@ -47,8 +44,6 @@ public class TesterinaRegistry {
      * annotation processing once the test suites are compiled.
      */
     private boolean testSuitesCompiled;
-    private List<ProgramFile> programFiles = new ArrayList<>();
-    private List<ProgramFile> skeletonProgramFiles = new ArrayList<>();
     private static TesterinaRegistry instance = new TesterinaRegistry();
 
     public static TesterinaRegistry getInstance() {
@@ -86,34 +81,6 @@ public class TesterinaRegistry {
     public void setTestSuites(Map<String, TestSuite> testSuites) {
         this.testSuites = testSuites;
         this.testSuitesCompiled = false;
-    }
-
-    public void setProgramFiles(List<ProgramFile> programFiles) {
-        this.programFiles = programFiles;
-    }
-
-    public Collection<ProgramFile> getProgramFiles() {
-        return Collections.unmodifiableCollection(programFiles);
-    }
-
-    public Collection<ProgramFile> getSkeletonProgramFiles() {
-        return Collections.unmodifiableCollection(skeletonProgramFiles);
-    }
-
-    public void addProgramFile(ProgramFile programFile) {
-        programFiles.add(programFile);
-    }
-
-    public TestSuite putTestSuiteIfAbsent(String packageName, TestSuite suite) {
-        return this.testSuites.putIfAbsent(packageName, suite);
-    }
-
-    public void addSkeletonProgramFile(ProgramFile programFile) {
-        skeletonProgramFiles.add(programFile);
-    }
-
-    public void addInitializedPackage(String packageName) {
-        initializedPackages.add(packageName);
     }
 
     public List<String> getInitializedPackages() {

@@ -84,6 +84,12 @@ public class ServiceDefinitionContextProvider extends LSCompletionProvider {
                 break;
             }
             case BallerinaParser.NEW: {
+                /*
+                    service helloService on new <cursor> {
+                    }
+                    Ideally this should be a syntax error and current grammar do not support it
+                    Also Issue #18729 is also broken
+                 */
                 List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
                 List<SymbolInfo> filteredSymbols = this.filterListenerTypes(visibleSymbols);
                 completionItems.addAll(this.getCompletionItemList(filteredSymbols, context));

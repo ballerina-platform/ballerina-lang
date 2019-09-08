@@ -101,7 +101,7 @@ public class ReadPendingCallback {
         return new TimerTask() {
             public void run() {
                 ReadPendingSocketMap.getInstance().remove(socketHash);
-                final ErrorValue timeoutError = SocketUtils.createSocketError("Read timed out");
+                final ErrorValue timeoutError = SocketUtils.createSocketError("read timed out");
                 callback.setReturnValues(timeoutError);
                 callback.notifySuccess();
                 cancel();

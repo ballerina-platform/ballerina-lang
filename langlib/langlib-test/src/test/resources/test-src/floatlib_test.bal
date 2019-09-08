@@ -31,3 +31,7 @@ function testIsInfinite() returns [boolean, boolean] {
 function testSum() returns float {
     return floats:sum(12.34, 23.45, 34.56);
 }
+
+function testFloatConsts() returns [float,float] {
+    return [floats:NaN, floats:Infinity];
+}

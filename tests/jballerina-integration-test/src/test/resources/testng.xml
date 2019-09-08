@@ -115,7 +115,7 @@
             <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
             <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
-            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
+<!--            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>-->
             <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
@@ -269,7 +269,7 @@
     <test name="ballerina-observability-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
-            <!--<class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>-->
+            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
         </classes>
     </test>
@@ -311,5 +311,12 @@
         <packages>
             <package name="org.ballerinalang.test.run.*"/>
         </packages>
+    </test>
+
+    <test name="ballerina-logging-tests" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.logging.LogAPITestCase" />
+        </classes>
     </test>
 </suite>

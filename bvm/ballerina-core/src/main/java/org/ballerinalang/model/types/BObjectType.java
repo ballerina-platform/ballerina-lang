@@ -19,8 +19,6 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ObjectTypeInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
 
 /**
  * {@code BObjectType} represents a user defined object type in Ballerina.
@@ -29,23 +27,15 @@ import org.ballerinalang.util.codegen.TypeInfo;
  */
 public class BObjectType extends BStructureType {
 
-    public ObjectTypeInfo objectTypeInfo;
-
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
      *
-     * @param objectTypeInfo object type info object
      * @param typeName string name of the type
      * @param pkgPath  package of the struct
      * @param flags flags of the object type
      */
-    public BObjectType(ObjectTypeInfo objectTypeInfo, String typeName, String pkgPath, int flags) {
+    public BObjectType(String typeName, String pkgPath, int flags) {
         super(typeName, pkgPath, flags, BMap.class);
-        this.objectTypeInfo = objectTypeInfo;
-    }
-
-    public TypeInfo getTypeInfo() {
-        return objectTypeInfo;
     }
 
     @Override

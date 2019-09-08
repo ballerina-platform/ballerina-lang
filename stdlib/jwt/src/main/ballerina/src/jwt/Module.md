@@ -1,6 +1,6 @@
 ## Module Overview
 
-This module provides a inbound and outbound JWT authentication provider, which can be used to authenticate using a JWT and the functionality related to issuing a JWT and validating it.
+This module provides a inbound and outbound JWT authentication provider, which can be used to authenticate using a JWT and the functionality related to issuing and validating JWT.
 
 ### Inbound JWT Auth Provider
 
@@ -10,10 +10,12 @@ The `jwt:InboundJwtAuthProvider` is another implementation of the `auth:InboundA
 jwt:InboundJwtAuthProvider jwtAuthProvider = new({
     issuer: "example",
     audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 ```
@@ -25,26 +27,30 @@ The `jwt:OutboundJwtAuthProvider` is another implementation of the `auth:Outboun
 ```ballerina
 jwt:OutboundJwtAuthProvider jwtAuthProvider = new({
     issuer: "example",
-    audience: "ballerina",
-    keyAlias: "ballerina",
-    keyPassword: "ballerina",
-    keyStore: {
-        path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-        password: "ballerina"
+    audience: ["ballerina"],
+    keyStoreConfig: {
+        keyAlias: "ballerina",
+        keyPassword: "ballerina",
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
     }
 });
 ```
+## Samples
 
-#### Sample for issuing a JWT
+#### Issuing a JWT
 
 ```ballerina
 import ballerina/crypto;
-import ballerina/time;
 import ballerina/jwt;
+import ballerina/time;
 
 public function main() {
-    crypto:KeyStore keyStore = { path: "${ballerina.home}/bre/security/ballerinaKeystore.p12", password: "ballerina" };
-    jwt:JWTIssuerConfig config = {
+    crypto:KeyStore keyStore = { path: "${ballerina.home}/bre/security/ballerinaKeystore.p12", 
+                                 password: "ballerina" };
+    jwt:JwtKeyStoreConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -65,20 +71,23 @@ public function main() {
 }
 ```
 
-#### Sample for validating a JWT
+#### Validating a JWT
 
 ```ballerina
 import ballerina/crypto;
 import ballerina/jwt;
 
 public function main() {
-    crypto:TrustStore trustStore = { path: "${ballerina.home}/bre/security/ballerinaTruststore.p12", password: "ballerina" };
-    jwt:JWTValidatorConfig config = {
+    crypto:TrustStore trustStore = { path: "${ballerina.home}/bre/security/ballerinaTruststore.p12", 
+                                     password: "ballerina" };
+    jwt:JwtValidatorConfig config = {
         issuer: "wso2",
-        certificateAlias: "ballerina",
         audience: "ballerina",
-        clockSkew: 60,
-        trustStore: trustStore
+        clockSkewInSeconds: 60,
+        trustStoreConfig: {
+            certificateAlias: "ballerina",
+            trustStore: trustStore
+        }
     };
 
     jwt:JwtPayload|error result = jwt:validateJwt(jwtToken, config);

@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,11 +52,6 @@ public class BHandleValue implements BRefType<Object> {
     @Override
     public BType getType() {
         return BTypes.typeHandle;
-    }
-
-    @Override
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

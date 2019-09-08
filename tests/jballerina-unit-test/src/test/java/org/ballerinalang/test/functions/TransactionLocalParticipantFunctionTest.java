@@ -48,7 +48,7 @@ public class TransactionLocalParticipantFunctionTest {
         Assert.assertTrue(diagnostics.length == 0, "Transaction annotation error");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testTransactionLocalParticipantFunctionInvocation() {
         BValue[] params = {new BBoolean(false), new BBoolean(false)};
         BValue[] ret = BRunUtil.invoke(result, "initiatorFunc", params);

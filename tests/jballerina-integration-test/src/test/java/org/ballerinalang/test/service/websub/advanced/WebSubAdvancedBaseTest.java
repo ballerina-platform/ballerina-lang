@@ -47,7 +47,7 @@ public class WebSubAdvancedBaseTest extends BaseTest {
         String trustStore = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
                         .toString());
-        String[] publisherArgs = {"-c", confPath, "--truststore=" + trustStore };
+        String[] publisherArgs = { "--b7a.config.file=" + confPath, "--truststore=" + trustStore };
         publisherServerInstance.startServer(balFile, "advanced_services", null, publisherArgs, new int[]{23080});
     }
 

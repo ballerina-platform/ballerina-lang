@@ -100,7 +100,8 @@ public type Listener object {
     function start() returns error? = external;
 
     # Stops the registered service.
-    function stop() = external;
+    # + return - An `error` if there is any error occurred during the listener stop process
+    function stop() returns error? = external;
 
     # Disengage an attached service from the listener.
     #

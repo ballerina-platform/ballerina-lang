@@ -29,6 +29,7 @@ export interface OverviewProps extends CommonDiagramProps {
     initialSelectedConstruct?: ConstructIdentifier;
 }
 export interface OverviewState {
+    errored: boolean;
     modules: ProjectAST;
     selectedConstruct?: ConstructIdentifier | undefined;
     mode: DiagramMode;
@@ -39,6 +40,8 @@ export interface OverviewState {
 }
 
 export interface ConstructIdentifier {
+    sourceRoot?: string;
+    filePath?: string;
     constructName: string;
     moduleName: string;
     subConstructName?: string;
@@ -68,6 +71,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.setPanZoomComp = this.setPanZoomComp.bind(this);
         this.setMaxInvocationDepth = this.setMaxInvocationDepth.bind(this);
         this.state = {
+            errored: false,
             maxInvocationDepth: -1,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
@@ -78,57 +82,90 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
     }
 
     public updateAST() {
-        const { langClient, sourceRootUri, docUri } = this.props;
+        this.getAST(this.props.sourceRootUri, this.props.docUri).then((ast) => {
+            this.setState({
+                errored: !Boolean(ast),
+                maxInvocationDepth: -1,
+                modules: ast ? ast : {}
+            });
+        });
+    }
+
+    public getAST(sourceRootUri: string | undefined, docUri: string | undefined): PromiseLike<ProjectAST | undefined> {
+        const { langClient } = this.props;
         if (sourceRootUri) {
-            langClient.getProjectAST({ sourceRoot: sourceRootUri }).then((result) => {
+            return langClient.getProjectAST({ sourceRoot: sourceRootUri }).then((result) => {
                 if (!result || !(Object.keys(result.modules).length > 0)) {
-                    return;
+                    return undefined;
                 }
-                this.setState({
-                    modules: result.modules
-                });
-            }, () => {/** no op */});
-        } else {
-            langClient.getAST({documentIdentifier: {uri: docUri}}).then((result) => {
+
+                return result.modules;
+            }, () => (undefined));
+        }
+
+        if (docUri) {
+            return langClient.getAST({documentIdentifier: {uri: docUri}}).then((result) => {
                 const ast = result.ast as any;
                 if (!ast) {
                     return;
                 }
 
-                this.setState({
-                    modules: {
-                        [ast.name]: {
-                            compilationUnits: {
-                                [ast.name]: {
-                                    ast,
-                                    name: ast.name,
-                                    uri: docUri,
-                                }
-                            },
-                            name: ast.name,
-                        }
+                return {
+                    [ast.name]: {
+                        compilationUnits: {
+                            [ast.name]: {
+                                ast,
+                                name: ast.name,
+                                uri: docUri,
+                            }
+                        },
+                        name: ast.name,
                     }
-                });
+                };
             });
         }
+
+        return Promise.resolve(undefined);
     }
 
-    public selectConstruct({moduleName, constructName, subConstructName}: ConstructIdentifier) {
-        this.setState({
-            maxInvocationDepth: -1,
-            selectedConstruct: {
-                constructName, moduleName, subConstructName
-            },
-        });
-        this.handleReset();
+    public selectConstruct(selectedConstruct: ConstructIdentifier) {
+        if (!this.state.selectedConstruct ||
+            (selectedConstruct.sourceRoot &&
+                (this.state.selectedConstruct.sourceRoot !== selectedConstruct.sourceRoot))) {
+
+            this.getAST(selectedConstruct.sourceRoot, selectedConstruct.filePath).then((ast) => {
+                this.setState({
+                    errored: !Boolean(ast),
+                    maxInvocationDepth: -1,
+                    modules: ast ? ast : {},
+                    selectedConstruct,
+                });
+            });
+        } else {
+            this.setState({
+                maxInvocationDepth: -1,
+                selectedConstruct,
+            });
+        }
+
+        this.reset();
     }
 
     public componentDidMount() {
-        this.updateAST();
         if (this.props.initialSelectedConstruct) {
-            this.setState({
-                selectedConstruct: this.props.initialSelectedConstruct,
+            this.selectConstruct(this.props.initialSelectedConstruct);
+            return;
+        }
+
+        if (this.props.docUri) {
+            this.getAST(this.props.sourceRootUri, this.props.docUri).then((ast) => {
+                this.setState({
+                    errored: !Boolean(ast),
+                    maxInvocationDepth: -1,
+                    modules: ast ? ast : {},
+                });
             });
+            return;
         }
     }
 
@@ -139,6 +176,23 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             selectedASTs,
             selectedUri,
         } = this.getSelected(this.state.selectedConstruct);
+
+        if (!selectedASTs) {
+            if (this.state.selectedConstruct) {
+                const { subConstructName, constructName, moduleName } = this.state.selectedConstruct;
+                const name = subConstructName ? `${constructName}/${subConstructName}` : constructName;
+                const errorMessage = `Could not find a construct with name ${name} in module ${moduleName}`;
+                return <div style={{padding: 10}}><div className="ui visible message">{errorMessage}</div></div>;
+            }
+
+            if (this.props.docUri && this.state.errored) {
+                const { docUri } = this.props;
+                const docUriFilename = docUri.substring(docUri.lastIndexOf("/") + 1);
+                // tslint:disable-next-line: max-line-length
+                const errorMessage = `Could not generate diagram for ${docUriFilename}. Please check for compilation errors`;
+                return <div style={{padding: 10}}><div className="ui visible message">{errorMessage}</div></div>;
+            }
+        }
 
         if (selectedASTs) {
             // Initialize AST node view state
@@ -153,7 +207,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }
 
         return (
-            <div style={{height: "100%"}}>
+            <div style={{height: "100%"}} onClick={this.handleClosed}>
                 <TopMenu
                     modes={modes}
                     handleModeChange={this.handleModeChange}
@@ -171,6 +225,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     maxInvocationDepth={this.state.maxInvocationDepth}
                     reachedInvocationDepth={getReachedInvocationDepth()}
                 />
+                {}
                 <Diagram astList={selectedASTs}
                     langClient={this.props.langClient}
                     projectAst={modules}
@@ -231,7 +286,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         const { modules } = this.state;
         const moduleList: Array<{name: string, nodeInfo: Array<{node: ASTNode, uri: string}>}>  = [];
 
-        Object.keys(modules).map((moduleName) => {
+        Object.keys(modules).forEach((moduleName) => {
             const module = modules[moduleName];
             const newModule: {name: string, nodeInfo: Array<{node: ASTNode, uri: string}>}
                 = { name: module.name, nodeInfo: [] };
@@ -303,7 +358,8 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         });
     }
 
-    private handleFitClick() {
+    private handleFitClick(e: React.MouseEvent) {
+        e.stopPropagation();
         if (!(this.panZoomElement && this.panZoomElement.parentElement && this.panZoomComp)) {
             return;
         }
@@ -316,7 +372,8 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.panZoomComp.moveTo(20, 20);
     }
 
-    private handleZoomIn() {
+    private handleZoomIn(e: React.MouseEvent) {
+        e.stopPropagation();
         if (!this.panZoomComp) {
             return;
         }
@@ -329,7 +386,8 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }));
     }
 
-    private handleZoomOut() {
+    private handleZoomOut(e: React.MouseEvent) {
+        e.stopPropagation();
         if (!this.panZoomComp) {
             return;
         }
@@ -342,19 +400,26 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }));
     }
 
-    private handleOpened() {
+    private handleOpened(e: React.MouseEvent) {
+        e.stopPropagation();
         this.setState({
             openedState: true,
         });
     }
 
-    private handleClosed() {
+    private handleClosed(e: React.MouseEvent) {
+        e.stopPropagation();
         this.setState({
             openedState: false,
         });
     }
 
-    private handleReset() {
+    private handleReset(e: React.MouseEvent) {
+        e.stopPropagation();
+        this.reset();
+    }
+
+    private reset() {
         if (this.panZoomComp && this.innitialPanZoomTransform) {
             const { x, y, scale } = this.innitialPanZoomTransform;
             this.panZoomComp.zoomAbs(0, 0, scale);
@@ -367,10 +432,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     private setMaxInvocationDepth(depth: number) {
         // reset any expandings
-        if (!this.state.selectedConstruct) {
-            return;
-        }
-
         const {
             selectedASTs
         } = this.getSelected(this.state.selectedConstruct);

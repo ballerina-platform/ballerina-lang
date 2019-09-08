@@ -19,17 +19,15 @@ type Person1 abstract object {
     public string name;
 };
 
-type Employee1 object {
-    public float salary = 0.0;
+type Employee1 abstract object {
+    public float salary;
 };
 
 type Manager1 object {
     *Person1;
+    *Employee1;
 
     string dpt = "HR";
-
-    // refering a non-abstarct object
-    *Employee1;
 };
 
 type EmployeeWithSalary abstract object {
@@ -45,7 +43,6 @@ type ManagerWithTwoSalaries object {
 
     string dpt = "HR";
     *EmployeeWithSalary;
-    *AnotherEmployeeWithSalary;
 };
 
 // Direct circular reference
@@ -80,7 +77,6 @@ type Person2 abstract object {
     public int age;
     public string name;
 
-    // Unimplemented function at the nested referenced type.
     public function getName(string? title) returns string;
 };
 
@@ -95,86 +91,12 @@ type Employee2 abstract object {
 type Manager2 object {
     string dpt = "HR";
     *Employee2;
-};
 
-type P object {
-    *Q;
-};
-
-type Q record {
-    int x = 0;
-    string y = "";
-};
-
-type R object {
-    *Person1;
-    *Person1;
-};
-
-type ObjectWithFunction abstract object {
-    public function getName(string? title) returns string;
-};
-
-type ObjectWithRedeclaredFunction_1 abstract object {
-    *ObjectWithFunction;
-    public function getName(string? title) returns string;
-};
-
-type ObjectWithRedeclaredFunction_2 abstract object {
-    *ObjectWithFunction;
-    *ObjectWithRedeclaredFunction_1;
-};
-
-type RedecalredFieldObject_1 abstract object {
-    int x;
-};
-
-type RedecalredFieldObject_2 abstract object {
-    int x;
-    *RedecalredFieldObject_1;
-};
-
-type RedecalredFieldObject_3 abstract object {
-    *RedecalredFieldObject_2;
-};
-
-type Bar object {
-    *Baz;   // non existing type
-};
-
-type Too object {
-    *Tar; // non existing type
-
-    string s; // with member
-
-    public function __init(string s) {
-        self.s = s;
-    }
-};
-
-type ObjWithSameFunc1 abstract object {
-    function abc();
-    function xyz(int i);
-};
-
-type ObjWithSameFunc2 abstract object {
-    function xyz(int i);
-    function def(string s) returns string;
-};
-
-type ObjWithRedeclaredFuncsViaRefs object {
-    *ObjWithSameFunc1;
-    *ObjWithSameFunc2;
-
-    function xyz(int i) {
-
+    public function getName(string? title) returns string {
+        return self.name;
     }
 
-    function abc() {
-
-    }
-
-    function def(string s) returns string {
-        return s;
+    public function getSalary() returns float {
+        return self.salary;
     }
 };

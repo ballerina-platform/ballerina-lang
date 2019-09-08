@@ -17,6 +17,7 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/transactions;
+import ballerina/runtime;
 
 http:Client separateRMParticipant01 = new("http://localhost:8890");
 
@@ -170,9 +171,11 @@ function localParticipant() returns string {
 
 
 string S1 = "";
+boolean resourceCommited = false;
 
 function baz(string id) {
     log:printInfo("exe-baz-oncommittedFunc");
+    resourceCommited = true;
     S1 = S1 + " in-baz[oncommittedFunc]";
 }
 
@@ -201,6 +204,9 @@ function initiatorFunc(boolean throw1, boolean throw2,
     http:Client participantEP = new("http://localhost:8889");
     initGlobalVar();
     S1 = "";
+    boolean isAbort = false;
+    string commitedString = "";
+    resourceCommited = false;
     transaction with retries=2 {
         log:printInfo("trx-first-line");
         S1 = S1 + " in-trx-block";
@@ -272,14 +278,20 @@ function initiatorFunc(boolean throw1, boolean throw2,
         trx_ran_once = true;
     } committed {
         log:printInfo("commited block ran");
-
-        S1 = S1 + " committed-block";
+        commitedString = " committed-block";
     } aborted {
+        isAbort = true;
         log:printInfo("aborted ran");
-
         S1 = S1 + " aborted-block";
     }
-    S1 = S1 + " after-trx";
+    if (!isAbort && remote2) {
+        boolean waitResult = waitForCondition(5000, 20, function () returns boolean { return resourceCommited; });
+        if (!waitResult) {
+              error err = error("Participants failed to commit");
+              panic err;
+        }
+    }
+    S1 = S1 + commitedString + " after-trx";
     return S1;
 }
 
@@ -543,4 +555,18 @@ service initiatorService on new http:Listener(8888) {
         var stt = res.setTextPayload(<@untainted> s);
         checkpanic ep->respond(res);
     }
+}
+
+function waitForCondition(int maxWaitInMillySeconds, int noOfRounds, function() returns boolean conditionFunc)
+             returns boolean {
+    int sleepTimePerEachRound = maxWaitInMillySeconds/noOfRounds;
+    int count = 0;
+    while (count < noOfRounds) {
+        if (conditionFunc()){
+            return true;
+        }
+        count = count + 1;
+        runtime:sleep(sleepTimePerEachRound);
+    }
+    return false;
 }

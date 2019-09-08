@@ -149,7 +149,7 @@ public class PushUtils {
             String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
         
             // Push module to central
-            String urlWithModulePath = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/").toString();
+            String urlWithModulePath = RepoUtils.getRemoteRepoURL() + "/modules/";
             String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
         
             Optional<RuntimeException> exception = executor.executeMainFunction("module_push",
@@ -350,7 +350,7 @@ public class PushUtils {
     }
     
     private static boolean isDependencyAvailableInRemote(Dependency dep) throws IOException {
-        URI baseURI = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/");
+        URI baseURI = URI.create(RepoUtils.getRemoteRepoURL() + "/modules/");
         String moduleUrl = baseURI.toString() + dep.getOrgName() + "/" + dep.getModuleName();
         
         // append version to url if available

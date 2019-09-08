@@ -21,7 +21,9 @@ import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.jvm.values.ChannelDetails;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
@@ -236,6 +238,15 @@ public class Scheduler {
             } catch (Throwable e) {
                 panic = e;
                 notifyChannels(item, panic);
+              
+                if (!(e instanceof ErrorValue)) {
+                    RuntimeUtils.printCrashLog(e);
+                }
+                // Please refer #18763.
+                // This logs cases where errors have occurred while strand is blocked.
+                if (item.isYielded()) {
+                    RuntimeUtils.printCrashLog(e);
+                }
             } finally {
                 strandHolder.get().strand = null;
             }

@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jvm;
-import ballerina/io;
-import ballerina/internal;
 import ballerina/bir;
 import ballerina/file;
+import ballerina/internal;
+import ballerina/io;
+import ballerina/jvm;
 
 type BIRFunctionWrapper record {
     string orgName;
@@ -149,7 +149,8 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     if (!isEntry || dlogger.getErrorCount() > 0) {
         return;
     }
-
+    injectDefaultParamInits(module);
+    injectDefaultParamInitsToAttachedFuncs(module);
     // create dependant modules flat array
     createDependantModuleFlatArray();
     // enrich current package with package initializers

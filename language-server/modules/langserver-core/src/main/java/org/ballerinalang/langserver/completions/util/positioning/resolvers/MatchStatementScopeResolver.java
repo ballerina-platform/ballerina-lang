@@ -68,7 +68,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
             SymbolEnv matchEnv = createMatchEnv(matchNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, matchEnv);
             treeVisitor.forceTerminateVisitor();
-            treeVisitor.setNextNode(bSymbol);
+            treeVisitor.setNextNode(bSymbol, node);
             isBeforeNode = true;
         }
         

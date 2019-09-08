@@ -34,7 +34,7 @@ public function main() {
     json[] family = <json[]> p["family"];
     map<json> member2 = <map<json>> family[2];
     member2["fname"] = "Alisha";
-    io:println(p);
+    io:println(p.toJsonString());
 
     // Get the length of the JSON array.
     int l = family.length();

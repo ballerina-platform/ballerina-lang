@@ -15,11 +15,11 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/internal;
 import ballerina/lang.'array as arrays;
 import ballerina/lang.'string as strings;
 import ballerina/log;
 import ballerina/runtime;
+import ballerina/stringutils;
 
 # Default charset to be used with password hashing.
 public const string DEFAULT_CHARSET = "UTF-8";
@@ -51,7 +51,7 @@ const string CONFIG_USER_SECTION = "b7a.users";
 # + return - A `string` tuple with the extracted username and password or `Error` occurred while extracting credentials
 public function extractUsernameAndPassword(string credential) returns [string, string]|Error {
     string decodedHeaderValue = check strings:fromBytes(check arrays:fromBase64(credential));
-    string[] decodedCredentials = internal:split(decodedHeaderValue, ":");
+    string[] decodedCredentials = stringutils:split(decodedHeaderValue, ":");
     if (decodedCredentials.length() != 2) {
         return prepareError("Incorrect credential format. Format should be username:password");
     } else {

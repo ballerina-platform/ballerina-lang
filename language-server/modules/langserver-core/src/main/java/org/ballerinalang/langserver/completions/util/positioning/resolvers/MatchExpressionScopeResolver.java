@@ -69,7 +69,7 @@ public class MatchExpressionScopeResolver extends CursorPositionResolver {
             SymbolEnv matchEnv = createMatchExpressionEnv(matchNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, matchEnv);
             treeVisitor.forceTerminateVisitor();
-            treeVisitor.setNextNode(bSymbol);
+            treeVisitor.setNextNode(bSymbol, node);
         }
         
         return isBeforeNode;

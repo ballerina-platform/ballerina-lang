@@ -32,7 +32,6 @@ dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-encoding')
     implementation project(':ballerina-filepath')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-time')
@@ -40,7 +39,6 @@ dependencies {
     implementation 'org.apache.kafka:kafka-clients'
     implementation 'org.apache.kafka:kafka_2.11'
 
-    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
@@ -56,7 +54,6 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-transactions')
-    testCompile project(':ballerina-encoding')
     testCompile project(':ballerina-http')
     testCompile project(':ballerina-crypto')
     testCompile project(':ballerina-mime')

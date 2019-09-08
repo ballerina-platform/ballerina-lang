@@ -19,4 +19,9 @@ type Person object {
         self.year = year;
         self.month = month;
     }
+
+    function toString() returns string {
+        json result = {age: self.age, name: self.name};
+        return result.toJsonString();
+    }
 };

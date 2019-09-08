@@ -17,17 +17,16 @@
  */
 package org.ballerinalang.net.http.nativeimpl;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.mime.util.HeaderUtil;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.HttpErrorType;
-import org.ballerinalang.net.http.HttpUtil;
 
 import java.util.Arrays;
 
@@ -51,9 +50,8 @@ import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 )
 public class ParseHeader {
 
-    private static final org.ballerinalang.jvm.types.BTupleType parseHeaderTupleType = new org.ballerinalang.jvm
-            .types.BTupleType(
-            Arrays.asList(org.ballerinalang.jvm.types.BTypes.typeString, org.ballerinalang.jvm.types.BTypes.typeMap));
+    private static final BTupleType parseHeaderTupleType = new BTupleType(
+            Arrays.asList(BTypes.typeString, BTypes.typeMap));
 
     public static Object parseHeader(Strand strand, String headerValue) {
         String errMsg;
@@ -74,16 +72,16 @@ public class ParseHeader {
                 contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
                 return contentTuple;
 
-            } catch (BallerinaException ex) {
-                errMsg = PARSER_ERROR + ex.getMessage();
+            } catch (Exception ex) {
+                if (ex instanceof ErrorValue) {
+                    errMsg = PARSER_ERROR + ex.toString();
+                } else {
+                    errMsg = PARSER_ERROR + ex.getMessage();
+                }
             }
         } else {
             errMsg = PARSER_ERROR + "header value cannot be null";
         }
-
-        // set parse error
-        ErrorValue mimeError = MimeUtil.createError(READING_HEADER_FAILED, errMsg);
-        String httpErrorMessage = "MimeError occurred while parsing the header";
-        return HttpUtil.createHttpError(httpErrorMessage, HttpErrorType.GENERIC_CLIENT_ERROR, mimeError);
+        return BallerinaErrors.createError(READING_HEADER_FAILED, errMsg);
     }
 }

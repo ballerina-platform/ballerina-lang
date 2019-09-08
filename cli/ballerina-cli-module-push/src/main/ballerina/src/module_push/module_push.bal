@@ -151,15 +151,16 @@ function getByteArrayOfFile(string filePath) returns byte[]|error {
     if (src is error) {
         panic createError("error reading balo file. path: " + filePath);
     } else {
-        int readCount = 1;
-        byte[] readContent;
-
-        while (readCount > 0) {
-            [byte[], int]|error result = src.read(1024);
-            if (result is error) {
+        boolean readContinue = true;
+        byte[] readContent = [];
+        while (readContinue) {
+            byte[]|io:Error result = src.read(1024);
+            if (result is io:EofError) {
+                readContinue = false;
+            } else if (result is io:Error) {
                 panic createError("error reading bytes of balo file. path: " + filePath);
             } else {
-                [readContent, readCount] = result;
+                readContent = result;
             }
         }
         return <@untainted> readContent;

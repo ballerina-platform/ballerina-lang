@@ -59,19 +59,25 @@ public class StatementContextProvider extends LSCompletionProvider {
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
         Boolean inWorkerReturn = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        
+
         if (this.isAnnotationAccessExpression(context)) {
             return this.getProvider(AnnotationAccessExpressionContextProvider.class).getCompletions(context);
         }
-        
+        if (this.isAnnotationAttachmentContext(context)) {
+            return this.getProvider(AnnotationAttachmentContextProvider.class).getCompletions(context);
+        }
+
         Optional<String> subRule = this.getSubRule(lhsTokens);
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 
+        if (inWorkerReturn != null && inWorkerReturn) {
+            return this.getProvider(BallerinaParser.WorkerDeclarationContext.class).getCompletions(context);
+        }
         if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
             return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
         }
-        if (inFunctionReturnParameterContext(context) && !(inWorkerReturn != null && inWorkerReturn)) {
+        if (inFunctionReturnParameterContext(context)) {
             /*
              Check added before the invocation token check, since the return parameter context can also include the
              following
@@ -84,9 +90,6 @@ public class StatementContextProvider extends LSCompletionProvider {
             Action invocation context
              */
             return this.getProvider(InvocationOrFieldAccessContextProvider.class).getCompletions(context);
-        }
-        if (inWorkerReturn != null && inWorkerReturn) {
-            return this.getProvider(BallerinaParser.WorkerDeclarationContext.class).getCompletions(context);
         }
 
         Boolean forceRemovedStmt = context.get(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
@@ -121,6 +124,14 @@ public class StatementContextProvider extends LSCompletionProvider {
         completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(context));
         // Add the var keyword
         completionItems.add(Snippet.KW_VAR.get().build(context));
+        // Add the wait keyword
+        completionItems.add(Snippet.KW_WAIT.get().build(context));
+        // Add the start keyword
+        completionItems.add(Snippet.KW_START.get().build(context));
+        // Add the flush keyword
+        completionItems.add(Snippet.KW_FLUSH.get().build(context));
+        // Add the function keyword
+        completionItems.add(Snippet.KW_FUNCTION.get().build(context));
         // Add the error snippet
         completionItems.add(Snippet.DEF_ERROR.get().build(context));
         // Add the checkpanic keyword

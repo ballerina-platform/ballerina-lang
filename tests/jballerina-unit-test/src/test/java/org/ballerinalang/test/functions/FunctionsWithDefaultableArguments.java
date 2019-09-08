@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -197,5 +198,36 @@ public class FunctionsWithDefaultableArguments {
         bValueArray = (BValueArray) returns[1];
         Assert.assertEquals(bValueArray.getRefValue(0).stringValue(), "given");
         Assert.assertEquals(((BInteger) bValueArray.getRefValue(1)).intValue(), 200);
+    }
+
+    @Test
+    public void testFuncWithAsyncDefaultParamExpression() {
+        BValue[] returns = BRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "hellohelloworldhellosamplevalue");
+    }
+
+    @Test
+    public void testUsingParamValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testUsingParamValues");
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        Assert.assertEquals(returns[0].stringValue(), "hellohelloasyncworldworldasyncsamplevalue");
+    }
+
+    @Test
+    public void testAttachedAsyncDefaultParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testAttachedAsyncDefaultParam");
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        Assert.assertEquals(returns[0].stringValue(), "hellohelloworldhellosamplevalue");
+    }
+
+    @Test
+    public void testUsingParamValuesInAttachedFunc() {
+        BValue[] returns = BRunUtil.invoke(result, "testUsingParamValuesInAttachedFunc");
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        Assert.assertEquals(returns[0].stringValue(), "hellohelloasyncworldworldasyncsamplevalue");
     }
 }

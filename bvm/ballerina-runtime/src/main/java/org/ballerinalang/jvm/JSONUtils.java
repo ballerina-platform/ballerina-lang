@@ -580,6 +580,14 @@ public class JSONUtils {
 
         return new StreamingJsonValue(jsonDataSource);
     }
+
+    public static ErrorValue createJsonConversionError(Throwable throwable, String prefix) {
+        String detail = throwable.getMessage() != null ?
+                prefix + ": " + throwable.getMessage() :
+                "error occurred in JSON Conversion";
+        return BallerinaErrors.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR, detail);
+    }
+
     // Private methods
 
     /**

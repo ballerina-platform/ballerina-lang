@@ -17,17 +17,10 @@
  */
 package org.ballerinalang.tool.util;
 
-import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.Debugger;
 
 /**
  * Utility methods for run Ballerina functions.
@@ -35,20 +28,6 @@ import org.ballerinalang.util.debugger.Debugger;
  * @since 0.94
  */
 public class BRunUtil {
-
-//    Methods to run in stateful manner
-    /**
-     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
-     *
-     * @param compileResult CompileResult instance
-     * @param functionName  Name of the function to invoke
-     * @return return values of the function
-     */
-    public static BValue[] invokeStateful(CompileResult compileResult, String functionName) {
-        BValue[] args = {};
-        return invokeStateful(compileResult, functionName, args);
-    }
-
     /**
      * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
      *
@@ -58,10 +37,7 @@ public class BRunUtil {
      * @return return values of the function
      */
     public static BValue[] invokeStateful(CompileResult compileResult, String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-        return invokeStateful(compileResult, compileResult.getProgFile().getEntryPkgName(), functionName, args);
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -88,28 +64,7 @@ public class BRunUtil {
      */
     public static BValue[] invokeStateful(CompileResult compileResult, String packageName,
                                           String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-        ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
-        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-        if (functionInfo == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
-        }
-
-        int requiredArgNo = functionInfo.getParamTypes().length;
-        int providedArgNo = args.length;
-        if (requiredArgNo != providedArgNo) {
-            throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
-                    providedArgNo + ".");
-        }
-
-        BValue[] response = BVMExecutor.executeFunction(programFile, functionInfo, args);
-
-        return spreadToBValueArray(response);
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -122,33 +77,7 @@ public class BRunUtil {
      * @return return values of the function
      */
     public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-
-        ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-        if (functionInfo == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
-        }
-
-        BValue[] response = new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
-
-        return spreadToBValueArray(response);
-    }
-
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param packageName   Name of the package to invoke
-     * @param functionName  Name of the function to invoke
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName) {
-        BValue[] args = {};
-        return invoke(compileResult, packageName, functionName, args);
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -173,18 +102,7 @@ public class BRunUtil {
      * @return return values of the function
      */
     public static BValue[] invokeFunction(CompileResult compileResult, String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-
-        ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-        if (functionInfo == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
-        }
-
-        return new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -229,20 +147,5 @@ public class BRunUtil {
     public static BValue[] invoke(CompileResult compileResult, String functionName) {
         BValue[] args = {};
         return invoke(compileResult, functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function given context.
-     *
-     * @param compileResult CompileResult instance.
-     * @param initFuncInfo Function to invoke.
-     * @param context invocation context.
-     */
-    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo,
-            WorkerExecutionContext context) {
-        Debugger debugger = new Debugger(compileResult.getProgFile());
-        compileResult.getProgFile().setDebugger(debugger);
-
-        BVMExecutor.executeFunction(compileResult.getProgFile(), initFuncInfo);
     }
 }

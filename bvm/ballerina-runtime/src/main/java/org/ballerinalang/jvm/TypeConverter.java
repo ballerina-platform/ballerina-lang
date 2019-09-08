@@ -370,7 +370,7 @@ public class TypeConverter {
             throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
         }
 
-        return Math.round(sourceVal);
+        return (long) Math.rint(sourceVal);
     }
 
     private static void checkIsValidFloat(double sourceVal, BType targetType) {

@@ -189,6 +189,29 @@
       ]
     },
     {
+      "label": "ballerina/stringutils",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "stringutils",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/stringutils;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/cache",
       "kind": "Module",
       "detail": "Package",
@@ -507,29 +530,6 @@
             }
           },
           "newText": "import ballerina/oauth2;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/internal",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "internal",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/internal;\n"
         }
       ]
     },
@@ -1133,6 +1133,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "start",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "start ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "flush",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "flush ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "untainted",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -1157,13 +1173,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new(string url, http:ClientEndpointConfig config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
+      "label": "new(string url, http:ClientConfiguration config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientEndpointConfig` config: HTTP ClientEndpointConfig to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
+          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientConfiguration` config: HTTP ClientConfiguration to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
         }
       },
       "sortText": "120",
@@ -1175,13 +1191,13 @@
       }
     },
     {
-      "label": "RedirectClient(string url, http:ClientEndpointConfig config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
+      "label": "RedirectClient(string url, http:ClientConfiguration config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientEndpointConfig` config: HTTP ClientEndpointConfig to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
+          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientConfiguration` config: HTTP ClientConfiguration to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
         }
       },
       "sortText": "120",

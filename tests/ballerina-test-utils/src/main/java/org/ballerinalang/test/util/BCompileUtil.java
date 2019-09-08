@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.util;
 
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.scheduling.Scheduler;
@@ -25,13 +24,8 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BootstrapRunner;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -475,13 +469,6 @@ public class BCompileUtil {
             }
         }
         return sb.toString();
-    }
-
-    public static BMap<String, BValue> createAndGetStruct(ProgramFile programFile, String packagePath,
-                                                          String structName) {
-        PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
-        StructureTypeInfo typeInfo = structPackageInfo.getStructInfo(structName);
-        return BLangVMStructs.createBStruct(typeInfo);
     }
 
 

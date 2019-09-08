@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.util;
 
-import org.ballerinalang.BLangProgramRunner;
-
 /**
  * {@code BServiceUtil} is responsible for initializing an environment for a particular ballerina file.
  *
@@ -34,12 +32,7 @@ public class BServiceUtil {
      * @param compileResult CompileResult instance for the service to be run.
      */
     public static void runService(CompileResult compileResult) {
-        // Terminate, if there are compile errors
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-
-        BLangProgramRunner.runProgram(compileResult.getProgFile(), new String[0]);
+        throw new UnsupportedOperationException();
     }
 
     /**

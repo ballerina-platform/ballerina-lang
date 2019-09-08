@@ -55,9 +55,7 @@ dependencies {
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testImplementation project(':ballerina-encoding')
     testImplementation project(':ballerina-time')
-    testImplementation project(':ballerina-internal')
     testImplementation project(':ballerina-reflect')
     testImplementation project(':ballerina-core')
     testCompile 'org.slf4j:slf4j-simple'
