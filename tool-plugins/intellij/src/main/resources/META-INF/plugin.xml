@@ -208,22 +208,22 @@
     <actions>
         <!--Ballerina Diagram Support -->
         <group id="Diagram.Toolbar.Right" class="com.intellij.openapi.actionSystem.DefaultActionGroup"
-               text="Ballerina editor layout actions">
+               text="Ballerina Editor Layout Actions">
             <action class="io.ballerina.plugins.idea.webview.diagram.actions.EditorOnlyLayoutChangeAction"
                     id="io.ballerina.plugins.idea.webview.diagram.actions.EditorOnlyLayoutChangeAction"
-                    text="Show editor only"
+                    text="Show Editor Only"
                     description="Sets ballerina editor layout to show editor only"
                     icon="BallerinaIcons.Layout.EDITOR_ONLY">
             </action>
             <action class="io.ballerina.plugins.idea.webview.diagram.actions.EditorAndPreviewLayoutChangeAction"
                     id="io.ballerina.plugins.idea.webview.diagram.actions.EditorAndPreviewLayoutChangeAction"
-                    text="Show editor and preview"
+                    text="Show Editor and Preview"
                     description="Sets ballerina editor layout to show editor and preview in split"
                     icon="BallerinaIcons.Layout.EDITOR_PREVIEW">
             </action>
             <action class="io.ballerina.plugins.idea.webview.diagram.actions.PreviewOnlyLayoutChangeAction"
                     id="io.ballerina.plugins.idea.webview.diagram.actions.PreviewOnlyLayoutChangeAction"
-                    text="Show preview only"
+                    text="Show Preview Only"
                     description="Sets ballerina editor layout to show preview only"
                     icon="BallerinaIcons.Layout.PREVIEW_ONLY">
             </action>
