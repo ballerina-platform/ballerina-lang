@@ -7,30 +7,30 @@ ballerina: HTTP trace log enabled
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 # In the logs, `http.downstream` refers to the HTTP traffic that flows between the client and Ballerina, 
 # while `http.upstream` refers to the HTTP traffic that flows between Ballerina and the backend.
-[2018-10-30 11:43:18,368] TRACE {http.tracelog.downstream} - [id: 0xb881cf0b] REGISTERED
-[2018-10-30 11:43:18,370] TRACE {http.tracelog.downstream} - [id: 0xb881cf0b, correlatedSource: n/a, host:/127.0.0.1:9090 - remote:/127.0.0.1:42878] ACTIVE
-[2018-10-30 11:43:18,391] TRACE {http.tracelog.downstream} - [id: 0xb881cf0b, correlatedSource: n/a, host:/127.0.0.1:9090 - remote:/127.0.0.1:42878] INBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
+[2019-09-08 13:01:12,693] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9] REGISTERED
+[2019-09-08 13:01:12,696] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9, correlatedSource: n/a, host:/127.0.0.1:9090 - remote:/127.0.0.1:54362] ACTIVE
+[2019-09-08 13:01:12,745] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9, correlatedSource: n/a, host:/127.0.0.1:9090 - remote:/127.0.0.1:54362] INBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
 GET /hello HTTP/1.1
 Host: localhost:9090
 User-Agent: curl/7.58.0
 Accept: */*
-[2018-10-30 11:43:18,403] TRACE {http.tracelog.downstream} - [id: 0xb881cf0b, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:42878] INBOUND: EmptyLastHttpContent, 0B
-[2018-10-30 11:43:18,405] TRACE {http.tracelog.downstream} - [id: 0xb881cf0b, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:42878] READ COMPLETE
-[2018-10-30 11:43:18,611] TRACE {http.tracelog.upstream} - [id: 0x7675af66] REGISTERED
-[2018-10-30 11:43:18,612] TRACE {http.tracelog.upstream} - [id: 0x7675af66] CONNECT: httpstat.us/23.99.0.12:80, null
-[2018-10-30 11:43:18,862] TRACE {http.tracelog.upstream} - [id: 0x7675af66, correlatedSource: n/a, host:/10.100.5.32:43768 - remote:httpstat.us/23.99.0.12:80] DEREGISTER
-[2018-10-30 11:43:18,863] TRACE {http.tracelog.upstream} - [id: 0x7675af66, correlatedSource: n/a, host:/10.100.5.32:43768 - remote:httpstat.us/23.99.0.12:80] ACTIVE
-[2018-10-30 11:43:18,864] TRACE {http.tracelog.upstream} - [id: 0x7675af66, correlatedSource: n/a, host:/10.100.5.32:43768 - remote:httpstat.us/23.99.0.12:80] UNREGISTERED
-[2018-10-30 11:43:18,865] TRACE {http.tracelog.upstream} - [id: 0x7675af66] REGISTERED
-[2018-10-30 11:43:18,869] TRACE {http.tracelog.upstream} - [id: 0x7675af66, correlatedSource: 0xb881cf0b, host:/10.100.5.32:43768 - remote:httpstat.us/23.99.0.12:80] OUTBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
+[2019-09-08 13:01:12,779] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:54362] INBOUND: EmptyLastHttpContent, 0B
+[2019-09-08 13:01:12,782] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:54362] READ COMPLETE
+[2019-09-08 13:01:13,133] TRACE {http.tracelog.upstream} - [id: 0xd79aee99] REGISTERED
+[2019-09-08 13:01:13,134] TRACE {http.tracelog.upstream} - [id: 0xd79aee99] CONNECT: httpstat.us/23.99.0.12:80, null
+[2019-09-08 13:01:13,381] TRACE {http.tracelog.upstream} - [id: 0xd79aee99, correlatedSource: n/a, host:/10.100.5.32:39044 - remote:httpstat.us/23.99.0.12:80] DEREGISTER
+[2019-09-08 13:01:13,383] TRACE {http.tracelog.upstream} - [id: 0xd79aee99, correlatedSource: n/a, host:/10.100.5.32:39044 - remote:httpstat.us/23.99.0.12:80] ACTIVE
+[2019-09-08 13:01:13,383] TRACE {http.tracelog.upstream} - [id: 0xd79aee99, correlatedSource: n/a, host:/10.100.5.32:39044 - remote:httpstat.us/23.99.0.12:80] UNREGISTERED
+[2019-09-08 13:01:13,384] TRACE {http.tracelog.upstream} - [id: 0xd79aee99] REGISTERED
+[2019-09-08 13:01:13,389] TRACE {http.tracelog.upstream} - [id: 0xd79aee99, correlatedSource: 0x04eed4c9, host:/10.100.5.32:39044 - remote:httpstat.us/23.99.0.12:80] OUTBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
 GET /200 HTTP/1.1
 Accept: */*
-user-agent: curl/7.58.0
 host: httpstat.us
+user-agent: ballerina/1.0.0
 connection: keep-alive
-[2018-10-30 11:43:18,872] TRACE {http.tracelog.upstream} - [id: 0x7675af66, correlatedSource: 0xb881cf0b, host:/10.100.5.32:43768 - remote:httpstat.us/23.99.0.12:80] OUTBOUND: EmptyLastHttpContent, 0B
-[2018-10-30 11:43:18,873] TRACE {http.tracelog.upstream} - [id: 0x7675af66, correlatedSource: 0xb881cf0b, host:/10.100.5.32:43768 - remote:httpstat.us/23.99.0.12:80] FLUSH
-[2018-10-30 11:43:19,127] TRACE {http.tracelog.upstream} - [id: 0x7675af66, correlatedSource: 0xb881cf0b, host:/10.100.5.32:43768 - remote:httpstat.us/23.99.0.12:80] INBOUND: DefaultHttpResponse(decodeResult: success, version: HTTP/1.1)
+[2019-09-08 13:01:13,394] TRACE {http.tracelog.upstream} - [id: 0xd79aee99, correlatedSource: 0x04eed4c9, host:/10.100.5.32:39044 - remote:httpstat.us/23.99.0.12:80] OUTBOUND: EmptyLastHttpContent, 0B
+[2019-09-08 13:01:13,395] TRACE {http.tracelog.upstream} - [id: 0xd79aee99, correlatedSource: 0x04eed4c9, host:/10.100.5.32:39044 - remote:httpstat.us/23.99.0.12:80] FLUSH
+[2019-09-08 13:01:13,653] TRACE {http.tracelog.upstream} - [id: 0xd79aee99, correlatedSource: 0x04eed4c9, host:/10.100.5.32:39044 - remote:httpstat.us/23.99.0.12:80] INBOUND: DefaultHttpResponse(decodeResult: success, version: HTTP/1.1)
 HTTP/1.1 200 OK
 Cache-Control: private
 Content-Length: 6
@@ -40,12 +40,12 @@ X-AspNetMvc-Version: 5.1
 Access-Control-Allow-Origin: *
 X-AspNet-Version: 4.0.30319
 X-Powered-By: ASP.NET
-Set-Cookie: ARRAffinity=47acb7810732674082d049be48c0d1ebf14425a7baec3e14cb98c492a7657a83;Path=/;HttpOnly;Domain=httpstat.us
-Date: Tue, 30 Oct 2018 06:13:18 GMT
-[2018-10-30 11:43:19,135] TRACE {http.tracelog.upstream} - [id: 0x7675af66, correlatedSource: 0xb881cf0b, host:/10.100.5.32:43768 - remote:httpstat.us/23.99.0.12:80] INBOUND: DefaultLastHttpContent(data: PooledSlicedByteBuf(ridx: 0, widx: 6, cap: 6/6, unwrapped: PooledUnsafeDirectByteBuf(ridx: 409, widx: 409, cap: 1024)), decoderResult: success), 6B
+Set-Cookie: ARRAffinity=8bb96a9f72e760ea135952440e9c62bbfe3a64e8a577005f68697bfd250722b9;Path=/;HttpOnly;Domain=httpstat.us
+Date: Sun, 08 Sep 2019 07:31:13 GMT
+[2019-09-08 13:01:13,685] TRACE {http.tracelog.upstream} - [id: 0xd79aee99, correlatedSource: 0x04eed4c9, host:/10.100.5.32:39044 - remote:httpstat.us/23.99.0.12:80] INBOUND: DefaultLastHttpContent(data: PooledSlicedByteBuf(ridx: 0, widx: 6, cap: 6/6, unwrapped: PooledUnsafeDirectByteBuf(ridx: 409, widx: 409, cap: 1024)), decoderResult: success), 6B
 200 OK
-[2018-10-30 11:43:19,137] TRACE {http.tracelog.upstream} - [id: 0x7675af66, correlatedSource: 0xb881cf0b, host:/10.100.5.32:43768 - remote:httpstat.us/23.99.0.12:80] READ COMPLETE
-[2018-10-30 11:43:19,143] TRACE {http.tracelog.downstream} - [id: 0xb881cf0b, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:42878] OUTBOUND: DefaultFullHttpResponse(decodeResult: success, version: HTTP/1.1, content: CompositeByteBuf(ridx: 0, widx: 6, cap: 6, components=1))
+[2019-09-08 13:01:13,689] TRACE {http.tracelog.upstream} - [id: 0xd79aee99, correlatedSource: 0x04eed4c9, host:/10.100.5.32:39044 - remote:httpstat.us/23.99.0.12:80] READ COMPLETE
+[2019-09-08 13:01:13,697] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:54362] OUTBOUND: DefaultFullHttpResponse(decodeResult: success, version: HTTP/1.1, content: CompositeByteBuf(ridx: 0, widx: 6, cap: 6, components=1))
 HTTP/1.1 200 OK
 Cache-Control: private
 Content-Type: text/plain; charset=utf-8
@@ -53,12 +53,13 @@ X-AspNetMvc-Version: 5.1
 Access-Control-Allow-Origin: *
 X-AspNet-Version: 4.0.30319
 X-Powered-By: ASP.NET
-Set-Cookie: ARRAffinity=47acb7810732674082d049be48c0d1ebf14425a7baec3e14cb98c492a7657a83;Path=/;HttpOnly;Domain=httpstat.us
-Date: Tue, 30 Oct 2018 06:13:18 GMT
+Set-Cookie: ARRAffinity=8bb96a9f72e760ea135952440e9c62bbfe3a64e8a577005f68697bfd250722b9;Path=/;HttpOnly;Domain=httpstat.us
+Date: Sun, 08 Sep 2019 07:31:13 GMT
 server: Microsoft-IIS/10.0
 content-length: 6, 6B
 200 OK
-[2018-10-30 11:43:19,144] TRACE {http.tracelog.downstream} - [id: 0xb881cf0b, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:42878] FLUSH
-[2018-10-30 11:43:19,148] TRACE {http.tracelog.downstream} - [id: 0xb881cf0b, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:42878] READ COMPLETE
-[2018-10-30 11:43:19,149] TRACE {http.tracelog.downstream} - [id: 0xb881cf0b, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:42878] INACTIVE
-[2018-10-30 11:43:19,151] TRACE {http.tracelog.downstream} - [id: 0xb881cf0b, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:42878] UNREGISTERED
+[2019-09-08 13:01:13,698] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:54362] FLUSH
+[2019-09-08 13:01:13,703] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:54362] READ COMPLETE
+[2019-09-08 13:01:13,704] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:54362] INACTIVE
+[2019-09-08 13:01:13,704] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:54362] CLOSE
+[2019-09-08 13:01:13,708] TRACE {http.tracelog.downstream} - [id: 0x04eed4c9, correlatedSource: n/a, host:localhost/127.0.0.1:9090 - remote:localhost/127.0.0.1:54362] UNREGISTERED

@@ -124,6 +124,12 @@ public class StatementContextProvider extends LSCompletionProvider {
         completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(context));
         // Add the var keyword
         completionItems.add(Snippet.KW_VAR.get().build(context));
+        // Add the wait keyword
+        completionItems.add(Snippet.KW_WAIT.get().build(context));
+        // Add the start keyword
+        completionItems.add(Snippet.KW_START.get().build(context));
+        // Add the flush keyword
+        completionItems.add(Snippet.KW_FLUSH.get().build(context));
         // Add the function keyword
         completionItems.add(Snippet.KW_FUNCTION.get().build(context));
         // Add the error snippet

@@ -1,7 +1,7 @@
 ## Module overview
 
 This module provides the capability to connect with NATS and NATS Streaming servers and performs the 
-following functionalities.
+following functionality.
 
 - Point to point communication (Queues)
 - Pub/Sub (Topics)
@@ -58,7 +58,7 @@ if (result is error) {
 }
 ```
 
-NOTE: Publish api supports the `byte[], boolean, string, int, float, decimal, xml, json, record {}` message types.
+> Publish api supports the `byte[], boolean, string, int, float, decimal, xml, json, record {}` message types.
 
 
 ### Listening to incoming messages
@@ -139,3 +139,4 @@ nats:ConnectionConfig config = {
 // Initializes a connection.
 nats:Connection connection = new("tls://localhost:4222", config = config);
 ```
+>**Note:** The default thread pool size used in Ballerina is number of processers available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.

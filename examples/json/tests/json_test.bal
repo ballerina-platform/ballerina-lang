@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 any[] outputs = [];
 int counter = 0;
@@ -10,7 +9,7 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = string.convert(s[0]);
+    outputs[counter] = s[0].toString();
     counter += 1;
 }
 

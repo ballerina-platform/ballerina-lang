@@ -31,13 +31,25 @@ run the bal file with `ballerina run` command.
 
 ### Client
 
-To access a database, you must first create a `Client` object. A sample for creating a JDBC client can be found below.
+To access a database, you must first create a `Client` object. The code for creating a JDBC client can be found below.
+
+#### Creating a client
+```ballerina
+jdbc:Client testDB = new({
+    url: "jdbc:mysql://localhost:3306/testdb",
+    username: "root",
+    password: "root",
+    dbOptions: { useSSL: false }
+});
+```
+The full list of client properties can be found listed under the `jdbc:PoolOptions` type.
 
 ### Connection pool handling
 
 There are 3 possible scenarios for connection pool handling.
 
-1. Global, shareable default connection pool  
+1. Global, shareable default connection pool
+
     If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
     a connection pool matching with the properties you provided already exists.
 
@@ -50,7 +62,8 @@ There are 3 possible scenarios for connection pool handling.
     });
     ```
 
-2. Client owned, unsharable connection pool  
+2. Client owned, unsharable connection pool
+
     If you define the `poolOptions` field inline, an unshareable connection pool will be created.
 
     ```ballerina
@@ -63,7 +76,8 @@ There are 3 possible scenarios for connection pool handling.
     });
     ```
 
-3. Local shareable connection pool  
+3. Local shareable connection pool
+
     If you create a record of type `jdbc:PoolOptions` and reuse that in the configuration of multiple clients, for each
     set of clients that connect to the same database instance with the same set of properties, a shared connection pool
     will be created.
@@ -105,20 +119,7 @@ Once the client is created, database operations can be executed through that cli
 creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch 
 updating data. Samples for these operations can be found below. 
 
-## Samples
-
-### Creating a client
-```ballerina
-jdbc:Client testDB = new({
-    url: "jdbc:mysql://localhost:3306/testdb",
-    username: "root",
-    password: "root",
-    dbOptions: { useSSL: false }
-});
-```
-The full list of client properties can be found listed under the `jdbc:PoolOptions` type.
-
-### Creating tables
+#### Creating tables
 
 This sample creates a table with two columns. One column is of type `int`, and the other is of type `varchar`.
 The CREATE statement is executed via the `update` remote function of the client.
@@ -135,7 +136,7 @@ if (returned is jdbc:UpdateResult) {
 }
 ```
 
-### Inserting data
+#### Inserting data
 
 This sample shows three examples of data insertion by executing an INSERT statement using the `update` remote function 
 of the client.
@@ -185,7 +186,7 @@ if (returned is jdbc:UpdateResult) {
 }
 ```
 
-### Inserting data with auto-generated keys
+#### Inserting data with auto-generated keys
 
 This example demonstrates inserting data while returning the auto-generated keys. It achieves this by using the 
 `update` remote function to execute the INSERT statement.
@@ -205,7 +206,7 @@ if (retWithKey is jdbc:UpdateResult) {
 }
 ```
 
-### Selecting data
+#### Selecting data
 
 This example demonstrates selecting data. First, a type is created to represent the returned result set. Next, the 
 SELECT query is executed via the `select` remote function of the client by passing that result set type. Once the 
@@ -235,7 +236,7 @@ if (selectRet is table<Student>) {
 }
 ```
 
-### Updating data
+#### Updating data
 
 This example demonstrates modifying data by executing an UPDATE statement via the `update` remote function of 
 the client.
@@ -249,7 +250,7 @@ if (returned is jdbc:UpdateResult) {
 }
 ```
 
-### Batch updating data
+#### Batch updating data
 
 This example demonstrates how to insert multiple records with a single INSERT statement that is executed via the 
 `batchUpdate` remote function of the client. This is done by first creating multiple parameter arrays, each 
@@ -279,7 +280,7 @@ if (e is error) {
 }
 ```
 
-### Calling stored procedures
+#### Calling stored procedures
 
 The following examples demonstrate executing stored procedures via the `call` remote function of the client.
 
@@ -337,3 +338,4 @@ if (retCall is ()|table<record {}>[]) {
     io:println("Stored procedure call failed: ", <string>err.detail()["message"]);
 }
 ```
+>**Note:** The default thread pool size used in Ballerina is number of processers available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.

@@ -1,12 +1,12 @@
 NAME
-       Ballerina dist pull - Pull and use a given distribution version
+       ballerina-dist-pull - Pull and use a given distribution version
 
 SYNOPSIS
        ballerina dist pull <distribution-version>
 
 
 DESCRIPTION
-       Pull and use a given Ballerina version from project repository.
+       Dist-pull pulls and uses a given Ballerina version from project repository.
 
 
 OPTIONS
@@ -14,7 +14,7 @@ OPTIONS
 
 
 EXAMPLES
-       Install Ballerina 1.0.0 version
-       $ ballerina dist pull jballerina-1.0.0
+       Install Ballerina 1.0.0 version.
+          → ballerina dist pull jballerina-1.0.0
 
-       This will download and keep jballerina-1.0.0 distribution and set ballerina command
+       This will download and keep jballerina-1.0.0 distribution and set ballerina command.

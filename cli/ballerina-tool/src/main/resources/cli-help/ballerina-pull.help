@@ -1,25 +1,26 @@
 NAME
-        ballerina pull - pull module from Ballerina Central
-
+        ballerina-pull - Fetch modules from Ballerina Central
 
 SYNOPSIS
-        ballerina pull <org-name>/<module-name>[:version]
+        ballerina pull <org-name>/<module-name>[:<version>]
 
 
 DESCRIPTION
-         Pull the given module from Ballerina Central
-         (https://central.ballerina.io/) and install it to home
-         repository. By default, the module will be placed in the
-         '.ballerina' home repository of the user.
+         Pull downloads the specified module from Ballerina Central
+         along with its dependencies. It then caches this module at
+         '.ballerina' directory in user home.
 
-
-OPTIONS
-         Ballerina pull command takes no options.
-
+         Ballerina Central is a module repository hosted at
+         https://central.ballerina.io/. A module repository organizes modules
+         into a three-level hierarchy: organization, module name, and version.
+         Organizations are unique within a repository and can be mapped to an
+         individual user or organization registered with the repository.
 
 EXAMPLES
-         Pull the Gmail connector by WSO2 from Ballerina Central
-         $ ballerina pull wso2/gmail
+         Pull the latest version of 'gmail' connector in 'wso2' organization
+         from Ballerina Central.
+            → ballerina pull wso2/gmail
 
-         Pull Bar module by Foo organization from Ballerina Central
-         $ ballerina pull foo/bar
+         Pull the '1.1.0' version of 'gmail' connector in 'wso2' organization
+         from Ballerina Central.
+            → ballerina pull wso2/gmail:1.1.0

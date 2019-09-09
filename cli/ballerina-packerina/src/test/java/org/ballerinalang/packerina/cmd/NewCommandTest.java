@@ -61,7 +61,7 @@ public class NewCommandTest extends CommandTest {
         //Assert.assertTrue(Files.isDirectory(integrationTestPath.resolve("resources")));
         Assert.assertTrue(Files.exists(projectPath.resolve(".gitignore")));
 
-        Assert.assertTrue(readOutput().contains("Created new ballerina project at "));
+        Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
     }
 
     @Test(description = "Test new command without arguments")
@@ -94,7 +94,7 @@ public class NewCommandTest extends CommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina new - create a Ballerina project"));
+        Assert.assertTrue(readOutput().contains("ballerina-new - Create a new Ballerina project at <project-path>"));
     }
 
     @Test(description = "Test new command with help flag")
@@ -105,7 +105,7 @@ public class NewCommandTest extends CommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina new - create a Ballerina project"));
+        Assert.assertTrue(readOutput().contains("ballerina-new - Create a new Ballerina project at <project-path>"));
     }
 
     @Test(description = "Test if directory already exists")

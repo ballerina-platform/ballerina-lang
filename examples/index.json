@@ -316,6 +316,14 @@
                 "url": "xml-literal"
             },
             {
+                "name": "XML Attributes",
+                "url": "xml-attributes"
+            },
+            {
+                "name": "XML Access",
+                "url": "xml-access"
+            },
+            {
                 "name": "XML Namespaces",
                 "url": "xml-namespaces"
             },
@@ -571,14 +579,6 @@
             {
                 "name": "Guarantee Test Execution Order",
                 "url": "testerina-guarantee-test-execution-order"
-            },
-            {
-                "name": "Function Mocks",
-                "url": "testerina-function-mocks"
-            },
-            {
-                "name": "Group Tests",
-                "url": "testerina-group-tests"
             }
         ]
     },
@@ -966,21 +966,6 @@
             {
                 "name": "Secured Client with OAuth2",
                 "url": "secured-client-with-oauth2"
-            }
-        ]
-    },
-    {
-        "title": "XML Access",
-        "column": 0,
-        "category": "Experimental features",
-        "samples": [
-            {
-                "name": "XML Attributes",
-                "url": "xml-attributes"
-            },
-            {
-                "name": "XML Access",
-                "url": "xml-access"
             }
         ]
     },

@@ -107,7 +107,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
             collapsibleState,
         };
 
-        const sourceRoot = element.sourceRoot? vscode.Uri.file(element.sourceRoot).toString(): undefined;
+        const sourceRoot = element.sourceRoot? vscode.Uri.file(element.sourceRoot).toString(true): undefined;
 
         if (itemKindsWithIcons.indexOf(element.kind) > -1) {
             treeItem.iconPath = {
@@ -146,12 +146,12 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         let sourceRoots: ProjectTreeElement[] = [];
         if (openFolders) {
             sourceRoots = openFolders.filter((openFolder) => {
-                return fs.existsSync(path.join(openFolder.uri.path, "Ballerina.toml"));
+                return fs.existsSync(path.join(openFolder.uri.fsPath, "Ballerina.toml"));
             }).map((root) => {
                 return {
                     kind: 'ProjectRoot',
                     name: root.name,
-                    path: root.uri.path,
+                    path: root.uri.fsPath,
                 };
             });
         }
@@ -185,7 +185,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                     return;
                 }
 
-                this.langClient.getProjectAST(vscode.Uri.file(sourceRoot).toString()).then((result: any) => {
+                this.langClient.getProjectAST(vscode.Uri.file(sourceRoot).toString(true)).then((result: any) => {
                     if (result.modules && (Object.keys(result.modules).length > 0)) {
                         const balProjectTree = this.buildProjectTree(result.modules, sourceRoot);
                         resolve(balProjectTree);

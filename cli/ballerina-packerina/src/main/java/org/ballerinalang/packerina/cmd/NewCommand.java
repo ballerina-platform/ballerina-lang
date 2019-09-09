@@ -100,7 +100,7 @@ public class NewCommand implements BLauncherCmd {
         Path projectRoot = ProjectDirs.findProjectRoot(path);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
-            "Directory is already within a ballerina project :" + projectRoot.toString(),
+            "Directory is already within a Ballerina project :" + projectRoot.toString(),
                     null,
                     false);
             return;
@@ -115,11 +115,11 @@ public class NewCommand implements BLauncherCmd {
             errStream.println("error: Error occurred while creating project : " + e.getMessage());
             return;
         }
-        errStream.println("Created new ballerina project at " + userDir.relativize(path));
+        errStream.println("Created new Ballerina project at " + userDir.relativize(path));
         errStream.println();
         errStream.println("Next:");
         errStream.println("    Move into the project directory and use `ballerina add <module-name>` to");
-        errStream.println("    add a new ballerina module.");
+        errStream.println("    add a new Ballerina module.");
     }
 
     @Override
@@ -129,7 +129,7 @@ public class NewCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("create a new ballerina project");
+        out.append("create a new Ballerina project");
     }
 
     @Override

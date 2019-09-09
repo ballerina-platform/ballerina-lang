@@ -123,6 +123,10 @@ public enum Snippet {
 
     KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
 
+    KW_START(SnippetGenerator.getStartKeywordSnippet()),
+
+    KW_FLUSH(SnippetGenerator.getFlushKeywordSnippet()),
+
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
     KW_FUNCTION(SnippetGenerator.getFunctionKeywordSnippet()),
