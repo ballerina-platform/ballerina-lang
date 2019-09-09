@@ -22,6 +22,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.message.BackPressureListener;
 import org.wso2.transport.http.netty.message.BackPressureObservable;
 import org.wso2.transport.http.netty.message.DefaultBackPressureObservable;
 import org.wso2.transport.http.netty.message.DefaultListener;
@@ -50,7 +51,7 @@ public class BackPressureHandler extends ChannelInboundHandlerAdapter {
         if (LOG.isDebugEnabled()) {
             LOG.debug("HTTP/1.1 channel inactive and notifyWritable in thread {} ", Thread.currentThread().getName());
         }
-        if (backPressureObservable.getListener() instanceof DefaultListener) {
+        if (backPressureObservable.getListener() != null) {
             backPressureObservable.notifyWritable();
         }
         ctx.fireChannelInactive();
