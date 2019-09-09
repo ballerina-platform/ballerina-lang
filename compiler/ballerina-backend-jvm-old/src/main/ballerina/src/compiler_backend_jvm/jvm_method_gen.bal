@@ -2371,7 +2371,7 @@ function generateExecutionStopMethod(jvm:ClassWriter cw, string initClass, bir:P
     bir:Function func = {pos:{}, basicBlocks:[], localVars:[],
                             name:{value:MODULE_STOP}, typeValue:{retType:"()"},
                             workerChannels:[], receiver:(), restParamExist:false};
-    birFunctionMap[pkgName + CURRENT_MODULE_INIT] = getFunctionWrapper(func, orgName, moduleName,
+    birFunctionMap[pkgName + MODULE_STOP] = getFunctionWrapper(func, orgName, moduleName,
                                                                     versionValue, typeOwnerClass);
 }
 
