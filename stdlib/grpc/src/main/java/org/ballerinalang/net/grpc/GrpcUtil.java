@@ -65,7 +65,6 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
 import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
-import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 
 /**
@@ -194,8 +193,8 @@ public class GrpcUtil {
             }
         }
         if (protocols != null) {
-            List<String> sslEnabledProtocolsValueList = Arrays.asList(
-                    protocols.getArrayValue(ENABLED_PROTOCOLS).getStringArray());
+            List<String> sslEnabledProtocolsValueList = Arrays
+                    .asList(protocols.getArrayValue(ENABLED_PROTOCOLS).getStringArray());
             if (!sslEnabledProtocolsValueList.isEmpty()) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream()
                         .collect(Collectors.joining(",", "", ""));
