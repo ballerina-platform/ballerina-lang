@@ -6,7 +6,7 @@
 
 # The Ballerina Programming Language
 
-Ballerina is a programming language for network distributed applications. 
+Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software that just works.
 
 #### Providing and consuming services
 It has inherently concurrent first-class language constructs for providing and consuming services.
