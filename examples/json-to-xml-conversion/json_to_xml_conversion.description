@@ -1,5 +1,5 @@
-// JSON to XML conversions can be done using the `xmlutils:FromJSON()` function.
-// This function takes a `JsonOptions` record as an argument.
+// JSON to XML conversions can be done using the `xmlutils:fromJSON()` function.
+// This function takes a `xmlutils:JsonOptions` record as an argument.
 // The `JsonOptions` record has two fields: the `attributePrefix` and the `arrayEntryTag`.
 // The `attributePrefix` is a prefix that is used to identify the XML attributes.
 // The default value of the `attributePrefix` option is `@`.
