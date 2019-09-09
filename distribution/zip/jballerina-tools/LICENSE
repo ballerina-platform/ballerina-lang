@@ -203,7 +203,7 @@ org.wso2.carbon.core-5.1.0.jar                                                  
 org.wso2.carbon.messaging-2.3.7.jar                                             bundle         apache2   12373     
 org.wso2.carbon.metrics.core-2.3.7.jar                                          bundle         apache2   16765     
 org.wso2.securevault-1.0.0-wso2v2.jar                                           bundle         apache2   3537      
-org.wso2.transport.http.netty-6.2.23.jar                                        bundle         apache2   21891     
+org.wso2.transport.http.netty-6.2.24.jar                                        bundle         apache2   21891
 org.wso2.transport.local-file-system-6.0.55.jar                                 bundle         apache2   21400     
 picocli-4.0.1.jar                                                               bundle         apache2   4330      
 prometheus.jar                                                                  jar            apache2   4385      
