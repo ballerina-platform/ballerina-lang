@@ -22,10 +22,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.BackPressureListener;
 import org.wso2.transport.http.netty.message.BackPressureObservable;
 import org.wso2.transport.http.netty.message.DefaultBackPressureObservable;
-import org.wso2.transport.http.netty.message.DefaultListener;
 
 /**
  * Handles backpressure.
