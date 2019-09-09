@@ -55,8 +55,11 @@ import org.wso2.transport.http.netty.message.Http2Reset;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.NoSuchElementException;
+
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST;
 
 /**
  * Implementation of the client connector.
@@ -291,6 +294,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 @Override
                 public void onFailure(ClientConnectorException cause) {
                     httpResponseFuture.notifyHttpListener(cause);
+                    httpOutboundRequest
+                            .setIoException(new IOException(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST));
                 }
             });
         } catch (NoSuchElementException failedCause) {
