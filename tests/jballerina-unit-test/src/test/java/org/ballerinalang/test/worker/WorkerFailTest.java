@@ -99,7 +99,7 @@ public class WorkerFailTest {
         Assert.assertTrue(message.contains("incompatible types"), message);
     }
 
-    @Test(enabled = false)
+    @Test
     public void invalidReceiveWithErrorUnionReturnTest() {
         CompileResult result =
                 BCompileUtil.compile("test-src/workers/invalid_receive_with_union_error_return_negative.bal");

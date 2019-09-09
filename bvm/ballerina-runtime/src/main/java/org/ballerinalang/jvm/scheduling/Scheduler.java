@@ -242,6 +242,11 @@ public class Scheduler {
                 if (!(e instanceof ErrorValue)) {
                     RuntimeUtils.printCrashLog(e);
                 }
+                // Please refer #18763.
+                // This logs cases where errors have occurred while strand is blocked.
+                if (item.isYielded()) {
+                    RuntimeUtils.printCrashLog(e);
+                }
             } finally {
                 strandHolder.get().strand = null;
             }

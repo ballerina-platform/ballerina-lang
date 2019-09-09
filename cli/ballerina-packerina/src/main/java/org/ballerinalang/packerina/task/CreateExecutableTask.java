@@ -68,6 +68,7 @@ public class CreateExecutableTask implements Task {
                 .findAny();
         
         if (modulesWithEntryPoints.isPresent()) {
+            buildContext.out().println();
             buildContext.out().println("Generating executables");
             for (BLangPackage module : buildContext.getModules()) {
                 if (module.symbol.entryPointExists) {

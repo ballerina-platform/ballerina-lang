@@ -1,4 +1,5 @@
 ## Module overview
+
 This module contains functions to support gRPC protocol based communication. gRPC is a framework developed by Google
 to support the RPC (Remote Procedure Call) protocol. The gRPC protocol is layered over HTTP/2. This protocol only supports client-initiated communication.
 
@@ -31,8 +32,6 @@ The client sends multiple requests while the server sends a single response to t
 #### Bidirectional Streaming
 The client and server send multiple requests and responses.
 
-## Samples
-
 ### Ballerina code generator tool
 
 Using below command to generate stub and sample code.
@@ -63,7 +62,8 @@ service SamplegRPCService on ep {
        // Send the response to the client.
        grpc:Error? err = caller->send("Hi " + name + "! Greetings from gRPC service!");
 
-       // After sending the response, call ‘complete()’ to indicate that the response was completely sent.
+       // After sending the response, call ‘complete()’ to indicate that the response was 
+       // completely sent.
        grpc:Error? result = caller->complete();
    }
 }
@@ -89,8 +89,8 @@ if (responseFromServer is [string, grpc:Headers]) {
     io:println("Response received : " + result);
 } else {
     // If an error is returned, print the error message.
-    io:println("Error while connecting grpc end-point : " + responseFromServer.reason() + " - "
-                                                          + <string>responseFromServer.detail()["message"]);
+    io:println("Error while connecting grpc end-point : " + responseFromServer.reason() + 
+                                    " - " + <string>responseFromServer.detail()["message"]);
 }
 ```
 ### Server Streaming
@@ -102,7 +102,8 @@ listener grpc:Listener ep = new(9090);
 
 // The gRPC service is attached to the server.
 service ServerStreaming on ep {
-   // Set the Streaming Annotation to ‘true’. It specifies that the resource is capable of sending multiple responses per request.
+   // Set the Streaming Annotation to ‘true’. It specifies that the resource is capable of
+   // sending multiple responses per request.
    @grpc:ResourceConfig { streaming: true }
    resource function receiveMessage(grpc:Caller caller, string name) {
        string[] greets = ["Hi", "Welcome"];
@@ -118,7 +119,8 @@ service ServerStreaming on ep {
                io:println("send reply: " + msg);
            }
        }
-       // Once the messages are sent to the server, call ‘complete()’ to indicate that the request was completely sent.
+       // Once the messages are sent to the server, call ‘complete()’ to indicate that the 
+       // request was completely sent.
        grpc:Error? result = caller->complete();
    }
 }
@@ -174,13 +176,14 @@ The sample given below includes a service that handles bidirectional streaming.
 // Server listener configuration.
 listener grpc:Listener ep = new(9090);
 
-// Set the ‘clientStreaming’ and ‘serverStreaming’ to true. It specifies that the service supports bidirectional streaming.
+// Set the ‘clientStreaming’ and ‘serverStreaming’ to true. It specifies that the service 
+// supports bidirectional streaming.
 @grpc:ServiceConfig {
     name: "chat",
     clientStreaming: true,
     serverStreaming: true
 }
-service Chat bind ep {
+service Chat on ep {
 
    // This resource method is invoked when there is a connection request from a client.
    resource function onOpen(grpc:Caller caller) {
@@ -224,7 +227,7 @@ if (res is grpc:Error) {
 }
 
 // Send multiple messages to the service.
-grpc:Error? connErr = ep->send(“Hello”);
+grpc:Error? connErr = ep->send("Hello");
 
 // After sending the message, call ‘complete()’ to indicate that the request was completely sent. 
 grpc:Error? result = ep->complete();

@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-http:ClientEndpointConfig weatherEPConfig = {
+http:ClientConfiguration weatherEPConfig = {
     followRedirects: { enabled: true, maxCount: 5 },
     secureSocket: {
         trustStore: {

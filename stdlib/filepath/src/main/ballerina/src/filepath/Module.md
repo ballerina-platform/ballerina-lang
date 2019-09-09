@@ -1,7 +1,7 @@
 ## Module overview
-The file path module implements the utility functions for manipulating the file path in a way that is compatible with 
-the target operating system. 
-This module uses either forward slashes or backslashes, depending on the operating system.
+
+This module provides the utility functions for manipulating the file path in a way that is compatible with 
+the target operating system.
 
 ## Sample
 The sample given below uses a few functions that are in the `ballerina/filepath` module.
@@ -12,7 +12,8 @@ import ballerina/io;
 
 public function main() {
     // Get the absolute representation of the path.
-    string absValue = checkpanic filepath:absolute(untaint "test.txt");
+    string absValue = checkpanic filepath:absolute(<@untainted> "test.txt");
+    io:println(absValue);
 
     // Check whether the path is absolute.
     boolean isAbs = checkpanic filepath:isAbsolute("/A/B/C");

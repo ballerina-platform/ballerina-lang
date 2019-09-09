@@ -40,6 +40,90 @@ function addDefaultableBooleanVarsToSignature(bir:Function? func) {
     currentFunc.localVars = updatedVars;
 }
 
+function enrichWithDefaultableParamInits(bir:Function currentFunc) {
+
+    int k = 1;
+    bir:FunctionParam?[] functionParams = [];
+    bir:VariableDcl?[] localVars = currentFunc.localVars;
+    while (k < localVars.length()) {
+        bir:VariableDcl localVar = getVariableDcl(localVars[k]);
+        if (localVar is bir:FunctionParam) {
+            functionParams[functionParams.length()] =  localVar;
+        }
+        k += 1;
+    }
+
+    nextId = -1;
+    nextVarId = -1;
+
+    bir:BasicBlock?[] basicBlocks = [];
+
+    bir:BasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks);
+
+    int paramCounter = 0;
+    int paramBBCounter = 0;
+    while (paramCounter < functionParams.length()) {
+        var funcParam = functionParams[paramCounter];
+        if (funcParam is bir:FunctionParam && funcParam.hasDefaultExpr) {
+            int boolParam = paramCounter + 1;
+            bir:FunctionParam funcBooleanParam = getFunctionParam(functionParams[boolParam]);
+            bir:VarRef boolRef = {variableDcl:funcBooleanParam, typeValue:bir:TYPE_BOOLEAN};
+            bir:UnaryOp notOp = {pos:{}, kind:bir:INS_KIND_NOT, lhsOp:boolRef, rhsOp:boolRef};
+            nextBB.instructions[nextBB.instructions.length()] = notOp;
+            bir:BasicBlock?[] bbArray = currentFunc.paramDefaultBBs[paramBBCounter];
+            bir:BasicBlock trueBB = getBasicBlock(bbArray[0]);
+            foreach var defaultBB in bbArray {
+                basicBlocks[basicBlocks.length()] = getBasicBlock(defaultBB);
+            }
+            bir:BasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks);
+            bir:Branch branch = {pos:{}, falseBB:falseBB, kind:bir:TERMINATOR_BRANCH, op:boolRef, trueBB:trueBB};
+            nextBB.terminator = branch;
+
+            bir:BasicBlock lastBB = getBasicBlock(bbArray[bbArray.length() - 1]);
+            bir:GOTO gotoRet = {pos:{}, kind:bir:TERMINATOR_GOTO, targetBB:falseBB};
+            lastBB.terminator = gotoRet;
+
+            nextBB = falseBB;
+
+            paramBBCounter += 1;
+        }
+        paramCounter += 2;
+    }
+
+    if (basicBlocks.length() == 1) {
+    	// this means only one block added, if there are default vars, there must be more than one block
+    	return;
+    }
+    if(currentFunc.basicBlocks.length() == 0) {
+    	currentFunc.basicBlocks = basicBlocks;
+        return;
+    }
+
+    int pl = currentFunc.basicBlocks.length();
+    bir:BasicBlock firstBB = getBasicBlock(currentFunc.basicBlocks[0]);
+
+    bir:GOTO gotoRet = {pos:{}, kind:bir:TERMINATOR_GOTO, targetBB:firstBB};
+    nextBB.terminator = gotoRet;
+    foreach var bb in currentFunc.basicBlocks {
+     	basicBlocks[basicBlocks.length()] = bb;
+    }
+
+    int nl = basicBlocks.length();
+    currentFunc.basicBlocks = basicBlocks;
+}
+
+function insertAndGetNextBasicBlock(bir:BasicBlock?[] basicBlocks, string prefix = "desugaredBB") returns bir:BasicBlock {
+    bir:BasicBlock nextbb = {id: getNextDesugarBBId(prefix), instructions: []};
+    basicBlocks[basicBlocks.length()] = nextbb;
+    return nextbb;
+}
+
+function getNextDesugarBBId(string prefix) returns bir:Name {
+    string bbIdPrefix = prefix;
+    nextId += 1;
+    return {value:bbIdPrefix + nextId.toString()};
+}
+
 function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams) returns bir:BType?[] {
     bir:BType?[] paramTypes = [];
 

@@ -1,76 +1,54 @@
 NAME
-       Ballerina doc - Generate API documentation
+       ballerina-doc - Build a Ballerina module's documentation
 
 SYNOPSIS
-       ballerina doc [-t|--template] [--sourceroot <path>]
-                     [-o <path>|--output <path>] [-n|--native]
-                     [-e <module, ...>|--exclude <module, ...>]
-                     [-c <path>|--config <path>] [-v|--verbose] [-e]
-                     [<balfile>|<module-name]
+       ballerina doc [<options>] <ballerina-file-path> | <module-name>
+       ballerina doc -a | --all [<options>]
 
 
 DESCRIPTION
-       Ballerina doc command generates API documentation for a given
-       program or module.
+       Doc builds documentation for a given module or a ballerina file.
 
-       By default if no source or module name is given, it will generate
-       API documentation for all the modules in the current project
-       folder.
+       To build documentation for all modules of the current project,
+       use -a or -all option.
 
-       The default output location of API docs is a folder named
-       api-docs.
+       This command writes the module documentation to the 'target/apidocs'
+       directory inside the project.
+
+       If docs are being generated for a single ballerina file,
+       output path should be provided with -o option.
 
 
 OPTIONS
-       -t <path>, --template <path>
-           Path to a custom templates directory. Templates will be used
-           <path>to format the generated API documentation.
-  
+       -o <output>, --output <output>
+           Build and store the module documentation in the specified directory.
+           This is required if you are generating docs for a Ballerina file
+           outside of a project.
+
        --sourceroot <path>
-           Path to the directory containing source files and modules.
+           Provide the path to be taken as the root of the source.
+           Source will be looked up relative to the given source root
+           path.
 
-       -o <path>, --output <path>
-           Path to the output directory. Generated API documents will be
-           placed inside this directory.
-    
-       -n, --native
-           Reads the source as native Ballerina code.
+       -e, --exclude
+           List of modules to be excluded.
 
-       -e <module, ...>, --exclude <module, ...>
-           Comma-separated list of module names to be excluded from
-           generated documentation.
+       --experimental
+           Enable experimental language features.
 
-       -c <path>, --config <path>
-           Provides the path to a Ballerina configuration file.
-           The configuration file format is a subset of the TOML file
-           format. It supports key/value pairs, tables, comments, and
-           string, int, float and boolean value types. If a config
-           file is not specified using [-c|--config], Ballerina looks
-           for a default configuration file named `ballerina.conf`
-           in the directory the source file(s) reside in.
+       --offline
+           Build offline without downloading dependencies.
 
-       -v, --verbose
-           Prints debug level logs while generating documentation.
-
-       -e <key=value>
-           Sets Ballerina environment parameters as key/value pairs.
-           If multiple parameters need to be provided, each parameter
-           has to be specified using its own -e flag. Details of the
-           environment parameters that the Ballerina standard library
-           modules support can be found in the relevant API
-           documentation.
+       -a, --all
+           Build documentation for all the modules of a project.
 
 
 EXAMPLES
-       Generate API documentation for current project
-       $ ballerina doc
+       Generate API documentation for all modules in the current project.
+          → ballerina doc -a
 
-       Generate API documentation for hello_service.bal
-       $ ballerina doc hello_service.bal
+       Generate API documentation for a single module.
+          → ballerina doc hello
 
-       Generate API documentation for hello_service.bal and write
-       output to docs folder
-       $ ballerina doc -o docs hello_service.bal
-
-       Generate API documentation for math module
-       $ ballerina doc math
+       Generate API documentation for a Ballerina source file.
+          → ballerina doc -o ./apidocs helloworld.bal

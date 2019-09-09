@@ -19,10 +19,10 @@ import ballerina/http;
 listener http:Listener ep = new(9099, { httpVersion: "2.0" });
 
 //Backend pointed by these clients should be down.
-http:Client priorOn = new("http://localhost:12345", { httpVersion: "2.0", http2Settings: {
+http:Client priorOn = new("http://localhost:14555", { httpVersion: "2.0", http2Settings: {
                 http2PriorKnowledge: true }, poolConfig: {} });
 
-http:Client priorOff = new("http://localhost:12345", { httpVersion: "2.0", http2Settings: {
+http:Client priorOff = new("http://localhost:14555", { httpVersion: "2.0", http2Settings: {
                 http2PriorKnowledge: false }, poolConfig: {} });
 
 @http:ServiceConfig {
@@ -36,16 +36,16 @@ service generalCases on ep {
     }
     resource function backEndDown(http:Caller caller, http:Request req) {
         http:Request serviceReq = new;
-        var result1 = priorOn->submit("GET", "/bogusResource", serviceReq);
-        var result2 = priorOff->submit("GET", "/bogusResource", serviceReq);
+        var result1 = priorOn->get("/bogusResource");
+        var result2 = priorOff->get("/bogusResource");
         string response = handleResponse(result1) + "--" + handleResponse(result2);
         checkpanic caller->respond(<@untainted> response);
     }
 }
 
-function handleResponse(http:HttpFuture|error result) returns string {
+function handleResponse(http:Response|error result) returns string {
     string response = "";
-    if (result is http:HttpFuture) {
+    if (result is http:Response) {
         response = "Call succeeded";
     } else {
         error err = result;

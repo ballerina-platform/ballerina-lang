@@ -84,7 +84,7 @@ public class LaunchUtils {
 
         String observeFlag = configArgs.get(CONFIG_OBSERVABILITY_ENABLED);
         // load configurations
-        loadConfigurations(configArgs, configArgs.get(CONFIG_FILE_PROPERTY), Boolean.getBoolean(observeFlag));
+        loadConfigurations(configArgs, configArgs.get(CONFIG_FILE_PROPERTY), Boolean.parseBoolean(observeFlag));
         return userProgramArgs.toArray(new String[0]);
     }
 

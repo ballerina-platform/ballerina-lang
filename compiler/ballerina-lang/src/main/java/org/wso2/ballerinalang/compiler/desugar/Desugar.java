@@ -285,6 +285,7 @@ public class Desugar extends BLangNodeVisitor {
     private int recordCount = 0;
     private int errorCount = 0;
     private int annonVarCount = 0;
+    private int initFuncIndex = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -545,6 +546,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
+        initFuncIndex = 0;
         result = pkgNode;
     }
 
@@ -6351,7 +6353,7 @@ public class Desugar extends BLangNodeVisitor {
             varDefIndex++;
             if (i > 0 && i % methodSize == 0) {
                 generatedFunctions.add(newFunc);
-                newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
+                newFunc = createIntermediateInitFunction(packageNode, env);
                 symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
             }
 
@@ -6370,7 +6372,7 @@ public class Desugar extends BLangNodeVisitor {
                 // enf of current chunk
                 if (newFunc.body.stmts.size() + chunkStmts.size() > methodSize) {
                     generatedFunctions.add(newFunc);
-                    newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
+                    newFunc = createIntermediateInitFunction(packageNode, env);
                     symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
                 }
                 newFunc.body.stmts.addAll(chunkStmts);
@@ -6390,7 +6392,7 @@ public class Desugar extends BLangNodeVisitor {
         for (int i = varDefIndex; i < stmts.size(); i++) {
             if (i > 0 && i % methodSize == 0) {
                 generatedFunctions.add(newFunc);
-                newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
+                newFunc = createIntermediateInitFunction(packageNode, env);
                 symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
             }
             newFunc.body.stmts.add(stmts.get(i));
@@ -6434,14 +6436,13 @@ public class Desugar extends BLangNodeVisitor {
      *
      * @param pkgNode package node
      * @param env     symbol environment of package
-     * @param iteration intermediate function index
      */
-    private BLangFunction createIntermediateInitFunction(BLangPackage pkgNode, SymbolEnv env, int iteration) {
+    private BLangFunction createIntermediateInitFunction(BLangPackage pkgNode, SymbolEnv env) {
         String alias = pkgNode.symbol.pkgID.toString();
         BLangFunction initFunction = ASTBuilderUtil
                 .createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
-                                                        new Name(Names.INIT_FUNCTION_SUFFIX.value + iteration),
-                                                        symTable);
+                                                        new Name(Names.INIT_FUNCTION_SUFFIX.value
+                                                                + this.initFuncIndex++), symTable);
         // Create invokable symbol for init function
         createInvokableSymbol(initFunction, env);
         return initFunction;

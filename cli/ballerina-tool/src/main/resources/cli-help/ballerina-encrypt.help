@@ -1,5 +1,5 @@
 NAME
-       Ballerina encrypt - Encrypt sensitive configuration values
+       ballerina-encrypt - Encrypt sensitive configuration values
     
 SYNOPSIS
        ballerina encrypt
@@ -14,19 +14,15 @@ DESCRIPTION
        confidentiality.
 
        Once executed, the encrypt command will prompt for the value to
-       be encrypted and a secret that is used as the AES encryption /
-       decryption key.
+       be encrypted and a secret to be used as the AES
+       encryption/decryption key.
 
-       The encrypted configuration value can then be used as a
-       configuration value by placing the encrypt command output in a
-       configuration file or by passing it as a runtime argument.
+       The encrypted value can then be used as a configuration value
+       by placing the encrypt command output in a configuration file
+       or by passing it as a runtime argument.
 
        The Ballerina Config API will automatically decrypt the
        configuration values on demand.
-
-
-OPTIONS
-       Ballerina encrypt command takes no options.
 
 
 DEFAULT BEHAVIOUR
@@ -35,5 +31,5 @@ DEFAULT BEHAVIOUR
 
 
 EXAMPLES
-       Encrypt sensitive data
-       $ ballerina encrypt
+       Encrypt sensitive data.
+          → ballerina encrypt

@@ -53,7 +53,7 @@ listener http:Listener ep = new (9090);
 // information, the `clientRequest` object is created and published to the `requestStream`.
 service requestService on ep {
 
-    public function __init() {
+    function __init() {
         initRealtimeRequestCounter();
     }
 

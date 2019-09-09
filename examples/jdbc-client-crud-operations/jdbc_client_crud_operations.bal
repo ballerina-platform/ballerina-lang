@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/jsonutils;
 import ballerinax/java.jdbc;
 
 // JDBC Client for MySQL database. This client can be used with any JDBC
@@ -101,13 +102,9 @@ public function main() {
         // result in the server and returning it. This allows unlimited payload
         // sizes in the result and the response is instantaneous to the client.
         // Convert a table to `json`.
-        var jsonConversionRet = typedesc<json>.constructFrom(selectRet);
-        if (jsonConversionRet is json) {
-            io:print("JSON: ");
-            io:println(jsonConversionRet.toJsonString());
-        } else {
-            io:println("Error in table to json conversion");
-        }
+        json jsonConversionRet = jsonutils:fromTable(selectRet);
+        io:print("JSON: ");
+        io:println(jsonConversionRet.toJsonString());
     } else {
         error err = selectRet;
         io:println("Select data from student table failed: ",

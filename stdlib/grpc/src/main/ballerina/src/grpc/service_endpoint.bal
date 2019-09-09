@@ -88,13 +88,11 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 #
 # + host - The server hostname.
 # + secureSocket - The SSL configurations for the client endpoint.
-# + httpVersion - HTTP version supported by the endpoint. This should be 2.0 as gRPC works only with HTTP/2.
 # + timeoutInMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout.
 public type ListenerConfiguration record {|
     string host = "0.0.0.0";
     ListenerSecureSocket? secureSocket = ();
-    string httpVersion = "2.0";
     int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
 |};
 

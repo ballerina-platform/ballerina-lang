@@ -18,6 +18,7 @@
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.jvm.launch.LaunchUtils;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
@@ -51,7 +52,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
-import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
 
 /**
@@ -77,7 +77,7 @@ public class TestCommand implements BLauncherCmd {
     }
 
     public TestCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist) {
+                       boolean skipCopyLibsFromDist) {
         this.sourceRootPath = userDir;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -86,7 +86,7 @@ public class TestCommand implements BLauncherCmd {
     }
 
     @CommandLine.Option(names = {"--sourceroot"},
-            description = "Path to the directory containing source files and modules")
+                        description = "Path to the directory containing source files and modules")
     private String sourceRoot;
 
     @CommandLine.Option(names = {"--all", "-a"}, description = "Build or compile all the modules of the project.")
@@ -114,21 +114,29 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
+    // --debug flag is handled by ballerina.sh/ballerina.bat. It will launch ballerina with java debug options.
+    @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
+    private String debugPort;
+
     @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests.")
     private String configFilePath;
 
     public void execute() {
         if (this.helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
         }
 
+        String[] args = LaunchUtils
+                .initConfigurations(this.argList == null ? new String[0] : this.argList.toArray(new String[0]));
+
         // check if there are too many arguments.
-        if (this.argList != null && this.argList.size() > 1) {
+        if (args.length > 1) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
-                    "ballerina test [<module-name>] | -a | --all",
+                    "ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
+                           "                      [--config <config_file>] [<module-name> | -a | --all]",
                     false);
 
             CommandUtil.exitError(this.exitWhenFinish);
@@ -138,7 +146,7 @@ public class TestCommand implements BLauncherCmd {
         // if -a or --all flag is not given, then it is mandatory to give a module name or ballerina file as arg.
         if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
             CommandUtil.printError(this.errStream,
-                    "'test' command requires a module name or '-all | -a' flag " +
+                    "'test' command requires a module name or '-a | --all' flag " +
                             "to test all the modules of the project.",
                     "ballerina test <module-name> | -a | --all",
                     false);
@@ -160,7 +168,7 @@ public class TestCommand implements BLauncherCmd {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(this.errStream,
-                            "you are trying to test a ballerina project but there is no Ballerina.toml file.",
+                            "you are trying to test a Ballerina project but there is no Ballerina.toml file.",
                             null,
                             false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -224,7 +232,7 @@ public class TestCommand implements BLauncherCmd {
 
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid ballerina project",
+                    "invalid Ballerina project",
                     "ballerina test  <module-name> | -a | --all",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -252,7 +260,6 @@ public class TestCommand implements BLauncherCmd {
 
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         // output path is the current directory if -o flag is not given.
-        Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
@@ -263,7 +270,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
                 .addTask(new CreateJarTask(this.dumpBIR))    // create the jar
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
-                .addTask(new RunTestsTask(configFilePath)) // run tests
+                .addTask(new RunTestsTask()) // run tests
                 .build();
 
         taskExecutor.executeTasks(buildContext);
@@ -291,5 +298,4 @@ public class TestCommand implements BLauncherCmd {
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
     }
-
 }

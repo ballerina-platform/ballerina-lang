@@ -485,16 +485,15 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 case SINGLE_BAL_FILE:
                     SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
                     if (null == singleFileContext.getExecutableFilePath()) {
-                        String executableFileName = singleFileContext.getBalFileNameWithoutExtension() +
-                                                    ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+                        String executableFileName = singleFileContext.getBalFileNameWithoutExtension()
+                                + BLANG_COMPILED_JAR_EXT;
                         return this.executableDir.resolve(executableFileName);
                     } else {
                         return singleFileContext.getExecutableFilePath();
                     }
                 case SINGLE_MODULE:
                 case ALL_MODULES:
-                    return this.executableDir.resolve(moduleID.name.value +
-                                                      ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT);
+                    return this.executableDir.resolve(moduleID.name.value + BLANG_COMPILED_JAR_EXT);
                 
                 default:
                     throw new BLangCompilerException("unable to resolve executable(s) location for build source");

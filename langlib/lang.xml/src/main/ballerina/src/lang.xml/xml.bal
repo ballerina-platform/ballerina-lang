@@ -129,7 +129,7 @@ public function getContent(Text|ProcessingInstruction|Comment x) returns string 
 # + children - the children of the new element
 # + return - an xml sequence consisting of only a new xml element with name `name`,
 #   no attributes, and children `children`
-public function createElement(string name, xml children) returns Element = external;
+public function createElement(string name, xml children = concat()) returns Element = external;
 
 # Constructs an xml sequence consisting of only a processing instruction item.
 #
@@ -152,7 +152,7 @@ public function createComment(string content) returns Comment = external;
 # + startIndex - start index, inclusive
 # + endIndex - end index, exclusive
 # + return - a subsequence of `x` consisting of items with index >= startIndex and < endIndex
-public function slice(xml x, int startIndex, int endIndex) returns xml = external; // TODO: #17395
+public function slice(xml x, int startIndex, int endIndex = x.length()) returns xml = external;
 
 # Strips the insignificant parts of the an xml value.
 # Comment items, processing instruction items are considered insignificant.

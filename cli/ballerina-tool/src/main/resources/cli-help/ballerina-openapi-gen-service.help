@@ -1,34 +1,53 @@
 NAME
-       Ballerina OpenApi - Gen Service is a tool which will convert an OpenApi contract to a Ballerina mock service.
+       ballerina-openapi-gen-service - Convert an OpenApi contract to a
+       Ballerina mock service
 
-       Note: This is an Experimental tool ship under ballerina hence this will only support limited set of functionality.
+       Note: This is an experimental tool which only supports
+       a limited set of functionality.
+
 
 SYNOPSIS
-       ballerina openapi gen-service <module-name>:<service-name> <openapi-contract>
+       ballerina openapi gen-service <module-name>:<service-name>
+                                     <openapi-contract>
+                                     [-o | --output <dir-path>
+                                     [-c | --skip-bind]
+
+
+DESCRIPTION
+       Gen-service generates a Ballerina service from a given OpenAPI contract
+       in the provided output directory. If the output directory is not provided, the
+       service will be generated in the current directory.
+
+       Note: This is an experimental tool, which only supports a limited
+       set of functionality.
 
 
 OPTIONS
-       module-name
-           This option will be used as the module name when the command generate a new module
-           for the given openapi contract.
-       service-name
-           This option will be used as the service name and as the file name of the ballerina
-           service file.
-       openapi-contract
-           This will be the contract file location of the openapi contract which will be
-           used to create the ballerina service.
-       -h
-           providing -h will show the help file for the Ballerina openapi gen-service command.
+       <module-name>:<service-name>
+           The name of the Ballerina service file along with the module in which
+           the mock service from the OpenAPI contract should be created.
+
+       <openapi-contract>
+           The contract file location of the OpenAPI contract, which
+           is used to create the Ballerina service.
+
+       -o <dir-path>, --output <dir-path>
+           Output directory in which the service should be generated. If this option
+           is not provided, the service is generated in the current directory.
+
+       -c, --skip-bind
+           Copy the OpenAPI contract file to the project's resources directory
 
 
 DEFAULT BEHAVIOR
-       If no options or sub commands are given on execution, Ballerina openapi command will show
-       the help file for the command.
+       If no options or sub commands are provided, the command shows
+       the usage details of the command.
 
 
 EXAMPLES
-       Get help for Ballerina Gen Service command
-       $ ballerina openapi gen-service -h
+       Print the usage details of the command.
+          → ballerina openapi gen-service -h
 
-       Generate a Ballerina module ( petstore ) with a mock service named petstoreservice
-       $ ballerina openapi gen-service petstore:petstoreservice petstore.yaml
+       Generate a Ballerina module (petstore) with a mock service
+       named petstoreservice.
+          → ballerina openapi gen-service petstore:petstoreservice petstore.yaml

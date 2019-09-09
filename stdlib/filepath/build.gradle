@@ -30,16 +30,15 @@ dependencies {
     implementation project(':ballerina-utils')
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-internal')
 
     testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-logging')
     testCompile project(':ballerina-log-api')
-    testCompile project(':ballerina-internal')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
+    testCompile project(':ballerina-file')
     testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 
@@ -48,7 +47,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 }

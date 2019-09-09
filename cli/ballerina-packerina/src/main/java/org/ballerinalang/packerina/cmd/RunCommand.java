@@ -80,7 +80,7 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Builds offline without downloading dependencies and " +
+    @CommandLine.Option(names = {"--offline"}, description = "Builds offline without downloading dependencies and " +
                                                               "then run.")
     private boolean offline;
 
@@ -140,7 +140,7 @@ public class RunCommand implements BLauncherCmd {
             
             if (Files.notExists(sourcePath)) {
                 CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' ballerina file does not exist.",
+                        "'" + sourcePath + "' Ballerina file does not exist.",
                         null,
                         false);
                 Runtime.getRuntime().exit(1);
@@ -168,7 +168,7 @@ public class RunCommand implements BLauncherCmd {
             //// check if the given file exists.
             if (Files.notExists(sourcePath)) {
                 CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' ballerina file does not exist.",
+                        "'" + sourcePath + "' Ballerina file does not exist.",
                         null,
                         false);
                 Runtime.getRuntime().exit(1);
@@ -178,7 +178,7 @@ public class RunCommand implements BLauncherCmd {
             //// check if the given file is a regular file and not a symlink.
             if (!Files.isRegularFile(sourcePath)) {
                 CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' is not ballerina file. check if it is a symlink or shortcut.",
+                        "'" + sourcePath + "' is not a Ballerina file. check if it is a symlink or a shortcut.",
                         null,
                         false);
                 Runtime.getRuntime().exit(1);
@@ -240,7 +240,7 @@ public class RunCommand implements BLauncherCmd {
             targetPath = sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid ballerina source path, it should either be a module name in a ballerina project or a " +
+                    "invalid Ballerina source path, it should either be a module name in a Ballerina project or a " +
                     "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.",
                     "ballerina run {<bal-file> | <module-name>}",
                     true);
@@ -318,10 +318,10 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina run [--off-line]\n" +
+        out.append("  ballerina run [--offline]\n" +
                            "                [--sourceroot]\n" +
                            "                {<balfile> | module-name | executable-jar} [configs (--key=value)...] " 
-                           + "[args...] \n");
+                           + "[--] [args...] \n");
     }
 
     @Override

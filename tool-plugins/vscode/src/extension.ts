@@ -17,7 +17,7 @@
  * under the License.
  *
  */
-import { ExtensionContext } from 'vscode';
+import { ExtensionContext, commands, window } from 'vscode';
 import { ballerinaExtInstance } from './core';
 import { activate as activateAPIEditor } from './api-editor';
 // import { activate as activateDiagram } from './diagram'; 
@@ -80,5 +80,26 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateTreeView(ballerinaExtInstance);
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
-    });
+        // When plugins fails to start, provide a warning upon each command execution
+        if (!ballerinaExtInstance.langClient) {
+            const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
+            cmds.forEach((cmd) => {
+                const cmdID: string = cmd.command;
+                commands.registerCommand(cmdID, () => {
+                    const actionViewLogs = "View Logs";
+                    window.showWarningMessage("Ballerina extension did not start properly."
+                        + " Please check extension logs for more info.", actionViewLogs)
+                        .then((action) => {
+                            if (action === actionViewLogs) {
+                                const logs = ballerinaExtInstance.getOutPutChannel();
+                                if (logs) {
+                                    logs.show();
+                                }
+                            }
+                        });
+
+                });
+            });
+        }
+    }); 
 }

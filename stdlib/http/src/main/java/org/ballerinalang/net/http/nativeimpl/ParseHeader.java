@@ -17,18 +17,16 @@
  */
 package org.ballerinalang.net.http.nativeimpl;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.mime.util.HeaderUtil;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.HttpErrorType;
-import org.ballerinalang.net.http.HttpUtil;
 
 import java.util.Arrays;
 
@@ -84,10 +82,6 @@ public class ParseHeader {
         } else {
             errMsg = PARSER_ERROR + "header value cannot be null";
         }
-
-        // set parse error
-        ErrorValue mimeError = MimeUtil.createError(READING_HEADER_FAILED, errMsg);
-        String httpErrorMessage = "MimeError occurred while parsing the header";
-        return HttpUtil.createHttpError(httpErrorMessage, HttpErrorType.GENERIC_CLIENT_ERROR, mimeError);
+        return BallerinaErrors.createError(READING_HEADER_FAILED, errMsg);
     }
 }

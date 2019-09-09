@@ -11,6 +11,7 @@ import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/i
 import { ArrowHead } from "./arrow-head";
 import { Block } from "./block";
 import { LifeLine } from "./life-line";
+import { SourceLinkedLabel } from "./source-linked-label";
 import { Worker } from "./worker";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
@@ -72,11 +73,19 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                             y={bBox.y}
                             width={bBox.statement.textWidth + (2 * config.statement.expanded.labelGutter)}
                             height={config.statement.height}/>
-                        <text className="func-name"
+                        {/* <text className="func-name"
                             x={bBox.statement.x}
                             y={bBox.statement.y + (config.statement.height / 2)}>
                             {bBox.statement.text}
-                        </text>
+                        </text> */}
+                        <SourceLinkedLabel
+                            x={bBox.statement.x}
+                            y={bBox.statement.y + (config.statement.height / 2)}
+                            className="panel-title"
+                            target={model}
+                            text={bBox.statement.text}
+                            fullText={bBox.statement.fullText}
+                        />
                         <text className="collapser"
                             x={bBox.statement.x + bBox.w - 30 - config.statement.expanded.margin}
                             y={bBox.statement.y + config.statement.height + 5}

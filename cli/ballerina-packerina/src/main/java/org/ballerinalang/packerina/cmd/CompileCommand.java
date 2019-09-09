@@ -27,7 +27,6 @@ import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
-import org.ballerinalang.packerina.task.CreateDocsTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateLockFileTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
@@ -84,7 +83,7 @@ public class CompileCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Compiles offline without downloading dependencies.")
+    @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading dependencies.")
     private boolean offline;
 
     @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies")
@@ -233,8 +232,6 @@ public class CompileCommand implements BLauncherCmd {
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
     
-        Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
-    
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask())  // clean the target directory
                 .addTask(new CreateTargetDirTask()) //  create target directory.
@@ -244,9 +241,8 @@ public class CompileCommand implements BLauncherCmd {
                 .addTask(new CopyNativeLibTask())   // copy the native libs
                 .addTask(new CreateJarTask(this.dumpBIR))   // create the jar
                 .addTask(new CopyModuleJarTask())
-                .addTask(new RunTestsTask(configFilePath), this.skipTests)  // run tests
+                .addTask(new RunTestsTask(), this.skipTests)  // run tests
                 .addTask(new CreateLockFileTask())  // create a lock file
-                .addTask(new CreateDocsTask())  // generate API docs
                 .build();
     
         taskExecutor.executeTasks(buildContext);
@@ -268,7 +264,7 @@ public class CompileCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina compile [<module-name>] [--off-line] [--skip-tests] [--skip-lock] \n");
+        out.append("  ballerina compile [<module-name>] [--offline] [--skip-tests] [--skip-lock] \n");
     }
 
     @Override

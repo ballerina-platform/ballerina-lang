@@ -292,6 +292,7 @@ def examplesSpec = {
     path -> copySpec {
         from fileTree(project.rootDir.path + '/examples');
         into(path + '/examples')
+        exclude('**/**/tests')
     }
 }
 
@@ -329,13 +330,14 @@ task generateDocs(type: JavaExec) {
     outputs.cacheIf { true }
 
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
+    systemProperty("version", project.version)
     def basePath = '/' + project.name + '-' + project.version + '/'
     systemProperty("ballerina.home", basePath)
     
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
     def libs = "$buildDir/ballerina/"
-    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm,bir,jvm")
+    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm,bir,jvm,utils,ldap")
 }
 
 task createApiDocsZip(type: Zip) {
