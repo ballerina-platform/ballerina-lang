@@ -5,7 +5,12 @@
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
-      <a href="https://ballerina.io/">Ballerina</a> is a simple programming language whose syntax and runtime address the hard problems of integration. As a Turing complete language, Ballerina enables agility with edit, build, and run cycles. Ballerina code is compiled into services that include transactions, embedded brokers and gateway runtimes.
+      <a href="https://ballerina.io/">Ballerina</a> is a simple programming language whose syntax and platform address
+      the hard problems of integration. It is a general purpose, concurrent, transactional, statically and strongly
+      typed programming language with both textual and graphical syntaxes. Its specialization is integration - it
+      brings fundamental concepts, ideas and tools of distributed system integration into the language and offers a
+      type safe, concurrent environment to implement such applications. These include distributed transactions,
+      reliable messaging, stream processing, workflows and container management platforms.
     ]]></description>
 
     <change-notes><![CDATA[
