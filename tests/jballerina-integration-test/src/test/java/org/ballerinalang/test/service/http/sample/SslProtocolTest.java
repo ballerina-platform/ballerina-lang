@@ -25,6 +25,9 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 
+/**
+ * Testing SSL protocols.
+ */
 @Test(groups = "http-test")
 public class SslProtocolTest extends HttpBaseTest {
 
