@@ -15,12 +15,13 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/config;
 import ballerina/io;
 
 http:ClientConfiguration sslProtocolClientConfig = {
     secureSocket: {
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("truststore"),
             password: "ballerina"
         },
         protocol: {

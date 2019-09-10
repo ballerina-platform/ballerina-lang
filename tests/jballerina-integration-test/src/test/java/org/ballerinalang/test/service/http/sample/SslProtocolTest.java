@@ -18,12 +18,14 @@
 
 package org.ballerinalang.test.service.http.sample;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Testing SSL protocols.
@@ -39,9 +41,14 @@ public class SslProtocolTest extends HttpBaseTest {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "mutualSSL" + File.separator + "ssl_protocol_client.bal").getAbsolutePath();
 
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+        String[] args = new String[] { "--truststore=" + trustStore };
+
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(clientLog);
-        ballerinaClient.runMain(balFile, new String[]{}, new String[]{}, null, new String[]{},
+        ballerinaClient.runMain(balFile, args, new String[]{}, null, new String[]{},
                 new LogLeecher[]{clientLeecher});
         clientLeecher.waitForText(20000);
     }
