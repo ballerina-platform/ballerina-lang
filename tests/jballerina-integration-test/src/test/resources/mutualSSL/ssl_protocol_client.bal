@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -15,35 +15,25 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/config;
 import ballerina/io;
 
-http:ClientConfiguration mutualSslClientConf = {
-    secureSocket:{
-        keyStore:{
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+http:ClientConfiguration sslProtocolClientConfig = {
+    secureSocket: {
+        trustStore: {
+            path: config:getAsString("truststore"),
             password: "ballerina"
         },
-        trustStore:{
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        },
-        protocol:{
-            name: "TLS",
-            versions: ["TLSv1.1"]
-        },
-        ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
-        certValidation: {
-            enable: false
-        },
-        ocspStapling: false,
-        handshakeTimeoutInSeconds: 20,
-        sessionTimeoutInSeconds: 30
+        protocol: {
+            versions: ["TLSv1.2"]
+        }
     }
 };
 
-public function main() {
-    http:Client httpClient = new("https://localhost:9116", mutualSslClientConf );
-    var resp = httpClient->get("/echo/");
+public function main (string... args) {
+    http:Client clientEP = new("https://localhost:9249", sslProtocolClientConfig);
+    http:Request req = new;
+    var resp = clientEP->get("/protocol/protocolResource");
     if (resp is http:Response) {
         var payload = resp.getTextPayload();
         if (payload is string) {
