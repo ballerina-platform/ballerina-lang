@@ -7,7 +7,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Push the specified module to Ballerina Central repository or
+       Push command pushes the specified module to Ballerina Central repository or
        if '-a' or '--all' option is specified, then push all the modules
        in the current project.
 
@@ -29,9 +29,9 @@ DESCRIPTION
 
 OPTIONS
        -a, --all
-           Push all the modules in the project
+           Push all the modules in the project.
 
 
 EXAMPLES
-       Push the 'math' module to Ballerina Central after building it
+       Push the 'math' module to Ballerina Central after building it.
           → ballerina push math

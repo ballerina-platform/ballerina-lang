@@ -160,7 +160,6 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIEL
 import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
-import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
@@ -1308,19 +1307,18 @@ public class HttpUtil {
             }
         }
         if (protocols != null) {
-            Object[] protocolConfig = protocols.getArrayValue(ENABLED_PROTOCOLS).getValues();
-            if (protocolConfig != null) {
-                List<Object> sslEnabledProtocolsValueList = Arrays.asList(protocolConfig);
-                if (sslEnabledProtocolsValueList.size() > 0) {
-                    String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Object::toString)
-                            .collect(Collectors.joining(",", "", ""));
-                    Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
-                    clientParams.add(clientProtocols);
-                }
-                String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
-                if (StringUtils.isNotBlank(sslProtocol)) {
-                    sslConfiguration.setSSLProtocol(sslProtocol);
-                }
+            List<String> sslEnabledProtocolsValueList = Arrays.asList(
+                    protocols.getArrayValue(ENABLED_PROTOCOLS).getStringArray());
+            if (!sslEnabledProtocolsValueList.isEmpty()) {
+                String sslEnabledProtocols = sslEnabledProtocolsValueList.stream()
+                        .collect(Collectors.joining(",", "", ""));
+                Parameter clientProtocols = new Parameter(ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
+                clientParams.add(clientProtocols);
+            }
+
+            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
+            if (StringUtils.isNotBlank(sslProtocol)) {
+                sslConfiguration.setSSLProtocol(sslProtocol);
             }
         }
 

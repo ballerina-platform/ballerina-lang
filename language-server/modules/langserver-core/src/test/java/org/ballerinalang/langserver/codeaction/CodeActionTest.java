@@ -252,7 +252,7 @@ public class CodeActionTest {
                 {"typeGuardCodeAction1.json", "typeGuard.bal"},
                 {"typeGuardCodeAction2.json", "typeGuard.bal"},
                 {"typeGuardCodeAction3.json", "typeGuard.bal"},
-                {"typeGuardCodeAction4.json", "typeGuard.bal"},
+//                {"typeGuardCodeAction4.json", "typeGuard.bal"},
         };
     }
 

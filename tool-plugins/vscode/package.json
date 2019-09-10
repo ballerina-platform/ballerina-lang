@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "1.0.0-rc1-SNAPSHOT",
+    "version": "1.0.0",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -196,8 +196,9 @@
                         "type": "ballerina",
                         "request": "attach",
                         "name": "Ballerina Remote",
-                        "host": "127.0.0.1",
-                        "port": "5005"
+                        "script": "${file}",
+                        "debuggeeHost": "127.0.0.1",
+                        "debuggeePort": "5005"
                     }
                 ]
             }

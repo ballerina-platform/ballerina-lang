@@ -1,15 +1,15 @@
 NAME
-    Ballerina dist update - Update to latest distribution version
+    ballerina-dist-update - Update to latest distribution version
 
 SYNOPSIS
     ballerina dist update
 
 DESCRIPTION
-     Ballerina dist update command will update to latest version.
+     Ballerina dist update command updates to latest version.
 
 OPTIONS
      Ballerina dist update command takes no options.
 
 EXAMPLES
      Update current distribution to latest.
-     $ ballerina dist update
+        → ballerina dist update

@@ -61,7 +61,7 @@ public class NewCommandTest extends CommandTest {
         //Assert.assertTrue(Files.isDirectory(integrationTestPath.resolve("resources")));
         Assert.assertTrue(Files.exists(projectPath.resolve(".gitignore")));
 
-        Assert.assertTrue(readOutput().contains("Created new ballerina project at "));
+        Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
     }
 
     @Test(description = "Test new command without arguments")

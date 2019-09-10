@@ -82,8 +82,8 @@ public class BuildCommandTest extends CommandTest {
     
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                "ballerina: invalid ballerina source path, it should either be a module name " +
-                                      "in a ballerina project or a file with a '.bal' extension. use the -a or " +
+                "ballerina: invalid Ballerina source path, it should either be a module name " +
+                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or " +
                                       "--all flag to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
@@ -237,7 +237,7 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "ballerina: '" +
                                       this.testResources.resolve("oo").resolve("hello_world.bal").toString() +
-                                      "' ballerina file does not exist.\n");
+                                      "' Ballerina file does not exist.\n");
     }
     
     @Test(description = "Build non existing bal file with a valid source root path")
@@ -251,7 +251,7 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "ballerina: '" +
                                       validBalFilePath.resolve("xyz.bal").toString() +
-                                      "' ballerina file does not exist.\n");
+                                      "' Ballerina file does not exist.\n");
     }
     
     @Test(description = "Build a bal file without passing bal file name as arg")
@@ -264,7 +264,7 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                                      "ballerina: 'build' command requires a module name or a ballerina file to " +
+                                      "ballerina: 'build' command requires a module name or a Ballerina file to " +
                                       "build/compile. use '-a' or '--all' flag to build/compile all the modules of " +
                                       "the project.\n" +
                                       "\n" +
@@ -326,8 +326,8 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                "ballerina: invalid ballerina source path, it should either be a module name " +
-                                      "in a ballerina project or a file with a '.bal' extension. use the -a or --all " +
+                "ballerina: invalid Ballerina source path, it should either be a module name " +
+                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or --all " +
                                       "flag to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +

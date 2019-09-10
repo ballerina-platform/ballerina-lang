@@ -1,5 +1,5 @@
 NAME
-       Ballerina home - Print the path of current Ballerina distribution
+       ballerina-home - Print the path of the current Ballerina distribution
 
 SYNOPSIS
        ballerina <home>
@@ -10,5 +10,5 @@ DESCRIPTION
 
 
 EXAMPLES
-       What is the path of Ballerina distribution currently configured on your machine?
-       $ ballerina home
+       Print of Ballerina distribution which is currently configured.
+          → ballerina home
