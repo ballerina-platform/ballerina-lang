@@ -1,43 +1,45 @@
 NAME
-       ballerina openapi  gen-contract - generate an OpenAPI contract
+       ballerina-openapi-gen-contract - Generate an OpenAPI contract
        for a given Ballerina service
 
 
 SYNOPSIS
-       ballerina openapi gen-contract [<module>:]<service-name>
-                                      [-i <ballerina-file>]
-                                      [-o <contract-file>] [-s|--skip-bind]
+       ballerina openapi gen-contract [<module-name>:]<service-name>
+                         [-i <ballerina-file> | --ballerina-file <ballerina-file>]
+                         -o <openapi-contract> | --output <openapi-contract>
+                         [-s | --skip-bind]
 
 
 DESCRIPTION
-       Note: This is an experimental tool which only supports a
-       limited set of functionality.
+       Gen-contract generates an OpenAPI contract from a given service to
+       a provided output directory. If the module name is provided along
+       with the service name, the Ballerina file is optional. If the module
+       name is not provided, the Ballerina file in which the service resides,
+       has to be provided.
+
+       Note: This is an experimental tool, which only supports a limited
+       set of functionality.
 
 
-       module
-           [Optional] The module name to use when generating the client.
-
-       service-name
+OPTIONS
+       [<module-name>:]<service-name>
            The service name to use when generating the client.
            This option will require either a valid Ballerina file
            or a valid Ballerina module.
 
-       -i  <ballerina-file>
+       -i  <ballerina-file>, --ballerina-file  <ballerina-file>
            [Optional if a module is provided] If provided,
            the contract will be generated using the provided Ballerina file
            and the service name.
 
-       -o  <contract-file>
+       -o, --output <openapi-contract>
            The output location of the generated contract.
 
-       -s
+       -s, --skip-bind
            If this option is provided, the generated contract will
            not be bound to the given Ballerina service.
 
 
 EXAMPLES
-       Get help for Ballerina  gen-contract command
-       $ ballerina openapi gen-contract -h
-
-       Generate an OpenAPI contract for a service named hello
-       $ ballerina openapi gen-contact hello -i hello_service.bal
+       Generate an OpenAPI contract for a service named hello.
+          → ballerina openapi gen-contact hello -i hello_service.bal

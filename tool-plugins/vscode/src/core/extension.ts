@@ -120,7 +120,7 @@ export class BallerinaExtension {
             log("Using " + this.ballerinaHome + " as the Ballerina home.");
             // Validate the ballerina version.
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
-            return this.getBallerinaVersion(this.ballerinaHome).then(ballerinaVersion => {
+            return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${ballerinaVersion}`);
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
@@ -273,18 +273,17 @@ export class BallerinaExtension {
         }
     }
 
-    getBallerinaVersion(ballerinaHome: string): Promise<string> {
-        if (!ballerinaHome) {
+    getBallerinaVersion(ballerinaHome: string, overrideBallerinaHome: boolean): Promise<string> {
+        if (overrideBallerinaHome && !ballerinaHome) {
             throw new AssertionError({
                 message: "Trying to get ballerina version without setting ballerina home."
             });
         }
-        let command = `${path.join(ballerinaHome, 'bin', 'ballerina')} version`;
-        if (process.platform === 'win32') {
-            command = `"${path.join(ballerinaHome, 'bin', 'ballerina.bat')}" version`;
-        }
+        // if ballerina home is overridden, use ballerina cmd inside distribution
+        // otherwise use wrapper command
+        const balCmd = this.getBallerinaCmd(overrideBallerinaHome ? ballerinaHome : "");
         return new Promise((resolve, reject) => {
-            exec(command, (err, stdout, stderr) => {
+            exec(balCmd + ' version', (err, stdout, stderr) => {
                 const version = stdout.length > 0 ? stdout : stderr;
                 if (version.startsWith("Error:")) {
                     reject(version);
@@ -380,11 +379,16 @@ export class BallerinaExtension {
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina';
-        if (fs.existsSync(path.join(homePath, 'bin', ballerinaCmd))) {
+        const ballerinaCmd = this.getBallerinaCmd(homePath);
+        if (fs.existsSync(ballerinaCmd)) {
             return true;
         }
         return false;
+    }
+
+    getBallerinaCmd(ballerinaDistribution: string = "") {
+        const prefix = ballerinaDistribution ? (path.join(ballerinaDistribution, "bin") + path.sep) : "";
+        return prefix + (process.platform === 'win32' ? 'ballerina.bat' : 'ballerina');
     }
 
     /**
@@ -424,7 +428,7 @@ export class BallerinaExtension {
             isBallerinaNotFound = false,
             isOldBallerinaDist = false;
         try {
-            balHomeOutput = execSync('ballerina home').toString().trim();
+            balHomeOutput = execSync(this.getBallerinaCmd() + ' home').toString().trim();
             // specially handle unknown ballerina command scenario for windows
             if (balHomeOutput === "" && process.platform === "win32") {
                 isOldBallerinaDist = true;

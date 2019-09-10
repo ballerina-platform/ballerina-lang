@@ -143,6 +143,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"assignmentStmt4.json", "function"},
                 {"assignmentStmt5.json", "function"},
                 {"assignmentStmt6.json", "function"},
+                {"varDefStmt1.json", "function"},
+                {"varDefStmt2.json", "function"},
                 {"typeofKWSuggestion.json", "function"},
                 {"typeofKWSuggestion2.json", "function"},
                 {"forkJoinCompletion1.json", "function"},

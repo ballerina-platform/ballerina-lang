@@ -32,11 +32,11 @@ OPTIONS
 
 
 EXAMPLES
-       Add a module with a 'main' function
+       Add a module with a 'main' function.
           → ballerina add hello
 
-       Add a module with a Ballerina service
+       Add a module with a Ballerina service.
           → ballerina add helloservice -t service
 
-       Create a module with a template available in Ballerina Central
+       Create a module with a template available in Ballerina Central.
           → ballerina add greet --template abc/xyz:1.1.0
