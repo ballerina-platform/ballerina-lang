@@ -29,7 +29,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A pool of constant values in the binary BIR file.
@@ -41,17 +43,30 @@ public class ConstantPool {
     // Size to be written to tag a null value
     private static final int NULL_VALUE_FIELD_SIZE_TAG = -1;
 
+    private final Map<CPEntry, Integer> cpEntriesMap = new HashMap<>();
     private final List<CPEntry> cpEntries = new ArrayList<>();
 
-    public int addCPEntry(CPEntry cpEntry) {
-        int i = cpEntries.indexOf(cpEntry);
-        if (i >= 0) {
-            return i;
-        }
 
-        cpEntries.add(cpEntry);
-        return cpEntries.size() - 1;
+    public int addCPEntry(CPEntry cpEntry) {
+        int size = cpEntries.size();
+        Integer position = cpEntriesMap.get(cpEntry);
+        if (position == null) {
+            cpEntries.add(cpEntry);
+            cpEntriesMap.put(cpEntry, size);
+            return size;
+        }
+        return position;
     }
+
+//    public int addCPEntry(CPEntry cpEntry) {
+//        int i = cpEntries.indexOf(cpEntry);
+//        if (i >= 0) {
+//            return i;
+//        }
+//
+//        cpEntries.add(cpEntry);
+//        return cpEntries.size() - 1;
+//    }
 
     public int addShapeCPEntry(BType shape) {
         CPEntry.ShapeCPEntry shapeCPEntry = new CPEntry.ShapeCPEntry(shape);
