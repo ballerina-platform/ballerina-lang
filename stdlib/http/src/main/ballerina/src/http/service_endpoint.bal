@@ -210,7 +210,7 @@ public type ListenerAuth record {|
 # + certValidation - Certificate validation against CRL or OCSP related options
 # + ciphers - List of ciphers to be used (e.g.: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 #             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
-# + sslVerifyClient - The type of client certificate verification
+# + sslVerifyClient - The type of client certificate verification. (e.g.: "require" or "optional")
 # + shareSession - Enable/disable new SSL session creation
 # + handshakeTimeoutInSeconds - SSL handshake time out
 # + sessionTimeoutInSeconds - SSL session time out
