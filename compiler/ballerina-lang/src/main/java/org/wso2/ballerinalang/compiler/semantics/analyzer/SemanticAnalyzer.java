@@ -1353,6 +1353,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 errorVariable.restDetail.type = restType;
                 errorVariable.restDetail.accept(this);
             }
+
+            if (!errorVariable.reason.name.value.equals(Names.IGNORE.value)
+                    && !errorVariable.reasonVarPrefixAvailable
+                    && errorVariable.reasonMatchConst == null
+                    && errorVariable.isInMatchStmt) {
+
+                BSymbol reasonConst = symResolver.lookupSymbol(
+                        this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
+                if (reasonConst == symTable.notFoundSymbol) {
+                    dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
+                            errorVariable.reason.name);
+                } else {
+                    dlog.error(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
+                }
+                return false;
+            }
             return true;
 
         } else if (errorType.detailType.getKind() == TypeKind.UNION) {

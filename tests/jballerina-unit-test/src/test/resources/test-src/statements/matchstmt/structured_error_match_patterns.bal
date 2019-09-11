@@ -329,14 +329,13 @@ function testErrorConstReasonMatchPattern() returns string {
 
 
 type ER error<string, ErrorData>;
-
 function testIndirectErrorMatchPattern() returns string {
     ER err1 = error("Error Code", message = "Msg");
     match err1 {
         ER ( message = m, ...var rest) => {
             return <string>m;
         }
-        error(reason, ...var rest) => {
+        error(var reason, ...var rest) => {
             return reason;
         }
     }
