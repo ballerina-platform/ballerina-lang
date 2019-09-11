@@ -85,11 +85,15 @@ public type Error ParserError|EncodeError|DecodeError|GenericMimeError|SetHeader
                 |ReadingHeaderFailed|InvalidContentTypeError|HeaderUnavailableError|IdleTimeoutTriggeredError;
 
 # Constructs an `EncodeError` with the given details.
+# + detail - error details
+# + return - `EncodeError` with the given details set to message
 public function prepareEncodingErrorWithDetail(string detail) returns EncodeError {
     return error(ENCODE_ERROR, message = detail);
 }
 
 # Constructs a `DecodeError` with the given details.
+# + detail - error details
+# + return - `DecodeError` with the given details set to message
 public function prepareDecodingErrorWithDetail(string detail) returns DecodeError {
     return error(DECODE_ERROR, message = detail);
 }
