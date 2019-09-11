@@ -48,8 +48,10 @@ import ballerina/jwt;
 import ballerina/time;
 
 public function main() {
-    crypto:KeyStore keyStore = { path: "${ballerina.home}/bre/security/ballerinaKeystore.p12", 
-                                 password: "ballerina" };
+    crypto:KeyStore keyStore = { 
+        path: "${ballerina.home}/bre/security/ballerinaKeystore.p12", 
+        password: "ballerina"
+    };
     jwt:JwtKeyStoreConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
@@ -78,8 +80,10 @@ import ballerina/crypto;
 import ballerina/jwt;
 
 public function main() {
-    crypto:TrustStore trustStore = { path: "${ballerina.home}/bre/security/ballerinaTruststore.p12", 
-                                     password: "ballerina" };
+    crypto:TrustStore trustStore = {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12", 
+        password: "ballerina"
+    };
     jwt:JwtValidatorConfig config = {
         issuer: "wso2",
         audience: "ballerina",
