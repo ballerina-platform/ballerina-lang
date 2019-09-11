@@ -59,7 +59,7 @@ public type ClientConfiguration record {|
 #                 is 600000 (10 minutes) and it can be changed through the configuration API with the key
 #                 `b7a.jdbc.pool.idleTimeoutInMillis`. The minimum allowed value is 10000ms (10 seconds).
 #                 This setting only applies when minimumIdle is defined to be less than maximumPoolSize.
-# + minimumIdle - The minimum number of idle connections that pool tries to maintain in the pool. Default is same as
+# + minimumIdle - The minimum number of idle connections that pool tries to maintain in the pool. Default is the same as
 #                 maximumPoolSize and it can be changed through the configuration API with the key
 #                 `b7a.jdbc.pool.minimumIdle`.
 # + maxLifetimeInMillis - The maximum lifetime of a connection in the pool. Default value is 1800000 (30 minutes)
@@ -100,7 +100,7 @@ public type GlobalPoolConfigContainer object {
 };
 
 // This is an instance of GlobalPoolConfigContainer object type. The __init functions of database clients pass
-// poolConfig member of this instance to the extern client creation logic in order to access the internal map
+// poolConfig member of this instance to the external client creation logic in order to access the internal map
 // of connection pools.
 final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 
@@ -188,7 +188,7 @@ public const DIRECTION_IN = "IN";
 public const DIRECTION_OUT = "OUT";
 public const DIRECTION_INOUT = "INOUT";
 
-# Parameter represents a parameter for the SQL remote functions when a variable parameter needs to be passed to the remote function.
+# `Parameter` represents a parameter for the SQL remote functions when a variable parameter needs to be passed to the remote function.
 #
 # + sqlType - The data type of the corresponding SQL parameter
 # + value - Value of paramter passed into the SQL statement
@@ -202,7 +202,7 @@ public type Parameter record {|
     typedesc<record{}> recordType?;
 |};
 
-# UpdateResult represents the output of the `update` remote function.
+# `UpdateResult` represents the output of the `update` remote function.
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 # + generatedKeys - A map of auto generated key values during the sql statement execution
@@ -211,7 +211,7 @@ public type UpdateResult record {|
     map<anydata> generatedKeys;
 |};
 
-# BatchUpdateResult represents the output of the `batchUpdate` remote function.
+# `BatchUpdateResult` represents the output of the `batchUpdate` remote function.
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 #            A number greater than or equal to zero - indicates that the command was processed successfully
@@ -219,7 +219,7 @@ public type UpdateResult record {|
 #            A value of -2 - Indicates that the command was processed successfully but that the number of rows
 #                            affected is unknown
 #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
-#                            continues to process commands after a command fails
+#                            continues to process remaining commands after a command fails
 # + generatedKeys - A map of auto generated key values during the batch update execution
 # + returnedError - The `Error` returned from the remote function in case of a failure
 public type BatchUpdateResult record {|
