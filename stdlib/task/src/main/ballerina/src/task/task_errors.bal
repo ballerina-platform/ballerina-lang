@@ -35,6 +35,6 @@ public const LISTENER_ERROR_REASON = "{ballerina/task}ListenerError";
 # Errors occurred in `task:Listener` object functions.
 public type ListenerError error<LISTENER_ERROR_REASON, Detail>;
 
-# Union error type of ballerina/task module. This error type represents any error that can occur during the execution of
-# task APIs.
+# Represents Union error type of ballerina/task module. This error type represents any error that can occur during the
+# execution of task APIs.
 public type Error SchedulerError|ListenerError;
