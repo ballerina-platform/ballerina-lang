@@ -84,14 +84,6 @@ public class CopyNativeLibTask implements Task {
         }
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         copyImportedJars(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath);
-        if (buildContext.getSourceType() == SINGLE_BAL_FILE) {
-            return;
-        }
-        // Iterate through module  balo
-        for (BLangPackage module : moduleBirMap) {
-            Path baloAbsolutePath = buildContext.getBaloFromTarget(module.packageID);
-            copyLibsFromBalo(baloAbsolutePath.toString(), tmpDir.toString());
-        }
     }
 
     private void copyImportedJars(BuildContext buildContext, List<BLangPackage> moduleBirMap,
@@ -161,7 +153,7 @@ public class CopyNativeLibTask implements Task {
                 if (file.getName().contains(BALO_PLATFORM_LIB_DIR_NAME)) {
                     File f = new File(destFile + File.separator +
                                               file.getName().split(BALO_PLATFORM_LIB_DIR_NAME)[1]);
-                    if (file.isDirectory()) { // if its a directory, ignore
+                    if (f.exists() || file.isDirectory()) { // if file already copied or its a directory, ignore
                         continue;
                     }
                     // get the input stream
