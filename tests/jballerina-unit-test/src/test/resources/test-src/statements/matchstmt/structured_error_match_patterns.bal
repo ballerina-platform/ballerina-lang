@@ -341,3 +341,16 @@ function testIndirectErrorMatchPattern() returns string {
     }
     return "Default";
 }
+
+public function testErrorMatchWihtoutReason() returns string {
+    string|error se = error("test reason", message="error detail message");
+
+    match se {
+        error(message = message) => {
+            return <string>message;
+        }
+        var value => {
+            return "default match";
+        }
+    }
+}

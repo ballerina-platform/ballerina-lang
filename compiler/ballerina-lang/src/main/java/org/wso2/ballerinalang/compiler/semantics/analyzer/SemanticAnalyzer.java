@@ -581,7 +581,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateWorkerAnnAttachments(varNode.expr);
 
-        if (varNode.name.value.equals(Names.IGNORE.value)) {
+        if (varNode.name.value.equals(Names.IGNORE.value) || varNode.name.value.equals("")) {
             // Fake symbol to prevent runtime failures down the line.
             varNode.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID, symTable.anyType, env.scope.owner);
         }
@@ -1354,7 +1354,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 errorVariable.restDetail.accept(this);
             }
 
-            if (!errorVariable.reason.name.value.equals(Names.IGNORE.value)
+            if (isNotIgnoredOrNotSpecified(errorVariable)
                     && !errorVariable.reasonVarPrefixAvailable
                     && errorVariable.reasonMatchConst == null
                     && errorVariable.isInMatchStmt) {
@@ -1385,6 +1385,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             errorVariable.restDetail.accept(this);
         }
         return true;
+    }
+
+    private boolean isNotIgnoredOrNotSpecified(BLangErrorVariable errorVariable) {
+        String value = errorVariable.reason.name.value;
+        return !(value.equals(Names.IGNORE.value) || value.equals(""));
     }
 
     private boolean isRestDetailBindingAvailable(BLangErrorVariable errorVariable) {

@@ -211,4 +211,10 @@ public class MatchStructuredErrorPatternsTest {
                 "invalid error reason binding pattern, error reason should be 'var reason'", 36, 15);
         Assert.assertEquals(result.getErrorCount(), 2);
     }
+
+    @Test()
+    public void testErrorMatchWihtoutReason() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorMatchWihtoutReason");
+        Assert.assertEquals(returns[0].stringValue(), "error detail message");
+    }
 }
