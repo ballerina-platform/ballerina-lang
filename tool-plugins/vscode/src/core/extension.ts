@@ -451,7 +451,7 @@ export class BallerinaExtension {
         };
     }
 
-    private overrideBallerinaHome(): boolean {
+    public overrideBallerinaHome(): boolean {
         return <boolean>workspace.getConfiguration().get(OVERRIDE_BALLERINA_HOME);
     }
 
