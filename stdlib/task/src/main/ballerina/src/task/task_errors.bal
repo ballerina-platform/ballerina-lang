@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Record type to hold details of task errors.
+# Record type to hold the details of a task error.
 #
 # + message - Specific error message of the error
 # + cause - If there is another error which caused this particular error, the causing error will be stored here
@@ -23,15 +23,18 @@ public type Detail record {
     error cause?;
 };
 
+# Error reason type for the `task:SchedulerError` type.
 public const SCHEDULER_ERROR_REASON = "{ballerina/task}SchedulerError";
 
-# Errors occurred in task:Scheduler functions.
+# Error occurred in `task:Scheduler` object functions.
 public type SchedulerError error<SCHEDULER_ERROR_REASON, Detail>;
 
+# Error reason type for the `task:ListenerError` type.
 public const LISTENER_ERROR_REASON = "{ballerina/task}ListenerError";
 
-# Errors occurred in task:Listener functions.
+# Errors occurred in `task:Listener` object functions.
 public type ListenerError error<LISTENER_ERROR_REASON, Detail>;
 
-# Union error type of ballerina/task module.
-public type TaskError SchedulerError|ListenerError;
+# Union error type of ballerina/task module. This error type represents any error that can occur during the execution of
+# task APIs.
+public type Error SchedulerError|ListenerError;
