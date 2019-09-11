@@ -51,7 +51,6 @@ public function main() {
         runtime:sleep(2000);
     }
 
-    // Additional sleep to finish the onTrigger function.
     runtime:sleep(1000);
 
     // Cancels the timer. This will stop the timer and all the services
