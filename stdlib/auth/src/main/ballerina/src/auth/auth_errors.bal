@@ -19,5 +19,8 @@ type Detail record {
     error cause?;
 };
 
+# Represents the Auth error code.
 public const AUTH_ERROR = "{ballerina/auth}Error";
+
+# Represents the Auth error type with details.
 public type Error error<AUTH_ERROR, Detail>;
