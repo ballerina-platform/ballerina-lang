@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Detail record {
+type Detail record {
     string message;
     error cause?;
 };
