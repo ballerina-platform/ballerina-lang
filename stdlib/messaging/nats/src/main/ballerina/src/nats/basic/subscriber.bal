@@ -20,13 +20,13 @@ import ballerina/lang.'object as lang;
 public type Listener object {
 
     *lang:Listener;
-    private Connection connection;
+    private Connection conn;
 
-    # Creates a new consumer. A new connection will be created if a refernece to a connection is not provided.
+    # Creates a new consumer. A new connection will be created if a reference to a connection is not provided.
     #
-    # + c - An already-established connection or configuration to create a new connection.
-    public function __init(Connection c) {
-        self.connection = c;
+    # + connection - An already-established connection or configuration to create a new connection.
+    public function __init(Connection connection) {
+        self.conn = connection;
         self.init(c);
     }
 
@@ -46,7 +46,7 @@ public type Listener object {
 
     function register(service serviceType, string? name) returns error? = external;
 
-    # Starts the listener in the lifecyle.
+    # Starts the listener in the lifecycle.
     #
     # + return - Error or ().
     public function __start() returns error? {
@@ -55,13 +55,16 @@ public type Listener object {
 
     function start() = external;
 
+    # Gracefully stops the listener in the lifecycle.
+    #
+    # + return - Error or ().
     public function __gracefulStop() returns error? {
         return self.gracefulStop();
     }
 
-    # Stops the listener in the lifecyle.
+    # Forcefully stops the listener in the lifecycle.
     #
-    # + return - error or ().
+    # + return - Error or ().
     public function __immediateStop() returns error? {
         return self.immediateStop();
     }

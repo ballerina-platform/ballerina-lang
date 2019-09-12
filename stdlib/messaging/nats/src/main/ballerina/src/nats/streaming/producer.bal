@@ -14,27 +14,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# NATS `StreamingProducer` would act as a client allowing to publish messages to the
+# NATS streaming server. `StreamingProducer` needs the NATS `Connection` to be initialized.
 public type StreamingProducer client object {
-    Connection? connection;
+    private Connection? conn;
 
-    public function __init(Connection conn, public string? clientId = (), public string clusterId = "test-cluster",
+    # Creates a new NATS `StreamingProducer`.
+    #
+    # + connection - An established NATS connection.
+    # + clientId - A unique identifier representing the client.
+    # + clusterId - The ID of the cluster configured in the NATS server.
+    # + streamingConfig - The configuration related to the NATS streaming connectivity.
+    public function __init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
     public StreamingConfig? streamingConfig = ()) {
-        self.connection = conn;
-        createStreamingConnection(self, conn, clusterId, clientId, streamingConfig);
+        self.conn = connection;
+        createStreamingConnection(self, connection, clusterId, clientId, streamingConfig);
     }
 
     # Publishes data to a given subject.
     #
-    # + subject - NATS subject to publish data 
-    # + data - data to publish
+    # + subject - The subject to send the message to.
+    # + data - Data to publish.
     # + return - `string` value representing the NUID (NATS Unique Identifier) of the published message, if the
-    #           message gets successfully published and acknowedged by the NATS server OR
-    #           `nats/Error` with `nuid` and `message` fields in case an error occurs in publishing, the timeout
+    #           message gets successfully published and acknowledged by the NATS server OR
+    #           `nats/Error` with NUID and `message` fields in case an error occurs in publishing, the timeout
     #           elapses while waiting for the acknowledgement OR
-    #           `nats/Error` only with the `message` field in case an error occurrs even before publishing
+    #           `nats/Error` only with the `message` field in case an error occurs even before publishing
     #           is completed
     public remote function publish(string subject, @untainted Content data) returns string | Error {
-        if (self.connection is ()) {
+        if (self.conn is ()) {
             return Error(message = "NATS Streaming Client has been closed.");
         }
         string | byte[] | error converted = convertData(data);
@@ -49,7 +57,7 @@ public type StreamingProducer client object {
 
     # Close the producer.
     #
-    # + return - Retruns () or the error if unable to complete the close operation.
+    # + return - Returns () or the error if unable to complete the close operation.
     public function close() returns error? {
         if (self.connection is Connection) {
             Connection? natsConnection = self.connection;
