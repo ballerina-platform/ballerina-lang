@@ -1370,7 +1370,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // todo: remote below
             // add useless code to get build re-triggered.
             int j = 0;
-            for(int i = 0; i < 100; i++) {
+            for (int i = 0; i < 100; i++) {
                 j += i;
             }if (isRestDetailBindingAvailable(errorVariable)) {
             BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE);
