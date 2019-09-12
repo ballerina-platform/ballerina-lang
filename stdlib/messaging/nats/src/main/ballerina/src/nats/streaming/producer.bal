@@ -59,9 +59,9 @@ public type StreamingProducer client object {
     #
     # + return - Returns () or the error if unable to complete the close operation.
     public function close() returns error? {
-        if (self.connection is Connection) {
-            Connection? natsConnection = self.connection;
-            self.connection = ();
+        if (self.conn is Connection) {
+            Connection? natsConnection = self.conn;
+            self.conn = ();
             return detachFromNatsConnection(self, natsConnection);
         }
     }

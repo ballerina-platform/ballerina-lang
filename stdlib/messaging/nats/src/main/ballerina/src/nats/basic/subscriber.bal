@@ -27,7 +27,7 @@ public type Listener object {
     # + connection - An already-established connection or configuration to create a new connection.
     public function __init(Connection connection) {
         self.conn = connection;
-        self.init(c);
+        self.init(connection);
     }
 
     private function init(Connection c) = external;
