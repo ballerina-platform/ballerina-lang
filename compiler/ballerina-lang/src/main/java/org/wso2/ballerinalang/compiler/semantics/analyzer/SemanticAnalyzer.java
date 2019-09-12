@@ -467,7 +467,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType detailType = errorType.detailType.type;
         if (!types.isValidErrorDetailType(detailType)) {
-            dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, errorType.detailType,
+            dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, detailType,
                     symTable.detailType);
         }
     }
@@ -1367,7 +1367,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (isRestDetailBindingAvailable(errorVariable)) {
+        // todo: remote below
+            // add useless code to get build re-triggered.
+            int j = 0;
+            for(int i = 0; i < 100; i++) {
+                j += i;
+            }if (isRestDetailBindingAvailable(errorVariable)) {
             BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE);
             BMapType restType = new BMapType(TypeTags.MAP, recordType.restFieldType, typeSymbol);
             typeSymbol.type = restType;
