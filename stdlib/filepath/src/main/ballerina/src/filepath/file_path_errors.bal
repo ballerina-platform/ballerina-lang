@@ -55,7 +55,7 @@ public type InvalidPatternError error<INVALID_PATTERN_ERROR, Detail>;
 
 # Identifies relative path error.
 public const RELATIVE_PATH_ERROR = "{ballerina/filepath}RelativePathError";
-# Represents error occur when the given target filepath cannot be made relative to the base filepath.
+# Represents an error that occurs when the given target filepath cannot be derived relative to the base filepath.
 public type RelativePathError error<RELATIVE_PATH_ERROR, Detail>;
 
 # Identifies unc path error.
