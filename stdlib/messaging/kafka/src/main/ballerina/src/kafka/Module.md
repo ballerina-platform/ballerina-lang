@@ -73,37 +73,4 @@ function main () {
 }
 ```
 
-Please find the producer configuration parameters below:
-
-| Parameter | Description  |
-| :---   | :- |
-| bootstrapServers | List of remote server endpoints of Kafka brokers. |
-| acks | Number of acknowledgments. |
-| compressionType | Compression type to be used for messages. |
-| clientId | Identifier to be used for server side logging. |
-| metricsRecordingLevel | Metrics recording level. |
-| metricReporterClasses | Metrics reporter classes. |
-| partitionerClass | Partitioner class to be used to select partition to which the message is sent. |
-| interceptorClasses | Interceptor classes to be used before sending records. |
-| transactionalId | Transactional ID to be used in transactional delivery. |
-| bufferMemory | Total bytes of memory the producer can use to buffer records. |
-| noRetries | Number of retries to resend a record. |
-| batchSize | Number of records to be batched for a single request. Use 0 for no batching. |
-| linger | Delay to allow other records to be batched. |
-| sendBuffer | Size of the TCP send buffer (SO_SNDBUF). |
-| receiveBuffer | Size of the TCP receive buffer (SO_RCVBUF). |
-| maxRequestSize | The maximum size of a request in bytes. |
-| reconnectBackoffTimeInMillis | Time to wait before attempting to reconnect. |
-| reconnectBackoffMaxTimeInMillis | Maximum amount of time in milliseconds to wait when reconnecting. |
-| retryBackoffTimeInMillis | Time to wait before attempting to retry a failed request. |
-| maxBlock | Maximum block time which the send is blocked, when the buffer is full. |
-| requestTimeoutInMillis | Wait time for response of a request. |
-| metadataMaxAgeInMillis | Maximum time to force a refresh of metadata. |
-| metricsSampleWindowInMillis | Time window for a metrics sample to computed over. |
-| metricsNumSamples | Number of samples maintained to compute metrics. |
-| maxInFlightRequestsPerConnection | Maximum number of unacknowledged requests on a single connection. |
-| connectionsMaxIdleTimeInMillis | Close idle connections after the number of milliseconds. |
-| transactionTimeoutInMillis | Timeout for transaction status update from the producer. |
-| enableIdempotence | Exactly one copy of each message is written in the stream when enabled. |
-
 >**Note:** The default thread pool size used in Ballerina is number of processers available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
