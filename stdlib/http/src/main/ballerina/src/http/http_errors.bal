@@ -48,7 +48,7 @@ public type AllLoadBalanceEndpointsFailedError error<ALL_LOAD_BALANCE_ENDPOINTS_
 
 # Error reason for all the the retry attempts failure
 public const ALL_RETRY_ATTEMPTS_FAILED = "{ballerina/http}AllRetryAttemptsFailed";
-# Represents a client error that occurred due to all the the retry attempts failure
+# Represents a client error that occurred due to the failure of all the retry attempts
 public type AllRetryAttemptsFailed error<ALL_RETRY_ATTEMPTS_FAILED, Detail>;
 
 # Error reason for request/response idle timeout
