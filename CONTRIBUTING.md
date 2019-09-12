@@ -78,8 +78,14 @@ Building Ballerina requires a Java SE Development Kit (JDK) version 8 to be inst
 Clone this repository using the following command.
 
 ```
-git clone --recursive https://github.com/ballerinalang/ballerina
+git clone --recursive https://github.com/ballerina-platform/ballerina-lang.git
 ```
+
+If you have forked the repository to your github account then use the following command replacing <YOUR-GITHUB-USERNAME> with your git username.
+
+````
+git clone --recursive https://github.com/<YOUR-GITHUB-USERNAME>/ballerina-lang.git
+````
 
 If you download the sources, you need to update the git submodules using the following command.
 
