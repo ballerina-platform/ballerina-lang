@@ -221,7 +221,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         }
 
         serverPipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
-                               new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId,
+                               new WebSocketServerHandshakeHandler(this.serverConnectorFuture,
                                                                    webSocketCompressionEnabled));
         serverPipeline.addLast(Constants.BACK_PRESSURE_HANDLER, new BackPressureHandler());
         serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
@@ -431,7 +431,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                     cause = cause.getCause();
                 }
             }
-            LOG.warn("{} TLS handshake failed:", ctx.channel(), cause.getMessage());
+            LOG.warn("{} TLS handshake failed: {}", ctx.channel(), cause.getMessage());
         }
     }
 

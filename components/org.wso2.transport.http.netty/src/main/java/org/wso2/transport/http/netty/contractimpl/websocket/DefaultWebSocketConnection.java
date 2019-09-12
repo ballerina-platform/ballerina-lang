@@ -175,10 +175,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     }
 
     private ChannelFuture initiateConnectionClosure(CloseWebSocketFrame closeWebSocketFrame) {
-        if (closeFrameSent) {
-            throw new IllegalStateException("Close frame already sent. Cannot send close frame again.");
-        }
-        closeFrameSent = true;
+        handleCloseFrameSent();
         closeInitiatedStatusCode = closeWebSocketFrame.statusCode();
         closeInitiatedStatusCode = closeInitiatedStatusCode == -1 ? 1005 : closeInitiatedStatusCode;
         ChannelPromise closePromise = ctx.newPromise();
@@ -226,10 +223,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture terminateConnection(int statusCode, String reason) {
-        if (closeFrameSent) {
-            throw new IllegalStateException("Close frame already sent. Cannot send close frame again.");
-        }
-        closeFrameSent = true;
+        handleCloseFrameSent();
         ChannelPromise closePromise = ctx.newPromise();
         ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(writeFuture -> {
             frameHandler.setCloseInitialized(true);
@@ -252,6 +246,12 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         return closePromise;
     }
 
+    private void handleCloseFrameSent() {
+        if (closeFrameSent) {
+            throw new IllegalStateException("Close frame already sent. Cannot send close frame again.");
+        }
+        closeFrameSent = true;
+    }
     int getCloseInitiatedStatusCode() {
         return this.closeInitiatedStatusCode;
     }

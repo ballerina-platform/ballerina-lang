@@ -181,11 +181,11 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
+    // WebSocket constants
     public static final String HTTP_OBJECT_AGGREGATOR = "HTTP_OBJECT_AGGREGATOR";
     public static final String WEBSOCKET_COMPRESSION_HANDLER = "websocket-compression-handler";
     public static final String WS_SCHEME = "ws";
     public static final String WSS_SCHEME = "wss";
-    public static final String WEBSOCKET_UPGRADE = "websocket";
     public static final String WEBSOCKET_FRAME_HANDLER = "WEBSOCKET_FRAME_HANDLER";
     public static final String MESSAGE_QUEUE_HANDLER = "MESSAGE_QUEUE_HANDLER";
     public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
@@ -195,6 +195,10 @@ public final class Constants {
     public static final int WEBSOCKET_STATUS_CODE_INVALD_DATA = 1007;
     public static final int WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION = 1011;
     public static final int WEBSOCKET_REQUEST_SIZE = 8192;
+    public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
+    public static final String WEBSOCKET_CLIENT_HANDSHAKE_HANDLER = "websocket-client-handshake-handler";
+    public static final int WEBSOCKET_DEFAULT_FRAME_SIZE = 65536;
+
 
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
@@ -244,8 +248,6 @@ public final class Constants {
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
     public static final String HTTP_ACCESS_LOG_HANDLER = "http-access-logger";
-    public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
-    public static final String WEBSOCKET_CLIENT_HANDSHAKE_HANDLER = "websocket-client-handshake-handler";
     public static final String HTTP_EXCEPTION_HANDLER = "HttpExceptionHandler";
     public static final String HTTP2_EXCEPTION_HANDLER = "Http2ExceptionHandler";
 
@@ -274,7 +276,7 @@ public final class Constants {
             .valueOf("PIPELINING_EXECUTOR");
 
     public static final AttributeKey<String> MUTUAL_SSL_RESULT_ATTRIBUTE = AttributeKey
-            .valueOf("MUTUAL_SSL_HANDSHAKE_RESULT");
+            .valueOf(MUTUAL_SSL_HANDSHAKE_RESULT);
 
     public static final long EXPECTED_SEQUENCE_NUMBER = 1L;
     public static final int NUMBER_OF_INITIAL_EVENTS_HELD = 3;
