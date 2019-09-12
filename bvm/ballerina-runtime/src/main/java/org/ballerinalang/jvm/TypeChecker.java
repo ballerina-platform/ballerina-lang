@@ -1251,11 +1251,16 @@ public class TypeChecker {
             return true;
         }
 
+        if (type.isAnydata != null) {
+            return type.isAnydata;
+        }
+
         switch (type.getTag()) {
             case TypeTags.MAP_TAG:
                 return isPureType(((BMapType) type).getConstrainedType(), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 if (unresolvedTypes.contains(type)) {
+                    type.isAnydata = true;
                     return true;
                 }
                 unresolvedTypes.add(type);
@@ -1263,24 +1268,34 @@ public class TypeChecker {
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.getFields().values()) {
                     if (!isPureType(field.getFieldType(), unresolvedTypes)) {
+                        type.isAnydata = false;
                         return false;
                     }
                 }
                 return (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION_TAG:
-                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
+                boolean isAnydataU = isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
+                type.isAnydata = isAnydataU;
+                return isAnydataU;
             case TypeTags.TUPLE_TAG:
-                return isPureType(((BTupleType) type).getTupleTypes(), unresolvedTypes);
+                boolean isAnydataTup = isPureType(((BTupleType) type).getTupleTypes(), unresolvedTypes);
+                type.isAnydata = isAnydataTup;
+                return isAnydataTup;
             case TypeTags.ARRAY_TAG:
-                return isPureType(((BArrayType) type).getElementType(), unresolvedTypes);
+                boolean isAnydataAr = isPureType(((BArrayType) type).getElementType(), unresolvedTypes);
+                type.isAnydata = isAnydataAr;
+                return isAnydataAr;
             case TypeTags.FINITE_TYPE_TAG:
                 for (Object value : ((BFiniteType) type).valueSpace) {
                     if (!isAnydata(TypeChecker.getType(value))) {
+                        type.isAnydata = false;
                         return false;
                     }
                 }
+                type.isAnydata = true;
                 return true;
             default:
+                type.isAnydata = false;
                 return false;
         }
     }

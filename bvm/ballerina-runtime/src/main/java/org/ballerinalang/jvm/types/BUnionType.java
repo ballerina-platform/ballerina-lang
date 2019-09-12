@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.types;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -112,7 +113,13 @@ public class BUnionType extends BType {
             return false;
         }
         BUnionType that = (BUnionType) o;
-        return memberTypes.containsAll(that.memberTypes) && that.memberTypes.containsAll(memberTypes);
+        if (that.memberTypes.size() != memberTypes.size()) {
+            return false;
+        }
+
+        HashSet<BType> memberSet = new HashSet<>(memberTypes);
+        memberSet.removeAll(that.memberTypes);
+        return memberSet.isEmpty();
     }
 
     @Override
