@@ -43,7 +43,7 @@ public type UpstreamServiceUnavailableError error<UPSTREAM_SERVICE_UNAVAILABLE, 
 
 # Error reason for all the load balance endpoint failure
 public const ALL_LOAD_BALANCE_ENDPOINTS_FAILED = "{ballerina/http}AllLoadBalanceEndpointsFailed";
-# Represents a client error that occurred due to all the load balance endpoint failure
+# Represents a client error that occurred due to the failure of all the load balance endpoints
 public type AllLoadBalanceEndpointsFailedError error<ALL_LOAD_BALANCE_ENDPOINTS_FAILED, Detail>;
 
 # Error reason for all the the retry attempts failure
