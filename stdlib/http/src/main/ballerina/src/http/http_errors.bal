@@ -28,7 +28,7 @@ public type Detail record {
 // Resiliency errors
 # Error reason for all the failover endpoints failure
 public const FAILOVER_ALL_ENDPOINTS_FAILED = "{ballerina/http}FailoverAllEndpointsFailed";
-# Represents a client error that occurred due to all the failover endpoints failure
+# Represents a client error that occurred due to the failure of all the failover endpoints
 public type FailoverAllEndpointsFailedError error<FAILOVER_ALL_ENDPOINTS_FAILED, Detail>;
 
 # Error reason for failover client action failure
