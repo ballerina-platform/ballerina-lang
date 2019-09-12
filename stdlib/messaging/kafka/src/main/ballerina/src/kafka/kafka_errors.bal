@@ -14,6 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represents the details of an error.
+#
+# + message - The error message.
+# + cause - Cause of the error.
 public type Detail record {
     string message;
     error cause?;

@@ -18,7 +18,7 @@
 #
 # + message - The error message.
 # + cause - Cause of the error.
-public type Detail record {
+type Detail record {
     string message?;
     error cause?;
 };
