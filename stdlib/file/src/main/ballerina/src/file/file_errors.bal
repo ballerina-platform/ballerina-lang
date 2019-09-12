@@ -26,22 +26,22 @@ type Detail record {
 # Identifies invalid operation error.
 public const INVALID_OPERATION_ERROR = "{ballerina/file}InvalidOperationError";
 
-# Represents error occur when a file system operation is denied, due to invaild operation.
+# Represents an error that occurs when a file system operation is denied due to invalidity.
 public type InvalidOperationError error<INVALID_OPERATION_ERROR, Detail>;
 
 # Identifies permission error.
 public const PERMISSION_ERROR = "{ballerina/file}PermissionError";
-# Represents error occur when a file system operation is denied, due to file permission.
+# Represents an error that occurs when a file system operation is denied, due to the absence of file permission.
 public type PermissionError error<PERMISSION_ERROR, Detail>;
 
 # Identifies file system error.
 public const FILE_SYSTEM_ERROR = "{ballerina/file}FileSystemError";
-# Represents error occur when file system operation is failed.
+# Represents an error that occurs when a file system operation fails.
 public type FileSystemError error<FILE_SYSTEM_ERROR, Detail>;
 
 # Identifies file not found error.
 public const FILE_NOT_FOUND_ERROR = "{ballerina/file}FileNotFoundError";
-# Represents error occur when the file/directory does not exist at the given filepath.
+# Represents an error that occurs when the file/directory does not exist at the given filepath.
 public type FileNotFoundError error<FILE_NOT_FOUND_ERROR, Detail>;
 
 # Represents file system related errors.
