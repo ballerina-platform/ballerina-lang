@@ -213,6 +213,36 @@ function testConnectionFailure(string jdbcURL) {
 
 }
 
+function testInvalidJdbcUrl1() {
+    jdbc:Client testDB = new ({
+        url: "",
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 1},
+        dbOptions: {"IFEXISTS": true}
+    });
+}
+
+function testInvalidJdbcUrl2() {
+    jdbc:Client testDB = new ({
+        url: "localhost:3306/testdb",
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 1},
+        dbOptions: {"IFEXISTS": true}
+    });
+}
+
+function testInvalidJdbcUrl3() {
+    jdbc:Client testDB = new ({
+        url: "jdbc://dbhost.com/testdb",
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 1},
+        dbOptions: {"IFEXISTS": true}
+    });
+}
+
 function getJsonConversionResult(table<record {}> | error tableOrError) returns json {
     json retVal;
     if (tableOrError is table<record {}>) {

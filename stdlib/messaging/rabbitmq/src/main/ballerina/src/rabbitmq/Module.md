@@ -103,3 +103,4 @@ service rabbitmqConsumer on channelListener {
     }
 }
 ```
+>**Note:** The default thread pool size used in Ballerina is number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.

@@ -19,7 +19,7 @@ function testFunc() {
     // Invoking the main function
     main();
 
-    xml xml1 = xml `<Store id="AST"><name>Anne</name><address><street>Main</street><city>94</city></address><codes><item>4</item><item>8</item></codes></Store>`;
+    xml xml1 = xml `<Store id="AST"><name>Anne</name><address><street>Main</street><city>94</city></address><codes><root>4</root><root>8</root></codes></Store>`;
     xml xml2 = xml `<Store id="AST"><name>Anne</name><address><street>Main</street><city>94</city></address><codes><wrapper>4</wrapper><wrapper>8</wrapper></codes></Store>`;
 
     test:assertEquals(outputs[0], xml1);

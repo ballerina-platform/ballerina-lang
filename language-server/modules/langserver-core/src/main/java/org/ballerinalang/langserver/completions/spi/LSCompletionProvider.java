@@ -482,6 +482,11 @@ public abstract class LSCompletionProvider {
         }
         
         if (bSymbol instanceof BRecordTypeSymbol) {
+            if (invocationType > -1) {
+                Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
+                        SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
+                return this.getCompletionItemList(filteredList, context);
+            }
             return getVarDefCompletions(context);
         }
         if (!(bSymbol instanceof BObjectTypeSymbol)) {
@@ -649,8 +654,7 @@ public abstract class LSCompletionProvider {
         return visibleSymbols.stream()
                 .filter(symbolInfo -> {
                     BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-                    String[] nameComps = symbol.getName().value.split("\\.");
-                    return symbol instanceof BPackageSymbol && alias.equals(nameComps[nameComps.length - 1]);
+                    return symbol instanceof BPackageSymbol && alias.equals(symbolInfo.getSymbolName());
                 })
                 .findAny();
     }
