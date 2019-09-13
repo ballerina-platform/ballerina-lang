@@ -19,8 +19,6 @@ public function main() {
     var x1 = xmlutils:fromJSON(j1);
     io:println(x1);
 
-    // Converts the JSON object to XML using a custom `attributePrefix` (i.e., the `#` character)
-    // and the custom `arrayEntryTag` (i.e., `wrapper`).
     json j2 = {
         "Store": {
             "#id": "AST",
@@ -32,6 +30,8 @@ public function main() {
             "codes": ["4", "8"]
         }
     };
+    // Converts the JSON object to XML using a custom `attributePrefix` (i.e., the `#` character)
+    // and the custom `arrayEntryTag` (i.e., `wrapper`).
     var x2 = xmlutils:fromJSON(j2, { attributePrefix: "#", arrayEntryTag: "wrapper" });
     io:println(x2);
 }
