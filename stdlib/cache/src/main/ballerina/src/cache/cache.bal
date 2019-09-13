@@ -45,7 +45,7 @@ type CacheEntry record {|
     int lastAccessedTime;
 |};
 
-# Represents a cache.
+# Represents a Ballerina `Cache` which can hold multiple entries and remove entries based on time and size.
 public type Cache object {
 
     private int capacity;
@@ -54,6 +54,11 @@ public type Cache object {
     private float evictionFactor;
     private string uuid;
 
+    # Creates a new `Cache`.
+    #
+    # + expiryTimeInMillis - Time since its last access in which the cache will be expired.
+    # + capacity - Maximum number of entries allowed.
+    # + evictionFactor - The factor which the entries will be evicted once the cache full.
     public function __init(public int expiryTimeInMillis = 900000, public int capacity = 100, public float evictionFactor = 0.25) {
 
         // Cache expiry time must be a positive value.
@@ -102,25 +107,25 @@ public type Cache object {
         }
     }
 
-    # Checks whether the given key has an accociated cache value.
+    # Checks whether the given key has an associated cache value.
     #
-    # + key - the key to be checked
-    # + return - True if the given key has an associated value, false otherwise.
-    public function hasKey(string key) returns (boolean) {
+    # + key - The key to be checked.
+    # + return - `true` if the given key has an associated value, `false` otherwise.
+    public function hasKey(string key) returns boolean {
         return self.entries.hasKey(key);
     }
 
     # Returns the size of the cache.
     #
-    # + return - The size of the cache
-    public function size() returns (int) {
+    # + return - The size of the cache.
+    public function size() returns int {
         return self.entries.length();
     }
 
     # Adds the given key, value pair to the provided cache.
     #
-    # + key - value which should be used as the key
-    # + value - value to be cached
+    # + key - Value which should be used as the key.
+    # + value - Value to be cached.
     public function put(string key, any value) {
         // We need to synchronize this process otherwise concurrency might cause issues.
          lock {
@@ -144,7 +149,7 @@ public type Cache object {
          }
     }
 
-    # Evicts the cache when cache is full.
+    # Evicts the cache when the cache is full.
     function evict() {
         int maxCapacity = self.capacity;
         float ef = self.evictionFactor;
@@ -153,7 +158,7 @@ public type Cache object {
         string[] cacheKeys = self.getLRUCacheKeys(numberOfKeysToEvict);
         // Iterate through the map and remove entries.
         foreach var c in cacheKeys {
-            // These cache values are ignred. So it is not needed to check the return value for the remove function.
+            // These cache values are ignored. So it is not needed to check the return value for the remove function.
             var tempVar = self.entries.remove(c);
         }
     }
@@ -161,8 +166,8 @@ public type Cache object {
     # Returns the cached value associated with the given key. If the provided cache key is not found,
     # () will be returned.
     #
-    # + key - key which is used to retrieve the cached value
-    # + return - The cached value associated with the given key
+    # + key - Key which is used to retrieve the cached value.
+    # + return - The cached value associated with the given key.
     public function get(string key) returns any? {
         // Check whether the requested cache is available.
         if (!self.hasKey(key)) {
@@ -174,7 +179,7 @@ public type Cache object {
         if (cacheEntry is CacheEntry) {
             // Check whether the cache entry is already expired. Since the cache cleaning task runs in predefined intervals,
             // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
-            // gurentees that the expired cache entries will not be returened.
+            // guarantees that the expired cache entries will not be returned.
             int currentSystemTime = time:currentTime().time;
             if (currentSystemTime >= cacheEntry.lastAccessedTime + self.expiryTimeInMillis) {
                 // If it is expired, remove the cache and return nil.
@@ -191,7 +196,7 @@ public type Cache object {
 
     # Removes a cached value from a cache.
     #
-    # + key - key of the cache entry which needs to be removed
+    # + key - Key of the cache entry which needs to be removed.
     public function remove(string key) {
         // Cache might already be removed by the cache clearing task. So no need to check the return value.
         if (self.entries.hasKey(key)) {
@@ -201,17 +206,17 @@ public type Cache object {
 
     # Returns all keys from current cache.
     #
-    # + return - all keys
+    # + return - Array of all keys from the current cache.
     public function keys() returns string[] {
         return self.entries.keys();
     }
 
-    # Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is
-    # full.
+    # Returns the key of the least recently used cache entry.
+    # This is used to remove entries if the cache is full.
     #
-    # + numberOfKeysToEvict - the number of keys which should be evicted
-    # + return - number of keys to be evicted
-    function getLRUCacheKeys(int numberOfKeysToEvict) returns (string[]) {
+    # + numberOfKeysToEvict - The number of keys which should be evicted.
+    # + return - Number of keys to be evicted.
+    function getLRUCacheKeys(int numberOfKeysToEvict) returns string[] {
         // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
         string[] cacheKeysToBeRemoved = [];
         int[] timestamps = [];

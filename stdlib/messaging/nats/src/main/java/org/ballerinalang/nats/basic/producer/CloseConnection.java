@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CloseConnection {
 
     public static void closeConnection(Strand strand, ObjectValue producerObject) {
-        Object connection = producerObject.get("connection");
+        Object connection = producerObject.get("conn");
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
             ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();

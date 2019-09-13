@@ -58,7 +58,7 @@ public class Request {
     @SuppressWarnings("unused")
     public static Object externRequest(Strand strand, ObjectValue producerObject, String subject, Object data,
                                        Object duration) {
-        Object connection = producerObject.get("connection");
+        Object connection = producerObject.get("conn");
 
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
