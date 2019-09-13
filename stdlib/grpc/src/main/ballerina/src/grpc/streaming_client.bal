@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Provides the gRPC actions for interacting with gRPC server.
+# Provides the gRPC streaming client actions for interacting with gRPC server.
 public type StreamingClient client object {
 
     # Sends request message to the server.
