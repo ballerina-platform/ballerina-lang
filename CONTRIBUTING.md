@@ -91,6 +91,8 @@ Run the gradle command `./gradlew clean build` from the Ballerina root directory
 
 Extract the Ballerina distribution created at `distribution/zip/ballerina/target/ballerina-<version>-SNAPSHOT.zip`. The `zip/ballerina` directory contains the runtime only. `zip/ballerina-tools/` contains the runtime and tools (e.g., Ballerina Composer).
 
+Note: It is possible to face an IOException error stating "Too many open files". This is due to the default number of possible open files being set to a lower number on your operating system than required for Ballerina to be compiled. You may have to increase the number of open files/file descriptors (FD) on your operating system. This is OS dependent and you can search the internet on how to do this for your operating system (Windows/OSX/Linux). You could update the maximum number of open files to 1000000 (or higher).
+
 ### Setting up your development environment
 
 #### Setup IntelliJ IDEA
