@@ -24,6 +24,7 @@ import ballerina/stringutils;
 import ballerina/time;
 
 # Represents JWT validator configurations.
+#
 # + issuer - Expected issuer
 # + audience - Expected audience
 # + clockSkewInSeconds - Clock skew in seconds
@@ -84,7 +85,7 @@ function getJwtComponents(string jwtToken) returns string[]|Error {
 # Decode the given JWT string.
 #
 # + jwtToken - JWT token that needs to be decoded
-# + return - The JWT header and payload tuple or an `Error` if token decoding fails.
+# + return - The JWT header and payload tuple or an `Error` if token decoding fails
 public function decodeJwt(string jwtToken) returns @tainted ([JwtHeader, JwtPayload]|Error) {
     string[] encodedJwtComponents = check getJwtComponents(jwtToken);
     map<json> headerJson;
