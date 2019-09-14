@@ -19,7 +19,7 @@ type Detail record {
     error cause?;
 };
 
-# Represents the Crypto error code.
+# Represents the Crypto error reason.
 public const CRYPTO_ERROR = "{ballerina/crypto}Error";
 
 # Represents the Crypto error type with details.
