@@ -138,13 +138,26 @@ public class BUnionType extends BType {
         }
 
         BUnionType that = (BUnionType) o;
-        if (that.memberTypes.size() != memberTypes.size()) {
+        int memberTypeCount = memberTypes.size();
+        if (that.memberTypes.size() != memberTypeCount) {
             return false;
         }
 
-        HashSet<BType> memberSet = new HashSet<>(memberTypes);
-        memberSet.removeAll(that.memberTypes);
-        return memberSet.isEmpty();
+        for (int i = 0; i < memberTypeCount; i++) {
+            BType m = memberTypes.get(i);
+            boolean found = false;
+            for (int j = 0; j < memberTypeCount; j++) {
+                BType n = that.memberTypes.get(j);
+                if (m.equals(n)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

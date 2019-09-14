@@ -73,6 +73,7 @@ public class Scheduler {
     private static int poolSize = Runtime.getRuntime().availableProcessors() * 2;
 
     private Semaphore mainBlockSem;
+    private static LogicalProcessorCount logicalProcessorCount = new LogicalProcessorCount();
 
     public Scheduler(boolean immortal) {
         try {
@@ -369,6 +370,29 @@ public class Scheduler {
     public void poison() {
         for (int i = 0; i < numThreads; i++) {
             runnableList.add(POISON_PILL);
+        }
+    }
+
+    private void infectResourceFunction(Strand strand, FutureValue futureValue) {
+        String gTransactionId = (String) strand.getProperty(GLOBAL_TRANSACTION_ID);
+        if (gTransactionId != null) {
+            String globalTransactionId = strand.getProperty(GLOBAL_TRANSACTION_ID).toString();
+            String url = strand.getProperty(TRANSACTION_URL).toString();
+            TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
+                                                                                             url, "2pc");
+            strand.setLocalTransactionContext(transactionLocalContext);
+            futureValue.transactionLocalContext = transactionLocalContext;
+        }
+    }
+
+    private static class LogicalProcessorCount {
+        private int threadCount;
+        LogicalProcessorCount() {
+            threadCount = Runtime.getRuntime().availableProcessors() * 2;
+        }
+
+        int getAllowedThreadCount() {
+            return threadCount;
         }
     }
 }
