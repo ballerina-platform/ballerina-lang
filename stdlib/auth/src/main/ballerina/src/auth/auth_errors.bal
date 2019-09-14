@@ -22,5 +22,6 @@ type Detail record {
 # Represents the Auth error code.
 public const AUTH_ERROR = "{ballerina/auth}Error";
 
-# Represents the Auth error type with details.
+# Represents the Auth error type with details. This will be returned if an error occurred while inbound auth providers
+# try to authenticate the received credentials and outbound auth providers try to generate the token.
 public type Error error<AUTH_ERROR, Detail>;
