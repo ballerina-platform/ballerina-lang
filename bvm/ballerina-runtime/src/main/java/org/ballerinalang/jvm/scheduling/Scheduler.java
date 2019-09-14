@@ -83,15 +83,16 @@ public class Scheduler {
      */
     private int numThreads;
     private Semaphore mainBlockSem;
+    private static LogicalProcessorCount logicalProcessorCount = new LogicalProcessorCount();
 
     public Scheduler(boolean immortal) {
         try {
             String poolSizeConf = System.getenv(BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
-            this.numThreads = poolSizeConf == null ?
-                    Runtime.getRuntime().availableProcessors() * 2 : Integer.parseInt(poolSizeConf);
+            this.numThreads = poolSizeConf == null
+                    ? logicalProcessorCount.getAllowedThreadCount() : Integer.parseInt(poolSizeConf);
         } catch (Throwable t) {
             // Log and continue with default
-            this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
+            logicalProcessorCount.getAllowedThreadCount();
             logger.error("Error occurred in scheduler while reading system variable:" +
                     BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR, t);
         }
@@ -441,6 +442,17 @@ public class Scheduler {
                                                                                              url, "2pc");
             strand.setLocalTransactionContext(transactionLocalContext);
             futureValue.transactionLocalContext = transactionLocalContext;
+        }
+    }
+
+    private static class LogicalProcessorCount {
+        private int threadCount;
+        LogicalProcessorCount() {
+            threadCount = Runtime.getRuntime().availableProcessors() * 2;
+        }
+
+        int getAllowedThreadCount() {
+            return threadCount;
         }
     }
 }
