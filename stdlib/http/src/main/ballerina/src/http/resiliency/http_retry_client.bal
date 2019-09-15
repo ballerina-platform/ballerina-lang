@@ -288,7 +288,7 @@ function performRetryAction(@untainted string path, Request request, HttpOperati
     initializeBackOffFactorAndMaxWaitInterval(retryClient);
     
     string message = "All the retry attempts failed.";
-    AllRetryAttemptsFailed retryFailedError = error(ALL_RETRY_ATTEMPTS_FAILED, message = message);
+    AllRetryAttemptsFailedError retryFailedError = error(ALL_RETRY_ATTEMPTS_FAILED, message = message);
     ClientError httpConnectorErr = retryFailedError;
     Request inRequest = request;
     // When performing passthrough scenarios using retry client, message needs to be built before sending out the
