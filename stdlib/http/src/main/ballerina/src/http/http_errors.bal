@@ -175,9 +175,9 @@ public type SslError error<SSL_ERROR, Detail>;
 
 // Ballerina Http Union Errors
 # Defines the resiliency error types that returned from client
-public type ResiliencyError FailoverAllEndpointsFailedError|FailoverActionFailedError|
-                            UpstreamServiceUnavailableError|AllLoadBalanceEndpointsFailedError|AllRetryAttemptsFailed|
-                            IdleTimeoutError;
+public type ResiliencyError FailoverAllEndpointsFailedError | FailoverActionFailedError |
+                            UpstreamServiceUnavailableError | AllLoadBalanceEndpointsFailedError |
+                            AllRetryAttemptsFailedError | IdleTimeoutError;
 
 # Defines the Auth error types that returned from client
 public type ClientAuthError AuthenticationError|AuthorizationError;
