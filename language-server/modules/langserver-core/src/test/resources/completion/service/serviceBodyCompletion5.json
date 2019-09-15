@@ -2731,11 +2731,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AllRetryAttemptsFailed",
+      "label": "AllRetryAttemptsFailedError",
       "kind": "Keyword",
       "detail": "Error",
       "sortText": "221",
-      "insertText": "AllRetryAttemptsFailed",
+      "insertText": "AllRetryAttemptsFailedError",
       "insertTextFormat": "Snippet"
     },
     {
