@@ -25,8 +25,6 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.config.SslConfiguration;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,7 +33,7 @@ import java.util.Map;
 public class WebSocketClientConnectorConfig extends SslConfiguration {
 
     private final String remoteAddress;
-    private List<String> subProtocols;
+    private String subProtocols;
     private int idleTimeoutInSeconds;
     private boolean autoRead;
     private final HttpHeaders headers;
@@ -54,17 +52,12 @@ public class WebSocketClientConnectorConfig extends SslConfiguration {
      *
      * @return a string of comma separated values of sub protocols.
      */
-    public String getSubProtocolsAsCSV() {
+    public String getSubProtocolsStr() {
         if (subProtocols == null) {
             return null;
         }
 
-        String subProtocolsAsCSV = "";
-        for (String subProtocol : subProtocols) {
-            subProtocolsAsCSV = subProtocolsAsCSV.concat(subProtocol + ",");
-        }
-        subProtocolsAsCSV = subProtocolsAsCSV.substring(0, subProtocolsAsCSV.length() - 1);
-        return subProtocolsAsCSV;
+        return subProtocols;
     }
 
     /**
@@ -77,7 +70,7 @@ public class WebSocketClientConnectorConfig extends SslConfiguration {
             this.subProtocols = null;
             return;
         }
-        this.subProtocols = Arrays.asList(subProtocols);
+        this.subProtocols = String.join(",", subProtocols);
     }
 
     public boolean isAutoRead() {

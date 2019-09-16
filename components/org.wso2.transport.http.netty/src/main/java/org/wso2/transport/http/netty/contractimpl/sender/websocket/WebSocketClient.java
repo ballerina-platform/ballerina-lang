@@ -28,7 +28,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.Utf8FrameValidator;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
@@ -66,27 +65,16 @@ public class WebSocketClient {
 
     private WebSocketClientHandshakeHandler clientHandshakeHandler;
 
-    private final String url;
-    private final String subProtocols;
-    private final int idleTimeout;
-    private final HttpHeaders headers;
-    private final int maxFrameSize;
-    private final EventLoopGroup wsClientEventLoopGroup;
-    private final boolean autoRead;
+
     private final WebSocketClientConnectorConfig connectorConfig;
+    private final EventLoopGroup wsClientEventLoopGroup;
 
     /**
      * @param wsClientEventLoopGroup of the client connector
      * @param connectorConfig        Connector configuration for WebSocket client.
      */
     public WebSocketClient(EventLoopGroup wsClientEventLoopGroup, WebSocketClientConnectorConfig connectorConfig) {
-        this.url = connectorConfig.getRemoteAddress();
-        this.subProtocols = connectorConfig.getSubProtocolsAsCSV();
-        this.idleTimeout = connectorConfig.getIdleTimeoutInMillis();
-        this.headers = connectorConfig.getHeaders();
         this.wsClientEventLoopGroup = wsClientEventLoopGroup;
-        this.autoRead = connectorConfig.isAutoRead();
-        this.maxFrameSize = connectorConfig.getMaxFrameSize();
         this.connectorConfig = connectorConfig;
     }
 
@@ -98,23 +86,25 @@ public class WebSocketClient {
     public ClientHandshakeFuture handshake() {
         final DefaultClientHandshakeFuture handshakeFuture = new DefaultClientHandshakeFuture();
         try {
-            URI uri = new URI(url);
+            URI uri = new URI(connectorConfig.getRemoteAddress());
 
             String scheme = uri.getScheme();
             if (!Constants.WS_SCHEME.equalsIgnoreCase(scheme) && !Constants.WSS_SCHEME.equalsIgnoreCase(scheme)) {
                 LOG.error("Only WS(S) is supported.");
-                throw new URISyntaxException(url, "WebSocket client supports only WS(S) scheme");
+                throw new URISyntaxException(connectorConfig.getRemoteAddress(),
+                                             "WebSocket client supports only WS(S) scheme");
             }
 
             final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
             final int port = getPort(uri);
             final boolean ssl = Constants.WSS_SCHEME.equalsIgnoreCase(scheme);
             WebSocketClientHandshaker webSocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
-                    uri, WebSocketVersion.V13, subProtocols, true, headers, maxFrameSize);
+                    uri, WebSocketVersion.V13, connectorConfig.getSubProtocolsStr(), true, connectorConfig.getHeaders(),
+                    connectorConfig.getMaxFrameSize());
             WebSocketMessageQueueHandler webSocketMessageQueueHandler = new WebSocketMessageQueueHandler();
-            clientHandshakeHandler = new WebSocketClientHandshakeHandler(webSocketHandshaker, handshakeFuture,
-                                                                         webSocketMessageQueueHandler, ssl, autoRead,
-                                                                         url, handshakeFuture);
+            clientHandshakeHandler = new WebSocketClientHandshakeHandler(
+                    webSocketHandshaker, handshakeFuture, webSocketMessageQueueHandler, ssl,
+                    connectorConfig.isAutoRead(), connectorConfig.getRemoteAddress(), handshakeFuture);
             Bootstrap clientBootstrap = initClientBootstrap(host, port, handshakeFuture);
             clientBootstrap.connect(uri.getHost(), port).addListener(future -> {
                 Throwable cause = future.cause();
@@ -164,15 +154,17 @@ public class WebSocketClient {
             pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
         }
         pipeline.addLast(Utf8FrameValidator.class.getName(), new Utf8FrameValidator());
-        if (idleTimeout > 0) {
-            pipeline.addLast(new IdleStateHandler(0, 0, idleTimeout, TimeUnit.MILLISECONDS));
+        if (connectorConfig.getIdleTimeoutInMillis() > 0) {
+            pipeline.addLast(
+                    new IdleStateHandler(0, 0, connectorConfig.getIdleTimeoutInMillis(), TimeUnit.MILLISECONDS));
         }
         pipeline.addLast(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER, clientHandshakeHandler);
     }
 
     private int getPort(URI uri) {
         String scheme = uri.getScheme();
-        if (uri.getPort() == -1) {
+        int port = uri.getPort();
+        if (port == -1) {
             switch (scheme) {
             case Constants.WS_SCHEME:
                 return 80;
@@ -182,7 +174,7 @@ public class WebSocketClient {
                 return -1;
             }
         } else {
-            return uri.getPort();
+            return port;
         }
     }
 
@@ -213,7 +205,7 @@ public class WebSocketClient {
                                 .notifyError(new SSLException("Certificate expired : " + e.getMessage()), null);
                     }
                     configureHandshakePipeline(ctx.channel().pipeline());
-                    ctx.pipeline().remove(Constants.SSL_COMPLETION_HANDLER);
+                    ctx.pipeline().remove(this);
                     ctx.fireChannelActive();
                 } else {
                     clientHandshakeFuture.notifyError(event.cause(), null);
