@@ -26,7 +26,9 @@ import ballerina/lang.'object as lang;
 # + metricsReporterClasses - Metrics reporter classes.
 # + clientId - Identifier to be used for server side logging.
 # + interceptorClasses - Interceptor classes to be used before sending records.
-# + isolationLevel - Transactional message reading method. Use "read_committed" to read committed messages only in transactional mode when poll() is called. Use "read_uncommitted" to read all the messages, even the aborted ones.
+# + isolationLevel - Transactional message reading method. Use "read_committed" to read the committed messages
+#       only in transactional mode when poll() is called. Use "read_uncommitted" to read all the messages,
+#       even the aborted ones.
 # + topics - Topics to be subscribed by the consumer.
 # + properties - Additional properties if required.
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached.
@@ -55,8 +57,8 @@ import ballerina/lang.'object as lang;
 # + autoCommit - Enables auto committing offsets.
 # + checkCRCS - Check the CRC32 of the records consumed.
 # + excludeInternalTopics - Whether records from internal topics should be exposed to the consumer.
-# + decoupleProcessing - Decouples processing
-# + secureSocket - SSL/TLS related options
+# + decoupleProcessing - Decouples processing.
+# + secureSocket - Configurations related to SSL/TLS.
 public type ConsumerConfig record {|
     string? bootstrapServers = ();
     string? groupId = ();
@@ -128,6 +130,9 @@ public type Consumer client object {
 
     public ConsumerConfig? consumerConfig = ();
 
+    # Creates a new Kafka `Consumer`.
+    #
+    # + config - Configurations related to consumer endpoint.
     public function __init (ConsumerConfig config) {
         self.consumerConfig = config;
         var initResult = self.init(config);
@@ -286,19 +291,19 @@ public type Consumer client object {
     # + return - `kafka:ConsumerError` if encounters an error, returns nil otherwise.
     public remote function resume(TopicPartition[] partitions) returns ConsumerError? = external;
 
-    # Seek the consumer for a given offset in a topic partition.
+    # Seek for a given offset in a topic partition.
     #
     # + offset - PartitionOffset to seek.
     # + return - `kafka:ConsumerError` if encounters an error, returns nil otherwise.
     public remote function seek(PartitionOffset offset) returns ConsumerError? = external;
 
-    # Seek consumer to the beginning of the offsets for the given set of topic partitions.
+    # Seek the beginning of the offsets for the given set of topic partitions.
     #
     # + partitions - Set of topic partitions to seek.
     # + return - `kafka:ConsumerError` if encounters an error, returns nil otherwise.
     public remote function seekToBeginning(TopicPartition[] partitions) returns ConsumerError? = external;
 
-    # Seek consumer for end of the offsets for the given set of topic partitions.
+    # Seek end of the offsets for the given set of topic partitions.
     #
     # + partitions - Set of topic partitions to seek.
     # + return - `kafka:ConsumerError` if encounters an error, returns nil otherwise.
