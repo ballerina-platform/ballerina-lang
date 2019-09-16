@@ -70,11 +70,15 @@
 
                     {{#if client.remoteMethods }}
                         <h2>Remote Methods</h2>
-                        <div class="method-list">
+                        <table>
                             {{#each client.remoteMethods}}
-                                {{> methodSignature }}
+                                <tr>
+                                    <td class="module-title truncate functions" id="{{name}}"><a
+                                            class="functions" href="#{{name}}">{{name}}</a></td>
+                                    <td class="module-desc">{{{ description }}}</td>
+                                </tr>
                             {{/each}}
-                        </div>
+                        </table>
                     {{/if}}
 
                     {{#if client.otherMethods}}
