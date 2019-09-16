@@ -83,23 +83,32 @@ public class CopyNativeLibTask implements Task {
             throw createLauncherException("unable to copy the native library: " + e.getMessage());
         }
         List<BLangPackage> moduleBirMap = buildContext.getModules();
-        copyImportedJars(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath);
         if (buildContext.getSourceType() == SINGLE_BAL_FILE) {
+            copyImportedJarsForSingleBalFile(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath);
             return;
         }
-        // Iterate through module  balo
-        for (BLangPackage module : moduleBirMap) {
-            Path baloAbsolutePath = buildContext.getBaloFromTarget(module.packageID);
-            copyLibsFromBalo(baloAbsolutePath.toString(), tmpDir.toString());
-        }
+        copyImportedJarsForModules(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath);
     }
 
-    private void copyImportedJars(BuildContext buildContext, List<BLangPackage> moduleBirMap,
-                                  Path sourceRootPath, Path tmpDir, String balHomePath) {
+    private void copyImportedJarsForSingleBalFile(BuildContext buildContext, List<BLangPackage> moduleBirMap,
+                                                  Path sourceRootPath, Path tmpDir, String balHomePath) {
         // Iterate through the imports and copy dependencies.
         HashSet<String> alreadyImportedSet = new HashSet<>();
         for (BLangPackage pkg : moduleBirMap) {
             copyImportedLibs(pkg.symbol.imports, buildContext, sourceRootPath, tmpDir, balHomePath, alreadyImportedSet);
+        }
+    }
+
+    private void copyImportedJarsForModules(BuildContext buildContext, List<BLangPackage> moduleBirMap,
+                                            Path sourceRootPath, Path tmpDir, String balHomePath) {
+        // Iterate through the imports and copy dependencies.
+        HashSet<String> alreadyImportedSet = new HashSet<>();
+        for (BLangPackage pkg : moduleBirMap) {
+            // Copy jars from imported modules.
+            copyImportedLibs(pkg.symbol.imports, buildContext, sourceRootPath, tmpDir, balHomePath, alreadyImportedSet);
+            // Copy jars from module balo.
+            Path baloAbsolutePath = buildContext.getBaloFromTarget(pkg.packageID);
+            copyLibsFromBalo(baloAbsolutePath.toString(), tmpDir.toString());
         }
     }
 
