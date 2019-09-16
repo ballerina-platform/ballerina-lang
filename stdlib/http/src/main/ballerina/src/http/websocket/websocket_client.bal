@@ -28,7 +28,7 @@ public type WebSocketClient client object {
     private string url = "";
     private WebSocketClientConfiguration config = {};
 
-    # The failover caller action, which provides failover capabilities to a WebSocket client endpoint.
+    # Initializes the client when called.
     #
     # + c - The `WebSocketClientConfiguration` of the endpoint
     public function __init(string url, public WebSocketClientConfiguration? config = ()) {

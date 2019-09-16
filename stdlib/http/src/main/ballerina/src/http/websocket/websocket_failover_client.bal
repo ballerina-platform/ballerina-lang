@@ -27,7 +27,7 @@ public type WebSocketFailoverClient client object {
     private WebSocketConnector conn = new;
     private WebSocketFailoverClientConfiguration config = {};
 
-    # Initializes the client when called.
+    # The failover caller action, which provides failover capabilities to a WebSocket client endpoint.
     #
     # + c - The `WebSocketFailoverClientConfiguration` of the endpoint
     public function __init(public WebSocketFailoverClientConfiguration? config = ()) {
