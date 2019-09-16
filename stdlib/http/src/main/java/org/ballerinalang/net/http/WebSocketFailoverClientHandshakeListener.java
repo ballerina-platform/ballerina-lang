@@ -20,6 +20,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.http.websocketclientendpoint.FailoverContext;
 import org.ballerinalang.net.http.websocketclientendpoint.RetryContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,31 +28,33 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.WebSocketConstants.CONNECTED_TO;
+import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
+import static org.ballerinalang.net.http.WebSocketUtil.determineAction;
 import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
-import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
 
 /**
- * The handshake listener for the client.
+ * The handshake listener for the failover client.
  *
  * @since 1.0.0
  */
-public class WebSocketClientHandshakeListener extends WebSocketClientHandshakeConnectorListener {
+public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHandshakeConnectorListener {
 
     private final WebSocketService wsService;
-    private final WebSocketClientListener clientConnectorListener;
+    private final WebSocketFailoverClientListener clientConnectorListener;
     private final boolean readyOnConnect;
     private final ObjectValue webSocketClient;
     private CountDownLatch countDownLatch;
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketClientHandshakeListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketFailoverClientHandshakeListener.class);
 
-    public WebSocketClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
-                                            WebSocketClientListener clientConnectorListener, boolean readyOnConnect,
-                                   CountDownLatch countDownLatch) {
+    WebSocketFailoverClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
+                                    WebSocketFailoverClientListener clientConnectorListener, boolean readyOnConnect,
+                                    CountDownLatch countDownLatch) {
         super(webSocketClient, wsService, clientConnectorListener, readyOnConnect, countDownLatch);
         this.webSocketClient = webSocketClient;
         this.wsService = wsService;
@@ -70,23 +73,25 @@ public class WebSocketClientHandshakeListener extends WebSocketClientHandshakeCo
                 webSocketConnector);
         WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
         clientConnectorListener.setConnectionInfo(connectionInfo);
-        if (hasRetryConfig(webSocketClient)) {
-            if (readyOnConnect) {
-                webSocketConnection.readNextFrame();
-            }
-            WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
-            logger.info(CONNECTED_TO + webSocketClient.getStringValue(WebSocketConstants.
-                    CLIENT_URL_CONFIG));
-        } else {
-            RetryContext retryConfig = (RetryContext) webSocketClient.getNativeData(RETRY_CONFIG);
-            logger.info(CONNECTED_TO + webSocketClient.getStringValue(WebSocketConstants.
-                    CLIENT_URL_CONFIG));
-            setWebSocketEndpoint(retryConfig, webSocketClient, webSocketConnection);
-            if (retryConfig.isConnectionMade() || readyOnConnect) {
-                webSocketConnection.readNextFrame();
-            }
-            setReconnectContexValue(retryConfig);
+        FailoverContext failoverConfig = (FailoverContext) webSocketClient.getNativeData(FAILOVER_CONFIG);
+        setFailoverWebSocketEndpoint(failoverConfig, webSocketClient, webSocketConnection);
+        // Read the next frame when readyOnConnect is true in first connection or after the first connection
+        if (failoverConfig.isConnectionMade() || readyOnConnect) {
+            webSocketConnection.readNextFrame();
         }
+        // Following these are created for future connection
+        // Check whether the config has retry config or not
+        // It has retry config, set these variable to default variable
+        if (hasRetryConfig(webSocketClient)) {
+            ((RetryContext) webSocketClient.getNativeData(RETRY_CONFIG)).setReconnectAttempts(0);
+            failoverConfig.setFinishedFailover(false);
+        }
+        ArrayList targets = failoverConfig.getTargetUrls();
+        int currentIndex = failoverConfig.getCurrentIndex();
+        logger.info(CONNECTED_TO + targets.get(currentIndex).toString());
+        // Set failover context variable's value
+        failoverConfig.setInitialIndex(currentIndex);
+        failoverConfig.setConnectionMade();
         countDownLatch.countDown();
     }
 
@@ -100,23 +105,17 @@ public class WebSocketClientHandshakeListener extends WebSocketClientHandshakeCo
         WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null,
                 webSocketConnector);
         countDownLatch.countDown();
-        WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         if (throwable instanceof IOException) {
-            if (hasRetryConfig(webSocketClient) && reconnect(connectionInfo)) {
-                return;
-            }
+            determineAction(connectionInfo, throwable, null);
+        } else {
+            logger.info("A connection has some issue that needs to fix.");
+            WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         }
-        WebSocketDispatcher.dispatchError(connectionInfo, throwable);
     }
 
-    private void setReconnectContexValue(RetryContext retryConfig) {
-        retryConfig.setConnectionMade();
-        retryConfig.setReconnectAttempts(0);
-    }
-
-    private void setWebSocketEndpoint(RetryContext retryConfig, ObjectValue webSocketClient,
-                                     WebSocketConnection webSocketConnection) {
-        if (retryConfig.isConnectionMade()) {
+    private void setFailoverWebSocketEndpoint(FailoverContext failoverConfig, ObjectValue webSocketClient,
+                                                      WebSocketConnection webSocketConnection) {
+        if (failoverConfig.isConnectionMade()) {
             webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
         } else {
             WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);

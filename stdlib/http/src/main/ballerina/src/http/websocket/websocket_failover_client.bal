@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a WebSocket client endpoint.
-public type WebSocketClient client object {
+# A WebSocket client endpoint, which provides failover support over multiple WebSocket targets.
+public type WebSocketFailoverClient client object {
 
     private string id = "";
     private string? negotiatedSubProtocol = ();
@@ -25,20 +25,18 @@ public type WebSocketClient client object {
     private map<any> attributes = {};
 
     private WebSocketConnector conn = new;
-    private string url = "";
-    private WebSocketClientConfiguration config = {};
+    private WebSocketFailoverClientConfiguration config = {};
 
-    # The failover caller action, which provides failover capabilities to a WebSocket client endpoint.
+    # Initializes the client when called.
     #
-    # + c - The `WebSocketClientConfiguration` of the endpoint
-    public function __init(string url, public WebSocketClientConfiguration? config = ()) {
-        self.url = url;
+    # + c - The `WebSocketFailoverClientConfiguration` of the endpoint
+    public function __init(public WebSocketFailoverClientConfiguration? config = ()) {
         self.config = config ?: {};
-        self.initEndpoint();
+        self.init();
     }
 
     # Initializes the endpoint.
-    function initEndpoint() = external;
+    function init() = external;
 
     # Pushes text to the connection.
     #
@@ -90,7 +88,7 @@ public type WebSocketClient client object {
     #                   within the waiting period, the connection is terminated immediately. Default value: 60
     # + return - Returns a `WebSocketError` if an error occurs while closing the webSocket connection.
     public remote function close(public int? statusCode = 1000, public string? reason = (),
-        public int timeoutInSeconds = 60) returns WebSocketError? {
+    public int timeoutInSeconds = 60) returns WebSocketError? {
         return self.conn.close(statusCode, reason, timeoutInSeconds);
     }
 
@@ -104,13 +102,13 @@ public type WebSocketClient client object {
 
     # Sets a connection related attribute.
     #
-    # + key - key that identifies the attribute
+    # + key - the key to identify the attribute
     # + value - value of the attribute
     public function setAttribute(string key, any value) {
         self.attributes[key] = value;
     }
 
-    # Gets connection related attribute if any.
+    # Gets connection-related attributes if any.
     #
     # + key - the key to identify the attribute.
     # + return - the attribute related to the given key or `nil`
@@ -118,7 +116,7 @@ public type WebSocketClient client object {
         return self.attributes[key];
     }
 
-    # Removes connection related attribute if any.
+    # Removes connection-related attributes if any.
     #
     # + key - the key to identify the attribute.
     # + return - the attribute related to the given key or `nil`
@@ -126,30 +124,30 @@ public type WebSocketClient client object {
         return self.attributes.remove(key);
     }
 
-    # Gives the connection id associated with this connection.
+    # Gives the connection ID associated with this connection.
     #
-    # + return - the unique id associated with the connection
+    # + return - the unique ID associated with the connection
     public function getConnectionId() returns string {
         return self.id;
     }
 
     # Gives the subprotocol if any that is negotiated with the client.
     #
-    # + return - The subprotocol if any negotiated with the client or `nil`
+    # + return - Returns the subprotocol if any that is negotiated with the client or `nil`
     public function getNegotiatedSubProtocol() returns string? {
         return self.negotiatedSubProtocol;
     }
 
     # Gives the secured status of the connection.
     #
-    # + return - `true` if the connection is secure.
+    # + return - Returns `true` if the connection is secure.
     public function isSecure() returns boolean {
         return self.secure;
     }
 
     # Gives the open or closed status of the connection.
     #
-    # + return - `true` if the connection is open
+    # + return - Returns `true` if the connection is open
     public function isOpen() returns boolean {
         return self.open;
     }
@@ -160,7 +158,7 @@ public type WebSocketClient client object {
     public function getHttpResponse() returns Response? {
         return self.response;
     }
-    
+
 };
 
 # Configurations for the WebSocket client endpoint.
@@ -177,9 +175,11 @@ public type WebSocketClient client object {
 # + secureSocket - SSL/TLS-related options
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set, is negative, or is zero, the default frame size of 65536 will be used.
+# + targetUrls - The set of URLs, which are used to connect to the server
+# + failoverInterval - The maximum number of milliseconds to delay a failover attempt. Default value: 1000
 # + webSocketCompressionEnabled - Enable support for compression in WebSocket
 # + retryConfig - Configurations related to retrying
-public type WebSocketClientConfiguration record {|
+public type WebSocketFailoverClientConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
@@ -187,21 +187,8 @@ public type WebSocketClientConfiguration record {|
     boolean readyOnConnect = true;
     ClientSecureSocket? secureSocket = ();
     int maxFrameSize = 0;
+    string[] targetUrls = [];
+    int failoverInterval = 1000;
     boolean webSocketCompressionEnabled = true;
     WebSocketRetryConfig retryConfig?;
-|};
-
-# Configurations for reconnecting to the WebSocket.
-#
-# + maxCount - The maximum number of reconnection attempts done. If 0, the
-#              reconnection attempts will continue indefinitely. Default value: 0
-# + intervalInMillis - The number of milliseconds to delay before attempting to reconnect. Default value: 1000
-# + backOffFactor - The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems
-#                persist. Default value: 1.0
-# + maxIntervalInMillis - The maximum number of milliseconds to delay a reconnection attempt. Default value: 30000
-public type WebSocketRetryConfig record {|
-    int maxCount = 0;
-    int intervalInMillis = 1000;
-    float backOffFactor = 1.0;
-    int maxIntervalInMillis = 30000;
 |};
