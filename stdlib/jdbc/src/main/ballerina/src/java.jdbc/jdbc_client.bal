@@ -34,7 +34,7 @@ public type JdbcClient client object {
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
-    # + return - A `table` returned by the sql query statement else `Error` will be returned if there is an error
+    # + return - A `table` returned by the SQL query statement else `Error` will be returned if there is an error
     public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType,
                                   Param... parameters) returns @tainted table<record {}>|Error {
         return nativeSelect(self, sqlQuery, recordType, ...parameters);
