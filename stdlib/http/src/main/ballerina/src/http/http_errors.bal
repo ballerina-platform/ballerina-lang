@@ -46,10 +46,10 @@ public const ALL_LOAD_BALANCE_ENDPOINTS_FAILED = "{ballerina/http}AllLoadBalance
 # Represents a client error that occurred due to all the load balance endpoint failure
 public type AllLoadBalanceEndpointsFailedError error<ALL_LOAD_BALANCE_ENDPOINTS_FAILED, Detail>;
 
-# Represents the reason string for the `http:AllRetryAttemptsFailedError`
+# Represents the reason string for the `http:AllRetryAttemptsFailed`
 public const ALL_RETRY_ATTEMPTS_FAILED = "{ballerina/http}AllRetryAttemptsFailed";
 # Represents a client error that occurred due to all the the retry attempts failure
-public type AllRetryAttemptsFailedError error<ALL_RETRY_ATTEMPTS_FAILED, Detail>;
+public type AllRetryAttemptsFailed error<ALL_RETRY_ATTEMPTS_FAILED, Detail>;
 
 # Represents the reason string for the `http:IdleTimeoutError`
 public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/http}IdleTimeoutError";
@@ -177,7 +177,7 @@ public type SslError error<SSL_ERROR, Detail>;
 # Defines the resiliency error types that returned from client
 public type ResiliencyError FailoverAllEndpointsFailedError | FailoverActionFailedError |
                             UpstreamServiceUnavailableError | AllLoadBalanceEndpointsFailedError |
-                            AllRetryAttemptsFailedError | IdleTimeoutError;
+                            AllRetryAttemptsFailed | IdleTimeoutError;
 
 # Defines the Auth error types that returned from client
 public type ClientAuthError AuthenticationError|AuthorizationError;
