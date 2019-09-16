@@ -16,7 +16,7 @@
 
 import ballerina/crypto;
 
-# NATS core connection configuration
+# The parameters used to create a NATS streaming subscription.
 #
 # + connectionName - Name of the connection. This is optional.
 # + maxReconnect - Maximum number of reconnect attempts. Use 0 to turn off auto reconnect.
@@ -32,10 +32,10 @@ import ballerina/crypto;
 # + password - The password for basic authentication.
 # + token - The token for token-based authentication.
 # + inboxPrefix - The connection's inbox prefix. All inboxes will start with this string.
-# + noEcho - Turn off echo. This prevents the server from echoing messages back to the connection if it
+# + noEcho - Turns off echo. This prevents the server from echoing messages back to the connection if it
 # has subscriptions on the subject being published to.
-# + enableErrorListener - Enable Connection Error listener.
-# + secureSocket - SSL/TLS-related options
+# + enableErrorListener - Enables Connection Error listener.
+# + secureSocket - Configurations related to SSL/TLS.
 public type ConnectionConfig record {|
   string connectionName = "ballerina-nats";
   int maxReconnect = 60;
