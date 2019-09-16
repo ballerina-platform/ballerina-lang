@@ -140,7 +140,7 @@ public class Writer {
                 label += "<span>() </span>";
             }
             label += " </code>";
-        } else if ("builtin".equals(type.category)) {
+        } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)) {
             label = type.name;
         } else {
             label = getHtmlLink(type, root);

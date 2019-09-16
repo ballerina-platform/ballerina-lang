@@ -184,7 +184,7 @@ public class Type {
                         }
                         this.category = "types"; break;
                 case TypeTags
-                        .ERROR: this.category = "errors";
+                        .ERROR: this.category = "errors"; break;
                 case TypeTags.INT:
                 case TypeTags.BYTE:
                 case TypeTags.FLOAT:
