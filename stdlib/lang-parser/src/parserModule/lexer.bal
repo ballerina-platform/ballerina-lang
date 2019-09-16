@@ -112,7 +112,7 @@ public type Lexer object {
                     self.tokenIndex += 1;
                     return self.getToken(tokenSymbol, validSymbol, self.position - (endPosCount - 1));
                 }
-            } else if (currChar == singleQuoteSym) {                //quoted string literal
+            } else if (currChar == singleQuoteSym) { //quoted string literal
                 string stringLiteral = currChar;
                 //empty string literal - ex:""
                 if (self.buffer.lookAhead() == singleQuoteSym) {
@@ -150,7 +150,7 @@ public type Lexer object {
                         return self.getToken(LEXER_ERROR_TOKEN, stringLiteral, self.position - strPos);
                     }
                 }
-            } else if (isDigit(currChar)) {                // integers
+            } else if (isDigit(currChar)) { // integers
                 string numb = currChar;
                 int digitPos = 0;
                 //keep track if the number is a valid number
