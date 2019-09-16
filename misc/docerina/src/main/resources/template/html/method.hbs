@@ -18,7 +18,10 @@
             {{#each parameters}}    
             <div class="params-listing">
                 <ul>
-                    <li> {{ name }}<span class="type">  {{{ typeName type }}} </span>{{#if defaultValue}}- {{ defaultValue }}{{/if}}</li>
+                    <li>
+                        {{ name }}<span class="type">  {{{ typeName type }}} </span>
+                        {{#if defaultValue}}<span class="default"> (default {{ defaultValue }})</span>{{/if}}
+                    </li>
                     <li>
                         <p>{{{ description }}}</p>
                     </li>
