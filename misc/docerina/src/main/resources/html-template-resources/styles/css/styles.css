@@ -98,6 +98,9 @@ body .content-wrapper .main-wrapper p a {
 body .content-wrapper .main-wrapper p a:hover {
   text-decoration: underline;
 }
+body .content-wrapper .builtin-type {
+  color: #81007F;
+}
 body .content-wrapper .param-divider {
   margin-top: 0px;
   margin-bottom: 15px;

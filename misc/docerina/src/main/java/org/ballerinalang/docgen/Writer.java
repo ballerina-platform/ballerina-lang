@@ -141,7 +141,7 @@ public class Writer {
             }
             label += " </code>";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)) {
-            label = type.name;
+            label = "<span class=\"builtin-type\">" + type.name + "</span>";
         } else {
             label = getHtmlLink(type, root);
         }
