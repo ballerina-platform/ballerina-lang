@@ -141,7 +141,7 @@ public type ClientError ResiliencyError|ClientAuthError|OutboundRequestError|
                             InboundResponseError|UnsupportedActionError|Http2ClientError|
                             MaximumWaitTimeExceededError|SslError|GenericClientError;
 
-public type ListenerError GenericListenerError|InboundRequestError|OutboundResponseError;
+public type ListenerError GenericListenerError|InboundRequestError|OutboundResponseError|SslError;
 
 function getGenericClientError(string message, error cause) returns GenericClientError {
     GenericClientError err = error(GENERIC_CLIENT_ERROR, message = message, cause = cause);
