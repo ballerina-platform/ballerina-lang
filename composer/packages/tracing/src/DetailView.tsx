@@ -42,7 +42,7 @@ export default class DetailView extends React.Component<DetailViewProps> {
     constructor(props: DetailViewProps) {
         super(props);
     }
-    renderPayload(trace: any) {
+    public renderPayload(trace: any) {
         const payload = trace.message.payload;
         const contentType = trace.message.contentType;
         if (contentType.indexOf("application/json") > 0 && isJson(payload)) {
@@ -55,7 +55,7 @@ export default class DetailView extends React.Component<DetailViewProps> {
                     collapsed={1}
                     displayObjectSize={false}
                     style={{ marginTop: 10, background: "inherit" }}
-                /> 
+                />
             );
         } else if (contentType.indexOf("application/octet-stream") > 0) {
             return (
