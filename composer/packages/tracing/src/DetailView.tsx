@@ -45,7 +45,7 @@ export default class DetailView extends React.Component<DetailViewProps> {
     renderPayload(trace: any) {
         const payload = trace.message.payload;
         const contentType = trace.message.contentType;
-        if (contentType.indexOf("application/json") && isJson(payload)) {
+        if (contentType.indexOf("application/json") > 0 && isJson(payload)) {
             return (
                 <ReactJson
                     src={JSON.parse(payload)}
@@ -57,7 +57,7 @@ export default class DetailView extends React.Component<DetailViewProps> {
                     style={{ marginTop: 10, background: "inherit" }}
                 /> 
             );
-        } else if (contentType.indexOf("application/octet-stream")) {
+        } else if (contentType.indexOf("application/octet-stream") > 0) {
             return (
                 <code><pre>Unable to parse Payload : application/octet-stream </pre></code>
             );
@@ -66,13 +66,12 @@ export default class DetailView extends React.Component<DetailViewProps> {
                 <code><pre>{trace.message.payload}</pre></code>
             );
         }
-
-        
     }
     public render() {
         const trace = this.props.trace;
         const headers = trace.message.headers || "";
         const headersArray = headers.split("\n");
+        const payload = trace.message.payload;
         if (payload.trim() ===  "" && headers.trim() === "") {
             return (
                 <code>
