@@ -31,8 +31,6 @@ import org.ballerinalang.net.http.exception.WebSocketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
-
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
@@ -58,14 +56,13 @@ public class Ready {
             if (!isReady) {
                 WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnection);
                 callback.setReturnValues(null);
+                callback.notifySuccess();
             } else {
-                callback.setReturnValues(new WebSocketException("Already started reading frames"));
+                callback.notifyFailure(new WebSocketException("Already started reading frames"));
             }
-            callback.notifySuccess();
         } catch (Exception e) {
             log.error("Error occurred when calling ready", e);
-            callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
-            callback.notifySuccess();
+            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
         return null;
     }

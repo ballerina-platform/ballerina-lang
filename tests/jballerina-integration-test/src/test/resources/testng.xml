@@ -176,6 +176,8 @@
             <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
             <class name="org.ballerinalang.test.service.websocket.SslEchoTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ClientErrorsTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
         </classes>
     </test>
 

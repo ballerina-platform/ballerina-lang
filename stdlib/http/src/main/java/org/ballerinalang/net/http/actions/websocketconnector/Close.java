@@ -64,12 +64,12 @@ public class Close {
             waitForTimeout(callback, (int) timeoutInSecs, countDownLatch);
             closeFuture.channel().close().addListener(future -> {
                 WebSocketUtil.setListenerOpenField(connectionInfo);
+                callback.setReturnValues(null);
                 callback.notifySuccess();
             });
         } catch (Exception e) {
             log.error("Error occurred when closing the connection", e);
-            callback.setReturnValues(new WebSocketException(ErrorCode.WsConnectionError, e.getMessage()));
-            callback.notifySuccess();
+            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
         return null;
     }
