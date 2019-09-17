@@ -24,13 +24,12 @@ service on new http:Listener(30004) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketFailoverClient wsClientEp = new({ callbackService:
             failoverClientWithRetryCallbackService, readyOnConnect: false, targetUrls:
-            ["ws://localhost:8080/websocket", "ws://localhost:15100/websocket",
-            "ws://localhost:15200/websocket"], retryConfig: {maxCount: 5}});
+            ["ws://localhost:15100/websocket", "ws://localhost:15200/websocket"], retryConfig: {}});
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -38,7 +37,7 @@ service on new http:Listener(30004) {
         http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
         var returnVal = clientEp->pushText(text);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -46,7 +45,7 @@ service on new http:Listener(30004) {
         http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
         var returnVal = clientEp->pushBinary(data);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -54,7 +53,7 @@ service on new http:Listener(30004) {
         http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
         var returnVal = clientEp->close(statusCode, reason);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -78,7 +77,7 @@ service failoverClientWithRetryCallbackService = @http:WebSocketServiceConfig {}
         http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
         var returnVal = serviceEp->pushText(text);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -86,7 +85,7 @@ service failoverClientWithRetryCallbackService = @http:WebSocketServiceConfig {}
         http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
         var returnVal = serviceEp->pushBinary(data);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -94,7 +93,7 @@ service failoverClientWithRetryCallbackService = @http:WebSocketServiceConfig {}
         http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
         var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 

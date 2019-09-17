@@ -33,18 +33,18 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
  *
  * @since 0.983.1
  */
-public class WebSocketClientHandshakeConnectorListener implements ClientHandshakeListener {
+public class ClientHandshakeConnectorListener implements ClientHandshakeListener {
 
     private final WebSocketService wsService;
-    private final WebSocketClientConnectorListener clientConnectorListener;
+    private final ClientConnectorListener clientConnectorListener;
     private final boolean readyOnConnect;
     private final ObjectValue webSocketClient;
     private CountDownLatch countDownLatch;
 
-    public WebSocketClientHandshakeConnectorListener(ObjectValue webSocketClient,
-                                                     WebSocketService wsService,
-                                                     WebSocketClientConnectorListener clientConnectorListener,
-                                                     boolean readyOnConnect, CountDownLatch countDownLatch) {
+    public ClientHandshakeConnectorListener(ObjectValue webSocketClient,
+                                            WebSocketService wsService,
+                                            ClientConnectorListener clientConnectorListener,
+                                            boolean readyOnConnect, CountDownLatch countDownLatch) {
         this.webSocketClient = webSocketClient;
         this.wsService = wsService;
         this.clientConnectorListener = clientConnectorListener;

@@ -40,7 +40,7 @@ import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
  *
  * @since 0.983.1
  */
-public class WebSocketClientHandshakeListener extends WebSocketClientHandshakeConnectorListener {
+public class WebSocketClientHandshakeListener extends ClientHandshakeConnectorListener {
 
     private final WebSocketService wsService;
     private final WebSocketClientListener clientConnectorListener;
@@ -70,22 +70,19 @@ public class WebSocketClientHandshakeListener extends WebSocketClientHandshakeCo
                 webSocketConnector);
         WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
         clientConnectorListener.setConnectionInfo(connectionInfo);
+        logger.info(CONNECTED_TO + webSocketClient.getStringValue(WebSocketConstants.
+                CLIENT_URL_CONFIG));
         if (hasRetryConfig(webSocketClient)) {
-            if (readyOnConnect) {
-                webSocketConnection.readNextFrame();
-            }
-            WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
-            logger.info(CONNECTED_TO + webSocketClient.getStringValue(WebSocketConstants.
-                    CLIENT_URL_CONFIG));
-        } else {
             RetryContext retryConfig = (RetryContext) webSocketClient.getNativeData(RETRY_CONFIG);
-            logger.info(CONNECTED_TO + webSocketClient.getStringValue(WebSocketConstants.
-                    CLIENT_URL_CONFIG));
             setWebSocketEndpoint(retryConfig, webSocketClient, webSocketConnection);
             if (retryConfig.isConnectionMade() || readyOnConnect) {
                 webSocketConnection.readNextFrame();
             }
             setReconnectContexValue(retryConfig);
+        } else {
+            if (readyOnConnect) {
+                webSocketConnection.readNextFrame();
+            }
         }
         countDownLatch.countDown();
     }
@@ -100,7 +97,6 @@ public class WebSocketClientHandshakeListener extends WebSocketClientHandshakeCo
         WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null,
                 webSocketConnector);
         countDownLatch.countDown();
-        WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         if (throwable instanceof IOException) {
             if (hasRetryConfig(webSocketClient) && reconnect(connectionInfo)) {
                 return;

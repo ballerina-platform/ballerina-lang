@@ -36,13 +36,18 @@ import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
  *
  * @since 1.0.0
  */
-public class WebSocketFailoverClientListener extends WebSocketClientConnectorListener {
+public class WebSocketFailoverClientListener extends ClientConnectorListener {
 
     private WebSocketOpenConnectionInfo connectionInfo;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketFailoverClientListener.class);
 
     public void setConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
+        super.setConnectionInfo(connectionInfo);
         this.connectionInfo = connectionInfo;
+    }
+
+    public WebSocketOpenConnectionInfo getConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
+        return this.connectionInfo;
     }
 
     @Override
@@ -65,7 +70,7 @@ public class WebSocketFailoverClientListener extends WebSocketClientConnectorLis
         if (throwable instanceof IOException) {
             determineAction(connectionInfo, throwable, null);
         } else {
-            logger.info("Unable do the retry because the connection has some issue that needs to fix.");
+            logger.error("Error occurred: ", throwable);
             WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         }
     }

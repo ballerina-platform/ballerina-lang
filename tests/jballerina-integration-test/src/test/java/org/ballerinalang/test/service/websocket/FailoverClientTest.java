@@ -51,7 +51,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
         this.url = url;
     }
 
-    @Test(description = "Tests sending and receiving of text frames in WebSockets")
+    @Test(description = "Tests starting the one of the server in the target URLs, sending and receiving text frames " +
+            "using the failover websocket client")
     public void testTextFrameForFailover() throws URISyntaxException, InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         remoteServer15100 = new WebSocketRemoteServer(port, sslEnabled);
@@ -63,16 +64,17 @@ public class FailoverClientTest extends WebSocketTestCommons {
         countDownLatch.await(time, TimeUnit.SECONDS);
         String textSent = "hi all";
         client.sendText(textSent);
-        countDownLatch.await(10, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSent);
-        countDownLatch.await(15, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.shutDown();
         remoteServer15100.stop();
-        CountDownLatch countDownLatch1 = new CountDownLatch(1);
-        countDownLatch1.await(12, TimeUnit.SECONDS);
+        CountDownLatch countDown = new CountDownLatch(1);
+        countDown.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
     }
 
-    @Test(description = "Tests sending and receiving of binary frames in WebSocket")
+    @Test(description = "Tests starting the one of the server in the target URLs, sending and receiving binary" +
+            " frames using the failover websocket client")
     public void testBinaryFrameForFailover() throws URISyntaxException, InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         remoteServer15100 = new WebSocketRemoteServer(port, sslEnabled);
@@ -89,11 +91,11 @@ public class FailoverClientTest extends WebSocketTestCommons {
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.shutDown();
         remoteServer15100.stop();
-        CountDownLatch countDownLatch1 = new CountDownLatch(1);
-        countDownLatch1.await(12, TimeUnit.SECONDS);
+        CountDownLatch countDown = new CountDownLatch(1);
+        countDown.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
     }
 
-    @Test(description = "Tests the client initialization failing")
+    @Test(description = "Tests the failover webSocket client by doesn't start the any server in the targets URLs")
     public void testFailingFailover() throws URISyntaxException, InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         WebSocketTestClient client = new WebSocketTestClient(url);
@@ -108,7 +110,9 @@ public class FailoverClientTest extends WebSocketTestCommons {
         closeWebSocketFrame.release();
     }
 
-    @Test(description = "Tests sending and receiving of binary frames in WebSocket")
+    @Test(description = "Test the Failover websocket client (starting the given servers in the target URLs, " +
+            "first sending and receiving text frames Afterthat stop the first server in the target URLs, " +
+            "sending and receiving binary frames) ")
     public void testFailoverWithBothServer() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -117,31 +121,31 @@ public class FailoverClientTest extends WebSocketTestCommons {
         remoteServer15100.run();
         remoteServer15200.run();
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
-        countDownLatch.await(12, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         client.setCountDownLatch(countDownLatch);
-        countDownLatch.await(12, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         String textSent = "hi all";
-        countDownLatch.await(12, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendText(textSent);
-        countDownLatch.await(10, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSent);
-        countDownLatch.await(15, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         remoteServer15100.stop();
-        CountDownLatch countDownLatch1 = new CountDownLatch(1);
-        countDownLatch1.await(20, TimeUnit.SECONDS);
+        CountDownLatch countDown = new CountDownLatch(1);
+        countDown.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         String text = "hi";
-        countDownLatch1.await(12, TimeUnit.SECONDS);
+        countDown.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendText(text);
-        countDownLatch1.await(10, TimeUnit.SECONDS);
+        countDown.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), text);
         client.sendBinary(bufferSent);
-        countDownLatch1.await(12, TimeUnit.SECONDS);
+        countDown.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
         remoteServer15200.stop();
-        CountDownLatch countDownLatch2 = new CountDownLatch(1);
-        countDownLatch2.await(12, TimeUnit.SECONDS);
+        CountDownLatch noOfLatch = new CountDownLatch(1);
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
     }
 }

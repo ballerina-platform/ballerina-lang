@@ -46,7 +46,8 @@ public class RetryClientTest extends WebSocketTestCommons {
         this.url = url;
     }
 
-    @Test(description = "Tests sending and receiving of text frames in WebSockets with reconnect")
+    @Test(description = "Tests the retry function using webSocket client (starting the server " +
+            ", sending and receiving text frames Afterthat restart that server and do the same)")
     public void testRetry() throws URISyntaxException, InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         String textSent = "hi all";
@@ -60,21 +61,22 @@ public class RetryClientTest extends WebSocketTestCommons {
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSent);
         remoteServer.stop();
-        CountDownLatch countDownLatch1 = new CountDownLatch(1);
-        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        CountDownLatch noOfLatch = new CountDownLatch(1);
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         remoteServer.run();
-        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendText(textSent);
-        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSent);
         remoteServer.stop();
-        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.shutDown();
-        CountDownLatch countDownLatch2 = new CountDownLatch(1);
-        countDownLatch2.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        CountDownLatch countOfLatch = new CountDownLatch(1);
+        countOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
     }
 
-    @Test(description = "Tests sending and receiving of binary frames in WebSocket with reconnect")
+    @Test(description = "Tests the retry function using webSocket client (starting the server " +
+            ", sending and receiving binary frames Afterthat restart that server and do the same)")
     public void testBinaryFrameForRetry() throws URISyntaxException, InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
@@ -84,22 +86,27 @@ public class RetryClientTest extends WebSocketTestCommons {
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         client.setCountDownLatch(countDownLatch);
-        remoteServer.stop();
-        CountDownLatch countDownLatch1 = new CountDownLatch(1);
-        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        remoteServer.run();
-        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendBinary(bufferSent);
-        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getBufferReceived(), bufferSent);
+        remoteServer.stop();
+        CountDownLatch noOfLatch = new CountDownLatch(1);
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer.run();
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        client.sendBinary(bufferSent);
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
         remoteServer.stop();
-        CountDownLatch countDownLatch2 = new CountDownLatch(1);
-        countDownLatch2.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        CountDownLatch countOfLatch = new CountDownLatch(1);
+        countOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
     }
 
-    @Test(description = "Tests sending and receiving of binary frames in WebSocket with multiple reconnect " +
-            "attempts")
+    @Test(description = "Tests the retry function using webSocket client (starting the given server, sending " +
+            "and receiving text frames Afterthat restart that server, sending and receiving text frames. Again, " +
+            "restart that server, sending and receiving binary frames)")
     public void testMultipleRetryAttempts() throws URISyntaxException, InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         String text = "hi madam";
@@ -110,21 +117,24 @@ public class RetryClientTest extends WebSocketTestCommons {
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         client.setCountDownLatch(countDownLatch);
-        remoteServer.stop();
-        CountDownLatch countDownLatch1 = new CountDownLatch(1);
-        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        remoteServer.run();
-        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendText(text);
-        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), text);
         remoteServer.stop();
-        CountDownLatch countDownLatch2 = new CountDownLatch(1);
-        countDownLatch2.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        CountDownLatch noOfLatch = new CountDownLatch(1);
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         remoteServer.run();
-        countDownLatch2.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        client.sendText(text);
+        noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), text);
+        remoteServer.stop();
+        CountDownLatch countOfLatch = new CountDownLatch(1);
+        countOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer.run();
+        countOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendBinary(bufferData);
-        countDownLatch2.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        countOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferData);
         client.shutDown();
         remoteServer.stop();

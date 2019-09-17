@@ -517,7 +517,7 @@ public class WebSocketUtil {
         // Check whether failover attempt finished or not.
         // If it isn't finished, call the initialiseWebSocketConnection()
         // if it is finished and has retry config, call the doReconnectForFailover()
-        if (!failoverConfig.isFinishedFailover()) {
+        if (!failoverConfig.isFailoverFinished()) {
             // Check the current url index equals with previous connected url index or not.
             // If it isn't equal, call the initialiseWebSocketConnection()
             // if it equals, call the doReconnectForFailover()
@@ -529,7 +529,7 @@ public class WebSocketUtil {
                 return true;
             } else {
                 failoverConfig.setCurrentIndex(currentIndex);
-                failoverConfig.setFinishedFailover(true);
+                failoverConfig.setFailoverFinished(true);
                 return reconnectForFailover(connectionInfo, currentIndex);
             }
         } else if (hasRetryConfig(webSocketClient)) {

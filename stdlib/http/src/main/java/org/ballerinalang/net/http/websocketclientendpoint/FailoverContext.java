@@ -37,7 +37,7 @@ public class FailoverContext {
      *
      * @return finishedFailover
      */
-    public boolean isFinishedFailover() {
+    public boolean isFailoverFinished() {
         return finishedFailover;
     }
 
@@ -46,7 +46,7 @@ public class FailoverContext {
      *
      * @param finishedFailover if true, do failover in the remaining url.
      */
-    public void setFinishedFailover(boolean finishedFailover) {
+    public void setFailoverFinished(boolean finishedFailover) {
         this.finishedFailover = finishedFailover;
     }
 

@@ -22,12 +22,12 @@ service on new http:Listener(30003) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
-            retryClientCallbackService, readyOnConnect: false, retryConfig: {intervalInMillis : 3000}});
+            retryClientCallbackService, readyOnConnect: false, retryConfig: {}});
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -35,7 +35,7 @@ service on new http:Listener(30003) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->pushText(text);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -43,7 +43,7 @@ service on new http:Listener(30003) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->pushBinary(data);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -51,7 +51,7 @@ service on new http:Listener(30003) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->close(statusCode, reason);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 }
@@ -61,7 +61,7 @@ service retryClientCallbackService = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushText(text);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -69,7 +69,7 @@ service retryClientCallbackService = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushBinary(data);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 
@@ -77,7 +77,7 @@ service retryClientCallbackService = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is http:WebSocketError) {
-            panic <error> returnVal;
+            panic returnVal;
         }
     }
 };

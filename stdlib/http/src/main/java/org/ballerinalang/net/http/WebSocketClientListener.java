@@ -36,14 +36,16 @@ import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
  *
  * @since 1.0.0
  */
-public class WebSocketClientListener extends WebSocketClientConnectorListener {
+public class WebSocketClientListener extends ClientConnectorListener {
 
     private WebSocketOpenConnectionInfo connectionInfo;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketClientListener.class);
 
     public void setConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
+        super.setConnectionInfo(connectionInfo);
         this.connectionInfo = connectionInfo;
     }
+
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {

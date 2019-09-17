@@ -28,7 +28,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
@@ -43,7 +42,7 @@ import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
  *
  * @since 1.0.0
  */
-public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHandshakeConnectorListener {
+public class WebSocketFailoverClientHandshakeListener extends ClientHandshakeConnectorListener {
 
     private final WebSocketService wsService;
     private final WebSocketFailoverClientListener clientConnectorListener;
@@ -75,6 +74,7 @@ public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHan
         clientConnectorListener.setConnectionInfo(connectionInfo);
         FailoverContext failoverConfig = (FailoverContext) webSocketClient.getNativeData(FAILOVER_CONFIG);
         setFailoverWebSocketEndpoint(failoverConfig, webSocketClient, webSocketConnection);
+        failoverConfig.setFailoverFinished(false);
         // Read the next frame when readyOnConnect is true in first connection or after the first connection
         if (failoverConfig.isConnectionMade() || readyOnConnect) {
             webSocketConnection.readNextFrame();
@@ -84,11 +84,9 @@ public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHan
         // It has retry config, set these variable to default variable
         if (hasRetryConfig(webSocketClient)) {
             ((RetryContext) webSocketClient.getNativeData(RETRY_CONFIG)).setReconnectAttempts(0);
-            failoverConfig.setFinishedFailover(false);
         }
-        ArrayList targets = failoverConfig.getTargetUrls();
         int currentIndex = failoverConfig.getCurrentIndex();
-        logger.info(CONNECTED_TO + targets.get(currentIndex).toString());
+        logger.info(CONNECTED_TO + failoverConfig.getTargetUrls().get(currentIndex));
         // Set failover context variable's value
         failoverConfig.setInitialIndex(currentIndex);
         failoverConfig.setConnectionMade();
@@ -108,7 +106,7 @@ public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHan
         if (throwable instanceof IOException) {
             determineAction(connectionInfo, throwable, null);
         } else {
-            logger.info("A connection has some issue that needs to fix.");
+            logger.error("Error occurred: ", throwable);
             WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         }
     }
