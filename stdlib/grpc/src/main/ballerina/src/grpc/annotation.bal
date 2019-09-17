@@ -45,7 +45,7 @@ public annotation GrpcServiceConfig ServiceConfig on service;
 # + requestType - Request message type of the resource. This is an optional field. If it is not specified, request
 #                   type is derived from input argument of the resource.
 # + responseType - Response message type of the resource. This is an optional field. If it is not specified, response
-#                   type is derived from the he value passed to the send() expression.
+#                   type is derived from the value passed to the send() expression.
 public type GrpcResourceConfig record {|
     boolean streaming = false;
     typedesc<anydata> requestType?;

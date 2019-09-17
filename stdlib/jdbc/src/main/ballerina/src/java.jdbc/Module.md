@@ -79,7 +79,7 @@ There are 3 possible scenarios for connection pool handling.
 3. Local shareable connection pool
 
     If you create a record of type `jdbc:PoolOptions` and reuse that in the configuration of multiple clients, for each
-    set of clients that connect to the same database instance with the same set of properties, a shared connection pool
+    set of clients that connects to the same database instance with the same set of properties, a shared connection pool
     will be created.
 
     ```ballerina
@@ -155,7 +155,7 @@ if (returned is jdbc:UpdateResult) {
 
 In the second example, the parameter values, which are in local variables, are passed directly as parameters to 
 the `update` remote function. This direct parameter passing can be done for any primitive Ballerina type like `string`, 
-`int`, `float`, or `boolean`. The sql type of the parameter is derived from the type of the Ballerina variable that 
+`int`, `float`, or `boolean`. The SQL type of the parameter is derived from the type of the Ballerina variable that 
 is passed in.
 
 ```ballerina
@@ -170,7 +170,7 @@ if (returned is jdbc:UpdateResult) {
 }
 ```
 
-In the third example, parameter values are passed as an `jdbc:Parameter` to the `update` remote function. Use 
+In the third example, parameter values are passed as a `jdbc:Parameter` to the `update` remote function. Use 
 `jdbc:Parameter` when you need to provide more details such as the exact SQL type of the parameter, or the parameter 
 direction. The default parameter direction is `IN`.
 
@@ -338,4 +338,4 @@ if (retCall is ()|table<record {}>[]) {
     io:println("Stored procedure call failed: ", <string>err.detail()["message"]);
 }
 ```
->**Note:** The default thread pool size used in Ballerina is number of processers available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
+>**Note:** The default thread pool size used in Ballerina is number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.

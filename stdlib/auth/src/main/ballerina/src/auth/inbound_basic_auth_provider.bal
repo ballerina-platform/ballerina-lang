@@ -18,7 +18,7 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/stringutils;
 
-# Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
+# Represents the inbound basic Auth provider, which is a configuration-file-based Auth provider.
 #
 # + basicAuthConfig - The Basic Auth provider configurations.
 public type InboundBasicAuthProvider object {

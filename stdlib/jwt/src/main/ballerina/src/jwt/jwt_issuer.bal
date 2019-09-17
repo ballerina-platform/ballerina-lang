@@ -17,7 +17,7 @@
 import ballerina/crypto;
 import ballerina/encoding;
 
-# Represents authentication provider configurations that supports generating JWT for client interactions.
+# Represents JWT validator configurations.
 #
 # + username - JWT token username
 # + issuer - JWT token issuer

@@ -33,7 +33,8 @@ public function main() {
         principal.scopes = scopes;
     }
 
-    runtime:AuthenticationContext? authContext = invocationContext["authenticationContext"];
+    runtime:AuthenticationContext? authContext = 
+                            invocationContext["authenticationContext"];
     if (authContext is runtime:AuthenticationContext) {
         // Set auth scheme.
         authContext.scheme = "jwt";
@@ -59,7 +60,8 @@ public function main() {
         io:println(retrievedScopes);
     }
 
-    runtime:AuthenticationContext? authContext1 = invocationContext1["authenticationContext"];
+    runtime:AuthenticationContext? authContext1 = 
+                            invocationContext1["authenticationContext"];
     if (authContext1 is runtime:AuthenticationContext) {
         // Retrieve auth scheme.
         string? authScheme = authContext1["scheme"];
