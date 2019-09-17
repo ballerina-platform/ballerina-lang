@@ -340,7 +340,7 @@ public type ProxyConfig record {|
 
 # The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
-# + authHandler - The outbound authentication handler.
+# + authHandler - The outbound authentication handler
 public type OutboundAuthConfig record {|
     OutboundAuthHandler authHandler;
 |};

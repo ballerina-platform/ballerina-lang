@@ -143,6 +143,15 @@ public class StringUtilsTest {
     }
 
     @Test(description = "Test toBoolean function")
+    public void testToBooleanCaps() {
+        BValue[] inputs = {new BString("TrUe")};
+        BValue[] returnValues = BRunUtil.invoke(result, "testToBoolean", inputs);
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(returnValues[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test toBoolean function")
     public void testToBooleanFalse() {
         BValue[] inputs = {new BString("false")};
         BValue[] returnValues = BRunUtil.invoke(result, "testToBoolean", inputs);

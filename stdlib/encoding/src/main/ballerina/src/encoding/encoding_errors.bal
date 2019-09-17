@@ -19,5 +19,8 @@ type Detail record {
     error cause?;
 };
 
+# Represents the Encoding error code.
 public const ENCODING_ERROR = "{ballerina/encoding}Error";
+
+# Represents the Encoding error type with details.
 public type Error error<ENCODING_ERROR, Detail>;

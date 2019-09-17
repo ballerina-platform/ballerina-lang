@@ -19,5 +19,8 @@ type Detail record {
     error cause?;
 };
 
+# Represents the OAuth2 error reason.
 public const OAUTH2_ERROR = "{ballerina/oauth2}Error";
+
+# Represents the OAuth2 error type with details.
 public type Error error<OAUTH2_ERROR, Detail>;
