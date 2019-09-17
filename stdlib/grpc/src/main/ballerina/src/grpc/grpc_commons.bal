@@ -45,16 +45,6 @@ public type ListenerOcspStapling record {|
     int cacheValidityPeriod = 0;
 |};
 
-# Defines the possible values for the keep-alive configuration in service and client endpoints.
-public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
-
-# Decides to keep the connection alive or not based on the `connection` header of the client request }
-public const KEEPALIVE_AUTO = "AUTO";
-# Keeps the connection alive irrespective of the `connection` header value }
-public const KEEPALIVE_ALWAYS = "ALWAYS";
-# Closes the connection irrespective of the `connection` header value }
-public const KEEPALIVE_NEVER = "NEVER";
-
 # Options to compress using gzip or deflate.
 #
 # `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
