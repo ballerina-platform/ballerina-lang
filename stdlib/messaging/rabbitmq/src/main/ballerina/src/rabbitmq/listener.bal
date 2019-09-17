@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as lang;
+import ballerinax/java;
 
 # Public Ballerina API - Ballerina RabbitMQ Message Listener.
 # To provide a listener to consume messages from RabbitMQ.
@@ -76,12 +77,30 @@ public type Listener object {
     # Retrieve the Channel which initializes this listener.
     #
     # + return - RabbitMQ Channel object or error if an I/O problem is encountered.
-    public function getChannel() returns Channel | error = external;
+    public function getChannel() returns Channel | error =
+    @java:Method {
+        class: "org.ballerinalang.messaging.rabbitmq.GetChannel"
+    } external;
 
-    private function registerListener(service serviceType) returns error? = external;
-    private function stop() returns error? = external;
-    private function start() returns error? = external;
-    private function setQosSettings(int? prefetchCount, int? prefetchSize) returns error? = external;
+    private function registerListener(service serviceType) returns error? =
+    @java:Method {
+        class: "org.ballerinalang.messaging.rabbitmq.RegisterListener"
+    } external;
+
+    private function stop() returns error? =
+    @java:Method {
+        class: "org.ballerinalang.messaging.rabbitmq.Stop"
+    } external;
+
+    private function start() returns error? =
+    @java:Method {
+        class: "org.ballerinalang.messaging.rabbitmq.Start"
+    } external;
+
+    private function setQosSettings(int? prefetchCount, int? prefetchSize) returns error? =
+    @java:Method {
+        class: "org.ballerinalang.messaging.rabbitmq.SetQosSettings"
+    } external;
 };
 
 # Represents the list of parameters required to create a subscription.

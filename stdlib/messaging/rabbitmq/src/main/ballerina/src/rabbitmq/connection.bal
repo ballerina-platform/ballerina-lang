@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Public Ballerina API - Interface to an AMQ `Connection`.
 public type Connection object {
 
@@ -33,8 +35,10 @@ public type Connection object {
     # + closeMessage - A message indicating the reason for closing the connection.
     # + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations. Use -1 for infinity.
     # + return - An error if an I/O problem is encountered.
-    public function close(int? closeCode = (), string? closeMessage = (), int? timeoutInMillis = ())
-                    returns Error? = external;
+    public function close(int? closeCode = (), string? closeMessage = (), int? timeoutInMillis = ()) returns Error? =
+    @java:Method {
+        class: "org.ballerinalang.messaging.rabbitmq.Close"
+    } external;
 
     # Aborts the RabbitMQ `Connection` and all its `Channel`s.
     # Forces the `Connection` to close and waits for all the close operations to complete. When timeout is reached
@@ -46,12 +50,18 @@ public type Connection object {
     # + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations. Use -1 for infinity.
     # + return - An error if an I/O problem is encountered.
     public function abortConnection(int? closeCode = (), string? closeMessage = (), int? timeoutInMillis = ())
-                                                                                    returns Error? = external;
+        returns Error? =
+    @java:Method {
+        class: "org.ballerinalang.messaging.rabbitmq.AbortConnection"
+    } external;
 
     # Checks whether `close` was already called.
     #
     # + return - The value `true` if the `Connection` is already closed and `false` otherwise.
     public function isClosed() returns boolean = external;
 
-    private function createConnection(ConnectionConfiguration connectionConfiguration) = external;
+    private function createConnection(ConnectionConfiguration connectionConfiguration) =
+    @java:Method {
+        class: "org.ballerinalang.messaging.rabbitmq.CreateConnection"
+    } external;
 };

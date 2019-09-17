@@ -27,6 +27,7 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-tool')
+    implementation project(':ballerina-java')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')
@@ -35,6 +36,7 @@ dependencies {
 
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
