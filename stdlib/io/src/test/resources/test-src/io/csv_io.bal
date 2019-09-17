@@ -67,7 +67,7 @@ function initReadableCsvChannel(string filePath, string encoding, io:Separator f
 }
 
 function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns error? {
-    io:WritableByteChannel byteChannel = check <@untaintedio:WritableByteChannel>io:openWritableFile(filePath);
+    io:WritableByteChannel byteChannel = check <@untainted>io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
     wch = new io:WritableCSVChannel(charChannel, fieldSeparator);
 }

@@ -287,9 +287,9 @@ public class IOTest {
         BRunUtil.invoke(recordsInputOutputProgramFile, "initReadableChannel", args);
         BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
         BValueArray records = (BValueArray) returns[0];
-        Assert.assertEquals(records.getStringArray()[0], content[0], "Content mismatch in the return array");
-        Assert.assertEquals(records.getStringArray()[1], content[1], "Content mismatch in the return array");
-        Assert.assertEquals(records.getStringArray()[2], content[2], "Content mismatch in the return array");
+        Assert.assertEquals(records.getStringArray()[0], content[0], "Content mismatch in the returned array");
+        Assert.assertEquals(records.getStringArray()[1], content[1], "Content mismatch in the returned array");
+        Assert.assertEquals(records.getStringArray()[2], content[2], "Content mismatch in the returned array");
         Assert.assertEquals(records.size(), 3);
         returns = BRunUtil.invoke(recordsInputOutputProgramFile, "hasNextRecord");
         BBoolean hasNextRecord = (BBoolean) returns[0];
