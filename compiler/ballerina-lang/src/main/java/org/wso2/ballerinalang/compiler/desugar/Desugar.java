@@ -2347,9 +2347,10 @@ public class Desugar extends BLangNodeVisitor {
             // var $temp3$ = a[f(1, foo)];
             do {
                 indexExprNumber += 1;
-                BLangSimpleVariableDef tempIndexVarDef = createVarDef("$temp" + indexExprNumber + "$", indexBasedAccess.indexExpr.type,
-                        indexBasedAccess.indexExpr, compoundAssignment.pos);
-                BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(tempIndexVarDef.pos, tempIndexVarDef.var.symbol);
+                BLangSimpleVariableDef tempIndexVarDef = createVarDef("$temp" + indexExprNumber + "$",
+                        indexBasedAccess.indexExpr.type, indexBasedAccess.indexExpr, compoundAssignment.pos);
+                BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(tempIndexVarDef.pos,
+                        tempIndexVarDef.var.symbol);
                 statements.add(tempIndexVarDef);
                 varRef.add(tempVarRef);
                 type.add(indexBasedAccess.type);
@@ -2370,13 +2371,15 @@ public class Desugar extends BLangNodeVisitor {
             var.type = compoundAssignment.varRef.type;
 
             // Create the right hand side binary expression of the assignment. ex: c[$temp3$][$temp2$][$temp1$] + y
-            BLangExpression rhsExpression = ASTBuilderUtil.createBinaryExpr(compoundAssignment.pos, var, compoundAssignment.expr, compoundAssignment.type, compoundAssignment.opKind, null);
+            BLangExpression rhsExpression = ASTBuilderUtil.createBinaryExpr(compoundAssignment.pos, var,
+                    compoundAssignment.expr, compoundAssignment.type, compoundAssignment.opKind, null);
             rhsExpression.type = compoundAssignment.modifiedExpr.type;
 
             Collections.reverse(statements);
 
             // Create assignment statement. ex: a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
-            BLangAssignment assignStmt = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, var, rhsExpression);
+            BLangAssignment assignStmt = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, var,
+                    rhsExpression);
 
             statements.add(assignStmt);
             // Create block statement. ex: var $temp3$ = a[f(1, foo)];var $temp2$ = 3;var $temp1$ = 2;
@@ -2394,7 +2397,8 @@ public class Desugar extends BLangNodeVisitor {
                 varRef.lhsVar = true;
             }
 
-            result = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, rewriteExpr(varRef), rewriteExpr(compoundAssignment.modifiedExpr));
+            result = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, rewriteExpr(varRef),
+                    rewriteExpr(compoundAssignment.modifiedExpr));
         }
     }
 
