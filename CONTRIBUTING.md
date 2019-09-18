@@ -1,6 +1,6 @@
 # Contributing to Ballerina
 
-Ballerina is a cloud native programming language and runtime, including a message broker and API gateway, which makes it easy to create resilient services that integrate and orchestrate transactions across distributed endpoints. 
+Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software that just works.
 
 We are an open-source project under Apache license and the work of hundreds of contributors.
 
@@ -69,29 +69,23 @@ Building Ballerina requires a Java SE Development Kit (JDK) version 8 to be inst
 
 > NOTE: Set an environment variable `JAVA_HOME` to the path name of the directory into which you installed the JDK release.
 
-**Prerequisite 2** - Install Maven 3.5.0 or later 
+**Prerequisite 2** - Node (v8.9.x or latest LTS release) + npm (v5.6.0 or later)
 
-Install Apache Maven 3.5.0 or a later version: [https://maven.apache.org/install.html](https://maven.apache.org/install.html)
-
-Set the `MAVEN_OPTS` environment variable to avoid the `Maven OutOfMemoryError`.
-
-```
-MAVEN_OPTS="-Xmx2048M -XX:MaxPermSize=1024m" 
-```
-
-Make sure you have an active Internet connection to download dependencies while building.
-
-**Prerequisite 3** - Node (v8.9.x or latest LTS release) + npm (v5.6.0 or later)
-
-**Prerequisite 4** - Docker 
+**Prerequisite 3** - Docker 
 
 #### Building from the source
 
 Clone this repository using the following command.
 
 ```
-git clone --recursive https://github.com/ballerinalang/ballerina
+git clone --recursive https://github.com/ballerina-platform/ballerina-lang.git
 ```
+
+If you have forked the repository to your github account then use the following command replacing <YOUR-GITHUB-USERNAME> with your git username.
+
+````
+git clone --recursive https://github.com/<YOUR-GITHUB-USERNAME>/ballerina-lang.git
+````
 
 If you download the sources, you need to update the git submodules using the following command.
 
@@ -99,15 +93,11 @@ If you download the sources, you need to update the git submodules using the fol
 git submodule update --init 
 ```
 
-Run the Maven command `mvn clean install` from the Ballerina root directory:
-
-Command | Description 
---- | ---
-`mvn clean install` | Build and install the artifacts into the local repository.
-`mvn clean install -Dmaven.test.skip=true` | Build and install the artifacts into the local repository, without running any of the unit tests.
-`mvn clean install -P ballerina` | The `ballerina` profile is used to build only the modules necessary for the runtime distribution (i.e., excluding the tools, etc.)
+Run the gradle command `./gradlew clean build` from the Ballerina root directory:
 
 Extract the Ballerina distribution created at `distribution/zip/ballerina/target/ballerina-<version>-SNAPSHOT.zip`. The `zip/ballerina` directory contains the runtime only. `zip/ballerina-tools/` contains the runtime and tools (e.g., Ballerina Composer).
+
+Note: It is possible to face an IOException error stating "Too many open files". This is due to the default number of possible open files being set to a lower number on your operating system than required for Ballerina to be compiled. You may have to increase the number of open files/file descriptors (FD) on your operating system. This is OS dependent and you can search the internet on how to do this for your operating system (Windows/OSX/Linux). You could update the maximum number of open files to 1000000 (or higher).
 
 ### Setting up your development environment
 
@@ -115,21 +105,12 @@ Extract the Ballerina distribution created at `distribution/zip/ballerina/target
 
 ##### Importing a Ballerina Project
 
-Import any Ballerina project to IntelliJ IDEA similar to any other maven project. 
+Import the Ballerina project to IntelliJ IDEA similar to any other Gradle project. 
 
-* Navigate to Import Project
-* Browse the filesystem and Select Ballerina Project's root pom.xml
-* In "Import Project from Maven" Wizard, set followings.
-   * Set "Import Maven Projects Automatically" .
+* Navigate to `File | Open` menu.
+* Browse the filesystem and Select Ballerina Project's root directory.
+   * If prompted to import Gradle project select `Auto import`.
    * Set Project SDK as Java 1.8
-
-Optionally, you can use the following Maven command to build an IDEA project.
-
-```
-mvn idea:idea
-```
-
-See [http://maven.apache.org/plugins/maven-idea-plugin/](http://maven.apache.org/plugins/maven-idea-plugin/) for more information.
 
 ##### Useful IDEA Plugins
 
@@ -140,7 +121,7 @@ See [http://maven.apache.org/plugins/maven-idea-plugin/](http://maven.apache.org
 
 ##### Importing a Ballerina Project
 
-All Ballerina repositories are developed as maven projects. So you can import any Ballerina project to Eclipse similar to any maven project. 
+All Ballerina repositories are developed as Maven or Gradle projects. So you can import any Ballerina project to Eclipse similar to any Maven or Gradle project. 
 
 * Navigate to **File** → **Import..**
 * Select **Existing Maven Projects** under **Maven**
@@ -161,32 +142,28 @@ To open the plugin views:
 
 2. Under **ANTLR4** section, select and enable **Parse Tree** view and **Syntax Diagram** views.
 
-### Working With Ballerina Grammar
+### Working With the Ballerina Grammar
 
-Ballerina grammar has been implemented using ANTLR4. It is recommended to have some basic understanding on anltr4 grammar syntax and concepts, before working with the Ballerina grammar. “Parr, Terence (January 15, 2013), The Definitive ANTLR 4 Reference” is a good reference to get started with.
+Ballerina grammar has been implemented using ANTLR4. It is recommended to have some basic understanding on ANTLR4 grammar syntax and concepts, before working with the Ballerina grammar. “Parr, Terence (January 15, 2013), The Definitive ANTLR 4 Reference” is a good reference to get started with.
 
-Ballerina grammar can be found under docs/grammar in the Ballerina repository. It consists of two files:
+Ballerina grammar can be found under [`<ballerina>/compiler/ballerina-lang/src/main/resources/grammar/`](https://github.com/ballerina-platform/ballerina-lang/tree/master/compiler/ballerina-lang/src/main/resources/grammar) in the Ballerina repository. It consists of two files:
 
 * BallerinaLexer.g4 - Contains the lexer rules for Ballerina grammar. Lexer is responsible for tokenizing an input Ballerina source code.
 * BallerinaParser.g4 - Contains the parser rules. Parser listens to the token stream generated by the lexer. High level grammar productions/abstractions are defined in the parser using those tokens.
 
-> TIP: If you want to check and validate a grammar rule you just wrote, you can use the antlr4 plugin of your IDE. See Setting up your development environment section for more details.
+> TIP: If you want to check and validate a grammar rule you just wrote, you can use the ANTLR 4 plugin of your IDE. See Setting up your development environment section for more details.
 
 #### Generating Parsers
 
-Once a change is done to the any of the grammar files, it is needed to re-generate the parsers. To generate parsers, we first need to download `antlr-complete-4.5.3.jar` file. Then navigate to `<ballerina>/docs/grammar`, and generate the lexer followed by the parser (order is important) using the following command:
-
+Once a change is done to any of the grammar files, the lexer and the parser need to be re-generated. To generate the lexer and the parser, first download the `antlr-complete-4.5.3.jar` file. Then navigate to `<ballerina>/compiler/ballerina-lang/src/main/resources/grammar/`, and execute the following command:
 ```
-java -jar /<path-to-antlr-jar>/antlr-4.5.3-complete.jar *.g4 -package org.wso2.ballerinalang.compiler.parser.antlr4 -o ../../compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/parser/antlr4/.
+java -jar <path-to-antlr-jar>/antlr-4.5.3-complete.jar *.g4 -package org.wso2.ballerinalang.compiler.parser.antlr4 -o ../../java/org/wso2/ballerinalang/compiler/parser/antlr4/
 ```
 
 The above command will autogenerate some Java classes. Out of the autogenerated classes, `BallerinaParserBaseListener.java` in particular is important, as the Ballerina AST builder is written on top of it. Thus, if any new rules are added to the BallerinaParser.g4, above command will generate new methods in the `BallerinaParserBaseListener.java`, and you need to override those newly added methods inside `BLangParserListener.java` accordingly.
 
 ### Ballerina Compiler 
 https://medium.com/@sameera.jayasoma/ballerina-compiler-design-3406acc2476c
-
-### Ballerina VM
-https://medium.com/@sameera.jayasoma/ballerina-runtime-evolution-f82305e4ab8e
 
 ### Creating a Patch for Review
 
