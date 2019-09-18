@@ -135,9 +135,9 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
         noOfLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
     }
 
-@Test(description = "Tests the retry function using failover webSocket client (starting the given servers in the target URLs, " +
-        "first sending and receiving text frames Afterthat stop the first server in the target URLs, " +
-        "sending and receiving binary frames. Stop that server and starting the first server again, " +
+@Test(description = "Tests the retry function using failover webSocket client (starting the given servers in " +
+        "the target URLs, first sending and receiving text frames Afterthat stop the first server in the target " +
+        "URLs, sending and receiving binary frames. Stop that server and starting the first server again, " +
         "sending and receiving text frames)")
     public void testFailoverRetryWithBothServer() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
