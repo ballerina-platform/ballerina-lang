@@ -92,4 +92,3 @@ function createClient(ClientConfiguration config, PoolOptions globalPoolOptions)
 # + jdbcClient - The Client object which represents the connection pool.
 # + return - Possible error during closing
 public function close(JdbcClient jdbcClient) returns error? = external;
-
