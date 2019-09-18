@@ -69,7 +69,7 @@ type ErrorHandlerGenerator object {
         self.mv.visitJumpInsn(GOTO, jumpLabel);
         self.mv.visitLabel(otherErrorLabel);
         self.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, TRAP_ERROR_METHOD,
-                                        io:sprintf("(L%s;)L%s", THROWABLE, ERROR_VALUE), false);
+                                        io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
         self.mv.visitVarInsn(ASTORE, lhsIndex);
         self.mv.visitLabel(jumpLabel);
     }
