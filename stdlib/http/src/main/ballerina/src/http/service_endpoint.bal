@@ -184,7 +184,7 @@ public type ListenerHttp1Settings record {|
 # is used to indicate that at least one authentication handler from the sub-arrays should be successfully authenticated.
 # + scopes - An array of scopes or an array consisting of arrays of scopes. An array is used to indicate that at least one of the scopes should
 # be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays
-# should successfully be authorozed
+# should successfully be authorized
 # + positiveAuthzCache - The caching configurations for positive authorizations
 # + negativeAuthzCache - The caching configurations for negative authorizations
 # + mandateSecureSocket - Specify whether secure socket configurations are mandatory or not
