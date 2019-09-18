@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -62,6 +63,8 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             //Adding service registries to native data
             resetRegistry(serviceEndpoint);
             return null;
+        } catch (ErrorValue errorValue) {
+            return errorValue;
         } catch (Exception e) {
             return HttpUtil.createHttpError(e.getMessage(), HttpErrorType.GENERIC_LISTENER_ERROR);
         }
