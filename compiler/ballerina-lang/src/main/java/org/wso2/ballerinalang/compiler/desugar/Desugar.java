@@ -2328,21 +2328,74 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
-        BLangAssignment assignStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignStmt.pos = compoundAssignment.pos;
-        BLangVariableReference varRef = compoundAssignment.varRef;
+        // If compound Assignment is an index based expression such as a[f(1, foo)][3][2] += y,
+        // should return a block statement which is equivalent to
+        // var $temp1$ = 2;
+        // var $temp2$ = 3;
+        // var $temp3$ = a[f(1, foo)];
+        // a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
+        if (compoundAssignment.varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            int indexExprNumber = 0;
+            List<BLangStatement> statements = new ArrayList<>();
+            List<BLangSimpleVarRef> varRef = new ArrayList<>();
+            List<BType> type = new ArrayList<>();
 
-        // Create a new varRef if this is a simpleVarRef. Because this can be a
-        // narrowed type var. In that case, lhs and rhs must be visited in two
-        // different manners.
-        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            varRef = ASTBuilderUtil.createVariableRef(compoundAssignment.varRef.pos, varRef.symbol);
-            varRef.lhsVar = true;
+            BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) compoundAssignment.varRef;
+            // Extract the index Expressions from compound assignment and create variable definitions. ex:
+            // var $temp1$ = 2;
+            // var $temp2$ = 3;
+            // var $temp3$ = a[f(1, foo)];
+            do {
+                indexExprNumber += 1;
+                BLangSimpleVariableDef tempIndexVarDef = createVarDef("$temp" + indexExprNumber + "$", indexBasedAccess.indexExpr.type,
+                        indexBasedAccess.indexExpr, compoundAssignment.pos);
+                BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(tempIndexVarDef.pos, tempIndexVarDef.var.symbol);
+                statements.add(tempIndexVarDef);
+                varRef.add(tempVarRef);
+                type.add(indexBasedAccess.type);
+
+                if (indexBasedAccess.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                    indexBasedAccess = (BLangIndexBasedAccess) indexBasedAccess.expr;
+                    continue;
+                }
+                break;
+            } while (true);
+
+            // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
+            BLangVariableReference var = (BLangVariableReference) indexBasedAccess.expr;
+            for (int ref = varRef.size() - 1; ref >= 0; ref--) {
+                var = ASTBuilderUtil.createIndexAccessExpr(var, varRef.get(ref));
+                var.type = type.get(ref);
+            }
+            var.type = compoundAssignment.varRef.type;
+
+            // Create the right hand side binary expression of the assignment. ex: c[$temp3$][$temp2$][$temp1$] + y
+            BLangExpression rhsExpression = ASTBuilderUtil.createBinaryExpr(compoundAssignment.pos, var, compoundAssignment.expr, compoundAssignment.type, compoundAssignment.opKind, null);
+            rhsExpression.type = compoundAssignment.modifiedExpr.type;
+
+            Collections.reverse(statements);
+
+            // Create assignment statement. ex: a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
+            BLangAssignment assignStmt = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, var, rhsExpression);
+
+            statements.add(assignStmt);
+            // Create block statement. ex: var $temp3$ = a[f(1, foo)];var $temp2$ = 3;var $temp1$ = 2;
+            // a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
+            BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(compoundAssignment.pos, statements);
+            result = rewrite(bLangBlockStmt, env);
+        } else {
+            BLangVariableReference varRef = compoundAssignment.varRef;
+
+            // Create a new varRef if this is a simpleVarRef. Because this can be a
+            // narrowed type var. In that case, lhs and rhs must be visited in two
+            // different manners.
+            if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                varRef = ASTBuilderUtil.createVariableRef(compoundAssignment.varRef.pos, varRef.symbol);
+                varRef.lhsVar = true;
+            }
+
+            result = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, rewriteExpr(varRef), rewriteExpr(compoundAssignment.modifiedExpr));
         }
-
-        assignStmt.setVariable(rewriteExpr(varRef));
-        assignStmt.expr = rewriteExpr(compoundAssignment.modifiedExpr);
-        result = assignStmt;
     }
 
     @Override
