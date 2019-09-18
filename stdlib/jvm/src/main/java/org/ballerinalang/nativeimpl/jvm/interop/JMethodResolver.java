@@ -22,7 +22,6 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
@@ -237,7 +236,8 @@ class JMethodResolver {
             case TypeTags.DECIMAL_TAG:
                 return BigDecimal.class.isAssignableFrom(jParamType);
             case TypeTags.STRING_TAG:
-                return HandleValue.class.isAssignableFrom(jParamType);
+                // Currently no java type matches to ballerina string type.
+                return false;
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.JSON_TAG:
