@@ -62,8 +62,8 @@ public class OpenApiMesseges {
             "occured.";
     public static final String MODULE_MD_EXCEPTION = "Unable to create moudle.md file. File system error occured.";
     public static final String DEFINITION_EXISTS = "There is already an OpenApi contract in the location.";
-    public static final String EXPERIMENTAL_FEATURE = "Note: This is an experimental tool, which only supports a limited " +
-            "set of functionality.";
+    public static final String EXPERIMENTAL_FEATURE = "Note: This is an experimental tool, which only" +
+            " supports a limited set of functionality.";
 
     //TODO Update keywords if Ballerina Grammer changes
     private static final String[] KEYWORDS = new String[]{"abort", "aborted", "abstract", "all", "annotation",
