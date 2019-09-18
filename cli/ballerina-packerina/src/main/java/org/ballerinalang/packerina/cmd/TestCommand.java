@@ -77,7 +77,7 @@ public class TestCommand implements BLauncherCmd {
     }
 
     public TestCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist) {
+                       boolean skipCopyLibsFromDist) {
         this.sourceRootPath = userDir;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -86,7 +86,7 @@ public class TestCommand implements BLauncherCmd {
     }
 
     @CommandLine.Option(names = {"--sourceroot"},
-            description = "Path to the directory containing source files and modules")
+                        description = "Path to the directory containing source files and modules")
     private String sourceRoot;
 
     @CommandLine.Option(names = {"--all", "-a"}, description = "Build or compile all the modules of the project.")
@@ -128,8 +128,11 @@ public class TestCommand implements BLauncherCmd {
             return;
         }
 
+        String[] args = LaunchUtils
+                .initConfigurations(this.argList == null ? new String[0] : this.argList.toArray(new String[0]));
+
         // check if there are too many arguments.
-        if (this.argList != null && containsUserArgs(this.argList)) {
+        if (args.length > 1) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
                     "ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
@@ -294,9 +297,5 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
-
-    private boolean containsUserArgs(List<String> args) {
-        return LaunchUtils.initConfigurations(args.toArray(new String[0])).length > 1;
     }
 }

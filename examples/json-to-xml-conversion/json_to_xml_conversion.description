@@ -1,6 +1,7 @@
-// JSON to XML conversions can be done using the `toXML` function. This function takes
-// a record of options as an argument. The options record has two fields:
-// the `attributePrefix` and the `arrayEntryTag`. The `attributePrefix` is a
-// prefix that is used to identify the XML attributes. The default value of the `attributePrefix` 
-// option is `@`. The `arrayEntryTag` is the name of the tag that is to be added
-// to each entry of the JSON array. The default value of the `arrayEntryTag` option is `item`.
+// JSON to XML conversions can be done using the `xmlutils:fromJSON()` function.
+// This function takes a `xmlutils:JsonOptions` record as an argument.
+// The `JsonOptions` record has two fields: the `attributePrefix` and the `arrayEntryTag`.
+// The `attributePrefix` is a prefix that is used to identify the XML attributes.
+// The default value of the `attributePrefix` option is `@`.
+// The `arrayEntryTag` is the name of the tag that is to be added to each entry of
+// the JSON array. The default value of the `arrayEntryTag` option is `root`.

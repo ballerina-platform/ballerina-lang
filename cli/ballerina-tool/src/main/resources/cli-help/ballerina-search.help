@@ -6,7 +6,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Searches Ballerina Central for the given keyword appearing in
+       Search command searches Ballerina Central for the given keyword appearing in
        organization name, module name, or module descriptions.
 
        The keyword is treated as case-insensitive when search is executed.

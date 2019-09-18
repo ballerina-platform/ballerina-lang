@@ -49,7 +49,7 @@ public class Publish {
 
     public static Object externPublish(Strand strand, ObjectValue producerObject, String subject, Object data,
                                        Object replyTo) {
-        Object connection = producerObject.get("connection");
+        Object connection = producerObject.get("conn");
 
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;

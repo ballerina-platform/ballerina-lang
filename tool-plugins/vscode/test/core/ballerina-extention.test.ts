@@ -48,7 +48,7 @@ suite("Ballerina Extension Core Tests", function () {
     });
 
     test("Test getBallerinaVersion", function () {
-        ballerinaExtInstance.getBallerinaVersion(testBallerinaHome).then(detected=>{
+        ballerinaExtInstance.getBallerinaVersion(testBallerinaHome, true).then(detected=>{
             assert.equal(detected, testBallerinaVersion);
         });
     });

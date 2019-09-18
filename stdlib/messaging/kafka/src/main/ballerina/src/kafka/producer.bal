@@ -46,7 +46,7 @@ import ballerina/system;
 # + connectionsMaxIdleTimeInMillis - Close idle connections after the number of milliseconds.
 # + transactionTimeoutInMillis - Timeout for transaction status update from the producer.
 # + enableIdempotence - Exactly one copy of each message is written in the stream when enabled.
-# + secureSocket - SSL/TLS related options
+# + secureSocket - Configurations related to SSL/TLS.
 public type ProducerConfig record {|
     string? bootstrapServers = ();
     Producer_Acks acks = ACKS_SINGLE;
@@ -105,6 +105,9 @@ public type Producer client object {
 
     public ProducerConfig? producerConfig = ();
 
+    # Creates a new Kafka `Producer`.
+    #
+    # + config - Configurations related to initializing a Kafka `Producer`.
     public function __init(ProducerConfig config) {
         self.producerConfig = config;
         var result = self.init(config);

@@ -34,9 +34,9 @@ public type TopicPartition record {|
 
 # Provides configurations for facilitating secure communication with the Kafka server.
 #
-# + keyStore - Configurations associated with KeyStore
-# + trustStore - Configurations associated with TrustStore
-# + protocol - SSL/TLS protocol related options
+# + keyStore - Configurations associated with KeyStore.
+# + trustStore - Configurations associated with TrustStore.
+# + protocol - Configurations related to SSL/TLS protocol and version to be used.
 # + sslProvider - The name of the security provider used for SSL connections. Default value is the default security
 #               provider of the JVM.
 # + sslKeyPassword - The password of the private key in the key store file. This is optional for client.

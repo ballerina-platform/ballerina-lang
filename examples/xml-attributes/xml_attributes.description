@@ -2,5 +2,3 @@
 // of namespace declarations that apply for that element. 
 // In Ballerina, both of these types are treated the same. 
 // Attributes are accessed from an XML sequence using the `@` postfix operator.
-// XML attribute access is at the experimental stage,
-// Thus, use the --experimental flag to enable them.
