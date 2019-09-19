@@ -386,33 +386,33 @@ public type Entity object {
     public function hasHeader(@untainted string headerName) returns boolean = external;
 };
 
-// Encodes a given input with MIME specific Base64 encoding scheme.
-//
-// + contentToBeEncoded - Content that needs to be encoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
-// + charset - Charset to be used. This is used only with the string input
-// + return - If the given input is of type string, an encoded `string` is returned.
-//            If the given input is of type byte[], an encoded `byte[]` is returned.
-//            If the given input is of type io:ReadableByteChannel, an encoded `io:ReadableByteChannel` is returned.
-//            In case of errors, an `EncodeError` record is returned.
-function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
+# @Deprecated. Encodes a given input with MIME specific Base64 encoding scheme.
+#
+# + contentToBeEncoded - Content that needs to be encoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
+# + charset - Charset to be used. This is used only with the string input
+# + return - If the given input is of type string, an encoded `string` is returned.
+#            If the given input is of type byte[], an encoded `byte[]` is returned.
+#            If the given input is of type io:ReadableByteChannel, an encoded `io:ReadableByteChannel` is returned.
+#            In case of errors, an `EncodeError` record is returned.
+public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
     returns (string|byte[]|io:ReadableByteChannel|EncodeError) = external;
 
-// Decodes a given input with MIME specific Base64 encoding scheme.
-//
-// + contentToBeDecoded - Content that needs to be decoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
-// + charset - Charset to be used. This is used only with the string input
-// + return - If the given input is of type string, a decoded `string` is returned.
-//            If the given input is of type byte[], a decoded `byte[]` is returned.
-//            If the given input is of type io:ReadableByteChannel, a decoded `io:ReadableByteChannel` is returned.
-//            In case of errors, an `DecodeError` record is returned.
-function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
+# @Deprecated. Decodes a given input with MIME specific Base64 encoding scheme.
+#
+# + contentToBeDecoded - Content that needs to be decoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
+# + charset - Charset to be used. This is used only with the string input
+# + return - If the given input is of type string, a decoded `string` is returned.
+#            If the given input is of type byte[], a decoded `byte[]` is returned.
+#            If the given input is of type io:ReadableByteChannel, a decoded `io:ReadableByteChannel` is returned.
+#            In case of errors, an `DecodeError` record is returned.
+public function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
     returns (string|byte[]|io:ReadableByteChannel|DecodeError) = external;
 
-// Encodes a given byte[] with Base64 encoding scheme.
-//
-// + valueToBeEncoded - Content that needs to be encoded
-// + return - An encoded byte[]. In case of errors, an `EncodeError` record is returned
-function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeError {
+# @Deprecated. Encodes a given byte[] with Base64 encoding scheme.
+#
+# + valueToBeEncoded - Content that needs to be encoded
+# + return - An encoded byte[]. In case of errors, an `EncodeError` record is returned
+public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeError {
     var result = base64Encode(valueToBeEncoded);
     if (result is byte[]|EncodeError) {
         return result;
@@ -421,11 +421,11 @@ function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeError {
     }
 }
 
-// Decodes a given byte[] with Base64 encoding scheme.
-//
-// + valueToBeDecoded - Content that needs to be decoded
-// + return - A decoded `byte[]`. In case of errors, an `DecodeError` record is returned
-function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodeError {
+# @Deprecated. Decodes a given byte[] with Base64 encoding scheme.
+#
+# + valueToBeDecoded - Content that needs to be decoded
+# + return - A decoded `byte[]`. In case of errors, an `DecodeError` record is returned
+public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodeError {
     var result = base64Decode(valueToBeDecoded);
     if (result is byte[]|DecodeError) {
         return result;
