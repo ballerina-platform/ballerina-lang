@@ -46,11 +46,13 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 public class RuntimeUtils {
 
     private static final String CRASH_LOGGER = "b7a.log.crash";
-    private static final String  DEFAULT_CRASH_LOG_FILE = "ballerina-internal.log";
+    private static final String DEFAULT_CRASH_LOG_FILE = "ballerina-internal.log";
     private static PrintStream errStream = System.err;
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
     private static Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
+    private static final String JAVA_VERSION = "java.version";
+    private static final String VERSION_ZERO = "0";
 
     private static final PrintStream stderr = System.err;
     private static FileHandler handler;
@@ -58,9 +60,9 @@ public class RuntimeUtils {
     /**
      * Used to handle rest args passed in to the main method.
      *
-     * @param args  args from main method
+     * @param args args from main method
      * @param index starting index of var args
-     * @param type  array type
+     * @param type array type
      * @return ArrayValue
      */
     public static ArrayValue createVarArgsArray(String[] args, int index, BArrayType type) {
@@ -152,12 +154,12 @@ public class RuntimeUtils {
     public static void handleInvalidConfig() {
         handleUsageError("value for option 'config' is missing");
     }
-    
+
     public static void handleUsageError(String errorMsg) {
         errStream.println("ballerina: " + errorMsg);
         Runtime.getRuntime().exit(1);
     }
-    
+
     public static void silentlyLogBadSad(Throwable throwable) {
         // These errors are unhandled errors in JVM, hence logging them to bre log.
         printCrashLog(throwable);
@@ -195,5 +197,67 @@ public class RuntimeUtils {
         } else {
             return Paths.get(TEMP_DIR, fileName).toString();
         }
+    }
+
+    /**
+     * Check for the compatibility of a given java version against the current java runtime version.
+     * This assumes the versions are in the following formats:
+     * <ul>
+     * <li>Java 8 or below: <i>1.8.x</i>, <i>1.7.x</i>, <i>1.6.x</i>, etc.</li>
+     * <li>Java 9 or above: <i>9.x.y.z</i>, <i>10.x.y.z</i>, <i>11.x.y.z</i>, etc.</li>
+     * </ul>
+     * 
+     * @param compiledVersion java version to check the compatibility
+     */
+    public static void verifyJavaCompatibility(String compiledVersion) {
+        String runtimeVersion = System.getProperty(JAVA_VERSION);
+        if (compiledVersion == null || runtimeVersion == null || compiledVersion.equals(runtimeVersion)) {
+            return;
+        }
+
+        String[] compiledVersionParts = compiledVersion.split("\\.|_");
+        String[] runtimeVersionParts = runtimeVersion.split("\\.|_");
+
+        // check the major version.
+        if (!compiledVersionParts[0].equals(runtimeVersionParts[0])) {
+            String compiledMajorVersion = compiledVersionParts.length > 1 ? compiledVersionParts[1] : VERSION_ZERO;
+            logJavaVersionMismatchError(runtimeVersion, compiledVersionParts[0], compiledMajorVersion);
+            return;
+        }
+
+        // if both have only major versions, then stop checking further.
+        if (compiledVersionParts.length == 1 && compiledVersionParts.length == 1) {
+            return;
+        }
+
+        // if only one of them have a minor version, check whether the other one has
+        // minor version as zero.
+        // eg: v9 Vs v9.0.x
+        if (compiledVersionParts.length == 1) {
+            if (!runtimeVersionParts[1].equals(VERSION_ZERO)) {
+                logJavaVersionMismatchError(runtimeVersion, compiledVersionParts[0], VERSION_ZERO);
+            }
+            return;
+        }
+
+        if (runtimeVersionParts.length == 1) {
+            if (!compiledVersionParts[1].equals(VERSION_ZERO)) {
+                logJavaVersionMismatchError(runtimeVersion, compiledVersionParts[0], compiledVersionParts[1]);
+            }
+            return;
+        }
+
+        // if both have minor versions, check for their equality.
+        if (!compiledVersionParts[1].equals(runtimeVersionParts[1])) {
+            logJavaVersionMismatchError(runtimeVersion, compiledVersionParts[0], compiledVersionParts[1]);
+        }
+
+        // ignore the patch versions.
+    }
+
+    private static void logJavaVersionMismatchError(String runtimeVersion, String compiledMajorVersion,
+                                                    String compiledMinorVersion) {
+        stderr.println("WARNING: Incompatible JRE version '" + runtimeVersion + "' found. This ballerina program " +
+                "supports running on JRE version '" + compiledMajorVersion + "." + compiledMinorVersion + ".*'");
     }
 }
