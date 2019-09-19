@@ -386,7 +386,7 @@ public type Entity object {
     public function hasHeader(@untainted string headerName) returns boolean = external;
 };
 
-# @Deprecated. Encodes a given input with MIME specific Base64 encoding scheme.
+# **Deprecated API**. Encodes a given input with MIME specific Base64 encoding scheme.
 #
 # + contentToBeEncoded - Content that needs to be encoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
 # + charset - Charset to be used. This is used only with the string input
@@ -397,7 +397,7 @@ public type Entity object {
 public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
     returns (string|byte[]|io:ReadableByteChannel|EncodeError) = external;
 
-# @Deprecated. Decodes a given input with MIME specific Base64 encoding scheme.
+# **Deprecated API**. Decodes a given input with MIME specific Base64 encoding scheme.
 #
 # + contentToBeDecoded - Content that needs to be decoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
 # + charset - Charset to be used. This is used only with the string input
@@ -408,7 +408,7 @@ public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeE
 public function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
     returns (string|byte[]|io:ReadableByteChannel|DecodeError) = external;
 
-# @Deprecated. Encodes a given byte[] with Base64 encoding scheme.
+# **Deprecated API**. Encodes a given byte[] with Base64 encoding scheme.
 #
 # + valueToBeEncoded - Content that needs to be encoded
 # + return - An encoded byte[]. In case of errors, an `EncodeError` record is returned
@@ -421,7 +421,7 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeE
     }
 }
 
-# @Deprecated. Decodes a given byte[] with Base64 encoding scheme.
+# **Deprecated API**. Decodes a given byte[] with Base64 encoding scheme.
 #
 # + valueToBeDecoded - Content that needs to be decoded
 # + return - A decoded `byte[]`. In case of errors, an `DecodeError` record is returned
