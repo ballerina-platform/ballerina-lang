@@ -28,7 +28,7 @@ public const CSV = "csv";
 public const TDF = "tdf";
 
 # Field separators which are supported by DelimitedTextRecordChannel.
-public type Separator COMMA|TAB|COLON;
+public type Separator COMMA|TAB|COLON|string;
 public const COMMA = ",";
 public const TAB = "\t";
 public const COLON = ":";
