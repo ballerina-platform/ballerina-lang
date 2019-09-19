@@ -168,6 +168,7 @@ public class FormattingTest {
                 {"expectedUnicodeCharTest.bal", "unicodeCharTest.bal"},
                 {"expectedTupleTypeRest.bal", "tupleTypeRest.bal"},
                 {"expectedTupleDestructure.bal", "tupleDestructure.bal"},
+                {"expectedNegativeEOF.bal", "negativeEOF.bal"},
         };
     }
 
