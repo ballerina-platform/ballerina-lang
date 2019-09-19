@@ -1,11 +1,12 @@
 
-import { WorkerSend as WorkerSendNode} from "@ballerina/ast-model";
+import { WorkerSend as WorkerSendNode, ASTUtil} from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { WorkerSendViewState } from "../../view-model/worker-send";
 import { ActionInvocation } from "./action-invocation";
 import { ArrowHead } from "./arrow-head";
+import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -34,6 +35,8 @@ export const WorkerSend: React.StatelessComponent<{
         mLine.y1 = mLine.y2 = viewState.bBox.y + config.statement.height;
         mLine.x2 = viewState.to.lifeline.bBox.x + (viewState.to.lifeline.bBox.w / 2);
 
+        const fullText = (model) ? ASTUtil.genSource(model) : undefined;
+
         if (viewState.isAction) {
             mLine.y2 = mLine.y1 += (config.statement.height / 2);
         }
@@ -48,6 +51,12 @@ export const WorkerSend: React.StatelessComponent<{
                     astModel={model} />}
                 <ArrowHead direction={arrowDirection} x={mLine.x2} y={mLine.y2} />
                 <line {...mLine} />
-                {!viewState.isAction && <text {...statementProps}>{viewState.bBox.label}</text>}
+                {!viewState.isAction &&
+                    <SourceLinkedLabel
+                        {...statementProps}
+                        text={viewState.bBox.label}
+                        target={model}
+                        fullText={fullText}
+                    />}
             </g>);
     };
