@@ -70,6 +70,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "break",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "240",
+      "insertText": "break;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "continue",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "240",
+      "insertText": "continue;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "Statement",
@@ -130,7 +146,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "240",
-      "insertText": "transaction with retries = ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
+      "insertText": "transaction with retries = ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n} committed {\n\t${4}\n} aborted {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -281,6 +297,14 @@
       "detail": "Anydata",
       "sortText": "230",
       "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "i",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "i",
       "insertTextFormat": "Snippet"
     },
     {
