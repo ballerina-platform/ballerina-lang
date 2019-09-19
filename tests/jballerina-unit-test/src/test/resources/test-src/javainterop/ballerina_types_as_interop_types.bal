@@ -2,10 +2,10 @@ import ballerinax/java;
 
 public function interopWithArrayAndMap() returns int[] {
     map<int> mapVal = { "keyVal":8};
-    return getArrayValueFromMap("keyVal", mapVal);
+    return getArrayValueFromMap(java:fromString("keyVal"), mapVal);
 }
 
-public function getArrayValueFromMap(string key, map<int> mapValue) returns int[] = @java:Method {
+public function getArrayValueFromMap(handle key, map<int> mapValue) returns int[] = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
@@ -36,11 +36,11 @@ public function acceptRefTypesAndReturnMap(Person a, [int, string, Person] b, in
 } external;
 
 public function interopWithErrorReturn() returns string {
-    error e = acceptStringErrorReturn("example error with given reason");
+    error e = acceptStringErrorReturn(java:fromString("example error with given reason"));
     return e.reason();
 }
 
-public function acceptStringErrorReturn(string s) returns error = @java:Method {
+public function acceptStringErrorReturn(handle s) returns error = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
@@ -101,7 +101,7 @@ public function acceptObjectAndObjectReturn(Person p, int newVal) returns Person
 public function interopWithRecordReturn() returns boolean {
     string newVal = "new name";
     Employee p = {name:"name begin"};
-    Employee a = acceptRecordAndRecordReturn(p, newVal);
+    Employee a = acceptRecordAndRecordReturn(p, java:fromString(newVal));
     if (a.name != newVal) {
         return false;
     }
@@ -111,7 +111,7 @@ public function interopWithRecordReturn() returns boolean {
     return true;
 }
 
-public function acceptRecordAndRecordReturn(Employee e, string newVal) returns Employee = @java:Method {
+public function acceptRecordAndRecordReturn(Employee e, handle newVal) returns Employee = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
@@ -169,7 +169,7 @@ public function acceptIntReturnIntThrowsCheckedException(int a) returns int | er
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public function acceptRecordAndRecordReturnWhichThrowsCheckedException(Employee e, string newVal) returns Employee | error = @java:Method {
+public function acceptRecordAndRecordReturnWhichThrowsCheckedException(Employee e, handle newVal) returns Employee | error = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
@@ -182,11 +182,11 @@ public function acceptRefTypesAndReturnMapWhichThrowsCheckedException(Person a, 
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public function acceptStringErrorReturnWhichThrowsCheckedException(string s) returns error = @java:Method {
+public function acceptStringErrorReturnWhichThrowsCheckedException(handle s) returns error = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public function getArrayValueFromMapWhichThrowsCheckedException(string key, map<int> mapValue) returns int[] | error = @java:Method {
+public function getArrayValueFromMapWhichThrowsCheckedException(handle key, map<int> mapValue) returns int[] | error = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

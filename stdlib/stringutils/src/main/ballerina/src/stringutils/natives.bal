@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerinax/java;
+import ballerina/io;
 
 # Checks whether the given string contains a particular substring.
 #
@@ -68,7 +69,15 @@ public function matches(string stringToMatch, string regex) returns boolean {
 # + replacement - replacement string
 # + return - the resultant string
 public function replace(string originalText, string textToReplace, string replacement) returns string {
-    return replaceExternal(java:fromString(originalText), java:fromString(textToReplace), java:fromString(replacement));
+    handle value = replaceExternal(java:fromString(originalText), java:fromString(textToReplace), java:fromString(replacement));
+    string? updatedString = java:toString(value);
+    if (updatedString is string) {
+        return updatedString;
+    } else {
+        // should never reach here
+        error e = error(io:sprintf("error occurred while replacing '%s' in '%s' ", textToReplace, originalText));
+        panic e;
+    }
 }
 
 # Replaces each substring which matches the given regular expression, from the given original string value, with the
@@ -79,7 +88,16 @@ public function replace(string originalText, string textToReplace, string replac
 # + replacement - the replacement string
 # + return - the resultant string
 public function replaceAll(string originalString, string regex, string replacement) returns string {
-    return replaceAllExternal(java:fromString(originalString), java:fromString(regex), java:fromString(replacement));
+    handle value = replaceAllExternal(java:fromString(originalString), java:fromString(regex), 
+                                      java:fromString(replacement));
+    string? updatedString = java:toString(value);
+    if (updatedString is string) {
+        return updatedString;
+    } else {
+        // should never reach here
+        error e = error(io:sprintf("error occurred while replacing '%s' in '%s' ", regex, originalString));
+        panic e;
+    }
 }
 
 # Replaces the first substring that matches the given sequence from the provided string, with the specified literal
@@ -90,9 +108,17 @@ public function replaceAll(string originalString, string regex, string replaceme
 # + replacement - the replacement string
 # + return - the resultant string
 public function replaceFirst(string originalString, string stringToReplace, string replacement) returns string {
-    return replaceFirstExternal(java:fromString(originalString),
+    handle value = replaceFirstExternal(java:fromString(originalString),
                                 java:fromString(stringToReplace),
                                 java:fromString(replacement));
+    string? updatedString = java:toString(value);
+    if (updatedString is string) {
+        return updatedString;
+    } else {
+        // should never reach here
+        error e = error(io:sprintf("error occurred while replacing '%s' in '%s' ", stringToReplace, originalString));
+        panic e;
+    }
 }
 
 # Splits a string using the given delimiter.
@@ -138,20 +164,20 @@ function matchesExternal(handle stringToMatch, handle regex) returns boolean = @
     paramTypes: ["java.lang.String"]
 } external;
 
-function replaceExternal(handle originalText, handle textToReplace, handle replacement) returns string = @java:Method {
+function replaceExternal(handle originalText, handle textToReplace, handle replacement) returns handle = @java:Method {
     name: "replace",
     class: "java.lang.String",
     paramTypes: ["java.lang.String", "java.lang.String"]
 } external;
 
-function replaceAllExternal(handle originalString, handle regex, handle replacement) returns string = @java:Method {
+function replaceAllExternal(handle originalString, handle regex, handle replacement) returns handle = @java:Method {
     name: "replaceAll",
     class: "java.lang.String",
     paramTypes: ["java.lang.String", "java.lang.String"]
 } external;
 
 function replaceFirstExternal(handle originalString, handle stringToReplace, handle replacement) returns
-                            string = @java:Method {
+                            handle = @java:Method {
     name: "replaceFirst",
     class: "java.lang.String",
     paramTypes: ["java.lang.String", "java.lang.String"]
