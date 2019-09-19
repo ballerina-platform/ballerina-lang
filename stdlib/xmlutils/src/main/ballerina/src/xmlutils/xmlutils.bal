@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Type for XML options.
+# Record to provide configurations for the JSON to XML conversion.
 #
-# + attributePrefix - attribute prefix of JSON
-# + arrayEntryTag - array entry tag of JSON
+# + attributePrefix - attribute prefix to use in XML
+# + arrayEntryTag - XML tag to add an element from a JSON array
 public type JsonOptions record {
     string attributePrefix = "@";
     string arrayEntryTag = "root";
@@ -25,10 +25,10 @@ public type JsonOptions record {
 
 # Converts a JSON object to an XML representation.
 #
-# + x - The json source
+# + j - The json source
 # + options - JsonOptions struct for JSON to XML conversion properties
 # + return - XML representation of the given JSON
-public function fromJSON(json x, JsonOptions options = {}) returns xml|error = external;
+public function fromJSON(json j, JsonOptions options = {}) returns xml|error = external;
 
 # Converts a table to its xml representation.
 #

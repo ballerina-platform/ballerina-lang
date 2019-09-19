@@ -22,14 +22,14 @@ public type KeyAlgorithm RSA;
 # The `RSA` algorithm
 public const RSA = "RSA";
 
-# Padding algorithms supported with AES encryption and decryption
+# Padding algorithms supported with AES encryption and decryption.
 public type AesPadding NONE|PKCS5;
 
-# Padding algorithms supported with RSA encryption and decryption
+# Padding algorithms supported with RSA encryption and decryption.
 public type RsaPadding PKCS1|OAEPwithMD5andMGF1|OAEPWithSHA1AndMGF1|OAEPWithSHA256AndMGF1|OAEPwithSHA384andMGF1|
                        OAEPwithSHA512andMGF1;
 
-# No padding
+# Represents no padding.
 public const NONE = "NONE";
 
 # The `PKCS1` padding mode
@@ -53,7 +53,7 @@ public const OAEPwithSHA384andMGF1 = "OAEPwithSHA384andMGF1";
 # The `OAEPwithSHA512andMGF1` padding mode
 public const OAEPwithSHA512andMGF1 = "OAEPwithSHA512andMGF1";
 
-# Record for providing key store related configurations.
+# Key store related configurations.
 #
 # + path - Path to the key store file
 # + password - Key store password
@@ -62,7 +62,7 @@ public type KeyStore record {|
     string password;
 |};
 
-# Record for providing trust store related configurations.
+# Trust store related configurations.
 #
 # + path - Path to the key store file
 # + password - Key store password
@@ -261,7 +261,7 @@ public function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKe
 
 # Read a private key from the provided PKCS#12 archive file.
 #
-# + keyStore - Key store or Trust store configuration
+# + keyStore - Key store or Trust store configurations
 # + keyAlias - Key alias
 # + keyPassword - Key password
 # + return - Reference to the private key or `Error` if private key was unreadable
@@ -270,7 +270,7 @@ public function decodePrivateKey(KeyStore|TrustStore keyStore, string keyAlias, 
 
 # Read a public key from the provided PKCS#12 archive file.
 #
-# + keyStore - Key store or Trust store configuration
+# + keyStore - Key store or Trust store configurations
 # + keyAlias - Key alias
 # + return - Reference to the public key or `Error` if private key was unreadable
 public function decodePublicKey(KeyStore|TrustStore keyStore, string keyAlias) returns PublicKey|Error = external;

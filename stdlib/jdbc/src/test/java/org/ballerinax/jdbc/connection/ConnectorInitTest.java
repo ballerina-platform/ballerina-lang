@@ -123,6 +123,24 @@ public class ConnectorInitTest {
         BRunUtil.invokeFunction(result, "testConnectionFailure", arg);
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid JDBC URL: .*")
+    public void testInvalidJdbcUrl1() {
+        BRunUtil.invokeFunction(result, "testInvalidJdbcUrl1");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid JDBC URL: localhost:3306/testdb.*")
+    public void testInvalidJdbcUrl2() {
+        BRunUtil.invokeFunction(result, "testInvalidJdbcUrl2");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid JDBC URL: jdbc://dbhost.com/testdb.*")
+    public void testInvalidJdbcUrl3() {
+        BRunUtil.invokeFunction(result, "testInvalidJdbcUrl3");
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));

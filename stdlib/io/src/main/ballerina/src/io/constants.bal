@@ -23,12 +23,30 @@
 #
 # TDF - Field separator will be tab and record separator will be new line.
 public type Format DEFAULT|CSV|TDF;
+
+#  Would default to the format specified by CSVChannel. Precedence will be given to field separator and record separator.
 public const DEFAULT = "default";
+
+# Field separator would be "," and the record separator would be new line.
 public const CSV = "csv";
+
+# Field separator will be tab and record separator will be new line.
 public const TDF = "tdf";
 
 # Field separators which are supported by DelimitedTextRecordChannel.
+#
+# COMMA - Delimited text records would be separated using a comma.
+#
+# TAB - Delimited text records would be separated using a tab.
+#
+# COLON - Delimited text records would be separated using a colon(:).
 public type Separator COMMA|TAB|COLON|string;
+
+# Comma (,) will be used as the field separator.
 public const COMMA = ",";
+
+# Tab (/t) will be use as the field separator.
 public const TAB = "\t";
+
+# Colon (:) will be use as the field separator.
 public const COLON = ":";
