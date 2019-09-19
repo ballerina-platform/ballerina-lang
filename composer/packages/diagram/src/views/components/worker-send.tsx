@@ -1,5 +1,5 @@
 
-import { WorkerSend as WorkerSendNode, ASTUtil} from "@ballerina/ast-model";
+import { ASTUtil, WorkerSend as WorkerSendNode} from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
