@@ -34,7 +34,7 @@ public class ServerRemoteFlowControlListener implements Http2RemoteFlowControlle
     private static final Logger LOG = LoggerFactory.getLogger(ServerRemoteFlowControlListener.class);
     private Http2RemoteFlowController http2RemoteFlowController;
     private ConcurrentHashMap<Integer, Http2OutboundRespListener.ResponseWriter> responseWriters =
-        new ConcurrentHashMap<>(); //Keep track of response writers to notify the relevant stream of its writability
+            new ConcurrentHashMap<>(); //Keep track of response writers to notify the relevant stream of its writability
 
     public ServerRemoteFlowControlListener(Http2RemoteFlowController http2RemoteFlowController) {
         this.http2RemoteFlowController = http2RemoteFlowController;
@@ -72,5 +72,14 @@ public class ServerRemoteFlowControlListener implements Http2RemoteFlowControlle
         if (responseWriter != null) {
             responseWriters.remove(responseWriter.getStreamId(), responseWriter);
         }
+    }
+
+    public void removeAllListeners() {
+        responseWriters.forEach((streamId, writer) -> {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Remove back pressure listener from stream {} ", streamId);
+            }
+            writer.getBackPressureObservable().removeListener();
+        });
     }
 }
