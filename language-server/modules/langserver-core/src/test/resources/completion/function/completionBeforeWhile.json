@@ -146,7 +146,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "240",
-      "insertText": "transaction with retries = ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
+      "insertText": "transaction with retries = ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n} committed {\n\t${4}\n} aborted {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
     {
