@@ -179,6 +179,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Channel Inactive event received in {}", this);
+        }
         destroy();
         closeTargetChannels();
         ctx.fireChannelInactive();
@@ -191,6 +194,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void destroy() {
+        serverRemoteFlowControlListener.removeAllListeners();
         http2ServerChannel.getDataEventListeners().forEach(Http2DataEventListener::destroy);
         http2ServerChannel.destroy();
     }
