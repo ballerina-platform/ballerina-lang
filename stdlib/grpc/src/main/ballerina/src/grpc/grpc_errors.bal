@@ -23,89 +23,104 @@ public type Detail record {
     error cause?;
 };
 
-# Reference: https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-#
-# Indicates the operation was canceled (typically by the caller).
+# Identifies cancelled error.
 public const CANCELLED_ERROR = "{ballerina/grpc}CancelledError";
+# Represents the operation canceled(typically by the caller) error.
 public type CancelledError error<CANCELLED_ERROR, Detail>;
 
-# Indicates unknown error.(e.g. Status value received is unknown)
+# Identifies unknown error.
 public const UNKNOWN_ERROR = "{ballerina/grpc}UnKnownError";
+# Represents unknown error.(e.g. Status value received is unknown)
 public type UnKnownError error<UNKNOWN_ERROR, Detail>;
 
-# Indicates client specified an invalid argument.
+# Identifies invalid argument error.
 public const INVALID_ARGUMENT_ERROR = "{ballerina/grpc}InvalidArgumentError";
+# Represents client specified an invalid argument error.
 public type InvalidArgumentError error<INVALID_ARGUMENT_ERROR, Detail>;
 
-# Indicates operation expired before completion.
+# Identifies deadline exceeded error.
 public const DEADLINE_EXCEEDED_ERROR = "{ballerina/grpc}DeadlineExceededError";
+# Represents operation expired before completion error.
 public type DeadlineExceededError error<DEADLINE_EXCEEDED_ERROR, Detail>;
 
-# Indicates some requested entity (e.g., file or directory) was not found.
+# Identifies not found error.
 public const NOT_FOUND_ERROR = "{ballerina/grpc}NotFoundError";
+# Represents requested entity (e.g., file or directory) not found error.
 public type NotFoundError error<NOT_FOUND_ERROR, Detail>;
 
-# Indicates the attempt to create an entity failed because one already exists.
+# Identifies already exists error.
 public const ALREADY_EXISTS_ERROR = "{ballerina/grpc}AleadyExistsError";
+# Represents error occur when attempt to create an entity which already exists.
 public type AleadyExistsError error<ALREADY_EXISTS_ERROR, Detail>;
 
-# Indicates the caller does not have permission to execute the specified operation.
+# Identifies permission denied error.
 public const PERMISSION_DENIED_ERROR = "{ballerina/grpc}PermissionDeniedError";
+# Represents error occur when the caller does not have permission to execute the specified operation.
 public type PermissionDeniedError error<PERMISSION_DENIED_ERROR, Detail>;
 
-# Indicates the request does not have valid authentication credentials for the operation.
+# Identifies unauthenticated error
 public const UNAUTHENTICATED_ERROR = "{ballerina/grpc}UnauthenticatedError";
+# Represents error occur when the request does not have valid authentication credentials for the operation.
 public type UnauthenticatedError error<UNAUTHENTICATED_ERROR, Detail>;
 
-# Indicates some resource has been exhausted.
+# Identifies resource exhausted error.
 public const RESOURCE_EXHAUSTED_ERROR = "{ballerina/grpc}ResourceExhaustedError";
+# Represents error occur when the resource is exhausted.
 public type ResourceExhaustedError error<RESOURCE_EXHAUSTED_ERROR, Detail>;
 
-# Indicates operation was rejected because the system is not in a state required for the operation's execution.
+# Identifies failed precondition error.
 public const FAILED_PRECONDITION_ERROR = "{ballerina/grpc}FailedPreconditionError";
+# Represents error occur when operation is rejected because the system is not in a state required for the operation's execution.
 public type FailedPreconditionError error<FAILED_PRECONDITION_ERROR, Detail>;
 
-# Indicates the operation was aborted.
+# Identifies aborted error.
 public const ABORTED_ERROR = "{ballerina/grpc}AbortedError";
+# Represents error occur when operation is aborted.
 public type AbortedError error<ABORTED_ERROR, Detail>;
 
-# Indicates specified value is out of range.
+# Identifies out of range error.
 public const OUT_OF_RANGE_ERROR = "{ballerina/grpc}OutOfRangeError";
+# Represents error occur when specified value is out of range.
 public type OutOfRangeError error<OUT_OF_RANGE_ERROR, Detail>;
 
-# Indicates operation is not implemented or not supported/enabled in this service.
+# Identifies unimplemented error.
 public const UNIMPLEMENTED_ERROR = "{ballerina/grpc}UnimplementedError";
+# Represents error occur when operation is not implemented or not supported/enabled in this service.
 public type UnimplementedError error<UNIMPLEMENTED_ERROR, Detail>;
 
-# Indicates internal errors.
+# Identifies internal error.
 public const INTERNAL_ERROR = "{ballerina/grpc}InternalError";
+# Represents internal error.
 public type InternalError error<INTERNAL_ERROR, Detail>;
 
-# Indicates the service is currently unavailable.
+# Identifies unavailable error.
 public const UNAVAILABLE_ERROR = "{ballerina/grpc}UnavailableError";
+# Represents error occur when the service is currently unavailable.
 public type UnavailableError error<UNAVAILABLE_ERROR, Detail>;
 
-# Indicates unrecoverable data loss or corruption.
+# Identifies data loss error.
 public const DATA_LOSS_ERROR = "{ballerina/grpc}DataLossError";
+# Represents unrecoverable data loss or corruption erros.
 public type DataLossError error<DATA_LOSS_ERROR, Detail>;
 
+# Represents gRPC related error types.
 public type ErrorType CANCELLED_ERROR | UNKNOWN_ERROR | INVALID_ARGUMENT_ERROR | DEADLINE_EXCEEDED_ERROR
 | NOT_FOUND_ERROR | ALREADY_EXISTS_ERROR | PERMISSION_DENIED_ERROR | UNAUTHENTICATED_ERROR | RESOURCE_EXHAUSTED_ERROR
 | FAILED_PRECONDITION_ERROR | ABORTED_ERROR | OUT_OF_RANGE_ERROR | UNIMPLEMENTED_ERROR |
 INTERNAL_ERROR|UNAVAILABLE_ERROR | DATA_LOSS_ERROR;
 
-
+# Represents gRPC related errors.
 public type Error CancelledError | UnKnownError | InvalidArgumentError | DeadlineExceededError | NotFoundError
 | AleadyExistsError | PermissionDeniedError | UnauthenticatedError | ResourceExhaustedError | FailedPreconditionError
 | AbortedError | OutOfRangeError | UnimplementedError | InternalError | UnavailableError | DataLossError;
 
 
-# Prepare the `error` as a `Error`.
+# Prepare the `error` as gRPC specific `Error`.
 #
 # + errorType - the error type.
 # + message - the error message.
 # + other - the `error` instance.
-# + return - prepared `Error` instance.
+# + return - prepared `grpc:Error` instance.
 public function prepareError(ErrorType errorType, string message, error other) returns Error {
     error err = error(errorType, message = message, cause = other);
     return <Error> err;

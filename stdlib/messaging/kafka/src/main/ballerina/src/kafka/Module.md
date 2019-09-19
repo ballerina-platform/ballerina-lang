@@ -24,7 +24,8 @@ listener kafka:Consumer consumer = new(consumerConfigs);
 
 service kafkaService on consumer {
 
-    resource function onMessage(kafka:ConsumerAction consumerAction, kafka:ConsumerRecord[] records) {
+    resource function onMessage(kafka:ConsumerAction consumerAction,
+                  kafka:ConsumerRecord[] records) {
         // Dispatched set of Kafka records to service, We process each one by one.
         foreach var kafkaRecord in records {
             processKafkaRecord(kafkaRecord);
@@ -52,9 +53,10 @@ Following is a simple program which publishes a message to 'test-kafka-topic' to
 import ballerina/kafka;
 
 kafka:ProducerConfig producerConfigs = {
-    // Here we create a producer configs with optional parameters client.id - used for broker side logging.
+    // Here we create a producer configs with optional parameters 
+    // client.id - used for broker side logging.
     // acks - number of acknowledgments for request complete,
-    // noRetries - number of retries if record send fails.
+    // retryCount - number of retries if record send fails.
     bootstrapServers: "localhost:9092",
     clientId:"basic-producer",
     acks:"all",

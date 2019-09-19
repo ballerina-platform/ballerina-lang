@@ -15,7 +15,7 @@
 // under the License.
 
 
-# ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes.
+# ReadableByteChannel represents an input resource (i.e file). which could be used to source bytes.
 public type ReadableByteChannel object {
 
     # Source bytes from a given input/output resource.

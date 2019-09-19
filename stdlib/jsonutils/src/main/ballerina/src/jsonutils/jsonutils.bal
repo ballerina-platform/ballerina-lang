@@ -16,18 +16,18 @@
 
 # Type for XML options.
 #
-# + attributePrefix - attribute prefix of XML
-# + preserveNamespaces - preserve namespaces of XML
+# + attributePrefix - Attribute prefix used in the XML.
+# + preserveNamespaces - Instructs whether to preserve the namespaces of the XML when converting.
 public type XmlOptions record {
     string attributePrefix = "@";
     boolean preserveNamespaces = true;
 };
 
-# Converts an XML object to a JSON representation.
+# Converts an XML object to its JSON representation.
 #
 # + x - The xml source
 # + options - XmlOptions record for XML to JSON conversion properties
-# + return - JSON representation of the given XML
+# + return - JSON representation of the given XML, or an error if the conversion fails
 public function fromXML(xml x, XmlOptions options = {}) returns json|error = external;
 
 # Converts a table to its json representation.

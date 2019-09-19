@@ -34,8 +34,7 @@ public type JdbcClient client object {
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
-    # + return - A `table` returned by the sql query statement else `Error` will be returned if there
-    # is any error
+    # + return - A `table` returned by the SQL query statement else `Error` will be returned if there is an error
     public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType,
                                   Param... parameters) returns @tainted table<record {}>|Error {
         return nativeSelect(self, sqlQuery, recordType, ...parameters);
@@ -54,17 +53,17 @@ public type JdbcClient client object {
     # The batchUpdate remote function implementation for JDBC Client to batch data insert.
     #
     # + sqlQuery - SQL statement to execute
-    # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
+    # + parameters - Variable number of parameter arrays each representing the set of parameters belonging to each
     #                individual update
     # + rollbackAllInFailure - If one of the commands in a batch update fails to execute properly, the JDBC driver
-    #           may or may not continue to process the remaining commands in the batch.  But this property can be
-    #           used to override this behavior.  If it is sets to true, if there is a failure in few commands and
-    #           JDBC driver continued with the remaining commands, the successfully executed commands in the batch
-    #           also will get rollback.
-    # + return - A `BatchUpdateResult` with the updated row count and returned error. If all the commands in the batch
-    #                has executed successfully, the error will be `nil`. If one or more commands has failed, the
-    #               `returnedError` field will give the correspoing `JdbcClientError` along with the int[] which
-    #                conains updated row count or the status returned from the each command in the batch.
+    #           may or may not continue to process the remaining commands in the batch. This property can be
+    #           used to override this behavior. When it is set to true, if there is a failure in a few commands and
+    #           the JDBC driver continues with the remaining commands, the successfully executed commands in the batch
+    #           also will get rolled back.
+    # + return - A `BatchUpdateResult` with the updated row count and returned error if any. If all the commands
+    #            in the batch have executed successfully, the error will be `nil`. If one or more commands have failed,
+    #            the `returnedError` field will give the corresponding `Error` along with the int[] which
+    #            contains updated row count or the status returned from the each command in the batch.
     public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
                                        Param?[]... parameters)
                                        returns BatchUpdateResult {
@@ -89,7 +88,6 @@ function createClient(ClientConfiguration config, PoolOptions globalPoolOptions)
 
 # An internal function used by clients to shutdown the connection pool.
 #
-# + jdbcClient - The Client object which represents the connection pool.
-# + return - Possible error during closing
+# + jdbcClient - The Client object which represents the connection pool
+# + return - Possible error during closing the client
 public function close(JdbcClient jdbcClient) returns error? = external;
-

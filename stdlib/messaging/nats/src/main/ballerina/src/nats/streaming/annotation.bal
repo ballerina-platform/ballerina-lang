@@ -14,16 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#  NATS Streaming Subscription Parameters.
+# The parameters used to create a NATS streaming subscription.
 #
-# + subject - Name of the subject to which it is subscribed 
-# + queueName - The name of the queue group to which the subscription belongs 
-# + durableName - If set, this will survive client restarts
-# + maxInFlight - The number of messages the cluster will have inflight without an ACK
-# + ackWaitInSeconds - The time the cluster will wait for an ACK for a given message (in Seconds)
+# + subject - Name of the subject to which it is subscribed to.
+# + queueName - The name of the queue group to which the subscription belongs to.
+# + durableName - If set, this will survive client restarts.
+# + maxInFlight - The number of messages the cluster will have in-flight without an ACK.
+# + ackWaitInSeconds - The time the cluster will wait for an ACK for a given message (in Seconds).
 # + subscriptionTimeoutInSeconds - The time (in Seconds) the subscription will wait if a network failure occurs during the creation of it.
-# + manualAck - Do manual ACKs
-# + startPosition - The position to start receiving messages 
+# + manualAck - Enables manual acknowledgments.
+# + startPosition - The position to start receiving messages.
 public type StreamingSubscriptionConfigData record {|
    string subject;
    string queueName?;
