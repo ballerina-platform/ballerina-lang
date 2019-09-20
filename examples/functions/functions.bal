@@ -17,7 +17,7 @@ function printAndReturnValue(string s) returns string {
     return t;
 }
 
-// A public function named `main` is considered a default entry point of a
+// A public function named `main` is considered as a default entry point of a
 // Ballerina program.
 public function main() {
     // Call the `printValue()` function that prints the value provided.
@@ -29,7 +29,7 @@ public function main() {
     io:println(result);
 
     // Ballerina does not allow ignoring the return value of a function
-    // invocation implicitly, unless the return type is `()`. A return value can be ignored
+    // invocation implicitly unless the return type is `()`. A return value can be ignored
     // using `_` if the value may never be an `error` (i.e., the return type of the
     // function does not contain `error`).
     _ = printAndReturnValue("World");
