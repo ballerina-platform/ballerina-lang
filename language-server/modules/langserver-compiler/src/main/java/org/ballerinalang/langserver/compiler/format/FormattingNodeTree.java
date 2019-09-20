@@ -841,7 +841,7 @@ public class FormattingNodeTree {
             this.preserveHeight(ws, null);
 
             // Handle adding a new line at the EOF.
-            JsonObject eofWS = ws.get(0).getAsJsonObject();
+            JsonObject eofWS = ws.get(ws.size() - 1).getAsJsonObject();
             if (this.noHeightAvailable(eofWS.get(FormattingConstants.WS).getAsString())) {
                 eofWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE);
             } else if (this.noNewLine(eofWS.get(FormattingConstants.WS).getAsString()
@@ -2492,45 +2492,15 @@ public class FormattingNodeTree {
             boolean annotationAvailable = node.has("annotationAttachments")
                     && node.getAsJsonArray("annotationAttachments").size() > 0;
             JsonObject identifierWhitespace = null;
-            String expressionName = null;
+            int expressionId = 0;
 
             // Preserve new lines and comments that already available.
             this.preserveHeight(ws, indentWithParentIndentation);
 
             if (isExpressionAvailable) {
                 JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
-                expressionName = expression.has("variableName") ?
-                        expression.get("variableName").getAsJsonObject().get("value").getAsString() : null;
-                if (expressionName == null) {
-                    expressionName = expression.has(FormattingConstants.NAME)
-                            ? expression.get(FormattingConstants.NAME)
-                            .getAsJsonObject().get("value").getAsString() : null;
-
-                    if (expressionName == null) {
-                        expressionName = expression.has("fieldName")
-                                ? expression.get("fieldName")
-                                .getAsJsonObject().get("value").getAsString() : null;
-
-                        if (expressionName == null) {
-                            if (!expression.has(FormattingConstants.WS) && expression.get(FormattingConstants.KIND)
-                                    .getAsString().equals("TypedescExpression") && expression.has("typeNode")) {
-                                JsonObject typeNode = expression.getAsJsonObject("typeNode");
-                                expressionName = typeNode.has("typeKind")
-                                        ? typeNode.get("typeKind").getAsString() : null;
-                            }
-
-                            if (expressionName == null) {
-                                if (expression.get(FormattingConstants.KIND)
-                                        .getAsString().equals("IndexBasedAccessExpr")) {
-                                    JsonObject indexedExpr = expression
-                                            .getAsJsonObject(FormattingConstants.EXPRESSION);
-                                    expressionName = indexedExpr.has("variableName") ?
-                                            indexedExpr.get("variableName").getAsJsonObject().get("value").getAsString()
-                                            : null;
-                                }
-                            }
-                        }
-                    }
+                if (expression.has("id")) {
+                    expressionId = expression.get("id").getAsInt();
                 }
             }
 
@@ -2632,64 +2602,14 @@ public class FormattingNodeTree {
             // Update argument expressions whitespaces.
             if (node.has("argumentExpressions")) {
                 JsonArray argumentExpressions = node.getAsJsonArray("argumentExpressions");
-                if (expressionName != null) {
+                if (expressionId != 0) {
                     boolean foundMatch = false;
                     JsonObject matchedArgument = null;
                     for (JsonElement argument : argumentExpressions) {
-                        JsonArray argumentWS = argument.getAsJsonObject().has(FormattingConstants.WS) ?
-                                argument.getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray() : null;
-                        if (argumentWS != null) {
-                            for (JsonElement wsItem : argumentWS) {
-                                JsonObject currentWS = wsItem.getAsJsonObject();
-                                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                                if (text.equals(expressionName)) {
-                                    argument.getAsJsonObject().addProperty(FormattingConstants.SKIP_FORMATTING, true);
-                                    matchedArgument = argument.getAsJsonObject();
-                                    foundMatch = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (argument.getAsJsonObject().get(FormattingConstants.KIND)
-                                .getAsString().equals("TypedescExpression")
-                                && argument.getAsJsonObject().has("typeNode")) {
-                            JsonObject typeNode = argument.getAsJsonObject().getAsJsonObject("typeNode");
-                            if (typeNode.has(FormattingConstants.WS)) {
-                                for (JsonElement wsItem : typeNode.get(FormattingConstants.WS).getAsJsonArray()) {
-                                    JsonObject currentWS = wsItem.getAsJsonObject();
-                                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                                    if (text.equals(expressionName)) {
-                                        argument.getAsJsonObject()
-                                                .addProperty(FormattingConstants.SKIP_FORMATTING, true);
-                                        matchedArgument = argument.getAsJsonObject();
-                                        foundMatch = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (argument.getAsJsonObject().get(FormattingConstants.KIND).getAsString()
-                                .equals("IndexBasedAccessExpr")) {
-                            JsonObject indexedExpr = argument.getAsJsonObject()
-                                    .getAsJsonObject(FormattingConstants.EXPRESSION);
-                            if (indexedExpr.has(FormattingConstants.WS)) {
-                                for (JsonElement wsItem : indexedExpr.get(FormattingConstants.WS).getAsJsonArray()) {
-                                    JsonObject currentWS = wsItem.getAsJsonObject();
-                                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                                    if (text.equals(expressionName)) {
-                                        argument.getAsJsonObject()
-                                                .addProperty(FormattingConstants.SKIP_FORMATTING, true);
-                                        matchedArgument = argument.getAsJsonObject();
-                                        foundMatch = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (foundMatch) {
+                        int argumentID = argument.getAsJsonObject().get("id").getAsInt();
+                        if (argumentID == expressionId) {
+                            matchedArgument = argument.getAsJsonObject();
+                            foundMatch = true;
                             break;
                         }
                     }
@@ -2705,64 +2625,14 @@ public class FormattingNodeTree {
 
             if (node.has("requiredArgs")) {
                 JsonArray argumentExpressions = node.getAsJsonArray("requiredArgs");
-                if (expressionName != null) {
+                if (expressionId != 0) {
                     boolean foundMatch = false;
                     JsonObject matchedArgument = null;
                     for (JsonElement argument : argumentExpressions) {
-                        JsonArray argumentWS = argument.getAsJsonObject().has(FormattingConstants.WS) ?
-                                argument.getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray() : null;
-                        if (argumentWS != null) {
-                            for (JsonElement wsItem : argumentWS) {
-                                JsonObject currentWS = wsItem.getAsJsonObject();
-                                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                                if (text.equals(expressionName)) {
-                                    argument.getAsJsonObject().addProperty(FormattingConstants.SKIP_FORMATTING, true);
-                                    matchedArgument = argument.getAsJsonObject();
-                                    foundMatch = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (argument.getAsJsonObject().get(FormattingConstants.KIND)
-                                .getAsString().equals("TypedescExpression")
-                                && argument.getAsJsonObject().has("typeNode")) {
-                            JsonObject typeNode = argument.getAsJsonObject().getAsJsonObject("typeNode");
-                            if (typeNode.has(FormattingConstants.WS)) {
-                                for (JsonElement wsItem : typeNode.get(FormattingConstants.WS).getAsJsonArray()) {
-                                    JsonObject currentWS = wsItem.getAsJsonObject();
-                                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                                    if (text.equals(expressionName)) {
-                                        argument.getAsJsonObject()
-                                                .addProperty(FormattingConstants.SKIP_FORMATTING, true);
-                                        matchedArgument = argument.getAsJsonObject();
-                                        foundMatch = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (argument.getAsJsonObject().get(FormattingConstants.KIND).getAsString()
-                                .equals("IndexBasedAccessExpr")) {
-                            JsonObject indexedExpr = argument.getAsJsonObject()
-                                    .getAsJsonObject(FormattingConstants.EXPRESSION);
-                            if (indexedExpr.has(FormattingConstants.WS)) {
-                                for (JsonElement wsItem : indexedExpr.get(FormattingConstants.WS).getAsJsonArray()) {
-                                    JsonObject currentWS = wsItem.getAsJsonObject();
-                                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-                                    if (text.equals(expressionName)) {
-                                        argument.getAsJsonObject()
-                                                .addProperty(FormattingConstants.SKIP_FORMATTING, true);
-                                        matchedArgument = argument.getAsJsonObject();
-                                        foundMatch = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (foundMatch) {
+                        int argumentID = argument.getAsJsonObject().get("id").getAsInt();
+                        if (argumentID == expressionId) {
+                            matchedArgument = argument.getAsJsonObject();
+                            foundMatch = true;
                             break;
                         }
                     }
