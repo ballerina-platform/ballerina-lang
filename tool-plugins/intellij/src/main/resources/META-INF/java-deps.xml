@@ -20,8 +20,6 @@
         <moduleConfigurationEditorProvider
                 implementation="io.ballerina.plugins.idea.configuration.BallerinaModuleEditorsProvider"
                 order="first"/>
-        <editorNotificationProvider
-                implementation="io.ballerina.plugins.idea.inspections.WrongModuleTypeNotificationProvider"/>
 
         <projectStructureDetector
                 implementation="io.ballerina.plugins.idea.project.BallerinaProjectStructureDetector"/>

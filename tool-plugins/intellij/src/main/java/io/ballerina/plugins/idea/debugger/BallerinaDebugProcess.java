@@ -68,6 +68,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static io.ballerina.plugins.idea.BallerinaConstants.BAL_FILE_EXT;
+
 /**
  * Ballerina debug process which handles debugging.
  */
@@ -442,7 +444,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 return;
             }
             getSession().updateBreakpointPresentation(breakpoint, AllIcons.Debugger.Db_verified_breakpoint, null);
-            if (isConnected && !breakpoints.contains(breakpoint)) {
+            if (isBalBreakpoint(breakpoint) && !breakpoints.contains(breakpoint)) {
                 breakpoints.add(breakpoint);
                 sendBreakpoints(Collections.singletonList(breakpoint), false);
             }
@@ -455,10 +457,21 @@ public class BallerinaDebugProcess extends XDebugProcess {
             if (breakpointPosition == null) {
                 return;
             }
-            if (isConnected && breakpoints.contains(breakpoint)) {
+            if (isBalBreakpoint(breakpoint) && breakpoints.contains(breakpoint)) {
                 breakpoints.remove(breakpoint);
                 sendBreakpoints(Collections.singletonList(breakpoint), false);
             }
+        }
+
+        private boolean isBalBreakpoint(@NotNull XLineBreakpoint<BallerinaBreakpointProperties> breakpoint) {
+
+            XSourcePosition pos = breakpoint.getSourcePosition();
+            if (!isConnected || pos == null) {
+                return false;
+            }
+
+            String fileExt = pos.getFile().getExtension();
+            return fileExt != null && fileExt.equals(BAL_FILE_EXT);
         }
 
         void sendBreakpoints(List<XBreakpoint<BallerinaBreakpointProperties>> breakpointList, boolean attach) {

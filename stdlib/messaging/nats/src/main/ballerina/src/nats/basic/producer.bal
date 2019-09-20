@@ -16,25 +16,25 @@
 
 import ballerina/log;
 
-# NATS producer would act as a basic client allowing to publish messages to the NATS server.
-# Producer needs the NATS connection to be initialized.
+# NATS `Producer` would act as a basic client allowing to publish messages to the NATS server.
+# Producer needs the NATS `Connection` to be initialized.
 public type Producer client object {
 
-    private Connection? connection = ();
+    private Connection? conn = ();
 
-    # Creates a new producer.
+    # Creates a new NATS `Producer`.
     #
-    # + c - An already-established connection.
-    public function __init(Connection c) {
-        self.connection = c;
-        self.init(c);
+    # + connection - An already-established connection.
+    public function __init(Connection connection) {
+        self.conn = connection;
+        self.init(connection);
     }
 
     private function init(Connection c) = external;
 
     # Produces a message to a NATS basic server for the given subject.
     #
-    # + subject - Could also be referred as the 'topic/queue' name.
+    # + subject - The subject to send the message to.
     # + data - Data to publish.
     # + return -  A specific error if there is a problem when publishing the message. Returns () otherwise.
     public remote function publish(string subject, @untainted Content data) returns Error? {
@@ -51,7 +51,7 @@ public type Producer client object {
     # Produces a message and would wait for a response.
     #
     # + subject - Would represent the topic/queue name.
-    # + data - Data to publish.
+    # + data - The message body to publish.
     # + duration - The time to wait for a response measured in milliseconds.
     # + return -  The response message or an error.
     public remote function request(string subject, @untainted Content data, int? duration = ()) returns Message|Error {
@@ -70,8 +70,8 @@ public type Producer client object {
     # + return - Retruns () or the error if unable to complete the close operation.
     public function close() returns Error? {
         self.closeConnection();
-        if (self.connection is Connection) {
-            self.connection = ();
+        if (self.conn is Connection) {
+            self.conn = ();
             log:printInfo("Close the logical connection between producer and connection.");
         }
 

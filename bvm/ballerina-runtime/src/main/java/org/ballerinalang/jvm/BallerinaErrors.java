@@ -82,6 +82,16 @@ public class BallerinaErrors {
         return createError(error.getMessage());
     }
 
+    public static ErrorValue trapError(Throwable throwable) {
+        // Used to trap and create error value for non error value exceptions. At the moment, we can trap
+        // stack overflow exceptions in addition to error value.
+        // In the future, if we need to trap more exception types, we need to check instance of each exception and
+        // handle accordingly.
+        ErrorValue error = createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+        error.setStackTrace(throwable.getStackTrace());
+        return error;
+    }
+
     public static ErrorValue createConversionError(Object inputValue, BType targetType) {
         return createError(BALLERINA_PREFIXED_CONVERSION_ERROR,
                            BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,

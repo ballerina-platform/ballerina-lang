@@ -70,24 +70,26 @@ The API provides functions to read configs in their original type.
 
 ```ballerina
 // Reads a configuration as a string.
-string host = config:getAsString("host"); // Returns “” (i.e., empty string) if the configuration 
-//is not available.
+// Returns “” (i.e., empty string) if the configuration is not available.
+string host = config:getAsString("host"); 
 
 // Reads a configuration as an integer.
-int port = config:getAsInt("port"); // Returns 0 if the configuration is not available.
-
+// Returns 0 if the configuration is not available.
+int port = config:getAsInt("port"); 
 
 // Reads a configuration as a float.
-float rate = config:getAsFloat("rate"); // Returns 0.0 if the configuration is not available.
+// Returns 0.0 if the configuration is not available.
+float rate = config:getAsFloat("rate"); 
 
 // Reads a configuration as a boolean.
-boolean enabled = config:getAsBoolean("service.enabled"); // Returns ‘false’ if the configuration 
-// is not available.
+// Returns ‘false’ if the configuration is not available.
+boolean enabled = config:getAsBoolean("service.enabled"); 
 ```
 When reading a configuration, a default value can be specified as well. If a default value is specified, it is returned if a configuration entry cannot be found for the specified key.
 
 ```ballerina
-// Reads a configuration as a string, and if it does not exist, returns “localhost”.
+// Reads a configuration as a string, and if it does not exist, 
+// returns “localhost”.
 string host  = config:getAsString("host", defaultValue = "localhost");
 ```
 

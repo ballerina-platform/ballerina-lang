@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Detail record {
-    string message;
-    error cause?;
+type Foo object {
+    public function __init() {
+        self.__init();
+    }
 };
 
-# Error reason to specify the time error that occurs in the module
-public const TIME_ERROR_REASON = "{ballerina/time}TimeError";
-# Represents Time module related error
-public type Error error<TIME_ERROR_REASON, Detail>;
+public function main() {
+    Foo foo = new;
+}
