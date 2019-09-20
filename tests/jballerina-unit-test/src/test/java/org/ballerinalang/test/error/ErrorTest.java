@@ -368,7 +368,7 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         Assert.assertEquals(((BValueArray) result[0]).getRefValue(0).toString(),
-                "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", lineNumber:329}");
+                "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", lineNumber:343}");
         Assert.assertEquals(result[1].stringValue(), "{ballerina}StackOverflow");
     }
 
