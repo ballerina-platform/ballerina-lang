@@ -50,8 +50,8 @@ type ErrorHandlerGenerator object {
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
         self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
         // Handle cases where the same variable used to trap multiple expressions with single trap statement.
-        // Here we will check whether result error variable value and if it is null, we will skip the rest of
-        // execution of expressions trapped by error variable.
+        // Here we will check whether result error variable value and if it is null, we will skip the execution of
+        // rest of the expressions trapped by error variable.
         if (previousTargetBB == currentEE.targetBB.id.value) {
             generateVarLoad(self.mv, varDcl, self.currentPackageName, lhsIndex);
             self.mv.visitJumpInsn(IFNONNULL, jumpLabel);
