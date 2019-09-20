@@ -2330,9 +2330,9 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangCompoundAssignment compoundAssignment) {
         // If compound Assignment is an index based expression such as a[f(1, foo)][3][2] += y,
         // should return a block statement which is equivalent to
-        // var $temp1$ = 2;
-        // var $temp2$ = 3;
         // var $temp3$ = a[f(1, foo)];
+        // var $temp2$ = 3;
+        // var $temp1$ = 2;
         // a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
         if (compoundAssignment.varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             int indexExprNumber = 0;
