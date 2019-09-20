@@ -368,7 +368,7 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         Assert.assertEquals(((BValueArray) result[0]).getRefValue(0).toString(),
-                "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", lineNumber:329}");
+                "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", lineNumber:343}");
         Assert.assertEquals(result[1].stringValue(), "{ballerina}StackOverflow");
     }
 
@@ -399,5 +399,14 @@ public class ErrorTest {
                                     23, 21);
         BAssertUtil.validateWarning(compileResult, index, "error reason '{test/string}identifier' is not module " +
                 "qualified", 23, 21);
+    }
+
+    @Test
+    public void testErrorTrapVarReuse() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testErrorTrapVarReuse");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertNull(returns[1]);
+        BError bError = (BError) returns[0];
+        Assert.assertEquals(bError.getReason(), "panic now");
     }
 }
