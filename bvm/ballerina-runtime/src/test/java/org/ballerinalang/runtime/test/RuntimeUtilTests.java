@@ -18,6 +18,7 @@
 
 package org.ballerinalang.runtime.test;
 
+import org.ballerinalang.jvm.util.CompatibilityChecker;
 import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -66,7 +67,7 @@ public class RuntimeUtilTests {
     private void testVersionsNegative(String compiledVersion, String runtimeVersion, String supportedRange) {
         this.baos.reset();
         System.setProperty(JAVA_VERSION_PROPERTY, runtimeVersion);
-        RuntimeUtils.verifyJavaCompatibility(compiledVersion);
+        CompatibilityChecker.verifyJavaCompatibility(compiledVersion);
         Assert.assertEquals(new String(this.baos.toByteArray()).trim(),
                 "WARNING: Incompatible JRE version '" + runtimeVersion +
                         "' found. This ballerina program supports running on JRE version '" + supportedRange + "'");
@@ -75,7 +76,7 @@ public class RuntimeUtilTests {
     private void testVersionsPositive(String compiledVersion, String runtimeVersion) {
         this.baos.reset();
         System.setProperty(JAVA_VERSION_PROPERTY, runtimeVersion);
-        RuntimeUtils.verifyJavaCompatibility(compiledVersion);
+        CompatibilityChecker.verifyJavaCompatibility(compiledVersion);
         Assert.assertTrue(this.baos.toByteArray().length == 0,
                 "version '" + compiledVersion + "' was incompatible to run on version '" + runtimeVersion + "'");
     }

@@ -2448,8 +2448,8 @@ function scheduleMethod(jvm:MethodVisitor mv, string initClass, string stopFuncN
 
 function generateJavaCompatibilityCheck(jvm:MethodVisitor mv) {
     mv.visitLdcInsn(getJavaVersion());
-    mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, "verifyJavaCompatibility", io:sprintf("(L%s;)V", STRING_VALUE),
-                        false);
+    mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility", 
+                        io:sprintf("(L%s;)V", STRING_VALUE), false);
 }
 
 function getJavaVersion() returns string {
