@@ -2351,9 +2351,9 @@ public class Desugar extends BLangNodeVisitor {
                         indexBasedAccess.indexExpr.type, indexBasedAccess.indexExpr, compoundAssignment.pos);
                 BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(tempIndexVarDef.pos,
                         tempIndexVarDef.var.symbol);
-                statements.add(tempIndexVarDef);
-                varRef.add(tempVarRef);
-                type.add(indexBasedAccess.type);
+                statements.add(0, tempIndexVarDef);
+                varRef.add(0, tempVarRef);
+                type.add(0, indexBasedAccess.type);
 
                 if (indexBasedAccess.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
                     indexBasedAccess = (BLangIndexBasedAccess) indexBasedAccess.expr;
@@ -2364,7 +2364,7 @@ public class Desugar extends BLangNodeVisitor {
 
             // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
             BLangVariableReference var = (BLangVariableReference) indexBasedAccess.expr;
-            for (int ref = varRef.size() - 1; ref >= 0; ref--) {
+            for (int ref = 0; ref < varRef.size(); ref++) {
                 var = ASTBuilderUtil.createIndexAccessExpr(var, varRef.get(ref));
                 var.type = type.get(ref);
             }
@@ -2374,8 +2374,6 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression rhsExpression = ASTBuilderUtil.createBinaryExpr(compoundAssignment.pos, var,
                     compoundAssignment.expr, compoundAssignment.type, compoundAssignment.opKind, null);
             rhsExpression.type = compoundAssignment.modifiedExpr.type;
-
-            Collections.reverse(statements);
 
             // Create assignment statement. ex: a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
             BLangAssignment assignStmt = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, var,
