@@ -3579,16 +3579,42 @@ public class FormattingNodeTree {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, false);
 
+            // Update whitespace for colon of the record literal key value pair.
+            this.preserveHeight(ws, indentation);
+
+            boolean colonVisited = false;
+            boolean calculatedKey = false;
+
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+
+                if (text.equals(Tokens.COLON)) {
+                    colonVisited = true;
+                } else if (text.equals(Tokens.OPENING_BRACKET) && !colonVisited) {
+                    calculatedKey = true;
+                }
+
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    if (text.equals(Tokens.COLON) || text.equals(Tokens.CLOSING_BRACKET)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else if (text.equals(Tokens.OPENING_BRACKET)) {
+                        currentWS.addProperty(FormattingConstants.WS, this.getWhiteSpaces(formatConfig
+                                .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                    }
+                }
+            }
             // Update whitespace for key value of record literal.
             if (node.has("key")) {
                 JsonObject keyNode = node.getAsJsonObject("key");
-                keyNode.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
-            }
-
-            // Update whitespace for colon of the record literal key value pair.
-            this.preserveHeight(ws, indentation);
-            if (this.noHeightAvailable(ws.get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString())) {
-                ws.get(0).getAsJsonObject().addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                if (calculatedKey) {
+                    keyNode.add(FormattingConstants.FORMATTING_CONFIG,
+                            this.getFormattingConfig(0, 0, 0, false,
+                                    formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt(),
+                                    formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()));
+                } else {
+                    keyNode.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+                }
             }
 
             // Update whitespace for value of record literal.
