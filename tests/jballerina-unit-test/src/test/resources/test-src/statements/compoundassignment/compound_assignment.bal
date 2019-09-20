@@ -335,6 +335,17 @@ function testCompoundAssignmentMultiplicationArrayElementFunctionInvocation() re
     return [b[2][2][1], girl.age, boy.age];
 }
 
+function testCompoundAssignmentArrayElementFunctionInvocationOrder() returns int {
+    var x = 3;
+    Girl girl = {};
+    Boy boy = {};
+    int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
+    [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
+
+    b[f(1, girl)][2][g(0, boy)] *= x;
+    return b[2][2][1];
+}
+
 function f(int i, Girl g) returns (int) {
     g.age += 1;
     return i + 1;
