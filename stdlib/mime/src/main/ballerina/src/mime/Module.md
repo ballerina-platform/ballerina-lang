@@ -40,8 +40,9 @@ service test on new http:Listener(9090) {
             }
             response.setPayload(<@untainted> content);
         } else {
-            // If there is an error while getting the body parts, set the response code as 500 and
-            // set the error message as the response message.
+            // If there is an error while getting the body parts, set the 
+            // response code as 500 and set the error message as the 
+            // response message.
             response.statusCode = 500;
             response.setPayload(<@untainted> bodyParts.reason());
         }
@@ -59,7 +60,8 @@ function handleContent(mime:Entity bodyPart) returns @tainted string {
     if (mediaType is mime:MediaType) {
         // Get the base type of the specific body part.
         string baseType = mediaType.getBaseType();
-        // If the base type is ‘application/xml’ or ‘text/xml’, get the XML content from body part.
+        // If the base type is ‘application/xml’ or ‘text/xml’, get the XML 
+        // content from body part.
         if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
             var payload = bodyPart.getXml();
             if (payload is xml) {
@@ -68,7 +70,8 @@ function handleContent(mime:Entity bodyPart) returns @tainted string {
                 return "Error in parsing xml payload";
             }
         } else if (mime:APPLICATION_JSON == baseType) {
-            // If the base type is ‘application/json’, get the JSON content from body part.
+            // If the base type is ‘application/json’, get the JSON content 
+            // from body part.
             var payload = bodyPart.getJson();
             if (payload is json) {
                 return payload.toJsonString();

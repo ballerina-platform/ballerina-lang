@@ -338,3 +338,18 @@ function panicNow() {
 
 function dontPanic() {
 }
+
+function bar(){
+    bar2();
+}
+
+function bar2(){
+    bar();
+}
+
+function testStackOverFlow() returns [runtime:CallStackElement[], string]? {
+    error? e = trap bar();
+    if (e is error){
+        return [e.stackTrace().callStack, e.reason()];
+    }
+}
