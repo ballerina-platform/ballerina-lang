@@ -43,24 +43,25 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(startLabel);
     }
 
-    function generateTryInsForTrap(bir:ErrorEntry currentEE, string[] errorVarNames, jvm:Label endLabel, 
+    function generateTryInsForTrap(bir:ErrorEntry currentEE, string previousTargetBB, jvm:Label endLabel,
                                    jvm:Label handlerLabel, jvm:Label jumpLabel) {
+        jvm:Label startLabel = new;
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
-        if (!stringArrayContains(errorVarNames, currentEE.errorOp.variableDcl.name.value)) {
-            errorVarNames[errorVarNames.length()] =  currentEE.errorOp.variableDcl.name.value;
+        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
+        // Handle cases where the same variable used to trap multiple expressions with single trap statement.
+        // Here we will check whether result error variable value and if it is null, we will skip the rest of
+        // execution of expressions trapped by error variable.
+        if (previousTargetBB == currentEE.targetBB.id.value) {
+            generateVarLoad(self.mv, varDcl, self.currentPackageName, lhsIndex);
+            self.mv.visitJumpInsn(IFNONNULL, jumpLabel);
+            self.mv.visitLabel(startLabel);
+        } else {
+            // Handle cases where the same variable used to trap multiple expressions with multiple trap statements.
+            self.mv.visitLabel(startLabel);
             self.mv.visitInsn(ACONST_NULL);
             generateVarStore(self.mv, varDcl, self.currentPackageName, lhsIndex);
         }
-
-        jvm:Label startLabel = new;
-        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
-        jvm:Label temp = new;
-        self.mv.visitLabel(temp);
-
-        generateVarLoad(self.mv, varDcl, self.currentPackageName, lhsIndex);
-        self.mv.visitJumpInsn(IFNONNULL, jumpLabel);
-        self.mv.visitLabel(startLabel);
     }
 
     function generateCatchInsForTrap(bir:ErrorEntry currentEE, jvm:Label endLabel, jvm:Label handlerLabel,
