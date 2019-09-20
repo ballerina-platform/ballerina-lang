@@ -324,3 +324,18 @@ public function testErrorUnionPassedToErrorParam() returns string {
 function takeError(error e) returns string {
     return e.reason();
 }
+
+function bar(){
+    bar2();
+}
+
+function bar2(){
+    bar();
+}
+
+function testStackOverFlow() returns [runtime:CallStackElement[], string]? {
+    error? e = trap bar();
+    if (e is error){
+        return [e.stackTrace().callStack, e.reason()];
+    }
+}

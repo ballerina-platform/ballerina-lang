@@ -37,14 +37,8 @@ type ErrorHandlerGenerator object {
         self.mv.visitInsn(ATHROW);
     }
 
-    function generateTryIns(jvm:Label endLabel, jvm:Label handlerLabel) {
-        jvm:Label startLabel = new;
-        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
-        self.mv.visitLabel(startLabel);
-    }
-
     function generateTryInsForTrap(bir:ErrorEntry currentEE, string[] errorVarNames, jvm:Label endLabel, 
-                                   jvm:Label handlerLabel, jvm:Label jumpLabel) {
+                                   jvm:Label errorValueLabel, jvm:Label otherErrorLabel, jvm:Label jumpLabel) {
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
         if (!stringArrayContains(errorVarNames, currentEE.errorOp.variableDcl.name.value)) {
@@ -54,7 +48,8 @@ type ErrorHandlerGenerator object {
         }
 
         jvm:Label startLabel = new;
-        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
+        self.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, ERROR_VALUE);
+        self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, STACK_OVERFLOW_ERROR);
         jvm:Label temp = new;
         self.mv.visitLabel(temp);
 
@@ -63,15 +58,20 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(startLabel);
     }
 
-    function generateCatchInsForTrap(bir:ErrorEntry currentEE, jvm:Label endLabel, jvm:Label handlerLabel,
-                                     jvm:Label jumpLabel) {
+    function generateCatchInsForTrap(bir:ErrorEntry currentEE, jvm:Label endLabel,
+                                    jvm:Label errorValueLabel, jvm:Label otherErrorLabel, jvm:Label jumpLabel) {
         self.mv.visitLabel(endLabel);
         self.mv.visitJumpInsn(GOTO, jumpLabel);
-        self.mv.visitLabel(handlerLabel);
+        self.mv.visitLabel(errorValueLabel);
 
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
         generateVarStore(self.mv, varDcl, self.currentPackageName, lhsIndex);
+        self.mv.visitJumpInsn(GOTO, jumpLabel);
+        self.mv.visitLabel(otherErrorLabel);
+        self.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, TRAP_ERROR_METHOD,
+                                                io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+        self.mv.visitVarInsn(ASTORE, lhsIndex);
         self.mv.visitLabel(jumpLabel);
     }
 
