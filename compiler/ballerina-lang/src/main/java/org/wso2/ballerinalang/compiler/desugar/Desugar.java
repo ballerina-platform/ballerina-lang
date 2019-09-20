@@ -2328,63 +2328,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
-        // If compound Assignment is an index based expression such as a[f(1, foo)][3][2] += y,
-        // should return a block statement which is equivalent to
-        // var $temp3$ = a[f(1, foo)];
-        // var $temp2$ = 3;
-        // var $temp1$ = 2;
-        // a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
-        if (compoundAssignment.varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            int indexExprNumber = 0;
-            List<BLangStatement> statements = new ArrayList<>();
-            List<BLangSimpleVarRef> varRef = new ArrayList<>();
-            List<BType> type = new ArrayList<>();
 
-            BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) compoundAssignment.varRef;
-            // Extract the index Expressions from compound assignment and create variable definitions. ex:
-            // var $temp1$ = 2;
-            // var $temp2$ = 3;
-            // var $temp3$ = a[f(1, foo)];
-            do {
-                indexExprNumber += 1;
-                BLangSimpleVariableDef tempIndexVarDef = createVarDef("$temp" + indexExprNumber + "$",
-                        indexBasedAccess.indexExpr.type, indexBasedAccess.indexExpr, compoundAssignment.pos);
-                BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(tempIndexVarDef.pos,
-                        tempIndexVarDef.var.symbol);
-                statements.add(0, tempIndexVarDef);
-                varRef.add(0, tempVarRef);
-                type.add(0, indexBasedAccess.type);
-
-                if (indexBasedAccess.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                    indexBasedAccess = (BLangIndexBasedAccess) indexBasedAccess.expr;
-                    continue;
-                }
-                break;
-            } while (true);
-
-            // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
-            BLangVariableReference var = (BLangVariableReference) indexBasedAccess.expr;
-            for (int ref = 0; ref < varRef.size(); ref++) {
-                var = ASTBuilderUtil.createIndexAccessExpr(var, varRef.get(ref));
-                var.type = type.get(ref);
-            }
-            var.type = compoundAssignment.varRef.type;
-
-            // Create the right hand side binary expression of the assignment. ex: c[$temp3$][$temp2$][$temp1$] + y
-            BLangExpression rhsExpression = ASTBuilderUtil.createBinaryExpr(compoundAssignment.pos, var,
-                    compoundAssignment.expr, compoundAssignment.type, compoundAssignment.opKind, null);
-            rhsExpression.type = compoundAssignment.modifiedExpr.type;
-
-            // Create assignment statement. ex: a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
-            BLangAssignment assignStmt = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, var,
-                    rhsExpression);
-
-            statements.add(assignStmt);
-            // Create block statement. ex: var $temp3$ = a[f(1, foo)];var $temp2$ = 3;var $temp1$ = 2;
-            // a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
-            BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(compoundAssignment.pos, statements);
-            result = rewrite(bLangBlockStmt, env);
-        } else {
+        if (compoundAssignment.varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
             BLangVariableReference varRef = compoundAssignment.varRef;
 
             // Create a new varRef if this is a simpleVarRef. Because this can be a
@@ -2397,7 +2342,63 @@ public class Desugar extends BLangNodeVisitor {
 
             result = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, rewriteExpr(varRef),
                     rewriteExpr(compoundAssignment.modifiedExpr));
+            return;
         }
+        // If compound Assignment is an index based expression such as a[f(1, foo)][3][2] += y,
+        // should return a block statement which is equivalent to
+        // var $temp3$ = a[f(1, foo)];
+        // var $temp2$ = 3;
+        // var $temp1$ = 2;
+        // a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
+        int indexExprNumber = 0;
+        List<BLangStatement> statements = new ArrayList<>();
+        List<BLangSimpleVarRef> varRef = new ArrayList<>();
+        List<BType> type = new ArrayList<>();
+
+        BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) compoundAssignment.varRef;
+        // Extract the index Expressions from compound assignment and create variable definitions. ex:
+        // var $temp1$ = 2;
+        // var $temp2$ = 3;
+        // var $temp3$ = a[f(1, foo)];
+        do {
+            indexExprNumber += 1;
+            BLangSimpleVariableDef tempIndexVarDef = createVarDef("$temp" + indexExprNumber + "$",
+                    indexBasedAccess.indexExpr.type, indexBasedAccess.indexExpr, compoundAssignment.pos);
+            BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(tempIndexVarDef.pos,
+                    tempIndexVarDef.var.symbol);
+            statements.add(0, tempIndexVarDef);
+            varRef.add(0, tempVarRef);
+            type.add(0, indexBasedAccess.type);
+
+            if (indexBasedAccess.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                indexBasedAccess = (BLangIndexBasedAccess) indexBasedAccess.expr;
+                continue;
+            }
+            break;
+        } while (true);
+
+        // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
+        BLangVariableReference var = (BLangVariableReference) indexBasedAccess.expr;
+        for (int ref = 0; ref < varRef.size(); ref++) {
+            var = ASTBuilderUtil.createIndexAccessExpr(var, varRef.get(ref));
+            var.type = type.get(ref);
+        }
+        var.type = compoundAssignment.varRef.type;
+
+        // Create the right hand side binary expression of the assignment. ex: c[$temp3$][$temp2$][$temp1$] + y
+        BLangExpression rhsExpression = ASTBuilderUtil.createBinaryExpr(compoundAssignment.pos, var,
+                compoundAssignment.expr, compoundAssignment.type, compoundAssignment.opKind, null);
+        rhsExpression.type = compoundAssignment.modifiedExpr.type;
+
+        // Create assignment statement. ex: a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
+        BLangAssignment assignStmt = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, var,
+                rhsExpression);
+
+        statements.add(assignStmt);
+        // Create block statement. ex: var $temp3$ = a[f(1, foo)];var $temp2$ = 3;var $temp1$ = 2;
+        // a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
+        BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(compoundAssignment.pos, statements);
+        result = rewrite(bLangBlockStmt, env);
     }
 
     @Override
