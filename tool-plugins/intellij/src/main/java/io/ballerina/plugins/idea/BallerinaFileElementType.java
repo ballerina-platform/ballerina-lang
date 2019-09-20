@@ -37,7 +37,7 @@ public class BallerinaFileElementType extends IStubFileElementType<BallerinaFile
 
     public static final IStubFileElementType INSTANCE = new BallerinaFileElementType();
     // Note - Change the version in the corresponding index class if a stub is changed.
-    public static final int VERSION = 5;
+    public static final int VERSION = 6;
 
     private BallerinaFileElementType() {
         super("BALLERINA_FILE", BallerinaLanguage.INSTANCE);
