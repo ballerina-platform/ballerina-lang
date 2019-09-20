@@ -392,4 +392,13 @@ public class ErrorTest {
         BAssertUtil.validateWarning(compileResult, index, "error reason '{test/string}identifier' is not module " +
                 "qualified", 23, 21);
     }
+
+    @Test
+    public void testErrorTrapVarReuse() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testErrorTrapVarReuse");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertNull(returns[1]);
+        BError bError = (BError) returns[0];
+        Assert.assertEquals(bError.getReason(), "panic now");
+    }
 }
