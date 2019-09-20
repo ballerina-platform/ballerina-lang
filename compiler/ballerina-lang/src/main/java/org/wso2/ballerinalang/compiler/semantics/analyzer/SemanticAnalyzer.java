@@ -1527,19 +1527,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeDef(tupleVariableDef.var, env);
     }
 
+    private Boolean validateLhsVar(BLangExpression vRef) {
+        if (vRef.getKind() == NodeKind.INVOCATION) {
+            dlog.error(((BLangInvocation) vRef).pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, vRef);
+            return false;
+        }
+        if (vRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                || vRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            validateLhsVar(((BLangAccessExpression) vRef).expr);
+        }
+        return true;
+    }
+
     public void visit(BLangCompoundAssignment compoundAssignment) {
         List<BType> expTypes = new ArrayList<>();
         BLangExpression varRef = compoundAssignment.varRef;
-        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
-            dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
-            expTypes.add(symTable.semanticError);
-        } else {
+        // Check whether the variable reference is an function invocation or not.
+        boolean isValidVarRef = validateLhsVar(varRef);
+        if (isValidVarRef) {
             compoundAssignment.varRef.compoundAssignmentLhsVar = true;
             this.typeChecker.checkExpr(varRef, env);
             expTypes.add(varRef.type);
+        } else {
+            expTypes.add(symTable.semanticError);
         }
         this.typeChecker.checkExpr(compoundAssignment.expr, env);
 

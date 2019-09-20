@@ -2475,7 +2475,6 @@ public class BLangPackageBuilder {
         assignmentNode.setExpression(exprNodeStack.pop());
 
         assignmentNode.setVariable((BLangVariableReference) exprNodeStack.pop());
-        validateLvexpr(assignmentNode.varRef, DiagnosticCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT);
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
         assignmentNode.addWS(this.operatorWs.pop());

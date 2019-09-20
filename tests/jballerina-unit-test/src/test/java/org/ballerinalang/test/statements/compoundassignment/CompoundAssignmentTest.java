@@ -361,7 +361,7 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 21);
+        Assert.assertEquals(compileResult.getErrorCount(), 22);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 13, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 20, 5);
@@ -382,6 +382,7 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '>>>' not defined for 'int' and 'string'", 120, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 132, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 140, 5);
-        BAssertUtil.validateError(compileResult, i, "operator '+' not defined for 'int?' and 'int'", 150, 11);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int'", 150, 11);
+        BAssertUtil.validateError(compileResult, i, "invalid assignment in variable 'foo(bar)'", 156, 5);
     }
 }
