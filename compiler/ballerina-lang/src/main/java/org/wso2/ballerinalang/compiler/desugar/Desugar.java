@@ -2329,9 +2329,8 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
 
+        BLangVariableReference varRef = compoundAssignment.varRef;
         if (compoundAssignment.varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            BLangVariableReference varRef = compoundAssignment.varRef;
-
             // Create a new varRef if this is a simpleVarRef. Because this can be a
             // narrowed type var. In that case, lhs and rhs must be visited in two
             // different manners.
@@ -2352,10 +2351,9 @@ public class Desugar extends BLangNodeVisitor {
         // a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
         int indexExprNumber = 0;
         List<BLangStatement> statements = new ArrayList<>();
-        List<BLangSimpleVarRef> varRef = new ArrayList<>();
-        List<BType> type = new ArrayList<>();
+        List<BLangSimpleVarRef> varRefs = new ArrayList<>();
+        List<BType> types = new ArrayList<>();
 
-        BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) compoundAssignment.varRef;
         // Extract the index Expressions from compound assignment and create variable definitions. ex:
         // var $temp1$ = 2;
         // var $temp2$ = 3;
@@ -2363,25 +2361,26 @@ public class Desugar extends BLangNodeVisitor {
         do {
             indexExprNumber += 1;
             BLangSimpleVariableDef tempIndexVarDef = createVarDef("$temp" + indexExprNumber + "$",
-                    indexBasedAccess.indexExpr.type, indexBasedAccess.indexExpr, compoundAssignment.pos);
+                    ((BLangIndexBasedAccess) varRef).indexExpr.type, ((BLangIndexBasedAccess) varRef).indexExpr,
+                    compoundAssignment.pos);
             BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(tempIndexVarDef.pos,
                     tempIndexVarDef.var.symbol);
             statements.add(0, tempIndexVarDef);
-            varRef.add(0, tempVarRef);
-            type.add(0, indexBasedAccess.type);
+            varRefs.add(0, tempVarRef);
+            types.add(0, varRef.type);
 
-            if (indexBasedAccess.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                indexBasedAccess = (BLangIndexBasedAccess) indexBasedAccess.expr;
+            if (((BLangIndexBasedAccess) varRef).expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                varRef = (BLangVariableReference) ((BLangIndexBasedAccess) varRef).expr;
                 continue;
             }
             break;
         } while (true);
 
         // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
-        BLangVariableReference var = (BLangVariableReference) indexBasedAccess.expr;
-        for (int ref = 0; ref < varRef.size(); ref++) {
-            var = ASTBuilderUtil.createIndexAccessExpr(var, varRef.get(ref));
-            var.type = type.get(ref);
+        BLangVariableReference var = (BLangVariableReference) ((BLangIndexBasedAccess) varRef).expr;
+        for (int ref = 0; ref < varRefs.size(); ref++) {
+            var = ASTBuilderUtil.createIndexAccessExpr(var, varRefs.get(ref));
+            var.type = types.get(ref);
         }
         var.type = compoundAssignment.varRef.type;
 
