@@ -286,6 +286,7 @@ public class Desugar extends BLangNodeVisitor {
     private int errorCount = 0;
     private int annonVarCount = 0;
     private int initFuncIndex = 0;
+    private int indexExprNumber = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -2349,7 +2350,6 @@ public class Desugar extends BLangNodeVisitor {
         // var $temp2$ = 3;
         // var $temp1$ = 2;
         // a[$temp3$][$temp2$][$temp1$] = a[$temp3$][$temp2$][$temp1$] + y;
-        int indexExprNumber = 0;
         List<BLangStatement> statements = new ArrayList<>();
         List<BLangSimpleVarRef> varRefs = new ArrayList<>();
         List<BType> types = new ArrayList<>();
@@ -2369,15 +2369,11 @@ public class Desugar extends BLangNodeVisitor {
             varRefs.add(0, tempVarRef);
             types.add(0, varRef.type);
 
-            if (((BLangIndexBasedAccess) varRef).expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                varRef = (BLangVariableReference) ((BLangIndexBasedAccess) varRef).expr;
-                continue;
-            }
-            break;
-        } while (true);
+            varRef = (BLangVariableReference) ((BLangIndexBasedAccess) varRef).expr;
+        } while (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR);
 
         // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
-        BLangVariableReference var = (BLangVariableReference) ((BLangIndexBasedAccess) varRef).expr;
+        BLangVariableReference var = varRef;
         for (int ref = 0; ref < varRefs.size(); ref++) {
             var = ASTBuilderUtil.createIndexAccessExpr(var, varRefs.get(ref));
             var.type = types.get(ref);
