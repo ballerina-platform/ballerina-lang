@@ -1318,6 +1318,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             Map<String, BField> fieldMap = recordType.fields.stream()
                     .collect(Collectors.toMap(f -> f.name.value, f -> f));
 
+            if (isReasonSpecified(errorVariable)
+                    && !errorVariable.reasonVarPrefixAvailable
+                    && errorVariable.reasonMatchConst == null
+                    && errorVariable.isInMatchStmt) {
+
+                BSymbol reasonConst = symResolver.lookupSymbol(
+                        this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
+                if (reasonConst == symTable.notFoundSymbol) {
+                    dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
+                            errorVariable.reason.name);
+                } else {
+                    dlog.error(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
+                }
+                return false;
+            }
+
             for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
                 String entryName = errorDetailEntry.key.getValue();
                 BField entryField = fieldMap.get(entryName);
@@ -1352,22 +1368,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 typeSymbol.type = restType;
                 errorVariable.restDetail.type = restType;
                 errorVariable.restDetail.accept(this);
-            }
-
-            if (isReasonSpecified(errorVariable)
-                    && !errorVariable.reasonVarPrefixAvailable
-                    && errorVariable.reasonMatchConst == null
-                    && errorVariable.isInMatchStmt) {
-
-                BSymbol reasonConst = symResolver.lookupSymbol(
-                        this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
-                if (reasonConst == symTable.notFoundSymbol) {
-                    dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
-                            errorVariable.reason.name);
-                } else {
-                    dlog.error(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
-                }
-                return false;
             }
             return true;
 
