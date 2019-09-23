@@ -17,7 +17,7 @@ public function main() {
 
     // Arguments for required parameters can also be passed as named arguments.
     // All arguments after the first named argument need to be passed by name.
-    // Named arguments do not have to be specified in the order.
+    // Named arguments do not have to be specified in the order in which the parameters are defined.
     result = calculate(5, c = 7, b = 6);
     // Print the result.
     io:println(result);
