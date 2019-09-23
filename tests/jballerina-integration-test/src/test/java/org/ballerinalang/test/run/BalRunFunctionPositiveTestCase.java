@@ -41,7 +41,9 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
                                                                              + "resources" + File.separator + "run" +
                                                                              File.separator + "file"))
                                                                    .getAbsolutePath());
-        Assert.assertEquals(output, "1");
+        Assert.assertEquals(output, "Generating executables\n" +
+                                    "Running executables\n" +
+                                    "1");
     }
 
     @Test
@@ -55,6 +57,8 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
                                            "run" + File.separator + "file")).getAbsolutePath();
         String output = bMainInstance.runMainAndReadStdOut("run", args, balFile);
         Assert.assertEquals(output,
+                            "Generating executables\n" +
+                            "Running executables\n" +
                             "integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, boolean: true, " +
                                     "JSON Name Field: Maryam, XML Element Name: book, Employee Name Field: Em, " +
                                     "string rest args: just the rest ");
