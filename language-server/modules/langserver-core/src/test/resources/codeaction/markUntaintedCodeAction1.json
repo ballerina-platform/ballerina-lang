@@ -1,6 +1,6 @@
 {
-    "line": 26,
-    "character": 14,
+    "line": 24,
+    "character": 10,
     "expected": {
         "title": "Mark 'sqlQuery' as Untainted",
         "edit": {
@@ -14,7 +14,7 @@
                     "character": 16
                 }
             },
-            "newText": "untaint (\"SELECT firstname FROM student WHERE registration_id = \" +\n         args[0])"
+            "newText": "<@untained> (\"SELECT firstname FROM student WHERE registration_id = \" +\n         args[0])"
         }
     }
 }
