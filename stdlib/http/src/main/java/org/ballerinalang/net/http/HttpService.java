@@ -18,6 +18,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -233,6 +234,9 @@ public class HttpService implements Cloneable {
         List<HttpResource> httpResources = new ArrayList<>();
         List<HttpResource> upgradeToWebSocketResources = new ArrayList<>();
         for (AttachedFunction resource : httpService.getBalService().getType().getAttachedFunctions()) {
+            if (!Flags.isFlagOn(resource.flags, Flags.RESOURCE)) {
+                continue;
+            }
             MapValue resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
             if (checkConfigAnnotationAvailability(resourceConfigAnnotation)
