@@ -52,13 +52,17 @@ public class AcceptWebSocketUpgrade {
 
     public static Object acceptWebSocketUpgrade(Strand strand, ObjectValue connectionObj,
                                                      MapValue<String, String> headers) {
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketHandshaker webSocketHandshaker =
                     (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
             WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) connectionObj
                     .getNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER);
             if (webSocketHandshaker == null) {
-                return new WebSocketException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
+                callback.notifyFailure(new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
+                                                              "Not a WebSocket upgrade request. Cannot upgrade from " +
+                                                                      "HTTP to WS"));
+                return null;
             }
 
             WebSocketService webSocketService = (WebSocketService) connectionObj.getNativeData(
@@ -71,10 +75,10 @@ public class AcceptWebSocketUpgrade {
             }
 
             WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker,
-                                          new NonBlockingCallback(strand));
+                                          callback);
         } catch (Exception e) {
             log.error("Error when upgrading to WebSocket", e);
-            return new WebSocketException(e);
+            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
         return null;
     }
