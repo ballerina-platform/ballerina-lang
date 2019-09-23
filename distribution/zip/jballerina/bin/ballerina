@@ -245,13 +245,7 @@ if [[ $1 == "native-img" ]]; then
     else
         echo "Please set GRAALVM_HOME for native image generation"
     fi
-elif [[ $1 == "run" ]] && [[ ${@: -1} == *.jar ]]; then
-      # save jar file path
-      JAR_FILE=${@: -1}
-      # remove jar file path from args
-      set -- "${@:1:$(($#-1))}"
-      # remove "run" from args
-      shift 1
+elif [[ $1 == "run" ]] && [[ $2 == *.jar ]]; then # if 1st arg is "run" and 2nd arg ends with ".jar".
       $JAVACMD \
         -Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
         -Xms256m -Xmx1024m \
@@ -260,13 +254,14 @@ elif [[ $1 == "run" ]] && [[ ${@: -1} == *.jar ]]; then
         $JAVA_OPTS \
         -classpath "$BALLERINA_CLASSPATH" \
         -Dballerina.home=$BALLERINA_HOME \
+        -Dballerina.version=${project.version} \
         -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
         -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
         -Denable.nonblocking=false \
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
-        "$@" \
-        -jar $JAR_FILE
+        -Dballerina.target=jvm \
+        -jar "${@:2}" # ignores "run"
 else
     $JAVACMD \
         -Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
