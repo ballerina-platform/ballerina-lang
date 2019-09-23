@@ -16,9 +16,10 @@
 
 import ballerina/io;
 import ballerina/transactions;
+import ballerina/runtime;
 
 string S = "";
-
+boolean functionCommited = false;
 
 @transactions:Participant {
     oncommit:commitFunc,
@@ -31,6 +32,7 @@ public function participantFoo() {
 
 public function commitFunc(string trxId) {
     S = S + " commitFun";
+    functionCommited = true;
     io:println("commitFunc");
 }
 
@@ -130,7 +132,9 @@ function nonParticipantNestedTrxStmt(string s) returns string {
 
 function nonParticipantFunctionNesting(string failureCondition) returns string {
     string s = "";
+    boolean isAborted = false;
     S = "";
+    functionCommited = false;
     transaction {
         s = " in-trx";
         s = nonParticipant(failureCondition, s);
@@ -140,7 +144,15 @@ function nonParticipantFunctionNesting(string failureCondition) returns string {
     } committed {
         s += " committed";
     } aborted {
+        isAborted = true;
         s += " aborted";
+    }
+    if (!isAborted) {
+        boolean waitResult = waitForCondition(5000, 20, function () returns boolean { return functionCommited; });
+        if (!waitResult) {
+              error err = error("Participants failed to commit");
+              panic err;
+        }
     }
     return s + " |" + S;
 }
@@ -235,4 +247,18 @@ function failable(string failureCondition, string s) returns string {
         panic er;
     }
     return s;
+}
+
+function waitForCondition(int maxWaitInMillySeconds, int noOfRounds, function() returns boolean conditionFunc)
+             returns boolean {
+    int sleepTimePerEachRound = maxWaitInMillySeconds/noOfRounds;
+    int count = 0;
+    while (count < noOfRounds) {
+        if (conditionFunc()){
+            return true;
+        }
+        count = count + 1;
+        runtime:sleep(sleepTimePerEachRound);
+    }
+    return false;
 }
