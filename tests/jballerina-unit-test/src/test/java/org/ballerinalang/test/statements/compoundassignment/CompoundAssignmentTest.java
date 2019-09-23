@@ -208,9 +208,11 @@ public class CompoundAssignmentTest {
             "invocation.")
     public void testCompoundAssignmentArrayElementFunctionInvocationOrder() {
         BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentArrayElementFunctionInvocationOrder");
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
     }
 
     @Test(description = "Test compound assignment with addition on struct element.")
