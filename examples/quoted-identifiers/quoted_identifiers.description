@@ -1,0 +1,3 @@
+// Ballerina supports quoted identifiers, making it possible to use arbitrary non-empty strings as identifiers,
+// including those that are not generally allowed as identifiers (e.g., reserved keywords).
+// Quoted identifiers are defined and referenced by prefixing the identifier with the `'` character.
