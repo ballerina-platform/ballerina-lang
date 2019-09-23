@@ -31,6 +31,8 @@ import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateExecutableTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
+import org.ballerinalang.packerina.task.PrintExecutablePathTask;
+import org.ballerinalang.packerina.task.PrintRunningExecutableTask;
 import org.ballerinalang.packerina.task.RunExecutableTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BallerinaCliCommands;
@@ -68,6 +70,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 @CommandLine.Command(name = "run", description = "Build and execute a Ballerina program.")
 public class RunCommand implements BLauncherCmd {
     
+    private final PrintStream outStream;
     private final PrintStream errStream;
 
     @CommandLine.Parameters(description = "Program arguments")
@@ -91,10 +94,12 @@ public class RunCommand implements BLauncherCmd {
     private boolean experimentalFlag;
 
     public RunCommand() {
+        this.outStream = System.out;
         this.errStream = System.err;
     }
 
-    public RunCommand(PrintStream errStream) {
+    public RunCommand(PrintStream outStream, PrintStream errStream) {
+        this.outStream = outStream;
         this.errStream = errStream;
     }
 
@@ -266,6 +271,8 @@ public class RunCommand implements BLauncherCmd {
 
         // create builder context
         BuildContext buildContext = new BuildContext(sourceRootPath, targetPath, sourcePath, compilerContext);
+        buildContext.setOut(this.outStream);
+        buildContext.setErr(this.errStream);
         
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
     
@@ -279,6 +286,8 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(false))  // create the jar
                 .addTask(new CopyModuleJarTask())
                 .addTask(new CreateExecutableTask())  // create the executable .jar file
+                .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
+                .addTask(new PrintRunningExecutableTask(!isSingleFileBuild))   // print running executables
                 .addTask(new RunExecutableTask(programArgs))
                 .build();
     
