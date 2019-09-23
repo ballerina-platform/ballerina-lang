@@ -4,9 +4,9 @@ This module provides the necessary utilities that are required to encode and dec
 
 ### Samples
 
-#### Encoding a URL to Base64 encoded string
+#### Encoding a URL into a Base64 encoded string
 
-The `encodeBase64Url` function encodes provided URL to an base64 `string`.
+The `encodeBase64Url` function encodes the provided URL to a base64 `string`.
 
 ```ballerina
 import ballerina/encoding;
@@ -19,7 +19,7 @@ public function main() {
 }
 ```
 
-#### Decoding a Base64 URL encoded string into byte array.
+#### Decoding a Base64 URL encoded string into a byte array.
 
 The `decodeBase64Url` function decodes a base64 encoded `string` to a byte array.
 
@@ -50,7 +50,7 @@ public function main() returns error? {
 }
 ```
 
-#### Decoding a encoded URI component into string
+#### Decoding an encoded URI component into a string
 
 The `decodeUriComponent` function can be used to decode a URI into a string using a provided charset.
 

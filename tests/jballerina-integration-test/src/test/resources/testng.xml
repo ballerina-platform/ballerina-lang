@@ -69,6 +69,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HTTPCachingTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.SslProtocolTest"/>
+            <class name="org.ballerinalang.test.service.http.sample.SerializeComplexXmlTestCase"/>
         </classes>
     </test>
 

@@ -36,10 +36,10 @@ public const string CONFIG_PREFIX_SHA384 = "@sha384:";
 # Prefix used to denote that the config value is a SHA-512 hash.
 public const string CONFIG_PREFIX_SHA512 = "@sha512:";
 
-# Basic Authentication scheme.
+# Prefix used to denote Basic Authentication scheme.
 public const string AUTH_SCHEME_BASIC = "Basic ";
 
-# Bearer Authentication scheme.
+# Prefix used to denote Bearer Authentication scheme.
 public const string AUTH_SCHEME_BEARER = "Bearer ";
 
 # The table name of the config user section of the TOML file.
@@ -75,7 +75,7 @@ public function prepareError(string message, error? err = ()) returns Error {
     return authError;
 }
 
-# Set the authentication context values to invocation context.
+# Set the authentication related values (scheme, auth token) to the authentication context of the invocation context.
 #
 # + scheme - Auth scheme (JWT, LDAP, OAuth2, Basic etc.)
 # + authToken - Auth token (credential)
@@ -87,7 +87,7 @@ public function setAuthenticationContext(string scheme, string authToken) {
     };
 }
 
-# Set the principal values to invocation context.
+# Set the authentication related values (user id, username, scopes, claims) to the principal of the invocation context.
 #
 # + userId - User Id of the authenticated user.
 # + username - Username of the authenticated user.
