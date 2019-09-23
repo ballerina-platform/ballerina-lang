@@ -203,7 +203,7 @@ public class FileTest {
     public void testReadDirWithMaxDepth() {
         BValue[] args = {new BString(srcDirPath.toString()), new BInteger(0)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDirWithMaxDepth", args);
-        assertTrue(returns[0].getType() instanceof BObjectType);
+        assertEquals(returns.length, 0);
     }
 
     @Test(description = "Test for retrieving files inside directory specifying the depth level - 1")
