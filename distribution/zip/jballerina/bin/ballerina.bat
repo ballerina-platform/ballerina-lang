@@ -139,9 +139,18 @@ set BALLERINA_CLASSPATH=%BALLERINA_CLASSPATH%;%BALLERINA_CLASSPATH_EXT%
 
 set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%" -Dballerina.target="jvm" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
 
-
+set jar=%2
+if %1==run if not [%2]==[] if %jar:~-4%==.jar goto runJarFile
 :runJava
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.ballerinalang.tool.Main %CMD%
+goto end
+
+:runJarFile
+for /f "tokens=1,*" %%a in ("%*") do set ARGS=%%b
+echo %ARGS%
+"%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -jar %ARGS%
+goto end
+
 :end
 goto endlocal
 
