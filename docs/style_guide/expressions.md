@@ -75,7 +75,7 @@
   // Inline map literal.
   map<string> mapOfString1 = {name: "john", id: 0};
   
-  // Mulitline map literal.
+  // Multi-line map literal.
   map<string> mapOfString2 = {
       name: "john",
       id: 0
