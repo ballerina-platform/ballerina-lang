@@ -56,7 +56,7 @@ public type InboundJwtAuthProvider object {
             }
         }
 
-        var validationResult = validateJwt(credential, self.jwtValidatorConfig);
+        var validationResult = <@untainted> validateJwt(credential, self.jwtValidatorConfig);
         if (validationResult is JwtPayload) {
             auth:setAuthenticationContext("jwt", credential);
             setPrincipal(validationResult);
