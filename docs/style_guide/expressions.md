@@ -182,4 +182,19 @@
       }
       
   ```
+## Type initialization
+
+* `new` keyword should always be followed by a single space.
+
+  Example,
+  ```ballerina
+    http:Response res = new ();
+  ```
+  
+* If the type name is available, there should be no spaces between the opening parentheses and the type name.
+  
+  Example,
+  ```ballerina
+    http:Response res = new http:Response();
+  ```
   
