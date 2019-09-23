@@ -368,7 +368,7 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:329}";
+                "lineNumber:343}";
         String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
                 "lineNumber:347}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
