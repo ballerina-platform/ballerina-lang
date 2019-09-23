@@ -325,6 +325,20 @@ function takeError(error e) returns string {
     return e.reason();
 }
 
+function testErrorTrapVarReuse() returns [error?, error?] {
+    var result = trap panicNow();
+    var temp = result;
+    result = trap dontPanic();
+    return [temp, result];
+}
+
+function panicNow() {
+    panic error("panic now");
+}
+
+function dontPanic() {
+}
+
 function bar(){
     bar2();
 }

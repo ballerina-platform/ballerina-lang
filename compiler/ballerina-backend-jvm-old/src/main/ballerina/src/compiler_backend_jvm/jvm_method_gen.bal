@@ -565,7 +565,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
     // process error entries
     bir:ErrorEntry?[] errorEntries = func.errorEntries;
     bir:ErrorEntry? currentEE = ();
-    string[] errorVarNames = []; 
+    string previousTargetBB = "";
     jvm:Label endLabel = new;
     jvm:Label errorValueLabel = new;
     jvm:Label otherErrorLabel = new;
@@ -606,7 +606,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             otherErrorLabel = new;
             jumpLabel = new;
             // start try for instructions.
-            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel, 
+            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, endLabel,
                                                 errorValueLabel, otherErrorLabel, jumpLabel);
         }
         while (m < insCount) {
@@ -734,7 +734,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 otherErrorLabel = new;
                 jumpLabel = new;
                 // start try for terminator if current block is trapped.
-                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel, 
+                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, endLabel,
                                                 errorValueLabel, otherErrorLabel, jumpLabel);
             }
             generateDiagnosticPos(terminator.pos, mv);
@@ -752,7 +752,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         // set next error entry after visiting current error entry.
         if (isTrapped) {
             errorEntryCnt = errorEntryCnt + 1;
-            if (errorEntries.length() > errorEntryCnt) {
+            if (errorEntries.length() > errorEntryCnt && currentEE is bir:ErrorEntry) {
+                previousTargetBB = currentEE.targetBB.id.value;
                 currentEE = errorEntries[errorEntryCnt];
             }
         }

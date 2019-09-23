@@ -438,7 +438,7 @@ public class CommandUtil {
                     String content = getContentOfRange(documentManager, uri, range);
                     // Add `untaint` keyword
                     matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
-                    String editText = matcher.find() ? "untaint " + content : "untaint (" + content + ")";
+                    String editText = matcher.find() ? "<@untained>  " + content : "<@untained> (" + content + ")";
                     // Create text-edit
                     List<TextEdit> edits = new ArrayList<>();
                     edits.add(new TextEdit(range, editText));
