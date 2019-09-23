@@ -245,6 +245,28 @@ if [[ $1 == "native-img" ]]; then
     else
         echo "Please set GRAALVM_HOME for native image generation"
     fi
+elif [[ $1 == "run" ]] && [[ ${@: -1} == *.jar ]]; then
+      # save jar file path
+      JAR_FILE=${@: -1}
+      # remove jar file path from args
+      set -- "${@:1:$(($#-1))}"
+      # remove "run" from args
+      shift 1
+      $JAVACMD \
+        -Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
+        -Xms256m -Xmx1024m \
+        -XX:+HeapDumpOnOutOfMemoryError \
+        -XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
+        $JAVA_OPTS \
+        -classpath "$BALLERINA_CLASSPATH" \
+        -Dballerina.home=$BALLERINA_HOME \
+        -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
+        -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
+        -Denable.nonblocking=false \
+        -Djava.security.egd=file:/dev/./urandom \
+        -Dfile.encoding=UTF8 \
+        "$@" \
+        -jar $JAR_FILE
 else
     $JAVACMD \
         -Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
