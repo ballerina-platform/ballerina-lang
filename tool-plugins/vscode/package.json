@@ -26,6 +26,7 @@
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
         "onCommand:ballerina.showTraces",
+        "onCommand:ballerina.highlightSyntax",
         "workspaceContains:Ballerina.toml"
     ],
     "contributes": {
@@ -257,6 +258,11 @@
                     "light": "./resources/images/icons/refresh.svg",
                     "dark": "./resources/images/icons/refresh-inverse.svg"
                 }
+            },
+            {
+                "command": "ballerina.highlightSyntax",
+                "title": "Syntax Highlight",
+                "category": "Ballerina"
             }
         ],
         "menus": {
@@ -310,7 +316,7 @@
         "test-coverage": "cross-env COVER_CONFIG=html npm run test",
         "package": "vsce package",
         "build-tm-grammar":"js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json"
-        },
+    },
     "dependencies": {
         "cross-env": "^5.2.0",
         "glob": "^7.1.3",
