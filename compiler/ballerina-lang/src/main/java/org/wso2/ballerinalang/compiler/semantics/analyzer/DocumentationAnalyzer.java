@@ -22,8 +22,13 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.types.DocumentationReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -47,13 +52,15 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,6 +75,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private BLangDiagnosticLog dlog;
+    private final SymbolResolver symResolver;
+    private final SymbolTable symTable;
+    private SymbolEnv env;
+    private Names names;
 
     public static DocumentationAnalyzer getInstance(CompilerContext context) {
         DocumentationAnalyzer documentationAnalyzer = context.get(DOCUMENTATION_ANALYZER_KEY);
@@ -79,10 +90,14 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     private DocumentationAnalyzer(CompilerContext context) {
         context.put(DOCUMENTATION_ANALYZER_KEY, this);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.names = Names.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         pkgNode.getTestablePkgs().forEach(this::analyze);
@@ -182,22 +197,49 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
 
         LinkedList<BLangMarkdownBReferenceDocumentation> references = documentation.getReferences();
-        if (references != null) {
-            references.forEach(reference -> {
-                StringBuilder qualifier = new StringBuilder();
-                StringBuilder identifier = new StringBuilder();
-                boolean isValidIdentifier = validateStringForQualifiedIdentifier(reference.getReferenceName(),
-                        qualifier, identifier);
-                if (!isValidIdentifier) {
-                    dlog.warning(reference.pos, DiagnosticCode.INVALID_IDENTIFIER,
-                            reference.getReferenceName());
+        references.forEach(reference -> {
+            StringBuilder identifier = new StringBuilder();
+            boolean isValidIdentifierString = validateStringForQualifiedIdentifier(reference.getReferenceName(),
+                    identifier);
+            if (!isValidIdentifierString) {
+                //dlog.warning(reference.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
+                        //reference.getReferenceName());
+                int i = 0;
+            }
+            boolean isValidIdentifier = validateIdentifier(documentableNode, reference.getType(),
+                                                            identifier.toString());
+            if (!isValidIdentifier) {
+                //dlog.warning(reference.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER, reference.getReferenceName());
+                int i = 0;
+            }
+        });
+    }
+
+    private boolean validateIdentifier(DocumentableNode documentableNode,
+                                       DocumentationReferenceType type,
+                                       String identifier) {
+        BSymbol symbol = null;
+        Name identifierName = names.fromString(identifier);
+
+        //Lookup namespace to validate the identifier
+        switch (type) {
+            case PARAMETER:
+                //Parameters are only available for function nodes.
+                if (documentableNode.getKind() == NodeKind.FUNCTION) {
+                    BLangFunction funcNode = (BLangFunction) documentableNode;
+                    SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
+                    symbol = symResolver.lookupSymbol(funcEnv, identifierName, SymTag.VARIABLE);
                 }
-            });
+                break;
+            case SERVICE:
+                symbol = symResolver.lookupSymbol(this.env, identifierName, SymTag.SERVICE);
+                break;
         }
+
+        return symbol != symTable.notFoundSymbol;
     }
 
     private boolean validateStringForQualifiedIdentifier(String identifierContent,
-                                                         StringBuilder qualifer,
                                                          StringBuilder identifier) {
         //Building regex to match Lexer's Unquoted identifier
         String initialChar = "a-zA-Z_";
@@ -209,9 +251,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         String identifierInitialChar = "([" + initialChar + "]|[^" + unicodeNonidentifierChar + "])";
         String identifierFollowingChar = "([" + initialChar + digit + "]|[^" + unicodeNonidentifierChar + "])";
 
+        //Pattern set from basic building strings
         String identifierPattern = "(" + identifierInitialChar + identifierFollowingChar + "*)";
-        String qualifiedIdentifierPattern =  identifierPattern + ":" + identifierPattern;
-        //The following patterns are required to accomodate `function()` and `module:function()` type of references
+        String qualifiedIdentifierPattern = identifierPattern + ":" + identifierPattern;
+        //The following patterns are required to accommodate `function()` and `module:function()` type of references
         String unqualifiedFunctionIdentifierPattern = identifierPattern + "[(][)]";
         String qualifiedFunctionIdentifierPattern = qualifiedIdentifierPattern + "[(][)]";
 
@@ -227,22 +270,29 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         //First check if qualified function match and unqualified function match since
         if (qualifiedFunctionMatch.matches()) {
-            qualifer.append(qualifiedFunctionMatch.group(1));
-            identifier.append(qualifiedFunctionMatch.group(4));
-            return true;
+            getIdentifierFromMatch(true, identifier, qualifiedFunctionMatch);
         } else if (unqualifiedFunctionMatch.matches()) {
-            qualifer.append(unqualifiedFunctionMatch.group(1));
-            return true;
+            getIdentifierFromMatch(false, identifier, unqualifiedFunctionMatch);
         } else if (qualifiedMatch.matches()) {
-            qualifer.append(qualifiedMatch.group(1));
-            identifier.append(qualifiedMatch.group(4));
-            return true;
+            getIdentifierFromMatch(true, identifier, qualifiedMatch);
         } else if (unqualifiedMatch.matches()) {
-            identifier.append(unqualifiedMatch.group(0));
-            return true;
+            getIdentifierFromMatch(false, identifier, unqualifiedMatch);
+        } else {
+            return false;
         }
+        return true;
+    }
 
-        return false;
+    //This function is used to create an identifier string from regex patterns used in
+    //validateStringForQualifiedIdentifier function.
+    private void getIdentifierFromMatch(boolean qualifiedMatch, StringBuilder identifier, Matcher matcher) {
+        if (qualifiedMatch) {
+            identifier.append(matcher.group(1));
+            identifier.append(":");
+            identifier.append(matcher.group(4));
+        } else {
+            identifier.append(matcher.group(1));
+        }
     }
 
     private void validateParameters(DocumentableNode documentableNode,
