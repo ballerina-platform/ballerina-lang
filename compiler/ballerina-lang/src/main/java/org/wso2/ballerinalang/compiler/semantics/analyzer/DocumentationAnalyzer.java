@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownBReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -50,8 +51,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Analyzes markdown documentations.
@@ -123,6 +127,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
                 DiagnosticCode.PARAMETER_ALREADY_DOCUMENTED);
 
+        validateReferences(funcNode);
+
         boolean hasReturn = true;
         if (funcNode.returnTypeNode.getKind() == NodeKind.VALUE_TYPE) {
             hasReturn = ((BLangValueType) funcNode.returnTypeNode).typeKind != TypeKind.NIL;
@@ -167,6 +173,76 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 DiagnosticCode.PARAMETER_ALREADY_DOCUMENTED);
 
         validateReturnParameter(resourceNode, null, false);
+    }
+
+    private void validateReferences(DocumentableNode documentableNode) {
+        BLangMarkdownDocumentation documentation = documentableNode.getMarkdownDocumentationAttachment();
+        if (documentation == null) {
+            return;
+        }
+
+        LinkedList<BLangMarkdownBReferenceDocumentation> references = documentation.getReferences();
+        if (references != null) {
+            references.forEach(reference -> {
+                StringBuilder qualifier = new StringBuilder();
+                StringBuilder identifier = new StringBuilder();
+                boolean isValidIdentifier = validateStringForQualifiedIdentifier(reference.getReferenceName(),
+                        qualifier, identifier);
+                if (!isValidIdentifier) {
+                    dlog.warning(reference.pos, DiagnosticCode.INVALID_IDENTIFIER,
+                            reference.getReferenceName());
+                }
+            });
+        }
+    }
+
+    private boolean validateStringForQualifiedIdentifier(String identifierContent,
+                                                         StringBuilder qualifer,
+                                                         StringBuilder identifier) {
+        //Building regex to match Lexer's Unquoted identifier
+        String initialChar = "a-zA-Z_";
+        String unicodeNonidentifierChar = "\u0000-\u007F\uE000-\uF8FF\u200E\u200F\u2028\u2029\u00A1-\u00A7" +
+                "\u00A9\u00AB-\u00AC\u00AE\u00B0-\u00B1\u00B6-\u00B7\u00BB\u00BF\u00D7\u00F7\u2010-" +
+                "\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-" +
+                "\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF";
+        String digit = "0-9";
+        String identifierInitialChar = "([" + initialChar + "]|[^" + unicodeNonidentifierChar + "])";
+        String identifierFollowingChar = "([" + initialChar + digit + "]|[^" + unicodeNonidentifierChar + "])";
+
+        String identifierPattern = "(" + identifierInitialChar + identifierFollowingChar + "*)";
+        String qualifiedIdentifierPattern =  identifierPattern + ":" + identifierPattern;
+        //The following patterns are required to accomodate `function()` and `module:function()` type of references
+        String unqualifiedFunctionIdentifierPattern = identifierPattern + "[(][)]";
+        String qualifiedFunctionIdentifierPattern = qualifiedIdentifierPattern + "[(][)]";
+
+        Pattern qualifiedIdentifier = Pattern.compile(qualifiedIdentifierPattern);
+        Pattern unqualifiedIdentifier = Pattern.compile(identifierPattern);
+        Pattern qualifiedFunctionIdentifier = Pattern.compile(qualifiedFunctionIdentifierPattern);
+        Pattern unqualifiedFunctionIdentifier = Pattern.compile(unqualifiedFunctionIdentifierPattern);
+
+        Matcher qualifiedMatch = qualifiedIdentifier.matcher(identifierContent);
+        Matcher unqualifiedMatch = unqualifiedIdentifier.matcher(identifierContent);
+        Matcher qualifiedFunctionMatch = qualifiedFunctionIdentifier.matcher(identifierContent);
+        Matcher unqualifiedFunctionMatch = unqualifiedFunctionIdentifier.matcher(identifierContent);
+
+        //First check if qualified function match and unqualified function match since
+        if (qualifiedFunctionMatch.matches()) {
+            qualifer.append(qualifiedFunctionMatch.group(1));
+            identifier.append(qualifiedFunctionMatch.group(4));
+            return true;
+        } else if (unqualifiedFunctionMatch.matches()) {
+            qualifer.append(unqualifiedFunctionMatch.group(1));
+            return true;
+        } else if (qualifiedMatch.matches()) {
+            qualifer.append(qualifiedMatch.group(1));
+            identifier.append(qualifiedMatch.group(4));
+            return true;
+        } else if (unqualifiedMatch.matches()) {
+            identifier.append(unqualifiedMatch.group(0));
+            return true;
+        }
+
+        return false;
     }
 
     private void validateParameters(DocumentableNode documentableNode,

@@ -39,86 +39,31 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -874,6 +819,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMarkdownBReferenceDocumentation bLangMarkdownBReferenceDocumentation) {
         throw new AssertionError();
     }
 }

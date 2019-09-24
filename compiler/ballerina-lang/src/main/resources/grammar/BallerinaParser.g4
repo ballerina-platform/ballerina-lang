@@ -1138,19 +1138,19 @@ returnParameterDescriptionLine
     ;
 
 documentationText
-    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
+    :   (documentationReference | documentationTextContent | referenceType | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock)+
     ;
 
 documentationReference
-    :   definitionReference
-    ;
-
-definitionReference
     :   definitionReferenceType singleBacktickedBlock
     ;
 
 definitionReferenceType
-    :   DefinitionReference
+    :   referenceType DocumentationEscapedCharacters
+    ;
+
+referenceType
+    :   DOCTYPE|DOCSERVICE|DOCVARIABLE|DOCVAR|DOCANNOTATION|DOCMODULE|DOCFUNCTION|DOCPARAMETER
     ;
 
 parameterDocumentation
@@ -1187,4 +1187,8 @@ tripleBacktickedBlock
 
 tripleBacktickedContent
     :   TripleBacktickContent
+    ;
+
+documentationTextContent
+    : DocumentationText  | DocumentationEscapedCharacters
     ;

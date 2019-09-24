@@ -200,7 +200,7 @@ BIT_AND          : '&' ;
 BIT_XOR          : '^' ;
 BIT_COMPLEMENT   : '~' ;
 
-// Additional symbols 
+// Additional symbols
 
 RARROW      : '->' ;
 LARROW      : '<-' ;
@@ -357,7 +357,7 @@ BooleanLiteral
     ;
 
 // §3.10.5 String Literals
-    
+
 QuotedStringLiteral
     :   '"' StringCharacters? '"'
     ;
@@ -372,7 +372,7 @@ StringCharacter
     :   ~["\\]  // This needs to be ~["\\\u000A\u000D]. But due to issue #19501, reverted back to ~["\\]
     |   EscapeSequence
     ;
-    
+
 // §3.10.6 Escape Sequences for Character and String Literals
 
 fragment
@@ -537,19 +537,22 @@ LINE_COMMENT
 
 mode MARKDOWN_DOCUMENTATION;
 
-VARIABLE    : 'variable';
-MODULE      : 'module';
-
-ReferenceType
-    :   TYPE|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
-    ;
-
-DocumentationText
-    :   (DocumentationTextCharacter | DocumentationEscapedCharacters)+
-    ;
+DOCTYPE         :   'type';
+DOCSERVICE      :   'service';
+DOCVARIABLE     :   'variable';
+DOCVAR          :   'var';
+DOCANNOTATION   :   'annotation';
+DOCMODULE       :   'module';
+DOCFUNCTION     :   'function';
+DOCPARAMETER    :   'parameter';
+DOCCONST        :   'const';
 
 SingleBacktickStart
     :   BACKTICK -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+DocumentationText
+    :   DocumentationTextCharacter+
     ;
 
 DoubleBacktickStart
@@ -558,10 +561,6 @@ DoubleBacktickStart
 
 TripleBacktickStart
     :   BACKTICK BACKTICK BACKTICK -> pushMode(TRIPLE_BACKTICKED_DOCUMENTATION)
-    ;
-
-DefinitionReference
-    :   ReferenceType DocumentationSpace+
     ;
 
 fragment

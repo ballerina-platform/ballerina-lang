@@ -3008,16 +3008,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitDocumentationReference(BallerinaParser.DocumentationReferenceContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#definitionReference}.
-	 * @param ctx the parse tree
-	 */
-	void enterDefinitionReference(BallerinaParser.DefinitionReferenceContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#definitionReference}.
-	 * @param ctx the parse tree
-	 */
-	void exitDefinitionReference(BallerinaParser.DefinitionReferenceContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#definitionReferenceType}.
 	 * @param ctx the parse tree
 	 */
@@ -3027,6 +3017,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDefinitionReferenceType(BallerinaParser.DefinitionReferenceTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#referenceType}.
+	 * @param ctx the parse tree
+	 */
+	void enterReferenceType(BallerinaParser.ReferenceTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#referenceType}.
+	 * @param ctx the parse tree
+	 */
+	void exitReferenceType(BallerinaParser.ReferenceTypeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#parameterDocumentation}.
 	 * @param ctx the parse tree
@@ -3117,4 +3117,14 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTripleBacktickedContent(BallerinaParser.TripleBacktickedContentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#documentationTextContent}.
+	 * @param ctx the parse tree
+	 */
+	void enterDocumentationTextContent(BallerinaParser.DocumentationTextContentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#documentationTextContent}.
+	 * @param ctx the parse tree
+	 */
+	void exitDocumentationTextContent(BallerinaParser.DocumentationTextContentContext ctx);
 }

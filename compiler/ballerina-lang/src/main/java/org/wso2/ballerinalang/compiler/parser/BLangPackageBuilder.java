@@ -71,6 +71,7 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.types.DocumentationReferenceType;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -110,62 +111,10 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -2327,6 +2276,57 @@ public class BLangPackageBuilder {
         markdownDocumentationNode.addWS(ws);
     }
 
+    void endDocumentationReference(DiagnosticPos pos, String referenceType, String identifier) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        if (markdownDocumentationNode == null) {
+            return;
+        }
+
+        BLangMarkdownBReferenceDocumentation referenceDocumentation = null;
+        switch (referenceType) {
+            case "service":
+                referenceDocumentation =
+                        createBReferenceDocumentation(pos, DocumentationReferenceType.SERVICE, identifier);
+                break;
+            case "parameter":
+                referenceDocumentation =
+                        createBReferenceDocumentation(pos, DocumentationReferenceType.PARAMETER, identifier);
+                break;
+            case "function":
+                referenceDocumentation =
+                        createBReferenceDocumentation(pos, DocumentationReferenceType.FUNCTION, identifier);
+                break;
+            case "type":
+                referenceDocumentation =
+                        createBReferenceDocumentation(pos, DocumentationReferenceType.TYPE, identifier);
+                break;
+            case "variable":
+                referenceDocumentation =
+                        createBReferenceDocumentation(pos, DocumentationReferenceType.VARIABLE, identifier);
+                break;
+            case "var":
+                referenceDocumentation =
+                        createBReferenceDocumentation(pos, DocumentationReferenceType.VARIABLE, identifier);
+                break;
+            case "annotation":
+                referenceDocumentation =
+                        createBReferenceDocumentation(pos, DocumentationReferenceType.ANNOTATION, identifier);
+                break;
+            case "module":
+                referenceDocumentation =
+                        createBReferenceDocumentation(pos, DocumentationReferenceType.MODULE, identifier);
+                break;
+            case "const":
+                referenceDocumentation =
+                        createBReferenceDocumentation(pos, DocumentationReferenceType.CONST, identifier);
+                break;
+            default:
+                break;
+        }
+
+        markdownDocumentationNode.addReference(referenceDocumentation);
+    }
+
     void endParameterDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String parameterName, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownParameterDocumentation parameterDocumentationNode =
@@ -2441,6 +2441,18 @@ public class BLangPackageBuilder {
                 || lExprNode.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             validateLvexpr(((BLangAccessExpression) lExprNode).expr, errorCode);
         }
+    }
+
+    private BLangMarkdownBReferenceDocumentation createBReferenceDocumentation(DiagnosticPos pos,
+                                                                               DocumentationReferenceType type,
+                                                                               String identifier) {
+        BLangMarkdownBReferenceDocumentation referenceDocumentation =
+                (BLangMarkdownBReferenceDocumentation) TreeBuilder.createMarkdownBReferenceDocumentationNode();
+        referenceDocumentation.setType(type);
+        referenceDocumentation.setReferenceName(identifier);
+        referenceDocumentation.pos = pos;
+
+        return referenceDocumentation;
     }
 
     void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {

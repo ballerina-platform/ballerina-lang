@@ -3460,18 +3460,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDefinitionReference(BallerinaParser.DefinitionReferenceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDefinitionReference(BallerinaParser.DefinitionReferenceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterDefinitionReferenceType(BallerinaParser.DefinitionReferenceTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -3479,6 +3467,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDefinitionReferenceType(BallerinaParser.DefinitionReferenceTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterReferenceType(BallerinaParser.ReferenceTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReferenceType(BallerinaParser.ReferenceTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -3587,6 +3587,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTripleBacktickedContent(BallerinaParser.TripleBacktickedContentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDocumentationTextContent(BallerinaParser.DocumentationTextContentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDocumentationTextContent(BallerinaParser.DocumentationTextContentContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
