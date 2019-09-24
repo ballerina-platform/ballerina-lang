@@ -303,7 +303,7 @@ function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int star
 function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel dest,
               string modulePath, string toAndFrom, int width) {
     int terminalWidth = width - logFormatter.offset;
-    int bytesChunk = 1024;
+    int bytesChunk = 8192;
     byte[] readContent = [];
     int readCount = -1;
     float totalCount = 0.0;
