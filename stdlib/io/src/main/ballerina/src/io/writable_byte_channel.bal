@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# WritableByteChannel represents an output resource (i.e file, socket). which could be used to sink bytes.
+# WritableByteChannel represents an output resource (i.e file). which could be used to sink bytes.
 public type WritableByteChannel object {
 
     # Sink bytes from a given input/output resource.

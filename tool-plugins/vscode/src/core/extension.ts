@@ -148,9 +148,10 @@ export class BallerinaExtension {
                     disposeDidChange.dispose();
                     this.context!.subscriptions.push(disposable);
                 });
+            }, (reason) => {
+                throw new Error(reason);
             }).catch(e => {
                 const msg = `Error when checking ballerina version. ${e.message}`;
-                log(msg);
                 this.telemetryReporter.sendTelemetryException(e, { error: msg });
                 throw new Error(msg);
             });
@@ -284,13 +285,13 @@ export class BallerinaExtension {
         const balCmd = this.getBallerinaCmd(overrideBallerinaHome ? ballerinaHome : "");
         return new Promise((resolve, reject) => {
             exec(balCmd + ' version', (err, stdout, stderr) => {
-                const version = stdout.length > 0 ? stdout : stderr;
-                if (version.startsWith("Error:")) {
-                    reject(version);
+                const cmdOutput = stdout.length > 0 ? stdout : stderr;
+                if (cmdOutput.startsWith("Error:")) {
+                    reject(cmdOutput);
                     return;
                 }
                 try {
-                    const parsedVersion = version.split('\n')[0].replace(/Ballerina /, '').replace(/[\n\t\r]/g, '');
+                    const parsedVersion = cmdOutput.split('\n')[0].replace(/Ballerina /, '').replace(/[\n\t\r]/g, '');
                     resolve(parsedVersion);
                 } catch (error) {   
                     reject(error); 
@@ -451,7 +452,7 @@ export class BallerinaExtension {
         };
     }
 
-    private overrideBallerinaHome(): boolean {
+    public overrideBallerinaHome(): boolean {
         return <boolean>workspace.getConfiguration().get(OVERRIDE_BALLERINA_HOME);
     }
 

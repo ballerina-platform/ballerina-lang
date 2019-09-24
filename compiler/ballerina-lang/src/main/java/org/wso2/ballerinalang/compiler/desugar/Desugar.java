@@ -6422,11 +6422,13 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        // add last func
-        BLangFunction lastFunc = generatedFunctions.get(generatedFunctions.size() - 1);
-        lastFunc = rewrite(lastFunc, env);
-        packageNode.functions.add(lastFunc);
-        packageNode.topLevelNodes.add(lastFunc);
+        if (generatedFunctions.size() > 1) {
+            // add last func
+            BLangFunction lastFunc = generatedFunctions.get(generatedFunctions.size() - 1);
+            lastFunc = rewrite(lastFunc, env);
+            packageNode.functions.add(lastFunc);
+            packageNode.topLevelNodes.add(lastFunc);
+        }
 
         return generatedFunctions.get(0);
     }

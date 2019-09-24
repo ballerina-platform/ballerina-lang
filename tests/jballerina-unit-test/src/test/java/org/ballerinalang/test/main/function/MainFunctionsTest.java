@@ -113,6 +113,17 @@ public class MainFunctionsTest {
                 "'error?' containing '()'", 17, 32);
     }
 
+    @Test
+    public void testMainWithStackOverflow() {
+        CompileResult compileResult = BCompileUtil
+                .compile("test-src/main.function/test_main_with_stackoverflow.bal");
+        BCompileUtil.ExitDetails details = BCompileUtil.run(compileResult, new String[]{});
+        assertTrue(details.errorOutput.contains("error: {ballerina}StackOverflow \n\tat $value$Foo:__init" +
+                "(test_main_with_stackoverflow.bal:19)\n\t   $value$Foo:__init(test_main_with_stackoverflow.bal:19)" +
+                "\n\t   $value$Foo:__init(test_main_with_stackoverflow.bal:19)"));
+    }
+
+
     private String runMain(CompileResult compileResult, String[] args) {
         try {
             return BCompileUtil.runMain(compileResult, args);

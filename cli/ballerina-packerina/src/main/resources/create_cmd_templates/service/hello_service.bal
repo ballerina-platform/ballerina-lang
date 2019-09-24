@@ -1,25 +1,21 @@
-// A system module containing protocol access constructs
-// Module objects referenced with 'http:' in code
 import ballerina/http;
 import ballerina/io;
 
-# A service is a network-accessible API
-# Advertised on '/hello', port comes from listener endpoint
+# A service representing a network-accessible API
+# bound to port `9090`.
 service hello on new http:Listener(9090) {
 
-    # A resource is an invokable API method
-    # Accessible at '/hello/sayHello
-    # 'caller' is the client invoking this resource 
-
-    # + caller - Server Connector
-    # + request - Request
+    # A resource respresenting an invokable API method
+    # accessible at `/hello/sayHello`.
+    #
+    # + caller - the client invoking this resource
+    # + request - the inbound request
     resource function sayHello(http:Caller caller, http:Request request) {
 
-        // Send a response back to caller
-        // -> indicates a synchronous network-bound call
+        // Send a response back to the caller.
         error? result = caller->respond("Hello Ballerina!");
         if (result is error) {
-            io:println("Error in responding", result);
+            io:println("Error in responding: ", result);
         }
     }
 }

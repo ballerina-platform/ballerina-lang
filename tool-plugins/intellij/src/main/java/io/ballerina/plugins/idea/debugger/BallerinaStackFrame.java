@@ -75,11 +75,21 @@ public class BallerinaStackFrame extends XStackFrame {
 
     @Nullable
     private VirtualFile findFile() {
-        String fileName = myFrame.getSource().getName();
         String filePath = myFrame.getSource().getPath();
 
-        File file = searchFile(new File(filePath), fileName);
-        if (file != null) {
+        File file = new File(filePath);
+        // Todo - Fix potential issue in remote debugging, when there are multiple files with the same file name.
+        // If the absolute file path is not received from the debug adapter, search for the the file using its relative
+        // path, inside the current project.
+        if (!file.exists()) {
+            String projectPath = myProcess.getDapClientConnector().getProject().getBasePath();
+            if (projectPath == null) {
+                return null;
+            }
+            file = searchFile(new File(projectPath), filePath);
+        }
+
+        if (file != null && file.exists()) {
             return LocalFileSystem.getInstance().findFileByPath(file.getAbsolutePath());
         }
 

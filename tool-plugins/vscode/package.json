@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "1.0.0-rc1-SNAPSHOT",
+    "version": "1.0.0",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -315,9 +315,7 @@
         "glob": "^7.1.3",
         "lodash": "^4.17.11",
         "mousetrap": "^1.6.3",
-        "ms-wmic": "^1.0.4",
         "portfinder": "^1.0.21",
-        "ps-node": "^0.1.6",
         "vscode-debugadapter": "^1.34.0",
         "vscode-debugprotocol": "^1.34.0",
         "vscode-extension-telemetry": "^0.1.2",

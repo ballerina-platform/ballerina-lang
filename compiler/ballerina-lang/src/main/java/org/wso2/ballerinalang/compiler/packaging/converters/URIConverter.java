@@ -130,7 +130,7 @@ public class URIConverter implements Converter<URI> {
             Optional<RuntimeException> runtimeException = executor.executeMainFunction("module_pull",
                     remoteURI.toString(), modulePathInBaloCache.toString(), modulePath, proxy.getHost(),
                     proxyPortAsString, proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
-                    supportedVersionRange, String.valueOf(isBuild), nightlyBuild, IMPLEMENTATION_VERSION,
+                    supportedVersionRange, String.valueOf(this.isBuild), nightlyBuild, IMPLEMENTATION_VERSION,
                     supportedPlatform);
             // Check if error has occurred or not.
             if (runtimeException.isPresent()) {
@@ -142,12 +142,12 @@ public class URIConverter implements Converter<URI> {
                     }
     
                     // if module already exists in home repository
-                    if (errorMessage.contains("module already exists in the home repository")) {
+                    if (errorMessage.contains("module already exists in the home repository") && this.isBuild) {
                         // Need to update the version of moduleID that was resolved by remote. But since the version
                         // cannot be returned by the call done to module_pull.bal file we need to set the version from
                         // the downloaded balo file.
-                        Patten patten = homeBaloRepo.calculate(moduleID);
-                        return patten.convertToSources(homeBaloRepo.getConverterInstance(), moduleID);
+                        Patten patten = this.homeBaloRepo.calculate(moduleID);
+                        return patten.convertToSources(this.homeBaloRepo.getConverterInstance(), moduleID);
                     }
 
                     // check if the message is empty or not. Empty means module not found. Else some other error.
@@ -161,8 +161,8 @@ public class URIConverter implements Converter<URI> {
                 // Need to update the version of moduleID that was resolved by remote. But since the version cannot
                 // be returned by the call done to module_pull.bal file we need to set the version from the
                 // downloaded balo file.
-                Patten patten = homeBaloRepo.calculate(moduleID);
-                return patten.convertToSources(homeBaloRepo.getConverterInstance(), moduleID);
+                Patten patten = this.homeBaloRepo.calculate(moduleID);
+                return patten.convertToSources(this.homeBaloRepo.getConverterInstance(), moduleID);
             }
         }
         return Stream.of();

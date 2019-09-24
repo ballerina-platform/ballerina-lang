@@ -19,6 +19,7 @@ type Detail record {
     error cause?;
 };
 
+# Error reason to specify the time error that occurs in the module
 public const TIME_ERROR_REASON = "{ballerina/time}TimeError";
-
+# Represents Time module related error
 public type Error error<TIME_ERROR_REASON, Detail>;
