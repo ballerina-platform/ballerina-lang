@@ -49,7 +49,7 @@ public function main() {
     printDetails("Diana", 20, "Math", "Physics");
 
     // Pass an array as the rest parameter instead of calling the
-    // function by passing each value separately. 
+    // function by passing each value separately.
     string[] modules = ["Math", "Physics"];
     printDetails("Diana", 20, ...modules);
 }
