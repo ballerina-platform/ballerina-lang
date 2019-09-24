@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 
