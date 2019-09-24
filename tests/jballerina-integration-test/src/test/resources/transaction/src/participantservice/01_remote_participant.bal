@@ -376,7 +376,7 @@ function remoteErrorReturnInitiator() returns @tainted string {
 }
 
 
-function callParticipantMultipleTimes() returns string {
+function callSameRemoteParticipantMultipleTimes() returns string {
     http:Client participantEP = new("http://localhost:8889");
     S1 = "";
     resourceCommited = false;
@@ -597,7 +597,7 @@ service initiatorService on new http:Listener(8888) {
         methods: ["POST"]
     }
     resource function remoteParticipantMultipleExecution(http:Caller caller, http:Request req) {
-        string result = callParticipantMultipleTimes();
+        string result = callSameRemoteParticipantMultipleTimes();
         http:Response res = new;
         res.setPayload(result);
         var r = caller->respond(res);
