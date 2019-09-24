@@ -163,8 +163,8 @@ function testToJson(string jdbcURL) returns @tainted json {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                  boolean_type, string_type from DataTable WHERE row_id = 1", ());
+    var result = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+                  "boolean_type, string_type from DataTable WHERE row_id = 1", ());
     json retVal = getJsonConversionResult(result);
     checkpanic testDB.stop();
     return retVal;
@@ -206,8 +206,8 @@ function testToXml(string jdbcURL) returns xml {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
+    var result = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+                   "boolean_type, string_type from DataTable WHERE row_id = 1", ());
     xml retVal = getXMLConversionResult(result);
     checkpanic testDB.stop();
     return retVal;
@@ -251,8 +251,8 @@ function testToXmlMultipleConsume(string jdbcURL) returns xml {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
-        boolean_type, string_type from DataTable WHERE row_id = 1", ());
+    var result = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+        "boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
     xml retVal = getXMLConversionResult(result);
     checkpanic testDB.stop();
@@ -291,8 +291,8 @@ function testToJsonMultipleConsume(string jdbcURL) returns @tainted json {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type,
-        boolean_type, string_type from DataTable WHERE row_id = 1", ());
+    var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+        "boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
     json result = getJsonConversionResult(tableOrError);
     checkpanic testDB.stop();
@@ -306,9 +306,9 @@ function toXmlComplex(string jdbcURL) returns xml {
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
-                    float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array,
-                    string_array from MixTypes where row_id =1", ());
+    var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type," +
+                    "float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array," +
+                    "string_array from MixTypes where row_id =1", ());
 
     xml convertedVal = getXMLConversionResult(tableOrError);
     checkpanic testDB.stop();
@@ -323,9 +323,9 @@ function testToXmlComplexWithStructDef(string jdbcURL) returns xml {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
-                    float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", TestTypeData);
+    var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type," +
+                    "float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array " +
+                    "from MixTypes where row_id =1", TestTypeData);
 
     xml convertedVal = getXMLConversionResult(tableOrError);
     checkpanic testDB.stop();
@@ -339,9 +339,9 @@ function testToJsonComplex(string jdbcURL) returns @tainted json {
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
-        float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array, string_array
-        from MixTypes where row_id =1", ());
+    var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type," +
+        "float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array, string_array " +
+        "from MixTypes where row_id =1", ());
 
     json convertedVal = getJsonConversionResult(tableOrError);
     checkpanic testDB.stop();
@@ -357,9 +357,9 @@ function testToJsonComplexWithStructDef(string jdbcURL) returns @tainted json {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
-                    float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", TestTypeData);
+    var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type," +
+                    "float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array " +
+                    "from MixTypes where row_id =1", TestTypeData);
     json ret = getJsonConversionResult(tableOrError);
     checkpanic testDB.stop();
     return ret;
@@ -372,8 +372,8 @@ function testJsonWithNull(string jdbcURL) returns @tainted json {
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                  boolean_type, string_type from DataTable WHERE row_id = 2", ());
+    var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+                  "boolean_type, string_type from DataTable WHERE row_id = 2", ());
     json convertedVal = getJsonConversionResult(tableOrError);
     checkpanic testDB.stop();
     return convertedVal;
@@ -386,8 +386,8 @@ function testXmlWithNull(string jdbcURL) returns xml {
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                   boolean_type, string_type from DataTable WHERE row_id = 2", ());
+    var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+                   "boolean_type, string_type from DataTable WHERE row_id = 2", ());
     xml ret = getXMLConversionResult(tableOrError);
     checkpanic testDB.stop();
     return ret;
@@ -452,8 +452,8 @@ function testGetPrimitiveTypes(string jdbcURL) returns @tainted [int, int, float
     boolean b = false;
     string s = "";
     decimal dec = -1;
-    var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
+    var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+              "boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
     if (dtRet is table<ResultPrimitive>) {
         while (dtRet.hasNext()) {
             var rs = dtRet.getNext();
@@ -506,8 +506,8 @@ function testArrayData(string jdbcURL) returns @tainted [int[], int[], decimal[]
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var tableOrError = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 1", ResultMap);
+    var tableOrError = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = 1", ResultMap);
     int[] int_arr = [];
     int[] long_arr = [];
     decimal[] float_arr = [];
@@ -555,8 +555,8 @@ function testArrayDataInsertAndPrint(string jdbcURL) returns @tainted [int, int,
     int boolArrLen = -1;
     int strArrLen = -1;
 
-    var updateRet = testDB->update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
-                                string_array, boolean_array) values (?,?,?,?,?,?)",
+    var updateRet = testDB->update("insert into ArrayTypes(row_id, int_array, long_array, float_array," +
+                                "string_array, boolean_array) values (?,?,?,?,?,?)",
     paraID, paraInt, paraLong, paraFloat, paraString, paraBool);
     int updatedCount = -1;
     if (updateRet is jdbc:UpdateResult) {
@@ -565,8 +565,8 @@ function testArrayDataInsertAndPrint(string jdbcURL) returns @tainted [int, int,
         error e = updateRet;
         io:println(<string>e.detail()["message"]);
     }
-    var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array, string_array
-                                 from ArrayTypes where row_id = 4", ResultMap);
+    var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array, string_array " +
+                                 "from ArrayTypes where row_id = 4", ResultMap);
     if (dtRet is table<ResultMap>) {
         while (dtRet.hasNext()) {
             var rs = dtRet.getNext();
@@ -606,12 +606,12 @@ function testDateTime(int datein, int timein, int timestampin, string jdbcURL) r
     jdbc:Parameter para3 = {sqlType: jdbc:TYPE_TIMESTAMP, value: timestampin};
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: timestampin};
 
-    _ = checkpanic testDB->update("Insert into DateTimeTypes
-        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
+    _ = checkpanic testDB->update("Insert into DateTimeTypes " +
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
     para0, para1, para2, para3, para4);
 
-    var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 1", ResultDates);
+    var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type " +
+                "from DateTimeTypes where row_id = 1", ResultDates);
     if (selectRet is table<ResultDates>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
@@ -662,12 +662,12 @@ function testDateTimeAsTimeStruct(string jdbcURL) returns @tainted [int, int, in
     jdbc:Parameter para3 = {sqlType: jdbc:TYPE_TIMESTAMP, value: timestampStruct};
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: datetimeStruct};
 
-    _ = checkpanic testDB->update("Insert into DateTimeTypes
-        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
+    _ = checkpanic testDB->update("Insert into DateTimeTypes " +
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
     para0, para1, para2, para3, para4);
 
-    var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 31", ResultDatesStruct);
+    var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type " +
+                "from DateTimeTypes where row_id = 31", ResultDatesStruct);
     if (selectRet is table<ResultDatesStruct>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
@@ -703,12 +703,12 @@ function testDateTimeInt(int datein, int timein, int timestampin, string jdbcURL
     int timestamp = -1;
     int datetime = -1;
 
-    _ = checkpanic testDB->update("Insert into DateTimeTypes
-        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
+    _ = checkpanic testDB->update("Insert into DateTimeTypes " +
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
     para0, para1, para2, para3, para4);
 
-    var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 32", ResultDatesInt);
+    var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type " +
+                "from DateTimeTypes where row_id = 32", ResultDatesInt);
 
     if (selectRet is table<ResultDatesInt>) {
         while (selectRet.hasNext()) {
@@ -761,9 +761,9 @@ function testColumnAlias(string jdbcURL) returns @tainted [int, int, float, floa
     boolean b = false;
     string s = "";
     int i2 = -1;
-    var selectRet = testDB->select("SELECT dt1.int_type, dt1.long_type, dt1.float_type,
-           dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1
-           left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", ResultSetTestAlias);
+    var selectRet = testDB->select("SELECT dt1.int_type, dt1.long_type, dt1.float_type," +
+           "dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1 " +
+           "left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", ResultSetTestAlias);
     if (selectRet is table<ResultSetTestAlias>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
@@ -828,13 +828,13 @@ function testTableAutoClose(string jdbcURL) returns @tainted [int, json] {
             }
         }
     }
-    var selectRet2 = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", ());
+    var selectRet2 = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+              "boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
     json jsonData = getJsonConversionResult(selectRet2);
 
-    var selectRet3 = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", ());
+    var selectRet3 = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+              "boolean_type, string_type from DataTable WHERE row_id = 1", ());
     if (selectRet3 is table<record {}>) {
         selectRet3.close();
     }
@@ -927,8 +927,8 @@ function testTablePrintAndPrintln(string jdbcURL) {
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-        boolean_type, string_type from DataTable WHERE row_id = 1", ());
+    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+        "boolean_type, string_type from DataTable WHERE row_id = 1", ());
     if (selectRet is table<record {}>) {
         io:println(selectRet);
         io:print(selectRet);
@@ -1122,8 +1122,8 @@ function testGetFloatTypes(string jdbcURL) returns @tainted [float, float, decim
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var selectRet = testDB->select("SELECT float_type, double_type,
-                  numeric_type, decimal_type from FloatTable WHERE row_id = 1", ResultSetFloat);
+    var selectRet = testDB->select("SELECT float_type, double_type," +
+                  "numeric_type, decimal_type from FloatTable WHERE row_id = 1", ResultSetFloat);
 
     float f = 0;
     float d = 0;
@@ -1302,12 +1302,12 @@ function testJsonXMLConversionwithDuplicateColumnNames(string jdbcURL) returns @
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var selectRet = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
-            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
+    var selectRet = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left " +
+            "join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
     json j = getJsonConversionResult(selectRet);
 
-    var selectRet2 = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
-            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
+    var selectRet2 = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left " +
+            "join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
     xml x = getXMLConversionResult(selectRet2);
 
     checkpanic testDB.stop();
@@ -1339,8 +1339,8 @@ function testStructFieldNotMatchingColumnName(string jdbcURL) returns @tainted [
         }
     }
 
-    var selectRet2 = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
-            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ResultTest);
+    var selectRet2 = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left " +
+            "join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ResultTest);
 
     if (selectRet2 is table<ResultTest>) {
         while (selectRet2.hasNext()) {
@@ -1365,8 +1365,8 @@ function testGetPrimitiveTypesWithForEach(string jdbcURL) returns @tainted [int,
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
+    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+              "boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
 
     int i = -1;
     int l = -1;
@@ -1425,8 +1425,8 @@ function testGetPrimitiveTypesWithWhileLoopAndConstructFrom(string jdbcURL) retu
         poolOptions: { maximumPoolSize: 1 }
     });
 
-    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
+    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+              "boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
 
     int i = -1;
     int l = -1;
@@ -1529,8 +1529,8 @@ function testToJsonAndAccessFromMiddle(string jdbcURL) returns @tainted [json, i
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                  boolean_type, string_type from DataTable", ());
+    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+                  "boolean_type, string_type from DataTable", ());
     json result = getJsonConversionResult(selectRet);
     json[] jArray = <json[]>result;
     json j = jArray[1];
@@ -1545,8 +1545,8 @@ function testToJsonAndIterate(string jdbcURL) returns @tainted [json, int] | err
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                  boolean_type, string_type from DataTable", ());
+    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+                  "boolean_type, string_type from DataTable", ());
     json result = getJsonConversionResult(selectRet);
     json[] j = <json[]>result;
     checkpanic testDB.stop();
@@ -1560,8 +1560,8 @@ function testToJsonAndSetAsChildElement(string jdbcURL) returns @tainted json {
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                  boolean_type, string_type from DataTable", ());
+    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+                  "boolean_type, string_type from DataTable", ());
     json result = getJsonConversionResult(selectRet);
     json j = {status: "SUCCESS", resp: {value: result}};
     checkpanic testDB.stop();
@@ -1575,8 +1575,8 @@ function testToJsonAndLengthof(string jdbcURL) returns @tainted [int, int] {
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                  boolean_type, string_type from DataTable", ());
+    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+                  "boolean_type, string_type from DataTable", ());
 
     json result = getJsonConversionResult(selectRet);
     json[] jArray = checkpanic json[].constructFrom(result);
@@ -1672,8 +1672,8 @@ function testTypeCheckingConstrainedCursorTableWithClosedConstraint(string jdbcU
     float d = -1;
     boolean b = false;
     string s = "";
-    var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                   boolean_type, string_type from DataTable WHERE row_id = 1", ResultClosed);
+    var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+                   "boolean_type, string_type from DataTable WHERE row_id = 1", ResultClosed);
     if (dtRet is table<ResultClosed>) {
         while (dtRet.hasNext()) {
             var rs = dtRet.getNext();
