@@ -322,12 +322,10 @@ public type PackageParser object {
             errorEntries[j] = errorEntry;
 
             if (self.addInterimBB) {
-                ErrorEntry? interimEntry = errorEntry.clone();
+                ErrorEntry interimEntry = self.clone(errorEntry);
                 j += 1;
-                if (interimEntry is ErrorEntry) {
-                    interimEntry.trapBB.id.value = interimEntry.trapBB.id.value + "interim";
-                    errorEntries[j] = interimEntry;
-                }
+                interimEntry.trapBB.id.value = interimEntry.trapBB.id.value + "interim";
+                errorEntries[j] = interimEntry;
             }
             j += 1;
             i += 1;
@@ -503,6 +501,11 @@ public type PackageParser object {
         return {
             annotValueArray: annotValueArray
         };
+    }
+
+    private function clone(any errorEntry) returns ErrorEntry {
+        anydata ee = <anydata> errorEntry;
+        return <ErrorEntry> (<any> ee.clone());
     }
 };
 
