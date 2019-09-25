@@ -200,8 +200,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         LinkedList<BLangMarkdownBReferenceDocumentation> references = documentation.getReferences();
         references.forEach(reference -> {
             StringBuilder pckgName = new StringBuilder();
+            StringBuilder typeName = new StringBuilder();
             StringBuilder identifier = new StringBuilder();
-            boolean isValidIdentifierString = validateStringForQualifiedIdentifier(reference.getReferenceName(), pckgName,
+            boolean isValidIdentifierString = validateStringForQualifiedIdentifier(reference.getReferenceName(),
+		                                                                            pckgName,
+                                                                                    typeName,
                                                                                     identifier);
             if (!isValidIdentifierString) {
                 //dlog.warning(reference.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
@@ -210,6 +213,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             }
             boolean isValidIdentifier = validateIdentifier(reference.getPosition(), documentableNode, reference.getType(),
                                                            pckgName.toString(),
+                                                           typeName.toString(),
                                                            identifier.toString());
             if (!isValidIdentifier) {
                 //dlog.warning(reference.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER, reference.getReferenceName());
@@ -219,10 +223,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateIdentifier(DiagnosticPos pos,
-                                       DocumentableNode documentableNode,
-                                       DocumentationReferenceType type,
-                                       String packageId,
-                                       String identifier) {
+								       DocumentableNode documentableNode,
+								       DocumentationReferenceType type,
+								       String id, String packageId,
+								       String identifier) {
+
         BSymbol symbol = null;
         Name identifierName = names.fromString(identifier);
         Name pckgName = names.fromString(packageId);
@@ -250,6 +255,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     private boolean validateStringForQualifiedIdentifier(String identifierContent,
                                                          StringBuilder pckgName,
+                                                         StringBuilder typeName,
                                                          StringBuilder identifier) {
         //Building regex to match Lexer's Unquoted identifier
         String initialChar = "a-zA-Z_";
@@ -258,39 +264,70 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 "\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-" +
                 "\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF";
         String digit = "0-9";
-        String identifierInitialChar = "([" + initialChar + "]|[^" + unicodeNonidentifierChar + "])";
-        String identifierFollowingChar = "([" + initialChar + digit + "]|[^" + unicodeNonidentifierChar + "])";
+        String identifierInitialChar = "[" + initialChar + "]|[^" + unicodeNonidentifierChar + "]";
+        String identifierFollowingChar = "[" + initialChar + digit + "]|[^" + unicodeNonidentifierChar + "]";
+        String identifierString = "((?:" + identifierInitialChar + ")(?:" + identifierFollowingChar + ")*)";
 
-        //Pattern set from basic building strings
-        String identifierPattern = "(" + identifierInitialChar + identifierFollowingChar + "*)";
-        String qualifiedIdentifierPattern = identifierPattern + ":" + identifierPattern;
-        //The following patterns are required to accommodate `function()` and `module:function()` type of references
-        String unqualifiedFunctionIdentifierPattern = identifierPattern + "[(][)]";
-        String qualifiedFunctionIdentifierPattern = qualifiedIdentifierPattern + "[(][)]";
+        //Check if a qualified identifier
+        String qualifierStage = identifierString + ":(.*)";
+        //Check for type identifier
+        String typeStage = identifierString + "\\." + identifierString + "(?:\\(\\))?";
+	    //Check for `function()` reference stage
+	    String funcIdentifierStage = identifierString + "(\\(\\))?";
 
-        Pattern qualifiedIdentifier = Pattern.compile(qualifiedIdentifierPattern);
-        Pattern unqualifiedIdentifier = Pattern.compile(identifierPattern);
-        Pattern qualifiedFunctionIdentifier = Pattern.compile(qualifiedFunctionIdentifierPattern);
-        Pattern unqualifiedFunctionIdentifier = Pattern.compile(unqualifiedFunctionIdentifierPattern);
+	    //Pattern set
+	    Pattern qualifierPattern = Pattern.compile(qualifierStage);
+	    Pattern typePattern = Pattern.compile(typeStage);
+	    Pattern functionIdentifierPattern = Pattern.compile(funcIdentifierStage);
 
-        Matcher qualifiedMatch = qualifiedIdentifier.matcher(identifierContent);
-        Matcher unqualifiedMatch = unqualifiedIdentifier.matcher(identifierContent);
-        Matcher qualifiedFunctionMatch = qualifiedFunctionIdentifier.matcher(identifierContent);
-        Matcher unqualifiedFunctionMatch = unqualifiedFunctionIdentifier.matcher(identifierContent);
+	    //Matchers set
+	    Matcher qualifierPatternMatcher = qualifierPattern.matcher(identifierContent);
+	    Matcher typePatternMatcher = typePattern.matcher(identifierContent);
+	    Matcher functionIdentifierPatternMatcher = functionIdentifierPattern.matcher(identifierContent);
 
-        //First check if qualified function match and unqualified function match since
-        if (qualifiedFunctionMatch.matches()) {
-            getIdentifierFromMatch(true, pckgName, identifier, qualifiedFunctionMatch);
-        } else if (unqualifiedFunctionMatch.matches()) {
-            getIdentifierFromMatch(false, pckgName, identifier, unqualifiedFunctionMatch);
-        } else if (qualifiedMatch.matches()) {
-            getIdentifierFromMatch(true, pckgName, identifier, qualifiedMatch);
-        } else if (unqualifiedMatch.matches()) {
-            getIdentifierFromMatch(false, pckgName, identifier, unqualifiedMatch);
-        } else {
-            return false;
-        }
-        return true;
+	    if (qualifierPatternMatcher.matches()) {
+	    	pckgName.append(qualifierPatternMatcher.group(1));
+	    	//Match the remaining part of the identifier for type Group 2 has the remaining part if package name successfully
+		    //matches
+	    	Matcher typePatternMatcherForQualifiedMatch = typePattern.matcher(qualifierPatternMatcher.group(2));
+	    	Matcher functionIdentifierPatternMatcherForQualifiedMatch =
+				    functionIdentifierPattern.matcher(qualifierPatternMatcher.group(2));
+	    	if (typePatternMatcherForQualifiedMatch.matches()) {
+	    		typeName.append(typePatternMatcherForQualifiedMatch.group(1));
+	    		//If Type is there, try to match the function name part. Group 2 contains string after the '.'
+			    Matcher functionIdentifierPatternMatcherForQualifiedTypeMatch =
+					    functionIdentifierPattern.matcher(typePatternMatcherForQualifiedMatch.group(2));
+			    if (functionIdentifierPatternMatcherForQualifiedTypeMatch.matches()) {
+			    	identifier.append(functionIdentifierPatternMatcherForQualifiedTypeMatch.group(1));
+			    	return true;
+			    } else {
+			    	return false;
+			    }
+			//If type name is not there, directly validate for an unqualified Identifier
+		    } else if (functionIdentifierPatternMatcherForQualifiedMatch.matches()) {
+			    identifier.append(functionIdentifierPatternMatcherForQualifiedMatch.group(1));
+			    return true;
+		    } else {
+	    		return false;
+		    }
+		//If no package name is there, do the above steps starting from the type name
+	    } else if (typePatternMatcher.matches()) {
+	    	typeName.append(typePatternMatcher.group(1));
+		    Matcher functionIdentifierPatternMatcherForTypeMatch =
+				    functionIdentifierPattern.matcher(typePatternMatcher.group(2));
+		    if (functionIdentifierPatternMatcherForTypeMatch.matches()) {
+			    identifier.append(functionIdentifierPatternMatcherForTypeMatch.group(1));
+			    return true;
+		    } else {
+			    return false;
+		    }
+		//Directly validate for an identifier
+	    } else if (functionIdentifierPatternMatcher.matches()) {
+		    identifier.append(functionIdentifierPatternMatcher.group(1));
+		    return true;
+	    }
+
+        return false;
     }
 
     //This function is used to create an identifier string from regex patterns used in
