@@ -1003,10 +1003,10 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
     }
 
     bir:BType? restType = bType.restType;
-    if (restType is bir:BType) {
-        loadType(mv, restType);
-    } else {
+    if (restType is ()) {
         mv.visitInsn(ACONST_NULL);
+    } else {
+        loadType(mv, restType);
     }
 
     mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", LIST, BTYPE), false);

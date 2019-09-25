@@ -1116,13 +1116,17 @@ type InstructionGenerator object {
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
-    if (bType is bir:BType) {
+    if (bType is ()) {
+        return;
+    } else {
         generateCast(mv, bType, "any");
     }
 }
 
 function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
-    if (bType is bir:BType) {
+    if (bType is ()) {
+        return;
+    } else {
         generateCast(mv, "any", bType);
     }
 }
