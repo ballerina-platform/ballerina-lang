@@ -179,7 +179,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgNameComps = new ArrayList<>();
         ctx.Identifier().forEach(e -> pkgNameComps.add(e.getText()));
-        this.pkgVersion = ctx.version() != null ? ctx.version().Identifier().getText() : null;
+        this.pkgVersion = ctx.version() != null ? ctx.version().versionPattern().getText() : null;
     }
 
     /**
