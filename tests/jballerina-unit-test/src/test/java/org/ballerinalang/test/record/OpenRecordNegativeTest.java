@@ -58,6 +58,8 @@ public class OpenRecordNegativeTest {
         validateError(result, indx++,
                       "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
                       58, 26);
+        validateError(result, indx++, "incompatible types: expected 'record {| int i; record {| string name;" +
+                " anydata...; |} j; anydata...; |}', found 'int'", 64, 9);
         assertEquals(result.getErrorCount(), indx);
     }
 
