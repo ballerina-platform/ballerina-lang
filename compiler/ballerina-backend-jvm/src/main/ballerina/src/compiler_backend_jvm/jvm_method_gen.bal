@@ -2192,20 +2192,20 @@ function isExternFunc(bir:Function func) returns boolean {
 }
 
 function getVarRef(bir:VarRef? varRef) returns bir:VarRef {
-    if (varRef is bir:VarRef) {
-        return varRef;
-    } else {
+    if (varRef is ()) {
         error err = error("Invalid variable reference");
         panic err;
+    } else {
+        return varRef;
     }
 }
 
 function getType(bir:BType? bType) returns bir:BType {
-    if (bType is bir:BType) {
-        return bType;
-    } else {
+    if (bType is ()) {
         error err = error("Invalid type");
         panic err;
+    } else {
+        return bType;
     }
 }
 
@@ -2231,11 +2231,11 @@ function isInitInvoked(string item) returns boolean {
 }
 
 function getFunctions(bir:Function?[]? functions) returns bir:Function?[] {
-    if (functions is bir:Function?[]) {
-        return functions;
-    } else {
+    if (functions is ()) {
         error err = error(io:sprintf("Invalid functions: %s", functions));
         panic err;
+    } else {
+        return functions;
     }
 }
 
