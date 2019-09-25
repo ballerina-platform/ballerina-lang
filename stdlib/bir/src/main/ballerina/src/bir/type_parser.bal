@@ -91,8 +91,8 @@ public type TypeParser object {
 
     function parseTypeAndAddToCp() returns BType {
         if (self.cpI < self.cp.types.length()){
-            var parsedType = self.cp.types[self.cpI];
-            if (parsedType is BType) {
+            BType? parsedType = self.cp.types[self.cpI];
+            if !(parsedType is ()) {
                 return parsedType;
             }
         }
