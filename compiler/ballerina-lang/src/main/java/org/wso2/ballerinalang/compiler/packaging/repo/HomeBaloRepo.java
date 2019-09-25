@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
@@ -132,13 +133,16 @@ public class HomeBaloRepo implements Repo<Path> {
      * @throws IOException Error when getting the list of version of the module folder.
      */
     private Optional<Path> getLatestBaloFile(Path moduleFolder) throws IOException {
-        return Files.list(moduleFolder)
-                                        .map(SortablePath::new)
-                                        .filter(SortablePath::valid)
-                                        .sorted(Comparator.reverseOrder())
-                                        .limit(1)
-                                        .map(SortablePath::getPath)
-                                        .findFirst();
+        Optional<Path> path;
+        try (Stream<Path> fileStream = Files.list(moduleFolder)) {
+            path = fileStream.map(SortablePath::new)
+                    .filter(SortablePath::valid)
+                    .sorted(Comparator.reverseOrder())
+                    .limit(1)
+                    .map(SortablePath::getPath)
+                    .findFirst();
+        }
+        return path;
     }
     
     @Override
