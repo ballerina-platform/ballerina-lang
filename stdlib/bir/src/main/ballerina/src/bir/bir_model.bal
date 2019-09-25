@@ -480,13 +480,13 @@ public type BInvokableType record {
 public type Instruction record  {|
     DiagnosticPos pos;
     InstructionKind kind;
-    any...;
+    anydata...;
 |};
 
 public type Terminator record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-    any...;
+    anydata...;
 |};
 
 public type DiagnosticPos record {|
