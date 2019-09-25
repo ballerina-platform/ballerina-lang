@@ -46,6 +46,8 @@ public type Listener object {
     }
 
     public function __detach(service s) returns error? {
+        // Socket listener operations are strictly bound to the attached service. In fact, listener doesn't support
+        // for multiple services. So not removing already attached service during the detach.
     }
 
     function initServer(int port, ListenerConfig config) returns error? = external;
