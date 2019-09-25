@@ -147,7 +147,6 @@ goto end
 
 :runJarFile
 for /f "tokens=1,*" %%a in ("%*") do set ARGS=%%b
-echo %ARGS%
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -jar %ARGS%
 goto end
 
