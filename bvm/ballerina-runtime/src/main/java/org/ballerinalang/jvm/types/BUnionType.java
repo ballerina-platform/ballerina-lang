@@ -108,11 +108,22 @@ public class BUnionType extends BType {
         if (this == o) {
             return true;
         }
+
         if (!(o instanceof BUnionType)) {
             return false;
         }
+
         BUnionType that = (BUnionType) o;
-        return memberTypes.containsAll(that.memberTypes) && that.memberTypes.containsAll(memberTypes);
+        if (this.memberTypes.size() != that.memberTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < memberTypes.size(); i++) {
+            if (!this.memberTypes.get(i).equals(that.memberTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

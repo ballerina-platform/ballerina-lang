@@ -613,99 +613,99 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel,
                                                 handlerLabel, jumpLabel);
         }
+
+        int insKind;
         while (m < insCount) {
             jvm:Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + m.toString());
             mv.visitLabel(insLabel);
             bir:Instruction? inst = bb.instructions[m];
-            var pos = inst?.pos;
-            if (pos is bir:DiagnosticPos) {
-                generateDiagnosticPos(pos, mv);
+            if (inst is ()) {
+                continue;
+            } else {
+                insKind = inst.kind;
+                generateDiagnosticPos(inst.pos, mv);
             }
-            if (inst is bir:ConstantLoad) {
-                instGen.generateConstantLoadIns(inst);
-            } else if (inst is bir:TypeCast) {
-                instGen.generateCastIns(inst);
-            } else if (inst is bir:Move) {
-                if (inst.kind == bir:INS_KIND_MOVE) {
-                    instGen.generateMoveIns(inst);
-                } else if (inst.kind == bir:INS_KIND_XML_SEQ_STORE) {
-                    instGen.generateXMLStoreIns(inst);
-                } else if (inst.kind == bir:INS_KIND_XML_LOAD_ALL) {
-                    instGen.generateXMLLoadAllIns(inst);
-                } else if (inst.kind == bir:INS_KIND_TYPEOF) {
-                    instGen.generateTypeofIns(inst);
-                } else if (inst.kind == bir:INS_KIND_NOT) {
-                    instGen.generateNotIns(inst);
-                } else if (inst.kind == bir:INS_KIND_NEGATE) {
-                    instGen.generateNegateIns(inst);
+
+            if (insKind <= bir:BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT) {
+                instGen.generateBinaryOpIns(<bir:BinaryOp> inst);
+            } else if (insKind <= bir:INS_KIND_TYPE_CAST) {
+                if (insKind == bir:INS_KIND_MOVE) {
+                    instGen.generateMoveIns(<bir:Move> inst);
+                } else if (insKind == bir:INS_KIND_CONST_LOAD) {
+                    instGen.generateConstantLoadIns(<bir:ConstantLoad> inst);
+                } else if (insKind == bir:INS_KIND_NEW_MAP) {
+                    instGen.generateMapNewIns(<bir:NewMap> inst);
+                } else if (insKind == bir:INS_KIND_NEW_INST) {
+                    instGen.generateObjectNewIns(<bir:NewInstance> inst, localVarOffset);
+                } else if (insKind == bir:INS_KIND_MAP_STORE) {
+                    instGen.generateMapStoreIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_NEW_ARRAY) {
+                    instGen.generateArrayNewIns(<bir:NewArray> inst);
+                } else if (insKind == bir:INS_KIND_ARRAY_STORE) {
+                    instGen.generateArrayStoreIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_MAP_LOAD) {
+                    instGen.generateMapLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_ARRAY_LOAD) {
+                    instGen.generateArrayValueLoad(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_NEW_ERROR) {
+                    instGen.generateNewErrorIns(<bir:NewError> inst);
                 } else {
-                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
-                    panic err;
+                    instGen.generateCastIns(<bir:TypeCast> inst);
                 }
-            } else if (inst is bir:BinaryOp) {
-                instGen.generateBinaryOpIns(inst);
-            } else if (inst is bir:NewArray) {
-                instGen.generateArrayNewIns(inst);
-            } else if (inst is bir:NewMap) {
-                instGen.generateMapNewIns(inst);
-            } else if (inst is bir:NewTypeDesc) {
-                instGen.generateNewTypedescIns(inst);
-            } else if (inst is bir:NewTable) {
-                instGen.generateTableNewIns(inst);
-            } else if (inst is bir:NewStream) {
-                 instGen.generateStreamNewIns(inst);
-            } else if (inst is bir:NewError) {
-                instGen.generateNewErrorIns(inst);
-            } else if (inst is bir:NewInstance) {
-                instGen.generateObjectNewIns(inst, localVarOffset);
-            } else if (inst is bir:FieldAccess) {
-                if (inst.kind == bir:INS_KIND_MAP_STORE) {
-                    instGen.generateMapStoreIns(inst);
-                } else if (inst.kind == bir:INS_KIND_MAP_LOAD) {
-                    instGen.generateMapLoadIns(inst);
-                } else if (inst.kind == bir:INS_KIND_ARRAY_STORE) {
-                    instGen.generateArrayStoreIns(inst);
-                } else if (inst.kind == bir:INS_KIND_ARRAY_LOAD) {
-                    instGen.generateArrayValueLoad(inst);
-                } else if (inst.kind == bir:INS_KIND_OBJECT_STORE) {
-                    instGen.generateObjectStoreIns(inst);
-                } else if (inst.kind == bir:INS_KIND_OBJECT_LOAD) {
-                    instGen.generateObjectLoadIns(inst);
-                } else if (inst.kind == bir:INS_KIND_STRING_LOAD) {
-                    instGen.generateStringLoadIns(inst);
-                } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_STORE) {
-                    instGen.generateXMLAttrStoreIns(inst);
-                } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_LOAD) {
-                    instGen.generateXMLAttrLoadIns(inst);
-                } else if (inst.kind == bir:INS_KIND_XML_LOAD || inst.kind == bir:INS_KIND_XML_SEQ_LOAD) {
-                    instGen.generateXMLLoadIns(inst);
+            } else if (insKind <= bir:INS_KIND_NEW_STRING_XML_QNAME) {
+                if (insKind == bir:INS_KIND_IS_LIKE) {
+                    instGen.generateIsLikeIns(<bir:IsLike> inst);
+                } else if (insKind == bir:INS_KIND_TYPE_TEST) {
+                    instGen.generateTypeTestIns(<bir:TypeTest> inst);
+                } else if (insKind == bir:INS_KIND_OBJECT_STORE) {
+                    instGen.generateObjectStoreIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_OBJECT_LOAD) {
+                    instGen.generateObjectLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_NEW_XML_ELEMENT) {
+                    instGen.generateNewXMLElementIns(<bir:NewXMLElement> inst);
+                } else if (insKind == bir:INS_KIND_NEW_XML_TEXT) {
+                    instGen.generateNewXMLTextIns(<bir:NewXMLText> inst);
+                } else if (insKind == bir:INS_KIND_NEW_XML_COMMENT) {
+                    instGen.generateNewXMLCommentIns(<bir:NewXMLComment> inst);
+                } else if (insKind == bir:INS_KIND_NEW_XML_PI) {
+                    instGen.generateNewXMLProcIns(<bir:NewXMLPI> inst);
+                } else if (insKind == bir:INS_KIND_NEW_XML_QNAME) {
+                    instGen.generateNewXMLQNameIns(<bir:NewXMLQName> inst);
                 } else {
-                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
-                    panic err;
-                }
-            } else if (inst is bir:FPLoad) {
-                instGen.generateFPLoadIns(inst);
-            } else if (inst is bir:TypeTest) {
-                 instGen.generateTypeTestIns(inst);
-            } else if (inst is bir:IsLike) {
-                 instGen.generateIsLikeIns(inst);
-            } else if (inst is bir:NewXMLQName) {
-                instGen.generateNewXMLQNameIns(inst);
-            } else if (inst is bir:NewStringXMLQName) {
-                instGen.generateNewStringXMLQNameIns(inst);
-            } else if (inst is bir:NewXMLElement) {
-                instGen.generateNewXMLElementIns(inst);
-            } else if (inst is bir:NewXMLText) {
-                if (inst.kind == bir:INS_KIND_NEW_XML_TEXT) {
-                    instGen.generateNewXMLTextIns(inst);
-                } else if (inst.kind == bir:INS_KIND_NEW_XML_COMMENT) {
-                    instGen.generateNewXMLCommentIns(inst);
+                    instGen.generateNewStringXMLQNameIns(<bir:NewStringXMLQName> inst);
+                } 
+            } else if (insKind <= bir:INS_KIND_NEW_STREAM) {
+                if (insKind == bir:INS_KIND_XML_SEQ_STORE) {
+                    instGen.generateXMLStoreIns(<bir:XMLAccess> inst);
+                } else if (insKind == bir:INS_KIND_XML_SEQ_LOAD) {
+                    instGen.generateXMLLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_XML_LOAD) {
+                    instGen.generateXMLLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_XML_LOAD_ALL) {
+                    instGen.generateXMLLoadAllIns(<bir:XMLAccess> inst);
+                } else if (insKind == bir:INS_KIND_XML_ATTRIBUTE_STORE) {
+                    instGen.generateXMLAttrStoreIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_XML_ATTRIBUTE_LOAD) {
+                    instGen.generateXMLAttrLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_FP_LOAD) {
+                    instGen.generateFPLoadIns(<bir:FPLoad> inst);
+                } else if (insKind == bir:INS_KIND_STRING_LOAD) {
+                    instGen.generateStringLoadIns(<bir:FieldAccess> inst);
                 } else {
-                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
-                    panic err;
-                }
-            } else if (inst is bir:NewXMLPI) {
-                instGen.generateNewXMLProcIns(inst);
+                    instGen.generateTableNewIns(<bir:NewTable> inst);
+                } 
+            } else if (insKind <= bir:INS_KIND_NEGATE) {
+                if (insKind == bir:INS_KIND_NEW_STREAM) {
+                    instGen.generateStreamNewIns(<bir:NewStream>inst);
+                } else if (insKind == bir:INS_KIND_TYPEOF) {
+                    instGen.generateTypeofIns(<bir:UnaryOp> inst);
+                } else if (insKind == bir:INS_KIND_NOT) {
+                    instGen.generateNotIns(<bir:UnaryOp> inst);
+                } else if (insKind == bir:INS_KIND_NEW_TYPEDESC) {
+                    instGen.generateNewTypedescIns(<bir:NewTypeDesc> inst);
+                } else {
+                    instGen.generateNegateIns(<bir:UnaryOp> inst);
+                } 
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
