@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
@@ -198,16 +199,18 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         LinkedList<BLangMarkdownBReferenceDocumentation> references = documentation.getReferences();
         references.forEach(reference -> {
+            StringBuilder pckgName = new StringBuilder();
             StringBuilder identifier = new StringBuilder();
-            boolean isValidIdentifierString = validateStringForQualifiedIdentifier(reference.getReferenceName(),
-                    identifier);
+            boolean isValidIdentifierString = validateStringForQualifiedIdentifier(reference.getReferenceName(), pckgName,
+                                                                                    identifier);
             if (!isValidIdentifierString) {
                 //dlog.warning(reference.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
                         //reference.getReferenceName());
                 int i = 0;
             }
-            boolean isValidIdentifier = validateIdentifier(documentableNode, reference.getType(),
-                                                            identifier.toString());
+            boolean isValidIdentifier = validateIdentifier(reference.getPosition(), documentableNode, reference.getType(),
+                                                           pckgName.toString(),
+                                                           identifier.toString());
             if (!isValidIdentifier) {
                 //dlog.warning(reference.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER, reference.getReferenceName());
                 int i = 0;
@@ -215,11 +218,14 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         });
     }
 
-    private boolean validateIdentifier(DocumentableNode documentableNode,
+    private boolean validateIdentifier(DiagnosticPos pos,
+                                       DocumentableNode documentableNode,
                                        DocumentationReferenceType type,
+                                       String packageId,
                                        String identifier) {
         BSymbol symbol = null;
         Name identifierName = names.fromString(identifier);
+        Name pckgName = names.fromString(packageId);
 
         //Lookup namespace to validate the identifier
         switch (type) {
@@ -228,18 +234,22 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 if (documentableNode.getKind() == NodeKind.FUNCTION) {
                     BLangFunction funcNode = (BLangFunction) documentableNode;
                     SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
-                    symbol = symResolver.lookupSymbol(funcEnv, identifierName, SymTag.VARIABLE);
+                    symbol = symResolver.lookupSymbolInPackage(pos, funcEnv, pckgName, identifierName, SymTag.VARIABLE);
                 }
                 break;
             case SERVICE:
-                symbol = symResolver.lookupSymbol(this.env, identifierName, SymTag.SERVICE);
+                symbol = symResolver.lookupSymbolInPackage(pos, this.env, pckgName, identifierName, SymTag.SERVICE);
                 break;
+	        case FUNCTION:
+	        	symbol = symResolver.lookupSymbolInPackage(pos, this.env, pckgName, identifierName, SymTag.FUNCTION);
+	        	break;
         }
 
         return symbol != symTable.notFoundSymbol;
     }
 
     private boolean validateStringForQualifiedIdentifier(String identifierContent,
+                                                         StringBuilder pckgName,
                                                          StringBuilder identifier) {
         //Building regex to match Lexer's Unquoted identifier
         String initialChar = "a-zA-Z_";
@@ -270,13 +280,13 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         //First check if qualified function match and unqualified function match since
         if (qualifiedFunctionMatch.matches()) {
-            getIdentifierFromMatch(true, identifier, qualifiedFunctionMatch);
+            getIdentifierFromMatch(true, pckgName, identifier, qualifiedFunctionMatch);
         } else if (unqualifiedFunctionMatch.matches()) {
-            getIdentifierFromMatch(false, identifier, unqualifiedFunctionMatch);
+            getIdentifierFromMatch(false, pckgName, identifier, unqualifiedFunctionMatch);
         } else if (qualifiedMatch.matches()) {
-            getIdentifierFromMatch(true, identifier, qualifiedMatch);
+            getIdentifierFromMatch(true, pckgName, identifier, qualifiedMatch);
         } else if (unqualifiedMatch.matches()) {
-            getIdentifierFromMatch(false, identifier, unqualifiedMatch);
+            getIdentifierFromMatch(false, pckgName, identifier, unqualifiedMatch);
         } else {
             return false;
         }
@@ -285,10 +295,12 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     //This function is used to create an identifier string from regex patterns used in
     //validateStringForQualifiedIdentifier function.
-    private void getIdentifierFromMatch(boolean qualifiedMatch, StringBuilder identifier, Matcher matcher) {
+    private void getIdentifierFromMatch(boolean qualifiedMatch,
+                                        StringBuilder pckgName,
+                                        StringBuilder identifier,
+                                        Matcher matcher) {
         if (qualifiedMatch) {
-            identifier.append(matcher.group(1));
-            identifier.append(":");
+            pckgName.append(matcher.group(1));
             identifier.append(matcher.group(4));
         } else {
             identifier.append(matcher.group(1));
