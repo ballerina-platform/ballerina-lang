@@ -2332,17 +2332,19 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, env);
 
         // Visit in-line namespace declarations
-        bLangXMLElementLiteral.attributes.forEach(attribute -> {
-            if (attribute.name.getKind() == NodeKind.XML_QNAME
-                    && ((BLangXMLQName) attribute.name).prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+        for (BLangXMLAttribute attribute : bLangXMLElementLiteral.attributes) {
+            if (attribute.name.getKind() == NodeKind.XML_QNAME && isXmlNamespaceAttribute(attribute)) {
+                BLangXMLQuotedString value = attribute.value;
+                if (value.getKind() == NodeKind.XML_QUOTED_STRING && value.textFragments.size() > 1) {
+                    dlog.error(value.pos, DiagnosticCode.INVALID_XML_NS_INTERPOLATION);
+                }
                 checkExpr(attribute, xmlElementEnv, symTable.noType);
             }
-        });
+        }
 
         // Visit attributes.
         bLangXMLElementLiteral.attributes.forEach(attribute -> {
-            if (attribute.name.getKind() != NodeKind.XML_QNAME
-                    || !((BLangXMLQName) attribute.name).prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            if (attribute.name.getKind() != NodeKind.XML_QNAME || !isXmlNamespaceAttribute(attribute)) {
                 checkExpr(attribute, xmlElementEnv, symTable.noType);
             }
         });
@@ -2361,6 +2363,13 @@ public class TypeChecker extends BLangNodeVisitor {
         bLangXMLElementLiteral.modifiedChildren =
                 concatSimilarKindXMLNodes(bLangXMLElementLiteral.children, xmlElementEnv);
         resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlType, expType);
+    }
+
+    private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
+        BLangXMLQName attrName = (BLangXMLQName) attribute.name;
+        return (attrName.prefix.value.equals("")
+                    && attrName.localname.value.equals(XMLConstants.XMLNS_ATTRIBUTE))
+                || attrName.prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE);
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {

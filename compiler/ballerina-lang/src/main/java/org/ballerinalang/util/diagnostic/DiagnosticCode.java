@@ -302,6 +302,7 @@ public enum DiagnosticCode {
     XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed"),
     INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration"),
     CANNOT_UPDATE_XML_SEQUENCE("cannot.update.xml.sequence"),
+    INVALID_XML_NS_INTERPOLATION("invalid.xml.ns.interpolation"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
