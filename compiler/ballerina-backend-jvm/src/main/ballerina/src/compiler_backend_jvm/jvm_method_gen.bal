@@ -691,13 +691,13 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                     instGen.generateFPLoadIns(<bir:FPLoad> inst);
                 } else if (insKind == bir:INS_KIND_STRING_LOAD) {
                     instGen.generateStringLoadIns(<bir:FieldAccess> inst);
-                } else {
+                } else if (insKind == bir:INS_KIND_NEW_TABLE) {
                     instGen.generateTableNewIns(<bir:NewTable> inst);
-                } 
-            } else if (insKind <= bir:INS_KIND_NEGATE) {
-                if (insKind == bir:INS_KIND_NEW_STREAM) {
+                } else {
                     instGen.generateStreamNewIns(<bir:NewStream>inst);
-                } else if (insKind == bir:INS_KIND_TYPEOF) {
+                }
+            } else if (insKind <= bir:INS_KIND_NEGATE) {
+                if (insKind == bir:INS_KIND_TYPEOF) {
                     instGen.generateTypeofIns(<bir:UnaryOp> inst);
                 } else if (insKind == bir:INS_KIND_NOT) {
                     instGen.generateNotIns(<bir:UnaryOp> inst);
