@@ -29,7 +29,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 /**
  * Ballerina Connector listener for WebSocket.
  *
- * @since 0.983.1
+ * @since 0.93
  */
 public class ClientListenerImpl implements WebSocketConnectorListener {
     private WebSocketOpenConnectionInfo connectionInfo;
