@@ -134,14 +134,15 @@ public class BallerinaDebugProcess extends XDebugProcess {
     public void sessionInitialized() {
         final int[] retryAttempt = {0};
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            getSession().getConsoleView().print(
-                    "Ballerina Debugging is an experimental feature.\n" +
-                            "Visit https://ballerina.io/learn/tools-ides/intellij-plugin/" +
-                            "using-intellij-plugin-features/#debugging-ballerina-programs for known limitations and" +
-                            " workarounds\n\n",
-                    ConsoleViewContentType.SYSTEM_OUTPUT);
-            getSession().getConsoleView().print("Waiting for debug process to start...\n",
-                    ConsoleViewContentType.SYSTEM_OUTPUT);
+            print("Ballerina Debugging is an experimental feature.\n" +
+                    "Visit https://ballerina.io/learn/tools-ides/intellij-plugin/" +
+                    "using-intellij-plugin-features/#debugging-ballerina-programs for known limitations and" +
+                    " workarounds.\n\n", false);
+            if (isRemoteDebugMode) {
+                print("Attaching to remote debug process...\n\n", false);
+            } else {
+                print("Waiting for debug process to start...\n\n", false);
+            }
             // If already connected with the debug server, tries to set breakpoints and attach with the remote jvm.
             if (dapClientConnector.isConnected()) {
                 LOGGER.debug("Connection is already created.");
@@ -164,8 +165,8 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     if (dapClientConnector.isConnected()) {
                         isConnected = true;
                         if (isRemoteDebugMode) {
-                            getSession().getConsoleView().print("Connected to the remote server at " +
-                                    dapClientConnector.getAddress() + ".\n", ConsoleViewContentType.SYSTEM_OUTPUT);
+                            print(String.format("Connected to the remote server at %s.\n\n",
+                                    dapClientConnector.getAddress()), false);
                         }
                         LOGGER.debug("Connection created.");
                         startDebugSession();
@@ -179,9 +180,8 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 }
             }
             if (!dapClientConnector.isConnected()) {
-                getSession().getConsoleView().print("Connection to debug server at " +
-                                dapClientConnector.getAddress() + " could not be established.\n",
-                        ConsoleViewContentType.ERROR_OUTPUT);
+                print(String.format("Connection to debug server at %s could not be established.\n",
+                        dapClientConnector.getAddress()), true);
                 getSession().stop();
             }
         });
@@ -266,11 +266,18 @@ public class BallerinaDebugProcess extends XDebugProcess {
             }
             try {
                 dapClientConnector.disconnectFromServer();
-                getSession().getConsoleView().print("Disconnected Successfully from the debug server.\n",
-                        ConsoleViewContentType.SYSTEM_OUTPUT);
+                if (isRemoteDebugMode) {
+                    print("Disconnected successfully from the remote debug process.\n", false);
+                } else {
+                    print("Disconnected successfully from the debug server.\n", false);
+                }
             } catch (Exception e) {
-                getSession().getConsoleView().print("Disconnected Exceptionally from the debug server.\n",
-                        ConsoleViewContentType.SYSTEM_OUTPUT);
+                if (isRemoteDebugMode) {
+                    print("Disconnected exceptionally from the remote debug process.\n", true);
+                } else {
+                    print("Disconnected exceptionally from the debug server.\n", true);
+                }
+
             } finally {
                 XDebugSession session = getSession();
                 if (session != null) {
@@ -290,8 +297,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 return ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getMyWorkerID();
             }
         }
-        getSession().getConsoleView().print("Error occurred while getting the thread ID.",
-                ConsoleViewContentType.ERROR_OUTPUT);
+        print("Error occurred while getting the thread ID.", true);
         getSession().stop();
         return null;
     }
@@ -362,8 +368,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                         session.sessionResumed();
                         session.stop();
                     }
-                    getSession().getConsoleView().print("Remote debugging finished.\n",
-                            ConsoleViewContentType.SYSTEM_OUTPUT);
+                    print("Remote debugging finished.\n", false);
 
                 }
         );
@@ -549,5 +554,11 @@ public class BallerinaDebugProcess extends XDebugProcess {
                                           @NotNull DefaultActionGroup settings) {
         super.registerAdditionalActions(leftToolbar, topToolbar, settings);
         topToolbar.remove(ActionManager.getInstance().getAction(XDebuggerActions.RUN_TO_CURSOR));
+    }
+
+    private void print(String message, boolean isError) {
+        ConsoleViewContentType type = isError ? ConsoleViewContentType.ERROR_OUTPUT :
+                ConsoleViewContentType.SYSTEM_OUTPUT;
+        getSession().getConsoleView().print(message, type);
     }
 }
