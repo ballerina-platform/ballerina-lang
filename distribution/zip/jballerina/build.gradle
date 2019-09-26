@@ -34,9 +34,11 @@ configurations {
     balo
     bin
     balSource
+    balxSource
     staticArtifacts
     staticFiles
     source
+    sourceBalx
     zip
     resourceFiles
     balx
@@ -168,7 +170,6 @@ dependencies {
     balSource project(path: ':ballerina-file', configuration: 'balSource')
     balSource project(path: ':ballerina-filepath', configuration: 'balSource')
     balSource project(path: ':ballerina-grpc', configuration: 'balSource')
-    balSource project(path: ':ballerina-jdbc', configuration: 'balSource')
     balSource project(path: ':ballerina-http', configuration: 'balSource')
     balSource project(path: ':ballerina-encoding', configuration: 'balSource')
     balSource project(path: ':ballerina-io', configuration: 'balSource')
@@ -185,8 +186,6 @@ dependencies {
     balSource project(path: ':ballerina-task', configuration: 'balSource')
     balSource project(path: ':ballerina-time', configuration: 'balSource')
     balSource project(path: ':ballerina-transactions', configuration: 'balSource')
-    balSource project(path: ':ballerina-java', configuration: 'balSource')
-    balSource project(path: ':ballerina-java-arrays', configuration: 'balSource')
     balSource project(path: ':ballerina-xslt', configuration: 'balSource')
     balSource project(path: ':ballerina-kafka', configuration: 'balSource')
     balSource project(path: ':ballerina-nats', configuration: 'balSource')
@@ -218,6 +217,11 @@ dependencies {
     balSource project(path: ':ballerina-lang:typedesc', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:value', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:xml', configuration: 'balSource')
+
+    // ballerinax modules
+    balxSource project(path: ':ballerina-jdbc', configuration: 'balSource')
+    balxSource project(path: ':ballerina-java', configuration: 'balSource')
+    balxSource project(path: ':ballerina-java-arrays', configuration: 'balSource')
 
     dist project(':ballerina-auth')
     dist project(':ballerina-cli-utils')
@@ -351,6 +355,7 @@ artifacts {
     jar configurations.dist.files
     balo configurations.distBal.files
     source configurations.balSource.files
+    sourceBalx configurations.balxSource.files
     bin file('bin')
     staticFiles configurations.staticArtifacts.files
     resourceFiles file('resources')

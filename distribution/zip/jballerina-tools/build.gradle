@@ -55,6 +55,10 @@ configurations {
     bir
     birJar
     balSource
+    balxSource
+    balxBir {
+        transitive false
+    }
     zip
     balo
     resourceFiles
@@ -114,6 +118,7 @@ dependencies {
     debugAdapterDistribution project(':debug-adapter')
     
     balSource project(path: ':jballerina', configuration: 'source')
+    balxSource project(path: ':jballerina', configuration: 'sourceBalx')
     distBal project(path: ':jballerina', configuration: 'balo')
     dist project(path: ':jballerina', configuration: 'jar')
     bin project(path: ':jballerina', configuration: 'bin')
@@ -138,6 +143,11 @@ dependencies {
     birJar project(path: ':ballerina-cli-module-token-update', configuration: 'cliModuleTokenUpdateJar')
 
     birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
+
+    // ballerinax module cache
+    balxBir project(path: ':ballerina-jdbc', configuration: 'bir')
+    balxBir project(path: ':ballerina-java', configuration: 'bir')
+    balxBir project(path: ':ballerina-java-arrays', configuration: 'bir')
 }
 
 
@@ -309,6 +319,21 @@ task extractLibs(type: Copy) {
     into path
 }
 
+task extractBalxLibs(type: Copy) {
+    def path = "$buildDir/ballerinax"
+    from configurations.balxSource.files
+    into path
+}
+
+task extractBalxBirs(type: Copy) {
+    def path = "$buildDir/bir-cache"
+    configurations.balxBir.files.each {
+        println(it)
+    }
+    from configurations.balxBir.files
+    into path
+}
+
 // Fix for windows class path too long issue
 task pathingJar(type: Jar) {
     appendix = "pathing"
@@ -324,6 +349,7 @@ task pathingJar(type: Jar) {
 task generateDocs(type: JavaExec) {
     dependsOn pathingJar
     dependsOn extractLibs
+    dependsOn extractBalxBirs
     dependsOn ':docerina-gradle-plugin:build'
     inputs.dir("$buildDir/ballerina/");
     outputs.dir("$buildDir/api-docs")
@@ -332,7 +358,7 @@ task generateDocs(type: JavaExec) {
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
     systemProperty("version", project.version)
     def basePath = '/' + project.name + '-' + project.version + '/'
-    systemProperty("ballerina.home", basePath)
+    systemProperty("ballerina.home", "$buildDir")
     
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
