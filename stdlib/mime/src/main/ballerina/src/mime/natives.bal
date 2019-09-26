@@ -230,7 +230,7 @@ public type Entity object {
     }
 
     # Sets the entity body with a given file. This method overrides any existing `content-type` headers
-    # with the default content type `application/octet-stream`. The default value `application/octet-stream`
+    # with the default content-type `application/octet-stream`. The default value `application/octet-stream`
     # can be overridden by passing the content type as an optional parameter.
     #
     # + filePath - Represents the path to the file
@@ -242,7 +242,7 @@ public type Entity object {
     }
 
     # Sets the entity body with the given `json` content. This method overrides any existing `content-type` headers
-    # with the default content type `application/json`. The default value `application/json` can be overridden
+    # with the default content-type `application/json`. The default value `application/json` can be overridden
     # by passing the content type as an optional parameter.
     #
     # + jsonContent - JSON content that needs to be set to entity
@@ -286,7 +286,7 @@ public type Entity object {
     public function getText() returns @tainted string|ParserError = external;
 
     # Sets the entity body with the given byte[] content. This method overrides any existing `content-type` headers
-    # with the default content type `application/octet-stream`. The default value `application/octet-stream`
+    # with the default content-type `application/octet-stream`. The default value `application/octet-stream`
     # can be overridden by passing the content type as an optional parameter.
     #
     # + blobContent - byte[] content that needs to be set to entity
@@ -329,7 +329,7 @@ public type Entity object {
     public function getBodyPartsAsChannel() returns @tainted io:ReadableByteChannel|ParserError = external;
 
     # Sets body parts to entity. This method overrides any existing `content-type` headers
-    # with the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden
+    # with the default content-type `multipart/form-data`. The default value `multipart/form-data` can be overridden
     # by passing the content type as an optional parameter.
     #
     # + bodyParts - Represents the body parts that needs to be set to the entity

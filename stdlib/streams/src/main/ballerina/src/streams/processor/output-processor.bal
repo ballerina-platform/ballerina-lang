@@ -27,7 +27,7 @@ public type OutputProcess object {
     }
 
     # Sends the output to the streaming action. most of the time the output is published to a destination stream
-    # at the streaming action. Only the events with type `streams:CURRENT` are passed to the `outputFunc`.
+    # at the streaming action. Only the events with type-`streams:CURRENT` are passed to the `outputFunc`.
     # + streamEvents - The array of stream events to be filtered out for CURRENT events.
     public function process(StreamEvent?[] streamEvents) {
         int index = 0;

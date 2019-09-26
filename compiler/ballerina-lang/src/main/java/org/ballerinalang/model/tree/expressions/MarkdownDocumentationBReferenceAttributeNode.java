@@ -21,6 +21,11 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.types.DocumentationReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
+/**
+* Interface to extend to make a node Documentable.
+*
+* @since 1.0.2
+*/
 public interface MarkdownDocumentationBReferenceAttributeNode extends ExpressionNode {
 
     String getReferenceName();

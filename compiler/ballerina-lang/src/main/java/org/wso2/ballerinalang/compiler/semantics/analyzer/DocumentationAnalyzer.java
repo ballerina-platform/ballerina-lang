@@ -28,7 +28,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -60,10 +59,10 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedList;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -205,30 +204,30 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             StringBuilder typeName = new StringBuilder();
             StringBuilder identifier = new StringBuilder();
             boolean isValidIdentifierString = validateStringForQualifiedIdentifier(reference.getReferenceName(),
-		                                                                            pckgName,
+                                                                                    pckgName,
                                                                                     typeName,
                                                                                     identifier);
             if (!isValidIdentifierString) {
-                //dlog.warning(reference.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
-                        //reference.getReferenceName());
-                int i = 0; //TODO Add warning here
+                dlog.warning(reference.pos, DiagnosticCode.INVALID_IDENTIFIER,
+                        reference.getReferenceName());
             }
-            boolean isValidIdentifier = validateIdentifier(reference.getPosition(), documentableNode, reference.getType(),
+            boolean isValidIdentifier = validateIdentifier(reference.getPosition(), documentableNode,
+                                                           reference.getType(),
                                                            pckgName.toString(),
                                                            typeName.toString(),
                                                            identifier.toString());
             if (!isValidIdentifier) {
-                //dlog.warning(reference.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER, reference.getReferenceName());
-                int i = 0; //TODO Add warning he re
+                dlog.warning(reference.pos, DiagnosticCode.INVALID_REFERENCE,
+                        reference.getReferenceName());
             }
         });
     }
 
     private boolean validateIdentifier(DiagnosticPos pos,
-								       DocumentableNode documentableNode,
-								       DocumentationReferenceType type,
-								       String packageId, String typeID,
-								       String identifier) {
+                                       DocumentableNode documentableNode,
+                                       DocumentationReferenceType type,
+                                       String packageId, String typeID,
+                                       String identifier) {
 
         BSymbol symbol = null;
         //Lookup namespace to validate the identifier
@@ -239,14 +238,28 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                     BLangFunction funcNode = (BLangFunction) documentableNode;
                     SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
                     symbol = resolveFullyQualifiedSymbol(pos, funcEnv, packageId, typeID, identifier, SymTag.VARIABLE);
+                } else {
+                    symbol = symTable.notFoundSymbol;
                 }
                 break;
             case SERVICE:
                 symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.SERVICE);
                 break;
-	        case FUNCTION:
+            case FUNCTION:
                 symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.FUNCTION);
-	        	break;
+                break;
+            case TYPE:
+                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.TYPE);
+                break;
+            case VARIABLE:
+                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.VARIABLE);
+                break;
+            case ANNOTATION:
+                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.ANNOTATION);
+                break;
+            case MODULE:
+                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.IMPORT);
+                break;
         }
 
         return symbol != symTable.notFoundSymbol;
@@ -260,7 +273,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         SymbolEnv pkgEnv = env;
 
         if (pkgName != Names.EMPTY) {
-	        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgName,
+            BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgName,
                             names.fromString(pos.getSource().getCompilationUnitName()));
 
             if (pkgSymbol == symTable.notFoundSymbol) {
@@ -273,7 +286,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
 
         //If there is no type in the reference we need to search in the package level and the current scope only.
-        if(typeName == Names.EMPTY) {
+        if (typeName == Names.EMPTY) {
             return symResolver.lookupSymbolInPackage(pos, env, pkgName, identifierName, tag);
         }
 
@@ -314,60 +327,60 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         String qualifierStage = identifierString + ":(.*)";
         //Check for type identifier
         String typeStage = identifierString + "\\." + identifierString + "(?:\\(\\))?";
-	    //Check for `function()` reference stage
-	    String funcIdentifierStage = identifierString + "(\\(\\))?";
+        //Check for `function()` reference stage
+        String funcIdentifierStage = identifierString + "(\\(\\))?";
 
-	    //Pattern set
-	    Pattern qualifierPattern = Pattern.compile(qualifierStage);
-	    Pattern typePattern = Pattern.compile(typeStage);
-	    Pattern functionIdentifierPattern = Pattern.compile(funcIdentifierStage);
+        //Pattern set
+        Pattern qualifierPattern = Pattern.compile(qualifierStage);
+        Pattern typePattern = Pattern.compile(typeStage);
+        Pattern functionIdentifierPattern = Pattern.compile(funcIdentifierStage);
 
-	    //Matchers set
-	    Matcher qualifierPatternMatcher = qualifierPattern.matcher(identifierContent);
-	    Matcher typePatternMatcher = typePattern.matcher(identifierContent);
-	    Matcher functionIdentifierPatternMatcher = functionIdentifierPattern.matcher(identifierContent);
+        //Matchers set
+        Matcher qualifierPatternMatcher = qualifierPattern.matcher(identifierContent);
+        Matcher typePatternMatcher = typePattern.matcher(identifierContent);
+        Matcher functionIdentifierPatternMatcher = functionIdentifierPattern.matcher(identifierContent);
 
-	    if (qualifierPatternMatcher.matches()) {
-	    	pckgName.append(qualifierPatternMatcher.group(1));
-	    	//Match the remaining part of the identifier for type Group 2 has the remaining part if package name successfully
-		    //matches
-	    	Matcher typePatternMatcherForQualifiedMatch = typePattern.matcher(qualifierPatternMatcher.group(2));
-	    	Matcher functionIdentifierPatternMatcherForQualifiedMatch =
-				    functionIdentifierPattern.matcher(qualifierPatternMatcher.group(2));
-	    	if (typePatternMatcherForQualifiedMatch.matches()) {
-	    		typeName.append(typePatternMatcherForQualifiedMatch.group(1));
-	    		//If Type is there, try to match the function name part. Group 2 contains string after the '.'
-			    Matcher functionIdentifierPatternMatcherForQualifiedTypeMatch =
-					    functionIdentifierPattern.matcher(typePatternMatcherForQualifiedMatch.group(2));
-			    if (functionIdentifierPatternMatcherForQualifiedTypeMatch.matches()) {
-			    	identifier.append(functionIdentifierPatternMatcherForQualifiedTypeMatch.group(1));
-			    	return true;
-			    } else {
-			    	return false;
-			    }
-			//If type name is not there, directly validate for an unqualified Identifier
-		    } else if (functionIdentifierPatternMatcherForQualifiedMatch.matches()) {
-			    identifier.append(functionIdentifierPatternMatcherForQualifiedMatch.group(1));
-			    return true;
-		    } else {
-	    		return false;
-		    }
-		//If no package name is there, do the above steps starting from the type name
-	    } else if (typePatternMatcher.matches()) {
-	    	typeName.append(typePatternMatcher.group(1));
-		    Matcher functionIdentifierPatternMatcherForTypeMatch =
-				    functionIdentifierPattern.matcher(typePatternMatcher.group(2));
-		    if (functionIdentifierPatternMatcherForTypeMatch.matches()) {
-			    identifier.append(functionIdentifierPatternMatcherForTypeMatch.group(1));
-			    return true;
-		    } else {
-			    return false;
-		    }
-		//Directly validate for an identifier
-	    } else if (functionIdentifierPatternMatcher.matches()) {
-		    identifier.append(functionIdentifierPatternMatcher.group(1));
-		    return true;
-	    }
+        if (qualifierPatternMatcher.matches()) {
+            pckgName.append(qualifierPatternMatcher.group(1));
+            //Match the remaining part of the identifier for type Group 2 has the remaining part if package name
+            // successfully matches
+            Matcher typePatternMatcherForQualifiedMatch = typePattern.matcher(qualifierPatternMatcher.group(2));
+            Matcher functionIdentifierPatternMatcherForQualifiedMatch =
+                    functionIdentifierPattern.matcher(qualifierPatternMatcher.group(2));
+            if (typePatternMatcherForQualifiedMatch.matches()) {
+                typeName.append(typePatternMatcherForQualifiedMatch.group(1));
+                //If Type is there, try to match the function name part. Group 2 contains string after the '.'
+                Matcher functionIdentifierPatternMatcherForQualifiedTypeMatch =
+                    functionIdentifierPattern.matcher(typePatternMatcherForQualifiedMatch.group(2));
+                if (functionIdentifierPatternMatcherForQualifiedTypeMatch.matches()) {
+                    identifier.append(functionIdentifierPatternMatcherForQualifiedTypeMatch.group(1));
+                    return true;
+                } else {
+                    return false;
+                }
+            //If type name is not there, directly validate for an unqualified Identifier
+            } else if (functionIdentifierPatternMatcherForQualifiedMatch.matches()) {
+                identifier.append(functionIdentifierPatternMatcherForQualifiedMatch.group(1));
+                return true;
+            } else {
+                return false;
+            }
+        //If no package name is there, do the above steps starting from the type name
+        } else if (typePatternMatcher.matches()) {
+            typeName.append(typePatternMatcher.group(1));
+            Matcher functionIdentifierPatternMatcherForTypeMatch =
+                    functionIdentifierPattern.matcher(typePatternMatcher.group(2));
+            if (functionIdentifierPatternMatcherForTypeMatch.matches()) {
+                identifier.append(functionIdentifierPatternMatcherForTypeMatch.group(1));
+                return true;
+            } else {
+                return false;
+            }
+        //Directly validate for an identifier
+        } else if (functionIdentifierPatternMatcher.matches()) {
+            identifier.append(functionIdentifierPatternMatcher.group(1));
+            return true;
+        }
 
         return false;
     }
