@@ -51,20 +51,32 @@ public class Utils {
     private static final String MIME_ERROR_MESSAGE = "message";
     private static final String ERROR_RECORD_TYPE = "Detail";
     private static final String STRUCT_TYPE = "ReadableByteChannel";
+    private static final String ERROR_CAUSE_FIELD = "cause";
     private static final String ENCODING_ERROR = "{ballerina/mime}EncodingFailed";
     private static final String DECODING_ERROR = "{ballerina/mime}DecodingFailed";
 
 
     private static ErrorValue createBase64Error(String reason, String msg, boolean isMimeSpecific) {
         if (isMimeSpecific) {
-            return BallerinaErrors.createError(reason, populateMimeErrorRecord(msg));
+            return BallerinaErrors.createError(reason, populateMimeErrorRecord(null, msg));
         }
         return BallerinaErrors.createError(IOConstants.ErrorCode.GenericError.errorCode(), msg);
     }
 
-    public static MapValue populateMimeErrorRecord(String msg) {
+//    public static MapValue populateMimeErrorRecord(String msg) {
+//        Map<String, Object> valueMap = new HashMap<>();
+//        valueMap.put(MIME_ERROR_MESSAGE, msg);
+//        return BallerinaValues.createRecordValue(PACKAGE_ID_MIME, ERROR_RECORD_TYPE, valueMap);
+//    }
+
+    public static MapValue populateMimeErrorRecord(ErrorValue errorValue, String msg) {
         Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put(MIME_ERROR_MESSAGE, msg);
+        if (errorValue != null) {
+            valueMap.put(ERROR_CAUSE_FIELD, errorValue);
+        }
+        if (msg != null) {
+            valueMap.put(MIME_ERROR_MESSAGE, msg);
+        }
         return BallerinaValues.createRecordValue(PACKAGE_ID_MIME, ERROR_RECORD_TYPE, valueMap);
     }
 
