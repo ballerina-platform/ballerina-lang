@@ -184,7 +184,7 @@ public class Type {
                         }
                         this.category = "types"; break;
                 case TypeTags
-                        .ERROR: this.category = "errors"; break;
+                        .ERROR: this.category = "errors";
                 case TypeTags.INT:
                 case TypeTags.BYTE:
                 case TypeTags.FLOAT:
@@ -199,6 +199,8 @@ public class Type {
                 case TypeTags.XMLNS:
                 case TypeTags.MAP: // TODO generate type for constraint type
                 case TypeTags.TABLE:
+                case TypeTags.FUTURE:
+                case TypeTags.HANDLE:
                     this.category = "builtin"; break;
                 default:
                     this.category = "UNKNOWN";
