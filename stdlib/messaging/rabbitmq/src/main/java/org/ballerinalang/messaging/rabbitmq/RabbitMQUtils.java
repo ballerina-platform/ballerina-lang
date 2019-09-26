@@ -24,7 +24,9 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +61,20 @@ public class RabbitMQUtils {
                 RabbitMQConstants.RABBITMQ_ERROR_DETAILS, valueMap);
     }
 
+    public static ArrayList<ObjectValue> addToList(ArrayList<ObjectValue> arrayList, ObjectValue objectValue) {
+        if (arrayList == null) {
+            arrayList = new ArrayList<>();
+        }
+        arrayList.add(objectValue);
+        return arrayList;
+    }
+
+    public static ArrayList<ObjectValue> removeFromList(ArrayList<ObjectValue> arrayList, ObjectValue objectValue) {
+        if (arrayList != null) {
+            arrayList.remove(objectValue);
+        }
+        return arrayList;
+    }
     private RabbitMQUtils() {
     }
 }
