@@ -79,13 +79,13 @@ public type WebSocketFailoverClient client object {
 
     # Closes the connection.
     #
-    # + statusCode - Status code for closing the connection. Default value: 1000
+    # + statusCode - Status code for closing the connection.
     # + reason - Reason for closing the connection
     # + timeoutInSeconds - Time to wait for the close frame to be received from the remote endpoint before closing the
     #                   connection. If the timeout exceeds, then the connection is terminated even though a close frame
     #                   is not received from the remote endpoint. If the value is < 0 (e.g., -1), then the connection waits
     #                   until a close frame is received. If the WebSocket frame is received from the remote endpoint,
-    #                   within the waiting period, the connection is terminated immediately. Default value: 60
+    #                   within the waiting period, the connection is terminated immediately.
     # + return - Returns a `WebSocketError` if an error occurs while closing the webSocket connection.
     public remote function close(public int? statusCode = 1000, public string? reason = (),
     public int timeoutInSeconds = 60) returns WebSocketError? {
@@ -171,12 +171,12 @@ public type WebSocketFailoverClient client object {
 #                          of the client service will be triggered.
 # + readyOnConnect - set to `true` if the client is ready to receive messages as soon as the connection is established.
 #                    This is set to `true` by default. If changed to `false` the function `ready()` of the
-#                    `WebSocketClient` needs to be called once to start receiving messages.
+#                    `WebSocketFailoverClient` needs to be called once to start receiving messages.
 # + secureSocket - SSL/TLS-related options
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set, is negative, or is zero, the default frame size of 65536 will be used.
 # + targetUrls - The set of URLs, which are used to connect to the server
-# + failoverInterval - The maximum number of milliseconds to delay a failover attempt. Default value: 1000
+# + failoverIntervalInMillis - The maximum number of milliseconds to delay a failover attempt.
 # + webSocketCompressionEnabled - Enable support for compression in WebSocket
 # + retryConfig - Configurations related to retrying
 public type WebSocketFailoverClientConfiguration record {|
@@ -188,7 +188,7 @@ public type WebSocketFailoverClientConfiguration record {|
     ClientSecureSocket? secureSocket = ();
     int maxFrameSize = 0;
     string[] targetUrls = [];
-    int failoverInterval = 1000;
+    int failoverIntervalInMillis = 1000;
     boolean webSocketCompressionEnabled = true;
     WebSocketRetryConfig retryConfig?;
 |};

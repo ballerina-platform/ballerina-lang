@@ -81,13 +81,13 @@ public type WebSocketClient client object {
 
     # Closes the connection.
     #
-    # + statusCode - Status code for closing the connection. Default value: 1000
+    # + statusCode - Status code for closing the connection.
     # + reason - Reason for closing the connection
     # + timeoutInSeconds - Time to wait for the close frame to be received from the remote endpoint before closing the
     #                   connection. If the timeout exceeds, then the connection is terminated even though a close frame
     #                   is not received from the remote endpoint. If the value is < 0 (e.g., -1), then the connection waits
     #                   until a close frame is received. If the WebSocket frame is received from the remote endpoint,
-    #                   within the waiting period, the connection is terminated immediately. Default value: 60
+    #                   within the waiting period, the connection is terminated immediately.
     # + return - Returns a `WebSocketError` if an error occurs while closing the webSocket connection.
     public remote function close(public int? statusCode = 1000, public string? reason = (),
         public int timeoutInSeconds = 60) returns WebSocketError? {
@@ -194,11 +194,11 @@ public type WebSocketClientConfiguration record {|
 # Configurations for reconnecting to the WebSocket.
 #
 # + maxCount - The maximum number of reconnection attempts done. If 0, the
-#              reconnection attempts will continue indefinitely. Default value: 0
-# + intervalInMillis - The number of milliseconds to delay before attempting to reconnect. Default value: 1000
+#              reconnection attempts will continue indefinitely.
+# + intervalInMillis - The number of milliseconds to delay before attempting to reconnect.
 # + backOffFactor - The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems
-#                persist. Default value: 1.0
-# + maxIntervalInMillis - The maximum number of milliseconds to delay a reconnection attempt. Default value: 30000
+#                persist.
+# + maxIntervalInMillis - The maximum number of milliseconds to delay a reconnection attempt.
 public type WebSocketRetryConfig record {|
     int maxCount = 0;
     int intervalInMillis = 1000;

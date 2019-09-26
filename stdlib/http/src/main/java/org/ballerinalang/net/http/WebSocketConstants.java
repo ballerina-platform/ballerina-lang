@@ -100,7 +100,7 @@ public class WebSocketConstants {
     public static final String BACK_OF_FACTOR = "backOffFactor";
     public static final String MAX_INTERVAL = "maxIntervalInMillis";
     public static final String IS_PRINT = "isPrint";
-    public static final String FAILOVER_INTEVAL = "failoverInterval";
+    public static final String FAILOVER_INTEVAL = "failoverIntervalInMillis";
     public static final String IS_CONNECTION_MADE = "isConnectionMade";
     public static final String IS_CONNECTION_LOST = "isConnectionLost";
     public static final String SUB_TARGET_URLS = "subTargetUrls";
@@ -110,6 +110,7 @@ public class WebSocketConstants {
     public static final String WAITING_TIME = "60";
     public static final String RECONNECTING = "reconnecting...";
     public static final String COUNT_DOWN_LATCH = "countDownLatch";
+    public static final String CLIENT_LISTENER = "clientListener";
     public static final String CLIENT_CONNECTOR = "clientConnector";
     public static final String CONNECTED_SERVER_URLS_INDEX = "urlIndex";
 
@@ -131,6 +132,7 @@ public class WebSocketConstants {
             " the targets: ";
     public static final String STATEMENT_FOR_FAILOVDER_RECONNECT = "Maximum retry attempts but couldn't connect " +
             "to the one of the server in the targets: ";
+    public static final String STATEMENT = "Reconnect attempt not made because of close initiated by the server: ";
 
     private WebSocketConstants() {
     }

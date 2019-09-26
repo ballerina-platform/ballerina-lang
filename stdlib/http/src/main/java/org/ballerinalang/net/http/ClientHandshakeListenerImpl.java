@@ -24,49 +24,46 @@ import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
-import java.util.concurrent.CountDownLatch;
-
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
+import static org.ballerinalang.net.http.WebSocketUtil.countDownForHandshake;
 
 /**
  * The handshake listener for the client.
  *
  * @since 0.983.1
  */
-public class ClientHandshakeConnectorListener implements ClientHandshakeListener {
+public class ClientHandshakeListenerImpl implements ClientHandshakeListener {
 
     private final WebSocketService wsService;
-    private final ClientConnectorListener clientConnectorListener;
+    private final ClientListenerImpl clientConnectorListener;
     private final boolean readyOnConnect;
     private final ObjectValue webSocketClient;
-    private CountDownLatch countDownLatch;
 
-    public ClientHandshakeConnectorListener(ObjectValue webSocketClient,
+    public ClientHandshakeListenerImpl(ObjectValue webSocketClient,
                                             WebSocketService wsService,
-                                            ClientConnectorListener clientConnectorListener,
-                                            boolean readyOnConnect, CountDownLatch countDownLatch) {
+                                            ClientListenerImpl clientConnectorListener,
+                                            boolean readyOnConnect) {
         this.webSocketClient = webSocketClient;
         this.wsService = wsService;
         this.clientConnectorListener = clientConnectorListener;
         this.readyOnConnect = readyOnConnect;
-        this.countDownLatch = countDownLatch;
     }
 
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
         //using only one service endpoint in the client as there can be only one connection.
         webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD,
-                            HttpUtil.createResponseStruct(carbonResponse));
+                HttpUtil.createResponseStruct(carbonResponse));
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
-                                                                           WebSocketConstants.WEBSOCKET_CONNECTOR);
+                WebSocketConstants.WEBSOCKET_CONNECTOR);
         WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(webSocketConnection,
-                                                                                    webSocketConnector);
+                webSocketConnector);
         WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
         clientConnectorListener.setConnectionInfo(connectionInfo);
         if (readyOnConnect) {
             webSocketConnection.readNextFrame();
         }
-        countDownLatch.countDown();
+        countDownForHandshake(webSocketClient);
     }
 
     @Override
@@ -75,10 +72,10 @@ public class ClientHandshakeConnectorListener implements ClientHandshakeListener
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
-                                                                           WebSocketConstants.WEBSOCKET_CONNECTOR);
+                WebSocketConstants.WEBSOCKET_CONNECTOR);
         WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null,
                 webSocketConnector);
-        countDownLatch.countDown();
+        countDownForHandshake(webSocketClient);
         WebSocketDispatcher.dispatchError(connectionInfo, throwable);
     }
 

@@ -26,6 +26,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.io.IOException;
 
+import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT;
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
 import static org.ballerinalang.net.http.WebSocketUtil.handleExceptionAndDispatchCloseMessage;
 import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
@@ -34,9 +35,9 @@ import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
 /**
  * Client connector listener for WebSocket.
  *
- * @since 1.0.0
+ * @since 1.1.0
  */
-public class WebSocketClientListener extends ClientConnectorListener {
+public class WebSocketClientListener extends ClientListenerImpl {
 
     private WebSocketOpenConnectionInfo connectionInfo;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketClientListener.class);
@@ -45,7 +46,6 @@ public class WebSocketClientListener extends ClientConnectorListener {
         super.setConnectionInfo(connectionInfo);
         this.connectionInfo = connectionInfo;
     }
-
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
@@ -56,7 +56,7 @@ public class WebSocketClientListener extends ClientConnectorListener {
                 return;
             } else {
                 if (statusCode != STATUS_CODE_ABNORMAL_CLOSURE) {
-                    logger.debug("Reconnect attempt not made because of close initiated by the server: " +
+                    logger.debug(STATEMENT +
                             webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
                 }
             }

@@ -27,6 +27,6 @@ import org.testng.annotations.Test;
 @Test(groups = {"websocket-test"})
 public class FailoverTest extends FailoverClientTest {
     public FailoverTest() {
-        super(15300, false, "ws://localhost:30002");
+        super(15300, false, "ws://localhost:21027");
     }
 }

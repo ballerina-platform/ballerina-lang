@@ -15,16 +15,16 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:Listener(30004) {
+service on new http:Listener(21029) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketFailoverClient wsClientEp = new({ callbackService:
             failoverClientWithRetryCallbackService, readyOnConnect: false, targetUrls:
-            ["ws://localhost:15100/websocket", "ws://localhost:15200/websocket"], retryConfig: {}});
+            ["ws://localhost:15100/websocket", "ws://localhost:15200/websocket"], failoverIntervalInMillis: 900,
+            retryConfig: {intervalInMillis: 500, backOffFactor: 1.2}});
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
@@ -56,20 +56,6 @@ service on new http:Listener(30004) {
             panic returnVal;
         }
     }
-
-    //This resource gets invoked when an error occurs in the connection.
-    resource function onError(http:WebSocketCaller caller, error err) {
-        http:WebSocketFailoverClient clientEp =
-                        getAssociatedFailoverClientEndpoint(caller);
-        var e = clientEp->close(1011, <string>err.detail()["message"]);
-        if (e is http:WebSocketError) {
-            log:printError("Error occurred when closing the connection",
-                            <error> e);
-        }
-        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
-        log:printError("Unexpected error hence closing the connection",
-                        <error> err);
-    }
 }
 
 service failoverClientWithRetryCallbackService = @http:WebSocketServiceConfig {} service {
@@ -95,18 +81,5 @@ service failoverClientWithRetryCallbackService = @http:WebSocketServiceConfig {}
         if (returnVal is http:WebSocketError) {
             panic returnVal;
         }
-    }
-
-    //This resource gets invoked when an error occurs in the connection.
-    resource function onError(http:WebSocketFailoverClient caller, error err) {
-        http:WebSocketCaller serverEp = getAssociatedFailoverListener(caller);
-        var e = serverEp->close(1011, <string>err.detail()["message"]);
-        if (e is http:WebSocketError) {
-            log:printError("Error occurred when closing the connection",
-                            err = e);
-        }
-        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
-        log:printError("Unexpected error hense closing the connection",
-                        <error> err);
     }
 };

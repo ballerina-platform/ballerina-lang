@@ -18,11 +18,12 @@ import ballerina/http;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:Listener(21028) {
+service on new http:Listener(21030) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
-            retryClientCallbackService, readyOnConnect: false, retryConfig: {}});
+        retryCallbackService, readyOnConnect: false, retryConfig: {maxCount: 10, intervalInMillis: 500,
+        backOffFactor: 0.5}});
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
@@ -35,7 +36,7 @@ service on new http:Listener(21028) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->pushText(text);
         if (returnVal is http:WebSocketError) {
-            panic returnVal;
+        panic returnVal;
         }
     }
 
@@ -46,17 +47,9 @@ service on new http:Listener(21028) {
             panic returnVal;
         }
     }
-
-    resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
-        http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
-        var returnVal = clientEp->close(statusCode, reason);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
-    }
 }
 
-service retryClientCallbackService = @http:WebSocketServiceConfig {} service {
+service retryCallbackService = @http:WebSocketServiceConfig {} service {
     resource function onText(http:WebSocketClient wsEp, string text) {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushText(text);
@@ -68,14 +61,6 @@ service retryClientCallbackService = @http:WebSocketServiceConfig {} service {
     resource function onBinary(http:WebSocketClient wsEp, byte[] data) {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushBinary(data);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
-    }
-
-    resource function onClose(http:WebSocketClient wsEp, int statusCode, string reason) {
-        http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
-        var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is http:WebSocketError) {
             panic returnVal;
         }

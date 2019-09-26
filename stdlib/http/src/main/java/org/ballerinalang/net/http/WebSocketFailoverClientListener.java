@@ -26,6 +26,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.io.IOException;
 
+import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT;
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
 import static org.ballerinalang.net.http.WebSocketUtil.determineAction;
 import static org.ballerinalang.net.http.WebSocketUtil.handleExceptionAndDispatchCloseMessage;
@@ -34,9 +35,9 @@ import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
 /**
  * Failover client listener for WebSocket.
  *
- * @since 1.0.0
+ * @since 1.1.0
  */
-public class WebSocketFailoverClientListener extends ClientConnectorListener {
+public class WebSocketFailoverClientListener extends ClientListenerImpl {
 
     private WebSocketOpenConnectionInfo connectionInfo;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketFailoverClientListener.class);
@@ -44,10 +45,6 @@ public class WebSocketFailoverClientListener extends ClientConnectorListener {
     public void setConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
         super.setConnectionInfo(connectionInfo);
         this.connectionInfo = connectionInfo;
-    }
-
-    public WebSocketOpenConnectionInfo getConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
-        return this.connectionInfo;
     }
 
     @Override
@@ -58,8 +55,7 @@ public class WebSocketFailoverClientListener extends ClientConnectorListener {
             determineAction(connectionInfo, null, webSocketCloseMessage);
         } else {
             if (hasRetryConfig(webSocketClient)) {
-                logger.info("Couldn't connect to the server because the connected server " +
-                        "has sent the close request to the client.");
+                logger.debug(STATEMENT);
             }
             handleExceptionAndDispatchCloseMessage(connectionInfo, webSocketCloseMessage);
         }

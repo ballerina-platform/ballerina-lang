@@ -40,15 +40,16 @@ import static org.ballerinalang.net.http.WebSocketConstants.CONNECTOR_FACTORY;
 import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URLS;
+import static org.ballerinalang.net.http.WebSocketUtil.establishInitialFailoverConnection;
+import static org.ballerinalang.net.http.WebSocketUtil.getWebSocketClientConnector;
 import static org.ballerinalang.net.http.WebSocketUtil.getWebSocketService;
-import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketFailoverConnection;
 import static org.ballerinalang.net.http.WebSocketUtil.populateFailoverConnectorConfig;
 import static org.ballerinalang.net.http.WebSocketUtil.populateRetryConnectorConfig;
 
 /**
  * Initialize the WebSocket Client.
  *
- * @since 1.0.0
+ * @since 1.1.0
  */
 
 @BallerinaFunction(
@@ -85,7 +86,7 @@ public class FailoverInitEndpoint {
                 index++;
             }
         }
-        logger.info("New targetUrls are " + newTargetUrls);
+        logger.debug("New targetUrls: " + newTargetUrls);
         if (newTargetUrls.size() == 0) {
             throw new WebSocketException("TargetUrls should have atleast one valid URL.");
         }
@@ -101,11 +102,14 @@ public class FailoverInitEndpoint {
             webSocketClient.addNativeData(RETRY_CONFIG, retryConnectorConfig);
         }
         // Set the failover config values
-        FailoverContext failoverClientConnectorConfig = new FailoverContext();
-        populateFailoverConnectorConfig(clientEndpointConfig, failoverClientConnectorConfig, newTargetUrls);
-        webSocketClient.addNativeData(FAILOVER_CONFIG, failoverClientConnectorConfig);
+        FailoverContext failoverConfig = new FailoverContext();
+        populateFailoverConnectorConfig(clientEndpointConfig, failoverConfig, newTargetUrls);
+        webSocketClient.addNativeData(FAILOVER_CONFIG, failoverConfig);
         // Call the function with first url in the target url set
-        initialiseWebSocketFailoverConnection(newTargetUrls.get(0), webSocketClient,
-                getWebSocketService(clientEndpointConfig, strand));
+        establishInitialFailoverConnection(getWebSocketClientConnector(newTargetUrls.get(0), webSocketClient),
+                webSocketClient, getWebSocketService(clientEndpointConfig, strand));
+    }
+
+    private FailoverInitEndpoint() {
     }
 }
