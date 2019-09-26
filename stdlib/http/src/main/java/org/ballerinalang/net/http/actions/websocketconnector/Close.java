@@ -35,6 +35,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_FAILED;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_SUCCESS;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_CLOSE;
+import static org.ballerinalang.net.http.WebSocketUtil.observePush;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -55,6 +59,7 @@ public class Close {
     public static Object externClose(Strand strand, ObjectValue wsConnection, long statusCode, String reason,
                                      long timeoutInSecs) {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
+
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
@@ -65,11 +70,19 @@ public class Close {
             closeFuture.channel().close().addListener(future -> {
                 WebSocketUtil.setListenerOpenField(connectionInfo);
                 callback.notifySuccess();
+                observePush(WEBSOCKET_MESSAGE_TYPE_CLOSE, WEBSOCKET_MESSAGE_RESULT_SUCCESS,
+                            reason.length() * 2 + 4, connectionInfo);
+
             });
         } catch (Exception e) {
-            log.error("Error occurred when closing the connection", e);
+            log.error("Error occurred when closing the connections", e);
             callback.setReturnValues(new WebSocketException(ErrorCode.WsConnectionError, e.getMessage()));
             callback.notifySuccess();
+            observePush(WEBSOCKET_MESSAGE_TYPE_CLOSE, WEBSOCKET_MESSAGE_RESULT_FAILED,
+                        reason.length() * 2 + 4,
+                        (WebSocketOpenConnectionInfo)
+                                wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO));
+
         }
         return null;
     }

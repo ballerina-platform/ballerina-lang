@@ -21,6 +21,14 @@ package org.ballerinalang.net.http;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
+import org.ballerinalang.jvm.observability.metrics.MetricId;
+import org.ballerinalang.jvm.observability.metrics.MetricRegistry;
+import org.ballerinalang.jvm.observability.metrics.Tag;
+import org.ballerinalang.jvm.observability.metrics.Tags;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
@@ -39,9 +47,29 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_CONNECTIONS;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_CONNECTIONS_DESC;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_MESSAGES_RECEIVED;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_MESSAGES_RECEIVED_DESC;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_MESSAGES_SENT;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_MESSAGES_SENT_DESC;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_MESSAGES_SIZE_RECEIVED;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_MESSAGES_SIZE_SENT;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_MESSAGES_SIZE_SENT_DESC;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_REQUESTS;
+import static org.ballerinalang.net.http.WebSocketConstants.METRIC_REQUESTS_DESC;
+import static org.ballerinalang.net.http.WebSocketConstants.TAG_CONNECTION_ID;
+import static org.ballerinalang.net.http.WebSocketConstants.TAG_KEY_RESULT;
+import static org.ballerinalang.net.http.WebSocketConstants.TAG_MESSAGE_TYPE;
+import static org.ballerinalang.net.http.WebSocketConstants.TAG_SERVICE;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
 
 /**
@@ -64,9 +92,11 @@ public class WebSocketUtil {
         int maxFrameSize = wsService.getMaxFrameSize();
         ServerHandshakeFuture future = webSocketHandshaker.handshake(subProtocols, idleTimeoutInSeconds * 1000, headers,
                 maxFrameSize);
+
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
+
                 ObjectValue webSocketEndpoint = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
                         WebSocketConstants.WEBSOCKET_CALLER);
                 ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
@@ -87,11 +117,13 @@ public class WebSocketUtil {
                             WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                     if (onOpenResource != null) {
                         executeOnOpenResource(wsService, onOpenResource, webSocketEndpoint,
-                                webSocketConnection);
+                                              webSocketConnection);
                     } else {
                         readFirstFrame(webSocketConnection, webSocketConnector);
                     }
                 }
+                observeConnection(connectionInfo);
+
             }
 
             @Override
@@ -105,6 +137,7 @@ public class WebSocketUtil {
                 }
                 logger.error("Unable to complete handshake", throwable);
             }
+
         });
     }
 
@@ -237,6 +270,146 @@ public class WebSocketUtil {
         // The cause is null here. When there is a cause override the method to pass the proper cause
         return BallerinaValues.createRecord(detail, errMsg, null);
     }
+
+    public static void observeRequest(WebSocketOpenConnectionInfo connectionInfo, String result) {
+        if (ObserveUtils.isObservabilityEnabled()) {
+            ObserverContext observerContext = new ObserverContext();
+            Map<String, Object> properties = new HashMap<>();
+            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
+
+            observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
+            // TODO: extract span context as a map and add to the observer context
+            try {
+                observerContext.addTag(TAG_CONNECTION_ID, connectionInfo.getWebSocketConnection().getChannelId());
+            } catch (IllegalAccessException e) {
+                //TODO: Handle Exception
+            }
+            observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+            observerContext.addTag(TAG_KEY_RESULT, result);
+            Map<String, String> tags = observerContext.getTags();
+            Set<Tag> allTags = new HashSet<>(tags.size());
+            Tags.tags(allTags, observerContext.getTags());
+
+            MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
+            metricRegistry.counter(new MetricId(SERVER_CONNECTOR_WEBSOCKET + "_" + METRIC_REQUESTS,
+                                                METRIC_REQUESTS_DESC, allTags)).increment();
+        }
+
+
+    }
+
+    public static void observeConnection(WebSocketOpenConnectionInfo connectionInfo) {
+        if (ObserveUtils.isObservabilityEnabled()) {
+
+            ObserverContext observerContext = new ObserverContext();
+            Map<String, Object> properties = new HashMap<>();
+            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
+
+            observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
+
+            try {
+                observerContext.addTag(TAG_CONNECTION_ID,
+                                       connectionInfo.getWebSocketConnection().getChannelId());
+            } catch (IllegalAccessException e) {
+                //TODO: handle exception
+            }
+            observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+
+            // TODO: extract span context as a map and add to the observer context
+            Map<String, String> tags = observerContext.getTags();
+            Set<Tag> allTags = new HashSet<>(tags.size());
+            Tags.tags(allTags, observerContext.getTags());
+
+            MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
+            metricRegistry.gauge(new MetricId(SERVER_CONNECTOR_WEBSOCKET + "_" + METRIC_CONNECTIONS,
+                                              METRIC_CONNECTIONS_DESC, allTags)).increment();
+
+        }
+    }
+
+    public static void observePush(String type, String result, int size, WebSocketOpenConnectionInfo connectionInfo) {
+        if (ObserveUtils.isObservabilityEnabled()) {
+
+            ObserverContext observerContext = new ObserverContext();
+            Map<String, Object> properties = new HashMap<>();
+            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
+            observerContext.addTag(TAG_MESSAGE_TYPE, type);
+            observerContext.addTag(TAG_KEY_RESULT, result);
+            try {
+                observerContext.addTag(TAG_CONNECTION_ID, connectionInfo.getWebSocketConnection().getChannelId());
+            } catch (IllegalAccessException e) {
+                //TODO: Handle exception
+            }
+            observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+
+            observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
+            // TODO: extract span context as a map and add to the observer context
+
+            Map<String, String> tags = observerContext.getTags();
+            Set<Tag> allTags = new HashSet<>(tags.size());
+            Tags.tags(allTags, observerContext.getTags());
+
+            MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
+            metricRegistry.counter(new MetricId(SERVER_CONNECTOR_WEBSOCKET + "_" + METRIC_MESSAGES_SENT,
+                                                METRIC_MESSAGES_SENT_DESC, allTags)).increment();
+
+            metricRegistry.counter(new MetricId(SERVER_CONNECTOR_WEBSOCKET + "_" + METRIC_MESSAGES_SIZE_SENT,
+                                                METRIC_MESSAGES_SIZE_SENT_DESC, allTags)).increment(size);
+
+        }
+    }
+
+    public static void observeOnMessage(String type, int messageSize, WebSocketOpenConnectionInfo connectionInfo) {
+        ObserverContext observerContext = new ObserverContext();
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
+        observerContext.addTag(TAG_MESSAGE_TYPE, type);
+        try {
+            observerContext.addTag(TAG_CONNECTION_ID, connectionInfo.getWebSocketConnection().getChannelId());
+        } catch (IllegalAccessException e) {
+            //TODO: Handle Exception
+        }
+        observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+
+        Map<String, String> tags = observerContext.getTags();
+        Set<Tag> allTags = new HashSet<>(tags.size());
+        Tags.tags(allTags, observerContext.getTags());
+
+        MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
+
+        metricRegistry.counter(new MetricId(SERVER_CONNECTOR_WEBSOCKET + "_" + METRIC_MESSAGES_RECEIVED,
+                                            METRIC_MESSAGES_RECEIVED_DESC, allTags)).increment();
+
+        metricRegistry.counter(new MetricId(SERVER_CONNECTOR_WEBSOCKET + "_" + METRIC_MESSAGES_SIZE_RECEIVED,
+                                            METRIC_MESSAGES_RECEIVED_DESC, allTags)).increment(messageSize);
+    }
+
+    public static void observeClose(WebSocketOpenConnectionInfo connectionInfo) {
+        ObserverContext observerContext = new ObserverContext();
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
+        if (ObserveUtils.isObservabilityEnabled()) {
+            observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
+
+            try {
+                observerContext.addTag(TAG_CONNECTION_ID, connectionInfo.getWebSocketConnection().getChannelId());
+            } catch (IllegalAccessException e) {
+                //TODO: Handle Exception
+            }
+
+            observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+
+            // TODO: extract span context as a map and add to the observer context
+            Map<String, String> tags = observerContext.getTags();
+            Set<Tag> allTags = new HashSet<>(tags.size());
+            Tags.tags(allTags, observerContext.getTags());
+
+            MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
+            metricRegistry.gauge(new MetricId(SERVER_CONNECTOR_WEBSOCKET + "_" + METRIC_CONNECTIONS,
+                                              METRIC_CONNECTIONS_DESC, allTags)).decrement();
+        }
+    }
+
 
     private WebSocketUtil() {
     }

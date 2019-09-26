@@ -34,6 +34,10 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_FAILED;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_SUCCESS;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_CONTROL;
+import static org.ballerinalang.net.http.WebSocketUtil.observePush;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -53,15 +57,21 @@ public class Ping {
 
     public static Object ping(Strand strand, ObjectValue wsConnection, ArrayValue binaryData) {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
+
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().ping(ByteBuffer.wrap(binaryData.getBytes()));
             WebSocketUtil.handleWebSocketCallback(callback, future, log);
+            observePush(WEBSOCKET_MESSAGE_TYPE_CONTROL, WEBSOCKET_MESSAGE_RESULT_SUCCESS, binaryData.getBytes().length,
+                        connectionInfo);
         } catch (Exception e) {
             log.error("Error occurred when pinging", e);
             callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
+            observePush(WEBSOCKET_MESSAGE_TYPE_CONTROL, WEBSOCKET_MESSAGE_RESULT_FAILED, binaryData.getBytes().length,
+                        (WebSocketOpenConnectionInfo)
+                                wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO));
         }
         return null;
     }

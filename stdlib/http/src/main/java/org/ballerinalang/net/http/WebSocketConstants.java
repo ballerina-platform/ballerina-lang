@@ -94,6 +94,41 @@ public class WebSocketConstants {
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
 
+    //Observability Constants
+    public static final String TAG_CONNECTION_ID = "connectionID";
+    public static final String TAG_KEY_RESULT = "result";
+    public static final String TAG_SERVICE = "service";
+    public static final String TAG_MESSAGE_TYPE = "type";
+
+    public static final String METRIC_REQUESTS = "requests";
+    public static final String METRIC_REQUESTS_DESC = "Number of WebSocket connection requests";
+
+    public static final String METRIC_CONNECTIONS = "connections";
+    public static final String METRIC_CONNECTIONS_DESC = "Number of currently active connections";
+
+    public static final String METRIC_MESSAGES_RECEIVED = "messages_received";
+    public static final String METRIC_MESSAGES_RECEIVED_DESC = "Number of messages received";
+
+    public static final String METRIC_MESSAGES_SENT = "messages_sent";
+    public static final String METRIC_MESSAGES_SENT_DESC = "Number of messages sent";
+
+    public static final String METRIC_MESSAGES_SIZE_RECEIVED = "messages_size_received";
+    public static final String METRIC_MESSAGES_SIZE_RECEIVED_DESC = "Total size of messages received in bytes";
+
+    public static final String METRIC_MESSAGES_SIZE_SENT = "messages_size_sent";
+    public static final String METRIC_MESSAGES_SIZE_SENT_DESC = "Total size of messages sent in bytes";
+
+
+    public static final String WEBSOCKET_MESSAGE_RESULT_SUCCESS = "success";
+    public static final String WEBSOCKET_MESSAGE_RESULT_FAILED = "failed";
+
+    public static final String WEBSOCKET_MESSAGE_TYPE_TEXT = "text";
+    public static final String WEBSOCKET_MESSAGE_TYPE_BINARY = "binary";
+    public static final String WEBSOCKET_MESSAGE_TYPE_CONTROL = "control";
+    public static final String WEBSOCKET_MESSAGE_TYPE_CLOSE = "close";
+
+
+
     private WebSocketConstants() {
     }
 
