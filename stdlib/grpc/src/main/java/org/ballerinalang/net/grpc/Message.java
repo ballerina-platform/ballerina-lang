@@ -381,7 +381,7 @@ public class Message {
         Descriptors.OneofDescriptor oneofDescriptor = fieldDescriptor.getContainingOneof();
         String msgType = oneofDescriptor.getContainingType().getName() + "_" + toCamelCase
                 (fieldDescriptor.getName());
-        MapValue<String, Object> bMsg = new MapValueImpl<>(new BRecordType(msgType, bType.getPackage(), 0, true));
+        MapValue<String, Object> bMsg = new MapValueImpl<>(new BRecordType(msgType, bType.getPackage(), 0, true, 0));
         bMsg.put(fieldDescriptor.getName(), bValue);
         return bMsg;
     }

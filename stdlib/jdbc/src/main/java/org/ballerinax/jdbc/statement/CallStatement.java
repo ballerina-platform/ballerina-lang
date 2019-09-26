@@ -142,7 +142,7 @@ public class CallStatement extends AbstractSQLStatement {
     private ArrayValue constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
                                                      ArrayValue structTypes, String databaseProductName)
             throws SQLException, ApplicationException {
-        BRecordType tableConstraint = new BRecordType("$table$anon$constraint$", null, 0, false);
+        BRecordType tableConstraint = new BRecordType("$table$anon$constraint$", null, 0, false, 0);
         tableConstraint.restFieldType = BTypes.typeAnydata;
         ArrayValue bTables = new ArrayValue(new BArrayType(new BTableType(tableConstraint)));
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case

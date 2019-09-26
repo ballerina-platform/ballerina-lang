@@ -359,3 +359,8 @@ const int BAL_REQUIRED = 256;
 const int BAL_PRIVATE = 1024;
 const int BAL_OPTIONAL = 8192;
 const int BAL_SERVICE = 524288;
+
+// type flags
+const int TYPE_FLAG_NILABLE = 1;
+const int TYPE_FLAG_ANYDATA = 2;
+const int TYPE_FLAG_PURETYPE = 4;
