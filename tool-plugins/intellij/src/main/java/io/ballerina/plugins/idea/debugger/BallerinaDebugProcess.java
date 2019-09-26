@@ -67,8 +67,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static io.ballerina.plugins.idea.BallerinaConstants.BAL_FILE_EXT;
+import java.util.stream.Collectors;
 
 /**
  * Ballerina debug process which handles debugging.
@@ -439,39 +438,56 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
         @Override
         public void registerBreakpoint(@NotNull XLineBreakpoint<BallerinaBreakpointProperties> breakpoint) {
+
             XSourcePosition breakpointPosition = breakpoint.getSourcePosition();
             if (breakpointPosition == null) {
                 return;
             }
+
             getSession().updateBreakpointPresentation(breakpoint, AllIcons.Debugger.Db_verified_breakpoint, null);
-            if (isBalBreakpoint(breakpoint) && !breakpoints.contains(breakpoint)) {
-                breakpoints.add(breakpoint);
-                sendBreakpoints(Collections.singletonList(breakpoint), false);
+            if (!isBalBreakpoint(breakpoint) || breakpoints.contains(breakpoint)) {
+                return;
             }
+
+            breakpoints.add(breakpoint);
+            // Resend all debug points which are added to the source file of the modified breakpoint.
+            List<XBreakpoint<BallerinaBreakpointProperties>> breakpointsToBeSent =
+                    breakpoints.stream().filter(xBreakpoint ->
+                            xBreakpoint.getType().getId().equals("BallerinaLineBreakpoint")
+                                    && xBreakpoint.getSourcePosition() != null
+                                    && xBreakpoint.getSourcePosition().getFile().getPath()
+                                    .equals(breakpoint.getSourcePosition().getFile().getPath()))
+                            .collect(Collectors.toList());
+            sendBreakpoints(breakpointsToBeSent, false);
         }
 
         @Override
         public void unregisterBreakpoint(@NotNull XLineBreakpoint<BallerinaBreakpointProperties> breakpoint,
                                          boolean temporary) {
+
             XSourcePosition breakpointPosition = breakpoint.getSourcePosition();
             if (breakpointPosition == null) {
                 return;
             }
-            if (isBalBreakpoint(breakpoint) && breakpoints.contains(breakpoint)) {
-                breakpoints.remove(breakpoint);
-                sendBreakpoints(Collections.singletonList(breakpoint), false);
+
+            if (!isBalBreakpoint(breakpoint) || !breakpoints.contains(breakpoint)) {
+                return;
             }
+
+            breakpoints.remove(breakpoint);
+            List<XBreakpoint<BallerinaBreakpointProperties>> breakpointsToBeSent =
+                    breakpoints.stream().filter(xBreakpoint ->
+                            xBreakpoint.getType().getId().equals("BallerinaLineBreakpoint")
+                                    && xBreakpoint.getSourcePosition() != null
+                                    && xBreakpoint.getSourcePosition().getFile().getPath()
+                                    .equals(breakpoint.getSourcePosition().getFile().getPath()))
+                            .collect(Collectors.toList());
+            sendBreakpoints(breakpointsToBeSent, false);
         }
 
         private boolean isBalBreakpoint(@NotNull XLineBreakpoint<BallerinaBreakpointProperties> breakpoint) {
-
             XSourcePosition pos = breakpoint.getSourcePosition();
-            if (!isConnected || pos == null) {
-                return false;
-            }
-
-            String fileExt = pos.getFile().getExtension();
-            return fileExt != null && fileExt.equals(BAL_FILE_EXT);
+            return isConnected && pos != null && breakpoint.getType().getId().equals("BallerinaLineBreakpoint");
         }
 
         void sendBreakpoints(List<XBreakpoint<BallerinaBreakpointProperties>> breakpointList, boolean attach) {
