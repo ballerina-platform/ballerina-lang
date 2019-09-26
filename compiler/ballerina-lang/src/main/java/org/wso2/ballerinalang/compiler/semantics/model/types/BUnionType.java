@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -43,6 +44,8 @@ public class BUnionType extends BType implements UnionType {
     private boolean nullable;
 
     private LinkedHashSet<BType> memberTypes;
+    private Optional<Boolean> isAnyData = Optional.empty();
+    private Optional<Boolean> isPureType = Optional.empty();
 
     private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
         super(TypeTags.UNION, tsymbol);
@@ -176,6 +179,38 @@ public class BUnionType extends BType implements UnionType {
      */
     public Iterator<BType> iterator() {
         return this.memberTypes.iterator();
+    }
+
+    @Override
+    public final boolean isAnydata() {
+        if (!this.isAnyData.isPresent()) {
+            for (BType memberType : this.memberTypes) {
+                if (!memberType.isAnydata()) {
+                    this.isAnyData = Optional.of(false);
+                    return false;
+                }
+            }
+
+            this.isAnyData = Optional.of(true);
+        }
+
+        return this.isAnyData.get();
+    }
+
+    @Override
+    public final boolean isPureType() {
+        if (!this.isPureType.isPresent()) {
+            for (BType memberType : this.memberTypes) {
+                if (!memberType.isPureType()) {
+                    this.isAnyData = Optional.of(false);
+                    return false;
+                }
+            }
+
+            this.isPureType = Optional.of(true);
+        }
+
+        return this.isPureType.get();
     }
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {

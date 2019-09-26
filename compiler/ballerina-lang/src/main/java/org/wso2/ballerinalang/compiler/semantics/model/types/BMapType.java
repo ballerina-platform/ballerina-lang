@@ -63,4 +63,8 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType {
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
     }
+
+    public final boolean isAnydata() {
+        return this.constraint.isPureType();
+    }
 }

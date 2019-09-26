@@ -56,7 +56,7 @@ public class BTypes {
     // public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
     public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null, null), 0);
     public static BRecordType typeErrorDetail = new BRecordType(TypeConstants.DETAIL_TYPE, new BPackage(null, null,
-            null), 0, false);
+            null), 0, false, TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
     public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null,
             null, null), typeString, typeErrorDetail);
     public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
@@ -73,7 +73,7 @@ public class BTypes {
         BType[] restFieldType = new BType[2];
         restFieldType[0] = BTypes.typeAnydata;
         restFieldType[1] = BTypes.typeError;
-        typeErrorDetail.restFieldType = new BUnionType(restFieldType);
+        typeErrorDetail.restFieldType = new BUnionType(Arrays.asList(restFieldType));
     }
     
     private BTypes() {

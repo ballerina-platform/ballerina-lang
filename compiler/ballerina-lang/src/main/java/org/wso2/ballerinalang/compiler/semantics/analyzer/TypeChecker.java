@@ -1080,7 +1080,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(syncSendExpr.expr, this.env);
 
         // Validate if the send expression type is anydata
-        if (!types.isAnydata(syncSendExpr.expr.type)) {
+        if (!syncSendExpr.expr.type.isAnydata()) {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, syncSendExpr.expr.type);
         }
 
@@ -4669,7 +4669,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType retType;
-        if (types.isAnydata(type)) {
+        if (type.isAnydata()) {
             retType = type;
         } else {
             retType = BUnionType.create(null, type, symTable.errorType);
@@ -4683,17 +4683,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
         return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType);
-    }
-
-    private boolean isSafeNavigable(BLangAccessExpression fieldAccessExpr, BType varRefType) {
-        // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
-        // required.
-        if (fieldAccessExpr.errorSafeNavigation && varRefType.tag != TypeTags.UNION
-                && varRefType != symTable.semanticError) {
-            dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
-            return false;
-        }
-        return true;
     }
 
     private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {
