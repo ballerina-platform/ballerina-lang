@@ -26,7 +26,6 @@
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
         "onCommand:ballerina.showTraces",
-        "onCommand:ballerina.highlightSyntax",
         "workspaceContains:Ballerina.toml"
     ],
     "contributes": {

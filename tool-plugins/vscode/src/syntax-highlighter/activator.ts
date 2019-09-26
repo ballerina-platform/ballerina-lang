@@ -25,8 +25,13 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext> ballerinaExtInstance.context;
 
     let disposable = commands.registerCommand('ballerina.highlightSyntax', () => {
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Syntax highlighter is called..');
+		// Highlight first 5 letters
+		vscode.languages.registerDocumentHighlightProvider('ballerina',{
+            provideDocumentHighlights(document:vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken)
+            {
+                return [new vscode.DocumentHighlight(new vscode.Range(0,0,0,5),2)];
+            }
+        });
 	});
 
 	context.subscriptions.push(disposable);
