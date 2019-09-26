@@ -15,14 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.jvm.values.connector;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The callback implementation to handle non-blocking function behaviour.
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
  */
 public class NonBlockingCallback {
 
-    private static final Logger log = LoggerFactory.getLogger(NonBlockingCallback.class);
     private final Strand strand;
     private final Scheduler scheduler;
 
@@ -44,17 +42,14 @@ public class NonBlockingCallback {
 
     public void notifySuccess() {
         this.scheduler.unblockStrand(strand);
-//        log.debug("Notify success");
     }
 
     public void notifyFailure(ErrorValue error) {
         this.strand.setReturnValues(error);
         this.scheduler.unblockStrand(strand);
-//        log.debug("Notify error");
     }
 
     public void setReturnValues(Object returnValue) {
         this.strand.setReturnValues(returnValue);
-//         log.debug("Populate return values");
     }
 }

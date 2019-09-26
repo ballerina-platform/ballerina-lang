@@ -36,7 +36,6 @@ import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.exception.WebSocketException;
-import org.ballerinalang.net.uri.URITemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -90,10 +89,8 @@ public class WebSocketDispatcher {
             msg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
-        } catch (WebSocketException | URITemplateException e) {
-            String message = "No Service found to handle the service request";
-            webSocketHandshaker.cancelHandshake(404, message);
-            log.error(message, e);
+        } catch (WebSocketException e) {
+            webSocketHandshaker.cancelHandshake(404, e.detailMessage());
             return null;
         }
     }
@@ -324,7 +321,7 @@ public class WebSocketDispatcher {
         Object[] bValues = new Object[onErrorResource.getParameterType().length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
-        bValues[2] = new WebSocketException(throwable);
+        bValues[2] = WebSocketUtil.createErrorByType(throwable);
         bValues[3] = true;
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
             @Override

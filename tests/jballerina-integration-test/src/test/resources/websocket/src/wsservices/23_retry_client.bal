@@ -18,7 +18,7 @@ import ballerina/http;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:Listener(21028) {
+service on new http:Listener(21033) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:

@@ -16,7 +16,7 @@
 
 # Configurations related to a Timer
 #
-# + intervalInMillis - Timer interval (in Milliseconds), which triggers the onTrigger() resource.
+# + intervalInMillis - Timer interval (in Milliseconds), which triggers the `onTrigger()` resource.
 # + initialDelayInMillis - Delay (in Milliseconds) after which the timer will run.
 # + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
 public type TimerConfiguration record {|
@@ -27,7 +27,7 @@ public type TimerConfiguration record {|
 
 # Configurations related to an Appointment
 #
-# + appointmentDetails - A CronExpression (as a string) or AppointmentDetails for scheduling an Appointment.
+# + appointmentDetails - A CronExpression (as a string) or `task:AppointmentDetails` for scheduling an Appointment.
 # + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
 public type AppointmentConfiguration record {|
     string|AppointmentData appointmentDetails;

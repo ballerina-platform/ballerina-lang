@@ -124,6 +124,8 @@ public class WebSocketConstants {
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
+    public static final String THE_WEBSOCKET_CONNECTION_HAS_NOT_BEEN_MADE =
+            "The WebSocket connection has not been made";
 
     public static final String CONNECTED_TO = "Connected to ";
     public static final String STATEMENT_FOR_RECONNECT = "Maximum retry attempts but couldn't connect " +

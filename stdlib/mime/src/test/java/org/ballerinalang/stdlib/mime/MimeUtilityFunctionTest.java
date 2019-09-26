@@ -171,7 +171,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "form-data;name=\"test\";filename=\"file-01.txt\"");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMimeBase64EncodeBlob() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
         Object[] args = {new ArrayValue("Hello Ballerina".getBytes())};
@@ -181,7 +181,7 @@ public class MimeUtilityFunctionTest {
         assertJBytesWithBBytes(((BValueArray) returnValues[0]).getBytes(), expectedValue.getBytes());
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMimeBase64DecodeBlob() {
         String expectedValue = "Hello Ballerina";
         Object[] args = {new ArrayValue("SGVsbG8gQmFsbGVyaW5h".getBytes())};
