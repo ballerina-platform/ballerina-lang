@@ -25,8 +25,6 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import java.util.Optional;
-
 /**
  * @since 0.94
  */

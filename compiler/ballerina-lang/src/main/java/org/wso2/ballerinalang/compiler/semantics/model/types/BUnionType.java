@@ -182,35 +182,37 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
-    public final boolean isAnydata() {
-        if (!this.isAnyData.isPresent()) {
-            for (BType memberType : this.memberTypes) {
-                if (!memberType.isAnydata()) {
-                    this.isAnyData = Optional.of(false);
-                    return false;
-                }
-            }
-
-            this.isAnyData = Optional.of(true);
+    public boolean isAnydata() {
+        if (this.isAnyData.isPresent()) {
+            return this.isAnyData.get();
         }
 
-        return this.isAnyData.get();
+        for (BType memberType : this.memberTypes) {
+            if (!memberType.isAnydata()) {
+                this.isAnyData = Optional.of(false);
+                return false;
+            }
+        }
+
+        this.isAnyData = Optional.of(true);
+        return true;
     }
 
     @Override
-    public final boolean isPureType() {
-        if (!this.isPureType.isPresent()) {
-            for (BType memberType : this.memberTypes) {
-                if (!memberType.isPureType()) {
-                    this.isAnyData = Optional.of(false);
-                    return false;
-                }
-            }
-
-            this.isPureType = Optional.of(true);
+    public boolean isPureType() {
+        if (this.isPureType.isPresent()) {
+            return this.isPureType.get();
         }
 
-        return this.isPureType.get();
+        for (BType memberType : this.memberTypes) {
+            if (!memberType.isPureType()) {
+                this.isAnyData = Optional.of(false);
+                return false;
+            }
+        }
+
+        this.isPureType = Optional.of(true);
+        return true;
     }
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {

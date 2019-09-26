@@ -45,6 +45,7 @@ public class BUnionType extends BType {
      * Create a {@code BUnionType} which represents the union type.
      *
      * @param memberTypes of the union type
+     * @param typeFlags flags associated with the type
      */
     public BUnionType(List<BType> memberTypes, int typeFlags) {
         super(null, null, Object.class);
