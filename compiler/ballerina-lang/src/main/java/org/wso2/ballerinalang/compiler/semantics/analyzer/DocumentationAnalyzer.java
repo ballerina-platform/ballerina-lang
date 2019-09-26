@@ -27,6 +27,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -209,7 +211,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             if (!isValidIdentifierString) {
                 //dlog.warning(reference.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
                         //reference.getReferenceName());
-                int i = 0;
+                int i = 0; //TODO Add warning here
             }
             boolean isValidIdentifier = validateIdentifier(reference.getPosition(), documentableNode, reference.getType(),
                                                            pckgName.toString(),
@@ -217,7 +219,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                                                            identifier.toString());
             if (!isValidIdentifier) {
                 //dlog.warning(reference.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER, reference.getReferenceName());
-                int i = 0;
+                int i = 0; //TODO Add warning he re
             }
         });
     }
@@ -225,13 +227,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private boolean validateIdentifier(DiagnosticPos pos,
 								       DocumentableNode documentableNode,
 								       DocumentationReferenceType type,
-								       String id, String packageId,
+								       String packageId, String typeID,
 								       String identifier) {
 
         BSymbol symbol = null;
-        Name identifierName = names.fromString(identifier);
-        Name pckgName = names.fromString(packageId);
-
         //Lookup namespace to validate the identifier
         switch (type) {
             case PARAMETER:
@@ -239,18 +238,61 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 if (documentableNode.getKind() == NodeKind.FUNCTION) {
                     BLangFunction funcNode = (BLangFunction) documentableNode;
                     SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
-                    symbol = symResolver.lookupSymbolInPackage(pos, funcEnv, pckgName, identifierName, SymTag.VARIABLE);
+                    symbol = resolveFullyQualifiedSymbol(pos, funcEnv, packageId, typeID, identifier, SymTag.VARIABLE);
                 }
                 break;
             case SERVICE:
-                symbol = symResolver.lookupSymbolInPackage(pos, this.env, pckgName, identifierName, SymTag.SERVICE);
+                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.SERVICE);
                 break;
 	        case FUNCTION:
-	        	symbol = symResolver.lookupSymbolInPackage(pos, this.env, pckgName, identifierName, SymTag.FUNCTION);
+                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.FUNCTION);
 	        	break;
         }
 
         return symbol != symTable.notFoundSymbol;
+    }
+
+    private BSymbol resolveFullyQualifiedSymbol(DiagnosticPos pos, SymbolEnv env, String packageId, String type,
+                                                String identifier, int tag) {
+        Name identifierName = names.fromString(identifier);
+        Name pkgName = names.fromString(packageId);
+        Name typeName = names.fromString(type);
+        SymbolEnv pkgEnv = env;
+
+        if (pkgName != Names.EMPTY) {
+	        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgName,
+                            names.fromString(pos.getSource().getCompilationUnitName()));
+
+            if (pkgSymbol == symTable.notFoundSymbol) {
+                int i = 0; //TODO Add warning here
+
+                return symTable.notFoundSymbol;
+            }
+
+            pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+        }
+
+        //If there is no type in the reference we need to search in the package level and the current scope only.
+        if(typeName == Names.EMPTY) {
+            return symResolver.lookupSymbolInPackage(pos, env, pkgName, identifierName, tag);
+        }
+
+        //Check for type in the environment
+        BSymbol typeSymbol = symResolver.lookupSymbolInPackage(pos, env, pkgName, typeName, SymTag.TYPE);
+        if (typeSymbol == symTable.notFoundSymbol) {
+            return symTable.notFoundSymbol;
+        }
+
+        if (typeSymbol instanceof BObjectTypeSymbol) {
+            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
+            //If the type is available at the global scope or package level then lets dive in to the scope of the type
+            //`pkgEnv` is `env` if no package was identified or else it's the package's environment
+            String functionID = typeName + "." + identifierName;
+            Name functionName = names.fromString(functionID);
+            return symResolver.lookupMemberSymbol(pos, objectTypeSymbol.methodScope, pkgEnv, functionName, tag);
+        }
+
+        return symTable.notFoundSymbol;
     }
 
     private boolean validateStringForQualifiedIdentifier(String identifierContent,
@@ -328,20 +370,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 	    }
 
         return false;
-    }
-
-    //This function is used to create an identifier string from regex patterns used in
-    //validateStringForQualifiedIdentifier function.
-    private void getIdentifierFromMatch(boolean qualifiedMatch,
-                                        StringBuilder pckgName,
-                                        StringBuilder identifier,
-                                        Matcher matcher) {
-        if (qualifiedMatch) {
-            pckgName.append(matcher.group(1));
-            identifier.append(matcher.group(4));
-        } else {
-            identifier.append(matcher.group(1));
-        }
     }
 
     private void validateParameters(DocumentableNode documentableNode,
