@@ -450,18 +450,27 @@ public class SelectorManager {
 
     /**
      * Stop the selector loop.
+     *
+     * @param graceful whether to shutdown executor gracefully or not
      */
-    public void stop() {
-        synchronized (startStopLock) {
-            try {
-                log.debug("Stopping the selector loop.");
-                executing = false;
-                running = false;
-                selector.wakeup();
-                SocketUtils.shutdownExecutor(executor);
-            } catch (Throwable e) {
-                log.error("Error occurred while stopping the selector loop: " + e.getMessage(), e);
+    public void stop(boolean graceful) {
+        stop();
+        try {
+            if (graceful) {
+                SocketUtils.shutdownExecutorGraceful(executor);
+            } else {
+                SocketUtils.shutdownExecutorImmediately(executor);
             }
+        } catch (Exception e) {
+            log.error("Error occurred while stopping the selector loop: " + e.getMessage(), e);
+        }
+    }
+
+    private void stop() {
+        synchronized (startStopLock) {
+            executing = false;
+            running = false;
+            selector.wakeup();
         }
     }
 }
