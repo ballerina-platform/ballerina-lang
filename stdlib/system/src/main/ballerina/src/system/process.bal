@@ -22,15 +22,15 @@ public type Process object {
 
     private int BUF_SIZE = 10240;
 
-    # Waits for the process to finish its work and exit.
+    # Waits for the process to finish it's work and exit.
     #
     # + return - Returns the exit code for the process, or an `Error` if a failure occurs
     public function waitForExit() returns int|Error = external;
     
-    # Returns the exit code of the process when it finished execution.
+    # Returns the exit code of the process when it has finished the execution.
     # Error if the process has not exited yet.
     #
-    # + return - Returns the exit code of the process, or an `Error` if the process hasn't exited yet.
+    # + return - Returns the exit code of the process, or an `Error` if the process hasn't exited yet
     public function exitCode() returns int|Error = external;
     
     # Destroys the process.

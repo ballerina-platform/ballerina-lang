@@ -25,122 +25,186 @@ public type Detail record {
 
 // Ballerina HTTP Client Error Types
 
-# Resiliency errors
+// Resiliency errors
+# Represents the reason string for the `http:FailoverAllEndpointsFailedError`
 public const FAILOVER_ALL_ENDPOINTS_FAILED = "{ballerina/http}FailoverAllEndpointsFailed";
+# Represents a client error that occurred due to all the failover endpoint failure
 public type FailoverAllEndpointsFailedError error<FAILOVER_ALL_ENDPOINTS_FAILED, Detail>;
 
+# Represents the reason string for the `http:FailoverActionFailedError`
 public const FAILOVER_ENDPOINT_ACTION_FAILED = "{ballerina/http}FailoverEndpointActionFailed";
+# Represents a client error that occurred due to failover action failure
 public type FailoverActionFailedError error<FAILOVER_ENDPOINT_ACTION_FAILED, Detail>;
 
+# Represents the reason string for the `http:UpstreamServiceUnavailableError`
 public const UPSTREAM_SERVICE_UNAVAILABLE = "{ballerina/http}UpstreamServiceUnavailable";
+# Represents a client error that occurred due to upstream service unavailability
 public type UpstreamServiceUnavailableError error<UPSTREAM_SERVICE_UNAVAILABLE, Detail>;
 
+# Represents the reason string for the `http:AllLoadBalanceEndpointsFailedError`
 public const ALL_LOAD_BALANCE_ENDPOINTS_FAILED = "{ballerina/http}AllLoadBalanceEndpointsFailed";
+# Represents a client error that occurred due to all the load balance endpoint failure
 public type AllLoadBalanceEndpointsFailedError error<ALL_LOAD_BALANCE_ENDPOINTS_FAILED, Detail>;
 
+# Represents the reason string for the `http:AllRetryAttemptsFailed`
 public const ALL_RETRY_ATTEMPTS_FAILED = "{ballerina/http}AllRetryAttemptsFailed";
+# Represents a client error that occurred due to all the the retry attempts failure
 public type AllRetryAttemptsFailed error<ALL_RETRY_ATTEMPTS_FAILED, Detail>;
 
+# Represents the reason string for the `http:IdleTimeoutError`
 public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/http}IdleTimeoutError";
+# Represents the error that triggered upon a request/response idle timeout
 public type IdleTimeoutError error<IDLE_TIMEOUT_TRIGGERED, Detail>;
 
-# Security errors
+// Security errors
+# Represents the reason string for the `http:AuthenticationError`
 public const AUTHN_FAILED = "{ballerina/http}AuthenticationFailed";
+# Represents a listener error that occurred due to inbound request authentication failure
 public type AuthenticationError error<AUTHN_FAILED, Detail>;
 
+# Represents the reason string for the `http:AuthorizationError`
 public const AUTHZ_FAILED = "{ballerina/http}AuthorizationFailed";
+# Represents a listener error that occurred due to inbound request authorization failure
 public type AuthorizationError error<AUTHZ_FAILED, Detail>;
 
-# Outbound request errors in client
+// Outbound request errors in client
+# Represents the reason string for the `http:InitializingOutboundRequestError`
 public const INIT_OUTBOUND_REQUEST_FAILED = "{ballerina/http}InitializingOutboundRequestFailed";
+# Represents a client error that occurred due to outbound request initialization failure
 public type InitializingOutboundRequestError error<INIT_OUTBOUND_REQUEST_FAILED, Detail>;
 
+# Represents the reason string for the `http:WritingOutboundRequestHeadersError`
 public const WRITING_OUTBOUND_REQUEST_HEADERS_FAILED = "{ballerina/http}WritingOutboundRequestHeadersFailed";
+# Represents a client error that occurred while writing outbound request headers
 public type WritingOutboundRequestHeadersError error<WRITING_OUTBOUND_REQUEST_HEADERS_FAILED, Detail>;
 
+# Represents the reason string for the `http:WritingOutboundRequestBodyError`
 public const WRITING_OUTBOUND_REQUEST_BODY_FAILED = "{ballerina/http}WritingOutboundRequestBodyFailed";
+# Represents a client error that occurred while writing outbound request entity body
 public type WritingOutboundRequestBodyError error<WRITING_OUTBOUND_REQUEST_BODY_FAILED, Detail>;
 
-# Inbound response errors in client
+// Inbound response errors in client
+# Represents the reason string for the `http:InitializingInboundResponseError`
 public const INIT_INBOUND_RESPONSE_FAILED = "{ballerina/http}InitializingInboundResponseFailed";
+# Represents a client error that occurred due to inbound response initialization failure
 public type InitializingInboundResponseError error<INIT_INBOUND_RESPONSE_FAILED, Detail>;
 
+# Represents the reason string for the `http:ReadingInboundResponseBodyError`
 public const READING_INBOUND_RESPONSE_HEADERS_FAILED = "{ballerina/http}ReadingInboundResponseHeadersFailed";
+# Represents a client error that occurred while reading inbound response headers
 public type ReadingInboundResponseHeadersError error<READING_INBOUND_RESPONSE_HEADERS_FAILED, Detail>;
 
+# Represents the reason string for the `http:ReadingInboundResponseBodyError`
 public const READING_INBOUND_RESPONSE_BODY_FAILED = "{ballerina/http}ReadingInboundResponseBodyFailed";
+# Represents a client error that occurred while reading inbound response entity body
 public type ReadingInboundResponseBodyError error<READING_INBOUND_RESPONSE_BODY_FAILED, Detail>;
 
-# Inbound request errors in listener
+//Inbound request errors in listener
+# Represents the reason string for the `http:InitialingInboundRequestError`
 public const INIT_INBOUND_REQUEST_FAILED = "{ballerina/http}InitializingInboundRequestFailed";
+# Represents a listener error that occurred due to inbound request initialization failure
 public type InitializingInboundRequestError error<INIT_INBOUND_REQUEST_FAILED, Detail>;
 
+# Represents the reason string for the `http:ReadingInboundRequestHeadersError`
 public const READING_INBOUND_REQUEST_HEADERS_FAILED = "{ballerina/http}ReadingInboundRequestHeadersFailed";
+# Represents a listener error that occurred while reading inbound request headers
 public type ReadingInboundRequestHeadersError error<READING_INBOUND_REQUEST_HEADERS_FAILED, Detail>;
 
+# Represents the reason string for the `http:ReadingInboundRequestBodyError`
 public const READING_INBOUND_REQUEST_BODY_FAILED = "{ballerina/http}ReadingInboundRequestBodyFailed";
+# Represents a listener error that occurred while writing the inbound request entity body
 public type ReadingInboundRequestBodyError error<READING_INBOUND_REQUEST_BODY_FAILED, Detail>;
 
-# Outbound response errors in listener
+// Outbound response errors in listener
+# Represents the reason string for the `http:InitializingOutboundResponseError`
 public const INIT_OUTBOUND_RESPONSE_FAILED = "{ballerina/http}InitializingOutboundResponseFailed";
+# Represents a listener error that occurred due to outbound response initialization failure
 public type InitializingOutboundResponseError error<INIT_OUTBOUND_RESPONSE_FAILED, Detail>;
 
+# Represents the reason string for the `http:WritingOutboundResponseHeadersError`
 public const WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED = "{ballerina/http}WritingOutboundResponseHeadersFailed";
+# Represents a listener error that occurred while writing outbound response headers
 public type WritingOutboundResponseHeadersError error<WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED, Detail>;
 
+# Represents the reason string for the `http:WritingOutboundResponseBodyError`
 public const WRITING_OUTBOUND_RESPONSE_BODY_FAILED = "{ballerina/http}WritingOutboundResponseBodyFailed";
+# Represents a listener error that occurred while writing outbound response entity body
 public type WritingOutboundResponseBodyError error<WRITING_OUTBOUND_RESPONSE_BODY_FAILED, Detail>;
 
+# Represents the reason string for the `http:Initiating100ContinueResponseError`
 public const INITIATING_100_CONTINUE_RESPONSE_FAILED = "{ballerina/http}Initializing100ContinueResponseFailed";
+# Represents an error that occurred due to 100 continue response initialization failure
 public type Initiating100ContinueResponseError error<INITIATING_100_CONTINUE_RESPONSE_FAILED, Detail>;
 
+# Represents the reason string for the `http:Writing100ContinueResponseError`
 public const WRITING_100_CONTINUE_RESPONSE_FAILED = "{ballerina/http}Writing100ContinueResponseFailed";
+# Represents an error that occurred while writing 100 continue response
 public type Writing100ContinueResponseError error<WRITING_100_CONTINUE_RESPONSE_FAILED, Detail>;
 
-# Generic errors (mostly to wrap errors from other modules)
+// Generic errors (mostly to wrap errors from other modules)
+# Error reason for generic client error
 public const GENERIC_CLIENT_ERROR = "{ballerina/http}GenericClientError";
+# Represents a generic client error
 public type GenericClientError error<GENERIC_CLIENT_ERROR, Detail>;
 
+# Represents the reason string for the `http:GenericListenerError`
 public const GENERIC_LISTENER_ERROR = "{ballerina/http}GenericListenerError";
+# Represents a generic listener error
 public type GenericListenerError error<GENERIC_LISTENER_ERROR, Detail>;
 
-# Other client-related errors
+// Other client-related errors
+# Represents the reason string for the `http:UnsupportedActionError`
 public const UNSUPPORTED_ACTION = "{ballerina/http}UnsupportedAction";
+# Represents a client error that occurred due to unsupported action invocation
 public type UnsupportedActionError error<UNSUPPORTED_ACTION, Detail>;
 
+# Represents the reason string for the `http:Http2ClientError`
 public const HTTP2_CLIENT_ERROR = "{ballerina/http}Http2ClientError";
+# Represents an HTTP/2 client generic error
 public type Http2ClientError error<HTTP2_CLIENT_ERROR, Detail>;
 
+# Represents the reason string for the `http:MaximumWaitTimeExceededError`
 public const MAXIMUM_WAIT_TIME_EXCEEDED = "{ballerina/http}MaximumWaitTimeExceeded";
+# Represents a client error that occurred exceeding maximum wait time
 public type MaximumWaitTimeExceededError error<MAXIMUM_WAIT_TIME_EXCEEDED, Detail>;
 
+# Represents the reason string for the `http:SslError`
 public const SSL_ERROR = "{ballerina/http}SslError";
+# Represents a client error that occurred due to SSL failure
 public type SslError error<SSL_ERROR, Detail>;
 
-# Ballerina Http Union Errors
-public type ResiliencyError FailoverAllEndpointsFailedError|FailoverActionFailedError|
-                            UpstreamServiceUnavailableError|AllLoadBalanceEndpointsFailedError|AllRetryAttemptsFailed|
-                            IdleTimeoutError;
+// Ballerina Http Union Errors
+# Defines the resiliency error types that returned from client
+public type ResiliencyError FailoverAllEndpointsFailedError | FailoverActionFailedError |
+                            UpstreamServiceUnavailableError | AllLoadBalanceEndpointsFailedError |
+                            AllRetryAttemptsFailed | IdleTimeoutError;
 
+# Defines the Auth error types that returned from client
 public type ClientAuthError AuthenticationError|AuthorizationError;
 
+# Defines the client error types that returned while sending outbound request
 public type OutboundRequestError InitializingOutboundRequestError|WritingOutboundRequestHeadersError|
                             WritingOutboundRequestBodyError;
 
+# Defines the client error types that returned while receiving inbound response
 public type InboundResponseError InitializingInboundResponseError|ReadingInboundResponseHeadersError|
                             ReadingInboundResponseBodyError;
 
+# Defines the listener error types that returned while receiving inbound request
 public type InboundRequestError InitializingInboundRequestError|ReadingInboundRequestHeadersError|
                             ReadingInboundRequestBodyError;
 
+# Defines the listener error types that returned while sending outbound response
 public type OutboundResponseError InitializingOutboundResponseError|WritingOutboundResponseHeadersError|
                             WritingOutboundResponseBodyError|Initiating100ContinueResponseError|
                             Writing100ContinueResponseError;
 
+# Defines the possible client error types
 public type ClientError ResiliencyError|ClientAuthError|OutboundRequestError|
                             InboundResponseError|UnsupportedActionError|Http2ClientError|
                             MaximumWaitTimeExceededError|SslError|GenericClientError;
 
+# Defines the possible listener error types
 public type ListenerError GenericListenerError|InboundRequestError|OutboundResponseError;
 
 function getGenericClientError(string message, error cause) returns GenericClientError {

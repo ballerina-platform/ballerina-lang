@@ -51,7 +51,6 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 public class SocketCompilerPlugin extends AbstractCompilerPlugin {
 
     private static final String INVALID_RESOURCE_SIGNATURE = "Invalid resource signature for %s in service %s. ";
-    private static final String INVALID_RETURN = "Resource should not have any return type.";
     private DiagnosticLog diagnosticLog = null;
 
     @Override

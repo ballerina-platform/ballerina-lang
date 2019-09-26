@@ -41,7 +41,8 @@ public class WebSocketServicesRegistry {
         String basePath = service.getBasePath();
         try {
             basePath = URLDecoder.decode(basePath, StandardCharsets.UTF_8.name());
-            getUriTemplate().parse(basePath, service, new WebSocketDataElementFactory());
+            createUriTemplateIfNull();
+            uriTemplate.parse(basePath, service, new WebSocketDataElementFactory());
         } catch (Exception e) {
             logger.error("Error when registering service", e);
             throw new WebSocketException(e);
@@ -49,10 +50,13 @@ public class WebSocketServicesRegistry {
         logger.info("WebSocketService deployed : {} with context {}", service.getName(), basePath);
     }
 
-    URITemplate<WebSocketService, WebSocketMessage> getUriTemplate() throws URITemplateException {
+    private void createUriTemplateIfNull() throws URITemplateException {
         if (uriTemplate == null) {
             uriTemplate = new URITemplate<>(new Literal<>(new WebSocketDataElement(), "/"));
         }
+    }
+
+    URITemplate<WebSocketService, WebSocketMessage> getUriTemplate() {
         return uriTemplate;
     }
 }

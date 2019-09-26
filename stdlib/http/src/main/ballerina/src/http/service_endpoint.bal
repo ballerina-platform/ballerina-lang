@@ -179,16 +179,16 @@ public type ListenerHttp1Settings record {|
 
 # Authentication configurations for the listener.
 #
-# + authHandlers - An array of inbound authentication handlers or an array consisting of arrays of inbound authentication handlers.
+# + authHandlers - An array of inbound authentication handlers or an array consisting of arrays of inbound authentication handlers
 # An array is used to indicate that at least one of the authentication handlers should be successfully authenticated. An array consisting of arrays
 # is used to indicate that at least one authentication handler from the sub-arrays should be successfully authenticated.
 # + scopes - An array of scopes or an array consisting of arrays of scopes. An array is used to indicate that at least one of the scopes should
 # be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays
-# should successfully be authorozed.
-# + positiveAuthzCache - The caching configurations for positive authorizations.
-# + negativeAuthzCache - The caching configurations for negative authorizations.
-# + mandateSecureSocket - Specify whether secure socket configurations are mandatory or not.
-# + position - The authn/authz filter position of the filter array. The position values starts from 0 and it is set to 0 implicitly.
+# should successfully be authorized
+# + positiveAuthzCache - The caching configurations for positive authorizations
+# + negativeAuthzCache - The caching configurations for negative authorizations
+# + mandateSecureSocket - Specify whether secure socket configurations are mandatory or not
+# + position - The authn/authz filter position of the filter array. The position values starts from 0 and it is set to 0 implicitly
 public type ListenerAuth record {|
     InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
     string[]|string[][] scopes?;
@@ -210,7 +210,7 @@ public type ListenerAuth record {|
 # + certValidation - Certificate validation against CRL or OCSP related options
 # + ciphers - List of ciphers to be used (e.g.: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 #             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
-# + sslVerifyClient - The type of client certificate verification
+# + sslVerifyClient - The type of client certificate verification. (e.g.: "require" or "optional")
 # + shareSession - Enable/disable new SSL session creation
 # + handshakeTimeoutInSeconds - SSL handshake time out
 # + sessionTimeoutInSeconds - SSL session time out

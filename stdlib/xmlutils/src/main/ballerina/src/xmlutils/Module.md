@@ -1,10 +1,11 @@
 ## Module overview
 
-This module provides utility functions to manipulate built-in `xml` data type. This module helps to convert a `json` to an `xml`, or convert a `table` to an `xml`.
+This module provides utility functions to manipulate built-in `xml` data type. 
+It provides APIs to convert a `json` to an `xml`, or convert a `table` to an `xml`.
 
 ### Samples
 
-#### Convert a `json` to an `xml`
+#### Convert a `json` to its `xml` representation
 ```ballerina
 import ballerina/io;
 import ballerina/xmlutils;
@@ -25,7 +26,7 @@ public function main() {
 }
 ```
 
-#### Convert a `table` to an `xml`
+#### Convert a `table` to its `xml` representation
 ```ballerina
 import ballerina/io;
 import ballerina/xmlutils;

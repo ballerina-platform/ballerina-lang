@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -196,12 +197,14 @@ public class PushUtils {
                                               "'ballerina build -c <module_name>' to compile and generate the balo.");
             }
     
-            Optional<Path> moduleBaloFile = Files.list(baloOutputDir)
-                    .filter(baloFile -> null != baloFile.getFileName() &&
-                                        baloFile.getFileName().toString().startsWith(moduleName + "-" +
-                                                                                     IMPLEMENTATION_VERSION))
-                    .findFirst();
-    
+            Optional<Path> moduleBaloFile;
+            try (Stream<Path> baloFilesStream = Files.list(baloOutputDir)) {
+                moduleBaloFile = baloFilesStream.filter(baloFile -> null != baloFile.getFileName() &&
+                        baloFile.getFileName().toString().startsWith(moduleName + "-" +
+                                IMPLEMENTATION_VERSION))
+                        .findFirst();
+            }
+
             if (!moduleBaloFile.isPresent()) {
                 throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
                                               "'ballerina build -c <module_name>' to compile and generate the balo.");
@@ -494,11 +497,15 @@ public class PushUtils {
      */
     public static void pushAllModules(Path sourceRootPath) {
         try {
-            List<String> fileList = Files.list(sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME))
-                                         .filter(path -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
-                                         .map(ProjectDirs::getLastComp)
-                                         .filter(dirName -> !isSpecialDirectory(dirName))
-                                         .map(Path::toString).collect(Collectors.toList());
+            List<String> fileList;
+            try (Stream<Path> moduleDirsStream = Files.list(sourceRootPath
+                    .resolve(ProjectDirConstants.SOURCE_DIR_NAME))) {
+                fileList = moduleDirsStream.filter(path -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
+                        .map(ProjectDirs::getLastComp)
+                        .filter(dirName -> !isSpecialDirectory(dirName))
+                        .map(Path::toString).collect(Collectors.toList());
+            }
+
             if (fileList.size() == 0) {
                 throw createLauncherException("no modules found to push in " + sourceRootPath.toString());
             }

@@ -19,5 +19,8 @@ type Detail record {
     error cause?;
 };
 
+# Represents the LDAP error reason.
 public const LDAP_ERROR = "{ballerina/ldap}Error";
+
+# Represents the LDAP error type with details.
 public type Error error<LDAP_ERROR, Detail>;
