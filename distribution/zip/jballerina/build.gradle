@@ -219,9 +219,9 @@ dependencies {
     balSource project(path: ':ballerina-lang:xml', configuration: 'balSource')
 
     // ballerinax modules
-    balxSource project(path: ':ballerina-jdbc', configuration: 'balSource')
-    balxSource project(path: ':ballerina-java', configuration: 'balSource')
-    balxSource project(path: ':ballerina-java-arrays', configuration: 'balSource')
+    balSource project(path: ':ballerina-jdbc', configuration: 'balSource')
+    balSource project(path: ':ballerina-java', configuration: 'balSource')
+    balSource project(path: ':ballerina-java-arrays', configuration: 'balSource')
 
     dist project(':ballerina-auth')
     dist project(':ballerina-cli-utils')
