@@ -394,7 +394,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
 
-        if (!types.isAnydata(targetType)) {
+        if (!targetType.isAnydata()) {
             dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
             return symTable.invalidUsageSymbol;
         }
@@ -436,7 +436,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
         // Check whether the types are anydata, since conversion is supported only for any data types.
-        if (!isConvertSupportedForSourceType(variableSourceType) || !types.isAnydata(targetType)) {
+        if (!isConvertSupportedForSourceType(variableSourceType) || !targetType.isAnydata()) {
             dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, variableSourceType, targetType);
             return symTable.invalidUsageSymbol;
         }
@@ -1168,7 +1168,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
             return;
         } else if (type.tag == TypeTags.STREAM) {
-            if (!types.isPureType(constraintType)) {
+            if (!constraintType.isPureType()) {
                 dlog.error(constrainedTypeNode.constraint.pos, DiagnosticCode.STREAM_INVALID_CONSTRAINT,
                            constraintType);
                 resultType = symTable.semanticError;

@@ -58,9 +58,10 @@ public class Convert {
         RefValue convertedValue;
         org.ballerinalang.jvm.types.BType targetType;
         if (convertType.getTag() == org.ballerinalang.jvm.types.TypeTags.UNION_TAG) {
+            org.ballerinalang.jvm.types.BUnionType unionType = (org.ballerinalang.jvm.types.BUnionType) convertType;
             List<org.ballerinalang.jvm.types.BType> memberTypes
-                    = new ArrayList<>(((org.ballerinalang.jvm.types.BUnionType) convertType).getMemberTypes());
-            targetType = new org.ballerinalang.jvm.types.BUnionType(memberTypes);
+                    = new ArrayList<>((unionType).getMemberTypes());
+            targetType = new org.ballerinalang.jvm.types.BUnionType(memberTypes, unionType.getTypeFlags());
 
             Predicate<org.ballerinalang.jvm.types.BType> errorPredicate = e -> e.getTag() == TypeTags.ERROR_TAG;
             ((org.ballerinalang.jvm.types.BUnionType) targetType).getMemberTypes().removeIf(errorPredicate);

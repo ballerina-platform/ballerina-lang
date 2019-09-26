@@ -31,6 +31,7 @@ public class BTupleType extends BType {
 
     private List<BType> tupleTypes;
     private BType restType;
+    private int typeFlags;
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
@@ -41,6 +42,26 @@ public class BTupleType extends BType {
         super(null, null, Object.class);
         this.tupleTypes = typeList;
         this.restType = null;
+
+        boolean isAnydata = true, isPureType = true;
+        for (BType memberType : tupleTypes) {
+            isAnydata &= memberType.isAnydata();
+            isPureType &= memberType.isPureType();
+        }
+
+        if (isAnydata) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
+        }
+        if (isPureType) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
+        }
+    }
+
+    public BTupleType(List<BType> typeList, int typeFlags) {
+        super(null, null, Object.class);
+        this.tupleTypes = typeList;
+        this.restType = null;
+        this.typeFlags = typeFlags;
     }
 
     /**
@@ -49,10 +70,11 @@ public class BTupleType extends BType {
      * @param typeList of the tuple type
      * @param restType of the tuple type
      */
-    public BTupleType(List<BType> typeList, BType restType) {
+    public BTupleType(List<BType> typeList, BType restType, int typeFlags) {
         super(null, null, Object.class);
         this.tupleTypes = typeList;
         this.restType = restType;
+        this.typeFlags = typeFlags;
     }
 
     public List<BType> getTupleTypes() {
@@ -103,7 +125,20 @@ public class BTupleType extends BType {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(super.hashCode(), tupleTypes);
+    }
+
+    @Override
+    public boolean isAnydata() {
+        return isPureType();
+    }
+
+    @Override
+    public boolean isPureType() {
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.PURETYPE);
+    }
+
+    public int getTypeFlags() {
+        return this.typeFlags;
     }
 }

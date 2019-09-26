@@ -23,11 +23,24 @@ string[] generatedInitFuncs = [];
 int nextId = -1;
 int nextVarId = -1;
 
+
 bir:BAttachedFunction errorRecInitFunc = {name:{value:"$$<init>"}, funcType:{retType:"()"}, flags:0};
-bir:BRecordType detailRec = {name:{value:"detail"}, sealed:false, restFieldType:"()", initFunction:errorRecInitFunc};
-bir:BErrorType errType = {name:{value:"error"}, moduleId:{org:BALLERINA, name:BUILT_IN_PACKAGE_NAME},
-                                reasonType:bir:TYPE_STRING, detailType:detailRec};
-bir:BUnionType errUnion = {members:["()", errType]};
+bir:BRecordType detailRec = {name:{value: "detail"},
+                                sealed: false,
+                                restFieldType: "()",
+                                initFunction: errorRecInitFunc,
+                                typeFlags: (TYPE_FLAG_ANYDATA | TYPE_FLAG_PURETYPE)
+                            };
+
+bir:BErrorType errType = {name:{value:"error"},
+                            moduleId: {org: BALLERINA, name: BUILT_IN_PACKAGE_NAME},
+                            reasonType: bir:TYPE_STRING,
+                            detailType: detailRec
+                        };
+
+bir:BUnionType errUnion = { members:["()", errType],
+                            typeFlags: (TYPE_FLAG_NILABLE | TYPE_FLAG_PURETYPE)
+                          };
 
 function generateMethod(bir:Function birFunc,
                             jvm:ClassWriter cw,

@@ -109,4 +109,7 @@ public class BMapType extends BType {
         return constraint.equals(other.constraint);
     }
 
+    public boolean isAnydata() {
+        return this.constraint.isPureType();
+    }
 }

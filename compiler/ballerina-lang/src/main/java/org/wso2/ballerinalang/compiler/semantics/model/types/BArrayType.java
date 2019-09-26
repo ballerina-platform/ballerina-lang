@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Optional;
+
 /**
  * @since 0.94
  */
@@ -100,5 +102,10 @@ public class BArrayType extends BType implements ArrayType {
             return (state != BArrayState.UNSEALED) ?
                     sb.append("[").append(tempSize).append("]").toString() : sb.append("[]").toString();
         }
+    }
+
+    @Override
+    public final boolean isAnydata() {
+        return this.eType.isPureType();
     }
 }
