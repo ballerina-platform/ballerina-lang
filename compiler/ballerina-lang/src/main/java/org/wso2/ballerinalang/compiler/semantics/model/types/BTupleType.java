@@ -86,17 +86,18 @@ public class BTupleType extends BType implements TupleType {
 
     @Override
     public final boolean isAnydata() {
-        if (!this.isAnyData.isPresent()) {
-            for (BType memberType : this.tupleTypes) {
-                if (!memberType.isPureType()) {
-                    this.isAnyData = Optional.of(false);
-                    return false;
-                }
-            }
-
-            this.isAnyData = Optional.of(true);
+        if (this.isAnyData.isPresent()) {
+            return this.isAnyData.get();
         }
 
-        return this.isAnyData.get();
+        for (BType memberType : this.tupleTypes) {
+            if (!memberType.isPureType()) {
+                this.isAnyData = Optional.of(false);
+                return false;
+            }
+        }
+
+        this.isAnyData = Optional.of(true);
+        return true;
     }
 }

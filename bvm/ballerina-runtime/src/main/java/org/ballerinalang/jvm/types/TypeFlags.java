@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm.types;
 
 /**
- * This class contains the list of symbol flags.
+ * Class contains types specific flags.
  *
  * @since 1.1.0
  */
