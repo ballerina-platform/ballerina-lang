@@ -327,9 +327,6 @@ task extractBalxLibs(type: Copy) {
 
 task extractBalxBirs(type: Copy) {
     def path = "$buildDir/bir-cache"
-    configurations.balxBir.files.each {
-        println(it)
-    }
     from configurations.balxBir.files
     into path
 }
