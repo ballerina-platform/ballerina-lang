@@ -284,7 +284,7 @@ function initiatorFunc(boolean throw1, boolean throw2,
         log:printInfo("aborted ran");
         S1 = S1 + " aborted-block";
     }
-    if (!isAbort && !(trx_ran_once && !remote2) ) {
+    if (!isAbort && !(trx_ran_once && !remote2)) {
         boolean waitResult = waitForCondition(5000, 20, function () returns boolean { return resourceCommited; });
         if (!waitResult) {
               error err = error("Participants failed to commit");
