@@ -76,7 +76,7 @@ public class BallerinaPathModificationTracker {
                 addPath(s);
             }
         } else {
-            Path caches = Paths.get(SystemProperties.getUserHome(), ".ballerina", "caches", "central.ballerina.io");
+            Path caches = Paths.get(SystemProperties.getUserHome(), ".ballerina", "balo_cache");
             addPath(caches.toString());
         }
 
@@ -177,14 +177,15 @@ public class BallerinaPathModificationTracker {
                         for (VirtualFile file : files) {
                             // If we encounter a zip file with the same name as the package name, we extract it.
                             // This zip file contains the sources.
-                            if (file.getName().equals(packageName + ".zip")) {
-                                try {
-                                    String destinationDirectory = latestVersion.getPath() + File.separator +
-                                            packageName;
-                                    unzip(file.getPath(), destinationDirectory);
-                                } catch (IOException ignored) {
-
-                                }
+                            if (file.getName().contains(packageName) && file.getName().endsWith(".balo")) {
+                                // Todo - Enable after finalizing a proper way to extract module source files
+//                                try {
+//                                    String destinationDirectory = latestVersion.getPath() + File.separator +
+//                                            packageName;
+//                                    unzip(file.getPath(), destinationDirectory);
+//                                } catch (IOException ignored) {
+//
+//                                }
                             }
                         }
                     }
