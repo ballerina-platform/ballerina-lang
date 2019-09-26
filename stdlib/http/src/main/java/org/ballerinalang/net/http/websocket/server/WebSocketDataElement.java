@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http;
+package org.ballerinalang.net.http.websocket.server;
 
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.net.uri.parser.DataReturnAgent;
@@ -25,9 +25,9 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 /**
  * Data element for WebSocket URI template.
  */
-public class WebSocketDataElement implements DataElement<WebSocketService, WebSocketMessage> {
+public class WebSocketDataElement implements DataElement<WebSocketServerService, WebSocketMessage> {
 
-    private WebSocketService webSocketService;
+    private WebSocketServerService webSocketService;
 
     @Override
     public boolean hasData() {
@@ -35,12 +35,12 @@ public class WebSocketDataElement implements DataElement<WebSocketService, WebSo
     }
 
     @Override
-    public void setData(WebSocketService webSocketService) {
+    public void setData(WebSocketServerService webSocketService) {
         this.webSocketService = webSocketService;
     }
 
     @Override
-    public boolean getData(WebSocketMessage inboundMessage, DataReturnAgent<WebSocketService> dataReturnAgent) {
+    public boolean getData(WebSocketMessage inboundMessage, DataReturnAgent<WebSocketServerService> dataReturnAgent) {
         if (webSocketService == null) {
             return false;
         }

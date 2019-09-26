@@ -16,14 +16,16 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http;
+package org.ballerinalang.net.http.websocket.server;
 
-import org.ballerinalang.net.http.exception.WebSocketException;
+import org.ballerinalang.net.http.HttpResourceArguments;
+import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.net.URLDecoder;
@@ -35,13 +37,20 @@ import java.nio.charset.StandardCharsets;
 public class WebSocketServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
-    private URITemplate<WebSocketService, WebSocketMessage> uriTemplate;
+    private URITemplate<WebSocketServerService, WebSocketMessage> uriTemplate;
 
-    public void registerService(WebSocketService service) {
+    public WebSocketServicesRegistry() {
+        try {
+            uriTemplate = new URITemplate<>(new Literal<>(new WebSocketDataElement(), "/"));
+        } catch (URITemplateException e) {
+            // Ignore as it won't be thrown because token length is not zero.
+        }
+    }
+
+    public void registerService(WebSocketServerService service) {
         String basePath = service.getBasePath();
         try {
             basePath = URLDecoder.decode(basePath, StandardCharsets.UTF_8.name());
-            createUriTemplateIfNull();
             uriTemplate.parse(basePath, service, new WebSocketDataElementFactory());
         } catch (Exception e) {
             logger.error("Error when registering service", e);
@@ -50,13 +59,8 @@ public class WebSocketServicesRegistry {
         logger.info("WebSocketService deployed : {} with context {}", service.getName(), basePath);
     }
 
-    private void createUriTemplateIfNull() throws URITemplateException {
-        if (uriTemplate == null) {
-            uriTemplate = new URITemplate<>(new Literal<>(new WebSocketDataElement(), "/"));
-        }
-    }
-
-    URITemplate<WebSocketService, WebSocketMessage> getUriTemplate() {
-        return uriTemplate;
+    public WebSocketServerService findMatching(String path, HttpResourceArguments pathParams,
+                                               WebSocketHandshaker webSocketHandshaker) {
+        return uriTemplate.matches(path, pathParams, webSocketHandshaker);
     }
 }

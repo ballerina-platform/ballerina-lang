@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.compiler.websocket;
 
-import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;

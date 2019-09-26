@@ -16,8 +16,11 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http;
+package org.ballerinalang.net.http.websocket.client;
 
+import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -47,7 +50,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
         try {
-            WebSocketDispatcher.dispatchTextMessage(connectionInfo, webSocketTextMessage);
+            WebSocketResourceDispatcher.dispatchOnText(connectionInfo, webSocketTextMessage);
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
@@ -56,7 +59,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
         try {
-            WebSocketDispatcher.dispatchBinaryMessage(connectionInfo, webSocketBinaryMessage);
+            WebSocketResourceDispatcher.dispatchOnBinary(connectionInfo, webSocketBinaryMessage);
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
@@ -65,7 +68,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
         try {
-            WebSocketDispatcher.dispatchControlMessage(connectionInfo, webSocketControlMessage);
+            WebSocketResourceDispatcher.dispatchOnPingOnPong(connectionInfo, webSocketControlMessage);
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
@@ -74,7 +77,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         try {
-            WebSocketDispatcher.dispatchCloseMessage(connectionInfo, webSocketCloseMessage);
+            WebSocketResourceDispatcher.dispatchOnClose(connectionInfo, webSocketCloseMessage);
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
@@ -82,13 +85,13 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
-        WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+        WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
     }
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         try {
-            WebSocketDispatcher.dispatchIdleTimeout(connectionInfo);
+            WebSocketResourceDispatcher.dispatchOnIdleTimeout(connectionInfo);
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }

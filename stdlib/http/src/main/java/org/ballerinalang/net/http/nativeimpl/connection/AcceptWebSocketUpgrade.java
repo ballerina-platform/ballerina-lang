@@ -25,13 +25,16 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.WebSocketConnectionManager;
-import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketService;
-import org.ballerinalang.net.http.WebSocketUtil;
-import org.ballerinalang.net.http.exception.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.server.WebSocketConnectionManager;
+import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 /**
@@ -65,7 +68,7 @@ public class AcceptWebSocketUpgrade {
                 return null;
             }
 
-            WebSocketService webSocketService = (WebSocketService) connectionObj.getNativeData(
+            WebSocketServerService webSocketService = (WebSocketServerService) connectionObj.getNativeData(
                     WebSocketConstants.WEBSOCKET_SERVICE);
 
             DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
@@ -74,8 +77,12 @@ public class AcceptWebSocketUpgrade {
                 httpHeaders.add(key.toString(), headers.get(key.toString()));
             }
 
-            WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker,
-                                          callback);
+            ServerHandshakeFuture future = webSocketHandshaker.handshake(
+                    webSocketService.getNegotiableSubProtocols(), webSocketService.getIdleTimeoutInSeconds() * 1000,
+                    httpHeaders, webSocketService.getMaxFrameSize());
+
+            future.setHandshakeListener(
+                    new AcceptUpgradeHandshakeListener(webSocketService, connectionManager, callback));
         } catch (Exception e) {
             log.error("Error when upgrading to WebSocket", e);
             callback.notifyFailure(WebSocketUtil.createErrorByType(e));
@@ -83,6 +90,38 @@ public class AcceptWebSocketUpgrade {
         return null;
     }
 
+
     private AcceptWebSocketUpgrade() {
+    }
+
+    private static class AcceptUpgradeHandshakeListener implements ServerHandshakeListener {
+        private final WebSocketServerService webSocketService;
+        private final WebSocketConnectionManager connectionManager;
+        private final NonBlockingCallback callback;
+
+        AcceptUpgradeHandshakeListener(
+                WebSocketServerService webSocketService, WebSocketConnectionManager connectionManager,
+                NonBlockingCallback callback) {
+            this.webSocketService = webSocketService;
+            this.connectionManager = connectionManager;
+            this.callback = callback;
+        }
+
+        @Override
+        public void onSuccess(WebSocketConnection webSocketConnection) {
+            ObjectValue webSocketEndpoint = WebSocketUtil.createAndPopulateWebSocketCaller(
+                    webSocketConnection, webSocketService, connectionManager);
+            callback.setReturnValues(webSocketEndpoint);
+            callback.notifySuccess();
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            String msg = "WebSocket handshake failed: ";
+            log.error(msg, throwable);
+            callback.notifyFailure(
+                    new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
+                                           msg + throwable.getMessage()));
+        }
     }
 }

@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.net.http;
+package org.ballerinalang.net.http.websocket;
 
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -25,11 +25,11 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 /**
  * Empty callback impl for web socket.
  */
-public class WebSocketResourceCallableUnitCallback implements CallableUnitCallback {
+public class WebSocketResourceCallback implements CallableUnitCallback {
 
     private final WebSocketConnection webSocketConnection;
 
-    WebSocketResourceCallableUnitCallback(WebSocketConnection webSocketConnection) {
+    WebSocketResourceCallback(WebSocketConnection webSocketConnection) {
         this.webSocketConnection = webSocketConnection;
     }
 
@@ -40,7 +40,7 @@ public class WebSocketResourceCallableUnitCallback implements CallableUnitCallba
 
     @Override
     public void notifyFailure(ErrorValue error) {
-        ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
+        ErrorHandlerUtils.printError(error.getPrintableStackTrace());
         WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
     }
 
