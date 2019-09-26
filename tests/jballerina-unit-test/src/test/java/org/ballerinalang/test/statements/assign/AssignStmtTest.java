@@ -152,6 +152,15 @@ public class AssignStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test action result assignment with variable destructure")
+    public void restActionResultAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "restActionResultAssignment");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertEquals(returns[2].stringValue(), "a");
+        Assert.assertEquals(returns[3].stringValue(), "the error reason");
+    }
+
     @Test(description = "Test assignment statement with errors")
     public void testAssignmentNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 13);
