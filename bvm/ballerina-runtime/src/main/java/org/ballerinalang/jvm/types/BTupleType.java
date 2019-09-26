@@ -69,6 +69,7 @@ public class BTupleType extends BType {
      *
      * @param typeList of the tuple type
      * @param restType of the tuple type
+     * @param typeFlags flags associated with the type
      */
     public BTupleType(List<BType> typeList, BType restType, int typeFlags) {
         super(null, null, Object.class);
@@ -130,7 +131,7 @@ public class BTupleType extends BType {
 
     @Override
     public boolean isAnydata() {
-        return isPureType();
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.ANYDATA);
     }
 
     @Override

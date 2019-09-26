@@ -96,18 +96,19 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     @Override
-    public final boolean isAnydata() {
-        if (!this.isAnyData.isPresent()) {
-            for (BLangExpression value : this.valueSpace) {
-                if (!value.type.isAnydata()) {
-                    this.isAnyData = Optional.of(false);
-                    return false;
-                }
-            }
-
-            this.isAnyData = Optional.of(true);
+    public boolean isAnydata() {
+        if (this.isAnyData.isPresent()) {
+            return this.isAnyData.get();
         }
 
-        return this.isAnyData.get();
+        for (BLangExpression value : this.valueSpace) {
+            if (!value.type.isAnydata()) {
+                this.isAnyData = Optional.of(false);
+                return false;
+            }
+        }
+
+        this.isAnyData = Optional.of(true);
+        return true;
     }
 }

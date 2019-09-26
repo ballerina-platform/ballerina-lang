@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 /**
+ * Class contains types specific flags.
+ * 
  * @since 1.1.0
  */
 public class TypeFlags {
