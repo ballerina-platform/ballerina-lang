@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
+import ballerina/stringutils;
 
 // ReservedNames lists reserved Windows names.
 // https://docs.microsoft.com/en-us/windows/desktop/fileio/naming-a-file for details.
@@ -27,7 +27,7 @@ function isWindowsReservedName(string path) returns boolean {
         return false;
     }
     foreach string word in WINDOWS_RESERVED_WORDS {
-        if (internal:equalsIgnoreCase(word, path)) {
+        if (stringutils:equalsIgnoreCase(word, path)) {
             return true;
         }
     }
@@ -54,7 +54,7 @@ function buildWindowsPath(string... parts) returns string|Error {
     if (firstNonEmptyPart.length() == 2) {
         string c0 = check charAt(firstNonEmptyPart, 0);
         string c1 = check charAt(firstNonEmptyPart, 1);
-        if (isLetter(c0) && internal:equalsIgnoreCase(c1, ":")) {
+        if (isLetter(c0) && stringutils:equalsIgnoreCase(c1, ":")) {
             // First element is driver letter without terminating slash.
             i = i + 1;
             while (i < count) {
@@ -136,18 +136,18 @@ function getWindowsRoot(string input) returns [string, int]|Error {
         if (isSlash(c0) && isSlash(c1)) {
             boolean unc = check isUNC(input);
             if (!unc) {
-                return prepareError(message = "Invalid UNC path: " + input);
+                return prepareError(UNC_PATH_ERROR, "Invalid UNC path: " + input);
             }
             offset = check nextNonSlashIndex(input, next, length);
             next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
-                return prepareError(message = "Hostname is missing in UNC path: " + input);
+                return prepareError(UNC_PATH_ERROR, "Hostname is missing in UNC path: " + input);
             }
             string host = input.substring(offset, next);  //host
             offset = check nextNonSlashIndex(input, next, length);
             next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
-                return prepareError(message = "Sharename is missing in UNC path: " + input);
+                return prepareError(UNC_PATH_ERROR, "Sharename is missing in UNC path: " + input);
             }
             //TODO remove dot from expression. added because of formatting issue #13872.
             root = "\\\\" + host + "\\" + input.substring(offset, next) + "\\";
@@ -156,7 +156,7 @@ function getWindowsRoot(string input) returns [string, int]|Error {
             root = "\\";
             offset = 1;
         } else {
-            if (isLetter(c0) && internal:equalsIgnoreCase(c1, ":")) {
+            if (isLetter(c0) && stringutils:equalsIgnoreCase(c1, ":")) {
                 if (input.length() > 2 && isSlash(check charAt(input, 2))) {
                     string c2 = check charAt(input, 2);
                     if (c2 == "\\") {

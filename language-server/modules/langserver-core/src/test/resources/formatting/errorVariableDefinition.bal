@@ -1,7 +1,7 @@
-type SMS error <string, map<string>>;
-type SMA error <string, map<anydata>>;
-type CMS error <string, map<string>>;
-type CMA error <string, map<anydata>>;
+type SMS error <string, record {| string message?; error cause?; string...; |}>;
+type SMA error <string, record {| string message?; error cause?; anydata...; |}>;
+type CMS error <string, record {| string message?; error cause?; string...; |}>;
+type CMA error <string, record {| string message?; error cause?; anydata...; |}>;
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
@@ -35,43 +35,43 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
 }
 
 function testErrorBindingPattern() returns string {
-    error <string, map<string>> err1 = error (   "Error Code",   message  =  "Msg" );
+    error <string, record {|string message?; error cause?; string...;|}> err1 = error (   "Error Code",   message  =  "Fatal" );
     [ string , map<any> ]|error t1 = err1;
     match t1 {
-           var [ reason , detail ] =>    return  "Matched with tuple : "  +   reason   +  " "  +  "io:sprintf(\"%s\", detail)" ;
-    error( var reason ,  message=message )  =>  return  "Matched with error : " +  reason  + " {\"message\":\"" + <string>message + "\"}" ;
+           var [ reason , detail ] =>   { return  "Matched with tuple : "  +   reason   +  " "  +  "io:sprintf(\"%s\", detail)" ; }
+    error( var reason ,  message=message )  => { return  "Matched with error : " +  reason  + " {\"message\":\"" + <string>message + "\"}" ; }
     }
 
     return "";
 }
 
 function testErrorBindingPattern2() returns string{
-    error<string, map<string>> err1 = error("Error Code", message = "Msg");
+    error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Msg");
     [string, map<any>] | error t1 = err1;
     match t1 {
-   var[ reason , detail]    =>    return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
-             var       error    (    reason   ,message=     message   )  =>  return  "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
+   var[ reason , detail]    =>   { return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";}
+             var       error    (    reason   ,message=     message   )  =>  {return  "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";}
     }
 
     return "";
 }
 
 function testErrorBindingPattern3() returns string {
-    error<string, map<string>> err1 = error("Error Code", message = "Msg");
+    error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Msg");
     [string, map<any>] | error t1 = err1;
     match t1 {
-      var [reason, detail] => return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
-          error   (   var    reason,message   =   message,...  var  details1  ) => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
+      var [reason, detail] => { return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)"; }
+          error   (   var    reason,message   =   message,...    var   details1  ) => {return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}"; }
     }
 
     return "";
 }
 
 function testErrorBindingPattern4() returns string {
-    error<string, map<string>> err1 = error("Error Code", message = "Msg");
+    error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Msg");
     [string, map<any>] | error t1 = err1;
     match t1 {
-        var [reason, detail] => return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
+        var [reason, detail] => { return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)"; }
         error
                 (
   var
@@ -80,17 +80,17 @@ function testErrorBindingPattern4() returns string {
              message
    =
               message
-    )    => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
+    )    => {return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";}
     }
 
     return "";
 }
 
 function testErrorBindingPattern5() returns string {
-    error<string, map<string>> err1 = error("Error Code", message = "Msg");
+    error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Msg");
     [string, map<any>] | error t1 = err1;
     match t1 {
-        var [reason, detail] => return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
+        var [reason, detail] => { return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)"; }
   var
               error (
                    reason
@@ -98,17 +98,17 @@ function testErrorBindingPattern5() returns string {
               message
    =
             message
-     )    => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
+     )    => {return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";}
     }
 
     return "";
 }
 
 function testErrorBindingPattern6() returns string {
-    error<string, map<string>> err1 = error("Error Code", message = "Msg");
+    error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Msg");
     [string, map<any>] | error t1 = err1;
     match t1 {
-        var [reason, detail] => return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
+        var [reason, detail] => {return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";}
              error
   (
                 var
@@ -118,10 +118,30 @@ function testErrorBindingPattern6() returns string {
      =
             message,
    ...
-          var
-             details1
-     ) => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
+           var
+                 details1
+     ) => {return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}"; }
     }
 
     return "";
+}
+
+function testIndirectErrorVariableDef1() {
+    SMS e = error("the reason", message = "msg"); var    SMS( message= message ,other = other ,...rest) = e;
+}
+
+function testIndirectErrorVariableDef2() {
+    SMS e = error("the reason", message = "msg");
+ var
+              SMS
+               (
+ message = message
+        ,
+ other = other
+                ,
+ ...rest
+       )
+            =
+ e
+              ;
 }

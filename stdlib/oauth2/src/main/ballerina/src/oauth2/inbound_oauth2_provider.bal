@@ -16,8 +16,8 @@
 
 import ballerina/auth;
 import ballerina/http;
-import ballerina/internal;
 import ballerina/mime;
+import ballerina/stringutils;
 
 # Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
@@ -37,7 +37,7 @@ public type InboundOAuth2Provider object {
 
     # Attempts to authenticate with credential.
     #
-    # + credential - Credential
+    # + credential - Credential to be authenticated
     # + return - `true` if authentication is successful, otherwise `false` or `auth:Error` if an error occurred
     public function authenticate(string credential) returns boolean|auth:Error {
         if (credential == "") {
@@ -87,7 +87,7 @@ public type InboundOAuth2Provider object {
 # + return - Array of groups for the user denoted by the username
 public function getScopes(string scopes) returns string[] {
     string scopeVal = scopes.trim();
-    return internal:split(scopeVal, " ");
+    return stringutils:split(scopeVal, " ");
 }
 
 # Represents introspection server onfigurations.
@@ -98,6 +98,6 @@ public function getScopes(string scopes) returns string[] {
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
-    http:ClientEndpointConfig clientConfig = {};
+    http:ClientConfiguration clientConfig = {};
 |};
 

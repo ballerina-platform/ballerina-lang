@@ -31,31 +31,49 @@ import org.testng.annotations.Test;
 public class ForeachNegativeTests {
 
     @Test
-    public void testSemanticErrors() {
-        CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 14);
+    public void testForeachSemanticsNegative() {
+        CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-semantics-negative.bal");
+        Assert.assertEquals(compile.getErrorCount(), 21);
         int index = 0;
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 4, 17);
+                "'string' in type definition", 37, 17);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 13, 17);
-        BAssertUtil.validateError(compile, index++, "redeclared symbol 'i'", 13, 18);
-        BAssertUtil.validateError(compile, index++, "redeclared symbol 's'", 13, 21);
+                "'string' in type definition", 46, 17);
+        BAssertUtil.validateError(compile, index++, "redeclared symbol 'i'", 46, 18);
+        BAssertUtil.validateError(compile, index++, "redeclared symbol 's'", 46, 21);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 20, 17);
-        BAssertUtil.validateError(compile, index++, "undefined symbol 'i'", 23, 13);
-        BAssertUtil.validateError(compile, index++, "incompatible types: 'int' is not an iterable collection", 28,
+                "'string' in type definition", 53, 17);
+        BAssertUtil.validateError(compile, index++, "undefined symbol 'i'", 56, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: 'int' is not an iterable collection", 61,
                 22);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 41, 17);
+                "'string' in type definition", 74, 17);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 49, 17);
+                "'string' in type definition", 82, 17);
         BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'json' in type definition", 58, 17);
-        BAssertUtil.validateError(compile, index++, "unreachable code", 71, 9);
-        BAssertUtil.validateError(compile, index++, "unreachable code", 76, 9);
-        BAssertUtil.validateError(compile, index++, "continue cannot be used outside of a loop", 78, 5);
-        BAssertUtil.validateError(compile, index, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 84, 17);
+                "'json' in type definition", 91, 17);
+        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
+                "'string' in type definition", 117, 17);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 127, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'reason'", 146, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'fatal'", 147, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'message'", 148, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'id'", 156, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'name'", 157, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'salary'", 158, 9);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 169, 13);
+        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 183, 13);
+        BAssertUtil.validateError(compile, index, "cannot assign a value to final 'status'", 198, 9);
+    }
+
+    @Test
+
+    public void testForeachNegative() {
+        CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-negative.bal");
+        Assert.assertEquals(compile.getErrorCount(), 3);
+        int index = 0;
+        BAssertUtil.validateError(compile, index++, "unreachable code", 8, 9);
+        BAssertUtil.validateError(compile, index++, "unreachable code", 13, 9);
+        BAssertUtil.validateError(compile, index, "continue cannot be used outside of a loop", 15, 5);
     }
 }

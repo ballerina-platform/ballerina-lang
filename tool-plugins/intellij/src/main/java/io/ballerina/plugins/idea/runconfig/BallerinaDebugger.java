@@ -85,9 +85,11 @@ public class BallerinaDebugger extends GenericProgramRunner {
                 public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
                     // Get the host address.
                     String host = NetUtils.getLocalHostString();
+                    // We need to pass the debug entry point to the debug adapter.
+                    String entryFilePath = ((BallerinaApplicationRunningState) state).getConfiguration().getFilePath();
                     // Create a new connector. This will be used to communicate with the debugger.
                     BallerinaDAPClientConnector ballerinaDebugSession = new BallerinaDAPClientConnector(
-                            env.getProject(), host, port);
+                            env.getProject(), entryFilePath, host, port);
                     BallerinaDebugProcess process = new BallerinaDebugProcess(session, ballerinaDebugSession,
                             getExecutionResults(state, env));
                     ballerinaDebugSession.setContext(process);
@@ -97,7 +99,6 @@ public class BallerinaDebugger extends GenericProgramRunner {
         } else if (state instanceof BallerinaTestRunningState) {
             FileDocumentManager.getInstance().saveAllDocuments();
             BallerinaHistoryProcessListener historyProcessListener = new BallerinaHistoryProcessListener();
-
             int port = findFreePort();
 
             FileDocumentManager.getInstance().saveAllDocuments();
@@ -111,9 +112,11 @@ public class BallerinaDebugger extends GenericProgramRunner {
                 public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
                     // Get the host address.
                     String host = NetUtils.getLocalHostString();
+                    // We need to pass the debug entry point to the debug adapter.
+                    String entryFilePath = ((BallerinaTestRunningState) state).getConfiguration().getFilePath();
                     // Create a new connector. This will be used to communicate with the debugger.
                     BallerinaDAPClientConnector ballerinaDebugSession = new BallerinaDAPClientConnector(
-                            env.getProject(), host, port);
+                            env.getProject(), entryFilePath, host, port);
                     BallerinaDebugProcess process = new BallerinaDebugProcess(session, ballerinaDebugSession,
                             getExecutionResults(state, env));
                     ballerinaDebugSession.setContext(process);
@@ -132,9 +135,11 @@ public class BallerinaDebugger extends GenericProgramRunner {
                     if (address == null || address.getLeft().isEmpty()) {
                         throw new ExecutionException("Invalid remote address.");
                     }
+                    // We need to pass the debug entry point to the debug adapter.
+                    String entryFilePath = ((BallerinaRemoteRunningState) state).getConfiguration().getFilePath();
                     // Create a new connector. This will be used to communicate with the debugger.
                     BallerinaDAPClientConnector ballerinaDebugSession = new BallerinaDAPClientConnector(
-                            env.getProject(), address.getLeft(), address.getRight());
+                            env.getProject(), entryFilePath, address.getLeft(), address.getRight());
                     BallerinaDebugProcess process = new BallerinaDebugProcess(session, ballerinaDebugSession, null);
                     ballerinaDebugSession.setContext(process);
                     return process;

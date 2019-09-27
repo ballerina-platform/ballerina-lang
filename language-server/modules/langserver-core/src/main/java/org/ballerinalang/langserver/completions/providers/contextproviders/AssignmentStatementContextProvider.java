@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -64,12 +65,8 @@ public class AssignmentStatementContextProvider extends LSCompletionProvider {
                 .map(symbolInfo -> symbolInfo.getScopeEntry().symbol)
                 .filter(symbol -> symbol instanceof BVarSymbol)
                 .findFirst();
-
-        if (!lhsTokenSymbol.isPresent()) {
-            return completionItems;
-        }
         
-        if (newTokenIndex >= 0) {
+        if (lhsTokenSymbol.isPresent() && newTokenIndex >= 0) {
             return getCompletionsAfterNewKW(lhsTokenSymbol.get(), ctx);
         }
 
@@ -81,7 +78,7 @@ public class AssignmentStatementContextProvider extends LSCompletionProvider {
             return this.getProvider(InvocationOrFieldAccessContextProvider.class).getCompletions(ctx);
         }
 
-        if (lhsTokenSymbol.get().type.tsymbol instanceof BObjectTypeSymbol) {
+        if (lhsTokenSymbol.isPresent() && lhsTokenSymbol.get().type.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) lhsTokenSymbol.get().type.tsymbol;
             BInvokableSymbol initFunction = objectTypeSymbol.initializerFunc.symbol;
             Pair<String, String> newSign = getFunctionInvocationSignature(initFunction, CommonKeys.NEW_KEYWORD_KEY,
@@ -96,7 +93,20 @@ public class AssignmentStatementContextProvider extends LSCompletionProvider {
         filteredList.removeIf(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol);
         completionItems.addAll(this.getCompletionItemList(filteredList, ctx));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
+        fillStaticItems(completionItems, ctx);
         return completionItems;
+    }
+    
+    private void fillStaticItems(List<CompletionItem> completionItems, LSContext context) {
+        // Add the wait keyword
+        CompletionItem waitKeyword = Snippet.KW_WAIT.get().build(context);
+        completionItems.add(waitKeyword);
+        // Add the start keyword
+        CompletionItem startKeyword = Snippet.KW_START.get().build(context);
+        completionItems.add(startKeyword);
+        // Add the flush keyword
+        CompletionItem flushKeyword = Snippet.KW_FLUSH.get().build(context);
+        completionItems.add(flushKeyword);
     }
     
     private List<CompletionItem> getCompletionsAfterNewKW(BSymbol lhsSymbol, LSContext context) {

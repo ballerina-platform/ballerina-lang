@@ -27,8 +27,13 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
+ * <p>
  * The {@link StreamValue} represents a stream in Ballerina.
- *
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ * 
  * @since 0.995.0
  */
 public class StreamValue implements RefValue {
@@ -54,7 +59,7 @@ public class StreamValue implements RefValue {
         return streamId;
     }
 
-    public String stringValue() {
+    public String stringValue(Strand strand) {
         return "stream " + streamId + " " + getType().toString();
     }
 

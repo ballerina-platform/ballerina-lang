@@ -19,17 +19,23 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.JSONDataSource;
 import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
 /**
+ * <p>
  * {@link StreamingJsonValue} represent a JSON array generated from a {@link JSONDataSource}.
- * 
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ *  
  * @since 0.981.0
  */
 public class StreamingJsonValue extends ArrayValue {
@@ -93,7 +99,7 @@ public class StreamingJsonValue extends ArrayValue {
             gen.writeEndArray();
             gen.flush();
         } catch (IOException e) {
-            throw new BallerinaException("error occurred while serializing data", e);
+            throw JSONUtils.createJsonConversionError(e, "error occurred while serializing data");
         }
     }
 
@@ -124,6 +130,15 @@ public class StreamingJsonValue extends ArrayValue {
     }
 
     @Override
+    public String stringValue(Strand strand) {
+        if (datasource.hasNext()) {
+            buildDatasource();
+        }
+
+        return super.stringValue(strand);
+    }
+
+    @Override
     public int size() {
         if (datasource.hasNext()) {
             buildDatasource();
@@ -141,7 +156,7 @@ public class StreamingJsonValue extends ArrayValue {
                 appendToCache(datasource.next());
             }
         } catch (Throwable t) {
-            throw new BallerinaException("error occurred while building JSON: ", t);
+            throw JSONUtils.createJsonConversionError(t, "error occurred while building JSON");
         }
     }
 

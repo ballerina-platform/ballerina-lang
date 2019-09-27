@@ -1,11 +1,8 @@
 ## Module overview
 
-This module contains functions to retrieve information about the system and the current users of the system.
+This module provides functions to retrieve information about the system and the current users of the system.
 
-* It provides information such as environment variables, username, user home directory path, and the current working
-directory.
-
-## Samples
+## Sample
 
 The sample given below uses the functions in the module to get the system-level information.
 
@@ -23,7 +20,7 @@ public function main() {
     // Get the user home path.
     io:println("User home: " + system:getUserHome());  // E.g. “/home/john”
 
-    // Execute an OS command as a subprocess
-    system:Process|system:Error proc = check system:exec("ls", {}, "/", "-la");
+    // Execute an OS command as a subprocess.
+    system:Process|system:Error proc = checkpanic system:exec("ls", {}, "/", "-la");
 }
 ```

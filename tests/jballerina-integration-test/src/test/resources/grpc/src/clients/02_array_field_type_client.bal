@@ -220,7 +220,7 @@ public type HelloWorldBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -364,7 +364,7 @@ public type HelloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -423,37 +423,37 @@ public type HelloWorldClient client object {
 };
 
 
-type TestInt record {
+public type TestInt record {
     int[] values = [];
 
 };
 
-type TestString record {
+public type TestString record {
     string[] values = [];
 
 };
 
-type TestFloat record {
+public type TestFloat record {
     float[] values = [];
 
 };
 
-type TestBoolean record {
+public type TestBoolean record {
     boolean[] values = [];
 
 };
 
-type TestStruct record {
+public type TestStruct record {
     A[] values = [];
 
 };
 
-type A record {
+public type A record {
     string name = "";
 
 };
 
-type Empty record {
+public type Empty record {
 
 };
 

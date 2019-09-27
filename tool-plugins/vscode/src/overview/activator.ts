@@ -16,27 +16,35 @@
  * under the License.
  *
  */
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
 import * as _ from 'lodash';
 
 import { BallerinaExtension, ExtendedLangClient, ConstructIdentifier, ballerinaExtInstance } from '../core';
 import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChangeEvent, 
 	workspace, WebviewPanel } from 'vscode';
 
-import {render} from './renderer';
+import { render } from './renderer';
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
-import { TM_EVENT_OPEN_PROJECT_OVERVIEW_VIA_CMD, CMP_PROJECT_OVERVIEW } from '../telemetry';
+import { TM_EVENT_OPEN_FILE_OVERVIEW, CMP_FILE_OVERVIEW } from '../telemetry';
+import * as path from 'path';
+import * as os from 'os';
+import * as fs from 'fs';
 
 const DEBOUNCE_WAIT = 500;
 
-let overviewPanel: WebviewPanel | undefined;
-let rpcHandler: WebViewRPCHandler;
+let projectOverviewPanel: WebviewPanel | undefined;
+let fileOverviewPanel: WebviewPanel | undefined;
+let projectOverviewRpcHandler: WebViewRPCHandler;
+let fileOverviewRpcHandler: WebViewRPCHandler;
 
-function updateWebView(docUri: Uri): void {
-	if (rpcHandler) {
-		rpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => {});
+function updateProjectOverview(docUri: Uri): void {
+	if (projectOverviewRpcHandler) {
+		projectOverviewRpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => {});
+	}
+}
+
+function updateFileOverview(docUri: Uri): void {
+	if (fileOverviewRpcHandler) {
+		fileOverviewRpcHandler.invokeRemoteMethod("updateAST", [docUri.toString()], () => {});
 	}
 }
 
@@ -47,117 +55,110 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 	function updateSelectedConstruct(construct: ConstructIdentifier) {
 		// If Project Overview is already showing update it to show the selected construct
-		if (overviewPanel) {
-			if (rpcHandler) {
-				const { moduleName, constructName, subConstructName } = construct;
-				rpcHandler.invokeRemoteMethod("selectConstruct", [moduleName, constructName, subConstructName], () => {});
+		if (projectOverviewPanel) {
+			if (projectOverviewRpcHandler) {
+				const { sourceRoot, filePath, moduleName, constructName, subConstructName } = construct;
+				projectOverviewRpcHandler.invokeRemoteMethod("selectConstruct", [
+					sourceRoot, filePath, moduleName, constructName, subConstructName], () => {});
 			}
-			overviewPanel.reveal();
 		} else {
 			// If Project Overview is not yet opened open it and show the selected construct
-			openWebView(context, langClient, construct);
+			openProjectOverview(langClient, construct);
 		}
 	}
 
 	ballerinaExtInstance.onProjectTreeElementClicked((construct) => {
+		if (projectOverviewPanel) {
+			projectOverviewPanel.reveal();
+		}
 		updateSelectedConstruct(construct);
 	});
 
-	const projectOverviewDisposable = commands.registerCommand('ballerina.showProjectOverview', () => {
-		reporter.sendTelemetryEvent(TM_EVENT_OPEN_PROJECT_OVERVIEW_VIA_CMD, { component: CMP_PROJECT_OVERVIEW });
+	const fileOverviewDisposable = commands.registerCommand('ballerina.showFileOverview', () => {
+		reporter.sendTelemetryEvent(TM_EVENT_OPEN_FILE_OVERVIEW, { component: CMP_FILE_OVERVIEW });
 		return ballerinaExtInstance.onReady()
 		.then(() => {
-			openWebView(context, langClient);
+			openFileOverview(langClient);
 		}).catch((e) => {
-			reporter.sendTelemetryException(e, { component: CMP_PROJECT_OVERVIEW });
+			reporter.sendTelemetryException(e, { component: CMP_FILE_OVERVIEW });
 		});
 	});
-    context.subscriptions.push(projectOverviewDisposable);
+
+    context.subscriptions.push(fileOverviewDisposable);
 }
 
-function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, construct?: ConstructIdentifier) {
-	if (!window.activeTextEditor) {
-		return;
-	}
-	let currentFilePath = window.activeTextEditor.document.fileName;
-	let sourceRoot = getSourceRoot(currentFilePath, path.parse(currentFilePath).root);
-
-	const options : {
-		currentUri: string,
-		sourceRootUri?: string,
-		construct?: ConstructIdentifier
-	} = {
-		currentUri: Uri.file(currentFilePath).toString(),
-		construct,
-	};
-
-	if (sourceRoot) {
-		options.sourceRootUri = Uri.file(sourceRoot).toString();
-	}
-
-	const didChangeDisposable = workspace.onDidChangeTextDocument(
-		_.debounce((e: TextDocumentChangeEvent) => {
-		updateWebView( e.document.uri);
-	}, DEBOUNCE_WAIT));
-
-	const didChangeActiveEditorDisposable = window.onDidChangeActiveTextEditor((activeEditor) => {
-		if (!(activeEditor && activeEditor.document && activeEditor.document.languageId === "ballerina")) {
-			return;
-		}
-
-		const newCurrentFilePath = activeEditor.document.fileName;
-		const newSourceRoot = getSourceRoot(newCurrentFilePath, path.parse(newCurrentFilePath).root);
-	
-		const newOptions : {
-			currentUri: string,
-			sourceRootUri?: string,
-			construct?: ConstructIdentifier
-		} = {
-			currentUri: Uri.file(newCurrentFilePath).toString(),
-		};
-
-		let shouldRerender = false;
-		if (newSourceRoot) {
-			shouldRerender = sourceRoot !== newSourceRoot;
-			newOptions.sourceRootUri = Uri.file(newSourceRoot).toString();
-		} else {
-			shouldRerender = currentFilePath !== newCurrentFilePath;
-		}
-
-		if (shouldRerender) {
-			currentFilePath = newCurrentFilePath;
-			sourceRoot = newSourceRoot;
-			const html = render(context, langClient, newOptions);
-			if (overviewPanel && html) {
-				overviewPanel.webview.html = html;
-			}
-		}
-	});
-
-	if (!overviewPanel) {
-		overviewPanel = window.createWebviewPanel(
+function openProjectOverview(langClient: ExtendedLangClient, construct: ConstructIdentifier) {
+	if (!projectOverviewPanel) {
+		projectOverviewPanel = window.createWebviewPanel(
 			'projectOverview',
 			'Project Overview',
 			{ viewColumn: ViewColumn.One, preserveFocus: true },
 			getCommonWebViewOptions()
 		);
 
-		ballerinaExtInstance.addWebviewPanel("overview", overviewPanel);
+		ballerinaExtInstance.addWebviewPanel("overview", projectOverviewPanel);
 	}
 
-	const editor = window.activeTextEditor;
-	if(!editor) {
+	projectOverviewRpcHandler = WebViewRPCHandler.create(projectOverviewPanel, langClient);
+	const html = render(construct.sourceRoot, construct.filePath, construct);
+	if (projectOverviewPanel && html) {
+		projectOverviewPanel.webview.html = html;
+	}
+
+	const didChangeDisposable = workspace.onDidChangeTextDocument(
+		_.debounce((e: TextDocumentChangeEvent) => {
+		updateProjectOverview(e.document.uri);
+	}, DEBOUNCE_WAIT));
+
+	projectOverviewPanel.onDidDispose(() => {
+		projectOverviewPanel = undefined;
+		didChangeDisposable.dispose();
+	});
+}
+
+function openFileOverview(langClient: ExtendedLangClient) {
+	if (!window.activeTextEditor) {
 		return;
 	}
 
-	rpcHandler = WebViewRPCHandler.create(overviewPanel, langClient);
-	const html = render(context, langClient, options);
-	if (overviewPanel && html) {
-		overviewPanel.webview.html = html;
+	const didChangeDisposable = workspace.onDidChangeTextDocument(
+		_.debounce((e: TextDocumentChangeEvent) => {
+		updateFileOverview(e.document.uri);
+	}, DEBOUNCE_WAIT));
+
+	const didChangeActiveEditorDisposable = window.onDidChangeActiveTextEditor((activeEditor) => {
+		if (!(activeEditor && activeEditor.document && activeEditor.document.languageId === "ballerina")) {
+			return;
+		}
+		didChangeDisposable.dispose();
+		didChangeActiveEditorDisposable.dispose();
+		openFileOverview(langClient);
+	});
+
+	if (!fileOverviewPanel) {
+		fileOverviewPanel = window.createWebviewPanel(
+			'fileOverview',
+			'File Overview',
+			{ viewColumn: ViewColumn.Two, preserveFocus: true },
+			getCommonWebViewOptions()
+		);
+
+		ballerinaExtInstance.addWebviewPanel('file', fileOverviewPanel);
 	}
 
-	overviewPanel.onDidDispose(() => {
-		overviewPanel = undefined;
+	const activePath = window.activeTextEditor.document.uri.fsPath;
+	const sourceRoot = getSourceRoot(activePath, path.parse(activePath).root);
+
+	fileOverviewRpcHandler = WebViewRPCHandler.create(fileOverviewPanel, langClient);
+	const html = render(
+		sourceRoot ? Uri.file(sourceRoot).toString(true): undefined,
+		Uri.file(activePath).toString(true), undefined);
+	if (fileOverviewPanel && html) {
+		fileOverviewPanel.webview.html = html;
+	}
+
+	fileOverviewPanel.onDidDispose(() => {
+		fileOverviewPanel = undefined;
 		didChangeDisposable.dispose();
 		didChangeActiveEditorDisposable.dispose();
 	});

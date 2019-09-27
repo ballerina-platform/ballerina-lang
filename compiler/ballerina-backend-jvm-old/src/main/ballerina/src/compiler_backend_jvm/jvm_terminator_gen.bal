@@ -70,6 +70,8 @@ type TerminatorGenerator object {
             self.genWorkerReceiveIns(terminator, funcName, localVarOffset);
         } else if (terminator is bir:Flush) {
             self.genFlushIns(terminator, funcName, localVarOffset);
+        } else if (terminator is JavaMethodCall) {
+            self.genJCallTerm(terminator, funcName, attachedType, localVarOffset);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                 io:sprintf("%s", terminator));
@@ -266,7 +268,7 @@ type TerminatorGenerator object {
         string moduleName = callIns.pkgID.name;
 
         // check for native blocking call
-        if (isExternStaticFunctionCall(callIns)) {
+        if (isInteropFuncCall(callIns)) {
             jvm:Label blockedOnExternLabel = new;
             jvm:Label notBlockedOnExternLabel = new;
 
@@ -303,6 +305,68 @@ type TerminatorGenerator object {
             // store return
             self.storeReturnFromCallIns(callIns);
         }
+    }
+
+    function genJCallTerm(JavaMethodCall callIns, string funcName, bir:BType? attachedType, int localVarOffset) {
+        // Load function parameters of the target Java method to the stack..
+        jvm:Label blockedOnExternLabel = new;
+        jvm:Label notBlockedOnExternLabel = new;
+
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
+        self.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitInsn(ICONST_0);
+        self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
+
+        if (callIns.lhsOp?.variableDcl is bir:VariableDcl) {
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
+            addUnboxInsn(self.mv, callIns.lhsOp?.typeValue);
+            // store return
+            bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
+
+            if (lhsOpVarDcl is bir:VariableDcl) {
+                self.storeToVar(lhsOpVarDcl);
+            }
+        }
+
+        self.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+
+        self.mv.visitLabel(blockedOnExternLabel);
+
+        int argIndex = 0;
+        if attachedType is () {
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+        } else {
+            // check whether function params already include the self
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            bir:VariableDcl selfArg = getVariableDcl(callIns.args[0]?.variableDcl);
+            self.loadVar(selfArg);
+            self.mv.visitTypeInsn(CHECKCAST, OBJECT_VALUE);
+            argIndex += 1;
+        }
+
+        int argsCount = callIns.args.length();
+        while (argIndex < argsCount) {
+            bir:VarRef? arg = callIns.args[argIndex];
+            _ = self.visitArg(arg);
+            argIndex += 1;
+        }
+
+        string jClassName = callIns.jClassName;
+        string jMethodName = callIns.name;
+        string jMethodVMSig = callIns.jMethodVMSig;
+        self.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
+
+        bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
+
+        if (lhsOpVarDcl is bir:VariableDcl) {
+            self.storeToVar(lhsOpVarDcl);
+        }
+
+        self.mv.visitLabel(notBlockedOnExternLabel);
     }
 
     private function cleanupVariableDecl(bir:VariableDcl? varDecl) returns bir:VariableDcl {
@@ -451,7 +515,7 @@ type TerminatorGenerator object {
 
     function visitArg(bir:VarRef? arg) returns boolean {
         bir:VarRef argRef = getVarRef(arg);
-        if (internal:hasPrefix(argRef.variableDcl.name.value, "_")) {
+        if (argRef.variableDcl.name.value.startsWith("_")) {
             loadDefaultValue(self.mv, getVarRef(arg).typeValue);
             return false;
         }
@@ -837,6 +901,40 @@ function isExternStaticFunctionCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) r
     if (birFunctionMap.hasKey(key)) {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
         return isExternFunc(functionWrapper.func);
+    }
+
+    return false;
+}
+
+function isInteropFuncCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) returns boolean {
+    string methodName;
+    string orgName;
+    string moduleName;
+
+    if (callIns is bir:Call) {
+        if (callIns.isVirtual) {
+            return false;
+        }
+        methodName = callIns.name.value;
+        orgName = callIns.pkgID.org;
+        moduleName = callIns.pkgID.name;
+    } else if (callIns is bir:AsyncCall) {
+        methodName = callIns.name.value;
+        orgName = callIns.pkgID.org;
+        moduleName = callIns.pkgID.name;
+    } else {
+        methodName = callIns.name.value;
+        orgName = callIns.pkgID.org;
+        moduleName = callIns.pkgID.name;
+    }
+
+    string key = getPackageName(orgName, moduleName) + methodName;
+
+    if (birFunctionMap.hasKey(key)) {
+        BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
+        if (functionWrapper is JMethodFunctionWrapper) {
+            return true;
+        }
     }
 
     return false;

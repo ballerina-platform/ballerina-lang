@@ -1,8 +1,8 @@
-type ExampleObject object {
+public type ExampleObject object {
     string taintedData = "";
 };
 
-type ExampleRecord record {
+public type ExampleRecord record {
     string taintedData = "";
 };
 

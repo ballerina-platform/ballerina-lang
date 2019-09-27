@@ -31,13 +31,13 @@ import org.testng.annotations.Test;
  */
 public class BlockStmtTest {
 
-    private CompileResult result;
-    private CompileResult resultNegative;
+    private CompileResult result, resultNegative, resultSemanticsNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/block/block-stmt.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/block/block-stmt-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile("test-src/statements/block/block-stmt-semantics-negative.bal");
     }
 
     @Test
@@ -65,8 +65,14 @@ public class BlockStmtTest {
     }
 
     @Test(description = "Test block statement with errors")
+    public void testBlockStmtSemanticsNegative() {
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultSemanticsNegative, 0, "redeclared symbol 'value'", 8, 9);
+    }
+
+    @Test(description = "Test block statement with errors")
     public void testBlockStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 11);
         //testUnreachableStmtInIfFunction1
         BAssertUtil.validateError(resultNegative, 0, "unreachable code", 9, 5);
         //testUnreachableStmtInIfFunction2
@@ -82,12 +88,10 @@ public class BlockStmtTest {
         //testUnreachableNext
         BAssertUtil.validateError(resultNegative, 6, "unreachable code", 84, 9);
         //testUnreachableBreak
-        BAssertUtil.validateError(resultNegative, 7, "unreachable code", 92, 9);
-        BAssertUtil.validateError(resultNegative, 8, "break cannot be used outside of a loop", 92, 9);
+        BAssertUtil.validateError(resultNegative, 7, "break cannot be used outside of a loop", 92, 9);
+        BAssertUtil.validateError(resultNegative, 8, "unreachable code", 92, 9);
         //testUnreachableThrow
         BAssertUtil.validateError(resultNegative, 9, "unreachable code", 107, 9);
-        BAssertUtil.validateError(resultNegative, 10, "redeclared symbol 'value'", 113, 9);
-        BAssertUtil.validateError(resultNegative, 11, "unreachable code", 117, 9);
-
+        BAssertUtil.validateError(resultNegative, 10, "unreachable code", 116, 9);
     }
 }

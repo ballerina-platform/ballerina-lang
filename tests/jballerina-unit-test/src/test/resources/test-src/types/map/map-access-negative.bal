@@ -1,12 +1,7 @@
 function incorrectMapAccessTest() returns (string?) {
-    map<any> animals = {};
+    map<string> animals = {};
     animals["dog"] = "Jimmy";
-    return animals[0];
-}
-
-function accessAllFields() {
-    map<any> fruits = {"name":"John", "address":"unkown"};
-    any a = fruits.*;
+    return animals["cat"];
 }
 
 function accessUninitMap() {

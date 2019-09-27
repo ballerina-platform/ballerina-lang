@@ -1,0 +1,16 @@
+// Invoke the service using the below "curl" command.
+$ curl -v http://localhost:9090/hello/
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 9090 (#0)
+> GET /hello/ HTTP/1.1
+> Host: localhost:9090
+> User-Agent: curl/7.64.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< content-type: text/plain
+< content-length: 32
+<
+* Connection #0 to host localhost left intact
+Response received : Hello World!

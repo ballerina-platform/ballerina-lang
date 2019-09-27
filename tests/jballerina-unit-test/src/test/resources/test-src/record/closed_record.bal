@@ -280,11 +280,24 @@ function testExpressionAsKeys() returns boolean {
     return b.s == "hello" && b?.i == 1 && b?.f == 2.0;
 }
 
+string mapValue = "";
+
 function testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames() returns boolean {
-    Baz b = { s: "hello", [getChar("s")]: "world", [getChar("f")]: 2.0, f: 4.0 };
-    return b.s == "world" && b?.f == 4.0;
+    Baz b = {
+        f: 1.0,
+        [getChar("f")]: 4.0,
+        [getChar("s")]: addStringToMapValue(" world"),
+        [getChar("s")]: addStringToMapValue(" from Ballerina"),
+        s: addStringToMapValue("hello")
+    };
+    return b.s == "hello world from Ballerina" && b?.f == 4.0;
 }
 
 function getChar(string st) returns string {
     return st;
+}
+
+function addStringToMapValue(string s) returns string {
+    mapValue = mapValue + s;
+    return mapValue;
 }

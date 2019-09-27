@@ -68,7 +68,7 @@ public function main() {
             log:printError("Error occurred while reading json: ",
                             err = rResult);
         } else {
-            io:println(rResult);
+            io:println(rResult.toJsonString());
         }
     }
 }

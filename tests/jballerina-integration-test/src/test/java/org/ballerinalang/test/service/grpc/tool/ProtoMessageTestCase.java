@@ -44,6 +44,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
+import static org.ballerinalang.jvm.util.BLangConstants.DOT;
+
 /**
  * Test class for Proto message.
  *
@@ -53,6 +56,7 @@ public class ProtoMessageTestCase {
 
     private File compilerFile;
     private CompileResult result;
+    private BPackage defaultPkg = new BPackage(ANON_ORG, DOT);
 
     @BeforeClass
     private void setup() throws Exception {
@@ -69,7 +73,7 @@ public class ProtoMessageTestCase {
     @Test(description = "Test case for parsing proto message with string field")
     public void testStringTypeProtoMessage() {
         // convert message to byte array.
-        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(".", "Test1");
+        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(defaultPkg, "Test1");
         bMapValue.put("name", "John");
         Message message = new Message("Test1", bMapValue);
         Assert.assertEquals(message.getSerializedSize(), 6);
@@ -85,10 +89,10 @@ public class ProtoMessageTestCase {
     @Test(description = "Test case for parsing proto message with primitive field")
     public void testPrimitiveTypeProtoMessage() {
         // convert message to byte array.
-        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(".", "Test2");
+        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(defaultPkg, "Test2");
         bMapValue.put("a", "John");
         bMapValue.put("b", 1.2D);
-        bMapValue.put("c", 2.5F);
+        bMapValue.put("c", 2.5D);
         bMapValue.put("d", 1);
         bMapValue.put("e", 2L);
         bMapValue.put("f", 3L);
@@ -109,7 +113,7 @@ public class ProtoMessageTestCase {
     @Test(description = "Test case for parsing proto message with array field")
     public void testArrayFieldTypeProtoMessage() {
         // convert message to byte array.
-        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(".", "Test3");
+        MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(defaultPkg, "Test3");
         bMapValue.put("a", new ArrayValue(new String[]{"John"}));
         bMapValue.put("b", new ArrayValue(new double[]{1.2}));
         bMapValue.put("c", new ArrayValue(new double[]{2.5F}));

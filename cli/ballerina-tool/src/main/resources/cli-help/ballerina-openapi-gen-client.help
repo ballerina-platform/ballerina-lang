@@ -1,15 +1,36 @@
 NAME
-    Ballerina OpenApi - Gen Client is a tool which will generate a mock Ballerina client for a given OpenAPI contract.
+       ballerina-openapi-gen-client - Generate a mock Ballerina client
+       for a given OpenAPI contract
 
-    Note: This is an Experimental tool ship under ballerina hence this will only support limited set of functionality.
+
 SYNOPSIS
-    ballerina openapi gen-client [<module>:]<client-name> <openapi-file> [-o=<outputFileName>]
-DEFAULT BEHAVIOR
-    If no options or sub commands are given on execution, Ballerina openapi command will show
-    the help file for the command.
-EXAMPLES
-    Get help for Ballerina Gen client command
-    $ ballerina openapi gen-client -h
+       ballerina openapi gen-client [<module-name>:]<client-name>
+                        <openapi-contract> [-o <dir-path> | --output <dir-path>]
 
-    Generate a Ballerina Client
-    $ ballerina openapi gen-client helloclient hello.yaml -o client_project
+
+DESCRIPTION
+       Gen-client generates a Ballerina client for the provided OpenAPI
+       contract in the optionally given directory path. An optional module
+       name can be provided with the client name.
+
+       Note: This is an experimental tool, which only supports a limited
+       set of functionality.
+
+
+OPTIONS
+       [<module-name>:]<client-name>
+           The client name to use when generating the client.
+           A module name can be provided optionally.
+
+       <openapi-contract>
+           The file path of the OpenAPI contract file, which is used to
+           generate the Ballerina client.
+
+       -o <dir-path>, --output <dir-path>
+           Output location for the generated Ballerina client. If this option is not provided,
+           the client is generated in the current directory.
+
+
+EXAMPLES
+       Generate a Ballerina Client.
+          → ballerina openapi gen-client helloclient hello.yaml -o client_project

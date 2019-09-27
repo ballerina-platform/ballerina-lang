@@ -137,12 +137,13 @@ public final class BFunctionCompletionItemBuilder {
                     .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(parameter.getName()))
                     .findFirst();
             String type = (!types.isEmpty() && types.get(parameter.name) != null) ?
-                    "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx) + "` " : "";
+                    "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx, false) + "` " : "";
             String paramDescription = "- " + type + parameter.getName() + ": " + parameter.getDescription();
             if (defaultVal.isPresent()) {
                 joiner.add(paramDescription + "(Defaultable)");
+            } else {
+                joiner.add(paramDescription);
             }
-            joiner.add(paramDescription);
         }
         String paramsStr = joiner.toString();
         if (!paramsStr.isEmpty()) {
@@ -157,7 +158,7 @@ public final class BFunctionCompletionItemBuilder {
                         CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
             documentation += CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
-                    + " `" + CommonUtil.getBTypeName(bInvokableSymbol.retType, ctx) + "` " +
+                    + " `" + CommonUtil.getBTypeName(bInvokableSymbol.retType, ctx, false) + "` " +
                     CommonUtil.MD_LINE_SEPARATOR + desc + CommonUtil.MD_LINE_SEPARATOR;
         }
         docMarkupContent.setValue(documentation);

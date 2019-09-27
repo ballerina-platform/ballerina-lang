@@ -9,7 +9,7 @@ task:TimerConfiguration timerConfiguration = {
     noOfRecurrences: 10
 };
 
-// Initialize the listener using pre defined configurations.
+// Initialize the listener using the above defined configurations.
 listener task:Listener timer = new(timerConfiguration);
 
 int count = 0;
@@ -18,8 +18,8 @@ int count = 0;
 service timerService on timer {
     // This resource triggers when the timer goes off.
     resource function onTrigger() {
-        count = count + 1;
         log:printInfo("Cleaning up...");
         log:printInfo(count.toString());
+        count = count + 1;
     }
 }

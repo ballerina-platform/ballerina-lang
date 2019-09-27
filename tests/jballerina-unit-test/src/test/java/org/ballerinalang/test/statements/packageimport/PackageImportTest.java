@@ -73,15 +73,14 @@ public class PackageImportTest {
     @Test
     public void testImportsPerfile() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-1", "invalid-imports");
-        Assert.assertEquals(result.getErrorCount(), 7);
+        Assert.assertEquals(result.getErrorCount(), 6);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/http'", "src/file-negative1.bal", 2, 1);
         BAssertUtil.validateError(result, i++, "redeclared import module 'ballerina/io'", "src/file-negative1.bal", 3,
                 1);
         BAssertUtil.validateError(result, i++, "undefined module 'http'", "src/file-negative2.bal", 3, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'Client'", "src/file-negative2.bal", 3, 5);
-        BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined function 'println'", "src/file-negative2.bal", 4, 5);
+        BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 5, 18);
     }
 

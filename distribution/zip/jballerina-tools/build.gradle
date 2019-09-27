@@ -55,6 +55,10 @@ configurations {
     bir
     birJar
     balSource
+    balxSource
+    balxBir {
+        transitive false
+    }
     zip
     balo
     resourceFiles
@@ -71,6 +75,8 @@ dependencies {
     dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
     dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
     // dist 'org.ow2.asm:asm:6.2.1'
+    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
+    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
 
     // Following dependencies are required for kraal library
     dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
@@ -79,6 +85,7 @@ dependencies {
     dist 'org.ow2.asm:asm-analysis:7.1'
     dist 'org.ow2.asm:asm-tree:7.1'
     dist 'org.ow2.asm:asm-util:7.1'
+    dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
 
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
@@ -111,6 +118,7 @@ dependencies {
     debugAdapterDistribution project(':debug-adapter')
     
     balSource project(path: ':jballerina', configuration: 'source')
+    balxSource project(path: ':jballerina', configuration: 'sourceBalx')
     distBal project(path: ':jballerina', configuration: 'balo')
     dist project(path: ':jballerina', configuration: 'jar')
     bin project(path: ':jballerina', configuration: 'bin')
@@ -135,6 +143,11 @@ dependencies {
     birJar project(path: ':ballerina-cli-module-token-update', configuration: 'cliModuleTokenUpdateJar')
 
     birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
+
+    // ballerinax module cache
+    balxBir project(path: ':ballerina-jdbc', configuration: 'bir')
+    balxBir project(path: ':ballerina-java', configuration: 'bir')
+    balxBir project(path: ':ballerina-java-arrays', configuration: 'bir')
 }
 
 
@@ -289,6 +302,7 @@ def examplesSpec = {
     path -> copySpec {
         from fileTree(project.rootDir.path + '/examples');
         into(path + '/examples')
+        exclude('**/**/tests')
     }
 }
 
@@ -302,6 +316,18 @@ def apiDocsSpec = {
 task extractLibs(type: Copy) {
     def path = "$buildDir/ballerina";
     from configurations.balSource.files
+    into path
+}
+
+task extractBalxLibs(type: Copy) {
+    def path = "$buildDir/ballerinax"
+    from configurations.balxSource.files
+    into path
+}
+
+task extractBalxBirs(type: Copy) {
+    def path = "$buildDir/bir-cache"
+    from configurations.balxBir.files
     into path
 }
 
@@ -320,19 +346,21 @@ task pathingJar(type: Jar) {
 task generateDocs(type: JavaExec) {
     dependsOn pathingJar
     dependsOn extractLibs
+    dependsOn extractBalxBirs
     dependsOn ':docerina-gradle-plugin:build'
     inputs.dir("$buildDir/ballerina/");
     outputs.dir("$buildDir/api-docs")
     outputs.cacheIf { true }
 
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
+    systemProperty("version", project.version)
     def basePath = '/' + project.name + '-' + project.version + '/'
-    systemProperty("ballerina.home", basePath)
+    systemProperty("ballerina.home", "$buildDir")
     
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
     def libs = "$buildDir/ballerina/"
-    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm")
+    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm,bir,jvm,utils,ldap")
 }
 
 task createApiDocsZip(type: Zip) {

@@ -12,7 +12,7 @@
 // KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/jsonutils;
 import ballerinax/java.jdbc;
 
 jdbc:PoolOptions properties = {
@@ -26,15 +26,15 @@ jdbc:PoolOptions properties = {
     connectionInitSql: "SELECT 1"
 };
 
-map<any> propertiesMap = {"loginTimeout": "1000"};
+map<anydata> propertiesMap = {"loginTimeout": "1000"};
 jdbc:PoolOptions properties3 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
-map<any> propertiesMap2 = {"loginTimeout": "1000"};
+map<anydata> propertiesMap2 = {"loginTimeout": "1000"};
 jdbc:PoolOptions properties4 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
 jdbc:PoolOptions properties5 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
-map<any> propertiesMap3 = {"loginTimeout": "1000"};
+map<anydata> propertiesMap3 = {"loginTimeout": "1000"};
 jdbc:PoolOptions properties6 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
 function testConnectionPoolProperties1(string jdbcURL) returns @tainted json {
@@ -213,15 +213,41 @@ function testConnectionFailure(string jdbcURL) {
 
 }
 
+function testInvalidJdbcUrl1() {
+    jdbc:Client testDB = new ({
+        url: "",
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 1},
+        dbOptions: {"IFEXISTS": true}
+    });
+}
+
+function testInvalidJdbcUrl2() {
+    jdbc:Client testDB = new ({
+        url: "localhost:3306/testdb",
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 1},
+        dbOptions: {"IFEXISTS": true}
+    });
+}
+
+function testInvalidJdbcUrl3() {
+    jdbc:Client testDB = new ({
+        url: "jdbc://dbhost.com/testdb",
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 1},
+        dbOptions: {"IFEXISTS": true}
+    });
+}
+
 function getJsonConversionResult(table<record {}> | error tableOrError) returns json {
     json retVal;
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult =typedesc<json>.constructFrom( tableOrError);
-        if (jsonConversionResult is json) {
-            retVal = jsonConversionResult;
-        } else {
-            retVal = {"Error": <string>jsonConversionResult.detail().message};
-        }
+        var jsonConversionResult = jsonutils:fromTable(tableOrError);
+        retVal = jsonConversionResult;
     } else {
         retVal = {"Error": <string>tableOrError.detail()["message"]};
     }

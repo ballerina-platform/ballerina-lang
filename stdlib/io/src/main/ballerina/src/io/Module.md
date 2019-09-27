@@ -13,15 +13,15 @@ The most primitive channel is the `ByteChannel` which reads and writes 8-bit byt
 
 ```ballerina
 // Open a file in read mode.
-io:ReadableByteChannel | io:Error readableByteChannel = io:openReadableFile("some/file.txt");
+io:ReadableByteChannel | io:Error readableChannel = io:openReadableFile("file.txt");
 
 // Here is how 100 bytes are read from the channel.
-if (readableByteChannel is io:ReadableByteChannel) {
-    [byte[], int] | io:Error result = readableByteChannel.read(100);
+if (readableChannel is io:ReadableByteChannel) {
+    byte[] | io:Error result = readableChannel.read(100);
 }
 
 // Open a file in write mode.
-io:WritableByteChannel | io:Error writableByteChannel = io:openWritableFile("some/file.txt");
+io:WritableByteChannel | io:Error writableByteChannel = io:openWritableFile("file.txt");
 
 // Write some content to the beginning of the file.
 if (writableByteChannel is io:WritableByteChannel) {
@@ -37,7 +37,8 @@ The `CharacterChannel` is used to read and write characters. The charset encodin
 
  ```ballerina
 // Create a `ReadableCharacterChannel` from the `ReadableByteChannel`.
-io:ReadableCharacterChannel | io:Error readableCharChannel = new io:ReadableCharacterChannel(readableByteChannel, "UTF-8");
+io:ReadableCharacterChannel | io:Error readableCharChannel = 
+        new io:ReadableCharacterChannel(readableChannel, "UTF-8");
 ```
 
 If a `ReadableCharacterChannel` points to a JSON or XML source, it can be read and then written, directly into a variable of
@@ -54,7 +55,8 @@ xml | io:Error result = readableCharChannel.readXml();
 
 ```ballerina
 // Create a `WritableCharacterChannel` from the `WritableByteChannel`.
-io:WritableCharacterChannel | io:Error writableCharChannel = new io:WritableCharacterChannel(writableByteChannel, "UTF-8");
+io:WritableCharacterChannel | io:Error writableCharChannel = 
+            new io:WritableCharacterChannel(writableByteChannel, "UTF-8");
 ```
 
 ```ballerina
@@ -73,8 +75,10 @@ Ballerina also supports I/O for delimited records.
 
 ```ballerina
 // Create a `ReadableTextRecordChannel` from the `ReadableCharacterChannel`.
-// Records are separated using a new line, and fields of a record are separated using a comma.
-var readableRecordsChannel = new io:ReadableTextRecordChannel(readableCharChannel, fs = ",", rs = "\n");
+// Records are separated using a new line.
+// Fields of a record are separated using a comma.
+var readableRecordsChannel = 
+        new io:ReadableTextRecordChannel(readableCharChannel, fs = ",", rs = "\n");
 
 // Read few records.
 while (readableRecordsChannel.hasNext()) {
@@ -123,12 +127,12 @@ Ballerina supports performing data i/o operations
 Person object could be serialized into a file or a network socket in the following manner.
 
 ```ballerina
-public type Person record {
+public type Person record {|
     string name;
     int age;
     float income;
     boolean isMarried;
-};
+|};
 
 // Serialize record into binary.
 function serialize(Person p, io:WritableByteChannel byteChannel) {

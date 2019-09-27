@@ -2,50 +2,65 @@
 
 This module provides the necessary utilities that are required to encode and decode content using different encoding mechanisms and algorithms.
 
-### Encoding byte array to hex string
+### Samples
 
-The `encodeHex` function encodes provided byte array to an hex `string`.
+#### Encoding a URL into a Base64 encoded string
 
-### Decoding hex string to byte array
+The `encodeBase64Url` function encodes the provided URL to a base64 `string`.
 
-The `decodeHex` function decodes a hex encoded `string` to a byte array.
+```ballerina
+import ballerina/encoding;
+import ballerina/io;
 
-### Encoding byte array to base64 string
+public function main() {
+    string data = "abc123!?$*&()'-=@~";
+    string urlEncodedValue = encoding:encodeBase64Url(data.toBytes());
+    io:println("Base64 URL encode value: " + urlEncodedValue);
+}
+```
 
-The `encodeBase64` function encodes provided byte array to an base64 `string`.
+#### Decoding a Base64 URL encoded string into a byte array.
 
-### Decoding base64 string to byte array
+The `decodeBase64Url` function decodes a base64 encoded `string` to a byte array.
 
-The `decodeBase64` function decodes a base64 encoded `string` to a byte array.
+```ballerina
+import ballerina/encoding;
+import ballerina/io;
+import ballerina/lang.'string as str;
 
-### Encoding byte array into a string
+public function main() returns error? {
+    string data = "YWJjMTIzIT8kKiYoKSctPUB-";
+    byte[] urlDecodedValue = check encoding:decodeBase64Url(data);
+    io:println("Base64 URL decode value: " + check str:fromBytes(urlDecodedValue));
+}
+```
 
-The `byteArrayToString` function can be used to encode a byte array into a string using a provided charset.
+#### Encoding a URI component into a string
 
-## Samples
+The `encodeUriComponent` function can be used to encode a URI into a string using a provided charset.
 
 ```ballerina
 import ballerina/encoding;
 import ballerina/io;
 
 public function main() returns error? {
-     // The string content to be hashed.
-     string text = "Hello Ballerina";
-     byte[] inputByteArr = input.toBytes();
+    string data = "data=value";
+    string encodedUriComponent = check encoding:encodeUriComponent(data, "UTF-8");
+    io:println("URI encoded value: " + encodedUriComponent);
+}
+```
 
-     string output = encoding:encodeHex(inputByteArr);
-     io:println("Hex encoded string : " + output);
+#### Decoding an encoded URI component into a string
 
-     // Hex encoded string, decoded back into a byte array.
-     inputByteArr = check encoding:decodeHex(output);
+The `decodeUriComponent` function can be used to decode a URI into a string using a provided charset.
 
-     output = encoding:encodeBase64(inputByteArr);
-     io:println("Base64 encoded string : " + output);
+```ballerina
+import ballerina/encoding;
+import ballerina/io;
 
-     // Base64 encoded string, decoded back into a byte array.
-     inputByteArr = check encoding:decodeBase64(output);
-
-     // Convert byte array into a string.
-     string finalString = encoding:byteArrayToString(inputByteArr);
+public function main() returns error? {
+    string data = "data%3Dvalue";
+    string decodedUriComponent = check encoding:decodeUriComponent(data, "UTF-8");
+    io:println("URI decoded value: " + decodedUriComponent);
 }
 ```

@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -53,6 +52,11 @@ public class InvocationArgsContextProvider extends LSCompletionProvider {
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+
+        if (this.isAnnotationAccessExpression(context)) {
+            return this.getProvider(AnnotationAccessExpressionContextProvider.class).getCompletions(context);
+        }
+
         if (invocationOrDelimiterTokenType > -1) {
             Either<List<CompletionItem>, List<SymbolInfo>> filtered = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
@@ -65,7 +69,6 @@ public class InvocationArgsContextProvider extends LSCompletionProvider {
             return (bSymbol instanceof BInvokableSymbol
                     && ((BInvokableSymbol) bSymbol).receiverSymbol != null
                     && CommonUtil.isValidInvokableSymbol(bSymbol))
-                    || (FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
                     || (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
         });
         completionItems.addAll(getCompletionItemList(visibleSymbols, context));

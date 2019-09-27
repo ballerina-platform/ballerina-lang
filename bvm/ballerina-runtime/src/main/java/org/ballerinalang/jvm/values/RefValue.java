@@ -18,12 +18,14 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,13 +34,30 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * <p>
  * Interface to be implemented by all the reference types.
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @since 0.995.0
  */
 public interface RefValue {
 
-    String stringValue();
+    default String stringValue() {
+        return stringValue(null);
+    }
+
+    /**
+     * Returns the string presentation of the value on which the method is called. This is used only by ArrayValue
+     * and MapValueImpl.
+     * @param strand The strand on which the stringValue method is called
+     * @return String representation of value
+     */
+    default String stringValue(Strand strand) {
+        throw new BallerinaException("'stringValue(Strand strand)' not allowed on '" + getType() + "'");
+    }
 
     BType getType();
 
@@ -139,7 +158,7 @@ public interface RefValue {
      */
     default void serialize(OutputStream outputStream) {
         try {
-            outputStream.write(this.toString().getBytes(Charset.defaultCharset()));
+            outputStream.write(StringUtils.getJsonString(this).getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
             throw new BallerinaException("error occurred while serializing data", e);
         }

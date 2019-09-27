@@ -1,7 +1,7 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run tuple_type.bal
-(10, "John")
+10 John
 10
 John
 06/10: quotient=0 remainder=6

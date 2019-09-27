@@ -54,10 +54,14 @@ public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
 
     @Override
     public List<CompletionItem> getCompletions(LSContext ctx) {
-        if (ctx.get(CompletionKeys.NEXT_NODE_KEY) == null) {
+        List<Integer> rhsTokenTypes = ctx.get(CompletionKeys.RHS_DEFAULT_TOKEN_TYPES_KEY);
+        AnnotationNodeKind annotationNodeKind = ctx.get(CompletionKeys.NEXT_NODE_KEY);
+        if (annotationNodeKind == null && rhsTokenTypes.contains(BallerinaParser.EXTERNAL)) {
+            annotationNodeKind = AnnotationNodeKind.EXTERNAL;
+        } else if (annotationNodeKind == null) {
             return new ArrayList<>();
         }
-        return filterAnnotations(ctx.get(CompletionKeys.NEXT_NODE_KEY), ctx);
+        return filterAnnotations(annotationNodeKind, ctx);
     }
 
     /**
@@ -69,7 +73,7 @@ public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<Integer> lhsTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
-        Map<String, String> pkgAliasMap = CommonUtil.getCurrentModuleImports(ctx).stream()
+        Map<String, String> pkgAliasMap = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
                 .collect(Collectors.toMap(pkg -> pkg.alias.value, pkg -> pkg.symbol.pkgID.toString()));
         CommonToken pkgAlias = null;
         if (lhsTokenTypes == null) {
@@ -155,6 +159,11 @@ public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
                 case RECORD:
                 case TYPE:
                     if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.TYPE)) {
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+                    }
+                    break;
+                case WORKER:
+                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.WORKER)) {
                         completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }
                     break;

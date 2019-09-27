@@ -32,13 +32,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.jvm.util.BLangConstants.START_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.STOP_FUNCTION_SUFFIX;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
@@ -82,17 +82,20 @@ public class BallerinaErrors {
         return createError(error.getMessage());
     }
 
-    public static ErrorValue createConversionError(Object inputValue, BType targetType) {
-        return createError(CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType));
+    public static ErrorValue trapError(Throwable throwable) {
+        // Used to trap and create error value for non error value exceptions. At the moment, we can trap
+        // stack overflow exceptions in addition to error value.
+        // In the future, if we need to trap more exception types, we need to check instance of each exception and
+        // handle accordingly.
+        ErrorValue error = createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+        error.setStackTrace(throwable.getStackTrace());
+        return error;
     }
 
-    public static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
-        return createError(CONVERSION_ERROR,
+    public static ErrorValue createConversionError(Object inputValue, BType targetType) {
+        return createError(BALLERINA_PREFIXED_CONVERSION_ERROR,
                            BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType)
-                                   .concat(": ".concat(detailMessage)));
+                                                                TypeChecker.getType(inputValue), targetType));
     }
 
     public static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {
@@ -161,7 +164,7 @@ public class BallerinaErrors {
                 filteredStack.add(stackTraceElement.get());
             }
         }
-        BType recordType = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT).getType();
+        BType recordType = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT).getType();
         ArrayValue callStack = new ArrayValue(new BArrayType(recordType));
         for (int i = 0; i < filteredStack.size(); i++) {
             callStack.add(i, getStackFrame(filteredStack.get(i)));
@@ -219,8 +222,8 @@ public class BallerinaErrors {
         values[1] = stackTraceElement.getClassName();
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
-        return BallerinaValues.createRecord(
-                BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT), values);
+        return BallerinaValues.
+                createRecord(BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT), values);
     }
 
     private static String cleanupClassName(String className) {

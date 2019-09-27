@@ -13,11 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.object as lang;
 
-# Represents a ballerina task listener.
+import ballerina/lang.'object as lang;
+
+# Represents a ballerina task listener, which can be used to schedule and execute tasks periodically.
 public type Listener object {
-    *lang:AbstractListener;
+    *lang:Listener;
     boolean started = false;
 
     private TimerConfiguration|AppointmentConfiguration listenerConfiguration;
@@ -84,13 +85,13 @@ public type Listener object {
         return self.started;
     }
 
-    # Pauses the task.
+    # Pauses the task listener.
     #
-    # + return - Returns `ListenerError` if an error is occurred while resuming, nil Otherwise.
+    # + return - Returns `task:ListenerError` if an error is occurred while resuming, nil Otherwise.
     public function pause() returns ListenerError? = external;
 
-    # Resumes a paused task.
+    # Resumes a paused task listener.
     #
-    # + return - Returns `ListenerError` when an error occurred while pausing, nil Otherwise.
+    # + return - Returns `task:ListenerError` when an error occurred while pausing, nil Otherwise.
     public function resume() returns ListenerError? = external;
 };

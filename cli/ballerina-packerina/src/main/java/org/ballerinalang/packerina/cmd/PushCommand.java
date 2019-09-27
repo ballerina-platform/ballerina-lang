@@ -26,6 +26,7 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -58,6 +59,9 @@ public class PushCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
     private boolean experimentalFlag;
+    
+    @CommandLine.Option(names = {"--all", "-a"}, description = "Push all the modules of the project.")
+    private boolean pushAll;
     
     private Path userDir;
     private PrintStream errStream;
@@ -101,19 +105,19 @@ public class PushCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
-        if (argList == null || argList.size() == 0) {
-            boolean allModulesPushedSuccessfully = PushUtils.pushAllPackages(sourceRootPath);
-            if (!allModulesPushedSuccessfully) {
-                // Exit status, zero for OK, non-zero for error
-                Runtime.getRuntime().exit(1);
-            }
-        } else if (argList.size() == 1) {
-            String packageName = argList.get(0);
-            boolean modulePushedSuccessfully = PushUtils.pushPackages(packageName, sourceRootPath);
-            if (!modulePushedSuccessfully) {
-                // Exit status, zero for OK, non-zero for error
-                Runtime.getRuntime().exit(1);
-            }
+        if (this.pushAll) {
+            // push all modules
+            PushUtils.pushAllModules(sourceRootPath);
+        } else if (argList != null && argList.size() == 1) {
+            String moduleName = argList.get(0);
+            PushUtils.pushModules(Collections.singletonList(moduleName), sourceRootPath);
+        } else if (argList == null || argList.size() == 0) {
+            CommandUtil.printError(errStream,
+                    "Push command requires the name of the module. To push all modules use '-a' or '--all' flag.",
+                    "ballerina push {<module-name> | -a | --all}",
+                    false);
+            Runtime.getRuntime().exit(1);
+            return;
         } else {
             throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
@@ -128,7 +132,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("push modules to the ballerina central repository");
+        out.append("push modules to Ballerina Central");
     }
 
     @Override

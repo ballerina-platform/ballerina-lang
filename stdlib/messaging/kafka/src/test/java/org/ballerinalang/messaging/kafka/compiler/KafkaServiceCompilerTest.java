@@ -37,7 +37,7 @@ public class KafkaServiceCompilerTest {
 
     @Test(description = "Test endpoint bind to a service returning invalid return type")
     public void testKafkaServiceInvalidReturnType() {
-        String msg = "Invalid return type for the resource function:Expected error? or subset of error? but found: int";
+        String msg = "invalid resource function return type 'int', expected a subtype of 'error?' containing '()'";
         compileResult = BCompileUtil.compile(getFilePath(
                 Paths.get(TEST_SRC, TEST_COMPILER, "kafka_service_invalid_return_type.bal")));
         validateCompilerErrors(compileResult, msg);

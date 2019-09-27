@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
 import ballerina/mime;
 import ballerina/io;
 
@@ -226,7 +225,9 @@ function buildRequest(RequestMessage message) returns Request {
 
 function buildResponse(ResponseMessage message) returns Response {
     Response response = new;
-    if (message is Response) {
+    if (message is ()) {
+        return response;
+    } else if (message is Response) {
         response = message;
     } else if (message is string) {
         response.setTextPayload(message);
@@ -360,12 +361,12 @@ function populateMultipartRequest(Request inRequest) returns Request|error {
 
 function isMultipartRequest(Request request) returns @tainted boolean {
     return request.hasHeader(mime:CONTENT_TYPE) &&
-        internal:hasPrefix(request.getHeader(mime:CONTENT_TYPE), MULTIPART_AS_PRIMARY_TYPE);
+        request.getHeader(mime:CONTENT_TYPE).startsWith(MULTIPART_AS_PRIMARY_TYPE);
 }
 
 function isNestedEntity(mime:Entity entity) returns @tainted boolean {
     return entity.hasHeader(mime:CONTENT_TYPE) &&
-        internal:hasPrefix(entity.getHeader(mime:CONTENT_TYPE), MULTIPART_AS_PRIMARY_TYPE);
+        entity.getHeader(mime:CONTENT_TYPE).startsWith(MULTIPART_AS_PRIMARY_TYPE);
 }
 
 function createFailoverRequest(Request request, mime:Entity requestEntity) returns Request|error {

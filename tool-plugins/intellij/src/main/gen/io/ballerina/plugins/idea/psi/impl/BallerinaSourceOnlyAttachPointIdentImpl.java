@@ -72,4 +72,10 @@ public class BallerinaSourceOnlyAttachPointIdentImpl extends ASTWrapperPsiElemen
     return findChildByType(VAR);
   }
 
+  @Override
+  @Nullable
+  public PsiElement getWorker() {
+    return findChildByType(WORKER);
+  }
+
 }

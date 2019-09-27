@@ -42,7 +42,7 @@ public type testEnumServiceBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -69,7 +69,7 @@ public type testEnumServiceClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -87,7 +87,7 @@ public type testEnumServiceClient client object {
 };
 
 
-type orderInfo record {
+public type orderInfo record {
     string id = "";
     Mode mode = r;
 

@@ -61,10 +61,19 @@ task deleteBalBuildLog(type: Delete) {
   delete buildLog
 }
 
+task copySelfToExternal(type: Copy) {
+    dependsOn jar
+    from "$buildDir/libs/"
+    include "*.jar"
+    into "$buildDir/externals"
+    rename '.*', "${project.ext.moduleName}.jar"
+}
+
 task createOldBirJar(type: Exec) {
     dependsOn deleteBalBuildLog
     dependsOn configurations.balo
     dependsOn convertDuplicateSrcToProject
+    dependsOn copySelfToExternal
     workingDir "$buildDir/duplicate-src"
     dependsOn jar
 
@@ -77,9 +86,9 @@ task createOldBirJar(type: Exec) {
         }
         configurations.balo.each {
             if (OperatingSystem.current().isWindows()) {
-                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '-c', '--skip-tests', project.ext.moduleName
+                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--off-line', '-c', '--skip-tests', project.ext.moduleName
             } else {
-                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '-c', '--skip-tests', project.ext.moduleName
+                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '--off-line', '-c', '--skip-tests', project.ext.moduleName
             }
             println commandLine
         }
@@ -135,3 +144,4 @@ createJavadoc {
 spotbugsMain {
     enabled = false
 }
+

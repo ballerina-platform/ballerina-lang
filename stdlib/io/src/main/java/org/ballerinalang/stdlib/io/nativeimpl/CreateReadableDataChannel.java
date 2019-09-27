@@ -20,7 +20,6 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,6 +28,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,9 +79,9 @@ public class CreateReadableDataChannel {
             DataChannel dataChannel = new DataChannel(channel, byteOrder);
             dataChannelObj.addNativeData(IOConstants.DATA_CHANNEL_NAME, dataChannel);
         } catch (Exception e) {
-            String message = "Error while creating data channel:" + e.getMessage();
+            String message = "error while creating data channel: " + e.getMessage();
             log.error(message, e);
-            throw new BallerinaException(message, e);
+            throw IOUtils.createError(message);
         }
     }
 }

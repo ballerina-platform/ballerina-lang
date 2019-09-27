@@ -66,8 +66,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
     public void execute() {
 
         //User notification of using an experimental tool
-        outStream.println("Note: This is an Experimental tool ship under ballerina hence this will only support" +
-                " limited set of functionality.");
+        outStream.println(OpenApiMesseges.EXPERIMENTAL_FEATURE);
 
         CodeGenerator generator = new CodeGenerator();
 
@@ -94,7 +93,12 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
         try {
             generator.generateClient(executionPath, argList.get(0), output);
         } catch (IOException | BallerinaOpenApiException e) {
-            throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
+            if (e.getLocalizedMessage() != null) {
+                throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+            } else {
+                throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
+            }
+
         }
     }
 

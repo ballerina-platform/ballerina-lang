@@ -1,12 +1,12 @@
 # At the command line, navigate to the directory that contains the
 # `.bal` file and do one of the following depending on whether you want the logs to be logged on the console, or in a file.
-# Run the service by setting `-e b7a.http.accesslog.console=true` to log to console.
-$ ballerina run -e b7a.http.accesslog.console=true http_access_logs.bal
+# Run the service by setting the `--b7a.http.accesslog.console=true` property to log to the console.
+$ ballerina run http_access_logs.bal --b7a.http.accesslog.console=true 
 ballerina: HTTP access log enabled
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9095
 127.0.0.1 - - [30/Oct/2018:11:23:08 +0530] "GET /hello HTTP/1.1" 200 10 "-" "curl/7.58.0"
 
-# Or, run the service by setting `-e b7a.http.accesslog.path=path/to/file.txt` to log to the specified file.
-$ ballerina run -e b7a.http.accesslog.path=path/to/file.txt http_access_logs.bal
+# Or, run the service by setting `--b7a.http.accesslog.path=path/to/file.txt` to log to the specified file.
+$ ballerina run http_access_logs.bal --b7a.http.accesslog.path=path/to/file.txt 
 ballerina: HTTP access log enabled
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9095

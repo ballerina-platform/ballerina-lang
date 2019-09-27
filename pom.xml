@@ -863,36 +863,6 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina nats -->
-            <dependency>
-                <groupId>io.nats</groupId>
-                <artifactId>java-nats-streaming</artifactId>
-                <version>${nats.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.nats</groupId>
-                <artifactId>jnats</artifactId>
-                <version>${nats.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-nats</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-nats</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-nats</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
 
             <!-- ballerina jwt -->
             <dependency>
@@ -1783,7 +1753,6 @@
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/messaging/rabbitmq</module>
-                <module>stdlib/nats</module>
                 <module>stdlib/ldap</module>
                 <module>stdlib/oauth2</module>
 
@@ -1881,7 +1850,6 @@
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/messaging/rabbitmq</module>
-                <module>stdlib/nats</module>
                 <module>stdlib/ldap</module>
                 <module>stdlib/oauth2</module>
 
@@ -1973,7 +1941,6 @@
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/messaging/rabbitmq</module>
-                <module>stdlib/nats</module>
                 <module>stdlib/ldap</module>
                 <module>stdlib/oauth2</module>
 
@@ -2074,7 +2041,6 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/rabbitmq</module>
-                <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
 
@@ -2479,7 +2445,7 @@
         <jacoco.agent.version>0.8.3</jacoco.agent.version>
         <mockito.version>1.10.19</mockito.version>
         <javassist.version>3.24.1-GA</javassist.version>
-        <netty.version>4.1.34.Final</netty.version>
+        <netty.version>4.1.39.Final</netty.version>
         <jzlib.version>1.1.3</jzlib.version>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
@@ -2568,9 +2534,6 @@
         <jboss.version>3.3.2.Final</jboss.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <geronimo-json.version>1.0-alpha-1</geronimo-json.version>
-
-        <!-- Nats Connector -->
-        <nats.version>2.1.0</nats.version>
 
         <!-- RabbitMQ Connector -->
         <rabbitmq.version>5.6.0</rabbitmq.version>

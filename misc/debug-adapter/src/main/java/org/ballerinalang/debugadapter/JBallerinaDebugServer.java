@@ -26,7 +26,6 @@ import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
-import com.sun.jdi.request.DuplicateRequestException;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import com.sun.tools.jdi.ObjectReferenceImpl;
@@ -47,6 +46,7 @@ import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.InitializeRequestArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
+import org.eclipse.lsp4j.debug.PauseArguments;
 import org.eclipse.lsp4j.debug.Scope;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
@@ -103,6 +103,8 @@ import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
+    public static final String DEBUGGER_TERMINATED = "Debugger terminated";
+    public static final String DEBUGGER_FAILED_TO_ATTACH = "Debugger failed to attach";
     private IDebugProtocolClient client;
     private VirtualMachine debuggee;
     private int systemExit = 1;
@@ -149,17 +151,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         String path = args.getSource().getPath();
 
-        projectRoot = findProjectRoot(Paths.get(path));
-        if (projectRoot == null) {
-            // calculate projectRoot for single file
-            File file = new File(path);
-            File parentDir = file.getParentFile();
-            projectRoot = parentDir.toPath();
-        } else {
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            orgName = manifest.getProject().getOrgName();
-        }
-
         this.eventBus.setBreakpointsList(path, breakpoints);
 
         return CompletableFuture.completedFuture(breakpointsResponse);
@@ -171,10 +162,26 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(null);
     }
 
+    private void updateProjectRoot(String balFile) {
+        projectRoot = findProjectRoot(Paths.get(balFile));
+        if (projectRoot == null) {
+            // calculate projectRoot for single file
+            File file = new File(balFile);
+            File parentDir = file.getParentFile();
+            projectRoot = parentDir.toPath();
+        } else {
+            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+            orgName = manifest.getProject().getOrgName();
+        }
+    }
+
     @Override
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         nextVarReference.set(1);
         Launch launcher = new LaunchFactory().getLauncher(args);
+
+        String balFile = args.get("script").toString();
+        updateProjectRoot(balFile);
         try {
             launchedProcess = launcher.start();
         } catch (IOException e) {
@@ -227,7 +234,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         nextVarReference.set(1);
         try {
             int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
-            debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
+            String debuggeeHost = args.get("debuggeeHost") == null ? "" : args.get("debuggeeHost").toString();
+
+            String balFile = args.get("script").toString();
+            updateProjectRoot(balFile);
+
+            debuggee = new DebuggerAttachingVM(debuggeePort, debuggeeHost).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
@@ -235,9 +247,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             context.setDebuggee(debuggee);
             this.eventBus.startListening();
 
-        } catch (IOException e) {
+        } catch (IOException | IllegalConnectorArgumentsException e) {
+            this.sendOutput(DEBUGGER_FAILED_TO_ATTACH, STDERR);
+            LOGGER.error(DEBUGGER_FAILED_TO_ATTACH);
             return CompletableFuture.completedFuture(null);
-        } catch (IllegalConnectorArgumentsException e) {
         }
         return CompletableFuture.completedFuture(null);
     }
@@ -263,8 +276,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     @Override
+    public CompletableFuture<Void> pause(PauseArguments args) {
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
+        stackTraceResponse.setStackFrames(new StackFrame[0]);
+
         try {
             StackFrame[] stackFrames = eventBus.getThreadsMap().get(args.getThreadId())
                     .frames().stream()
@@ -293,6 +314,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Source source = new Source();
         try {
             String sourcePath = stackFrame.location().sourcePath();
+            sourcePath = sourcePath != null ? sourcePath : "";
+            sourcePath = sourcePath.replaceFirst("tests" + File.separator + "tests", "tests");
             if (orgName.length() > 0 && sourcePath.startsWith(orgName)) {
                 sourcePath = sourcePath.replaceFirst(orgName, "src");
             }
@@ -340,7 +363,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                             }
                             String name = localVariableValueEntry.getKey() == null ? "" :
                                     localVariableValueEntry.getKey().name();
-                            if (name.startsWith("_$$_")) {
+                            if (name.equals("__strand")) {
                                 return null;
                             }
 
@@ -465,7 +488,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     .getValues(((ObjectReferenceImpl) value).referenceType().allFields());
             Map<String, Value> values = new HashMap<>();
             fieldValueMap.forEach((field, value1) -> {
-                values.put(field.toString(), value1);
+                // Filter out internal variables
+                if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
+                    values.put(field.name(), value1);
+                }
             });
 
             long variableReference = (long) nextVarReference.getAndIncrement();
@@ -487,7 +513,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             String stringValue = value.toString();
             dapVariable.setValue(stringValue);
             return dapVariable;
-        } else if (varType.startsWith("$value$")) {
+        } else if (varType.contains("$value$")) {
             // Record type
             String stringValue = value.type().name();
 
@@ -526,6 +552,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             dapVariable.setVariablesReference(variableReference);
             stringValue = stringValue.replace("$value$", "");
             dapVariable.setType(stringValue);
+            dapVariable.setValue(stringValue);
+            return dapVariable;
+        } else if ("org.ballerinalang.jvm.types.BObjectType".equalsIgnoreCase(varType)) {
+            Value typeName = ((ObjectReferenceImpl) value)
+                    .getValue(((ObjectReferenceImpl) value).referenceType().fieldByName("typeName"));
+            dapVariable.setType(varType);
+            String stringValue = typeName.toString();
             dapVariable.setValue(stringValue);
             return dapVariable;
         } else {
@@ -570,45 +603,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> next(NextArguments args) {
-        ThreadReference threadReference = eventBus.getThreadsMap().get(args.getThreadId());
-        try {
-            StepRequest request = debuggee.eventRequestManager().createStepRequest(threadReference,
-                    StepRequest.STEP_LINE, StepRequest.STEP_OVER);
-
-            request.addCountFilter(1); // next step only
-            request.enable();
-        } catch (DuplicateRequestException e) {
-
-        }
-        debuggee.resume();
+        eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepIn(StepInArguments args) {
-        ThreadReference thread = eventBus.getThreadsMap().get(args.getThreadId());
-        try {
-            StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
-                    StepRequest.STEP_LINE, StepRequest.STEP_INTO);
-
-            request.addCountFilter(1); // next step only
-            request.enable();
-        } catch (DuplicateRequestException e) {
-
-        }
-        debuggee.resume();
+        eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepOut(StepOutArguments args) {
-        ThreadReference thread = eventBus.getThreadsMap().get(args.getThreadId());
-        StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
-                StepRequest.STEP_LINE, StepRequest.STEP_OUT);
-
-        request.addCountFilter(1); // next step only
-        request.enable();
-        debuggee.resume();
+        eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_OUT);
         return CompletableFuture.completedFuture(null);
     }
 
@@ -659,7 +666,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private void exit(boolean terminateDebuggee) {
-        LOGGER.info("Debugger terminated");
         if (terminateDebuggee) {
             new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
         }
@@ -690,6 +696,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> terminate(TerminateArguments args) {
         this.exit(true);
+        LOGGER.info(DEBUGGER_TERMINATED);
+        sendOutput(DEBUGGER_TERMINATED, STDOUT);
         return CompletableFuture.completedFuture(null);
     }
 

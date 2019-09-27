@@ -21,7 +21,6 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
@@ -43,7 +42,8 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.MimeConstants.MAX_THRESHOLD_PERCENTAGE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 
 /**
  * Responsible for decoding an inputstream to get a set of multiparts.
@@ -66,7 +66,8 @@ public class MultipartDecoder {
                 populateBallerinaParts(entity, mimeParts);
             }
         } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error occurred while decoding body parts from inputstream " + e.getMessage());
+            throw MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
+                                       "Error occurred while decoding body parts from inputstream " + e.getMessage());
         }
     }
 
@@ -116,8 +117,8 @@ public class MultipartDecoder {
                                                List<MIMEPart> mimeParts) {
         ArrayList<ObjectValue> bodyParts = new ArrayList<>();
         for (final MIMEPart mimePart : mimeParts) {
-            ObjectValue partStruct = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
-            ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+            ObjectValue partStruct = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
+            ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
             populateBodyPart(mimePart, partStruct, mediaType);
             bodyParts.add(partStruct);
         }
@@ -140,7 +141,7 @@ public class MultipartDecoder {
         populateContentType(mimePart, partStruct, mediaType);
         List<String> contentDispositionHeaders = mimePart.getHeader(HttpHeaderNames.CONTENT_DISPOSITION.toString());
         if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
-            ObjectValue contentDisposition = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME,
+            ObjectValue contentDisposition = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID,
                                                                                CONTENT_DISPOSITION_STRUCT);
             populateContentDisposition(partStruct, contentDispositionHeaders, contentDisposition);
         }

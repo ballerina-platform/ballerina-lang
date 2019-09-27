@@ -1,4 +1,5 @@
 ## Module overview
+
 This module contains an implementation of the W3C [**WebSub**](https://www.w3.org/TR/websub/) recommendation, which facilitates a push-based content delivery/notification mechanism between publishers and subscribers.
 
 This implementation supports introducing all WebSub components: subscribers, publishers, and hubs.
@@ -164,7 +165,7 @@ service websubSubscriber on websubEP {
 }
 ```
 
-Explicit intent verification can be done by introducing an ```onIntentVerification``` resource function.
+Explicit intent verification can be done by introducing an `onIntentVerification` resource function.
 ```ballerina
 import ballerina/http;
 import ballerina/log;
@@ -456,7 +457,7 @@ public type IssueAssignedEvent record {
 // Introduce a new `listener` wrapping the generic `ballerina/websub:Listener` 
 public type WebhookListener object {
 
-    *objects:AbstractListener;
+    *objects:Listener;
 
     private websub:Listener websubListener;
 

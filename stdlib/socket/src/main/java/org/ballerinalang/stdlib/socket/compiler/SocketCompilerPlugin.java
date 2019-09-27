@@ -68,7 +68,7 @@ public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
             resourceCount += validate(serviceNode.getName().getValue(), resource, this.diagnosticLog);
         }
         if (resourceCount != mandatoryResourceCount) {
-            String errorMsg = "Service needs to have all 3 resources [%s, %s, %s].";
+            String errorMsg = "service needs to have all 3 resources [%s, %s, %s].";
             String msg = String.format(errorMsg, RESOURCE_ON_CONNECT, RESOURCE_ON_READ_READY, RESOURCE_ON_ERROR);
             diagnosticLog.logDiagnostic(ERROR, serviceNode.getPosition(), msg);
         }

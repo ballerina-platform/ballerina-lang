@@ -221,7 +221,8 @@ public class ServiceTest {
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
-        assertResponseMessage(responseMsg, "Error occurred while extracting text data from entity : Empty content");
+        assertResponseMessage(responseMsg,
+                              "Error occurred while extracting text data from entity : error Empty content ");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")
@@ -309,6 +310,18 @@ public class ServiceTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "Uninitialized configs");
+    }
+
+    @Test(description = "Test non remote function invocation")
+    public void testNonRemoteFunctionInvocation() {
+        String path = "/hello/testFunctionCall";
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(responseMsgPayload, "Non remote function invoked");
     }
 
     @Test(description = "Test error returning from resource")

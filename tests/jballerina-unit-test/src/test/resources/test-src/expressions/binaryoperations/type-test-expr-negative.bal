@@ -94,10 +94,10 @@ function testSimpleRecordTypes() returns string {
         return "a is A";
     }
 
-    // checking against undefined type
-    if (a is C) {
-    
-    }
+    // checking against undefined type (this moved to type-test-expr-semantics-negative.bal)
+    // if (a is C) {
+    //
+    // }
     return "n/a";
 }
 

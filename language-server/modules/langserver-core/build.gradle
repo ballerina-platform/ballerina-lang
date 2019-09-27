@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
@@ -42,7 +42,7 @@ dependencies {
     implementation project(':language-server:language-server-compiler')
     implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
     implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
-    
+
     // Standard libs
     implementation project(':ballerina-auth')
     implementation project(':ballerina-bir')
@@ -51,6 +51,7 @@ dependencies {
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-jdbc')
+    implementation project(':ballerina-java')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-file')
     implementation project(':ballerina-filepath')
@@ -90,19 +91,19 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'commons-io:commons-io'
-    
+
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
@@ -124,6 +125,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 //    baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
@@ -131,7 +134,7 @@ dependencies {
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.6.0'
     dependency 'commons-io:commons-io:2.6'
-    
+
     testCompile 'org.testng:testng'
 }
 

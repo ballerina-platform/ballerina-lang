@@ -225,7 +225,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
-        if (!isWorker) {
+        if (!isWorker && funcNode.body != null) {
             // Fill the worker varDefs in the current function scope
             this.fillVisibleWorkerVarDefMaps(funcNode.body.stmts);
         }
@@ -711,7 +711,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTypeInit typeInit) {
         if (typeInit.initInvocation != null && typeInit.initInvocation.name.value.equals(this.tokenName)) {
-            this.addSymbol(typeInit.initInvocation, typeInit.initInvocation.symbol, false, typeInit.initInvocation.pos);
+            BSymbol symbol = typeInit.initInvocation.symbol;
+            if (symbol == null) {
+                symbol = typeInit.type.tsymbol;
+            }
+            this.addSymbol(typeInit.initInvocation, symbol, false, typeInit.initInvocation.pos);
         } else if (typeInit.userDefinedType != null) {
             this.acceptNode(typeInit.userDefinedType);
         }

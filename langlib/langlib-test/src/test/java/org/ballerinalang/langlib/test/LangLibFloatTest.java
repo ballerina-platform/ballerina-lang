@@ -62,7 +62,16 @@ public class LangLibFloatTest {
 
     @Test
     public void testSum() {
+
         BValue[] returns = BRunUtil.invoke(compileResult, "testSum");
         assertEquals(((BFloat) returns[0]).floatValue(), 70.35);
+    }
+
+    @Test
+    public void testFloatConsts() {
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConsts");
+        assertEquals(((BFloat) returns[0]).floatValue(), Double.NaN);
+        assertEquals(((BFloat) returns[1]).floatValue(), Double.POSITIVE_INFINITY);
     }
 }

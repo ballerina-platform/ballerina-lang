@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jvm;
-import ballerina/io;
-import ballerina/internal;
 import ballerina/bir;
 import ballerina/file;
+import ballerina/internal;
+import ballerina/io;
+import ballerina/jvm;
 
 type BIRFunctionWrapper record {
     string orgName;
@@ -149,7 +149,8 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     if (!isEntry || dlogger.getErrorCount() > 0) {
         return;
     }
-
+    injectDefaultParamInits(module);
+    injectDefaultParamInitsToAttachedFuncs(module);
     // create dependant modules flat array
     createDependantModuleFlatArray();
     // enrich current package with package initializers
@@ -188,7 +189,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
                 string mainClass = "";
                 if (mainFunc is bir:Function) {
                     mainClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName,
-                                                        cleanupBalExt(mainFunc.pos.sourceFileName));
+                        <@untainted> cleanupPathSeperators(cleanupBalExt(mainFunc.pos.sourceFileName)));
                 }
 
                 generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
@@ -200,7 +201,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             }
             generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
             generateCreateTypesMethod(cw, module.typeDefs);
-            generateModuleInitializer(cw, module, pkgName);
+            generateModuleInitializer(cw, module);
             generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
@@ -337,7 +338,11 @@ function calculateBirCachePath(string birCacheDir, bir:ModuleID modId, string ex
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    string className = cleanupName(sourceFileName);
+    string className = cleanupSourceFileName(sourceFileName);
+    // handle source file path start with '/'.
+    if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
+        className = className.substring(1, className.length());
+    }
     if (moduleName != ".") {
         className = cleanupName(moduleName) + "/" + className;
     }
@@ -371,6 +376,10 @@ function splitPkgName(string key) returns [string, string] {
 
 function cleanupName(string name) returns string {
     return internal:replace(name, ".","_");
+}
+
+function cleanupSourceFileName(string name) returns string {
+    return internal:replace(name, ".", FILE_NAME_PERIOD_SEPERATOR);
 }
 
 function cleanupPackageName(string pkgName) returns string {

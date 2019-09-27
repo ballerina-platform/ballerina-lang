@@ -18,9 +18,12 @@ package io.ballerina.plugins.idea.sdk;
 
 import com.google.common.base.Strings;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -70,6 +73,7 @@ import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXECUTABLE_
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXEC_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_NAME;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_PLUGIN_ID;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_VERSION_PATTERN;
 import static io.ballerina.plugins.idea.preloading.OSUtils.MAC;
 import static io.ballerina.plugins.idea.preloading.OSUtils.UNIX;
@@ -86,7 +90,7 @@ public class BallerinaSdkUtils {
     private static final String INSTALLER_PATH_UNIX = "/usr/bin/ballerina";
     private static final String INSTALLER_PATH_MAC = "/etc/paths.d/ballerina";
     // Todo
-    private static final String INSTALLER_PATH_WINDOWS = "";
+    private static final String INSTALLER_PATH_WINDOWS = "C:\\Program Files\\Ballerina\\ballerina";
 
     private BallerinaSdkUtils() {
 
@@ -174,6 +178,15 @@ public class BallerinaSdkUtils {
         return null;
     }
 
+    @Nullable
+    public static String getBallerinaPluginVersion() {
+        IdeaPluginDescriptor balPluginDescriptor = PluginManager.getPlugin(PluginId.getId(BALLERINA_PLUGIN_ID));
+        if (balPluginDescriptor != null) {
+            return balPluginDescriptor.getVersion();
+        }
+        return null;
+    }
+
     @NotNull
     public static String adjustSdkPath(@NotNull String path) {
         return path;
@@ -251,7 +264,11 @@ public class BallerinaSdkUtils {
             // because of the IntelliJ issue of PATH variable might not being identified by the IntelliJ java
             // runtime.
             String routerScriptPath = getByDefaultPath();
-            ballerinaPath = getByCommand(String.format("%s home", routerScriptPath));
+            if (OSUtils.isWindows()) {
+                ballerinaPath = getByCommand(String.format("\"%s\" home", routerScriptPath));
+            } else {
+                ballerinaPath = getByCommand(String.format("%s home", routerScriptPath));
+            }
         }
 
         return ballerinaPath;
@@ -307,9 +324,24 @@ public class BallerinaSdkUtils {
                 // Reads the file content to get the ballerina home location.
                 return getContentAsString(INSTALLER_PATH_MAC);
             case WINDOWS:
-                return INSTALLER_PATH_WINDOWS;
+                // Tries to get the ballerina router script path using the default installation location.
+                return getWinDefaultPath(INSTALLER_PATH_WINDOWS);
             default:
                 return "";
+        }
+    }
+
+    private static String getWinDefaultPath(String defaultDir) {
+        try {
+            String pluginVersion = getBallerinaPluginVersion();
+            if (pluginVersion == null) {
+                return "";
+            }
+            String routerPath = String.join("-", defaultDir, pluginVersion);
+            return Paths.get(routerPath, "bin", "ballerina.bat").toString();
+        } catch (Exception e) {
+            LOG.warn("Error occurred when trying to auto detect using default installation path.", e);
+            return "";
         }
     }
 

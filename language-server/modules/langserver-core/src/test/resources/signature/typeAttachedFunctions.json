@@ -1,24 +1,55 @@
 {
   "position": {
     "line": 2,
-    "character": 20
+    "character": 23
   },
   "expected": {
     "result": {
       "signatures": [
         {
-          "label": "concat()",
+          "label": "indexOf(string str, string substr, int startIndex)",
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "Concatenate all the `strs`. Empty string if empty."
+              "value": "Searches for one string in another string."
             }
           },
-          "parameters": []
+          "parameters": [
+            {
+              "label": "str",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "the string in which to search"
+                }
+              }
+            },
+            {
+              "label": "substr",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "the string to search for"
+                }
+              }
+            },
+            {
+              "label": "startIndex",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "index to start searching from"
+                }
+              }
+            }
+          ]
         }
       ],
       "activeSignature": 0,
       "activeParameter": 0
+    },
+    "id": {
+      "left": "324"
     },
     "jsonrpc": "2.0"
   }

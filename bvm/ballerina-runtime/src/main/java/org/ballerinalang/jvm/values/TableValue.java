@@ -22,6 +22,8 @@ import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
@@ -35,9 +37,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
+
 /**
+ * <p>
  * The {@code {@link TableValue}} represents a two dimensional data set in Ballerina.
- *
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ *  
  * @since 0.995.0
  */
 public class TableValue implements RefValue, CollectionValue {
@@ -49,7 +58,6 @@ public class TableValue implements RefValue, CollectionValue {
     private String tableName;
     private BStructureType constraintType;
     private ArrayValue primaryKeys;
-    private ArrayValue indices;
     private boolean tableClosed;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType type;
@@ -96,15 +104,14 @@ public class TableValue implements RefValue, CollectionValue {
         this.type = new BTableType(constraintType);
     }
 
-    public TableValue(BType type, ArrayValue indexColumns, ArrayValue keyColumns, ArrayValue dataRows) {
+    public TableValue(BType type, ArrayValue keyColumns, ArrayValue dataRows) {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
         this.tableProvider = TableProvider.getInstance();
-        this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns);
         this.constraintType = (BStructureType) constrainedType;
         this.type = new BTableType(constraintType);
         this.primaryKeys = keyColumns;
-        this.indices = indexColumns;
         //Insert initial data
         if (dataRows != null) {
             insertInitialData(dataRows);
@@ -116,36 +123,17 @@ public class TableValue implements RefValue, CollectionValue {
         return stringValue();
     }
 
-    public String stringValue() {
-        String constraint = constraintType != null ? "<" + constraintType.toString() + ">" : "";
-        StringBuilder tableWrapper = new StringBuilder("table" + constraint + " ");
-        StringJoiner tableContent = new StringJoiner(", ", "{", "}");
-        tableContent.add(createStringValueEntry("index", indices));
-        tableContent.add(createStringValueEntry("primaryKey", primaryKeys));
-        tableContent.add(createStringValueDataEntry());
-        tableWrapper.append(tableContent.toString());
-
-        return tableWrapper.toString();
+    public String stringValue(Strand strand) {
+        return createStringValueDataEntry(strand);
     }
 
-    private String createStringValueEntry(String key, ArrayValue contents) {
-        String stringValue = "[]";
-        if (contents != null) {
-            stringValue = contents.toString();
-        }
-        return key + ": " + stringValue;
-    }
-
-    private String createStringValueDataEntry() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("data: ");
-        StringJoiner sj = new StringJoiner(", ", "[", "]");
+    private String createStringValueDataEntry(Strand strand) {
+        StringJoiner sj = new StringJoiner(" ");
         while (hasNext()) {
             MapValueImpl<?, ?> struct = getNext();
-            sj.add(struct.toString());
+            sj.add(struct.stringValue(strand));
         }
-        sb.append(sj.toString());
-        return sb.toString();
+        return sj.toString();
     }
 
     @Override
@@ -217,13 +205,15 @@ public class TableValue implements RefValue, CollectionValue {
     public Object performAddOperation(MapValueImpl<String, Object> data) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), TABLE_LANG_LIB);
             }
         }
 
         try {
             this.addData(data);
             return null;
+        } catch (ErrorValue e) {
+            return e;
         } catch (Throwable e) {
             return TableUtils.createTableOperationError(e);
         }
@@ -239,14 +229,28 @@ public class TableValue implements RefValue, CollectionValue {
         reset();
     }
 
-    //TODO : to be implemented
-    public Object performRemoveOperation() {
+    public Object performRemoveOperation(Strand strand, FPValue<Object, Boolean> func) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), TABLE_LANG_LIB);
             }
         }
-        return TableUtils.createTableOperationError(new Exception("Remove operation is not supported yet"));
+
+        if (((BFunctionType) func.type).paramTypes[0] != this.constraintType) {
+            return TableUtils.createTableOperationError(new Exception(
+                    "incompatible types: function with record type:" + ((BFunctionType) func.type).paramTypes[0]
+                            .getName() + " cannot be used to remove records from a table with type:"
+                            + this.constraintType.getName()));
+        }
+        int deletedCount = 0;
+        while (this.hasNext()) {
+            MapValueImpl<String, Object> row = this.getNext();
+            if (func.apply(new Object[] { strand, row, true })) {
+                tableProvider.deleteData(this.tableName, row);
+                ++deletedCount;
+            }
+        }
+        return deletedCount;
     }
 
     public String getString(int columnIndex) {
@@ -311,7 +315,7 @@ public class TableValue implements RefValue, CollectionValue {
             while (cloneIterator.next()) {
                 data.add(cursor++, cloneIterator.generateNext());
             }
-            TableValue table = new TableValue(new BTableType(constraintType), this.indices, this.primaryKeys, data);
+            TableValue table = new TableValue(new BTableType(constraintType), this.primaryKeys, data);
             refs.put(this, table);
             return table;
         } finally {
@@ -374,18 +378,6 @@ public class TableValue implements RefValue, CollectionValue {
      */
     public boolean isInMemoryTable() {
         return true;
-    }
-
-    /**
-     * Returns the length or the number of rows of the table.
-     *
-     * @return number of rows of the table
-     */
-    public int size() {
-        if (tableName == null) {
-            return 0;
-        }
-        return tableProvider.getRowCount(tableName);
     }
 
     public ArrayValue getPrimaryKeys() {

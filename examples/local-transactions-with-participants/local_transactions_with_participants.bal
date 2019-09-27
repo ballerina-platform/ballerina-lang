@@ -6,7 +6,7 @@ import ballerina/transactions;
 public function main() {
     // The `transaction` block initiates the transaction. Thus, it is called the initiator.
     transaction {
-        // Invoks the local participant.
+        // Invokes the local participant.
         var res = trap localTransactionParticipant();
         if (res is error) {
             // The local participant gets panicked.

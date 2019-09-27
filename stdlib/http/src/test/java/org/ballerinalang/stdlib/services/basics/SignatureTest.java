@@ -87,7 +87,6 @@ public class SignatureTest {
     public void testSignatureWithInvalidBodyIntParam() {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/invalid-body-param.bal").getPath()).getAbsolutePath());
-        // BServiceUtil.runService(compileResult);
     }
 
     @Test
@@ -108,8 +107,8 @@ public class SignatureTest {
                 "test-src/services/signature/invalid-return.bal").getPath()).getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                            "invalid return type: expected error?");
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(), "invalid resource function return" +
+                " type 'int', expected a subtype of 'error?' containing '()'");
     }
 
     @Test

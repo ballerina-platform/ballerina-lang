@@ -115,12 +115,30 @@ public class ConnectorInitTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*Error in sql connector configuration: Failed to initialize pool: Database "
+                  ".*error in sql connector configuration: Failed to initialize pool: Database "
                   + "\".*/target/tempdb/NON_EXISTING_DB\" not found.*")
     public void testConnectionFailure() {
         String jdbcURL = "jdbc:h2:file:" + SQLDBUtils.DB_DIRECTORY + "NON_EXISTING_DB";
         BValue[] arg = { new BString(jdbcURL) };
         BRunUtil.invokeFunction(result, "testConnectionFailure", arg);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid JDBC URL: .*")
+    public void testInvalidJdbcUrl1() {
+        BRunUtil.invokeFunction(result, "testInvalidJdbcUrl1");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid JDBC URL: localhost:3306/testdb.*")
+    public void testInvalidJdbcUrl2() {
+        BRunUtil.invokeFunction(result, "testInvalidJdbcUrl2");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid JDBC URL: jdbc://dbhost.com/testdb.*")
+    public void testInvalidJdbcUrl3() {
+        BRunUtil.invokeFunction(result, "testInvalidJdbcUrl3");
     }
 
     @AfterSuite

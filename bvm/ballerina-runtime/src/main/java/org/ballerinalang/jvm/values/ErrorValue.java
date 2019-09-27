@@ -20,12 +20,14 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.freeze.Status;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -39,8 +41,13 @@ import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 
 /**
+ * <p>
  * Represent an error in ballerina.
- *
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ * 
  * @since 0.995.0
  */
 public class ErrorValue extends RuntimeException implements RefValue {
@@ -67,7 +74,13 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     @Override
     public String stringValue() {
-        return "error " + reason + Optional.ofNullable(details).map(details -> " " + details).orElse("");
+        return stringValue(null);
+    }
+
+    @Override
+    public String stringValue(Strand strand) {
+        return "error " + reason + Optional.ofNullable(details).map(details -> " " + StringUtils.getStringValue(strand,
+                details)).orElse("");
     }
 
     @Override
@@ -136,9 +149,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
         for (StackTraceElement stackFrame : stackTrace) {
             Optional<StackTraceElement> stackTraceElement =
                     BallerinaErrors.filterStackTraceElement(stackFrame, index++);
-            if (stackTraceElement.isPresent()) {
-                filteredStack.add(stackTraceElement.get());
-            }
+            stackTraceElement.ifPresent(filteredStack::add);
         }
         StackTraceElement[] filteredStackArray = new StackTraceElement[filteredStack.size()];
         return filteredStack.toArray(filteredStackArray);

@@ -17,7 +17,7 @@
 import ballerina/crypto;
 import ballerina/encoding;
 
-# Represents authentication provider configurations that supports generating JWT for client interactions.
+# Represents JWT validator configurations.
 #
 # + username - JWT token username
 # + issuer - JWT token issuer
@@ -139,7 +139,7 @@ public function buildHeaderString(JwtHeader header) returns string|Error {
             headerJson[KID] = kid;
         }
     }
-    string headerValInString = headerJson.toString();
+    string headerValInString = headerJson.toJsonString();
     string encodedPayload = encoding:encodeBase64Url(headerValInString.toBytes());
     return encodedPayload;
 }
@@ -184,7 +184,7 @@ public function buildPayloadString(JwtPayload payload) returns string|Error {
     if (customClaims is map<json> && customClaims.length() > 0) {
         payloadJson = appendToMap(customClaims, payloadJson);
     }
-    string payloadInString = payloadJson.toString();
+    string payloadInString = payloadJson.toJsonString();
     return encoding:encodeBase64Url(payloadInString.toBytes());
 }
 

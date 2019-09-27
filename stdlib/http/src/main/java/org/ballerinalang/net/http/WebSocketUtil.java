@@ -20,7 +20,6 @@ package org.ballerinalang.net.http;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -31,7 +30,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.net.http.actions.httpclient.AbstractHTTPAction;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,19 +40,16 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 import java.util.Arrays;
 
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsGenericError;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
-import static org.ballerinalang.net.http.WebSocketConstants.FULL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
-
 
 /**
  * Utility class for WebSocket.
  */
 public class WebSocketUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketUtil.class);
 
     static MapValue getServiceConfigAnnotation(ObjectValue service) {
         return (MapValue) service.getType().getAnnotation(HttpConstants.PROTOCOL_PACKAGE_HTTP,
@@ -72,10 +67,10 @@ public class WebSocketUtil {
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                ObjectValue webSocketEndpoint = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
+                ObjectValue webSocketEndpoint = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
                         WebSocketConstants.WEBSOCKET_CALLER);
-                ObjectValue webSocketConnector = BallerinaValues.createObjectValue(
-                        PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+                ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
+                        WebSocketConstants.WEBSOCKET_CONNECTOR);
 
                 webSocketEndpoint.set(WebSocketConstants.LISTENER_CONNECTOR_FIELD, webSocketConnector);
                 populateEndpoint(webSocketConnection, webSocketEndpoint);
@@ -102,16 +97,18 @@ public class WebSocketUtil {
             @Override
             public void onError(Throwable throwable) {
                 if (callback != null) {
-                    callback.notifyFailure(createWebSocketError(WsInvalidHandshakeError,
-                            "Unable to complete handshake:" + throwable.getMessage()));
+                    callback.notifyFailure(new WebSocketException(WsInvalidHandshakeError,
+                                                                  "Unable to complete handshake:" +
+                                                                          throwable.getMessage()));
                 } else {
-                    throw new WebSocketException("Unable to complete handshake", throwable);
+                    throw new WebSocketException(WsInvalidHandshakeError, "Unable to complete handshake");
                 }
+                logger.error("Unable to complete handshake", throwable);
             }
         });
     }
 
-    public static void executeOnOpenResource(WebSocketService wsService, AttachedFunction onOpenResource,
+    static void executeOnOpenResource(WebSocketService wsService, AttachedFunction onOpenResource,
                                              ObjectValue webSocketEndpoint, WebSocketConnection webSocketConnection) {
         BType[] parameterTypes = onOpenResource.getParameterType();
         Object[] bValues = new Object[parameterTypes.length * 2];
@@ -139,13 +136,13 @@ public class WebSocketUtil {
                 closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
-        //TODO this is temp fix till we get the service.start() API
+
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), onOpenResource.getName(),
                 onOpenCallableUnitCallback,
                 null, bValues);
     }
 
-    public static void populateEndpoint(WebSocketConnection webSocketConnection, ObjectValue webSocketEndpoint) {
+    static void populateEndpoint(WebSocketConnection webSocketConnection, ObjectValue webSocketEndpoint) {
         webSocketEndpoint.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
         String negotiatedSubProtocol = webSocketConnection.getNegotiatedSubProtocol();
         webSocketEndpoint.set(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD, negotiatedSubProtocol);
@@ -154,18 +151,16 @@ public class WebSocketUtil {
     }
 
     public static void handleWebSocketCallback(NonBlockingCallback callback,
-                                               ChannelFuture webSocketChannelFuture) {
+                                               ChannelFuture webSocketChannelFuture, Logger log) {
         webSocketChannelFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                //TODO Temp fix to get return values. Remove
-                callback.setReturnValues(createWebSocketError(cause.getMessage()));
+                log.error("Error occurred ", cause);
+                callback.setReturnValues(new WebSocketException(cause));
 
             } else {
-                //TODO Temp fix to get return values. Remove
                 callback.setReturnValues(null);
             }
-            //TODO remove this call back
             callback.notifySuccess();
         });
     }
@@ -229,31 +224,18 @@ public class WebSocketUtil {
                 .toArray(String[]::new);
     }
 
-    /**
-     * Create Generic webSocket error with given error message.
-     *
-     * @param errMsg the error message
-     * @return ErrorValue instance which contains the error details
-     */
-    public static ErrorValue createWebSocketError(String errMsg) {
-        return BallerinaErrors.createError(WsGenericError.errorCode(), createDetailRecord(errMsg, null));
+    public static String getErrorMessage(Throwable err) {
+        if (err.getMessage() == null) {
+            return "Unexpected error occurred";
+        }
+        return err.getMessage();
     }
 
-    /**
-     * Create webSocket error with given error code and message.
-     *
-     * @param code   the error code which cause for this error
-     * @param errMsg the error message
-     * @return ErrorValue instance which contains the error details
-     */
-    public static ErrorValue createWebSocketError(WebSocketConstants.ErrorCode code, String errMsg) {
-        return BallerinaErrors.createError(code.errorCode(), createDetailRecord(errMsg, null));
-    }
-
-    private static MapValue<String, Object> createDetailRecord(Object... values) {
-        MapValue<String, Object> detail = BallerinaValues.createRecordValue(FULL_PACKAGE_HTTP,
+    public static MapValue<String, Object> createDetailRecord(String errMsg) {
+        MapValue<String, Object> detail = BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID,
                 WEBSOCKET_ERROR_DETAILS);
-        return BallerinaValues.createRecord(detail, values);
+        // The cause is null here. When there is a cause override the method to pass the proper cause
+        return BallerinaValues.createRecord(detail, errMsg, null);
     }
 
     private WebSocketUtil() {

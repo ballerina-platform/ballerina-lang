@@ -1,4 +1,3 @@
-// The Ballerina to OpenApi tool is used to export an Open API Specification(OAS) v3 definition of a Ballerina service.
-// This tool accepts the following command line arguments,
-// `-s | --service` If the provided file contains multiple services, define a specific service that needs to be exported.
-// `-o | --output` The destination path to write the exported OAS definition.
+// The Ballerina to OpenApi tool is used to generate an OpenAPI Specification(OAS) v3 definition of a Ballerina service.
+// This tool's command structure is as below.
+// `ballerina openapi gen-contract [<module>:]<service-name> [-i <ballerina-file>] [-o <contract-file>] [-s|--skip-bind] [-h|--help]`

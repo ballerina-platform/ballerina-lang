@@ -14,12 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/filepath;
 import ballerina/http;
 import ballerina/io;
-import ballerina/file;
-import ballerina/'lang\.int as lint;
-import ballerina/internal;
+import ballerina/lang.'int as lint;
+import ballerina/lang.'string as lstring;
+import ballerina/stringutils;
 
 const int MAX_INT_VALUE = 2147483647;
 const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
@@ -87,14 +88,14 @@ public function main(string... args) {
         } else {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is error) {
-                panic createError("failed to resolve host of remote registry: " + host + " with port " + port.toString());
+                panic createError("failed to resolve host of remote repository: " + host + ":" + port.toString());
             } else {
                 httpEndpoint = result;
                 return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
             }
         }
     } else if (host != "" || strPort != "") {
-        panic createError("both host and port should be provided to enable proxy for accessing remote registry.");
+        panic createError("both host and port should be provided to enable proxy for accessing remote repository.");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
         return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
@@ -127,22 +128,22 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
     http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, req);
     if (httpResponse is error) {
         error e = httpResponse;
-        panic createError("connection to the remote registry host failed : " + e.reason());
+        panic createError("connection to the remote repository host failed: " + <string>e.detail()["message"]);
     } else {
         string statusCode = httpResponse.statusCode.toString();
-        if (internal:hasPrefix(statusCode, "5")) {
-            panic createError("remote registry failed for url:" + url);
+        if (statusCode.startsWith("5")) {
+            panic createError("unable to connect to remote repository: " + url);
         } else if (statusCode != "200") {
             var resp = httpResponse.getJsonPayload();
             if (resp is json) {
-                if (statusCode == "404" && isBuild && internal:contains(resp.message.toString(), "module not found")) {
+                if (statusCode == "404" && isBuild && stringutils:contains(resp.message.toString(), "module not found")) {
                     // To ignore printing the error
                     panic createError("");
                 } else {
                     panic createError(resp.message.toString());
                 }
             } else {
-                panic createError("error occurred when pulling the module from remote registry");
+                panic createError("failed to pull the module '" + modulePath + "' from the remote repository '" + url + "'");
             }
         } else {
             string contentLengthHeader;
@@ -162,12 +163,12 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                 resolvedURI = url;
             }
 
-            string [] uriParts = internal:split(resolvedURI,"/");
+            string [] uriParts = stringutils:split(resolvedURI,"/");
             string moduleVersion = uriParts[uriParts.length() - 3];
-            boolean valid = internal:matches(moduleVersion, VERSION_REGEX);
+            boolean valid = stringutils:matches(moduleVersion, VERSION_REGEX);
 
             if (valid) {
-                string moduleName = modulePath.substring(internal:lastIndexOf(modulePath, "/") + 1, modulePath.length());
+                string moduleName = modulePath.substring(stringutils:lastIndexOf(modulePath, "/") + 1, modulePath.length());
                 string baloFile = uriParts[uriParts.length() - 1];
 
                 // adding version to the module path
@@ -200,12 +201,12 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                 var destChannelClose = wch.close();
                 if (destChannelClose is error) {
                     error e = destChannelClose;
-                    panic createError("error occurred while closing the channel: " + e.reason());
+                    panic createError("error occurred while closing the channel: " + <string>e.detail()["message"]);
                 } else {
                     var srcChannelClose = sourceChannel.close();
                     if (srcChannelClose is error) {
                         error e = srcChannelClose;
-                        panic createError("error occurred while closing the channel: " + e.reason());
+                        panic createError("error occurred while closing the channel: " + <string>e.detail()["message"]);
                     } else {
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
@@ -276,10 +277,8 @@ function defineEndpointWithoutProxy(string url) returns http:Client{
 # + numberOfBytes - Number of bytes to be read
 # + return - Read content as byte[] along with the number of bytes read, or error if read failed
 function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns [byte[], int]|error {
-    byte[] bytes;
-    int numberOfBytesRead;
-    [bytes, numberOfBytesRead] = check (byteChannel.read(numberOfBytes));
-    return <@untainted>[bytes, numberOfBytesRead];
+    byte[] bytes = check (byteChannel.read(numberOfBytes));
+    return <@untainted>[bytes, bytes.length()];
 }
 
 # This function will write the bytes from the byte channel.
@@ -304,7 +303,7 @@ function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int star
 function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel dest,
               string modulePath, string toAndFrom, int width) {
     int terminalWidth = width - logFormatter.offset;
-    int bytesChunk = 8;
+    int bytesChunk = 8192;
     byte[] readContent = [];
     int readCount = -1;
     float totalCount = 0.0;
@@ -313,7 +312,7 @@ function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel d
     string equals = "==========";
     string tabspaces = "          ";
     boolean completed = false;
-    int rightMargin = 5;
+    int rightMargin = lstring:length(baloSize.toString());
     int totalVal = 10;
     int startVal = 0;
     int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - rightMargin;
@@ -323,7 +322,7 @@ function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel d
             completed = true;
         }
         numberOfBytesWritten = checkpanic writeBytes(dest, readContent, startVal);
-        
+
         totalCount = totalCount + readCount;
         float percentage = totalCount / baloSize;
         noOfBytesRead = totalCount.toString() + "/" + baloSize.toString();
@@ -334,7 +333,7 @@ function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel d
         string msg = truncateString(modulePath + toAndFrom, terminalWidth - size.length());
         io:print("\r" + logFormatter.formatLog(<@untainted> (rightPad(msg, rightpadLength) + size)));
     }
-    io:println("\r" + logFormatter.formatLog(rightPad(modulePath + toAndFrom, terminalWidth)));
+    io:println("\r" + logFormatter.formatLog(modulePath + toAndFrom));
     return;
 }
 
@@ -382,7 +381,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
             error e = channelCloseError;
-            io:println(logFormatter.formatLog("Error occured while closing the channel: " + e.reason()));
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + <string>e.detail()["message"]));
         } else {
             return;
         }
@@ -390,7 +389,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
             error e = channelCloseError;
-            io:println(logFormatter.formatLog("Error occured while closing the channel: " + e.reason()));
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + <string>e.detail()["message"]));
         } else {
             return;
         }

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/encoding;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
@@ -60,7 +59,7 @@ public type OutboundOAuth2Provider object {
             }
             return auth:prepareError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
-            var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, false);
+            var authToken = generateAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache);
             if (authToken is string) {
                 return authToken;
             } else {
@@ -79,7 +78,7 @@ public type OutboundOAuth2Provider object {
             return ();
         } else {
             if (data[http:STATUS_CODE] == http:STATUS_UNAUTHORIZED) {
-                var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, true);
+                var authToken = inspectAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache);
                 if (authToken is string) {
                     return authToken;
                 } else {
@@ -109,7 +108,7 @@ public type ClientCredentialsGrantConfig record {|
     int clockSkewInSeconds = 0;
     boolean retryRequest = true;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
-    http:ClientEndpointConfig clientConfig = {};
+    http:ClientConfiguration clientConfig = {};
 |};
 
 # The `PasswordGrantConfig` record can be used to configue OAuth2 password grant type
@@ -136,7 +135,7 @@ public type PasswordGrantConfig record {|
     int clockSkewInSeconds = 0;
     boolean retryRequest = true;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
-    http:ClientEndpointConfig clientConfig = {};
+    http:ClientConfiguration clientConfig = {};
 |};
 
 # The `DirectTokenConfig` record configures the access token directly.
@@ -164,7 +163,7 @@ public type RefreshConfig record {|
     string refreshUrl;
     string[] scopes?;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
-    http:ClientEndpointConfig clientConfig = {};
+    http:ClientConfiguration clientConfig = {};
 |};
 
 # The `DirectTokenRefreshConfig` record passes the configurations for refreshing the access token for
@@ -184,7 +183,7 @@ public type DirectTokenRefreshConfig record {|
     string clientSecret;
     string[] scopes?;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
-    http:ClientEndpointConfig clientConfig = {};
+    http:ClientConfiguration clientConfig = {};
 |};
 
 # The `CachedToken` stores the values received from the authorization/token server to use them
@@ -214,15 +213,29 @@ type RequestConfig record {|
     http:CredentialBearer credentialBearer;
 |};
 
-# Process auth token for OAuth2.
+# Process auth token for OAuth2 at token generation.
 #
 # + authConfig - OAuth2 configurations
 # + tokenCache - Cached token configurations
-# + updateRequest - Check if the request is updated after a 401 response
 # + return - Auth token or `Error` if the validation fails
-function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
-                               @tainted CachedToken tokenCache, boolean updateRequest)
-                               returns @tainted (string|Error) {
+function generateAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
+                                    @tainted CachedToken tokenCache) returns @tainted (string|Error) {
+    if (authConfig is PasswordGrantConfig) {
+        return getAuthTokenForOAuth2PasswordGrant(authConfig, tokenCache);
+    } else if (authConfig is ClientCredentialsGrantConfig) {
+        return getAuthTokenForOAuth2ClientCredentialsGrant(authConfig, tokenCache);
+    } else {
+        return getAuthTokenForOAuth2DirectTokenMode(authConfig, tokenCache);
+    }
+}
+
+# Process auth token for OAuth2 at inspection.
+#
+# + authConfig - OAuth2 configurations
+# + tokenCache - Cached token configurations
+# + return - Auth token or `Error` if the validation fails
+function inspectAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
+                                   @tainted CachedToken tokenCache) returns @tainted (string|Error) {
     if (authConfig is PasswordGrantConfig) {
         if (authConfig.retryRequest) {
             return getAuthTokenForOAuth2PasswordGrant(authConfig, tokenCache);
@@ -232,10 +245,8 @@ function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|
             return getAuthTokenForOAuth2ClientCredentialsGrant(authConfig, tokenCache);
         }
     } else {
-        if (updateRequest) {
-            authConfig.accessToken = "";
-        }
         if (authConfig.retryRequest) {
+            authConfig.accessToken = "";
             return getAuthTokenForOAuth2DirectTokenMode(authConfig, tokenCache);
         }
     }
@@ -407,7 +418,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     RequestConfig requestConfig;
     int clockSkewInSeconds;
     string tokenUrl;
-    http:ClientEndpointConfig clientConfig;
+    http:ClientConfiguration clientConfig;
 
     if (config is ClientCredentialsGrantConfig) {
         if (config.clientId == "" || config.clientSecret == "") {
@@ -463,7 +474,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     RequestConfig requestConfig;
     int clockSkewInSeconds;
     string refreshUrl;
-    http:ClientEndpointConfig clientConfig;
+    http:ClientConfiguration clientConfig;
 
     if (config is PasswordGrantConfig) {
         var refreshConfig = config?.refreshConfig;
@@ -523,7 +534,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 # + tokenCache - Cached token configurations
 # + clockSkewInSeconds - Clock skew in seconds
 # + return - Access token received or `Error` if an error occurred during HTTP client invocation
-function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig,
+function doRequest(string url, http:Request request, http:ClientConfiguration clientConfig,
                    @tainted CachedToken tokenCache, int clockSkewInSeconds) returns @tainted (string|Error) {
     http:Client clientEP = new(url, clientConfig);
     var response = clientEP->post("", request);
@@ -563,8 +574,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
     if (config.credentialBearer == http:AUTH_HEADER_BEARER) {
         if (clientId is string && clientSecret is string) {
             string clientIdSecret = clientId + ":" + clientSecret;
-            req.addHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BASIC +
-                    encoding:encodeBase64(clientIdSecret.toBytes()));
+            req.addHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BASIC + clientIdSecret.toBytes().toBase64());
         } else {
             return prepareError("Client ID or client secret is not provided for client authentication.");
         }

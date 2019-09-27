@@ -14,11 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
-import ballerina/'lang\.int as lint;
-import ballerina/internal;
+import ballerina/io;
+import ballerina/lang.'int as lint;
+import ballerina/mime;
 
 # This functions pulls a module from ballerina central.
 #
@@ -45,12 +44,12 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string or
         }
     } else {
         string statusCode = response.statusCode.toString();
-        if (internal:hasPrefix(statusCode, "5")) {
-            panic createError("error occured in remote registry. url: " + url);
+        if (statusCode.startsWith("5")) {
+            panic createError("unable to connect to remote repository: " + url);
         } else if (statusCode != "200") {
             json|error jsonResponse = response.getJsonPayload();
             if (jsonResponse is error) {
-                panic createError("unsupported response received from remote registry.");
+                panic createError("invalid response received from the remote repository '" + url + "'");
             } else {
                 string message = jsonResponse.message.toString();
                 panic createError(message);
@@ -152,15 +151,16 @@ function getByteArrayOfFile(string filePath) returns byte[]|error {
     if (src is error) {
         panic createError("error reading balo file. path: " + filePath);
     } else {
-        int readCount = 1;
-        byte[] readContent;
-
-        while (readCount > 0) {
-            [byte[], int]|error result = src.read(1024);
-            if (result is error) {
+        boolean readContinue = true;
+        byte[] readContent = [];
+        while (readContinue) {
+            byte[]|io:Error result = src.read(1024);
+            if (result is io:EofError) {
+                readContinue = false;
+            } else if (result is io:Error) {
                 panic createError("error reading bytes of balo file. path: " + filePath);
             } else {
-                [readContent, readCount] = result;
+                readContent = result;
             }
         }
         return <@untainted> readContent;

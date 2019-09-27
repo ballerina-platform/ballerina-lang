@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.stdlib.crypto;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -53,8 +51,6 @@ import javax.crypto.spec.SecretKeySpec;
  * @since 0.95.1
  */
 public class CryptoUtils {
-
-    private static final Log LOG = LogFactory.getLog(CryptoUtils.class);
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
@@ -92,7 +88,6 @@ public class CryptoUtils {
             mac.init(secretKey);
             return mac.doFinal(input);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            LOG.error(e.getMessage(), e);
             throw CryptoUtils.createError("Error occurred while calculating HMAC: " + e.getMessage());
         }
     }
@@ -111,7 +106,6 @@ public class CryptoUtils {
             messageDigest.update(input);
             return messageDigest.digest();
         } catch (NoSuchAlgorithmException e) {
-            LOG.error(e.getMessage(), e);
             throw CryptoUtils.createError("Error occurred while calculating hash: " + e.getMessage());
         }
     }
@@ -131,10 +125,8 @@ public class CryptoUtils {
             sig.update(input);
             return new ArrayValue(sig.sign());
         } catch (InvalidKeyException e) {
-            LOG.error(e.getMessage(), e);
-            return CryptoUtils.createError("Uninitialized private key");
+            return CryptoUtils.createError("Uninitialized private key: " + e.getMessage());
         } catch (NoSuchAlgorithmException | SignatureException e) {
-            LOG.error(e.getMessage(), e);
             throw CryptoUtils.createError("Error occurred while calculating signature: " + e.getMessage());
         }
     }
@@ -155,10 +147,8 @@ public class CryptoUtils {
             sig.update(data);
             return sig.verify(signature);
         } catch (InvalidKeyException e) {
-            LOG.error(e.getMessage(), e);
-            return CryptoUtils.createError("Uninitialized public key");
+            return CryptoUtils.createError("Uninitialized public key: " + e.getMessage());
         } catch (NoSuchAlgorithmException | SignatureException e) {
-            LOG.error(e.getMessage(), e);
             throw CryptoUtils.createError("Error occurred while calculating signature: " + e.getMessage());
         }
     }
@@ -199,16 +189,14 @@ public class CryptoUtils {
             initCipher(cipher, cipherMode, key, paramSpec);
             return new ArrayValue(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
-            LOG.error(e.getMessage(), e);
-            return CryptoUtils.createError("Unsupported algorithm: AES " + algorithmMode + " " + algorithmPadding);
+            return CryptoUtils.createError("Unsupported algorithm: RSA " + algorithmMode + " " + algorithmPadding +
+                    ": " + e.getMessage());
         } catch (NoSuchPaddingException e) {
-            LOG.error(e.getMessage(), e);
-            return CryptoUtils.createError("Unsupported padding scheme defined in the algorithm: AES "
-                    + algorithmMode + " " + algorithmPadding);
+            return CryptoUtils.createError("Unsupported padding scheme defined in the algorithm: RSA "
+                    + algorithmMode + " " + algorithmPadding + ": " + e.getMessage());
         } catch (InvalidKeyException | InvalidAlgorithmParameterException | BadPaddingException |
                 IllegalBlockSizeException | ErrorValue e) {
-            LOG.error(e.getMessage(), e);
-            return CryptoUtils.createError(e.getMessage());
+            return CryptoUtils.createError("Error occurred while RSA encrypt/decrypt: " + e.getMessage());
         }
     }
 
@@ -243,16 +231,14 @@ public class CryptoUtils {
             initCipher(cipher, cipherMode, keySpec, paramSpec);
             return new ArrayValue(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
-            LOG.error(e.getMessage(), e);
-            return CryptoUtils.createError("Unsupported algorithm: AES " + algorithmMode + " " + algorithmPadding);
+            return CryptoUtils.createError("Unsupported algorithm: AES " + algorithmMode + " " + algorithmPadding +
+                    ": " + e.getMessage());
         } catch (NoSuchPaddingException e) {
-            LOG.error(e.getMessage(), e);
             return CryptoUtils.createError("Unsupported padding scheme defined in  the algorithm: AES " +
-                    algorithmMode + " " + algorithmPadding);
+                    algorithmMode + " " + algorithmPadding + ": " + e.getMessage());
         } catch (BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException |
                 InvalidKeyException | ErrorValue e) {
-            LOG.error(e.getMessage(), e);
-            return CryptoUtils.createError(e.getMessage());
+            return CryptoUtils.createError("Error occurred while AES encrypt/decrypt: " + e.getMessage());
         }
     }
 

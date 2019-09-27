@@ -41,6 +41,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_SRC_DIR_NAME;
 
@@ -97,8 +99,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
                 project.getBasePath());
         // if no ballerina project is found.
         if (projectRoot.isEmpty()) {
-            projectRoot = projectPath;
-            filePath = Paths.get(file.getVirtualFile().getPath()).toString().replace(projectRoot, "").substring(1);
+            filePath = Paths.get(file.getVirtualFile().getPath()).toString();
         } else {
             String relativeFilePath =
                     Paths.get(file.getVirtualFile().getPath()).toString().replace(projectRoot, "").substring(1);
@@ -149,6 +150,11 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
                 balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             }
             ballerinaExecutor.withBallerinaPath(balSdkPath);
+
+            // Todo - remove after fixing ballerina script
+            Map<String, String> balHomeEnv = new HashMap<>();
+            balHomeEnv.put("BALLERINA_HOME", balSdkPath);
+            ballerinaExecutor.withExtraEnvironment(balHomeEnv);
         } else {
             ballerinaExecutor = executor.withParameters("run");
 
@@ -171,6 +177,11 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
                 balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             }
             ballerinaExecutor.withBallerinaPath(balSdkPath);
+
+            // Todo - remove after fixing ballerina script
+            Map<String, String> balHomeEnv = new HashMap<>();
+            balHomeEnv.put("BALLERINA_HOME", balSdkPath);
+            ballerinaExecutor.withExtraEnvironment(balHomeEnv);
         }
 
         // Adds ballerina file/package name after flags.

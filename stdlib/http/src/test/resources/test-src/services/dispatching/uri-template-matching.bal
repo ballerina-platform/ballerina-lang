@@ -1,7 +1,7 @@
 import ballerina/http;
-import ballerina/'lang\.int as langint;
-import ballerina/'lang\.float as langfloat;
-import ballerina/internal;
+import ballerina/lang.'float as langfloat;
+import ballerina/lang.'int as langint;
+import ballerina/stringutils;
 
 listener http:MockListener testEP = new(9090);
 
@@ -172,7 +172,7 @@ service echo11 on testEP {
         map<string[]> params = req.getQueryParams();
         string[]? barStr = params["foo"];
         string val = barStr is string[] ? barStr[0] : "";
-        boolean bar = internal:toBoolean(val);
+        boolean bar = stringutils:toBoolean(val);
         json responseJson = {"echo15":bar};
 
         http:Response res = new;

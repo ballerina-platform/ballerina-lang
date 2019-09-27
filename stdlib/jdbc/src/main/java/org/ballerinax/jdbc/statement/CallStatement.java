@@ -47,6 +47,7 @@ import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.NClob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -85,17 +86,15 @@ public class CallStatement extends AbstractSQLStatement {
 
     @Override
     public Object execute() {
-        //TODO: JBalMigration Commenting out transaction handling
-        //TODO: #16033
         checkAndObserveSQLAction(strand, datasource, query);
         Connection conn = null;
         CallableStatement stmt = null;
         List<ResultSet> resultSets = null;
         boolean isInTransaction = strand.isInTransaction();
-        String errorMessagePrefix = "Failed to execute stored procedure: ";
+        String errorMessagePrefix = "failed to execute stored procedure: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
-            conn = getDatabaseConnection(strand, client, datasource, false);
+            conn = getDatabaseConnection(strand, client, datasource);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
             ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
                     datasource.getDatabaseProductName());
@@ -151,11 +150,11 @@ public class CallStatement extends AbstractSQLStatement {
         if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
                 && (structTypes != null && structTypes.size() > 1)) {
             throw new ApplicationException(
-                    "It is not supported to retrieve result sets from stored procedures since it is returning " +
+                    "it is not supported to retrieve result sets from stored procedures since it is returning " +
                             "more than one result set");
         } else if (structTypes == null || resultSets.size() != structTypes.size()) {
             throw new ApplicationException(
-                    "Mismatching record type count " + (structTypes == null ? 0 : structTypes.size()) + " and "
+                    "mismatching record type count " + (structTypes == null ? 0 : structTypes.size()) + " and "
                             + "returned result set count " + resultSets.size() + " from the stored procedure");
         }
         for (int i = 0; i < resultSets.size(); i++) {
@@ -308,6 +307,11 @@ public class CallStatement extends AbstractSQLStatement {
                     paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
                 }
                 break;
+                case Constants.SQLDataTypes.NCLOB: {
+                    NClob value = stmt.getNClob(index + 1);
+                    paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
+                }
+                break;
                 case Constants.SQLDataTypes.VARBINARY:
                 case Constants.SQLDataTypes.BINARY: {
                     byte[] value = stmt.getBytes(index + 1);
@@ -359,19 +363,19 @@ public class CallStatement extends AbstractSQLStatement {
                                         datasource.getDatabaseProductName()));
                     } else {
                         throw new ApplicationException(
-                                "The struct type for the result set pointed by the ref cursor cannot be null");
+                                "the struct type for the result set pointed by the ref cursor cannot be null");
                     }
                     break;
                 }
                 default:
-                    throw new ApplicationException("Unsupported data type " + sqlType + " specified as OUT/INOUT " +
+                    throw new ApplicationException("unsupported data type " + sqlType + " specified as OUT/INOUT " +
                             "parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new SQLException("Error while getting OUT parameter value. " + e.getMessage(), e.getSQLState(),
+            throw new SQLException("error while getting OUT parameter value. " + e.getMessage(), e.getSQLState(),
                     e.getErrorCode());
         } catch (IOException e) {
-            throw new ApplicationException("Error while getting OUT parameter value", e.getMessage());
+            throw new ApplicationException("error while getting OUT parameter value", e.getMessage());
         }
     }
 
@@ -457,7 +461,7 @@ public class CallStatement extends AbstractSQLStatement {
             }
             cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw ErrorGenerator.getSQLDatabaseError(e, "Error while cleaning sql resources: ");
+            throw ErrorGenerator.getSQLDatabaseError(e, "error while cleaning sql resources: ");
         }
     }
 }

@@ -67,8 +67,6 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
 
     @Override
     public MapValue<String, Object> execute() {
-        //TODO: JBalMigration Commenting out transaction handling
-        //TODO: #16033
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs;
@@ -81,10 +79,15 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         }
 
         boolean isInTransaction = strand.isInTransaction();
-        String errorMessagePrefix = "Failed to execute batch update";
+        String errorMessagePrefix = "failed to execute batch update";
         try {
-            conn = getDatabaseConnection(strand, client, datasource, false);
-            stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+            conn = getDatabaseConnection(strand, client, datasource);
+            boolean generatedKeyReturningSupported = isGeneratedKeyReturningSupported();
+            if (generatedKeyReturningSupported) {
+                stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+            } else {
+                stmt = conn.prepareStatement(query);
+            }
             conn.setAutoCommit(false);
             if (paramArrayCount == 0) {
                 stmt.addBatch();
@@ -98,9 +101,11 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                 stmt.addBatch();
             }
             updatedCount = stmt.executeBatch();
-            rs = stmt.getGeneratedKeys();
-            //This result set contains the auto generated keys.
-            generatedKeys = getGeneratedKeysFromBatch(rs);
+            if (generatedKeyReturningSupported) {
+                rs = stmt.getGeneratedKeys();
+                //This result set contains the auto generated keys.
+                generatedKeys = getGeneratedKeysFromBatch(rs);
+            }
             if (!isInTransaction) {
                 conn.commit();
             }
@@ -141,6 +146,15 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         }
     }
 
+    // It has been identified that Oracle and MS SQL Server does not support returning generated keys along with
+    // batch update. And such effort would result in an exception causing batch update failure.
+    // If such other databases are identified they can be included here.
+    // The name of the database is being checked because there is no way to identify through the API.
+    private boolean isGeneratedKeyReturningSupported() {
+        return !Constants.DatabaseNames.ORACLE.equals(datasource.getDatabaseProductName())
+                && !Constants.DatabaseNames.MSSQL_SERVER.equals(datasource.getDatabaseProductName());
+    }
+
     private ArrayValue createUpdatedCountArray(int[] updatedCounts, int paramArrayCount) {
         // After a command in a batch update fails to execute properly and a BatchUpdateException is thrown, the
         // driver may or may not continue to process the remaining commands in the batch. If the driver does not
@@ -161,7 +175,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private MapValue<String, Object> createFrozenBatchUpdateResultRecord(ArrayValue countArray,
             MapValue<String, ArrayValue> generatedKeys, ErrorValue retError) {
         MapValue<String, Object> batchUpdateResultRecord = BallerinaValues
-                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.JDBC_BATCH_UPDATE_RESULT);
+                .createRecordValue(Constants.JDBC_PACKAGE_ID, Constants.JDBC_BATCH_UPDATE_RESULT);
         MapValue<String, Object> populatedUpdateResultRecord = BallerinaValues
                 .createRecord(batchUpdateResultRecord, countArray, generatedKeys, retError);
         populatedUpdateResultRecord.attemptFreeze(new Status(State.FROZEN));

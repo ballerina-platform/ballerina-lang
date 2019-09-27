@@ -20,7 +20,11 @@
 #
 # LITTLE_ENDIAN - specifies the byte order to be the least significant byte first
 public type ByteOrder "BE"|"LE";
+
+# Specifies the bytes to be in the order of most significant byte first.
 public const BIG_ENDIAN = "BE";
+
+# Specifies the byte order to be the least significant byte first.
 public const LITTLE_ENDIAN = "LE";
 
 # Represents a WritableDataChannel for writing data.
@@ -79,8 +83,9 @@ public type WritableDataChannel object {
     # + return - nill if the content is written successfully or `Error` if any error occurred
     public function writeString(string value, string encoding) returns Error? = external;
 
-    # Reads a variable length integer.
+    # Writes a variable length integer.
     #
+    # + value - int which will be written
     # + return - value of the integer which is read or `Error` if any error occurred
     public function writeVarInt(int value) returns Error? = external;
 

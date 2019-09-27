@@ -46,8 +46,8 @@ public class ResourceConfigPathTest {
         assertResponse(diag[2], "Incomplete path param expression", 26);
         assertResponse(diag[3], "Incomplete path param expression", 34);
         assertResponse(diag[4], "Invalid param expression in resource path config", 42);
-        assertResponse(diag[5], "Invalid param expression in resource path config", 50);
-        assertResponse(diag[6], "Illegal empty expression in resource path config", 50);
+        assertResponse(diag[5], "Illegal empty expression in resource path config", 50);
+        assertResponse(diag[6], "Invalid param expression in resource path config", 50);
         assertResponse(diag[7], "Illegal expression in resource path config", 58);
         assertResponse(diag[8], "Illegal closing brace detected in resource path config", 66);
         assertResponse(diag[9], "Illegal closing brace detected in resource path config", 74);

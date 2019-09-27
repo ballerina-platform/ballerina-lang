@@ -14,8 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/config;
 import ballerina/http;
+import ballerina/io;
 
 listener http:Listener serviceEndpoint2 = new(9102);
 
@@ -32,20 +33,26 @@ http:ListenerConfiguration httpsEPConfig = {
 
 listener http:Listener httpsEP = new(9104, httpsEPConfig);
 
-http:ClientEndpointConfig endPoint1Config = {
+http:ClientConfiguration endPoint1Config = {
     followRedirects: { enabled: true, maxCount: 3 }
 };
 
-http:ClientEndpointConfig endPoint2Config = {
+http:ClientConfiguration endPoint2Config = {
     followRedirects: { enabled: true, maxCount: 5 }
 };
 
-http:ClientEndpointConfig endPoint3Config = {
+http:ClientConfiguration endPoint3Config = {
     followRedirects: { enabled: true }
 };
 
-http:ClientEndpointConfig endPoint5Config = {
-    followRedirects: { enabled: true }
+http:ClientConfiguration endPoint5Config = {
+    followRedirects: { enabled: true },
+    secureSocket: {
+        trustStore: {
+            path: config:getAsString("truststore"),
+            password: "ballerina"
+        }
+    }
 };
 
 @http:ServiceConfig {

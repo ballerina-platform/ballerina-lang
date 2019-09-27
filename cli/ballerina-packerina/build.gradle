@@ -40,6 +40,7 @@ dependencies {
     implementation project(':ballerina-tool')
     implementation project(':testerina:testerina-core')
     implementation project(':toml-parser')
+    implementation project(':docerina')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
     testCompile 'org.testng:testng'
@@ -82,6 +83,7 @@ test {
     dependsOn configurations.birJar
     dependsOn configurations.birJarCompile
 
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

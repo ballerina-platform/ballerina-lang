@@ -319,10 +319,12 @@ const string PRINT_STACK_TRACE_METHOD = "printStackTrace";
 const string SET_DETAIL_TYPE_METHOD = "setDetailType";
 const string ERROR_REASON_METHOD_TOO_LARGE = "MethodTooLarge";
 const string ERROR_REASON_CLASS_TOO_LARGE = "ClassTooLarge";
+const string TRAP_ERROR_METHOD = "trapError";
 
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
 const string THROWABLE = "java/lang/Throwable";
+const string STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
 const string HANDLE_THROWABLE_METHOD = "handleRuntimeErrors";
 const string HANDLE_STOP_PANIC_METHOD = "silentlyLogBadSad";
 const string HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
@@ -336,6 +338,8 @@ const string MODULE_STOP = "$moduleStop";
 const string BAL_EXTENSION = ".bal";
 const string WINDOWS_PATH_SEPERATOR = "\\";
 const string UNIX_PATH_SEPERATOR = "/";
+const string JAVA_PACKAGE_SEPERATOR = "/";
+const string FILE_NAME_PERIOD_SEPERATOR = "$$$";
 const string BALLERINA = "ballerina";
 const string BUILT_IN_PACKAGE_NAME = "lang.annotations";
 

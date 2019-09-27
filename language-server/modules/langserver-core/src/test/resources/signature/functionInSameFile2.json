@@ -1,0 +1,44 @@
+{
+  "position": {
+    "line": 1,
+    "character": 16
+  },
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "getGreeting(int year, string message)",
+          "documentation": {
+            "right": {
+              "kind": "markdown",
+              "value": "Returns a sample greeting with the given content"
+            }
+          },
+          "parameters": [
+            {
+              "label": "year",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "Year to print "
+                }
+              }
+            },
+            {
+              "label": "message",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "Greeting message to print "
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 0
+    },
+    "jsonrpc": "2.0"
+  }
+}

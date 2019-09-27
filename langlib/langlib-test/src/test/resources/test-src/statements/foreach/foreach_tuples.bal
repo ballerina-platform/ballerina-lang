@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 
 [int, string, boolean, (), float, decimal] data = [20, "string", true, (), 15.5, 20.2];
 string output = "";
@@ -30,11 +29,11 @@ function addNeg(int i) {
 }
 
 function concatInt(int index, int value) {
-    output = output + index + ":" + value + " ";
+    output = output + index.toString() + ":" + value.toString() + " ";
 }
 
 function concatString(int index, string value) {
-    output = output + index + ":" + value + " ";
+    output = output + index.toString() + ":" + value + " ";
 }
 
 type Person record {
@@ -62,7 +61,7 @@ function testTupleWithBasicTypes() returns string {
         if i is () {
             result += "()";
         }
-        result += io:sprintf("%s", i);
+        result += i.toString();
     }
     return result;
 }
@@ -182,7 +181,7 @@ function testNestedWithBreakContinue() returns string {
             } else if (j == 2) {
                 continue;
             }
-            output = output + j;
+            output = output + j.toString();
         }
         output = output + " ";
         i += 1;
@@ -196,9 +195,9 @@ function testTupleWithNullElements() returns string {
     int i = 0;
     foreach var v in sTuple {
         if v is string {
-            output = output + i + ":" + v + " ";
+            output = output + i.toString() + ":" + v + " ";
         } else {
-           output = output + i + ": ";
+           output = output + i.toString() + ": ";
         }
         i += 1;
     }

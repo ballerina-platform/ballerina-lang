@@ -18,6 +18,9 @@
 
 package org.ballerinalang.mime.util;
 
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
@@ -29,13 +32,20 @@ public class MimeConstants {
     public static final String MEDIA_TYPE = "MediaType";
     public static final String CONTENT_DISPOSITION_STRUCT = "ContentDisposition";
     public static final String PROTOCOL_PACKAGE_MIME = BALLERINA_PACKAGE_PREFIX + "mime";
+    public static final BPackage PROTOCOL_MIME_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "mime");
     public static final String PROTOCOL_PACKAGE_IO = BALLERINA_PACKAGE_PREFIX + "io";
+    public static final BPackage PROTOCOL_IO_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "io");
     public static final String READABLE_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
     public static final String MIME_ERROR_MESSAGE = "message";
     public static final String PARSING_ENTITY_BODY_FAILED = "{ballerina/mime}ParsingEntityBodyFailed";
     public static final String INVALID_CONTENT_TYPE = "{ballerina/mime}InvalidContentType";
     public static final String READING_HEADER_FAILED = "{ballerina/mime}ReadingHeaderFailed";
     public static final String MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
+    public static final String INVALID_HEADER_VALUE = "{ballerina/mime}InvalidHeaderValue";
+    public static final String INVALID_HEADER_PARAM = "{ballerina/mime}InvalidHeaderParam";
+    public static final String INVALID_CONTENT_LENGTH = "{ballerina/mime}InvalidContentLength";
+    public static final String HEADER_NOT_FOUND = "{ballerina/mime}HeaderNotFound";
+    public static final String SERIALIZATION_ERROR_CODE = "{ballerina/mime}SerializationError";
 
     /**
      * Content type HTTP header.

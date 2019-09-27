@@ -16,33 +16,34 @@
 
 package io.ballerina.plugins.idea.preloading;
 
-import com.intellij.openapi.diagnostic.Logger;
-
 /**
  * Launcher Terminator Implementation for Windows. ( Xp professional SP2++).
  */
-public class TerminatorWindows implements Terminator {
-    private final String processIdentifier = "org.ballerinalang.langserver.launchers.stdio.Main";
-    private static final Logger LOGGER = Logger.getInstance(TerminatorWindows.class);
+public class TerminatorWindows extends Terminator {
 
     /**
      * @return file process command.
      */
-    private String getFindProcessCommand() {
+    private String getFindProcessCommand(String processName) {
         // Escapes forward slashes.
-        return "cmd /c wmic.exe Process where \"Commandline like '%" + processIdentifier + "%'\" CALL TERMINATE";
+        return "cmd /c wmic.exe Process where \"Commandline like '%" + processName + "%'\" CALL TERMINATE";
+    }
+
+    public void terminate() {
+        terminate(LS_PROCESS_ID);
+        terminate(DEBUG_PROCESS_ID);
     }
 
     /**
-     * Terminate running ballerina program.
+     * Terminates a given ballerina process.
      */
-    public void terminate() {
-        String findProcessCommand = getFindProcessCommand();
+    private void terminate(String processName) {
+        String findProcessCommand = getFindProcessCommand(processName);
         try {
             Process findProcess = Runtime.getRuntime().exec(findProcessCommand);
             findProcess.waitFor();
         } catch (Throwable e) {
-            LOGGER.error("Launcher was unable to find the process ID for " + processIdentifier + ".");
+            LOGGER.error("Launcher was unable to find the process ID for " + processName + ".");
         }
     }
 }

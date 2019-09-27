@@ -47,7 +47,7 @@ public class BIntegerValueNegativeTest {
         BAssertUtil.validateError(compileResult, index++, expectedError, 6, 13);
 
         expectedError = "mismatched input 'int'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', " +
-                "'!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<', '.@'}";
+                "'!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
         BAssertUtil.validateError(compileResult, index++, expectedError, 13, 5);
 
         expectedError = "extraneous input '672'";
@@ -57,7 +57,7 @@ public class BIntegerValueNegativeTest {
         BAssertUtil.validateError(compileResult, index++, expectedError, 14, 14);
 
         expectedError = "mismatched input '}'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', '!=', " +
-                "'>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<', '.@'}";
+                "'>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
         BAssertUtil.validateError(compileResult, index, expectedError, 18, 1);
     }
 }

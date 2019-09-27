@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/encoding;
+import ballerina/lang.'string as strings;
 
 # Represents a WebSocket connection in Ballerina. This includes all connection-oriented operations.
 type WebSocketConnector object {
@@ -29,7 +29,9 @@ type WebSocketConnector object {
     returns WebSocketError? {
         string text = "";
         if (data is byte[]) {
-            text = encoding:byteArrayToString(data);
+            text = check strings:fromBytes(data);
+        } else if (data is json) {
+            text = data.toJsonString();
         } else {
             text = data.toString();
         }

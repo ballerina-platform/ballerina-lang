@@ -25,13 +25,13 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayOutputStream;
@@ -58,6 +58,8 @@ import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_SUB_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.MimeConstants.FORM_DATA_PARAM;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_LENGTH;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
@@ -66,7 +68,7 @@ import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.MimeConstants.ONE_BYTE;
 import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PRIMARY_TYPE_FIELD;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BUFFER_SIZE;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 import static org.ballerinalang.mime.util.MimeConstants.SIZE_FIELD;
@@ -140,7 +142,7 @@ public class MimeUtil {
             MimeTypeParameterList parameterList = mimeType.getParameters();
             return parameterList.get(parameterName);
         } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
+            throw MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
         }
     }
 
@@ -157,8 +159,7 @@ public class MimeUtil {
             MimeTypeParameterList parameterList = mimeType.getParameters();
             return parameterList.get(parameterName);
         } catch (MimeTypeParseException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
-                    "Error while parsing Content-Type value: " + e.getMessage());
+            throw MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
         }
     }
 
@@ -221,13 +222,13 @@ public class MimeUtil {
             mediaType.set(SUFFIX_FIELD, suffix);
             mediaType.set(PARAMETER_MAP_FIELD, parameterMap);
         } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
+            throw new ErrorValue(INVALID_CONTENT_TYPE, e.getMessage());
         }
         return mediaType;
     }
 
     public static void setMediaTypeToEntity(ObjectValue entityStruct, String contentType) {
-        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
         MimeUtil.setContentType(mediaType, entityStruct, contentType);
         HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
     }
@@ -482,7 +483,7 @@ public class MimeUtil {
             return new String(((ArrayValue) dataSource).getBytes(), StandardCharsets.UTF_8);
         }
 
-        return dataSource.toString();
+        return StringUtils.getJsonString(dataSource);
     }
 
     /**
@@ -519,7 +520,7 @@ public class MimeUtil {
      * @param contentType Content-Type value as a string
      * @return true if the value is valid
      */
-    public static Boolean isValidateContentType(String contentType) {
+    public static boolean isValidateContentType(String contentType) {
         try {
             new MimeType(contentType);
         } catch (MimeTypeParseException e) {
@@ -544,7 +545,7 @@ public class MimeUtil {
                 contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
             }
         } catch (NumberFormatException e) {
-            throw new BallerinaException("Invalid content length");
+            throw MimeUtil.createError(INVALID_CONTENT_LENGTH, "Invalid content length");
         }
         return contentLength;
     }

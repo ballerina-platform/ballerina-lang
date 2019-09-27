@@ -14,8 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/encoding;
 import ballerina/http;
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 import ballerina/log;
 
 //////////////////////////////////////////
@@ -26,7 +27,7 @@ import ballerina/log;
 # + config - The configuration for the endpoint
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public SubscriberListenerConfiguration? config = ();
 
@@ -114,22 +115,22 @@ public type Listener object {
                     [hub, topic] = <[string, string]> target;
                 }
 
-                http:ClientEndpointConfig? hubClientConfig =
-                                        <http:ClientEndpointConfig?> subscriptionDetails[ANNOT_FIELD_HUB_CLIENT_CONFIG];
+                http:ClientConfiguration? hubClientConfig =
+                                        <http:ClientConfiguration?> subscriptionDetails[ANNOT_FIELD_HUB_CLIENT_CONFIG];
 
                 if (resourceUrl is string) {
-                    http:ClientEndpointConfig? publisherClientConfig =
-                                <http:ClientEndpointConfig?> subscriptionDetails[ANNOT_FIELD_PUBLISHER_CLIENT_CONFIG];
+                    http:ClientConfiguration? publisherClientConfig =
+                                <http:ClientConfiguration?> subscriptionDetails[ANNOT_FIELD_PUBLISHER_CLIENT_CONFIG];
                     var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, publisherClientConfig);
                     if (discoveredDetails is [string, string]) {
                         var [retHub, retTopic] = discoveredDetails;
-                        var hubDecodeResponse = http:decode(retHub, "UTF-8");
+                        var hubDecodeResponse = encoding:decodeUriComponent(retHub, "UTF-8");
                         if (hubDecodeResponse is string) {
                             retHub = hubDecodeResponse;
                         } else {
                             panic <error> hubDecodeResponse;
                         }
-                        var topicDecodeResponse = http:decode(retTopic, "UTF-8");
+                        var topicDecodeResponse = encoding:decodeUriComponent(retTopic, "UTF-8");
                         if (topicDecodeResponse is string) {
                             retTopic = topicDecodeResponse;
                         } else {
@@ -226,7 +227,7 @@ public type ExtensionConfig record {|
 # + resourceUrl - The resource URL advertising hub and topic URLs
 # + publisherClientConfig - The configuration for the publisher client
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
-function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? publisherClientConfig)
+function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? publisherClientConfig)
         returns @tainted [string, string]|error {
     http:Client resourceEP = new http:Client(resourceUrl, publisherClientConfig);
     http:Request request = new;
@@ -256,7 +257,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? p
 # + hub - The hub to which the subscription request is to be sent
 # + hubClientConfig - The configuration for the hub client
 # + subscriptionDetails - Map containing subscription details
-function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? hubClientConfig,
+function invokeClientConnectorForSubscription(string hub, http:ClientConfiguration? hubClientConfig,
                                               map<any> subscriptionDetails) {
     Client websubHubClientEP = new Client(hub, hubClientConfig);
     [string, string][_, topic] = <[string, string]> subscriptionDetails[ANNOT_FIELD_TARGET];

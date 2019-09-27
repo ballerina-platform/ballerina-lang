@@ -87,8 +87,8 @@ public class Parser {
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.pkgCache.put(pkgId, pkgNode);
         for (CompilerInput sourceInput: pkgSource.getPackageSourceEntries()) {
-            if (ProjectDirs.isTestSource(((FileSystemSourceInput) sourceInput).getPath(), sourceRootPath,
-                                         pkgId.getName().value)) {
+            if (ProjectDirs.isTestSource(((FileSystemSourceInput) sourceInput).getPath(),
+                    sourceRootPath , pkgId.getName().value)) {
                 // This check is added to ensure that there is exactly one testable package per bLangPackage
                 if (!pkgNode.containsTestablePkg()) {
                     BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode();

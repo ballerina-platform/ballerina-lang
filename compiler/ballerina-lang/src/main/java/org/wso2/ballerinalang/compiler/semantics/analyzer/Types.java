@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -753,9 +754,22 @@ public class Types {
 
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
                                                      List<TypePair> unresolvedTypes) {
-        if (source.state != BArrayState.UNSEALED
-                && (target.restType != null || target.tupleTypes.size() != source.size)) {
-            return false;
+        if (!target.tupleTypes.isEmpty()) {
+            if (source.state == BArrayState.UNSEALED) {
+                // [int, int, int...] = int[] || [int, int] = int[]
+                return false;
+            }
+
+            if (target.restType != null && target.tupleTypes.size() > source.size) {
+                // [int, int, int...] = int[1]
+                return false;
+            }
+
+            if (target.restType == null && target.tupleTypes.size() != source.size) {
+                // [int, int] = int[1], [int, int] = int[3]
+                return false;
+            }
+
         }
 
         List<BType> targetTypes = new ArrayList<>(target.tupleTypes);
@@ -1165,8 +1179,17 @@ public class Types {
                     return symbol;
             }
             symbol = createCastOperatorSymbol(symTable.anyType, expType, true, code);
+        } else if (expType.tag == TypeTags.ERROR
+                && (actualType.tag == TypeTags.UNION
+                && isAllErrorMembers((BUnionType) actualType))) {
+            symbol = createCastOperatorSymbol(symTable.anyType, symTable.errorType, true, InstructionCodes.ANY2E);
+
         }
         return symbol;
+    }
+
+    private boolean isAllErrorMembers(BUnionType actualType) {
+        return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
@@ -1293,9 +1316,9 @@ public class Types {
         if (type.tag != TypeTags.OBJECT) {
             return false;
         }
-        final BSymbol bSymbol = symTable.langObjectModuleSymbol.scope.lookup(Names.ABSTRACT_LISTENER).symbol;
+        final BSymbol bSymbol = symTable.langObjectModuleSymbol.scope.lookup(Names.LISTENER).symbol;
         if (bSymbol == symTable.notFoundSymbol || bSymbol.type.tag != TypeTags.OBJECT) {
-            throw new AssertionError("AbstractListener object not defined.");
+            throw new AssertionError("Listener object not defined.");
         }
         BObjectType rhsType = (BObjectType) type;
         BObjectType lhsType = (BObjectType) bSymbol.type;
@@ -1791,14 +1814,6 @@ public class Types {
         }
 
         public Boolean visit(BTupleType t, BType s) {
-            // tuples of [string...], [string, string...] can be treated as string[]
-            if (s.tag == TypeTags.ARRAY && t.restType != null) {
-                Set<BType> types = new HashSet<>(t.tupleTypes);
-                types.add(t.restType);
-                if (types.size() == 1 && types.contains(((BArrayType) s).eType)) {
-                    return true;
-                }
-            }
             if (s.tag != TypeTags.TUPLE) {
                 return false;
             }
@@ -2640,6 +2655,30 @@ public class Types {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Validate if the return type of the given function is a subtype of `error?`, containing `()`.
+     *
+     * @param function          The function of which the return type should be validated
+     * @param diagnosticCode    The code to log if the return type is invalid
+     */
+    public void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
+        BType returnType = function.returnTypeNode.type;
+
+        if (returnType.tag == TypeTags.NIL) {
+            return;
+        }
+
+        if (returnType.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
+            if (returnType.isNullable() &&
+                    memberTypes.stream().allMatch(type -> type.tag == TypeTags.NIL || type.tag == TypeTags.ERROR)) {
+                return;
+            }
+        }
+
+        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.type.toString());
     }
 
     /**

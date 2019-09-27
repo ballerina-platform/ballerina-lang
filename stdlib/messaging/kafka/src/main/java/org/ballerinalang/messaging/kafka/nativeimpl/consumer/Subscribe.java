@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
@@ -35,8 +36,10 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKA
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SUBSCRIBED_TOPICS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFromStringArrayValue;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicNamesString;
 
 /**
  * Native function subscribes consumer to given set of topic array.
@@ -53,6 +56,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFr
         isPublic = true
 )
 public class Subscribe {
+    private static final PrintStream console = System.out;
 
     public static Object subscribe(Strand strand, ObjectValue consumerObject, ArrayValue topics) {
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
@@ -62,6 +66,7 @@ public class Subscribe {
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
             return createKafkaError("Failed to subscribe to the provided topics: " + e.getMessage(), CONSUMER_ERROR);
         }
+        console.println(SUBSCRIBED_TOPICS + getTopicNamesString(topicsList));
         return null;
     }
 }

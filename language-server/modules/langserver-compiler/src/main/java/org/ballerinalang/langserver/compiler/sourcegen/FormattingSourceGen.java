@@ -414,7 +414,13 @@ public class FormattingSourceGen {
 
         if ("CompilationUnit".equals(kind)) {
             if (node.has("ws")) {
-                node.getAsJsonArray("ws").get(0).getAsJsonObject().addProperty("text", "");
+                JsonArray compilationUnitWS = node.getAsJsonArray(FormattingConstants.WS);
+                for (JsonElement wsItem : compilationUnitWS) {
+                    JsonObject currentWS = wsItem.getAsJsonObject();
+                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("<EOF>")) {
+                        currentWS.addProperty(FormattingConstants.TEXT, "");
+                    }
+                }
             }
         }
 
@@ -578,6 +584,17 @@ public class FormattingSourceGen {
             // Skip generating the source from this node.
             if (node.has("isInFork") && node.get("isInFork").getAsBoolean()
                     && !parentKind.equals("ForkJoin")) {
+                node.addProperty("skip", true);
+            }
+
+            // If variable def(worker) contains a invocation skip the generating source form this node.
+            if (node.has("isWorker")
+                    && node.get("isWorker").getAsBoolean()
+                    && node.has("variable")
+                    && node.getAsJsonObject("variable").has("initialExpression")
+                    && node.getAsJsonObject("variable").getAsJsonObject("initialExpression").has("kind")
+                    && node.getAsJsonObject("variable").getAsJsonObject("initialExpression").get("kind").getAsString()
+                    .equals("Invocation")) {
                 node.addProperty("skip", true);
             }
         }

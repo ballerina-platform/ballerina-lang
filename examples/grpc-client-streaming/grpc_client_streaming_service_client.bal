@@ -1,4 +1,5 @@
 // This is the client implementation for the client streaming scenario.
+import ballerina/grpc;
 import ballerina/io;
 
 int total = 0;
@@ -12,7 +13,7 @@ public function main() {
 
     if (res is grpc:Error) {
         io:println("Error from Connector: " + res.reason() + " - "
-                                            + <string> res.detail()["message"]);
+                                           + <string> res.detail()["message"]);
         return;
     } else {
         io:println("Initialized connection sucessfully.");
@@ -26,7 +27,7 @@ public function main() {
         grpc:Error? connErr = ep->send(greet + " " + name);
         if (connErr is grpc:Error) {
             io:println("Error from Connector: " + connErr.reason() + " - "
-                                            + <string> connErr.detail()["message"]);
+                                       + <string> connErr.detail()["message"]);
         } else {
             io:println("send greeting: " + greet + " " + name);
         }
@@ -54,7 +55,7 @@ service HelloWorldMessageListener = service {
     // Resource registered to receive server error messages.
     resource function onError(error err) {
         io:println("Error reported from server: " + err.reason() + " - "
-                                                + <string> err.detail()["message"]);
+                                           + <string> err.detail()["message"]);
     }
 
     // Resource registered to receive server completed messages.

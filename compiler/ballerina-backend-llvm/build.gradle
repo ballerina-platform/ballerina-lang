@@ -23,7 +23,6 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-llvm')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-internal')
     implementation project(':ballerina-bir')
 }
 

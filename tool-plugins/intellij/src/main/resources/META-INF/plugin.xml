@@ -1,20 +1,21 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.0-alpha-2</version>
+    <version>1.0.0</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
-      <a href="https://ballerina.io/">Ballerina</a> is a simple programming language whose syntax and runtime address the hard problems of integration. As a Turing complete language, Ballerina enables agility with edit, build, and run cycles. Ballerina code is compiled into services that include transactions, embedded brokers and gateway runtimes.
+      <a href="https://ballerina.io/">Ballerina</a> is a simple programming language whose syntax and platform address
+      the hard problems of integration. It is a general purpose, concurrent, transactional, statically and strongly
+      typed programming language with both textual and graphical syntaxes. Its specialization is integration - it
+      brings fundamental concepts, ideas and tools of distributed system integration into the language and offers a
+      type safe, concurrent environment to implement such applications. These include distributed transactions,
+      reliable messaging, stream processing, workflows and container management platforms.
     ]]></description>
 
     <change-notes><![CDATA[
       <ul>
-        <li>Fixed plugin compatibility issues with IDEA 2019.2 (diagnostics, code actions and renaming support.) </li>
-        <li>Fixed syntax highlighting issue with XML related syntax. </li>
-        <li>Added ballerina module creation action. </li>
-        <li>Added plugin setting to enable ballerina experimental features. </li>
-        <li>Fixed minor code completion related issues. </li>
+        <li> Added minor fixes and improvements for ballerina debugger client. </li>
       </ul>
     ]]>
     </change-notes>
@@ -49,14 +50,15 @@
         <externalAnnotator implementationClass="org.wso2.lsp4intellij.contributors.annotator.LSPAnnotator"
                            id="BallerinaLSPAnnotator" language="Ballerina"/>
 
-        <renameHandler implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameHandler"
-                       id="LSPRenameHandler" order="first"/>
+        <!--Todo - Enable after restoring the renaming support-->
+        <!---->
+        <!-- <renameHandler implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameHandler"-->
+        <!--                       id="LSPRenameHandler" order="first"/>-->
+        <!-- <renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"-->
+        <!--           id="LSPRenameProcessor" order="first"/>-->
 
-        <renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"
-                                   id="LSPRenameProcessor" order="first"/>
-
-        <typedHandler implementation="org.wso2.lsp4intellij.editor.listeners.LSPTypedHandler"
-                      id="BallerinaLspTypedHandler"/>
+        <!-- <typedHandler implementation="org.wso2.lsp4intellij.listeners.LSPTypedHandler"-->
+        <!--          id="BallerinaLspTypedHandler"/>-->
 
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
@@ -89,6 +91,9 @@
         <annotator language="Ballerina"
                    implementationClass="io.ballerina.plugins.idea.highlighting.semantic.BallerinaAnnotator"/>
 
+        <highlightErrorFilter implementation="io.ballerina.plugins.idea.BallerinaHighlightErrorFilter"
+                              id="BallerinaHighlightErrorFilter"/>
+
         <!-- file templates -->
         <internalFileTemplate name="Ballerina File"/>
         <internalFileTemplate name="Ballerina Main"/>
@@ -109,9 +114,15 @@
         <quoteHandler fileType="Ballerina file"
                       className="io.ballerina.plugins.idea.editor.BallerinaQuoteHandler"/>
 
-        <enterHandlerDelegate implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
+        <!-- Enter Handlers-->
+        <enterHandlerDelegate order="last"
+                              implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
         <enterHandlerDelegate
                 implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterInDocumentationHandler"/>
+
+        <!-- Backspace Handlers-->
+        <backspaceHandlerDelegate id="BallerinaBackspaceHandler" order="first"
+                                  implementation="io.ballerina.plugins.idea.formatter.BallerinaIndentingBackspaceHandler"/>
 
         <!-- sdk -->
         <sdkType implementation="io.ballerina.plugins.idea.sdk.BallerinaSdkType"/>
@@ -135,8 +146,6 @@
         <moduleConfigurationEditorProvider
                 implementation="io.ballerina.plugins.idea.configuration.BallerinaModuleEditorsProvider"
                 order="first"/>
-        <editorNotificationProvider
-                implementation="io.ballerina.plugins.idea.inspections.WrongModuleTypeNotificationProvider"/>
 
         <!-- run application -->
         <programRunner id="ballerinaRunner" implementation="io.ballerina.plugins.idea.runconfig.BallerinaRunner"/>
@@ -197,22 +206,22 @@
     <actions>
         <!--Ballerina Diagram Support -->
         <group id="Diagram.Toolbar.Right" class="com.intellij.openapi.actionSystem.DefaultActionGroup"
-               text="Ballerina editor layout actions">
+               text="Ballerina Editor Layout Actions">
             <action class="io.ballerina.plugins.idea.webview.diagram.actions.EditorOnlyLayoutChangeAction"
                     id="io.ballerina.plugins.idea.webview.diagram.actions.EditorOnlyLayoutChangeAction"
-                    text="Show editor only"
+                    text="Show Editor Only"
                     description="Sets ballerina editor layout to show editor only"
                     icon="BallerinaIcons.Layout.EDITOR_ONLY">
             </action>
             <action class="io.ballerina.plugins.idea.webview.diagram.actions.EditorAndPreviewLayoutChangeAction"
                     id="io.ballerina.plugins.idea.webview.diagram.actions.EditorAndPreviewLayoutChangeAction"
-                    text="Show editor and preview"
+                    text="Show Editor and Preview"
                     description="Sets ballerina editor layout to show editor and preview in split"
                     icon="BallerinaIcons.Layout.EDITOR_PREVIEW">
             </action>
             <action class="io.ballerina.plugins.idea.webview.diagram.actions.PreviewOnlyLayoutChangeAction"
                     id="io.ballerina.plugins.idea.webview.diagram.actions.PreviewOnlyLayoutChangeAction"
-                    text="Show preview only"
+                    text="Show Preview Only"
                     description="Sets ballerina editor layout to show preview only"
                     icon="BallerinaIcons.Layout.PREVIEW_ONLY">
             </action>
@@ -230,11 +239,13 @@
                 overrides="true" text="Reformat Code"/>
         <action class="org.wso2.lsp4intellij.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog"
                 use-shortcut-of="ShowReformatFileDialog" overrides="true" text="Show Reformat File Dialog"/>
-        <action class="org.wso2.lsp4intellij.actions.LSPReferencesAction"
-                id="LSPFindUsages">
-            <keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>
 
-        </action>
+        <!--Todo - Enable after adding goto ref support-->
+        <!---->
+        <!-- <action class="org.wso2.lsp4intellij.actions.LSPReferencesAction"-->
+        <!--                id="LSPFindUsages">-->
+        <!-- <keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>-->
+        <!--        </action>-->
     </actions>
 
     <application-components>

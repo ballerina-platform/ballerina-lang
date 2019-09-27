@@ -206,7 +206,7 @@ function testUnspecifiedErrorDetailFrozenness() returns boolean {
     error e1 = error("reason 1");
     map<anydata|error> m1 = e1.detail();
     error? err = trap addValueToMap(m1, "k", 1);
-    return err is error && err.reason() == "{ballerina}InvalidUpdate";
+    return err is error && err.reason() == "{ballerina/lang.map}InvalidUpdate";
 }
 
 function addValueToMap(map<anydata|error> m, string key, anydata|error value) {
@@ -305,4 +305,51 @@ function testFunc(int i) returns string|E1|E2 { // fails even if one of the erro
 
 public function testIndirectErrorReturn() returns E1|E2|string {
     return E1(message = "error msg");
+}
+
+const A1 = "a1";
+const B1 = "b1";
+
+type A error<A1>;
+type B error<B1>;
+
+type MyError A|B;
+
+public function testErrorUnionPassedToErrorParam() returns string {
+    A aErr = error(A1, one = 1);
+    MyError eErr = aErr;
+    return takeError(eErr);
+}
+
+function takeError(error e) returns string {
+    return e.reason();
+}
+
+function testErrorTrapVarReuse() returns [error?, error?] {
+    var result = trap panicNow();
+    var temp = result;
+    result = trap dontPanic();
+    return [temp, result];
+}
+
+function panicNow() {
+    panic error("panic now");
+}
+
+function dontPanic() {
+}
+
+function bar(){
+    bar2();
+}
+
+function bar2(){
+    bar();
+}
+
+function testStackOverFlow() returns [runtime:CallStackElement[], string]? {
+    error? e = trap bar();
+    if (e is error){
+        return [e.stackTrace().callStack, e.reason()];
+    }
 }

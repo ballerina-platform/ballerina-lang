@@ -46,14 +46,13 @@ import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.tool.BLauncherException;
 import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.tool.util.CompileResult;
-import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -151,7 +150,7 @@ public class BTestRunner {
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
-    public void runTest(Map<BLangPackage, JBallerinaInMemoryClassLoader> packageList) {
+    public void runTest(Map<BLangPackage, TestarinaClassLoader> packageList) {
         registry.setGroups(Collections.emptyList());
         registry.setShouldIncludeGroups(true);
         buildSuites(packageList);
@@ -261,8 +260,6 @@ public class BTestRunner {
             }
 
             // set the debugger
-            ProgramFile programFile = compileResult.getProgFile();
-            // processProgramFile(programFile);
         });
         registry.setTestSuitesCompiled(true);
     }
@@ -272,7 +269,7 @@ public class BTestRunner {
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
-    private void buildSuites(Map<BLangPackage, JBallerinaInMemoryClassLoader> packageList) {
+    private void buildSuites(Map<BLangPackage, TestarinaClassLoader> packageList) {
         packageList.forEach((sourcePackage, classLoader) -> {
             String packageName;
             if (sourcePackage.packageID.getName().getValue().equals(".")) {
@@ -305,7 +302,7 @@ public class BTestRunner {
      *
      * @param programFile program file generated
      */
-    private void processProgramFile(BLangPackage programFile, JBallerinaInMemoryClassLoader classLoader) {
+    private void processProgramFile(BLangPackage programFile, TestarinaClassLoader classLoader) {
         // process the compiled files
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
@@ -329,10 +326,15 @@ public class BTestRunner {
      * @param bLangPackage compiled package.
      * @param classLoader  class loader to load and run package tests.
      */
-    public void packageProcessed(BLangPackage bLangPackage, JBallerinaInMemoryClassLoader classLoader) {
+    public void packageProcessed(BLangPackage bLangPackage, TestarinaClassLoader classLoader) {
         //packageInit = false;
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
+
+        if (!bLangPackage.hasTestablePackage()) {
+            return;
+        }
+
         if (suite == null) {
             throw LauncherUtils.createLauncherException("No test suite found for [module]: "
                     + bLangPackage.packageID.getName());
@@ -368,6 +370,35 @@ public class BTestRunner {
                 // we do nothing here
             }
         });
+        // Add all functions of the test function to test suite
+        if (bLangPackage.hasTestablePackage()) {
+            BLangPackage testablePackage = bLangPackage.getTestablePkg();
+            String testClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                    bLangPackage.packageID.name.value,
+                    bLangPackage.packageID.name.value);
+
+            Class<?> testInitClazz = classLoader.loadClass(testClassName);
+            suite.setTestInitFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.initFunction));
+            suite.setTestStartFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.startFunction));
+            suite.setTestStopFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.stopFunction));
+
+            testablePackage.functions.stream().forEach(function -> {
+                try {
+                    String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                            bLangPackage.packageID.name.value,
+                            getClassName(function));
+                    Class<?> functionClass = classLoader.loadClass(functionClassName);
+                    suite.addTestUtilityFunction(new TesterinaFunction(functionClass,
+                            function));
+                } catch (RuntimeException e) {
+                    // we do nothing here
+                }
+            });
+        }
+
         resolveFunctions(suite);
         int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
@@ -376,7 +407,7 @@ public class BTestRunner {
     }
 
     private String getClassName(BLangFunction function) {
-        return function.pos.src.cUnitName.replace(".bal", "").replace("/", "-");
+        return function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
     }
 
     private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
@@ -624,7 +655,16 @@ public class BTestRunner {
 
             // Initialize the test suite.
             // This will init and start the test module.
-            suite.start();
+            String suiteError;
+            try {
+                suite.start();
+            } catch (Throwable e) {
+                shouldSkip.set(true);
+                suiteError = "\t[fail] Error while initializing test suite: "
+                        + formatErrorMessage(e);
+                errStream.println(suiteError);
+                shouldSkip.set(true);
+            }
 
             suite.getBeforeSuiteFunctions().forEach(test -> {
                 String errorMsg;
@@ -633,7 +673,7 @@ public class BTestRunner {
                 } catch (Throwable e) {
                     shouldSkip.set(true);
                     errorMsg = "\t[fail] " + test.getName() + " [before test suite function]" + ":\n\t    "
-                            + TesterinaUtils.formatError(e.getMessage());
+                            + formatErrorMessage(e);
                     errStream.println(errorMsg);
                 }
             });
@@ -651,7 +691,7 @@ public class BTestRunner {
                             errorMsg = String.format("\t[fail] " + beforeEachTest.getName() +
                                             " [before each test function for the test %s] :\n\t    %s",
                                     test.getTestFunction().getName(),
-                                    TesterinaUtils.formatError(e.getMessage()));
+                                    formatErrorMessage(e));
                             errStream.println(errorMsg);
                         }
                     });
@@ -668,7 +708,7 @@ public class BTestRunner {
                         errorMsg = String.format("\t[fail] " + test.getBeforeTestFunctionObj().getName() +
                                         " [before test function for the test %s] :\n\t    %s",
                                 test.getTestFunction().getName(),
-                                TesterinaUtils.formatError(e.getMessage()));
+                                formatErrorMessage(e));
                         errStream.println(errorMsg);
                     }
                 }
@@ -727,7 +767,7 @@ public class BTestRunner {
                     error = String.format("\t[fail] " + test.getAfterTestFunctionObj().getName() +
                                     " [after test function for the test %s] :\n\t    %s",
                             test.getTestFunction().getName(),
-                            TesterinaUtils.formatError(e.getMessage()));
+                            formatErrorMessage(e));
                     errStream.println(error);
                 }
 
@@ -740,7 +780,7 @@ public class BTestRunner {
                         errorMsg2 = String.format("\t[fail] " + afterEachTest.getName() +
                                         " [after each test function for the test %s] :\n\t    %s",
                                 test.getTestFunction().getName(),
-                                TesterinaUtils.formatError(e.getMessage()));
+                                formatErrorMessage(e));
                         errStream.println(errorMsg2);
                     }
                 });
@@ -754,7 +794,7 @@ public class BTestRunner {
                     func.invoke();
                 } catch (Throwable e) {
                     errorMsg = String.format("\t[fail] " + func.getName() + " [after test suite function] :\n\t    " +
-                            "%s", TesterinaUtils.formatError(e.getMessage()));
+                            "%s", formatErrorMessage(e));
                     errStream.println(errorMsg);
                 }
             });
@@ -767,12 +807,13 @@ public class BTestRunner {
     }
 
     private String formatErrorMessage(Throwable e) {
-        String message = e.getMessage();
+        String message;
         if (e.getCause() instanceof ErrorValue) {
             try {
                 message = ((ErrorValue) e.getCause()).getPrintableStackTrace();
             } catch (ClassCastException castException) {
-                //do nothing this is to avoid spot bug
+                // throw the exception to top
+                throw new BallerinaException(e);
             }
         } else {
             throw new BallerinaException(e);

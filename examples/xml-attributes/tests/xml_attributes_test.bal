@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 string[] outputs = [];
 int counter = 0;
@@ -14,7 +13,7 @@ public function mockPrint(any... s) {
         // Cannot convert () to string.
         outputs[counter] = "()";
     } else {
-        outputs[counter] = string.convert(s[0]);
+        outputs[counter] = s[0].toString();
     }
     counter += 1;
 }
@@ -30,7 +29,7 @@ function testFunc() {
     string op4 = "5";
     string op5 = "Not Available";
     string op6 = "{\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://ballerina.com/aa\", \"{http://ballerina.com/aa}status\":\"Not Available\", \"count\":\"5\"}";
-    test:assertEquals(outputs[0], string.convert(xml1));
+    test:assertEquals(outputs[0], xml1.toString());
     test:assertEquals(outputs[1], op1);
     test:assertEquals(outputs[2], op2);
     test:assertEquals(outputs[3], op3);

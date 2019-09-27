@@ -29,13 +29,11 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.slf4j.Logger;
@@ -50,7 +48,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
@@ -84,14 +82,14 @@ public class WebSocketDispatcher {
             WebSocketService service = servicesRegistry.getUriTemplate().matches(requestUri.getPath(), pathParams,
                     webSocketHandshaker);
             if (service == null) {
-                throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
+                throw new WebSocketException("no Service found to handle the service request: " + serviceUri);
             }
             HttpCarbonMessage msg = webSocketHandshaker.getHttpCarbonRequest();
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
-        } catch (BallerinaConnectorException | URITemplateException e) {
+        } catch (WebSocketException | URITemplateException e) {
             String message = "No Service found to handle the service request";
             webSocketHandshaker.cancelHandshake(404, message);
             log.error(message, e);
@@ -160,20 +158,22 @@ public class WebSocketDispatcher {
                     return bxml;
                 case TypeTags.RECORD_TYPE_TAG:
                     return JSONUtils.convertJSONToRecord(JSONParser.parse(aggregateString),
-                            (BStructureType) dataType);
+                                                         (BStructureType) dataType);
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                         return new ArrayValue(
-                                aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
+                                aggregateString.getBytes(StandardCharsets.UTF_8));
                     }
                     break;
                 default:
                     //Throw an exception because a different type is invalid.
                     //Cannot reach here because of compiler plugin validation.
-                    throw new BallerinaConnectorException("Invalid resource signature.");
+                    throw new WebSocketException("Invalid resource signature.");
             }
+        } catch (WebSocketException ex) {
+            webSocketConnection.terminateConnection(1003, ex.detailMessage());
         } catch (Exception ex) {
-            webSocketConnection.terminateConnection(1003, ex.getMessage());
+            webSocketConnection.terminateConnection(1003, WebSocketUtil.getErrorMessage(ex));
             log.error("Data binding failed. Hence connection terminated. ", ex);
         }
         return null;
@@ -219,7 +219,7 @@ public class WebSocketDispatcher {
         WebSocketService wsService = connectionInfo.getService();
         AttachedFunction onPingMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
-            pingAutomatically(controlMessage);
+            pongAutomatically(controlMessage);
             return;
         }
         BType[] paramTypes = onPingMessageResource.getParameterType();
@@ -299,7 +299,7 @@ public class WebSocketDispatcher {
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
-        //TODO this is temp fix till we get the service.start() API
+
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_CLOSE,
                 onCloseCallback, null, bValues);
     }
@@ -323,13 +323,8 @@ public class WebSocketDispatcher {
         Object[] bValues = new Object[onErrorResource.getParameterType().length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
-        String errMsg = throwable.getMessage();
-        if (errMsg == null) {
-            errMsg = "Unexpected internal error";
-        }
-        bValues[2] = WebSocketUtil.createWebSocketError(errMsg);
+        bValues[2] = new WebSocketException(throwable);
         bValues[3] = true;
-        //TODO Uncomment following once service.start() API is available
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -341,7 +336,7 @@ public class WebSocketDispatcher {
                 ErrorHandlerUtils.printError(error.getPrintableStackTrace());
             }
         };
-        //TODO this is temp fix till we get the service.start() API
+
         Executor.submit(webSocketService.getScheduler(), webSocketService.getBalService(),
                 WebSocketConstants.RESOURCE_NAME_ON_ERROR, onErrorCallback, null, bValues);
     }
@@ -363,7 +358,7 @@ public class WebSocketDispatcher {
         Object[] bValues = new Object[paramDetails.length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
-        //TODO Uncomment following once service.start() API is available
+
         CallableUnitCallback onIdleTimeoutCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -376,12 +371,12 @@ public class WebSocketDispatcher {
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
-        //TODO this is temp fix till we get the service.start() API
+
         Executor.submit(wsService.getScheduler(), wsService.getBalService(),
                 WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT, onIdleTimeoutCallback, null, bValues);
     }
 
-    private static void pingAutomatically(WebSocketControlMessage controlMessage) {
+    private static void pongAutomatically(WebSocketControlMessage controlMessage) {
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
         webSocketConnection.pong(controlMessage.getByteBuffer()).addListener(future -> {
             Throwable cause = future.cause();

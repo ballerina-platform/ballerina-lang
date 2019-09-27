@@ -17,7 +17,7 @@
 import ballerina/config;
 import ballerina/http;
 import ballerina/log;
-import ballerina/internal;
+import ballerina/stringutils;
 
 const string BASE_PATH = "/websub";
 const string HUB_PATH = "/hub";
@@ -37,7 +37,7 @@ string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
 RemotePublishConfig remotePublishConfig = {};
 boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
-http:ClientEndpointConfig? hubClientConfig = ();
+http:ClientConfiguration? hubClientConfig = ();
 
 HubPersistenceStore? hubPersistenceStoreImpl = ();
 boolean hubPersistenceEnabled = false;
@@ -70,14 +70,18 @@ function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
     string signaturemethodAsConfig = config:getAsString("b7a.websub.hub.signaturemethod");
     if (signaturemethodAsConfig == "") {
         match signatureMethod {
-            "SHA256" => return "SHA256";
-            "SHA1" => return "SHA1";
+            "SHA256" => {
+                return "SHA256";
+            }
+            "SHA1" => {
+                return "SHA1";
+            }
         }
     } else {
-        if (internal:equalsIgnoreCase(signaturemethodAsConfig, SHA1)) {
+        if (stringutils:equalsIgnoreCase(signaturemethodAsConfig, SHA1)) {
             return signaturemethodAsConfig;
         }
-        if (!internal:equalsIgnoreCase(signaturemethodAsConfig, SHA256)) {
+        if (!stringutils:equalsIgnoreCase(signaturemethodAsConfig, SHA256)) {
             log:printWarn("unknown signature method : [" + signaturemethodAsConfig + "], defaulting to SHA256");
         }
     }
@@ -100,9 +104,9 @@ function getRemotePublishConfig(RemotePublishConfig? remotePublish) returns Remo
             hubRemotePublishMode = PUBLISH_MODE_DIRECT;
         }
     } else {
-        if (internal:equalsIgnoreCase(remotePublishModeAsConfig, REMOTE_PUBLISHING_MODE_FETCH)) {
+        if (stringutils:equalsIgnoreCase(remotePublishModeAsConfig, REMOTE_PUBLISHING_MODE_FETCH)) {
             hubRemotePublishMode = PUBLISH_MODE_FETCH;
-        } else if (!internal:equalsIgnoreCase(remotePublishModeAsConfig, REMOTE_PUBLISHING_MODE_DIRECT)) {
+        } else if (!stringutils:equalsIgnoreCase(remotePublishModeAsConfig, REMOTE_PUBLISHING_MODE_DIRECT)) {
             log:printWarn("unknown publish mode: [" + remotePublishModeAsConfig + "], defaulting to direct mode");
         }
     }

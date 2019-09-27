@@ -17,6 +17,8 @@
  */
 package org.ballerinax.jdbc;
 
+import org.ballerinalang.jvm.types.BPackage;
+
 import java.util.UUID;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
@@ -160,6 +162,7 @@ public final class Constants {
         public static final String ORACLE = "oracle";
         public static final String POSTGRESQL = "postgresql";
         public static final String MYSQL = "mysql";
+        public static final String MSSQL_SERVER = "microsoft sql server";
     }
 
     public static final String CONNECTOR_NAME = "ClientConnector";
@@ -173,6 +176,7 @@ public final class Constants {
     public static final String PASSWORD = "password";
 
     public static final String JDBC_PACKAGE_PATH = "ballerinax" + ORG_NAME_SEPARATOR + "java_jdbc";
+    public static final BPackage JDBC_PACKAGE_ID = new BPackage("ballerinax", "java.jdbc", "0.0.0");
     public static final String SQL_PARAMETER = "Parameter";
     public static final String JDBC_CLIENT = "JdbcClient";
     public static final String JDBC_UPDATE_RESULT = "UpdateResult";

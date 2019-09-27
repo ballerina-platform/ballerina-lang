@@ -1,181 +1,217 @@
 # The first two requests complete without any errors.
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 200 OK
-< Content-Length: 14
-< Content-Type: text/plain
+< content-type: text/plain
+< date: Wed, 4 Sep 2019 17:07:58 +0530
+< server: ballerina/1.0.0-beta
+< content-length: 14
 <
 * Connection #0 to host localhost left intact
 Hello World!!!
 
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 200 OK
-< Content-Length: 14
-< Content-Type: text/plain
+< content-type: text/plain
+< date: Wed, 4 Sep 2019 17:08:00 +0530
+< server: ballerina/1.0.0-beta
+< content-length: 14
 <
 * Connection #0 to host localhost left intact
 Hello World!!!
 
-# The third request responds with a `500 Internal Server Error` because the mock service sends a `500` http status code
-# when responding to every third request.
+# The third request responds with a `500 Internal Server Error` because the
+# mock service sends a `500` http status code when responding to every third
+# request.
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 500 Internal Server Error
-< Connection: Keep-Alive
-< Content-Type: text/plain
-< Content-Length: 53
+< content-type: text/plain
+< date: Wed, 4 Sep 2019 17:08:00 +0530
+< server: ballerina/1.0.0-beta
+< content-length: 53
 <
 * Connection #0 to host localhost left intact
 Internal error occurred while processing the request.
 
-# Subsequent requests fail immediately since the reset timeout period has not elapsed.
+# Subsequent requests fail immediately since the reset timeout period has not
+# elapsed.
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 500 Internal Server Error
-< Connection: Keep-Alive
-< Content-Type: text/plain
-< Content-Length: 100
+< content-type: text/plain
+< content-length: 99
+< server: ballerina/1.0.0-beta
+< date: Wed, 4 Sep 2019 17:08:02 +0530
 <
 * Connection #0 to host localhost left intact
-Upstream service unavailable. Requests to upstream service will be suspended for 14061 milliseconds
+Upstream service unavailable. Requests to upstream service will be suspended for 8340 milliseconds.
 
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 500 Internal Server Error
-< Connection: Keep-Alive
-< Content-Type: text/plain
-< Content-Length: 99
+< content-type: text/plain
+< content-length: 99
+< server: ballerina/1.0.0-beta
+< date: Wed, 4 Sep 2019 17:08:04 +0530
 <
 * Connection #0 to host localhost left intact
-Upstream service unavailable. Requests to upstream service will be suspended for 5398 milliseconds
+Upstream service unavailable. Requests to upstream service will be suspended for 6079 milliseconds.
 
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 500 Internal Server Error
-< Connection: Keep-Alive
-< Content-Type: text/plain
-< Content-Length: 99
+< content-type: text/plain
+< content-length: 99
+< server: ballerina/1.0.0-beta
+< date: Wed, 4 Sep 2019 17:08:07 +0530
 <
 * Connection #0 to host localhost left intact
-Upstream service unavailable. Requests to upstream service will be suspended for 1753 milliseconds
+Upstream service unavailable. Requests to upstream service will be suspended for 3475 milliseconds.
 
-# The request sent immediately after the timeout period expires, is the trial request. It is sent to see if the backend service is back to normal.
-# If this request is successful, the circuit is set to `close` and normal functionality resumes.
+# The request sent immediately after the timeout period expires, is the trial
+# request. It is sent to see if the backend service is back to normal.
+# If this request is successful, the circuit is set to `close` and normal
+# functionality resumes.
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 200 OK
-< Content-Length: 14
-< Content-Type: text/plain
+< content-type: text/plain
+< date: Wed, 4 Sep 2019 17:08:12 +0530
+< server: ballerina/1.0.0-beta
+< content-length: 14
 <
 * Connection #0 to host localhost left intact
 Hello World!!!
 
-# The fifth request times out because the mock service times out when responding to every fifth request.
+# The fifth request times out because the mock service times out when
+# responding to every fifth request.
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 500 Internal Server Error
-< Connection: Keep-Alive
-< Content-Type: text/plain
-< Content-Length: 54
+< content-type: text/plain
+< content-length: 57
+< server: ballerina/1.0.0-beta
+< date: Wed, 4 Sep 2019 17:08:17 +0530
 <
 * Connection #0 to host localhost left intact
-Idle timeout triggered before reading inbound response
+Idle timeout triggered before initiating inbound response
 
-# Subsequent requests fail immediately since the reset timeout period has not elapsed.
+# Subsequent requests fail immediately since the reset timeout period has not
+# elapsed.
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 500 Internal Server Error
-< Connection: Keep-Alive
-< Content-Type: text/plain
-< Content-Length: 100
+< content-type: text/plain
+< content-length: 99
+< server: ballerina/1.0.0-beta
+< date: Wed, 4 Sep 2019 17:08:22 +0530
 <
 * Connection #0 to host localhost left intact
-Upstream service unavailable. Requests to upstream service will be suspended for 14061 milliseconds
+Upstream service unavailable. Requests to upstream service will be suspended for 4917 milliseconds.
 
-# The request sent immediately after the timeout period expires, is the trial request. It is sent to see if the backend service is back to normal.
-# If this request is successful, the circuit is set to `close` and normal functionality resumes.
+# The request sent immediately after the timeout period expires, is the trial
+# request. It is sent to see if the backend service is back to normal.
+# If this request is successful, the circuit is set to `close` and normal
+# functionality resumes.
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 200 OK
-< Content-Length: 14
-< Content-Type: text/plain
+< content-type: text/plain
+< date: Wed, 4 Sep 2019 17:08:32 +0530
+< server: ballerina/1.0.0-beta
+< content-length: 14
 <
 * Connection #0 to host localhost left intact
 Hello World!!!
 
-# Since the immediate request after the timeout expired was successful, the requests sent after that complete normally.
+# Since the immediate request after the timeout expired was successful, the
+# requests sent after that complete normally.
 $ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 9090 (#0)
 > GET /cb HTTP/1.1
 > Host: localhost:9090
-> User-Agent: curl/7.47.0
+> User-Agent: curl/7.54.0
 > Accept: */*
 >
 < HTTP/1.1 200 OK
-< Content-Length: 14
-< Content-Type: text/plain
+< content-type: text/plain
+< date: Wed, 4 Sep 2019 17:08:35 +0530
+< server: ballerina/1.0.0-beta
+< content-length: 14
 <
 * Connection #0 to host localhost left intact
 Hello World!!!

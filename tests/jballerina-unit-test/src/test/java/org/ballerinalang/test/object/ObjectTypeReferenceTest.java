@@ -42,29 +42,19 @@ public class ObjectTypeReferenceTest {
     }
 
     @Test
-    public void testSimpleObjectTypeReferenceNegative_1() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 21);
+    public void testSimpleObjectTypeReferenceSemanticsNegative_1() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-semantics" +
+                "-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 32,
                 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 44, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 44, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 47, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 48, 6);
-        BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getName' of non-abstract object 'Manager2'", 96, 5);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 97, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 97, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 97, 6);
+        BAssertUtil.validateError(negativeResult, i++,
+                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an abstract object", 101, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 110, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 110, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
                 "function through referenced type 'ObjectWithFunction'", 120, 5);
@@ -72,19 +62,47 @@ public class ObjectTypeReferenceTest {
                 "function through referenced type 'ObjectWithRedeclaredFunction_1'", 125, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'x'", 134, 6);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 142, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 146, 6);
+        BAssertUtil.validateError(negativeResult, i, "redeclared symbol 'xyz'", 167, 6);
+    }
+
+    @Test
+    public void testSimpleObjectTypeReferenceNegative_1() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 11);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 28, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 42, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 42, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 45, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 93, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 93, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 93, 6);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 96, 16);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'salary' is not initialized", 100, 16);
+    }
+
+    @Test
+    public void testSimpleObjectTypeReferenceSemanticsNegative_2() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-semantics" +
+                "-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an abstract object",
+                18, 6);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' is not an abstract object", 20, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'YYY'", 29, 6);
     }
 
     @Test
     public void testSimpleObjectTypeReferenceNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an abstract object",
-                18, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 19, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 19, 6);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' is not an abstract object", 20, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'YYY'", 29, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 18, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 18, 6);
     }
 
     @Test
@@ -150,31 +168,51 @@ public class ObjectTypeReferenceTest {
         CompileResult result = BCompileUtil.compile("test-src/object/object_func_reference_neg.bal");
         int index = 0;
 
-        Assert.assertEquals(result.getErrorCount(), 7);
+        Assert.assertEquals(result.getErrorCount(), 8);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test1(string aString, int " +
                                           "anInt) returns (string|error)', found 'function test1(string str, int " +
                                           "anInt)" +
-                                          " returns (string|error)'", 51, 5);
+                                          " returns (string|error)'", 53, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'public function test2(string aString)', " +
-                                          "found 'function test2(string aString)'", 56, 5);
+                                          "found 'function test2(string aString)'", 58, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test3(int anInt, string " +
                                           "aString, string defaultable, int def2)', found 'function test3(string " +
-                                          "aString, int anInt, string defaultable, int def2) returns string'", 59, 5);
+                                          "aString, int anInt, string defaultable, int def2) returns string'", 61, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test4(string aString, int " +
                                           "anInt, Bar... bars) returns string', found 'function test4(string aString," +
-                                          " int anInt, AnotherBar... bars) returns string'", 64, 5);
+                                          " int anInt, AnotherBar... bars) returns string'", 66, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test5(ON|OFF... status) returns" +
-                                          " Bar', found 'function test5(ON|OFF... stat) returns Bar'", 69, 5);
+                                          " Bar', found 'function test5(ON|OFF... stat) returns Bar'", 71, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test6([string,ON|OFF]... tup)'," +
-                                          " found 'function test6([string,ON|OFF]... tupl)'", 74, 5);
-        BAssertUtil.validateError(result, index,
+                                          " found 'function test6([string,ON|OFF]... tupl)'", 76, 5);
+        BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test7() returns ON|OFF', found " +
-                                          "'function test7(int x) returns ON|OFF'", 77, 5);
+                                          "'function test7(int x) returns ON|OFF'", 79, 5);
+        BAssertUtil.validateError(result, index,
+                                  "mismatched function signatures: expected 'function test8(public string s, int i)'," +
+                                          " found 'function test8(string s, public int i)'", 84, 5);
+    }
+
+    @Test
+    public void testInvalidTypeReferenceAcrossModules() {
+        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject", "object_reference_negative");
+        int index = 0;
+
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, index++,
+                                  "incompatible type reference 'abc:Foo': a referenced object cannot have non-public " +
+                                          "fields or methods", 20, 6);
+        BAssertUtil.validateError(result, index++,
+                                  "incompatible type reference 'abc:Bar': a referenced object cannot have non-public " +
+                                          "fields or methods", 21, 6);
+        BAssertUtil.validateError(result, index,
+                                  "incompatible type reference 'abc:Baz': a referenced object cannot have non-public " +
+                                          "fields or methods", 22, 6);
     }
 }

@@ -1,7 +1,8 @@
 import { Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
-    Invocation, Return, Service, VariableDef, Visitor } from "@ballerina/ast-model";
+    Invocation, Match, Return, Service, TypeDefinition, VariableDef, Visitor, WorkerSend } from "@ballerina/ast-model";
 import * as _ from "lodash";
-import { FunctionViewState, StmntViewState } from "../../view-model/index";
+
+import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
 
 const currentState: {
     topLevelNode?: ASTNode | undefined,
@@ -20,8 +21,25 @@ export const visitor: Visitor = {
         }
     },
 
+    endVisitTypeDefinition(node: TypeDefinition) {
+        node.viewState.hidden = false;
+    },
+
     endVisitService(node: Service) {
         node.viewState.hidden = false;
+    },
+
+    endVisitMatch(node: Match) {
+        const visibleClause = node.patternClauses.find((clause) => {
+            return !clause.viewState.hidden;
+        });
+        if (visibleClause) {
+            node.viewState.hidden = false;
+            node.patternClauses.forEach((clause) => {
+                clause.viewState.hidden = false;
+                clause.statement.viewState.hidden = false;
+            });
+        }
     },
 
     endVisitFunction(node: BalFunction) {
@@ -35,6 +53,7 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
+        node.viewState.hidden = true;
         // if (node.parent.viewState.hidden !== false) {
         //     // if its already set to false that means its already checked for visibility
         //     node.parent.viewState.hidden = true;
@@ -45,6 +64,9 @@ export const visitor: Visitor = {
 
     endVisitBlock(node: Block) {
         const visitedNode = currentState.blocks.pop();
+        if (visitedNode && !visitedNode.viewState.hidden) {
+            node.viewState.hidden = false;
+        }
         const { blocks } = currentState;
         currentState.currentBlock = blocks.length > 0 ? blocks[blocks.length - 1] : undefined;
 
@@ -94,6 +116,30 @@ export const visitor: Visitor = {
         if (currentState.statement) {
             currentState.statement.viewState.hidden = false;
         }
+    },
+
+    beginVisitWorkerSend(node: WorkerSend) {
+        if (currentState.statement) {
+            currentState.statement.viewState.hidden = false;
+        }
+        const statement = currentState.statement ? currentState.statement : node;
+        (statement.viewState as ViewState).hidden = false;
+    },
+
+    beginVisitWorkerSyncSend(node: WorkerSend) {
+        if (currentState.statement) {
+            currentState.statement.viewState.hidden = false;
+        }
+        const statement = currentState.statement ? currentState.statement : node;
+        (statement.viewState as ViewState).hidden = false;
+    },
+
+    beginVisitWorkerReceive(node: WorkerSend) {
+        if (currentState.statement) {
+            currentState.statement.viewState.hidden = false;
+        }
+        const statement = currentState.statement ? currentState.statement : node;
+        (statement.viewState as ViewState).hidden = false;
     },
 
     beginVisitInvocation(node: Invocation) {

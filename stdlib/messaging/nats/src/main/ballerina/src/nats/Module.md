@@ -1,8 +1,7 @@
 ## Module overview
 
-NATS is a simple, secure, and high-performance open source messaging system for cloud-native applications.
-The 'ballerina/nats' module provides the capability to connect with NATS and Streaming servers and perform 
-the following functionalities.
+This module provides the capability to connect with NATS and NATS Streaming servers and performs the 
+following functionality.
 
 - Point to point communication (Queues)
 - Pub/Sub (Topics)
@@ -12,8 +11,8 @@ the following functionalities.
 
 ### Setting up the connection
 
-First step is setting up the connection with the NATS/Streaming server. The following ways can be used to connect to a
-NATS/Streaming server.
+First step is setting up the connection with the NATS Basic/Streaming server. The following ways can be used to connect to a
+NATS Basic/Streaming server.
 
 1. Connect to a server using the URL
 ```ballerina
@@ -27,10 +26,10 @@ nats:Connection connection = new("nats://serverone:4222, nats://servertwo:4222",
 
 ### Publishing messages
 
-Publishing messages is handled differently in the NATS server and Streaming server. The 'ballerina/nats' module provides different 
+Publishing messages is handled differently in the NATS Basic server and Streaming server. The 'ballerina/nats' module provides different 
 APIs to publish messages to each server.
 
-#### Publishing messages to the NATS server
+#### Publishing messages to the NATS basic server
 
 Once connected, publishing is accomplished via one of the below two methods.
 
@@ -46,7 +45,7 @@ nats:Producer producer = new(connection);
 nats:Message|error reqReply = producer->request(subject, "hello world", 5000);
 ```
 
-#### Publishing messages to a Streaming server
+#### Publishing messages to a NATS streaming server
 
 Once connected to a streaming server, publishing messages is accomplished using the following method.
 ```ballerina
@@ -59,17 +58,20 @@ if (result is error) {
 }
 ```
 
-NOTE: Publish api supports the `byte[], boolean, string, int, float, decimal, xml, json, record {}` message types.
+> Publish api supports the `byte[], boolean, string, int, float, decimal, xml, json, record {}` message types.
 
 
 ### Listening to incoming messages
 
 The Ballerina NATS module provides the following mechanisms to listen to messages. Similar to message publishing, listening to messages
-is also handled differently in NATS and Streaming servers.
+is also handled differently in NATS basic and streaming servers.
 
 #### Listening to messages from a NATS server
 
 ```ballerina
+import ballerina/io;
+import ballerina/nats;
+
 // Initializes the NATS listener.
 listener nats:Listener subscription = new(connection);
 
@@ -140,3 +142,4 @@ nats:ConnectionConfig config = {
 // Initializes a connection.
 nats:Connection connection = new("tls://localhost:4222", config = config);
 ```
+>**Note:** The default thread pool size used in Ballerina is number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.

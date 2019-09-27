@@ -18,16 +18,19 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
@@ -46,6 +49,8 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
  */
 
 public abstract class AbstractGetPayloadHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractGetPayloadHandler.class);
 
     static void constructNonBlockingDataSource(NonBlockingCallback callback, ObjectValue entity,
                                                SourceType sourceType) {
@@ -75,7 +80,13 @@ public abstract class AbstractGetPayloadHandler {
                     updateDataSourceAndNotify(callback, entity, dataSource);
                 } catch (Exception e) {
                     createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
-                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + e.getMessage());
+                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + getErrorMsg(e));
+                } finally {
+                    try {
+                        inputStream.close();
+                    } catch (IOException ex) {
+                        log.error("Error occurred while closing the inbound data stream", ex);
+                    }
                 }
             }
 
@@ -94,18 +105,25 @@ public abstract class AbstractGetPayloadHandler {
 
     static Object createParsingEntityBodyFailedErrorAndNotify(NonBlockingCallback callback, String errMsg) {
         ErrorValue error = MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, errMsg);
+        return returnErrorValue(callback, error);
+    }
+
+    private static Object returnErrorValue(NonBlockingCallback callback, Object err) {
         if (callback != null) {
-            setReturnValuesAndNotify(callback, error);
+            setReturnValuesAndNotify(callback, err);
             return null;
         }
-        return error;
+        return err;
+    }
+
+    static String getErrorMsg(Throwable err) {
+        return err instanceof ErrorValue ? err.toString() : err.getMessage();
     }
 
     static void updateDataSource(ObjectValue entityObj, Object result) {
         EntityBodyHandler.addMessageDataSource(entityObj, result);
         removeByteChannel(entityObj);
     }
-
 
     static void updateJsonDataSource(ObjectValue entityObj, Object result) {
         EntityBodyHandler.addJsonMessageDataSource(entityObj, result);
@@ -135,7 +153,7 @@ public abstract class AbstractGetPayloadHandler {
         if (message != null) {
             return message;
         } else {
-            throw new BallerinaIOException("Empty content");
+            throw BallerinaErrors.createError("Empty content");
         }
     }
 

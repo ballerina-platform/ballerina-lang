@@ -64,17 +64,15 @@ public class UpdateStatement extends AbstractSQLStatement {
 
     @Override
     public Object execute() {
-        //TODO: JBalMigration Commenting out transaction handling
-        //TODO: #16033
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         checkAndObserveSQLAction(strand, datasource, query);
         boolean isInTransaction = strand.isInTransaction();
-        String errorMessagePrefix = "Failed to execute update query: ";
+        String errorMessagePrefix = "failed to execute update query: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
-            conn = getDatabaseConnection(strand, client, datasource, false);
+            conn = getDatabaseConnection(strand, client, datasource);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
             ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
@@ -128,7 +126,7 @@ public class UpdateStatement extends AbstractSQLStatement {
 
     private MapValue<String, Object> createFrozenUpdateResultRecord(int count, MapValue<String, Object> generatedKeys) {
         MapValue<String, Object> updateResultRecord = BallerinaValues
-                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.JDBC_UPDATE_RESULT);
+                .createRecordValue(Constants.JDBC_PACKAGE_ID, Constants.JDBC_UPDATE_RESULT);
         MapValue<String, Object> populatedUpdateResultRecord = BallerinaValues
                 .createRecord(updateResultRecord, count, generatedKeys);
         populatedUpdateResultRecord.attemptFreeze(new Status(State.FROZEN));

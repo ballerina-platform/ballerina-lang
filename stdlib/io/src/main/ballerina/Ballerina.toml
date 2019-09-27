@@ -1,9 +1,9 @@
 [project]
 org-name = "ballerina"
-version = "0.0.0"
+version = "0.5.0"
 
 [platform]
-target = "java"
+target = "java8"
 
     [[platform.libraries]]
     artifactId = "io"

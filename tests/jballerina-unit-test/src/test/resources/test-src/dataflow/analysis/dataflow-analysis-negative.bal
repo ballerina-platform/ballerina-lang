@@ -309,7 +309,7 @@ type Foo object {
         self.b = e;
         self.c = c;
         self.e = e;
-        self.f = f;
+
     }
 
     function getA() returns int {
@@ -352,9 +352,9 @@ function testMatch_1() returns string {
     any x = 6;
     string val;
     match x {
-        6 => val = "int";
-        "" => val = "string";
-        var y => val = "any";
+        6 => {val = "int";}
+        "" => {val = "string";}
+        var y => {val = "any";}
     }
 
     return val;
@@ -549,7 +549,7 @@ function testVariableAssignment() returns [string, boolean, int, string] {
 }
 
 function getPerson() returns Person {
-    return {name: "Peter", married: true, age: {age:12, format: "Y"}};
+    return {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ["a", 1]};
 }
 
 function testDataflow_12() returns string {
@@ -584,4 +584,91 @@ type F object {
 
 public function testDataFlow_13(){
     object { public string s; } o = new;
+}
+
+function testMatch2() returns int {
+    any v = 1;
+    int k;
+    match v {
+        1 => {k = 1;}
+        2 => {k = 2;}
+    }
+    return k; // variable 'k' may not have been initialized
+}
+
+function testMatch3() returns int {
+    any v = 1;
+    int k;
+    match v {
+        1 => {k = 1;}
+        2 => {k = 2;}
+        _ => {k = 0;}
+    }
+    return k;
+}
+
+function testMatch4() returns int {
+    any v = 1;
+    int k;
+    match v {
+        1 => {k = 1;}
+        2 => {}
+        _ => {k = 0;}
+    }
+    return k; // variable 'k' may not have been initialized
+}
+
+function testMatch5() returns int {
+    any v = 1;
+    int k;
+    match v {
+        var [a, b] => {k = 1;}
+        var {a, b} => {k = 2;}
+    }
+    return k; // variable 'k' may not have been initialized
+}
+
+function testMatch6() returns int {
+    any v = 1;
+    int k;
+    match v {
+        var [a, b] => {k = 1;}
+        var {a, b} => {k = 2;}
+        var x => {k = 0;}
+    }
+    return k;
+}
+
+function testMatch7() returns int {
+    any v = 1;
+    int k;
+    match v {
+        var [a, b] => {k = 1;}
+        var {a, b} => {}
+        var x => {k = 0;}
+    }
+    return k; // variable 'k' may not have been initialized
+}
+
+function testMatch8() returns int {
+    any | error v = 1;
+    int k;
+    match v {
+        1 => {
+            k = 1;
+        }
+        2 => {
+            k = 2;
+        }
+        3 => {
+            k = 3;
+        }
+        4 => {
+            k = 4;
+        }
+        _ => {
+            k = 0;
+        }
+    }
+    return k; // variable 'k' may not have been initialized
 }

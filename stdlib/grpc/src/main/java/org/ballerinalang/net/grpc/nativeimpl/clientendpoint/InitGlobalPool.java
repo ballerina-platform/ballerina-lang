@@ -28,8 +28,8 @@ import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.Connection
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcUtil.populatePoolingConfig;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
-import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
 
 /**
  * Initializes the global pool.

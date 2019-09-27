@@ -199,4 +199,22 @@ public class MatchStructuredErrorPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 80, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 13);
     }
+
+    @Test(description = "Test unsupported error match pattern")
+    public void testErrorMatchPatternNotSupportedErrors() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/matchstmt/structured_error_match_patterns_negative2.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++,
+                "error match pattern with a constant reference as the reason is not yet supported", 33, 15);
+        BAssertUtil.validateError(result, i++,
+                "invalid error reason binding pattern, error reason should be 'var reason'", 36, 15);
+        Assert.assertEquals(result.getErrorCount(), 2);
+    }
+
+    @Test()
+    public void testErrorMatchWihtoutReason() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorMatchWihtoutReason");
+        Assert.assertEquals(returns[0].stringValue(), "error detail message");
+    }
 }

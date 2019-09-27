@@ -201,10 +201,10 @@ public class ErrorVariableReferenceTest {
     }
 
     @Test
-    public void testNegativeErrorVariables() {
+    public void testErrorVariablesSemanticsNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
-                "test-src/expressions/varref/error_variable_reference_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 14);
+                "test-src/expressions/varref/error_variable_reference_semantics_negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
@@ -228,13 +228,30 @@ public class ErrorVariableReferenceTest {
                 "found 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 93, 32);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 94, 20);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference " +
+                "'results[res1][reason]' cannot be used with binding pattern", 111, 12);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference " +
+                "'results[res2][reason]' cannot be used with binding pattern", 112, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "error binding pattern does not support index based assignment", 112, 39);
+                                  "invalid binding pattern, variable reference 'results[detail][message]' cannot be " +
+                                          "used with binding pattern", 112, 49);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "error binding pattern does not support index based assignment", 112, 79);
+                                  "invalid binding pattern, variable reference 'results[detail][fatal]' cannot be " +
+                                          "used with binding pattern", 112, 87);
         BAssertUtil.validateError(resultNegative, ++i,
                                   "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 32);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 145, 19);
+    }
+
+    @Test
+    public void testNegativeErrorVariables() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/expressions/varref/error_variable_reference_negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resultNegative, 0,
+                "variables in a binding pattern must be distinct; found duplicate variable 's'", 22, 24);
+        BAssertUtil.validateError(resultNegative, 1,
+                "variables in a binding pattern must be distinct; found duplicate variable 's'", 22, 36);
     }
 }

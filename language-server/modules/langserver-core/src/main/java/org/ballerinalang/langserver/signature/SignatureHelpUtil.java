@@ -91,9 +91,11 @@ import static org.ballerinalang.langserver.util.TokensUtil.searchTokenAtCursor;
  */
 public class SignatureHelpUtil {
     private static final String COMMA = ",";
+    private static final String SEMI_COLON = ";";
     private static final String EQUAL = "=";
     private static final String INIT_SYMBOL = ".__init";
     private static final Pattern KEY_VALUE_PATTERN = Pattern.compile(".*(?:\\:\\s)([^\\(\\)]+\\(.*\\))[,]?");
+    private static final Pattern EMPTY_FUNCTION_PATTERN = Pattern.compile("^(.*\\(\\))[;]{0,1}$", Pattern.DOTALL);
 
     private SignatureHelpUtil() {
     }
@@ -113,7 +115,13 @@ public class SignatureHelpUtil {
         // Generate function invocation from the source pruned text
         String funcInvocation = String.join("", getSourcePrunedFunctionInvocation(serviceContext));
         boolean isInsideFuncInvocation = COMMA.equals(funcInvocation);
-        boolean isEmptyFuncInvocation = funcInvocation.isEmpty();
+        Matcher m = EMPTY_FUNCTION_PATTERN.matcher(funcInvocation);
+        boolean isEmptyFuncInvocation = funcInvocation.isEmpty(); // matches functions like 'io:println('
+        boolean isEmptyFuncInovcPattern = m.matches(); // matches functions like 'io:println()'
+        if (isEmptyFuncInovcPattern && funcInvocation.endsWith(SEMI_COLON)) {
+            // Remove semi-colon(;) if not exists
+            funcInvocation = funcInvocation.substring(0, funcInvocation.lastIndexOf(SEMI_COLON));
+        }
 
         // Visit LHS of the tokens to get function invocation statement
         int rightParenthesisCount = (isInsideFuncInvocation || isEmptyFuncInvocation) ? 1 : 0;
@@ -455,7 +463,7 @@ public class SignatureHelpUtil {
                                            String nodeName) {
         String pkgAlias = identifierNode.getValue();
         if (!pkgAlias.isEmpty()) {
-            Optional<BLangImportPackage> optImport = CommonUtil.getCurrentModuleImports(context).stream()
+            Optional<BLangImportPackage> optImport = CommonUtil.getCurrentFileImports(context).stream()
                     .filter(p -> pkgAlias.equals(p.alias.value))
                     .findFirst();
             nodeName = (optImport.isPresent() ? optImport.get().getQualifiedPackageName() : pkgAlias) + ":" + nodeName;
@@ -482,7 +490,12 @@ public class SignatureHelpUtil {
         docAttachment.parameters.forEach(attribute ->
                 paramDescMap.put(attribute.getName(), attribute.getDescription()));
 
-        bInvokableSymbol.getParameters().forEach(bVarSymbol -> {
+        List<BVarSymbol> parameters = bInvokableSymbol.getParameters();
+        if (bInvokableSymbol.restParam != null) {
+            parameters.add(bInvokableSymbol.restParam);
+        }
+
+        parameters.forEach(bVarSymbol -> {
             ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
             parameterInfoModel.setParamType(bVarSymbol.getType().toString());
             parameterInfoModel.setParamValue(bVarSymbol.getName().getValue());

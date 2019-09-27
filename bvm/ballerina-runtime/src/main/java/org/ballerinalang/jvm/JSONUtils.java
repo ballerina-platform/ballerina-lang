@@ -47,8 +47,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for JSON manipulation.
@@ -164,8 +167,8 @@ public class JSONUtils {
                 return null;
             }
 
-            return BallerinaErrors.createError(KEY_NOT_FOUND_ERROR, "Key '" + elementName + "' not found in JSON " +
-                    "mapping");
+            return BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
+                                               "Key '" + elementName + "' not found in JSON mapping");
         }
 
         try {
@@ -200,7 +203,8 @@ public class JSONUtils {
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(
+                    getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
@@ -576,6 +580,14 @@ public class JSONUtils {
 
         return new StreamingJsonValue(jsonDataSource);
     }
+
+    public static ErrorValue createJsonConversionError(Throwable throwable, String prefix) {
+        String detail = throwable.getMessage() != null ?
+                prefix + ": " + throwable.getMessage() :
+                "error occurred in JSON Conversion";
+        return BallerinaErrors.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR, detail);
+    }
+
     // Private methods
 
     /**

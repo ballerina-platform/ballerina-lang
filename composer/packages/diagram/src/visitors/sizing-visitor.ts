@@ -2,7 +2,7 @@ import {
     Assignment, ASTKindChecker,
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant,
     ExpressionStatement, Foreach, Function as BalFunction, If, Invocation, Lambda,
-    Literal, Match, MatchStaticPatternClause, ObjectType,
+    Literal, Match, MatchStaticPatternClause, MatchStructuredPatternClause, ObjectType,
     Panic, Return, Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
     Visitor, WaitExpr, While, WorkerReceive, WorkerSend
 } from "@ballerina/ast-model";
@@ -47,13 +47,15 @@ class SizingVisitor implements Visitor {
     }
 
     public beginVisitIf(node: If) {
-        if (!node.viewState.hidden) {
+        if (!node.viewState.hidden && !node.viewState.hiddenBlock) {
             node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
         }
     }
 
     public beginVisitWhile(node: While) {
-        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        if (!node.viewState.hidden && !node.viewState.hiddenBlock) {
+            node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        }
     }
 
     public beginVisitForeach(node: Foreach) {
@@ -209,11 +211,11 @@ class SizingVisitor implements Visitor {
     public endVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
 
-        if (node.viewState.hidden) {
-            viewState.bBox.w = 0;
-            viewState.bBox.h = 0;
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
             return;
         }
+
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
         viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
@@ -232,9 +234,8 @@ class SizingVisitor implements Visitor {
     public endVisitForeach(node: Foreach) {
         const viewState: ViewState = node.viewState;
 
-        if (node.viewState.hidden) {
-            viewState.bBox.w = 0;
-            viewState.bBox.h = 0;
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
             return;
         }
 
@@ -256,14 +257,8 @@ class SizingVisitor implements Visitor {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
-        if (node.viewState.hidden) {
-            viewState.bBox.w = 0;
-            viewState.bBox.h = 0;
-            return;
-        }
-
-        if (node.viewState.hiddenBlock) {
-            this.sizeHiddenBlock(node.viewState);
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
             return;
         }
 
@@ -355,14 +350,40 @@ class SizingVisitor implements Visitor {
 
     public endVisitMatchStaticPatternClause(node: MatchStaticPatternClause) {
         const viewState: ViewState = node.viewState;
+
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
+            return;
+        }
+
         viewState.bBox.w = node.statement.viewState.bBox.w;
         viewState.bBox.h = node.statement.viewState.bBox.h
             + config.statement.height; // To print literal
         viewState.bBox.label = DiagramUtils.getTextWidth(ASTUtil.genSource(node.literal)).text;
     }
 
+    public endVisitMatchStructuredPatternClause(node: MatchStructuredPatternClause) {
+        const viewState: ViewState = node.viewState;
+
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
+            return;
+        }
+
+        viewState.bBox.w = node.statement.viewState.bBox.w;
+        viewState.bBox.h = node.statement.viewState.bBox.h
+            + config.statement.height; // To print literal
+        viewState.bBox.label = DiagramUtils.getTextWidth(ASTUtil.genSource(node.variableNode)).text;
+    }
+
     public endVisitMatch(node: Match) {
         const viewState: ViewState = node.viewState;
+
+        if (node.viewState.hidden || node.viewState.hiddenBlock) {
+            this.checkHiddenState(node.viewState);
+            return;
+        }
+
         let height = config.frame.topMargin + config.frame.header.height;
         let width = 0;
         node.patternClauses.forEach((element) => {
@@ -371,7 +392,7 @@ class SizingVisitor implements Visitor {
                 width : element.viewState.bBox.w;
         });
         viewState.bBox.h = height;
-        viewState.bBox.w = width;
+        viewState.bBox.w = width + config.flowCtrl.rightMargin;
         viewState.bBox.leftMargin = 60;
     }
 
@@ -382,7 +403,11 @@ class SizingVisitor implements Visitor {
 
         const actualEpName = (endpoint.viewState as EndpointViewState).actualEpName;
         if (actualEpName) {
-            return this.findActualEP(this.soroundingEndpoints.find((el: VisibleEndpoint) => el.name === actualEpName));
+            const actualEP = this.soroundingEndpoints.find((el: VisibleEndpoint) => el.name === actualEpName);
+            if (actualEP === endpoint) {
+                return endpoint;
+            }
+            return this.findActualEP(actualEP);
         } else {
             return endpoint;
         }
@@ -436,10 +461,25 @@ class SizingVisitor implements Visitor {
             // add space for the expander
             viewState.bBox.w += 10;
             if (!viewState.expandContext.collapsed && !viewState.hidden && !viewState.hiddenBlock) {
-                viewState.expandContext.labelText = source;
-                viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(source, {bold: true});
+                const labelText = viewState.expandContext.expandedSubTree.name.value;
+                viewState.expandContext.labelText = labelText;
+                viewState.expandContext.statementText = ASTUtil.genSource(node);
+                viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(labelText, {bold: true});
                 this.handleExpandedFn(viewState.expandContext.expandedSubTree, viewState);
             }
+        }
+    }
+
+    private checkHiddenState(viewState: ViewState) {
+        if (viewState.hidden) {
+            viewState.bBox.w = 0;
+            viewState.bBox.h = 0;
+            return;
+        }
+
+        if (viewState.hiddenBlock) {
+            this.sizeHiddenBlock(viewState as StmntViewState);
+            return;
         }
     }
 
@@ -459,7 +499,7 @@ class SizingVisitor implements Visitor {
                     hiddenBlockWidth = hiddenNode.viewState.bBox.w;
                 }
                 if (hiddenBlockLeftMargin < hiddenNode.viewState.bBox.leftMargin) {
-                    hiddenBlockLeftMargin = hiddenNode.viewState.bBox.leftMargin;
+                    hiddenBlockLeftMargin = hiddenNode.viewState.bBox.leftMargin + config.statement.expanded.margin;
                 }
             });
             viewState.bBox.h = hiddenBlockHeight + 2 * config.statement.expanded.bottomMargin;
@@ -625,27 +665,37 @@ class SizingVisitor implements Visitor {
                 containingWorkerName,
             } = waitinfo;
 
+            let workerNames: string[] = [];
             if (waitExpr.expression) {
-                const workerNames = extractWorkerNames(waitExpr.expression);
-                workerNames.forEach((workerName) => {
-                    if (workersMap[workerName]) {
-                        workersMap[workerName].view.returnStatements.forEach((returnStmt) => {
-                            (returnStmt.viewState as ReturnViewState).callerViewStates[containingWorkerName] =
-                                workersMap[containingWorkerName].view.lifeline;
+                workerNames = extractWorkerNames(waitExpr.expression);
+            }
 
-                            sendReceivePairs.push({
-                                receiveHolder: statement,
-                                receiveIndex: index,
-                                receivingWorkerName: containingWorkerName,
-                                sendHolder: returnStmt,
-                                sendIndex: workersMap[workerName].block.statements.length,
-                                // all returns should be after sends and receives
-                                sendingWorkerName: workerName,
-                            });
-                        });
+            if (waitExpr.keyValuePairs) {
+                waitExpr.keyValuePairs.forEach((pair) => {
+                    if (pair) {
+                        workerNames.push(pair.key.value);
                     }
                 });
             }
+
+            workerNames.forEach((workerName) => {
+                if (workersMap[workerName]) {
+                    workersMap[workerName].view.returnStatements.forEach((returnStmt) => {
+                        (returnStmt.viewState as ReturnViewState).callerViewStates[containingWorkerName] =
+                            workersMap[containingWorkerName].view.lifeline;
+
+                        sendReceivePairs.push({
+                            receiveHolder: statement,
+                            receiveIndex: index,
+                            receivingWorkerName: containingWorkerName,
+                            sendHolder: returnStmt,
+                            sendIndex: workersMap[workerName].block.statements.length,
+                            // all returns should be after sends and receives
+                            sendingWorkerName: workerName,
+                        });
+                    });
+                }
+            });
         });
 
         // 2. Pair up sends and receives
@@ -706,6 +756,16 @@ class SizingVisitor implements Visitor {
 
         // 4. Calculate heights
         sendReceivePairs.forEach((pair) => {
+            pair.sendHolder.viewState.bBox.paddingTop = 0;
+            pair.receiveHolder.viewState.bBox.paddingTop = 0;
+        });
+
+        if (workerHeightInfo.Default) {
+            workerHeightInfo.Default.currentHeight =
+                -(workersMap.Default.view.initHeight - (2 * config.statement.height));
+        }
+
+        sendReceivePairs.forEach((pair) => {
             const sendWorker = workersMap[pair.sendingWorkerName];
             for (let index = workerHeightInfo[sendWorker.view.name].currentIndex; index < pair.sendIndex; index++) {
                 workerHeightInfo[sendWorker.view.name].currentHeight +=
@@ -726,15 +786,12 @@ class SizingVisitor implements Visitor {
             const receiveHeight = workerHeightInfo[receiveWorker.view.name].currentHeight;
             (pair.sendHolder.viewState as WorkerSendViewState).isSynced = true;
             if (sendHeight > receiveHeight) {
-                pair.receiveHolder.viewState.bBox.paddingTop = sendHeight - receiveHeight;
+                if (pair.receiveHolder.viewState.bBox.paddingTop < (sendHeight - receiveHeight)) {
+                    pair.receiveHolder.viewState.bBox.paddingTop = sendHeight - receiveHeight;
+                }
             } else {
-                pair.sendHolder.viewState.bBox.paddingTop = receiveHeight - sendHeight;
-
-                // in this case the return statements label might appear on top of a receiving worker
-                // statement. following is to avoid it.
-                if (ASTKindChecker.isReturn(pair.sendHolder)) {
-                    pair.sendHolder.viewState.bBox.paddingTop += config.statement.height;
-                    pair.receiveHolder.viewState.bBox.paddingTop = config.statement.height;
+                if (pair.sendHolder.viewState.bBox.paddingTop < (receiveHeight - sendHeight)) {
+                    pair.sendHolder.viewState.bBox.paddingTop = receiveHeight - sendHeight;
                 }
             }
         });
@@ -771,7 +828,7 @@ class SizingVisitor implements Visitor {
 
 function extractWaitExpr(statement: ASTNode): WaitExpr | undefined {
     if (ASTKindChecker.isVariableDef(statement) && statement.variable.initialExpression &&
-    ASTKindChecker.isWaitExpr(statement.variable.initialExpression)) {
+        ASTKindChecker.isWaitExpr(statement.variable.initialExpression)) {
 
         return statement.variable.initialExpression;
     }

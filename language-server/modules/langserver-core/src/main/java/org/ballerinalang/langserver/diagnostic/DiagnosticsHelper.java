@@ -67,7 +67,7 @@ public class DiagnosticsHelper {
                                                                                             CompilationFailedException {
         // Compile diagnostics
         List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-        LSModuleCompiler.getBLangPackages(context, docManager, null, true, true);
+        LSModuleCompiler.getBLangPackages(context, docManager, null, true, true, true);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
@@ -124,7 +124,15 @@ public class DiagnosticsHelper {
 
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
             Diagnostic diagnostic = new Diagnostic(range, diag.getMessage());
-            diagnostic.setSeverity(DiagnosticSeverity.Error);
+            org.ballerinalang.util.diagnostic.Diagnostic.Kind diagnosticKind = diag.getKind();
+
+            // set diagnostic log kind
+            if (diagnosticKind.equals(org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR)) {
+                diagnostic.setSeverity(DiagnosticSeverity.Error);
+            } else if (diagnosticKind.equals(org.ballerinalang.util.diagnostic.Diagnostic.Kind.WARNING)) {
+                diagnostic.setSeverity(DiagnosticSeverity.Warning);
+            }
+
             clientDiagnostics.add(diagnostic);
         }
         return diagnosticsMap;

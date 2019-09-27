@@ -133,7 +133,7 @@ public type HelloWorldBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -226,7 +226,7 @@ public type helloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -277,12 +277,12 @@ function getDescriptorMap() returns map<string> {
     };
 }
 
-type Request record {
+public type Request record {
     string name = "";
     string message = "";
     int age = 0;
 };
 
-type Response record {
+public type Response record {
     string resp = "";
 };

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.string as strings;
+import ballerina/lang.'string as strings;
 
 string str = "Hello Ballerina!";
 
@@ -26,8 +26,8 @@ function testLength() returns int {
     return "Hello Ballerina!".length();
 }
 
-function testSubString() returns string {
-    return str.substring(6, 9);
+function testSubString() returns [string,string, string] {
+    return [str.substring(6, 9), str.substring(6), strings:substring(str,6)];
 }
 
 function testIterator() returns string[] {
@@ -90,4 +90,13 @@ function testToCodepointInts(string st) returns int[] {
 
 function testFromCodePointInts(int[] ints) returns string|error {
     return strings:fromCodePointInts(ints);
+}
+
+function testSubstringOutRange() returns string {
+    return "abcdef".substring(7, 9);
+}
+
+function testSubstring(string s, int si, int ei) returns error|string {
+    error|string sub = trap s.substring(si, ei);
+    return sub;
 }

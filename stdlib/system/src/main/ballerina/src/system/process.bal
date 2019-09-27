@@ -22,15 +22,15 @@ public type Process object {
 
     private int BUF_SIZE = 10240;
 
-    # Waits for the process to finish its work and exit.
+    # Waits for the process to finish it's work and exit.
     #
     # + return - Returns the exit code for the process, or an `Error` if a failure occurs
     public function waitForExit() returns int|Error = external;
     
-    # Returns the exit code of the process when it finished execution.
+    # Returns the exit code of the process when it has finished the execution.
     # Error if the process has not exited yet.
     #
-    # + return - Returns the exit code of the process, or an `Error` if the process hasn't exited yet.
+    # + return - Returns the exit code of the process, or an `Error` if the process hasn't exited yet
     public function exitCode() returns int|Error = external;
     
     # Destroys the process.
@@ -62,23 +62,21 @@ public type Process object {
     
     private function doPipe(io:ReadableByteChannel input, io:WritableByteChannel output) {
         while (true) {
-            [byte[], int]|error result = input.read(self.BUF_SIZE);
-            if (result is error) {
+            byte[]|io:Error result = input.read(self.BUF_SIZE);
+            if (result is io:EofError) {
+                break;
+            } else if (result is io:Error) {
                 io:println("Error in pipe read: ", result);
                 break;
             } else {
-                if (result[1] <= 0) {
-                    break;
-                } else {
-                    int i = 0;
-                    while (i < result[1]) {
-                        var result2 = output.write(result[0], i);
-                        if (result2 is error) {
-                            io:println("Error in pipe write: ", result2);
-                            break;
-                        } else {
-                            i = i + result2;
-                        }
+                int i = 0;
+                while (i < result.length()) {
+                    var result2 = output.write(result, i);
+                    if (result2 is error) {
+                        io:println("Error in pipe write: ", result2);
+                        break;
+                    } else {
+                        i = i + result2;
                     }
                 }
             }

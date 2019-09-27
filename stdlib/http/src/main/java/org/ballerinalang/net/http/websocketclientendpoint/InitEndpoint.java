@@ -38,10 +38,13 @@ import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.ballerinalang.net.http.WebSocketConstants.WSS_SCHEME;
 
 /**
  * Initialize the WebSocket Client.
@@ -67,6 +70,7 @@ public class InitEndpoint {
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
 
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
+        String scheme = URI.create(remoteUrl).getScheme();
         Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         WebSocketService wsService;
         if (clientService != null) {
@@ -80,7 +84,7 @@ public class InitEndpoint {
             wsService = new WebSocketService(strand.scheduler);
         }
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
-        populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig);
+        populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
 
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(
@@ -94,7 +98,8 @@ public class InitEndpoint {
                 new WebSocketClientHandshakeListener(webSocketClient, wsService, clientConnectorListener,
                         readyOnConnect, countDownLatch));
         try {
-            if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
+            // Wait for 5 minutes before timeout
+            if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {
                 throw new WebSocketException("Waiting for WebSocket handshake has not been successful");
             }
         } catch (InterruptedException e) {
@@ -105,7 +110,7 @@ public class InitEndpoint {
     }
 
     private static void populateClientConnectorConfig(MapValue<String, Object> clientEndpointConfig,
-                                                      WebSocketClientConnectorConfig clientConnectorConfig) {
+            WebSocketClientConnectorConfig clientConnectorConfig, String scheme) {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
         clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -125,8 +130,8 @@ public class InitEndpoint {
         MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
-        } else {
-            HttpUtil.setDefaultTrustStore(clientConnectorConfig);
+        } else if (scheme.equals(WSS_SCHEME)) {
+            clientConnectorConfig.useJavaDefaults();
         }
         clientConnectorConfig.setWebSocketCompressionEnabled(
                 clientEndpointConfig.getBooleanValue(WebSocketConstants.COMPRESSION_ENABLED_CONFIG));
@@ -138,5 +143,8 @@ public class InitEndpoint {
                 key -> customHeaders.put(key, headers.get(key).toString())
         );
         return customHeaders;
+    }
+
+    private InitEndpoint() {
     }
 }

@@ -1,8 +1,6 @@
 import ballerina/io;
 import ballerina/runtime;
 
-channel<xml> xmlChn = new;
-
 public function main() {
     worker w1 {
         int i = 100;
@@ -70,6 +68,5 @@ public function main() {
     worker w4 {
         map<string> keyMap = {myKey: "abc123"};
         xml msg = xml `<msg><name>ballerina</name><worker>w2</worker></msg>`;
-        msg -> xmlChn, keyMap;
     }
 }

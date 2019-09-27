@@ -36,25 +36,26 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
     @Test
     public void testNoArg() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{ "test_main_with_no_params.bal" },
-                                                       (new File("src/test/resources/run/file"))
-                                                               .getAbsolutePath());
-        Assert.assertEquals(output, "1");
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[] { "test_main_with_no_params.bal" },
+                                                           (new File("src" + File.separator + "test" + File.separator
+                                                                             + "resources" + File.separator + "run" +
+                                                                             File.separator + "file"))
+                                                                   .getAbsolutePath());
+        Assert.assertTrue(output.endsWith("1"));
     }
 
     @Test
     public void testMultipleParam() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String output = bMainInstance.runMainAndReadStdOut("run",
-                                                       new String[]{ "test_main_with_multiple_typed_params.bal",
-                                                               "1000", "1.0", "Hello Ballerina", "255", "true",
-                                                               "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>",
-                                                               "{ \"name\": \"Em\" }", "just", "the", "rest" },
-                                                       (new File("src/test/resources/run/file"))
-                                                               .getAbsolutePath());
-        Assert.assertEquals(output,
-                            "integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, boolean: true, " +
-                                    "JSON Name Field: Maryam, XML Element Name: book, Employee Name Field: Em, " +
-                                    "string rest args: just the rest ");
+        String[] args = new String[] {
+                "test_main_with_multiple_typed_params.bal", "1000", "1.0", "Hello Ballerina", "255", "true",
+                "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>", "{ \"name\": \"Em\" }", "just", "the", "rest"
+        };
+        String balFile = (new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                                           "run" + File.separator + "file")).getAbsolutePath();
+        String output = bMainInstance.runMainAndReadStdOut("run", args, balFile);
+        Assert.assertTrue(output.endsWith("integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, boolean: " +
+                                          "true, JSON Name Field: Maryam, XML Element Name: book, Employee Name " +
+                                          "Field: Em, string rest args: just the rest "));
     }
 }

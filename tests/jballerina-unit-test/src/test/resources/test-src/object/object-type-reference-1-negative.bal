@@ -15,29 +15,27 @@
 // under the License.
 
 type Person1 abstract object {
-    public int age = 10;
-    public string name = "sample name";
+    public int age;
+    public string name;
 };
 
-type Employee1 object {
-    public float salary = 0.0;
+type Employee1 abstract object {
+    public float salary;
 };
 
 type Manager1 object {
     *Person1;
+    *Employee1;
 
     string dpt = "HR";
-
-    // refering a non-abstarct object
-    *Employee1;
 };
 
 type EmployeeWithSalary abstract object {
-    public float salary = 0.0;
+    public float salary;
 };
 
 type AnotherEmployeeWithSalary abstract object {
-    public int salary = 0;
+    public int salary;
 };
 
 type ManagerWithTwoSalaries object {
@@ -45,7 +43,6 @@ type ManagerWithTwoSalaries object {
 
     string dpt = "HR";
     *EmployeeWithSalary;
-    *AnotherEmployeeWithSalary;
 };
 
 // Direct circular reference
@@ -77,16 +74,15 @@ type E abstract object {
 
 // Test errors for unimplemented methods
 type Person2 abstract object {
-    public int age = 10;
-    public string name = "sample name";
+    public int age;
+    public string name;
 
-    // Unimplemented function at the nested referenced type.
     public function getName(string? title) returns string;
 };
 
 type Employee2 abstract object {
     *Person2;
-    public float salary = 0.0;
+    public float salary;
 
     // Unimplemented function at the referenced type.
     public function getSalary() returns float;
@@ -95,49 +91,12 @@ type Employee2 abstract object {
 type Manager2 object {
     string dpt = "HR";
     *Employee2;
-};
 
-type P object {
-    *Q;
-};
+    public function getName(string? title) returns string {
+        return self.name;
+    }
 
-type Q record {
-    int x = 0;
-    string y = "";
-};
-
-type R object {
-    *Person1;
-    *Person1;
-};
-
-type ObjectWithFunction abstract object {
-    public function getName(string? title) returns string;
-};
-
-type ObjectWithRedeclaredFunction_1 abstract object {
-    *ObjectWithFunction;
-    public function getName(string? title) returns string;
-};
-
-type ObjectWithRedeclaredFunction_2 abstract object {
-    *ObjectWithFunction;
-    *ObjectWithRedeclaredFunction_1;
-};
-
-type RedecalredFieldObject_1 abstract object {
-    int x = 0;
-};
-
-type RedecalredFieldObject_2 abstract object {
-    int x = 0;
-    *RedecalredFieldObject_1;
-};
-
-type RedecalredFieldObject_3 abstract object {
-    *RedecalredFieldObject_2;
-};
-
-type Bar object {
-    *Baz;   // non existing type
+    public function getSalary() returns float {
+        return self.salary;
+    }
 };

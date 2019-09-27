@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -142,7 +143,7 @@ public class FunctionGenerator {
                     list.add(generateTypeDefinition(importsAcceptor, currentPkgId, bLangExpression.type));
                 }
             }
-            return "(" + String.join(", ", list) + ")";
+            return "[" + String.join(", ", list) + "]";
         } else if (bLangNode instanceof BLangAssignment) {
             if (((BLangAssignment) bLangNode).declaredWithVar) {
                 return "any";
@@ -213,14 +214,14 @@ public class FunctionGenerator {
             if (addErrorTypeAtEnd) {
                 list.add("error");
             }
-            return "(" + String.join("|", list) + ")";
+            return String.join("|", list);
         } else if (bType instanceof BTupleType) {
             // Check for tuple type assignment eg. int, string
             List<String> list = new ArrayList<>();
             for (BType memberType : ((BTupleType) bType).tupleTypes) {
                 list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
             }
-            return "(" + String.join(", ", list) + ")";
+            return "[" + String.join(", ", list) + "]";
         } else if (bType instanceof BNilType) {
             return "()";
         } else if (bType instanceof BIntermediateCollectionType) {
@@ -245,7 +246,9 @@ public class FunctionGenerator {
             for (BType memberType : tupleTypes) {
                 list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
             }
-            return "(" + String.join(", ", list) + ")[]";
+            return "[" + String.join(", ", list) + "][]";
+        } else if (bType instanceof BTableType) {
+            return "table<record {}>";
         }
         return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol) :
                 "any";
@@ -284,7 +287,7 @@ public class FunctionGenerator {
                     argNames.add(argName);
                 }
                 if (restParam != null && (restParam.type instanceof BArrayType)) {
-                    list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx));
+                    list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
                 }
             }
         } else {
@@ -294,10 +297,10 @@ public class FunctionGenerator {
                     continue;
                 }
                 BVarSymbol param = parameterDefs.get(i);
-                list.add(CommonUtil.getBTypeName(param.type, ctx) + " " + param.getName());
+                list.add(CommonUtil.getBTypeName(param.type, ctx, true) + " " + param.getName());
             }
             if (restParam != null && (restParam.type instanceof BArrayType)) {
-                list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx));
+                list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
             }
         }
         return (!list.isEmpty()) ? list : new ArrayList<>();
@@ -477,6 +480,9 @@ public class FunctionGenerator {
                 break;
             case "byte":
                 result = "0";
+                break;
+            case "table":
+                result = "table{}";
                 break;
             default:
                 result = "()";

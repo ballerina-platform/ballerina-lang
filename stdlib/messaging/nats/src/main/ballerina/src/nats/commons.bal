@@ -16,7 +16,7 @@
 
 public type Content byte[] | boolean | string | int | float | decimal | xml | json | record {};
 
-public function convertData(Content data) returns string | byte[] | error {
+function convertData(Content data) returns string | byte[] | error {
     string | byte[] | error converted;
     if (data is boolean) {
         converted = data.toString();
@@ -31,7 +31,7 @@ public function convertData(Content data) returns string | byte[] | error {
     } else if (data is xml) {
         converted = data.toString();
     } else if (data is json) {
-        converted = data.toString();
+        converted = data.toJsonString();
     } else if (data is record{}) {
         json | error jsonConverted = typedesc<json>.constructFrom(data);
         if (jsonConverted is json) {

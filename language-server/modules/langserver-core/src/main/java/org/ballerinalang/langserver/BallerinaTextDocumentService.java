@@ -89,9 +89,7 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -114,7 +112,6 @@ import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncSymbolInfo;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFunctionInvocationDetails;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_DIR_NAME;
 
 /**
  * Text document service implementation for ballerina.
@@ -175,7 +172,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         && context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY)) {
                     return Either.forLeft(completions);
                 }
-                LSModuleCompiler.getBLangPackage(context, documentManager, null, false);
+                LSModuleCompiler.getBLangPackage(context, documentManager, null, false, false);
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
                 CompletionUtil.resolveSymbols(context);
@@ -251,7 +248,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Prune the source and compile
                 SourcePruner.pruneSource(context);
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
-                                                                             LSCustomErrorStrategy.class, false);
+                                                                             LSCustomErrorStrategy.class, false, false);
 
                 // Capture visible symbols of the cursor position
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
@@ -361,7 +358,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 context.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
-                                                                             LSCustomErrorStrategy.class, false);
+                                                                             LSCustomErrorStrategy.class, false, false);
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
                         .findFirst();
@@ -407,21 +404,21 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 String topLevelNodeType = CommonUtil.topLevelNodeInLine(identifier, line, documentManager);
 
-                // Add create test commands
-                Path modulePath = document.getOwnerModulePath() == null ? document.getProjectRootPath()
-                        : document.getOwnerModulePath();
-                String innerDirName = modulePath.relativize(document.getPath()).toString()
-                        .split(Pattern.quote(File.separator))[0];
-                String moduleName = document.getOwnerModule();
-                if (topLevelNodeType != null && diagnostics.isEmpty() && document.isWithinProject() &&
-                        !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
-                        !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
-                    /*
-                    Test generation suggested only when no code diagnosis exists, inside a bal project,
-                    inside a module, not inside /tests folder
-                     */
-                    actions.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params, context));
-                }
+//                // Add create test commands
+//                Path modulePath = document.getOwnerModulePath() == null ? document.getProjectRootPath()
+//                        : document.getOwnerModulePath();
+//                String innerDirName = modulePath.relativize(document.getPath()).toString()
+//                        .split(Pattern.quote(File.separator))[0];
+//                String moduleName = document.getOwnerModule();
+//                if (topLevelNodeType != null && diagnostics.isEmpty() && document.isWithinProject() &&
+//                        !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
+//                        !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
+//                    /*
+//                    Test generation suggested only when no code diagnosis exists, inside a bal project,
+//                    inside a module, not inside /tests folder
+//                     */
+//                    actions.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params, context));
+//                }
 
                 // Add commands base on node diagnostics
                 if (!diagnostics.isEmpty()) {
@@ -446,8 +443,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeAction' failed!";
                 Range range = params.getRange();
-                logError(msg, e, params.getTextDocument(), range.getStart(),
-                         range.getEnd());
+                logError(msg, e, params.getTextDocument(), range.getStart(), range.getEnd());
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
@@ -589,13 +585,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
 
             try {
-                BLangPackage bLangPackage =
-                        LSModuleCompiler.getBLangPackage(context, documentManager,
-                                                         GotoImplementationCustomErrorStrategy.class, false);
-                List<Location> locations = GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
-                                                                                            position.getPosition(),
-                                                                                            lsDocument
-                                                                                                    .getProjectRoot());
+                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, 
+                        GotoImplementationCustomErrorStrategy.class, false, false);
+                List<Location> locations = GotoImplementationUtil.getImplementationLocation(bLangPackage, context, 
+                        position.getPosition(), lsDocument.getProjectRoot());
                 implementationLocations.addAll(locations);
             } catch (UserErrorException e) {
                 notifyUser("Goto Implementation", e);

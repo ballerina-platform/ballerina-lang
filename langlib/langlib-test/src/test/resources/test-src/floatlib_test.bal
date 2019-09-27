@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.float as floats;
+import ballerina/lang.'float as floats;
 
 function testIsFinite() returns [boolean, boolean] {
     float f = 12.34;
@@ -30,4 +30,8 @@ function testIsInfinite() returns [boolean, boolean] {
 
 function testSum() returns float {
     return floats:sum(12.34, 23.45, 34.56);
+}
+
+function testFloatConsts() returns [float,float] {
+    return [floats:NaN, floats:Infinity];
 }

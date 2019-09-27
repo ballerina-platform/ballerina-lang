@@ -1,6 +1,7 @@
 package org.ballerinalang.openapi.cmd;
 
 import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.OpenApiMesseges;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
@@ -16,8 +17,10 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.openapi.OpenApiMesseges.DEFINITION_EXISTS;
+import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_MODULE_ARGS_REQUIRED;
 import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_MODULE_REQUIRED;
 import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_PROJECT_ROOT;
+import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_SERVICE_NAME_REQUIRED;
 import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_DIRECTORY_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_MD_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.RESOURCE_DIRECTORY_EXCEPTION;
@@ -71,8 +74,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
     @Override
     public void execute() {
         //User notification of using an experimental tool
-        outStream.println("Note: This is an Experimental tool ship under ballerina hence this will only support" +
-                " limited set of functionality.");
+        outStream.println(OpenApiMesseges.EXPERIMENTAL_FEATURE);
 
         CodeGenerator generator = new CodeGenerator();
 
@@ -85,7 +87,13 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
 
         //Check if a module name is present
         if (moduleArgs == null || moduleArgs.size() < 2) {
-            throw LauncherUtils.createLauncherException(GEN_SERVICE_MODULE_REQUIRED);
+            throw LauncherUtils.createLauncherException(GEN_SERVICE_MODULE_ARGS_REQUIRED);
+        } else {
+            if (moduleArgs.get(0).trim().isEmpty()) {
+                throw LauncherUtils.createLauncherException(GEN_SERVICE_MODULE_REQUIRED);
+            } else if (moduleArgs.get(1).trim().isEmpty()) {
+                throw LauncherUtils.createLauncherException(GEN_SERVICE_SERVICE_NAME_REQUIRED);
+            }
         }
 
         //Check if an OpenApi definition is provided
@@ -182,11 +190,22 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
             }
         }
 
+        if (output.isEmpty()) {
+            output = executionPath;
+        }
+
         //Set source package for the generated service
         generator.setSrcPackage(moduleArgs.get(0));
 
+        //TODO Fix relative path compiler plugin issue
+        //Set relative path for contract path which will be printed on the generated service bal file
+        //Path absPath = Paths.get(resourcePath.toString());
+        //Path basePath = Paths.get(output);
+        //Path pathRelative = basePath.relativize(absPath);
+
         try {
-            generator.generateService(executionPath, resourcePath.toString(), moduleArgs.get(1), output);
+            generator.generateService(executionPath, resourcePath.toString(), resourcePath.toString(),
+                    moduleArgs.get(1), output);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
                     "contract at " + argList.get(0) + ". " + e.getMessage() + ".");

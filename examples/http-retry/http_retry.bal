@@ -13,16 +13,16 @@ http:Client backendClientEP = new("http://localhost:8080", {
             // Number of retry attempts before giving up.
             count: 3,
 
-            // Multiplier of the retry interval to exponentially
-            // increase; retry interval.
+            // Multiplier of the retry interval to exponentially increase the
+            // retry interval.
             backOffFactor: 2.0,
 
-            // Upper limit of the retry interval in milliseconds.
-            // If `intervalInMillis` into `backOffFactor` value exceeded
-            // `maxWaitIntervalInMillis` interval value. `maxWaitIntervalInMillis`
-            // will be considered as the retry interval.
+            // Upper limit of the retry interval in milliseconds. If
+            // `intervalInMillis` into `backOffFactor` value exceeded
+            // `maxWaitIntervalInMillis` interval value.
+            // `maxWaitIntervalInMillis` will be considered as the retry
+            // interval.
             maxWaitIntervalInMillis: 20000
-
         },
         timeoutInMillis: 2000
     });
@@ -36,26 +36,19 @@ service retryDemoService on new http:Listener(9090) {
         methods: ["GET"],
         path: "/"
     }
-    // Parameters include a reference to the caller and an object of
-    // the request data.
+    // Parameters include a reference to the caller and an object of the
+    // request data.
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
-
         var backendResponse = backendClientEP->forward("/hello", request);
 
-        // The `is` operator is used to separate out union-type returns.
-        // The type of `backendResponse` variable is the union of `http:Response` and `error`.
-        // If a response is returned, `backendResponse` is treated as an `http:Response`
-        // within the if-block and the normal process runs.
-        // If the service returns an `error`, `backendResponse` is implicitly
-        // converted to an `error` within the else block.
+        // If `backendResponse` is an `http:Response`, it is sent back to the
+        // client. If `backendResponse` is an `http:ClientError`, an internal
+        // server error is returned to the client.
         if (backendResponse is http:Response) {
-
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response",
-                                err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
-
         } else {
             http:Response response = new;
             response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
@@ -63,8 +56,7 @@ service retryDemoService on new http:Listener(9090) {
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response",
-                                err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -93,17 +85,18 @@ service mockHelloService on new http:Listener(8080) {
             // mimic network level delays.
             runtime:sleep(5000);
             var responseToCaller = caller->respond("Hello World!!!");
-            if (responseToCaller is error) {
-                log:printError("Error sending response from mock service",
-                        err = responseToCaller);
-            }
+            handleRespondResult(responseToCaller);
         } else {
-            log:printInfo("Request received from the client to healthy service.");
+            log:printInfo(
+                "Request received from the client to healthy service.");
             var responseToCaller = caller->respond("Hello World!!!");
-            if (responseToCaller is error) {
-                log:printError("Error sending response from mock service",
-                        err = responseToCaller);
-            }
+            handleRespondResult(responseToCaller);
         }
+    }
+}
+
+function handleRespondResult(error? result) {
+    if (result is http:ListenerError) {
+        log:printError("Error sending response from mock service", result);
     }
 }

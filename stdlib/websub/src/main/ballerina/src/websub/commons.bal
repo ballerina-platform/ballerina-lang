@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/internal;
-import ballerina/config;
+import ballerina/stringutils;
 
 # Intent verification request parameter `hub.challenge` representing the challenge that needs to be echoed by
 # susbscribers to verify intent.
@@ -165,7 +165,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     returns http:Response {
 
     http:Response response = new;
-    var decodedTopic = http:decode(intentVerificationRequest.topic, "UTF-8");
+    var decodedTopic = encoding:decodeUriComponent(intentVerificationRequest.topic, "UTF-8");
     string reqTopic = decodedTopic is string ? decodedTopic : topic;
 
     string reqMode = intentVerificationRequest.mode;
@@ -224,23 +224,21 @@ function processWebSubNotification(http:Request request, service serviceType) re
 # + secret - The secret used when subscribing
 # + return - `error` if an error occurs validating the signature or the signature is invalid
 function validateSignature(string xHubSignature, string stringPayload, string secret) returns error? {
-    string[] splitSignature = internal:split(xHubSignature, "=");
+    string[] splitSignature = stringutils:split(xHubSignature, "=");
     string method = splitSignature[0];
-    string signature = internal:replace(xHubSignature, method + "=", "");
+    string signature = stringutils:replace(xHubSignature, method + "=", "");
     string generatedSignature = "";
 
-    if (internal:equalsIgnoreCase(method, SHA1)) {
-        generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toBytes(),
-            secret.toBytes()));
-    } else if (internal:equalsIgnoreCase(method, SHA256)) {
-        generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toBytes(),
-            secret.toBytes()));
+    if (stringutils:equalsIgnoreCase(method, SHA1)) {
+        generatedSignature = crypto:hmacSha1(stringPayload.toBytes(), secret.toBytes()).toBase16();
+    } else if (stringutils:equalsIgnoreCase(method, SHA256)) {
+        generatedSignature = crypto:hmacSha256(stringPayload.toBytes(), secret.toBytes()).toBase16();
     } else {
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Unsupported signature method: " + method);
         return webSubError;
     }
 
-    if (!internal:equalsIgnoreCase(signature, generatedSignature)) {
+    if (!stringutils:equalsIgnoreCase(signature, generatedSignature)) {
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Signature validation failed: Invalid Signature!");
         return webSubError;
     }
@@ -373,21 +371,21 @@ public function extractTopicAndHubUrls(http:Response response) returns @tainted 
     string topic = "";
     string[] linkHeaderConstituents = [];
     if (linkHeaders.length() == 1) {
-        linkHeaderConstituents = internal:split(linkHeaders[0], ",");
+        linkHeaderConstituents = stringutils:split(linkHeaders[0], ",");
     } else {
         linkHeaderConstituents = linkHeaders;
     }
 
     foreach var link in linkHeaderConstituents {
-        string[] linkConstituents = internal:split(link, ";");
+        string[] linkConstituents = stringutils:split(link, ";");
         if (linkConstituents[1] != "") {
             string url = linkConstituents[0].trim();
-            url = internal:replace(url, "<", "");
-            url = internal:replace(url, ">", "");
-            if (internal:contains(linkConstituents[1], "rel=\"hub\"")) {
+            url = stringutils:replace(url, "<", "");
+            url = stringutils:replace(url, ">", "");
+            if (stringutils:contains(linkConstituents[1], "rel=\"hub\"")) {
                 hubs[hubIndex] = url;
                 hubIndex += 1;
-            } else if (internal:contains(linkConstituents[1], "rel=\"self\"")) {
+            } else if (stringutils:contains(linkConstituents[1], "rel=\"self\"")) {
                 if (topic != "") {
                     error websubError = error(WEBSUB_ERROR_CODE, message = "Link Header contains > 1 self URLs");
                     return websubError;
@@ -450,7 +448,7 @@ public type HubConfiguration record {|
     RemotePublishConfig remotePublish?;
     boolean topicRegistrationRequired = true;
     string publicUrl?;
-    http:ClientEndpointConfig clientConfig?;
+    http:ClientConfiguration clientConfig?;
     HubPersistenceStore hubPersistenceStore?;
 |};
 

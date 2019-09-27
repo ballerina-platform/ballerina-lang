@@ -743,6 +743,126 @@ function testLocalTransactionWithSelectAndForeachIteration(string jdbcURL) retur
     return [returnVal, count];
 }
 
+function testLocalTransactionWithUpdateAfterSelectAndForeachIteration(string jdbcURL) returns @tainted [int, int] {
+    jdbc:Client testDB = new ({
+        url: jdbcURL,
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 5}
+    });
+
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 902, 5000.75, 'USA')");
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 902, 5000.75, 'USA')");
+
+    int returnVal = 0;
+    int count = -1;
+    transaction {
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
+            registrationID = 902", ResultCount);
+        if (dt1 is table<ResultCount>) {
+            foreach var row in dt1 {
+                count = row.COUNTVAL;
+            }
+        }
+        var e3 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                        values ('James', 'Clerk', 902, 5000.75, 'USA')");
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
+            registrationID = 902", ResultCount);
+        if (dt2 is table<ResultCount>) {
+            foreach var row in dt2 {
+                count = row.COUNTVAL;
+            }
+        }
+    } onretry {
+        returnVal = -1;
+    }
+    checkpanic testDB.stop();
+    return [returnVal, count];
+}
+
+function testLocalTransactionWithUpdateAfterSelectAndBreakingWhileIteration(string jdbcURL) returns @tainted [int, int] {
+    jdbc:Client testDB = new ({
+        url: jdbcURL,
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 5}
+    });
+
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 903, 5000.75, 'USA')");
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 903, 5000.75, 'USA')");
+
+    int returnVal = 0;
+    int count = -1;
+    transaction {
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
+            registrationID = 903", ResultCount);
+        if (dt1 is table<ResultCount>) {
+            while (dt1.hasNext()) {
+                var rs = dt1.getNext();
+                if (rs is ResultCount) {
+                    count = rs.COUNTVAL;
+                }
+                break;
+            }
+        }
+        var e3 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                        values ('James', 'Clerk', 903, 5000.75, 'USA')");
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
+            registrationID = 903", ResultCount);
+        if (dt2 is table<ResultCount>) {
+            foreach var row in dt2 {
+                count = row.COUNTVAL;
+            }
+        }
+    } onretry {
+        returnVal = -1;
+    }
+    checkpanic testDB.stop();
+    return [returnVal, count];
+}
+
+function testLocalTransactionWithUpdateAfterSelectAndTableClosure(string jdbcURL) returns @tainted [int, int] {
+    jdbc:Client testDB = new ({
+        url: jdbcURL,
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 5}
+    });
+
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 904, 5000.75, 'USA')");
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 904, 5000.75, 'USA')");
+
+    int returnVal = 0;
+    int count = -1;
+    transaction {
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
+            registrationID = 904", ResultCount);
+        if (dt1 is table<ResultCount>) {
+            dt1.close();
+        }
+
+        var e3 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                        values ('James', 'Clerk', 904, 5000.75, 'USA')");
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
+            registrationID = 904", ResultCount);
+        if (dt2 is table<ResultCount>) {
+            foreach var row in dt2 {
+                count = row.COUNTVAL;
+            }
+        }
+    } onretry {
+        returnVal = -1;
+    }
+    checkpanic testDB.stop();
+    return [returnVal, count];
+}
+
 function testLocalTransactionWithSelectAndHasNextIteration(string jdbcURL) returns @tainted [int, int] {
     jdbc:Client testDB = new ({
         url: jdbcURL,

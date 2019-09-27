@@ -1,18 +1,19 @@
 NAME
-    DIST - Commands for ballerina distribution version management
+       DIST - Commands for ballerina distribution version management
 
 SYNOPSIS
-    ballerina [?|-h|--help]
-              <command> [<args>]
+       ballerina [-h | --help]
+                 <command> [<args>]
+
 
 DESCRIPTION
 
 
 OPTIONS
 
-    -h
-    --help
-         Prints usage details of a command.
+       -h, --help
+           Print usage details of a command.
+
 
 BALLERINA COMMANDS
     Available commands are:
@@ -22,7 +23,8 @@ BALLERINA COMMANDS
         update     Update to latest distribution version
         remove     Delete locally installed distribution version
 
+
 EXAMPLES
 
-    Get help on how to use the ballerina command
-    $ ballerina dist --help
+       Get help on how to use the ballerina command.
+          → ballerina dist --help

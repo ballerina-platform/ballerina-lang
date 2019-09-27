@@ -16,7 +16,7 @@
 
 # Representation of the Authentication filter.
 #
-# + authHandlers - An array of authentication handlers.
+# + authHandlers - An array of authentication handlers
 public type AuthnFilter object {
 
     public InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
@@ -96,28 +96,19 @@ function checkForAuthHandlers(InboundAuthHandler[] authHandlers, Request request
 
 # Verifies if the authentication is successful. If not responds to the user.
 #
-# + caller - Caller for outbound HTTP responses
+# + caller - Caller for outbound HTTP response
 # + authenticated - Authentication status for the request, or `AuthenticationError` if error occurred
 # + return - Authentication result to indicate if the filter can proceed(true) or not(false)
 function isAuthnSuccessful(Caller caller, boolean|AuthenticationError authenticated) returns boolean {
     Response response = new;
     response.statusCode = 401;
-    if (authenticated is boolean) {
-        if (!authenticated) {
-            response.setTextPayload("Authentication failure.");
-            var err = caller->respond(response);
-            if (err is error) {
-                panic <error> err;
-            }
-            return false;
-        }
-    } else {
-        response.setTextPayload("Authentication failure. " + <string>authenticated.reason());
-        var err = caller->respond(response);
-        if (err is error) {
-            panic <error> err;
-        }
-        return false;
+    if (authenticated is boolean && authenticated) {
+        return authenticated;
     }
-    return true;
+    response.setTextPayload("Authentication failure.");
+    var err = caller->respond(response);
+    if (err is error) {
+        panic <error> err;
+    }
+    return false;
 }

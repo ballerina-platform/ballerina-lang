@@ -211,7 +211,7 @@ public class CodeActionTest {
         String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, context);
 
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        String title = expected.get("title").toString();
+        String title = expected.get("title").getAsString();
 
         boolean codeActionFound = false;
         JsonObject responseJson = this.getResponseJson(res);
@@ -224,8 +224,7 @@ public class CodeActionTest {
             JsonObject edit = editText.getAsJsonObject().get("documentChanges")
                     .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray().get(0)
                     .getAsJsonObject();
-            if (right.getAsJsonObject().get("title").toString().equals(title) && edit.equals(
-                    expected.get("edit"))) {
+            if (right.getAsJsonObject().get("title").getAsString().equals(title) && edit.equals(expected.get("edit"))) {
                 codeActionFound = true;
                 break;
             }
@@ -245,10 +244,15 @@ public class CodeActionTest {
                 {"fixReturnType3.json", "fixReturnType.bal"},
                 {"markUntaintedCodeAction1.json", "taintedVariable.bal"},
                 {"markUntaintedCodeAction2.json", "taintedVariable.bal"},
+                {"variableAssignmentRequiredCodeAction1.json", "createVariable.bal"},
+                {"variableAssignmentRequiredCodeAction2.json", "createVariable.bal"},
+                {"variableAssignmentRequiredCodeAction3.json", "createVariable.bal"},
+                {"variableAssignmentRequiredCodeAction4.json", "createVariable.bal"},
+                {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"typeGuardCodeAction1.json", "typeGuard.bal"},
                 {"typeGuardCodeAction2.json", "typeGuard.bal"},
                 {"typeGuardCodeAction3.json", "typeGuard.bal"},
-                {"typeGuardCodeAction4.json", "typeGuard.bal"},
+//                {"typeGuardCodeAction4.json", "typeGuard.bal"},
         };
     }
 
@@ -271,8 +275,6 @@ public class CodeActionTest {
                 {"undefinedPackageWithinFunction.json", "codeActionCommon.bal"},
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
-                {"variableAssignmentRequiredCodeAction.json", "createVariable.bal"},
-                {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"packagePull.json", "packagePull.bal"},
                 {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
                 {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}

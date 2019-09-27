@@ -56,8 +56,7 @@ externalFunctionBody
     ;
 
 functionDefinition
-    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody |
-     externalFunctionBody SEMICOLON)
+    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION callableUnitSignature (callableUnitBody | externalFunctionBody SEMICOLON)
     ;
 
 lambdaFunction
@@ -123,11 +122,6 @@ constantDefinition
 globalVariableDefinition
     :   PUBLIC? LISTENER typeName Identifier ASSIGN expression SEMICOLON
     |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
-    |   channelType Identifier ASSIGN expression SEMICOLON
-    ;
-
-channelType
-    : CHANNEL LT typeName GT
     ;
 
 attachmentPoint
@@ -157,6 +151,7 @@ sourceOnlyAttachPointIdent
     |   VAR
     |   CONST
     |   LISTENER
+    |   WORKER
     ;
 
 workerDeclaration
@@ -416,9 +411,9 @@ matchStatement
     ;
 
 matchPatternClause
-    :   staticMatchLiterals EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   errorMatchPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   staticMatchLiterals EQUAL_GT LEFT_BRACE statement* RIGHT_BRACE
+    |   VAR bindingPattern (IF expression)? EQUAL_GT LEFT_BRACE statement* RIGHT_BRACE
+    |   errorMatchPattern (IF expression)? EQUAL_GT LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 bindingPattern
@@ -633,13 +628,14 @@ waitKeyValue
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
-    |   functionInvocation                                                      # functionInvocationReference
-    |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
+    |   variableReference ANNOTATION_ACCESS nameReference                       # annotAccessExpression
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
-    |   variableReference invocation                                            # invocationReference
+    |   functionInvocation                                                      # functionInvocationReference
     |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
     |   QuotedStringLiteral invocation                                          # stringFunctionInvocationReference
+    |   variableReference invocation                                            # invocationReference
+    |   variableReference index                                                 # mapArrayVariableReference
     ;
 
 field
@@ -659,7 +655,7 @@ functionInvocation
     ;
 
 invocation
-    :   (DOT | NOT) anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    :   DOT anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocationArgList
@@ -749,41 +745,43 @@ expression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
-    |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
-    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
-    |   expression IS typeName                                              # typeTestExpression
-    |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
+    |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
+    |   expression (MUL | DIV | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
     |   expression (shiftExpression) expression                             # bitwiseShiftExpression
-    |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
+    |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
+    |   expression (LT | GT | LT_EQUAL | GT_EQUAL) expression               # binaryCompareExpression
+    |   expression IS typeName                                              # typeTestExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
-    |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
+    |   expression ELVIS expression                                         # elvisExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   arrowFunction                                                       # arrowFunctionExpression
+    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   expression SYNCRARROW peerWorker                                    # workerSendSyncExpression
     |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
-    |   expression ELVIS expression                                         # elvisExpression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
-    |   expression ANNOTATION_ACCESS nameReference                          # annotAccessExpression
     ;
 
 constantExpression
-    :   simpleLiteral
-    |   recordLiteral
+    :   simpleLiteral                                                       # constSimpleLiteralExpression
+    |   recordLiteral                                                       # constRecordLiteralExpression
+    |   constantExpression (DIV | MUL) constantExpression                   # constDivMulModExpression
+    |   constantExpression (ADD | SUB) constantExpression                   # constAddSubExpression
+    |   LEFT_PARENTHESIS constantExpression RIGHT_PARENTHESIS               # constGroupExpression
     ;
 
 typeDescExpr
@@ -804,8 +802,8 @@ trapExpr
     ;
 
 shiftExpression
-    :   GT shiftExprPredicate GT
-    |   LT shiftExprPredicate LT
+    :   LT shiftExprPredicate LT
+    |   GT shiftExprPredicate GT
     |   GT shiftExprPredicate GT shiftExprPredicate GT
     ;
 

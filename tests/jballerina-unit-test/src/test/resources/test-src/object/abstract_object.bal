@@ -15,13 +15,13 @@
 // under the License.
 
 public type Address abstract object {
-    public string city = "";
+    public string city;
 
     public function getCity() returns string;
 };
 
 public type StudentAddress object {
-    public string city = "";
+    public string city;
 
     public function __init(string city){
         self.city = city;
@@ -33,7 +33,7 @@ public type StudentAddress object {
 };
 
 public type Employee object {
-    public string city = "";
+    public string city;
     public Address address;
 
     function __init(string city, Address address) {

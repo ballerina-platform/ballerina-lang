@@ -17,14 +17,20 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Map;
 
 /**
+ * <p>
  * Represent an opaque handle value in jBallerina.
- *
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
+ *  
  * @since 1.0
  */
 public class HandleValue implements RefValue {
@@ -40,7 +46,7 @@ public class HandleValue implements RefValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(Strand strand) {
         return String.valueOf(value);
     }
 

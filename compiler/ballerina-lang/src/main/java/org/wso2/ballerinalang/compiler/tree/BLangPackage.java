@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
@@ -236,6 +237,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public boolean containsTestablePkg() {
         return testablePkgs.stream().findAny().isPresent();
     }
+
     @Override
     public NodeKind getKind() {
         return NodeKind.PACKAGE;
@@ -249,6 +251,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public Set<Flag> getFlags() {
         return flagSet;
     }
+
+    public boolean hasTestablePackage() {
+        return this.testablePkgs.size() > 0;
+    }
+
     /**
      * This class collect diagnostics.
      *
@@ -267,6 +274,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
             if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
                 this.errorCount++;
             }
+            Collections.sort(diagnostics);
         }
 
         public boolean hasErrors() {

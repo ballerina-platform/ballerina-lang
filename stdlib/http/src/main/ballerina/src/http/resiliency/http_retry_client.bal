@@ -36,14 +36,14 @@ public type RetryInferredConfig record {|
 # to provide retrying over HTTP requests.
 #
 # + url - Target service url
-# + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
+# + config - HTTP ClientConfiguration to be used for HTTP client invocation
 # + retryInferredConfig - Derived set of configurations associated with retry
 # + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
 #                HTTP service in resilient manner.
 public type RetryClient client object {
 
     public string url;
-    public ClientEndpointConfig config;
+    public ClientConfiguration config;
     public RetryInferredConfig retryInferredConfig;
     public HttpClient httpClient;
 
@@ -51,10 +51,10 @@ public type RetryClient client object {
     # client to provide retrying over HTTP requests.
     #
     # + url - Target service url
-    # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
+    # + config - HTTP ClientConfiguration to be used for HTTP client invocation
     # + retryInferredConfig - Derived set of configurations associated with retry
     # + httpClient - HTTP client for outbound HTTP requests
-    public function __init(string url, ClientEndpointConfig config, RetryInferredConfig retryInferredConfig,
+    public function __init(string url, ClientConfiguration config, RetryInferredConfig retryInferredConfig,
                                         HttpClient httpClient) {
         self.url = url;
         self.config = config;
@@ -129,6 +129,7 @@ public type RetryClient client object {
     # underlying HTTP remote function in a way to provide retrying functionality for a given endpoint to recover
     # from network level failures.
     #
+    # + httpVerb - The HTTP verb value
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`

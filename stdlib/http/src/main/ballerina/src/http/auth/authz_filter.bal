@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Representation of the Authorization filter
+# Representation of the Authorization filter.
 #
 # + authzHandler - `AuthzHandler` instance for handling authorization
 # + scopes - Array of scopes
@@ -28,7 +28,7 @@ public type AuthzFilter object {
         self.scopes = scopes;
     }
 
-    # Filter function implementation which tries to authorize the request
+    # Filter function implementation which tries to authorize the request.
     #
     # + caller - Caller for outbound HTTP responses
     # + request - `Request` instance
@@ -67,28 +67,19 @@ public type AuthzFilter object {
 
 # Verifies if the authorization is successful. If not responds to the user.
 #
-# + caller - Caller for outbound HTTP responses
+# + caller - Caller for outbound HTTP response
 # + authorized - Authorization status for the request, or `AuthorizationError` if error occurred
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
 function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized) returns boolean {
     Response response = new;
     response.statusCode = 403;
-    if (authorized is boolean) {
-        if (!authorized) {
-            response.setTextPayload("Authorization failure.");
-            var err = caller->respond(response);
-            if (err is error) {
-                panic <error> err;
-            }
-            return false;
-        }
-    } else {
-        response.setTextPayload("Authorization failure. " + <string>authorized.reason());
-        var err = caller->respond(response);
-        if (err is error) {
-            panic <error> err;
-        }
-        return false;
+    if (authorized is boolean && authorized) {
+        return authorized;
     }
-    return true;
+    response.setTextPayload("Authorization failure.");
+    var err = caller->respond(response);
+    if (err is error) {
+        panic <error> err;
+    }
+    return false;
 }

@@ -24,6 +24,8 @@ public function testAssigment() {
 }
 
 type testObj object {
+    int intField1;
+    int intField2;
     int intField = 10;
     string stringField = "";
 
