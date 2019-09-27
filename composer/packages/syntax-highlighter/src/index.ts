@@ -7,7 +7,12 @@ declare global {
     interface Window { MonacoEnvironment: any; }
 }
 
-export async function highlightSnippets() {
+/**
+ * Enables Syntax Highlighting for Ballerina Code snippets.
+ *
+ * @param selector Element selector. default is "code.language-ballerina"
+ */
+export async function highlightSnippets(selector = "code.language-ballerina") {
     await loadWASM(require("onigasm/lib/onigasm.wasm"));
     // tslint:disable-next-line: max-line-length
     const content = require("./../../../../tool-plugins/vscode/grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage").default;
@@ -27,7 +32,7 @@ export async function highlightSnippets() {
 
     await wireTmGrammars(monaco, registry, grammars);
 
-    const balCodeSnippets = document.querySelectorAll("code.language-ballerina");
+    const balCodeSnippets = document.querySelectorAll(selector);
     balCodeSnippets.forEach((snippet) => {
         if (snippet.parentElement) {
             snippet.parentElement.classList.add("ballerina-snippet");
