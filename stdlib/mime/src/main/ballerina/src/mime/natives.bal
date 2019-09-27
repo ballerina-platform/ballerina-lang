@@ -343,14 +343,14 @@ public type Entity object {
     # + headerName - Represents header name
     # + return - Header value associated with the given header name as a `string`. If multiple header values are
     #            present, then the first value is returned. An exception is thrown if no header is found. Use
-    #            `hasHeader()` beforehand to check the existence of header.
+    #            `Entity.hasHeader()` beforehand to check the existence of header.
     public function getHeader(@untainted string headerName) returns @tainted string = external;
 
     # Gets all the header values associated with the given header name.
     #
     # + headerName - The header name
     # + return - All the header values associated with the given header name as a `string[]`. An exception is thrown
-    #            if no header is found. Use `hasHeader()` beforehand to check the existence of header.
+    #            if no header is found. Use `Entity.hasHeader()` beforehand to check the existence of header.
     public function getHeaders(@untainted string headerName) returns @tainted string[] = external;
 
     # Gets all header names.

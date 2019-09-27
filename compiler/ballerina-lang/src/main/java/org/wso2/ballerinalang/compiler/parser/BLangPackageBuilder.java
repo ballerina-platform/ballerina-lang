@@ -2380,6 +2380,19 @@ public class BLangPackageBuilder {
         markdownDocumentationNode.addReference(referenceDocumentation);
     }
 
+    //Store single backticked content in Documentation Node
+    void endSingleBacktickedBlock(DiagnosticPos pos, String identifier) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        if (markdownDocumentationNode == null) {
+            return;
+        }
+
+        BLangMarkdownBReferenceDocumentation referenceDocumentation =
+                createBReferenceDocumentation(pos, DocumentationReferenceType.BACKTICK_CONTENT, identifier);
+
+        markdownDocumentationNode.addReference(referenceDocumentation);
+    }
+
     void endParameterDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String parameterName, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownParameterDocumentation parameterDocumentationNode =

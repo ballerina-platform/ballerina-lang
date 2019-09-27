@@ -82,6 +82,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private SymbolEnv env;
     private Names names;
 
+
+    //Building regex to match Lexer's Unquoted identifier
+    private String identifierString;
+
     public static DocumentationAnalyzer getInstance(CompilerContext context) {
         DocumentationAnalyzer documentationAnalyzer = context.get(DOCUMENTATION_ANALYZER_KEY);
         if (documentationAnalyzer == null) {
@@ -96,6 +100,19 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
+        instantiateDocumentationReferenceGrammer();
+    }
+
+    private void instantiateDocumentationReferenceGrammer() {
+        String initialChar = "a-zA-Z_";
+        String unicodeNonidentifierChar = "\u0000-\u007F\uE000-\uF8FF\u200E\u200F\u2028\u2029\u00A1-\u00A7" +
+            "\u00A9\u00AB-\u00AC\u00AE\u00B0-\u00B1\u00B6-\u00B7\u00BB\u00BF\u00D7\u00F7\u2010-" +
+            "\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-" +
+            "\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF";
+        String digit = "0-9";
+        String identifierInitialChar = "[" + initialChar + "]|[^" + unicodeNonidentifierChar + "]";
+        String identifierFollowingChar = "[" + initialChar + digit + "]|[^" + unicodeNonidentifierChar + "]";
+        this.identifierString = "((?:" + identifierInitialChar + ")(?:" + identifierFollowingChar + ")*)";
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -203,13 +220,20 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             StringBuilder pckgName = new StringBuilder();
             StringBuilder typeName = new StringBuilder();
             StringBuilder identifier = new StringBuilder();
-            boolean isValidIdentifierString = validateStringForQualifiedIdentifier(reference.getReferenceName(),
+            boolean validateFunctionInsideBackticks = (reference.type == DocumentationReferenceType.BACKTICK_CONTENT);
+            boolean isValidIdentifierString = validateStringForQualifiedIdentifier(validateFunctionInsideBackticks,
+                                                                                    reference.getReferenceName(),
                                                                                     pckgName,
                                                                                     typeName,
                                                                                     identifier);
+
+            //Do not warn if backticked content is not matched.
             if (!isValidIdentifierString) {
-                dlog.warning(reference.pos, DiagnosticCode.INVALID_IDENTIFIER,
-                        reference.getReferenceName());
+                if (reference.type != DocumentationReferenceType.BACKTICK_CONTENT) {
+                    dlog.warning(reference.pos, DiagnosticCode.INVALID_IDENTIFIER,
+                            reference.getReferenceName());
+                }
+                return;
             }
             boolean isValidIdentifier = validateIdentifier(reference.getPosition(), documentableNode,
                                                            reference.getType(),
@@ -219,6 +243,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             if (!isValidIdentifier) {
                 dlog.warning(reference.pos, DiagnosticCode.INVALID_REFERENCE,
                         reference.getReferenceName());
+                return;
             }
         });
     }
@@ -245,9 +270,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             case SERVICE:
                 symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.SERVICE);
                 break;
-            case FUNCTION:
-                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.FUNCTION);
-                break;
             case TYPE:
                 symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.TYPE);
                 break;
@@ -259,6 +281,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 break;
             case MODULE:
                 symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.IMPORT);
+                break;
+            case BACKTICK_CONTENT:
+            case FUNCTION:
+                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.FUNCTION);
                 break;
         }
 
@@ -308,27 +334,20 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    private boolean validateStringForQualifiedIdentifier(String identifierContent,
+    private boolean validateStringForQualifiedIdentifier(boolean validateFunctioninsideQuotes,
+                                                         String identifierContent,
                                                          StringBuilder pckgName,
                                                          StringBuilder typeName,
                                                          StringBuilder identifier) {
-        //Building regex to match Lexer's Unquoted identifier
-        String initialChar = "a-zA-Z_";
-        String unicodeNonidentifierChar = "\u0000-\u007F\uE000-\uF8FF\u200E\u200F\u2028\u2029\u00A1-\u00A7" +
-                "\u00A9\u00AB-\u00AC\u00AE\u00B0-\u00B1\u00B6-\u00B7\u00BB\u00BF\u00D7\u00F7\u2010-" +
-                "\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-" +
-                "\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF";
-        String digit = "0-9";
-        String identifierInitialChar = "[" + initialChar + "]|[^" + unicodeNonidentifierChar + "]";
-        String identifierFollowingChar = "[" + initialChar + digit + "]|[^" + unicodeNonidentifierChar + "]";
-        String identifierString = "((?:" + identifierInitialChar + ")(?:" + identifierFollowingChar + ")*)";
 
         //Check if a qualified identifier
-        String qualifierStage = identifierString + ":(.*)";
+        String qualifierStage = this.identifierString + ":(.*)";
         //Check for type identifier
-        String typeStage = identifierString + "\\." + identifierString + "(?:\\(\\))?";
+        String typeStage = this.identifierString + "\\." + this.identifierString + "(?:\\(\\))" +
+                (validateFunctioninsideQuotes ? "" : "?");
         //Check for `function()` reference stage
-        String funcIdentifierStage = identifierString + "(\\(\\))?";
+        String funcIdentifierStage = this.identifierString + "(?:\\(\\))" +
+                (validateFunctioninsideQuotes ? "":"?");
 
         //Pattern set
         Pattern qualifierPattern = Pattern.compile(qualifierStage);

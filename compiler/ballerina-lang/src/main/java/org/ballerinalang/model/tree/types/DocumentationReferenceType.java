@@ -11,5 +11,6 @@ public enum DocumentationReferenceType {
     CONST,
     MODULE,
     FUNCTION,
-    PARAMETER
+    PARAMETER,
+    BACKTICK_CONTENT // This content is extracted from only backticks. Hence should validate for a function
 }

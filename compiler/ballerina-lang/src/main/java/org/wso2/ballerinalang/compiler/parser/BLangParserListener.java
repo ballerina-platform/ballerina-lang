@@ -3442,6 +3442,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 backtickedContent.getText());
     }
 
+    @Override
+    public void exitSingleBacktickedBlock(BallerinaParser.SingleBacktickedBlockContext ctx) {
+        BallerinaParser.SingleBacktickedContentContext backtickedContent = ctx.singleBacktickedContent();
+
+        this.pkgBuilder.endSingleBacktickedBlock(getCurrentPos(ctx), backtickedContent.getText());
+    }
+
     /**
      * {@inheritDoc}
      */
