@@ -2448,6 +2448,7 @@ public class FormattingNodeTree {
             boolean isAsync = false;
             boolean isCheck = false;
             boolean isActionOrFieldInvocation = false;
+            boolean isOpenParenOnNewLine = false;
             JsonObject identifierWhitespace = null;
             String expressionName = null;
             String name = node.has(FormattingConstants.NAME)
@@ -2557,9 +2558,24 @@ public class FormattingNodeTree {
                                     + indentation);
                         }
                     }
-                } else if (text.equals(name) && node.has(FormattingConstants.IS_EXPRESSION)
-                        && node.get(FormattingConstants.IS_EXPRESSION).getAsBoolean()) {
-                    isLineBroken = true;
+                } else {
+                    if (text.equals(name) && node.has(FormattingConstants.IS_EXPRESSION)
+                            && node.get(FormattingConstants.IS_EXPRESSION).getAsBoolean()) {
+                        isLineBroken = true;
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES)) {
+                        isOpenParenOnNewLine = true;
+                        if (isLineBroken) {
+                            preserveHeightForWS(invocationWS, indentWithParentIndentation
+                                    + FormattingConstants.SPACE_TAB);
+                        }
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES)) {
+                        if (!isOpenParenOnNewLine && !isLineBroken) {
+                            preserveHeightForWS(invocationWS, indentWithParentIndentation);
+                        } else if (isLineBroken) {
+                            preserveHeightForWS(invocationWS, indentWithParentIndentation
+                                    + FormattingConstants.SPACE_TAB);
+                        }
+                    }
                 }
             }
 
@@ -2612,8 +2628,9 @@ public class FormattingNodeTree {
                     }
                 }
 
-                iterateAndFormatMembers(indentation.isEmpty()
-                                ? (indentWithParentIndentation + FormattingConstants.SPACE_TAB) : indentation,
+                iterateAndFormatMembers((indentation.isEmpty()
+                                ? indentWithParentIndentation : indentation) +
+                                (isOpenParenOnNewLine || isLineBroken ? FormattingConstants.SPACE_TAB : ""),
                         argumentExpressions);
             }
 
@@ -2666,8 +2683,8 @@ public class FormattingNodeTree {
                 }
 
                 iterateAndFormatMembers((indentation.isEmpty()
-                                ? indentWithParentIndentation : indentation)
-                                + (isLineBroken ? FormattingConstants.SPACE_TAB : ""),
+                                ? indentWithParentIndentation : indentation) +
+                                (isOpenParenOnNewLine || isLineBroken ? FormattingConstants.SPACE_TAB : ""),
                         argumentExpressions);
             }
 
