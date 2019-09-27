@@ -1310,7 +1310,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(errorVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
                 return false;
             }
-            return true;
+            return validateErrorReasonMatchPatternSyntax(errorVariable);
         }
 
         if (errorType.detailType.getKind() == TypeKind.RECORD) {
@@ -1332,19 +1332,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType) {
-        if (errorVariable.isInMatchStmt
-                && !errorVariable.reasonVarPrefixAvailable
-                && errorVariable.reasonMatchConst == null
-                && isReasonSpecified(errorVariable)) {
-
-            BSymbol reasonConst = symResolver.lookupSymbol(
-                    this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
-            if (reasonConst == symTable.notFoundSymbol) {
-                dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
-                        errorVariable.reason.name);
-            } else {
-                dlog.error(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
-            }
+        if (!validateErrorReasonMatchPatternSyntax(errorVariable)) {
             return false;
         }
 
@@ -1385,6 +1373,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             typeSymbol.type = restType;
             errorVariable.restDetail.type = restType;
             errorVariable.restDetail.accept(this);
+        }
+        return true;
+    }
+
+    private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable) {
+        if (errorVariable.isInMatchStmt
+                && !errorVariable.reasonVarPrefixAvailable
+                && errorVariable.reasonMatchConst == null
+                && isReasonSpecified(errorVariable)) {
+
+            BSymbol reasonConst = symResolver.lookupSymbol(
+                    this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
+            if (reasonConst == symTable.notFoundSymbol) {
+                dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
+                        errorVariable.reason.name);
+            } else {
+                dlog.error(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
+            }
+            return false;
         }
         return true;
     }
