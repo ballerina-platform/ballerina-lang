@@ -58,9 +58,14 @@ public class OpenRecordNegativeTest {
         validateError(result, indx++,
                       "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
                       58, 26);
-        validateError(result, indx++, "incompatible types: expected 'record {| int i; record {| string name;" +
-                " anydata...; |} j; anydata...; |}', found 'int'", 64, 9);
         assertEquals(result.getErrorCount(), indx);
+    }
+
+    @Test(description = "Test invalid record assignment error message")
+    public void invalidRecordAssignment() {
+        CompileResult result = BCompileUtil.compile("test-src/record/record-assignment-negative.bal");
+        validateError(result, 0, "incompatible types: expected 'record {| int i; record {| string name;" +
+                " anydata...; |} j; anydata...; |}', found 'int'", 4, 9);
     }
 
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")

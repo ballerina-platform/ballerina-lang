@@ -76,20 +76,16 @@ public class BRecordType extends BStructureType implements RecordType {
         if (tsymbol.name != null && (tsymbol.name.value.isEmpty() || tsymbol.name.value.startsWith(DOLLAR))) {
             // Try to print possible shape. But this may fail with self reference hence avoid .
             StringBuilder sb = new StringBuilder();
-            sb.append(RECORD).append(SPACE);
-            sb.append(CLOSE_LEFT);
+            sb.append(RECORD).append(SPACE).append(CLOSE_LEFT);
             for (BField field : fields) {
-                sb.append(SPACE);
-                sb.append(field.type);
-                sb.append(SPACE).append(field.name)
+                sb.append(SPACE).append(field.type).append(SPACE).append(field.name)
                         .append(Symbols.isOptional(field.symbol) ? OPTIONAL : EMPTY).append(SEMI);
             }
             if (sealed) {
                 sb.append(SPACE).append(CLOSE_RIGHT);
                 return sb.toString();
             }
-            sb.append(SPACE).append(restFieldType).append(REST).append(SEMI);
-            sb.append(SPACE).append(CLOSE_RIGHT);
+            sb.append(SPACE).append(restFieldType).append(REST).append(SEMI).append(SPACE).append(CLOSE_RIGHT);
             return sb.toString();
         }
         return this.tsymbol.toString();
