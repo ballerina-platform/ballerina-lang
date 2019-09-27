@@ -53,7 +53,7 @@ jobs:
         - kill %1
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew :jballerina-integration-test:test -x createJavadoc --stacktrace -scan -Dorg.gradle.parallel=false --console=plain
+        - ./gradlew :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain
         # Killing background sleep loop
         - kill %1
       name:  "Integration tests"
