@@ -376,12 +376,13 @@ function remoteErrorReturnInitiator() returns @tainted string {
 }
 
 
-function callSameRemoteParticipantMultipleTimes() returns string {
+function callParticipantMultipleTimes() returns string {
     http:Client participantEP = new("http://localhost:8889");
     S1 = "";
     resourceCommited = false;
     transaction {
         log:printInfo("trx-first-line");
+        // calling local and remote participants multiple times.
         foreach var item in 1...4 {
             var resp = participantEP->post("/","");
             if (resp is http:Response) {
@@ -392,7 +393,8 @@ function callSameRemoteParticipantMultipleTimes() returns string {
                     var payload = resp.getTextPayload();
                     if (payload is string) {
                         log:printInfo(payload);
-                        S1 = S1 + " <" + <@untainted>  payload + ">";
+                        S1 += " <" + <@untainted>  payload + ">";
+                        S1 += localParticipant();
                     } else {
                         log:printError(payload.reason());
                     }
@@ -401,7 +403,7 @@ function callSameRemoteParticipantMultipleTimes() returns string {
                 log:printError(resp.reason());
             }
         }
-        S1 = S1 + " in-trx-lastline";
+        S1 += " in-trx-lastline";
         log:printInfo("trx-last-line");
     }
     boolean waitResult = waitForCondition(5000, 20, function () returns boolean { return resourceCommited; });
@@ -596,8 +598,8 @@ service initiatorService on new http:Listener(8888) {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    resource function remoteParticipantMultipleExecution(http:Caller caller, http:Request req) {
-        string result = callSameRemoteParticipantMultipleTimes();
+    resource function participantMultipleExecution(http:Caller caller, http:Request req) {
+        string result = callParticipantMultipleTimes();
         http:Response res = new;
         res.setPayload(result);
         var r = caller->respond(res);
