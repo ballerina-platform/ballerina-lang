@@ -41,19 +41,19 @@ jobs:
       name: "Build without tests"
       script:
       - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-      - ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain 
+      - ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain --info
       # Killing background sleep loop
       - kill %1
     - stage: "Tests"
       name: "Run Build + tests (without integration)"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain 
+        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --info
         # Killing background sleep loop
         - kill %1
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew :jballerina-integration-test:test -x createJavadoc --stacktrace -scan -Dorg.gradle.parallel=false --console=plain 
+        - ./gradlew :jballerina-integration-test:test -x createJavadoc --stacktrace -scan -Dorg.gradle.parallel=false --console=plain --info
         # Killing background sleep loop
         - kill %1
       name:  "Integration tests"
@@ -64,6 +64,7 @@ after_success:
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -fr $HOME/.gradle/caches/*/scripts/
 cache:
   directories:
     - $HOME/.gradle/caches/
