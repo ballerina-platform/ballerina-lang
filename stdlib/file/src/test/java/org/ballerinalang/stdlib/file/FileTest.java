@@ -61,6 +61,7 @@ public class FileTest {
     private Path destFilePath = Paths.get("src", "test", "resources", "data-files", "dest-file.txt");
     private Path srcModifiedFilePath = Paths.get("src", "test", "resources", "data-files", "src-file-modified.txt");
     private Path srcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir");
+    private Path readDirPath = Paths.get("src", "test", "resources", "data-files", "read-dir");
     private Path emptyDirPath = srcDirPath.resolve("empty-dir");
     private Path errorSrcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir", "error");
     private Path tempDirPath;
@@ -210,9 +211,10 @@ public class FileTest {
 
     @Test(description = "Test for retrieving files inside directory specifying the depth level - 1")
     public void testReadDirWithMaxDepth1() {
-        BValue[] args = {new BString(srcDirPath.toString()), new BInteger(1)};
+        BValue[] args = {new BString(readDirPath.toString()), new BInteger(1)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDirWithMaxDepth", args);
         assertTrue(returns[0].getType() instanceof BObjectType);
+        assertEquals(returns.length, 2);
     }
 
     @Test(description = "Test for reading file info from non existence directory")
