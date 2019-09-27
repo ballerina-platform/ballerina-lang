@@ -1,12 +1,12 @@
 {
   "name": "@ballerina/syntax-highlighter",
-  "version": "0.990.4-SNAPSHOT",
+  "version": "1.0.1-SNAPSHOT",
   "description": "A frontend syntax highlighter for Ballerina based on monaco.",
   "main": "lib/highlighter.js",
   "scripts": {
     "start": "webpack-dev-server --mode development",
     "build": "webpack --mode production",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo 'No tests specified'"
   },
   "license": "Apache-2.0",
   "devDependencies": {
