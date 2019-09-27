@@ -43,17 +43,13 @@ public class BTupleType extends BType {
         this.tupleTypes = typeList;
         this.restType = null;
 
-        boolean isAnydata = true, isPureType = true;
+        boolean isAllMembersPure = true;
         for (BType memberType : tupleTypes) {
-            isAnydata &= memberType.isAnydata();
-            isPureType &= memberType.isPureType();
+            isAllMembersPure &= memberType.isPureType();
         }
 
-        if (isAnydata) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
-        }
-        if (isPureType) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
+        if (isAllMembersPure) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA, TypeFlags.PURETYPE);
         }
     }
 
