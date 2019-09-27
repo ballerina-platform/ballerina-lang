@@ -1392,11 +1392,6 @@ public class FormattingNodeTree {
                     } else {
                         isEllipsisAvailable = false;
                     }
-                } else {
-                    if (text.equals(Tokens.ELLIPSIS) || text.equals(Tokens.COMMA)) {
-                        currentWS.addProperty(FormattingConstants.WS,
-                                currentWS.get(FormattingConstants.WS).getAsString() + FormattingConstants.SPACE_TAB);
-                    }
                 }
             }
 
@@ -6707,7 +6702,7 @@ public class FormattingNodeTree {
             String keyName = "";
             boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
 
-            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation);
+            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation, useParentIndentation);
 
             if (node.has("key")) {
                 JsonObject key = node.getAsJsonObject("key");
