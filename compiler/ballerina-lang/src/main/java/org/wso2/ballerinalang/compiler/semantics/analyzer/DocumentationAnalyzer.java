@@ -27,10 +27,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -243,7 +240,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             if (!isValidIdentifier) {
                 dlog.warning(reference.pos, DiagnosticCode.INVALID_REFERENCE,
                         reference.getReferenceName());
-                return;
             }
         });
     }
@@ -308,7 +304,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 return symTable.notFoundSymbol;
             }
 
-            pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+            if(pkgSymbol instanceof BPackageSymbol) {
+                BPackageSymbol symbol = (BPackageSymbol) pkgSymbol;
+                pkgEnv = symTable.pkgEnvMap.get(symbol);
+            }
         }
 
         //If there is no type in the reference we need to search in the package level and the current scope only.
@@ -347,7 +346,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 (validateFunctioninsideQuotes ? "" : "?");
         //Check for `function()` reference stage
         String funcIdentifierStage = this.identifierString + "(?:\\(\\))" +
-                (validateFunctioninsideQuotes ? "":"?");
+                (validateFunctioninsideQuotes ? "" : "?");
 
         //Pattern set
         Pattern qualifierPattern = Pattern.compile(qualifierStage);

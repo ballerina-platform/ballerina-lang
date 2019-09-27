@@ -279,7 +279,7 @@ public type Notification object {
     #
     # + headerName - The header name
     # + return - The first header value for the specified header name. An exception is thrown if no header is found.
-    #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
+    #            Ideally `Notification.hasHeader()` needs to be used to check the existence of header initially.
     public function getHeader(string headerName) returns @tainted string {
         return self.request.getHeader(headerName);
     }
@@ -288,7 +288,7 @@ public type Notification object {
     #
     # + headerName - The header name
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found.
-    #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
+    #            Ideally `Notification.hasHeader()` needs to be used to check the existence of header initially.
     public function getHeaders(string headerName) returns @tainted string[] {
         return self.request.getHeaders(headerName);
     }
