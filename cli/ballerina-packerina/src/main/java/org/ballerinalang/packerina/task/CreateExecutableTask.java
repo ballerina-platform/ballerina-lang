@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -162,8 +163,8 @@ public class CreateExecutableTask implements Task {
             }
         }
     }
-    
-     class Copy extends SimpleFileVisitor<Path> {
+
+    static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
         private StandardCopyOption copyOption;
@@ -203,9 +204,10 @@ public class CreateExecutableTask implements Task {
 
          private void mergeSPIFiles(Path fromFilePath, Path toFilePath) throws IOException {
              // Merge the spi implementations for each service file.
-             try (BufferedReader fromBr = new BufferedReader(new InputStreamReader(Files.newInputStream(fromFilePath)));
-                  BufferedWriter toBw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(toFilePath,
-                          StandardOpenOption.APPEND)))) {
+             try (BufferedReader fromBr = new BufferedReader(new InputStreamReader(Files
+                     .newInputStream(fromFilePath), StandardCharsets.UTF_8));
+                  BufferedWriter toBw = new BufferedWriter(new OutputStreamWriter(Files
+                          .newOutputStream(toFilePath, StandardOpenOption.APPEND), StandardCharsets.UTF_8))) {
                  String text;
                  while ((text = fromBr.readLine()) != null) {
                      toBw.newLine();
