@@ -158,7 +158,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         if (structType == null) {
             tableConstraint = new BRecordType("$table$anon$constraint$",
                     new BPackage("ballerina", "lang.annotations", "0.0.0"), 0, false,
-                    TypeFlags.asMask(TypeFlags.ANYDATA));
+                    TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
             ((BRecordType) tableConstraint).restFieldType = BTypes.typeAnydata;
         }
         return new BCursorTable(
