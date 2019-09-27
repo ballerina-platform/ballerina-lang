@@ -257,7 +257,8 @@ public class ServicesBuilderUtils {
         } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
             return new BArrayType(BTypes.typeByte);
         } else {
-            return new BRecordType(protoType, bPackage, 0, true, TypeFlags.asMask(TypeFlags.ANYDATA));
+            return new BRecordType(protoType, bPackage, 0, true,
+                    TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
         }
     }
 

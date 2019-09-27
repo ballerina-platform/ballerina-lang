@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
@@ -142,7 +143,8 @@ public class CallStatement extends AbstractSQLStatement {
     private ArrayValue constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
                                                      ArrayValue structTypes, String databaseProductName)
             throws SQLException, ApplicationException {
-        BRecordType tableConstraint = new BRecordType("$table$anon$constraint$", null, 0, false, 0);
+        int typeFlags = TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE);
+        BRecordType tableConstraint = new BRecordType("$table$anon$constraint$", null, 0, false, typeFlags);
         tableConstraint.restFieldType = BTypes.typeAnydata;
         ArrayValue bTables = new ArrayValue(new BArrayType(new BTableType(tableConstraint)));
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
