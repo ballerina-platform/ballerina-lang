@@ -1,6 +1,6 @@
 {
-    "line": 30,
-    "character": 33,
+    "line": 28,
+    "character": 30,
     "expected": {
         "title": "Mark 'secureParameter' as Untainted",
         "edit": {
@@ -14,7 +14,7 @@
                     "character": 37
                 }
             },
-            "newText": "untaint args[0]"
+            "newText": "<@untained>  args[0]"
         }
     }
 }

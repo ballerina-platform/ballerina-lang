@@ -392,7 +392,7 @@ public class HttpUtil {
     static void handleFailure(HttpCarbonMessage requestMessage, ErrorValue error) {
         String errorMsg = getErrorMessage(error);
         int statusCode = getStatusCode(requestMessage, errorMsg);
-        ErrorHandlerUtils.printError("error: " + error.toString());
+        ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 

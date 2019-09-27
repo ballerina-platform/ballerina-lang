@@ -312,6 +312,18 @@ public class ServiceTest {
         Assert.assertEquals(responseMsgPayload, "Uninitialized configs");
     }
 
+    @Test(description = "Test non remote function invocation")
+    public void testNonRemoteFunctionInvocation() {
+        String path = "/hello/testFunctionCall";
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(responseMsgPayload, "Non remote function invoked");
+    }
+
     @Test(description = "Test error returning from resource")
     public void testErrorReturn() {
         String path = "/echo/parseJSON";
