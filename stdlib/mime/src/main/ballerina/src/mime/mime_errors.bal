@@ -25,39 +25,39 @@ public type Detail record {
 
 // Ballerina MIME Error Types
 
-// Identifies encoding errors.
-const ENCODE_ERROR = "{ballerina/mime}EncodingFailed";
+# Identifies encoding errors.
+public const ENCODE_ERROR = "{ballerina/mime}EncodingFailed";
 
 # Represents an `EncodeError` with a detailed message.
 public type EncodeError error<ENCODE_ERROR, Detail>;
 
-// Identifies decoding errors.
-const DECODE_ERROR = "{ballerina/mime}DecodingFailed";
+# Identifies decoding errors.
+public const DECODE_ERROR = "{ballerina/mime}DecodingFailed";
 
 # Represents a `DecodeError` with a detailed message.
 public type DecodeError error<DECODE_ERROR, Detail>;
 
-// Identifies generic errors related to MIME.
-const GENERIC_MIME_ERROR = "{ballerina/mime}GenericMimeError";
+# Identifies generic errors related to MIME.
+public const GENERIC_MIME_ERROR = "{ballerina/mime}GenericMimeError";
 
 # Represents a `GenericMimeError` with a detailed message.
 public type GenericMimeError error<GENERIC_MIME_ERROR, Detail>;
 
-// Identifies set header failures.
-const SET_HEADER_FAILED = "{ballerina/mime}SetHeaderFailed";
+# Identifies set header failures.
+public const SET_HEADER_FAILED = "{ballerina/mime}SetHeaderFailed";
 
 # Represents a `SetHeaderError` with a detailed message.
 public type SetHeaderError error<SET_HEADER_FAILED, Detail>;
 
 // TODO: Give a proper name for this.
-// Identifies header parsing errors.
-const READING_HEADER_FAILED = "{ballerina/mime}ReadingHeaderFailed";
+# Identifies header parsing errors.
+public const READING_HEADER_FAILED = "{ballerina/mime}ReadingHeaderFailed";
 
 # Represents a `ReadingHeaderFailed` error with a detailed message.
 public type ReadingHeaderFailed error<READING_HEADER_FAILED, Detail>;
 
-// Identifies entity body parsing errors.
-const PARSER_ERROR = "{ballerina/mime}ParsingEntityBodyFailed";
+# Identifies entity body parsing errors.
+public const PARSER_ERROR = "{ballerina/mime}ParsingEntityBodyFailed";
 
 # Represents a `ParserError` with a detailed message.
 public type ParserError error<PARSER_ERROR, Detail>;
@@ -74,8 +74,8 @@ public const HEADER_UNAVAILABLE = "{ballerina/mime}HeaderUnavailable";
 # Represents a `HeaderUnavailableError` with a detailed message.
 public type HeaderUnavailableError error<HEADER_UNAVAILABLE, Detail>;
 
-// Identifies errors related to read/write timeouts.
-const IDLE_TIMEOUT_TRIGGERED = "{ballerina/mime}IdleTimeoutTriggeredError";
+# Identifies errors related to read/write timeouts.
+public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/mime}IdleTimeoutTriggeredError";
 
 # Represents a `IdleTimeoutTriggeredError` with a detailed message.
 public type IdleTimeoutTriggeredError error<IDLE_TIMEOUT_TRIGGERED, Detail>;

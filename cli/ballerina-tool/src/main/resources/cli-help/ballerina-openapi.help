@@ -1,8 +1,6 @@
 NAME
-       The Ballerina OpenAPI Tool
-
-       Note: This is an experimental tool which only supports
-       a limited set of functionality.
+       The Ballerina OpenAPI Tool - Set of tools to generate a Ballerina service or a client from
+       an OpenAPI contract and to generate an OpenAPI contract for a given Ballerina service
 
 
 SYNOPSIS
@@ -26,6 +24,9 @@ DESCRIPTION
        An OpenAPI definition can also be exported from a Ballerina service.
     
        Generated Ballerina sources will be written into a module with the provided name.
+
+       Note: This is an experimental tool, which only supports a limited
+       set of functionality.
 
 
 SUB COMMANDS

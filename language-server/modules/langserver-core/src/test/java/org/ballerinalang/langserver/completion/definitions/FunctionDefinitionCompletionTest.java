@@ -102,6 +102,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"workerDeclarationContext2.json", "function"},
                 {"workerDeclarationContext3.json", "function"},
                 {"workerDeclarationContext4.json", "function"},
+                {"workerDeclarationContext5.json", "function"},
+                {"workerDeclarationContext6.json", "function"},
                 {"completionWithinInvocationArgs1.json", "function"},
                 {"completionWithinInvocationArgs2.json", "function"},
 //                {"completionWithinInvocationArgs3.json", "function"},

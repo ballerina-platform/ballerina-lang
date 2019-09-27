@@ -44,6 +44,9 @@ public class LaunchModule extends LauncherImpl implements Launch {
 
         Path projectRoot = PackageUtils.findProjectRoot(Paths.get(balFile));
 
+        Map<String, String> env = processBuilder.environment();
+        // set environment ballerina home
+        env.put("BALLERINA_HOME", getBallerinaHome());
         processBuilder.directory(projectRoot.toFile());
         return processBuilder.start();
     }

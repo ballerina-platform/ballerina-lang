@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -15,7 +15,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li> Added minor fixes and improvements for ballerina debugger client. </li>
+        <li> Added diagnostics related plugin performance fix. </li>
+        <li> Fixed line-based code actions. </li>
       </ul>
     ]]>
     </change-notes>
@@ -50,14 +51,15 @@
         <externalAnnotator implementationClass="org.wso2.lsp4intellij.contributors.annotator.LSPAnnotator"
                            id="BallerinaLSPAnnotator" language="Ballerina"/>
 
-        <renameHandler implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameHandler"
-                       id="LSPRenameHandler" order="first"/>
+        <!--Todo - Enable after restoring the renaming support-->
+        <!---->
+        <!-- <renameHandler implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameHandler"-->
+        <!--                       id="LSPRenameHandler" order="first"/>-->
+        <!-- <renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"-->
+        <!--           id="LSPRenameProcessor" order="first"/>-->
 
-        <renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"
-                                   id="LSPRenameProcessor" order="first"/>
-
-        <typedHandler implementation="org.wso2.lsp4intellij.listeners.LSPTypedHandler"
-                      id="BallerinaLspTypedHandler"/>
+        <!-- <typedHandler implementation="org.wso2.lsp4intellij.listeners.LSPTypedHandler"-->
+        <!--          id="BallerinaLspTypedHandler"/>-->
 
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
@@ -145,8 +147,6 @@
         <moduleConfigurationEditorProvider
                 implementation="io.ballerina.plugins.idea.configuration.BallerinaModuleEditorsProvider"
                 order="first"/>
-        <editorNotificationProvider
-                implementation="io.ballerina.plugins.idea.inspections.WrongModuleTypeNotificationProvider"/>
 
         <!-- run application -->
         <programRunner id="ballerinaRunner" implementation="io.ballerina.plugins.idea.runconfig.BallerinaRunner"/>
@@ -240,11 +240,13 @@
                 overrides="true" text="Reformat Code"/>
         <action class="org.wso2.lsp4intellij.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog"
                 use-shortcut-of="ShowReformatFileDialog" overrides="true" text="Show Reformat File Dialog"/>
-        <action class="org.wso2.lsp4intellij.actions.LSPReferencesAction"
-                id="LSPFindUsages">
-            <keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>
 
-        </action>
+        <!--Todo - Enable after adding goto ref support-->
+        <!---->
+        <!-- <action class="org.wso2.lsp4intellij.actions.LSPReferencesAction"-->
+        <!--                id="LSPFindUsages">-->
+        <!-- <keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>-->
+        <!--        </action>-->
     </actions>
 
     <application-components>

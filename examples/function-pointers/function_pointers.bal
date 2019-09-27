@@ -3,14 +3,13 @@ import ballerina/lang.'int as ints;
 
 // The `test` function acts as a variable function pointer in the `main` function.
 function test(int x, string s) returns float {
-    int|error y = ints:fromString(s);
+    int | error y = ints:fromString(s);
     float f = 0.0;
 
     if (y is int) {
         f = x * 1.0 * y;
     } else {
-        // The type of `y` within the else block would be `error` since the `int`
-        // case is already handled by the `if` block.
+        // The type of `y` within the else block would be `error`.
         panic y;
     }
     return f;

@@ -26,6 +26,7 @@ public function main() {
     int[] positive = numbers.filter(function (int i) returns boolean {
         return i >= 0;
     });
+    io:println("Positive numbers: ", positive);
 
     // The `forEach()` function executes a specified function once for each of
     // the elements in the container.
@@ -44,7 +45,7 @@ public function main() {
 
     io:println("\nExecution Order:-");
     // The `forEach()` function applies the given function to each item of the container.
-    map<json> j = { name: "apple", colors: ["red", "green"], price: 5 };
+    map<json> j = {name: "apple", colors: ["red", "green"], price: 5};
     j.map(function (json value) returns string {
         string result = value.toString();
         io:println("- map operation's value: ", result);
