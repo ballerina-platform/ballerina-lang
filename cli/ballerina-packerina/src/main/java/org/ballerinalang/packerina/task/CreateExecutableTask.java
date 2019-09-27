@@ -26,8 +26,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -37,8 +41,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -53,6 +59,9 @@ public class CreateExecutableTask implements Task {
     private static HashSet<String> excludeExtensions =  new HashSet<>(Lists.of("DSA", "SF"));
 
     private boolean skipCopyLibsFromDist = false;
+
+    // Holds the spi implementations for each service file.
+    private HashMap<String, HashSet<String>> spiImplMap = new HashMap<>();
 
     public CreateExecutableTask(boolean skipCopyLibsFromDist) {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
@@ -143,7 +152,7 @@ public class CreateExecutableTask implements Task {
         }
     }
 
-    private static void copyFromJarToJar(Path fromJar, Path toJar) throws IOException {
+    private void copyFromJarToJar(Path fromJar, Path toJar) throws IOException {
         URI uberJarUri = URI.create("jar:" + toJar.toUri().toString());
         // Load the to jar to a file system
         try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
@@ -158,19 +167,19 @@ public class CreateExecutableTask implements Task {
         }
     }
     
-    static class Copy extends SimpleFileVisitor<Path> {
+     class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
         private StandardCopyOption copyOption;
         
         
-        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+        Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
             this.fromPath = fromPath;
             this.toPath = toPath;
             this.copyOption = copyOption;
         }
         
-        public Copy(Path fromPath, Path toPath) {
+        Copy(Path fromPath, Path toPath) {
             this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
         }
         
@@ -182,17 +191,48 @@ public class CreateExecutableTask implements Task {
             }
             return FileVisitResult.CONTINUE;
         }
-        
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Path toFile = toPath.resolve(fromPath.relativize(file).toString());
-            String fileName = toFile.getFileName().toString();
-            if ((!Files.exists(toFile) &&
-                    !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1))) ||
-                    toFile.toString().startsWith("/META-INF/services")) {
-                Files.copy(file, toFile, copyOption);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-    }
+
+         @Override
+         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+             Path toFile = toPath.resolve(fromPath.relativize(file).toString());
+             String fileName = toFile.getFileName().toString();
+             if ((!Files.exists(toFile) &&
+                     !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1)))) {
+                 Files.copy(file, toFile, copyOption);
+             } else if (toFile.toString().startsWith("/META-INF/services")) {
+                 this.mergeSPIFile(file, toFile);
+             }
+             return FileVisitResult.CONTINUE;
+         }
+
+         private void mergeSPIFile(Path fromFilePath, Path toFilePath) throws IOException {
+            // Merge the spi implementations for each service file without duplicating.
+             String fileName = toFilePath.getFileName().toString();
+             HashSet<String> spiImplSet = spiImplMap.get(fileName);
+             if (spiImplSet == null) {
+                 spiImplSet = new HashSet<>();
+                 spiImplMap.put(fileName, spiImplSet);
+                 try (BufferedReader toBr =
+                              new BufferedReader(new InputStreamReader(Files.newInputStream(toFilePath)))) {
+                     String text;
+                     while ((text = toBr.readLine()) != null) {
+                         spiImplSet.add(text);
+                     }
+                 }
+             }
+
+             try (BufferedReader fromBr = new BufferedReader(new InputStreamReader(Files.newInputStream(fromFilePath)));
+                  BufferedWriter toBw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(toFilePath,
+                          StandardOpenOption.APPEND)))) {
+                 String text;
+                 while ((text = fromBr.readLine()) != null) {
+                     if (!spiImplSet.contains(text)) {
+                         toBw.newLine();
+                         toBw.write(text);
+                         spiImplSet.add(text);
+                     }
+                 }
+             }
+         }
+     }
 }
