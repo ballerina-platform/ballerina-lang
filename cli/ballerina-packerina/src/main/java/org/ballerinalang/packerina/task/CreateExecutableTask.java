@@ -44,7 +44,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -59,9 +58,6 @@ public class CreateExecutableTask implements Task {
     private static HashSet<String> excludeExtensions =  new HashSet<>(Lists.of("DSA", "SF"));
 
     private boolean skipCopyLibsFromDist = false;
-
-    // Holds the spi implementations for each service file.
-    private HashMap<String, HashSet<String>> spiImplMap = new HashMap<>();
 
     public CreateExecutableTask(boolean skipCopyLibsFromDist) {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
@@ -206,31 +202,14 @@ public class CreateExecutableTask implements Task {
          }
 
          private void mergeSPIFiles(Path fromFilePath, Path toFilePath) throws IOException {
-             // Merge the spi implementations for each service file without duplicating.
-             String fileName = toFilePath.getFileName().toString();
-             HashSet<String> spiImplSet = spiImplMap.get(fileName);
-             if (spiImplSet == null) {
-                 spiImplSet = new HashSet<>();
-                 spiImplMap.put(fileName, spiImplSet);
-                 try (BufferedReader toBr =
-                              new BufferedReader(new InputStreamReader(Files.newInputStream(toFilePath)))) {
-                     String text;
-                     while ((text = toBr.readLine()) != null) {
-                         spiImplSet.add(text);
-                     }
-                 }
-             }
-
+             // Merge the spi implementations for each service file.
              try (BufferedReader fromBr = new BufferedReader(new InputStreamReader(Files.newInputStream(fromFilePath)));
                   BufferedWriter toBw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(toFilePath,
                           StandardOpenOption.APPEND)))) {
                  String text;
                  while ((text = fromBr.readLine()) != null) {
-                     if (!spiImplSet.contains(text)) {
-                         toBw.newLine();
-                         toBw.write(text);
-                         spiImplSet.add(text);
-                     }
+                     toBw.newLine();
+                     toBw.write(text);
                  }
              }
          }

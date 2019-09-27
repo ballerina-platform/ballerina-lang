@@ -85,7 +85,7 @@ public class SpiServicesTestCase extends BaseTest {
                 break;
             }
         }
-        Assert.assertEquals(serviceList.toString(), " serviceB serviceC serviceA");
+        Assert.assertEquals(serviceList.toString(), " serviceB serviceA");
     }
 
     @AfterClass

@@ -11,5 +11,3 @@ target = "java8"
   [[platform.libraries]]
   path = "./libs/serviceB.jar"
 
-  [[platform.libraries]]
-  path = "./libs/serviceC.jar"
