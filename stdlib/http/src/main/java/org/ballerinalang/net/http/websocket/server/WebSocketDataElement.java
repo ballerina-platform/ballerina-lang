@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
+import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.net.uri.parser.DataReturnAgent;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
@@ -28,6 +29,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 public class WebSocketDataElement implements DataElement<WebSocketServerService, WebSocketMessage> {
 
     private WebSocketServerService webSocketService;
+    private boolean isFirstTraverse = true;
 
     @Override
     public boolean hasData() {
@@ -36,7 +38,18 @@ public class WebSocketDataElement implements DataElement<WebSocketServerService,
 
     @Override
     public void setData(WebSocketServerService webSocketService) {
-        this.webSocketService = webSocketService;
+        if (isFirstTraverse && webSocketService == null) {
+            throw new WebSocketException("Service has not been registered");
+        }
+        if (isFirstTraverse) {
+            isFirstTraverse = false;
+            this.webSocketService = webSocketService;
+        } else if (webSocketService == null) {
+            isFirstTraverse = true;
+            this.webSocketService = null;
+        } else {
+            throw new WebSocketException("Two services have the same addressable URI");
+        }
     }
 
     @Override

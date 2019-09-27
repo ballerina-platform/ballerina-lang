@@ -46,16 +46,16 @@ public class WebSocketServerService extends WebSocketService {
     public WebSocketServerService(String httpBasePath, HttpResource upgradeResource, ObjectValue service,
                                   Scheduler scheduler) {
         this(service, scheduler);
-        getUpgradePathAndUpdateBasePath(httpBasePath, upgradeResource);
+        setBasePathWithUpgradePath(httpBasePath, upgradeResource);
         this.upgradeResource = upgradeResource;
     }
 
-    private void getUpgradePathAndUpdateBasePath(String httpBasePath, HttpResource upgradeResource) {
+    private void setBasePathWithUpgradePath(String httpBasePath, HttpResource upgradeResource) {
         MapValue resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(upgradeResource.getBalResource());
         MapValue webSocketConfig =
                 resourceConfigAnnotation.getMapValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
         String upgradePath = webSocketConfig.getStringValue(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH);
-        basePath = httpBasePath.concat(upgradePath);
+        setBasePathToServiceObj(httpBasePath.concat(upgradePath));
     }
 
     private void populateConfigs() {
@@ -66,7 +66,7 @@ public class WebSocketServerService extends WebSocketService {
             maxFrameSize = WebSocketUtil.findMaxFrameSize(configAnnotation);
         }
         // This will be overridden if there is an upgrade path
-        basePath = findFullWebSocketUpgradePath(configAnnotation);
+        setBasePathToServiceObj(findFullWebSocketUpgradePath(configAnnotation));
     }
 
     @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -101,6 +101,11 @@ public class WebSocketServerService extends WebSocketService {
 
     public int getMaxFrameSize() {
         return maxFrameSize;
+    }
+
+    public void setBasePathToServiceObj(String basePath) {
+        service.addNativeData(WebSocketConstants.NATIVE_DATA_BASE_PATH, basePath);
+        this.basePath = basePath;
     }
 
     public String getBasePath() {

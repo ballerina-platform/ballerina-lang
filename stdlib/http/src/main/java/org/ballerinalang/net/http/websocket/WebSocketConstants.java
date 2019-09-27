@@ -61,6 +61,7 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_INFO = "NATIVE_DATA_WEBSOCKET_CONNECTION_INFO";
+    public static final String NATIVE_DATA_BASE_PATH = "BASE_PATH";
 
     public static final String CLIENT_URL_CONFIG = "url";
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";

@@ -1,11 +1,3 @@
-package org.ballerinalang.net.http.websocket.server;
-
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketException;
-import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
-import org.ballerinalang.net.http.websocket.WebSocketUtil;
-import org.slf4j.Logger;
 /*
  *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -24,6 +16,14 @@ import org.slf4j.Logger;
  *  under the License.
  */
 
+package org.ballerinalang.net.http.websocket.server;
+
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -34,8 +34,7 @@ class UpgradeListener implements ServerHandshakeListener {
     private final WebSocketServerService wsService;
     private final WebSocketConnectionManager connectionManager;
 
-    public UpgradeListener(WebSocketServerService wsService,
-                           WebSocketConnectionManager connectionManager) {
+    UpgradeListener(WebSocketServerService wsService, WebSocketConnectionManager connectionManager) {
         this.wsService = wsService;
         this.connectionManager = connectionManager;
     }

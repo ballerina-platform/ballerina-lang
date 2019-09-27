@@ -92,7 +92,7 @@ public type WebSocketClient client object {
         return self.conn.close(statusCode, reason, timeoutInSeconds);
     }
 
-    # Called when the endpoint is ready to receive messages. Can be called only once.
+    # Called when the client is ready to receive messages. Can be called only once.
     #
     # + return - `error` if an error occurs when sending
     public remote function ready() returns WebSocketError? = external;
