@@ -206,7 +206,7 @@ public class BUnionType extends BType implements UnionType {
 
         for (BType memberType : this.memberTypes) {
             if (!memberType.isPureType()) {
-                this.isAnyData = Optional.of(false);
+                this.isPureType = Optional.of(false);
                 return false;
             }
         }
