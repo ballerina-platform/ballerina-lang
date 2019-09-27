@@ -72,7 +72,7 @@ public class ClientUdpSocketTest {
     @AfterClass
     public void cleanup() {
         mockUdpServer.stop();
-        SocketUtils.shutdownExecutorGraceful(executor);
+        SocketUtils.shutdownExecutorGracefully(executor);
     }
 
     @Test()
@@ -93,7 +93,7 @@ public class ClientUdpSocketTest {
         final BValue[] echoResult = BRunUtil.invoke(socketClient, "contentReceive");
         String echo = echoResult[0].stringValue();
         Assert.assertEquals(echo, serverContent, "Client did not receive expected message");
-        SocketUtils.shutdownExecutorGraceful(client);
+        SocketUtils.shutdownExecutorGracefully(client);
     }
 
     @Test(dependsOnMethods = "testContentReceive")
@@ -104,7 +104,7 @@ public class ClientUdpSocketTest {
         final BValue[] echoResult = BRunUtil.invoke(socketClient, "contentReceiveWithLength");
         String echo = echoResult[0].stringValue();
         Assert.assertEquals(echo, serverContent + serverContent, "Client did not receive expected message");
-        SocketUtils.shutdownExecutorGraceful(client);
+        SocketUtils.shutdownExecutorGracefully(client);
     }
 
     private void sendContent(String serverContent, int port) {

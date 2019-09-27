@@ -457,7 +457,7 @@ public class SelectorManager {
         stop();
         try {
             if (graceful) {
-                SocketUtils.shutdownExecutorGraceful(executor);
+                SocketUtils.shutdownExecutorGracefully(executor);
             } else {
                 SocketUtils.shutdownExecutorImmediately(executor);
             }

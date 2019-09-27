@@ -128,7 +128,7 @@ public class SocketUtils {
      *
      * @param executorService {@link ExecutorService} that need shutdown
      */
-    public static void shutdownExecutorGraceful(ExecutorService executorService) {
+    public static void shutdownExecutorGracefully(ExecutorService executorService) {
         executorService.shutdown();
         try {
             if (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
