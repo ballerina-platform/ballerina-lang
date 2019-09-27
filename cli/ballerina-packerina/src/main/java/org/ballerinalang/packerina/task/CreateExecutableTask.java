@@ -200,13 +200,13 @@ public class CreateExecutableTask implements Task {
                      !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1)))) {
                  Files.copy(file, toFile, copyOption);
              } else if (toFile.toString().startsWith("/META-INF/services")) {
-                 this.mergeSPIFile(file, toFile);
+                 this.mergeSPIFiles(file, toFile);
              }
              return FileVisitResult.CONTINUE;
          }
 
-         private void mergeSPIFile(Path fromFilePath, Path toFilePath) throws IOException {
-            // Merge the spi implementations for each service file without duplicating.
+         private void mergeSPIFiles(Path fromFilePath, Path toFilePath) throws IOException {
+             // Merge the spi implementations for each service file without duplicating.
              String fileName = toFilePath.getFileName().toString();
              HashSet<String> spiImplSet = spiImplMap.get(fileName);
              if (spiImplSet == null) {
