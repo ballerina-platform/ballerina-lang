@@ -128,15 +128,24 @@ public class SocketUtils {
      *
      * @param executorService {@link ExecutorService} that need shutdown
      */
-    public static void shutdownExecutor(ExecutorService executorService) {
+    public static void shutdownExecutorGracefully(ExecutorService executorService) {
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
+            if (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             executorService.shutdownNow();
         }
+    }
+
+    /**
+     * This will shutdown executor immediately.
+     *
+     * @param executorService {@link ExecutorService} that need shutdown
+     */
+    public static void shutdownExecutorImmediately(ExecutorService executorService) {
+        executorService.shutdownNow();
     }
 }
