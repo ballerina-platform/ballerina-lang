@@ -66,8 +66,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
     public void execute() {
 
         //User notification of using an experimental tool
-        outStream.println("Note: This is an Experimental tool ship under ballerina hence this will only support" +
-                " limited set of functionality.");
+        outStream.println(OpenApiMesseges.EXPERIMENTAL_FEATURE);
 
         CodeGenerator generator = new CodeGenerator();
 

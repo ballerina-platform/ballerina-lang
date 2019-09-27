@@ -34,4 +34,4 @@ target = "java8"
   version = "0.7.2"
   path = "libs/json.jar"
   groupId = "json.org"
-  modules = [ "mymodule", "module2"]
+  modules = [ "myimport", "module2"]

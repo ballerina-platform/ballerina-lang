@@ -1,5 +1,5 @@
 <div class="method-content">
-    <div class="main-method-title here" id="{{name}}">
+    <div class="main-method-title here" id="{{name}}" title="{{name}}">
              <a class="url-link" href="#{{name}}">
                 <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
             </a>
@@ -18,7 +18,10 @@
             {{#each parameters}}    
             <div class="params-listing">
                 <ul>
-                    <li> {{ name }}<span class="type">  {{{ typeName type }}} </span>{{#if defaultValue}}- {{ defaultValue }}{{/if}}</li>
+                    <li>
+                        {{ name }}<span class="type">  {{{ typeName type }}} </span>
+                        {{#if defaultValue}}<span class="default"> (default {{ defaultValue }})</span>{{/if}}
+                    </li>
                     <li>
                         <p>{{{ description }}}</p>
                     </li>
