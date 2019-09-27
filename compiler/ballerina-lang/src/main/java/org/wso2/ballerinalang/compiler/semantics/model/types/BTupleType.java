@@ -97,6 +97,11 @@ public class BTupleType extends BType implements TupleType {
             }
         }
 
+        if (this.restType != null && !this.restType.isPureType()) {
+            this.isAnyData = Optional.of(false);
+            return false;
+        }
+
         this.isAnyData = Optional.of(true);
         return true;
     }

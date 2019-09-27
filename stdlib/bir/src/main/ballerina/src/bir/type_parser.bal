@@ -225,12 +225,13 @@ public type TypeParser object {
     }
 
     function parseRecordType(int typeFlags) returns BRecordType {
-        BRecordType obj = { moduleId:self.cp.packages[self.readInt32()], 
-                            name:{value:self.readStringCpRef()},
-                            sealed:self.readBoolean(),
-                            restFieldType: TYPE_NIL, fields: [],
-                            initFunction: {funcType: {}, flags: PRIVATE }, 
-                            typeFlags:typeFlags };
+        BRecordType obj = { moduleId: self.cp.packages[self.readInt32()],
+                            name: { value: self.readStringCpRef() },
+                            sealed: self.readBoolean(),
+                            restFieldType: TYPE_NIL,
+                            fields: [],
+                            initFunction: { funcType: {}, flags: PRIVATE },
+                            typeFlags: typeFlags };
         self.cp.types[self.cpI] = obj;
         obj.restFieldType = self.parseTypeCpRef();
         obj.fields = self.parseRecordFields();
