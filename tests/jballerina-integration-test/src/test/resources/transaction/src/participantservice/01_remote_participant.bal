@@ -293,6 +293,9 @@ function initiatorFunc(boolean throw1, boolean throw2,
               error err = error("Participants failed to commit");
               panic err;
         }
+    } else if (remote2 && !trx_ran_once) {
+         error err = error("Cannot have a state with remote2 = true without any transaction retry");
+         panic err;
     }
     S1 = S1 + commitedString + " after-trx";
     return S1;
