@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.jvm.util.BLangConstants;
@@ -146,12 +147,16 @@ public class CommonUtil {
 
     public static final String BALLERINA_HOME;
 
+    public static final String BALLERINA_CMD;
+
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
 
     static {
         LS_DEBUG_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.debugLog"));
         LS_TRACE_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.traceLog"));
         BALLERINA_HOME = System.getProperty("ballerina.home");
+        BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "ballerina" +
+                (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
     }
 
     private CommonUtil() {

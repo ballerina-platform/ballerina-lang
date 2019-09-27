@@ -37,41 +37,42 @@ type ErrorHandlerGenerator object {
         self.mv.visitInsn(ATHROW);
     }
 
-    function generateTryIns(jvm:Label endLabel, jvm:Label handlerLabel) {
+    function generateTryInsForTrap(bir:ErrorEntry currentEE, string previousTargetBB, jvm:Label endLabel,
+                                   jvm:Label handlerLabel, jvm:Label otherErrorLabel, jvm:Label jumpLabel) {
         jvm:Label startLabel = new;
-        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
-        self.mv.visitLabel(startLabel);
-    }
-
-    function generateTryInsForTrap(bir:ErrorEntry currentEE, string[] errorVarNames, jvm:Label endLabel, 
-                                   jvm:Label handlerLabel, jvm:Label jumpLabel) {
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
-        if (!stringArrayContains(errorVarNames, currentEE.errorOp.variableDcl.name.value)) {
-            errorVarNames[errorVarNames.length()] =  currentEE.errorOp.variableDcl.name.value;
+        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
+        self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, STACK_OVERFLOW_ERROR);
+        // Handle cases where the same variable used to trap multiple expressions with single trap statement.
+        // Here we will check whether result error variable value and if it is null, we will skip the execution of
+        // rest of the expressions trapped by error variable.
+        if (previousTargetBB == currentEE.targetBB.id.value) {
+            generateVarLoad(self.mv, varDcl, self.currentPackageName, lhsIndex);
+            self.mv.visitJumpInsn(IFNONNULL, jumpLabel);
+            self.mv.visitLabel(startLabel);
+        } else {
+            // Handle cases where the same variable used to trap multiple expressions with multiple trap statements.
+            self.mv.visitLabel(startLabel);
             self.mv.visitInsn(ACONST_NULL);
             generateVarStore(self.mv, varDcl, self.currentPackageName, lhsIndex);
         }
-
-        jvm:Label startLabel = new;
-        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
-        jvm:Label temp = new;
-        self.mv.visitLabel(temp);
-
-        generateVarLoad(self.mv, varDcl, self.currentPackageName, lhsIndex);
-        self.mv.visitJumpInsn(IFNONNULL, jumpLabel);
-        self.mv.visitLabel(startLabel);
     }
 
-    function generateCatchInsForTrap(bir:ErrorEntry currentEE, jvm:Label endLabel, jvm:Label handlerLabel,
-                                     jvm:Label jumpLabel) {
+    function generateCatchInsForTrap(bir:ErrorEntry currentEE, jvm:Label endLabel,
+                                    jvm:Label errorValueLabel, jvm:Label otherErrorLabel, jvm:Label jumpLabel) {
         self.mv.visitLabel(endLabel);
         self.mv.visitJumpInsn(GOTO, jumpLabel);
-        self.mv.visitLabel(handlerLabel);
+        self.mv.visitLabel(errorValueLabel);
 
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
         generateVarStore(self.mv, varDcl, self.currentPackageName, lhsIndex);
+        self.mv.visitJumpInsn(GOTO, jumpLabel);
+        self.mv.visitLabel(otherErrorLabel);
+        self.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, TRAP_ERROR_METHOD,
+                                                io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+        self.mv.visitVarInsn(ASTORE, lhsIndex);
         self.mv.visitLabel(jumpLabel);
     }
 

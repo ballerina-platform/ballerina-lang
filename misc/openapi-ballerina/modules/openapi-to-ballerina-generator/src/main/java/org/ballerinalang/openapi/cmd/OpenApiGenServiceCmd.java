@@ -1,6 +1,7 @@
 package org.ballerinalang.openapi.cmd;
 
 import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.OpenApiMesseges;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
@@ -73,8 +74,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
     @Override
     public void execute() {
         //User notification of using an experimental tool
-        outStream.println("Note: This is an Experimental tool ship under ballerina hence this will only support" +
-                " limited set of functionality.");
+        outStream.println(OpenApiMesseges.EXPERIMENTAL_FEATURE);
 
         CodeGenerator generator = new CodeGenerator();
 

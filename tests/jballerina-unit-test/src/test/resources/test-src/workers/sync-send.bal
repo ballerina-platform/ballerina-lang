@@ -418,18 +418,18 @@ function errorResultWithMultipleWorkers() returns error? {
         return res;
     }
 
-    worker w2 returns error? {
+    worker w2 returns int|error {
         int x = 0;
         x = <- w1;
         if(true) {
             error err = error("err returned from w2"); // Already errored
             return err;
         }
-        error? res = <- w1;
+        int res = <- w1;
         return res;
     }
 
-    error? eor = wait w2 | w1;
+    error? eor = wait w1;
     return eor;
 }
 

@@ -36,20 +36,35 @@ import java.util.Map;
 public abstract class LauncherImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(LauncherImpl.class);
     private final Map<String, Object> args;
+    private final String ballerinaHome;
     private String debuggeePort;
 
     LauncherImpl(Map<String, Object> args) {
-        String debuggeePort = args.get("debuggeePort").toString();
-        this.debuggeePort = debuggeePort;
+        this.debuggeePort = args.get("debuggeePort") == null ? "" : args.get("debuggeePort").toString();
+        if (debuggeePort.length() == 0) {
+            LOGGER.error("Required param missing debuggeePort");
+        }
+
+        ballerinaHome = args.get("ballerina.home") == null ? "" : args.get("ballerina.home").toString();
+
+        if (ballerinaHome.length() == 0) {
+            LOGGER.error("Required param missing ballerina.home");
+        }
+
         this.args = args;
     }
 
     ArrayList<String> getLauncherCommand(String balFile) {
-        String ballerinaHome = args.get("ballerina.home").toString();
-        String debuggeePort = args.get("debuggeePort").toString();
         String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "ballerina";
-        if (OSUtils.WINDOWS.equals(OSUtils.getOperatingSystem())) {
+        if (OSUtils.isWindows()) {
             ballerinaExec = ballerinaExec + ".bat";
+        }
+
+        String ballerinaCmd = args.get("ballerina.command") == null ? "" : args.get("ballerina.command").toString();
+
+        // override ballerina exec if ballerina.command is provided.
+        if (ballerinaCmd.length() > 0) {
+            ballerinaExec = ballerinaCmd;
         }
 
         // TODO: validate file path
@@ -98,5 +113,9 @@ public abstract class LauncherImpl {
             LOGGER.error("Debugger failed to attach");
         }
         return null;
+    }
+
+    public String getBallerinaHome() {
+        return ballerinaHome;
     }
 }

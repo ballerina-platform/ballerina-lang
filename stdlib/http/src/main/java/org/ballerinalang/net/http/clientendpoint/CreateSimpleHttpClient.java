@@ -97,8 +97,11 @@ public class CreateSimpleHttpClient {
             String keepAliveConfig = http1Settings.getStringValue(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
             senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
         }
-
-        populateSenderConfigurations(senderConfiguration, clientEndpointConfig, scheme);
+        try {
+            populateSenderConfigurations(senderConfiguration, clientEndpointConfig, scheme);
+        } catch (RuntimeException e) {
+            throw HttpUtil.createHttpError(e.getMessage(), HttpErrorType.GENERIC_CLIENT_ERROR);
+        }
         ConnectionManager poolManager;
         MapValue<String, Long> userDefinedPoolConfig = (MapValue<String, Long>) clientEndpointConfig.get(
                 HttpConstants.USER_DEFINED_POOL_CONFIG);

@@ -40,8 +40,6 @@ public class OpenApiMesseges {
             "[moduleName]:serviceName [-i: ballerinaFile]";
 
 
-
-
     public static final String GEN_SERVICE_MODULE_ARGS_REQUIRED = "A module name and a service name is required " +
             "in order to generate the ballerina service for the provided OpenApi contract. \nE.g. ballerina " +
             "openapi gen-service <module_name>:<service_name> <openapi_contract>";
@@ -52,22 +50,23 @@ public class OpenApiMesseges {
             "the ballerina service for the provided OpenApi contract. \nE.g. ballerina openapi gen-service " +
             "<module_name>:<service_name> <openapi_contract>";
     public static final String GEN_SERVICE_PROJECT_ROOT = "Ballerina service generation should be done from the " +
-                                                          "project root. \nIf you like to start with a new project " +
-                                                          "use `ballerina new` command to create a new project.";
+            "project root. \nIf you like to start with a new project " +
+            "use `ballerina new` command to create a new project.";
     public static final String MODULE_DIRECTORY_EXCEPTION = "Unable to create module directory. File system error " +
-                                                            "occured.";
+            "occured.";
     public static final String RESOURCE_DIRECTORY_EXCEPTION = "Unable to create resource directory. File system error" +
-                                                            " occured.";
+            " occured.";
     public static final String TESTS_DIRECTORY_EXCEPTION = "Unable to create tests directory. File system error " +
-                                                           "occured";
+            "occured";
     public static final String SOURCE_DIRECTORY_EXCEPTION = "Unable to create source directory. File system error " +
-                                                            "occured.";
+            "occured.";
     public static final String MODULE_MD_EXCEPTION = "Unable to create moudle.md file. File system error occured.";
     public static final String DEFINITION_EXISTS = "There is already an OpenApi contract in the location.";
-
+    public static final String EXPERIMENTAL_FEATURE = "Note: This is an experimental tool, which only" +
+            " supports a limited set of functionality.";
 
     //TODO Update keywords if Ballerina Grammer changes
-    private static final String[] KEYWORDS = new String[] { "abort", "aborted", "abstract", "all", "annotation",
+    private static final String[] KEYWORDS = new String[]{"abort", "aborted", "abstract", "all", "annotation",
             "any", "anydata", "boolean", "break", "byte", "catch", "channel", "check", "checkpanic", "client",
             "committed", "const", "continue", "decimal", "else", "error", "external", "fail", "final", "finally",
             "float", "flush", "fork", "function", "future", "handle", "if", "import", "in", "int", "is", "join",
@@ -78,6 +77,7 @@ public class OpenApiMesseges {
             "NULL_LITERAL", "ascending", "descending", "foreach", "map", "group", "from", "default"};
 
     public static final List<String> BAL_KEYWORDS;
+
     static {
         BAL_KEYWORDS = Collections.unmodifiableList(Arrays.asList(KEYWORDS));
     }
