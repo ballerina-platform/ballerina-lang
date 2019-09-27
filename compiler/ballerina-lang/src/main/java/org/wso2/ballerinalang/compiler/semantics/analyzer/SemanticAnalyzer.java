@@ -2280,21 +2280,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        analyzeStmt(transactionNode.transactionBody, env);
+        SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
+        analyzeStmt(transactionNode.transactionBody, transactionEnv);
         if (transactionNode.onRetryBody != null) {
-            analyzeStmt(transactionNode.onRetryBody, env);
+            analyzeStmt(transactionNode.onRetryBody, transactionEnv);
         }
 
         if (transactionNode.committedBody != null) {
-            analyzeStmt(transactionNode.committedBody, env);
+            analyzeStmt(transactionNode.committedBody, transactionEnv);
         }
 
         if (transactionNode.abortedBody != null) {
-            analyzeStmt(transactionNode.abortedBody, env);
+            analyzeStmt(transactionNode.abortedBody, transactionEnv);
         }
 
         if (transactionNode.retryCount != null) {
-            typeChecker.checkExpr(transactionNode.retryCount, env, symTable.intType);
+            typeChecker.checkExpr(transactionNode.retryCount, transactionEnv, symTable.intType);
             checkRetryStmtValidity(transactionNode.retryCount);
         }
         

@@ -2799,6 +2799,27 @@ public class TypeChecker extends BLangNodeVisitor {
                 ((BLangArrowFunction) env.node).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
             }
         }
+
+        BLangNode node = env.node;
+        SymbolEnv cEnv = env;
+        while (node.getKind() != NodeKind.FUNCTION) {
+            if (node.getKind() == NodeKind.TRANSACTION) {
+                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                        SymTag.VARIABLE);
+                if (resolvedSymbol != symTable.notFoundSymbol) {
+                    resolvedSymbol.closure = true;
+                }
+                break;
+            } else {
+                SymbolEnv enclEnv = cEnv.enclEnv;
+                if (enclEnv == null) {
+                    break;
+                }
+                cEnv = enclEnv;
+                node = cEnv.node;
+            }
+        }
     }
 
     private boolean isNotFunction(BSymbol funcSymbol) {
