@@ -35,11 +35,29 @@ install:
   - nvm use 8.9.0
   - npm install -g npm@'5.6.0'
 
-script:
-  - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-  - ./gradlew build --console=plain --stacktrace -scan -x createJavadoc -Dorg.gradle.parallel=false
-  # Killing background sleep loop
-  - kill %1
+jobs:
+  include:
+    - stage: "Build and Check"
+      name: "Build without tests"
+      script:
+      - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+      - ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+      # Killing background sleep loop
+      - kill %1
+    - stage: "Tests"
+      name: "Run Build + tests (without integration)"
+      script:
+        - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        # Killing background sleep loop
+        - kill %1
+    - script:
+        - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - ./gradlew :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        # Killing background sleep loop
+        - kill %1
+      name:  "Integration tests"
+
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
@@ -47,6 +65,7 @@ after_success:
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -fr $HOME/.gradle/caches/*/scripts/
 cache:
   directories:
     - $HOME/.gradle/caches/
