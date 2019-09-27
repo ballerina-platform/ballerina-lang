@@ -105,11 +105,6 @@ public abstract class AbstractGetPayloadHandler {
         callback.notifySuccess();
     }
 
-//    static Object createParsingEntityBodyFailedErrorAndNotify(NonBlockingCallback callback, String errMsg) {
-//        ErrorValue error = MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, errMsg);
-//        return returnErrorValue(callback, error);
-//    }
-
     static Object createParsingEntityBodyFailedErrorAndNotify(NonBlockingCallback callback, String errMsg,
             ErrorValue errorValue) {
         ErrorValue error = MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, errMsg, errorValue);
@@ -162,7 +157,6 @@ public abstract class AbstractGetPayloadHandler {
             return message;
         } else {
             throw BallerinaErrors.createError(NO_CONTENT_ERROR_CODE, "Empty content");
-//            throw BallerinaErrors.createError("Empty content");
         }
     }
 

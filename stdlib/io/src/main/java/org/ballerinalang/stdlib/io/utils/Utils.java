@@ -63,12 +63,6 @@ public class Utils {
         return BallerinaErrors.createError(IOConstants.ErrorCode.GenericError.errorCode(), msg);
     }
 
-//    public static MapValue populateMimeErrorRecord(String msg) {
-//        Map<String, Object> valueMap = new HashMap<>();
-//        valueMap.put(MIME_ERROR_MESSAGE, msg);
-//        return BallerinaValues.createRecordValue(PACKAGE_ID_MIME, ERROR_RECORD_TYPE, valueMap);
-//    }
-
     public static MapValue populateMimeErrorRecord(ErrorValue errorValue, String msg) {
         Map<String, Object> valueMap = new HashMap<>();
         if (errorValue != null) {
