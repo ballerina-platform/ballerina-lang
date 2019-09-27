@@ -27,7 +27,7 @@ module.exports = {
                 loaders: ['arraybuffer-loader'],
             },
             {
-                test: /\.plist$/i,
+                test: /\.tmLanguage$/i,
                 use: 'raw-loader',
             }
         ]
