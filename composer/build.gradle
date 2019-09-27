@@ -22,6 +22,7 @@ apply from: "$rootDir/gradle/jsProject.gradle"
 configurations {
     composer
     fonts
+    highlighter
 }
 
 npmBuild {
@@ -87,6 +88,7 @@ task test() {
 }
 
 artifacts.add('composer', file("packages/distribution/build/"))
+artifacts.add('highlighter', file("packages/syntax-highlighter/lib/"))
 artifacts.add('fonts', file("packages/font/build/"))
 
 build {
