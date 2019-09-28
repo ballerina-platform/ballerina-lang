@@ -77,7 +77,7 @@ public class SpiServicesTestCase extends BaseTest {
                 try (BufferedReader fromBr = new BufferedReader(new InputStreamReader(jar.getInputStream(entry)))) {
                     String text;
                     while ((text = fromBr.readLine()) != null) {
-                        if(!text.equals("")){
+                        if (!text.equals("")) {
                             serviceList.append(" ").append(text);
                         }
                     }
