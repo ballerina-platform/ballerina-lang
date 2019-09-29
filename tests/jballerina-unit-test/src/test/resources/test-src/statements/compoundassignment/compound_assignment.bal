@@ -298,7 +298,7 @@ function testCompoundAssignmentAdditionArrayElementFunctionInvocation() returns 
     int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
     [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
 
-    b[f(1, girl)][2][g(0, boy)] += x;
+    b[incrementAgeOfGirl(1, girl)][2][incrementAgeOfBoy(0, boy)] += x;
     return [b[2][2][1], girl.age, boy.age];
 }
 
@@ -309,7 +309,7 @@ function testCompoundAssignmentSubtractionArrayElementFunctionInvocation() retur
     int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
     [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
 
-    b[f(1, girl)][2][g(0, boy)] -= x;
+    b[incrementAgeOfGirl(1, girl)][2][incrementAgeOfBoy(0, boy)] -= x;
     return [b[2][2][1], girl.age, boy.age];
 }
 
@@ -320,7 +320,7 @@ function testCompoundAssignmentDivisionArrayElementFunctionInvocation() returns 
     int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
     [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
 
-    b[f(1, girl)][2][g(0, boy)] /= x;
+    b[incrementAgeOfGirl(1, girl)][2][incrementAgeOfBoy(0, boy)] /= x;
     return [b[2][2][1], girl.age, boy.age];
 }
 
@@ -331,7 +331,7 @@ function testCompoundAssignmentMultiplicationArrayElementFunctionInvocation() re
     int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
     [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
 
-    b[f(1, girl)][2][g(0, boy)] *= x;
+    b[incrementAgeOfGirl(1, girl)][2][incrementAgeOfBoy(0, boy)] *= x;
     return [b[2][2][1], girl.age, boy.age];
 }
 
@@ -342,29 +342,29 @@ function testCompoundAssignmentArrayElementFunctionInvocationOrder() returns [in
     int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
     [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
 
-    b[foo(girl)][2][bar(boy)] *= x;
+    b[incrementIndexOfGirl(girl)][2][incrementIndexOfBoy(boy)] *= x;
     return [b[1][2][2], girl.age, boy.age];
 }
 
-function f(int i, Girl g) returns (int) {
+function incrementAgeOfGirl(int i, Girl g) returns (int) {
     g.age += 1;
     return i + 1;
 }
 
-function g(int i, Boy b) returns (int) {
+function incrementAgeOfBoy(int i, Boy b) returns (int) {
     b.age += 1;
     return i + 1;
 }
 
 int index = 0;
 
-function foo(Girl g) returns (int) {
+function incrementIndexOfGirl(Girl g) returns (int) {
     g.age += 1;
     index = index + 1;
     return index;
 }
 
-function bar(Boy b) returns (int) {
+function incrementIndexOfBoy(Boy b) returns (int) {
     b.age += 1;
     index = index + 1;
     return index;
