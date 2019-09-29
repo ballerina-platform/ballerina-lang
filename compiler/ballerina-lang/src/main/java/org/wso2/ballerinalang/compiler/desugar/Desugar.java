@@ -286,7 +286,7 @@ public class Desugar extends BLangNodeVisitor {
     private int errorCount = 0;
     private int annonVarCount = 0;
     private int initFuncIndex = 0;
-    private int indexExprNumber = 0;
+    private int indexExprCount = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -2355,12 +2355,11 @@ public class Desugar extends BLangNodeVisitor {
         List<BType> types = new ArrayList<>();
 
         // Extract the index Expressions from compound assignment and create variable definitions. ex:
-        // var $temp1$ = 2;
-        // var $temp2$ = 3;
         // var $temp3$ = a[f(1, foo)];
+        // var $temp2$ = 3;
+        // var $temp1$ = 2;
         do {
-            indexExprNumber += 1;
-            BLangSimpleVariableDef tempIndexVarDef = createVarDef("$temp" + indexExprNumber + "$",
+            BLangSimpleVariableDef tempIndexVarDef = createVarDef("$temp" + ++indexExprCount + "$",
                     ((BLangIndexBasedAccess) varRef).indexExpr.type, ((BLangIndexBasedAccess) varRef).indexExpr,
                     compoundAssignment.pos);
             BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(tempIndexVarDef.pos,
