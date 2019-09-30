@@ -112,15 +112,11 @@ public class WebSocketConstants {
     public static final String METRIC_MESSAGES_SENT = "messages_sent";
     public static final String METRIC_MESSAGES_SENT_DESC = "Number of messages sent";
 
-    public static final String METRIC_MESSAGES_SIZE_RECEIVED = "messages_size_received";
-    public static final String METRIC_MESSAGES_SIZE_RECEIVED_DESC = "Total size of messages received in bytes";
-
-    public static final String METRIC_MESSAGES_SIZE_SENT = "messages_size_sent";
-    public static final String METRIC_MESSAGES_SIZE_SENT_DESC = "Total size of messages sent in bytes";
-
-
     public static final String WEBSOCKET_MESSAGE_RESULT_SUCCESS = "success";
     public static final String WEBSOCKET_MESSAGE_RESULT_FAILED = "failed";
+
+    public static final String METRIC_ERRORS = "errors";
+    public static final String METRIC_ERRORS_DESC = "Number of errors";
 
     public static final String WEBSOCKET_MESSAGE_TYPE_TEXT = "text";
     public static final String WEBSOCKET_MESSAGE_TYPE_BINARY = "binary";

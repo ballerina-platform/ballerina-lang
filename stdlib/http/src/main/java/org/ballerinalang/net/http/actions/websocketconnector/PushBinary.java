@@ -64,13 +64,13 @@ public class PushBinary {
             ChannelFuture webSocketChannelFuture = connectionInfo.getWebSocketConnection().pushBinary(
                     ByteBuffer.wrap(binaryData.getBytes()), finalFrame);
             WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture, log);
-            observePush(WEBSOCKET_MESSAGE_TYPE_BINARY, WEBSOCKET_MESSAGE_RESULT_SUCCESS, binaryData.getBytes().length,
+            observePush(WEBSOCKET_MESSAGE_TYPE_BINARY, WEBSOCKET_MESSAGE_RESULT_SUCCESS,
                         connectionInfo);
         } catch (Exception e) {
             log.error("Error occurred when pushing binary data", e);
             callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
-            observePush(WEBSOCKET_MESSAGE_TYPE_BINARY, WEBSOCKET_MESSAGE_RESULT_FAILED, binaryData.getBytes().length,
+            observePush(WEBSOCKET_MESSAGE_TYPE_BINARY, WEBSOCKET_MESSAGE_RESULT_FAILED,
                         (WebSocketOpenConnectionInfo)
                                 wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO));
         }

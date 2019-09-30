@@ -172,7 +172,6 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             // Ignore as it is not possible have an Illegal access
         }
         WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_TEXT,
-                                       webSocketTextMessage.getText().getBytes().length,
                                        connectionManager.getConnectionInfo(
                                                webSocketTextMessage.getWebSocketConnection().getChannelId()));
     }
@@ -187,7 +186,6 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             // Ignore as it is not possible have an Illegal access
         }
         WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_BINARY,
-                                       webSocketBinaryMessage.getByteArray().length,
                                        connectionManager.getConnectionInfo(
                                                webSocketBinaryMessage.getWebSocketConnection().getChannelId()));
     }
@@ -202,7 +200,6 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             // Ignore as it is not possible have an Illegal access
         }
         WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CONTROL,
-                                       webSocketControlMessage.getByteArray().length,
                                        connectionManager.getConnectionInfo(
                                                webSocketControlMessage.getWebSocketConnection().getChannelId()));
     }
@@ -216,7 +213,6 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             // Ignore as it is not possible have an Illegal access
         }
         WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CLOSE,
-                       webSocketCloseMessage.getCloseReason().getBytes().length + 4,
                                        connectionManager.getConnectionInfo(
                                                webSocketCloseMessage.getWebSocketConnection().getChannelId()));
     }
@@ -238,6 +234,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         WebSocketDispatcher.dispatchError(
                 connectionManager.getConnectionInfo(webSocketConnection.getChannelId()), throwable);
+        WebSocketUtil.observeError(connectionManager.getConnectionInfo(webSocketConnection.getChannelId()));
     }
 
     @Override

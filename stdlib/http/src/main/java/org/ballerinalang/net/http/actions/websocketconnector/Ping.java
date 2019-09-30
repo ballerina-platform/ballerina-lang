@@ -63,13 +63,13 @@ public class Ping {
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().ping(ByteBuffer.wrap(binaryData.getBytes()));
             WebSocketUtil.handleWebSocketCallback(callback, future, log);
-            observePush(WEBSOCKET_MESSAGE_TYPE_CONTROL, WEBSOCKET_MESSAGE_RESULT_SUCCESS, binaryData.getBytes().length,
+            observePush(WEBSOCKET_MESSAGE_TYPE_CONTROL, WEBSOCKET_MESSAGE_RESULT_SUCCESS,
                         connectionInfo);
         } catch (Exception e) {
             log.error("Error occurred when pinging", e);
             callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
-            observePush(WEBSOCKET_MESSAGE_TYPE_CONTROL, WEBSOCKET_MESSAGE_RESULT_FAILED, binaryData.getBytes().length,
+            observePush(WEBSOCKET_MESSAGE_TYPE_CONTROL, WEBSOCKET_MESSAGE_RESULT_FAILED,
                         (WebSocketOpenConnectionInfo)
                                 wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO));
         }

@@ -60,13 +60,13 @@ public class PushText {
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
             WebSocketUtil.handleWebSocketCallback(callback, future, log);
-            observePush(WEBSOCKET_MESSAGE_TYPE_TEXT, WEBSOCKET_MESSAGE_RESULT_SUCCESS, text.length() * 2,
+            observePush(WEBSOCKET_MESSAGE_TYPE_TEXT, WEBSOCKET_MESSAGE_RESULT_SUCCESS,
                         connectionInfo);
         } catch (Exception e) {
             log.error("Error occurred when pushing text data", e);
             callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
-            observePush(WEBSOCKET_MESSAGE_TYPE_TEXT, WEBSOCKET_MESSAGE_RESULT_FAILED, text.length() * 2,
+            observePush(WEBSOCKET_MESSAGE_TYPE_TEXT, WEBSOCKET_MESSAGE_RESULT_FAILED,
                         (WebSocketOpenConnectionInfo)
                                 wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO));
         }

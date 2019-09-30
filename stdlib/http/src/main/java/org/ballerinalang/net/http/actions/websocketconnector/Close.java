@@ -71,7 +71,7 @@ public class Close {
                 WebSocketUtil.setListenerOpenField(connectionInfo);
                 callback.notifySuccess();
                 observePush(WEBSOCKET_MESSAGE_TYPE_CLOSE, WEBSOCKET_MESSAGE_RESULT_SUCCESS,
-                            reason.length() * 2 + 4, connectionInfo);
+                        connectionInfo);
 
             });
         } catch (Exception e) {
@@ -79,7 +79,6 @@ public class Close {
             callback.setReturnValues(new WebSocketException(ErrorCode.WsConnectionError, e.getMessage()));
             callback.notifySuccess();
             observePush(WEBSOCKET_MESSAGE_TYPE_CLOSE, WEBSOCKET_MESSAGE_RESULT_FAILED,
-                        reason.length() * 2 + 4,
                         (WebSocketOpenConnectionInfo)
                                 wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO));
 
