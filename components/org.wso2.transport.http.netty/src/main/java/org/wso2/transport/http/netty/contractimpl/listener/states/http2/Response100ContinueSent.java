@@ -42,6 +42,7 @@ import java.nio.channels.ClosedChannelException;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 
@@ -107,6 +108,12 @@ public class Response100ContinueSent implements ListenerState {
                                     Http2OutboundRespListener http2OutboundRespListener, int streamId) {
         Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId, REQUEST_TIMEOUT,
                                                   Unpooled.EMPTY_BUFFER, true, true);
+    }
+
+    @Override
+    public void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg,
+                                           ServerConnectorFuture serverConnectorFuture) {
+        LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE);
     }
 
     private static void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,

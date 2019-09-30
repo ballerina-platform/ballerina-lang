@@ -45,9 +45,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.is100ContinueRequest;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
  * State between start and end of inbound request headers read.
@@ -145,6 +147,12 @@ public class ReceivingHeaders implements ListenerState {
                                     Http2OutboundRespListener http2OutboundRespListener, int streamId) {
         Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId, REQUEST_TIMEOUT,
                                                   Unpooled.EMPTY_BUFFER, true, true);
+    }
+
+    @Override
+    public void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg,
+                                           ServerConnectorFuture serverConnectorFuture) {
+        handleIncompleteInboundMessage(inboundRequestMsg, REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS);
     }
 
     private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage responseMessage)

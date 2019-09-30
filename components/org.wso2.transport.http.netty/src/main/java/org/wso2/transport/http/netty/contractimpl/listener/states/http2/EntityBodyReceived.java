@@ -40,7 +40,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Promise;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.CONNECTOR_NOTIFYING_ERROR;
 
 /**
  * State between end of inbound request payload read and start of outbound response or push response headers write.
@@ -118,5 +120,16 @@ public class EntityBodyReceived implements ListenerState {
         Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId,
                                                   HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(
                         HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE, CharsetUtil.UTF_8), false, false);
+    }
+
+    @Override
+    public void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg,
+                                           ServerConnectorFuture serverConnectorFuture) {
+        try {
+            serverConnectorFuture.notifyErrorListener(
+                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
+        } catch (ServerConnectorException e) {
+            LOG.error(CONNECTOR_NOTIFYING_ERROR, e);
+        }
     }
 }

@@ -100,4 +100,6 @@ public interface ListenerState {
      */
     void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
                              Http2OutboundRespListener http2OutboundRespListener, int streamId);
+
+    void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg, ServerConnectorFuture serverConnectorFuture);
 }

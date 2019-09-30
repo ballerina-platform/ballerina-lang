@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
 
 /**
@@ -130,6 +131,12 @@ public class SendingHeaders implements ListenerState {
         } catch (ServerConnectorException e) {
             LOG.error("Error while notifying error state to server-connector listener");
         }
+    }
+
+    @Override
+    public void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg,
+                                           ServerConnectorFuture serverConnectorFuture) {
+        LOG.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
     }
 
     private void writeHeaders(HttpCarbonMessage outboundResponseMsg, int streamId) throws Http2Exception {

@@ -105,4 +105,10 @@ public class ResponseCompleted implements ListenerState {
                                     Http2OutboundRespListener http2OutboundRespListener, int streamId) {
         LOG.warn("handleStreamTimeout {}", ILLEGAL_STATE_ERROR);
     }
+
+    @Override
+    public void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg,
+                                           ServerConnectorFuture serverConnectorFuture) {
+        LOG.warn("handleAbruptChannelClosure {}", ILLEGAL_STATE_ERROR);
+    }
 }
