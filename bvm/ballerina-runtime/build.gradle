@@ -29,8 +29,27 @@ dependencies {
 
     implementation project(':ballerina-config')
     implementation project(':ballerina-logging')
+
+    testCompile 'org.testng:testng'
 }
 
 
 description = 'Ballerina - Runtime Core'
 
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+
+    afterSuite { suite, result ->
+        result.exception?.printStackTrace()
+    }
+
+    testLogging {
+        // this will only change --warn flag behaviour
+        warn {
+            events = ["failed", "skipped"]
+            exceptionFormat "full"
+        }
+    }
+}

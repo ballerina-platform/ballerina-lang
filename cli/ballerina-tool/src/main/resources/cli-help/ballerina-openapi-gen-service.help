@@ -2,9 +2,6 @@ NAME
        ballerina-openapi-gen-service - Convert an OpenApi contract to a
        Ballerina mock service
 
-       Note: This is an experimental tool which only supports
-       a limited set of functionality.
-
 
 SYNOPSIS
        ballerina openapi gen-service <module-name>:<service-name>

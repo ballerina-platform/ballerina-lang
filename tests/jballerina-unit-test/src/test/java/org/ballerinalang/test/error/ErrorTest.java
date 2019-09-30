@@ -365,6 +365,19 @@ public class ErrorTest {
     }
 
     @Test
+    public void testStackOverFlow() {
+        BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
+        String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
+                "lineNumber:343}";
+        String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
+                "lineNumber:347}";
+        String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
+        Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
+                "stacktrace element: " + resultStack);
+        Assert.assertEquals(result[1].stringValue(), "{ballerina}StackOverflow");
+    }
+
+    @Test
     public void testNonModuleQualifiedReasons() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/error/non_module_qualified_error_reasons_negative.bal");
@@ -391,5 +404,14 @@ public class ErrorTest {
                                     23, 21);
         BAssertUtil.validateWarning(compileResult, index, "error reason '{test/string}identifier' is not module " +
                 "qualified", 23, 21);
+    }
+
+    @Test
+    public void testErrorTrapVarReuse() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testErrorTrapVarReuse");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertNull(returns[1]);
+        BError bError = (BError) returns[0];
+        Assert.assertEquals(bError.getReason(), "panic now");
     }
 }

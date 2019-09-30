@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static io.ballerina.plugins.idea.BallerinaConstants.BAL_FILE_EXT;
+
 /**
  * Represent a Ballerina suspended context. Created in debug hits.
  */
@@ -78,14 +80,22 @@ public class BallerinaSuspendContext extends XSuspendContext {
     }
 
     private boolean isBallerinaSource(StackFrame frame) {
-        if (frame == null || frame.getSource() == null || frame.getSource().getName() == null) {
+
+        if (frame == null) {
             return false;
         }
+
         String fileName = frame.getSource().getName();
-        if (Strings.isNullOrEmpty(fileName) || fileName.split("\\.").length <= 1) {
+        String filePath = frame.getSource().getPath();
+        if (frame.getSource() == null || Strings.isNullOrEmpty(fileName) || Strings.isNullOrEmpty(filePath)) {
             return false;
         }
-        return fileName.split("\\.")[fileName.split("\\.").length - 1].equals("bal");
+
+        if (fileName.split("\\.").length <= 1) {
+            return false;
+        }
+
+        return fileName.endsWith(BAL_FILE_EXT);
     }
 
     static class BallerinaExecutionStack extends XExecutionStack {

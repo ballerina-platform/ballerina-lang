@@ -16,6 +16,8 @@ import { isUnix } from "./osUtils";
 import { TM_EVENT_START_DEBUG_SESSION } from '../telemetry';
 import { log, debug as debugLog} from "../utils";
 
+const BALLERINA_COMMAND = "ballerina.command";
+
 const debugConfigProvider: DebugConfigurationProvider = {
     resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
         : Thenable<DebugConfiguration> {
@@ -29,13 +31,24 @@ async function getModifiedConfigs(config: DebugConfiguration) {
     if (!debuggeePort) {
         debuggeePort = await getPortPromise({ port: 5010, stopPort: 10000});
     }
+
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
-    if (!ballerinaHome) {
-        ballerinaExtInstance.showMessageInstallBallerina();
-        return config;
+
+    let ballerinaCmd;
+    if (ballerinaExtInstance.overrideBallerinaHome()) {
+        ballerinaCmd = ballerinaExtInstance.getBallerinaCmd(ballerinaHome);
     } else {
-        config[BALLERINA_HOME] = ballerinaHome;
+        const { isBallerinaNotFound } = ballerinaExtInstance.autoDetectBallerinaHome();
+        if (isBallerinaNotFound) {
+            ballerinaExtInstance.showMessageInstallBallerina();
+            return config;
+        } else {
+            ballerinaCmd = ballerinaExtInstance.getBallerinaCmd();
+        }
     }
+
+    config[BALLERINA_HOME] = ballerinaHome;
+    config[BALLERINA_COMMAND] = ballerinaCmd;
 
     if (!config.type) {
         config.type = 'ballerina';

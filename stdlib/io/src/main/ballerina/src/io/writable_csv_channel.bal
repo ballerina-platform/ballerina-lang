@@ -40,8 +40,10 @@ public type WritableCSVChannel object {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
         } else if (fs == COLON) {
             self.dc = new WritableTextRecordChannel(characterChannel, FS_COLON, CSV_RECORD_SEPARATOR);
-        } else {
+        } else if (fs == COMMA) {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "CSV");
+        } else {
+            self.dc = new WritableTextRecordChannel(characterChannel, fs, CSV_RECORD_SEPARATOR);
         }
     }
 
