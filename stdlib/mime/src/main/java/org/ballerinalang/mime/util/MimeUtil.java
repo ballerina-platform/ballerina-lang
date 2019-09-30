@@ -453,7 +453,11 @@ public class MimeUtil {
      * @return Ballerina error value
      */
     public static ErrorValue createError(String reason, String errMsg) {
-        return BallerinaErrors.createError(reason, populateMimeErrorRecord(errMsg));
+        return BallerinaErrors.createError(reason, populateMimeErrorRecord(null, errMsg));
+    }
+
+    public static ErrorValue createError(String reason, String errMsg, ErrorValue errorValue) {
+        return BallerinaErrors.createError(reason, populateMimeErrorRecord(errorValue, errMsg));
     }
 
     public static boolean isJSONCompatible(org.ballerinalang.jvm.types.BType type) {
