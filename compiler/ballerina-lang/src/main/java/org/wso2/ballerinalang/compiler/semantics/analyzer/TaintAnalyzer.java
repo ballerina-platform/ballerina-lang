@@ -595,7 +595,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
                     }
                     return;
-                } else if (varRef.symbol != null && varRef.symbol.closure && varTaintedStatus == TaintedStatus.TAINTED
+                } else if (varRef.symbol != null && varRef.symbol.closure
                         && !varRef.symbol.tainted && notInSameScope(varRef, env)) {
                     addTaintError(pos, getVariableName(varRef),
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE);
@@ -670,8 +670,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean isStructuredAccessOnVariableReference(BLangVariableReference variableReference) {
         return (variableReference.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 || variableReference.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
-                || variableReference.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR)
-                && ((BLangAccessExpression) variableReference).expr instanceof BLangVariableReference;
+                || variableReference.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR);
     }
 
     private boolean isMarkedUntainted(BLangVariableReference varRef) {

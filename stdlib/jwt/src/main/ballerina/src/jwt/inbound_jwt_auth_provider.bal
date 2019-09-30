@@ -56,11 +56,12 @@ public type InboundJwtAuthProvider object {
             }
         }
 
-        var validationResult = <@untainted> validateJwt(credential, self.jwtValidatorConfig);
+        var validationResult = validateJwt(credential, self.jwtValidatorConfig);
         if (validationResult is JwtPayload) {
             auth:setAuthenticationContext("jwt", credential);
             setPrincipal(validationResult);
-            addToAuthenticationCache(self.jwtValidatorConfig, credential, validationResult?.exp, validationResult);
+            addToAuthenticationCache(self.jwtValidatorConfig, credential, <@untainted> validationResult?.exp,
+                <@untainted> validationResult);
             return true;
         } else {
             return auth:prepareError("JWT validation failed.", validationResult);
