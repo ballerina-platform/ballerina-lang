@@ -110,6 +110,14 @@ function testByteBinaryOperation(byte a, byte b, byte c) returns [boolean, boole
     return [b1, b2];
 }
 
+function testByteArrayIteration(byte[] b) returns byte[] {
+    byte[] a = [];
+    foreach var i in b {
+        a[a.length()] = i;
+    }
+    return a;
+}
+
 function testByteBinaryNotEqualOperation(byte a, byte b, byte c) returns [boolean, boolean] {
     boolean b1 = (a != b);
     boolean b2 = (a != c);
