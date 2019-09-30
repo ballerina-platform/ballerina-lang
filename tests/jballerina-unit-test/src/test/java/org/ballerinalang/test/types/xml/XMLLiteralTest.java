@@ -109,11 +109,9 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
                                   73, 18);
         // XML interpolation is not allowed to interpolate XML namespace attributes
-        BAssertUtil.validateError(negativeResult, index++, "invalid xml namespace interpolation",
-                                  82, 29);
-        BAssertUtil.validateError(negativeResult, index++, "invalid xml namespace interpolation",
-                                  82, 47);
-        Assert.assertEquals(index, 16);
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 82, 29);
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 82, 47);
+        Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
     @Test

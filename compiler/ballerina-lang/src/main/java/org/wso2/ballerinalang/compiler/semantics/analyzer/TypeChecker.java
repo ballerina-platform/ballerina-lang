@@ -2367,7 +2367,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
         BLangXMLQName attrName = (BLangXMLQName) attribute.name;
-        return (attrName.prefix.value.equals("")
+        return (attrName.prefix.value.isEmpty()
                     && attrName.localname.value.equals(XMLConstants.XMLNS_ATTRIBUTE))
                 || attrName.prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE);
     }
