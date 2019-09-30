@@ -99,6 +99,7 @@ public class WebSocketConstants {
     public static final String TAG_KEY_RESULT = "result";
     public static final String TAG_SERVICE = "service";
     public static final String TAG_MESSAGE_TYPE = "type";
+    public static final String TAG_ERROR_TYPE = "error_type";
 
     public static final String METRIC_REQUESTS = "requests";
     public static final String METRIC_REQUESTS_DESC = "Number of WebSocket connection requests";
@@ -122,6 +123,11 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_MESSAGE_TYPE_BINARY = "binary";
     public static final String WEBSOCKET_MESSAGE_TYPE_CONTROL = "control";
     public static final String WEBSOCKET_MESSAGE_TYPE_CLOSE = "close";
+
+    public static final String WEBSOCKET_ERROR_TYPE_CONNECTION = "connection";
+    public static final String WEBSOCKET_ERROR_TYPE_CLOSE = "close";
+    public static final String WEBSOCKET_ERROR_TYPE_MESSAGE_SENT = "message_sent";
+    public static final String WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED = "message_received";
 
 
 

@@ -35,9 +35,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_TYPE_CLOSE;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_FAILED;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_SUCCESS;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_CLOSE;
+import static org.ballerinalang.net.http.WebSocketUtil.observeError;
 import static org.ballerinalang.net.http.WebSocketUtil.observePush;
 
 /**
@@ -78,10 +80,9 @@ public class Close {
             log.error("Error occurred when closing the connections", e);
             callback.setReturnValues(new WebSocketException(ErrorCode.WsConnectionError, e.getMessage()));
             callback.notifySuccess();
-            observePush(WEBSOCKET_MESSAGE_TYPE_CLOSE, WEBSOCKET_MESSAGE_RESULT_FAILED,
-                        (WebSocketOpenConnectionInfo)
-                                wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO));
-
+            observeError((WebSocketOpenConnectionInfo)
+                                 wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO),
+                         WEBSOCKET_ERROR_TYPE_CLOSE);
         }
         return null;
     }

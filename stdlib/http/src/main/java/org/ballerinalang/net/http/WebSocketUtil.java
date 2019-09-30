@@ -66,6 +66,7 @@ import static org.ballerinalang.net.http.WebSocketConstants.METRIC_MESSAGES_SENT
 import static org.ballerinalang.net.http.WebSocketConstants.METRIC_REQUESTS;
 import static org.ballerinalang.net.http.WebSocketConstants.METRIC_REQUESTS_DESC;
 import static org.ballerinalang.net.http.WebSocketConstants.TAG_CONNECTION_ID;
+import static org.ballerinalang.net.http.WebSocketConstants.TAG_ERROR_TYPE;
 import static org.ballerinalang.net.http.WebSocketConstants.TAG_KEY_RESULT;
 import static org.ballerinalang.net.http.WebSocketConstants.TAG_MESSAGE_TYPE;
 import static org.ballerinalang.net.http.WebSocketConstants.TAG_SERVICE;
@@ -403,7 +404,11 @@ public class WebSocketUtil {
         }
     }
 
-    public static void observeError(WebSocketOpenConnectionInfo connectionInfo) {
+    public static void observeError(WebSocketOpenConnectionInfo connectionInfo, String errorType) {
+        observeError(connectionInfo, errorType, null);
+    }
+
+    public static void observeError(WebSocketOpenConnectionInfo connectionInfo, String errorType, String messageType) {
         ObserverContext observerContext = new ObserverContext();
         Map<String, Object> properties = new HashMap<>();
         properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
@@ -417,6 +422,10 @@ public class WebSocketUtil {
             }
 
             observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+            observerContext.addTag(TAG_ERROR_TYPE, errorType);
+            if (messageType != null) {
+                observerContext.addTag(TAG_MESSAGE_TYPE, messageType);
+            }
 
             // TODO: extract span context as a map and add to the observer context
             Map<String, String> tags = observerContext.getTags();
@@ -425,7 +434,7 @@ public class WebSocketUtil {
 
             MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
             metricRegistry.counter(new MetricId(SERVER_CONNECTOR_WEBSOCKET + "_" + METRIC_ERRORS,
-                                              METRIC_ERRORS_DESC, allTags)).increment();
+                                                METRIC_ERRORS_DESC, allTags)).increment();
         }
     }
 

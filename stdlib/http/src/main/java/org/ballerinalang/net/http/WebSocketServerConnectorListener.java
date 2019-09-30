@@ -39,6 +39,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_TYPE_MESSAGE_SENT;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_FAILED;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_SUCCESS;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_BINARY;
@@ -234,7 +236,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         WebSocketDispatcher.dispatchError(
                 connectionManager.getConnectionInfo(webSocketConnection.getChannelId()), throwable);
-        WebSocketUtil.observeError(connectionManager.getConnectionInfo(webSocketConnection.getChannelId()));
+        WebSocketUtil.observeError(connectionManager.getConnectionInfo(webSocketConnection.getChannelId()),
+                                   WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED);
     }
 
     @Override

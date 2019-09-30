@@ -34,9 +34,11 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_TYPE_MESSAGE_SENT;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_FAILED;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_SUCCESS;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_CONTROL;
+import static org.ballerinalang.net.http.WebSocketUtil.observeError;
 import static org.ballerinalang.net.http.WebSocketUtil.observePush;
 
 /**
@@ -69,9 +71,9 @@ public class Pong {
             log.error("Error occurred when ponging", e);
             callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
-            observePush(WEBSOCKET_MESSAGE_TYPE_CONTROL, WEBSOCKET_MESSAGE_RESULT_FAILED,
-                        (WebSocketOpenConnectionInfo)
-                                wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO));
+            observeError((WebSocketOpenConnectionInfo) wsConnection
+                                 .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO),
+                         WEBSOCKET_ERROR_TYPE_MESSAGE_SENT, WEBSOCKET_MESSAGE_TYPE_CONTROL);
         }
 
         return null;
