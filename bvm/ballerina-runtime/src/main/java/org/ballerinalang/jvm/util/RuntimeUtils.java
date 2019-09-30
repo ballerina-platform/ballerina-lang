@@ -130,7 +130,7 @@ public class RuntimeUtils {
         } else {
             // These errors are unhandled errors in JVM, hence logging them to bre log.
             errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
-            silentlyLogBadSad(throwable);
+            printCrashLog(throwable);
         }
 
         Runtime.getRuntime().exit(1);
@@ -156,11 +156,6 @@ public class RuntimeUtils {
     public static void handleUsageError(String errorMsg) {
         errStream.println("ballerina: " + errorMsg);
         Runtime.getRuntime().exit(1);
-    }
-
-    public static void silentlyLogBadSad(Throwable throwable) {
-        // These errors are unhandled errors in JVM, hence logging them to bre log.
-        printCrashLog(throwable);
     }
 
     public static void printCrashLog(Throwable throwable) {

@@ -31,7 +31,6 @@ import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -63,39 +62,29 @@ public class Scheduler {
      */
     private BlockingQueue<SchedulerItem> runnableList = new LinkedBlockingDeque<>();
 
-    private static final boolean DEBUG = false;
-
-    private static final BlockingQueue<String> DEBUG_LOG;
-
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
-
-    static {
-        if (DEBUG) {
-            DEBUG_LOG = new LinkedBlockingDeque<>();
-        } else {
-            DEBUG_LOG = null;
-        }
-    }
 
     private AtomicInteger totalStrands = new AtomicInteger();
     /**
      * By default number of threads = (Available logical Processors * 2).
      * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
      */
-    private int numThreads;
+    private final int numThreads;
     private Semaphore mainBlockSem;
 
     public Scheduler(boolean immortal) {
+        int poolSize;
         try {
             String poolSizeConf = System.getenv(BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
-            this.numThreads = poolSizeConf == null ?
+            poolSize = poolSizeConf == null ?
                     Runtime.getRuntime().availableProcessors() * 2 : Integer.parseInt(poolSizeConf);
         } catch (Throwable t) {
             // Log and continue with default
-            this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
-            logger.error("Error occurred in scheduler while reading system variable:" +
-                    BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR, t);
+            poolSize = Runtime.getRuntime().availableProcessors() * 2;
+            System.err.println("ballerina: error occurred in scheduler while reading system variable:" +
+                    BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
+        this.numThreads = poolSize;
         this.immortal = immortal;
     }
 
@@ -142,9 +131,6 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-        if (DEBUG) {
-            debugLog(item + " scheduled");
-        }
         runnableList.add(item);
         return future;
     }
@@ -164,30 +150,11 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-        if (DEBUG) {
-            debugLog(item + " scheduled");
-        }
         runnableList.add(item);
         return future;
     }
 
     public void start() {
-        if (DEBUG) {
-            PrintStream out = System.out;
-            Thread debugLogger = new Thread(() -> {
-                try {
-                    String take;
-                    while (true) {
-                        take = DEBUG_LOG.take();
-                        out.println(take);
-                    }
-                } catch (InterruptedException e) {
-                    logger.error("Error in debug logger", e);
-                }
-            }, "debug-logger");
-            debugLogger.setDaemon(true);
-            debugLogger.start();
-        }
         this.mainBlockSem = new Semaphore(-(numThreads - 1));
         for (int i = 0; i < numThreads - 1; i++) {
             new Thread(this::runSafely, "jbal-strand-exec-" + i).start();
@@ -207,7 +174,7 @@ public class Scheduler {
         try {
             run();
         } catch (Throwable t) {
-            logger.error("Error occurred in scheduler", t);
+            RuntimeUtils.printCrashLog(t);
         }
     }
 
@@ -231,9 +198,6 @@ public class Scheduler {
             Object result = null;
             Throwable panic = null;
             try {
-                if (DEBUG) {
-                    debugLog(item + " executing");
-                }
                 strandHolder.get().strand = item.future.strand;
                 result = item.execute();
             } catch (Throwable e) {
@@ -254,18 +218,12 @@ public class Scheduler {
 
             switch (item.getState()) {
                 case BLOCK_AND_YIELD:
-                    if (DEBUG) {
-                        debugLog(item + " blocked");
-                    }
                     item.future.strand.lock();
                     // need to recheck due to concurrency, unblockStrand() may have changed state
                     if (item.getState().getStatus() == State.YIELD.getStatus()) {
                         reschedule(item);
                         item.future.strand.unlock();
                         break;
-                    }
-                    if (DEBUG) {
-                        debugLog(item + " parked");
                     }
                     item.parked = true;
                     item.future.strand.unlock();
@@ -278,17 +236,11 @@ public class Scheduler {
                         waitContext.completed = true;
                         reschedule(item);
                     } else {
-                        if (DEBUG) {
-                            debugLog(item + " waiting");
-                        }
                     }
                     waitContext.unLock();
                     break;
                 case YIELD:
                     reschedule(item);
-                    if (DEBUG) {
-                        debugLog(item + " yielded");
-                    }
                     break;
                 case RUNNABLE:
                     item.future.result = result;
@@ -334,10 +286,6 @@ public class Scheduler {
                         // (number of started stands - finished stands) = 0, all the work is done
                         assert runnableList.size() == 0;
 
-                        if (DEBUG) {
-                            debugLog("+++++++++ all work completed ++++++++");
-                        }
-
                         if (!immortal) {
                             for (int i = 0; i < numThreads; i++) {
                                 runnableList.add(POISON_PILL);
@@ -380,19 +328,8 @@ public class Scheduler {
         //TODO: more cleanup , eg channels
     }
 
-    private synchronized void debugLog(String msg) {
-        try {
-            Thread.sleep(100);
-            DEBUG_LOG.add(msg);
-            Thread.sleep(100);
-        } catch (InterruptedException ignored) { }
-    }
-
     private void notifyChannels(SchedulerItem item, Throwable panic) {
         Set<ChannelDetails> channels = item.future.strand.channelDetails;
-        if (DEBUG) {
-            debugLog("notifying channels:" + channels.toString());
-        }
 
         for (ChannelDetails details: channels) {
             WorkerDataChannel wdChannel;
@@ -416,11 +353,6 @@ public class Scheduler {
                 // release if the same strand is waiting for others as well (wait multiple)
                 item.setState(State.RUNNABLE);
                 runnableList.add(item);
-                if (DEBUG) {
-                    debugLog(item + " rescheduled");
-                }
-            } else {
-               debugLog(item + " " + item.getState().toString() + " not rescheduled");
             }
     }
 
@@ -442,12 +374,12 @@ public class Scheduler {
         }
     }
 
+    //TODO:remove
     private void infectResourceFunction(Strand strand, FutureValue futureValue) {
         String gTransactionId = (String) strand.getProperty(GLOBAL_TRANSACTION_ID);
         if (gTransactionId != null) {
-            String globalTransactionId = strand.getProperty(GLOBAL_TRANSACTION_ID).toString();
             String url = strand.getProperty(TRANSACTION_URL).toString();
-            TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
+            TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(gTransactionId,
                                                                                              url, "2pc");
             strand.setLocalTransactionContext(transactionLocalContext);
             futureValue.transactionLocalContext = transactionLocalContext;
@@ -463,7 +395,6 @@ public class Scheduler {
 class SchedulerItem {
     private Function function;
     private Consumer consumer;
-    private boolean isVoid;
     private Object[] params;
     final FutureValue future;
     boolean parked;
@@ -474,14 +405,12 @@ class SchedulerItem {
         this.future = future;
         this.function = function;
         this.params = params;
-        this.isVoid = false;
     }
 
     public SchedulerItem(Consumer consumer, Object[] params, FutureValue future) {
         this.future = future;
         this.consumer = consumer;
         this.params = params;
-        this.isVoid = true;
     }
 
     private SchedulerItem() {
@@ -489,7 +418,7 @@ class SchedulerItem {
     }
 
     public Object execute() {
-        if (this.isVoid) {
+        if (this.consumer != null) {
             this.consumer.accept(this.params);
             return null;
         } else {
