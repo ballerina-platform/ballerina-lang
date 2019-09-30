@@ -1796,15 +1796,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private boolean hasOnlyAnydataTypedFields(BRecordType recordType) {
         boolean allAnydataFields = recordType.fields.stream()
                 .map(field -> field.type)
-                .allMatch(fieldType -> types.isAnydata(fieldType));
-        return allAnydataFields && (recordType.sealed || types.isAnydata(recordType.restFieldType));
+                .allMatch(fieldType -> fieldType.isAnydata());
+        return allAnydataFields && (recordType.sealed || recordType.restFieldType.isAnydata());
     }
 
     private boolean hasOnlyPureTypedFields(BRecordType recordType) {
         boolean allPureFields = recordType.fields.stream()
                 .map(field -> field.type)
-                .allMatch(fieldType -> types.isPureType(fieldType));
-        return allPureFields && (recordType.sealed || types.isPureType(recordType.restFieldType));
+                .allMatch(fieldType -> fieldType.isPureType());
+        return allPureFields && (recordType.sealed || recordType.restFieldType.isPureType());
     }
 
     private boolean hasErrorTypedField(BRecordType recordType) {
