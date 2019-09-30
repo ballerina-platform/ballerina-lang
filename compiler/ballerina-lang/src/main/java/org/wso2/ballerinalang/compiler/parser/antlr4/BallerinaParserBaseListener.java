@@ -3460,18 +3460,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDefinitionReferenceType(BallerinaParser.DefinitionReferenceTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDefinitionReferenceType(BallerinaParser.DefinitionReferenceTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterReferenceType(BallerinaParser.ReferenceTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}

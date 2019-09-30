@@ -537,15 +537,15 @@ LINE_COMMENT
 
 mode MARKDOWN_DOCUMENTATION;
 
-DOCTYPE         :   'type';
-DOCSERVICE      :   'service';
-DOCVARIABLE     :   'variable';
-DOCVAR          :   'var';
-DOCANNOTATION   :   'annotation';
-DOCMODULE       :   'module';
-DOCFUNCTION     :   'function';
-DOCPARAMETER    :   'parameter';
-DOCCONST        :   'const';
+DOCTYPE         :   'type `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCSERVICE      :   'service `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCVARIABLE     :   'variable `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCVAR          :   'var `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCANNOTATION   :   'annotation `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCMODULE       :   'module `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCFUNCTION     :   'function `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCPARAMETER    :   'parameter `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCCONST        :   'const `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
 
 SingleBacktickStart
     :   BACKTICK -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION)

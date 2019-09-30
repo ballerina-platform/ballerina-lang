@@ -1142,11 +1142,7 @@ documentationText
     ;
 
 documentationReference
-    :   definitionReferenceType singleBacktickedBlock
-    ;
-
-definitionReferenceType
-    :   referenceType DocumentationEscapedCharacters
+    :   referenceType singleBacktickedContent SingleBacktickEnd
     ;
 
 referenceType

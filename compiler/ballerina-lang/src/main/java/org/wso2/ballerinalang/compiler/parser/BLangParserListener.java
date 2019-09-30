@@ -3434,11 +3434,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        BallerinaParser.ReferenceTypeContext referenceType  = ctx.definitionReferenceType().referenceType();
-        BallerinaParser.SingleBacktickedBlockContext backtickedBlock = ctx.singleBacktickedBlock();
-        BallerinaParser.SingleBacktickedContentContext backtickedContent = backtickedBlock.singleBacktickedContent();
+        BallerinaParser.ReferenceTypeContext referenceType  = ctx.referenceType();
+        BallerinaParser.SingleBacktickedContentContext backtickedContent = ctx.singleBacktickedContent();
 
-        this.pkgBuilder.endDocumentationReference(getCurrentPos(backtickedBlock), referenceType.getText(),
+        this.pkgBuilder.endDocumentationReference(getCurrentPos(backtickedContent), referenceType.getText(),
                 backtickedContent.getText());
     }
 

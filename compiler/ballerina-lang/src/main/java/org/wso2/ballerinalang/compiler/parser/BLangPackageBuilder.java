@@ -2337,39 +2337,39 @@ public class BLangPackageBuilder {
 
         BLangMarkdownBReferenceDocumentation referenceDocumentation = null;
         switch (referenceType) {
-            case "service":
+            case "service `":
                 referenceDocumentation =
                         createBReferenceDocumentation(pos, DocumentationReferenceType.SERVICE, identifier);
                 break;
-            case "parameter":
+            case "parameter `":
                 referenceDocumentation =
                         createBReferenceDocumentation(pos, DocumentationReferenceType.PARAMETER, identifier);
                 break;
-            case "function":
+            case "function `":
                 referenceDocumentation =
                         createBReferenceDocumentation(pos, DocumentationReferenceType.FUNCTION, identifier);
                 break;
-            case "type":
+            case "type `":
                 referenceDocumentation =
                         createBReferenceDocumentation(pos, DocumentationReferenceType.TYPE, identifier);
                 break;
-            case "variable":
+            case "variable `":
                 referenceDocumentation =
                         createBReferenceDocumentation(pos, DocumentationReferenceType.VARIABLE, identifier);
                 break;
-            case "var":
+            case "var `":
                 referenceDocumentation =
                         createBReferenceDocumentation(pos, DocumentationReferenceType.VARIABLE, identifier);
                 break;
-            case "annotation":
+            case "annotation `":
                 referenceDocumentation =
                         createBReferenceDocumentation(pos, DocumentationReferenceType.ANNOTATION, identifier);
                 break;
-            case "module":
+            case "module `":
                 referenceDocumentation =
                         createBReferenceDocumentation(pos, DocumentationReferenceType.MODULE, identifier);
                 break;
-            case "const":
+            case "const `":
                 referenceDocumentation =
                         createBReferenceDocumentation(pos, DocumentationReferenceType.CONST, identifier);
                 break;
