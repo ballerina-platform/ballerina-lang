@@ -304,6 +304,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.forEach(typDef -> typDefs.add(typDef));
         defineTypeNodes(typDefs, pkgEnv);
 
+        // Types of module level function pointers declared with 'var' are resolved before
+        // referencing them in functions as TypeNode is null for them.
+        pkgNode.globalVars.stream().filter(variable -> variable.expr != null
+                && variable.isDeclaredWithVar && variable.expr.getKind() == NodeKind.LAMBDA)
+                .forEach(variable -> addFunctionType(variable, pkgEnv));
+
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
         pkgEnv.logErrors = true;
@@ -665,6 +671,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             default:
                 throw new RuntimeException("unhandled type kind: " + currentTypeNode.getKind());
         }
+    }
+
+    private void addFunctionType(BLangSimpleVariable varNode, SymbolEnv env) {
+        BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) varNode.expr;
+        BLangFunction function = lambdaFunction.function;
+
+        List<BType> paramTypes = new ArrayList<>();
+        function.getParameters().forEach(paramType -> {
+            paramTypes.add(symResolver.resolveTypeNode(paramType.getTypeNode(), env));
+        });
+        BType returnType = symResolver.resolveTypeNode(function.returnTypeNode, env);
+        varNode.type = new BInvokableType(paramTypes, returnType, null);
     }
 
     @Override
