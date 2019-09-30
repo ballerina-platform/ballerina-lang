@@ -93,6 +93,8 @@ public class WebSocketConstants {
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
+    public static final String THE_WEBSOCKET_CONNECTION_HAS_NOT_BEEN_MADE =
+            "The WebSocket connection has not been made";
 
     private WebSocketConstants() {
     }

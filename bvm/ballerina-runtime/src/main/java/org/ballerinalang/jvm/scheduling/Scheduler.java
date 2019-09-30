@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.RuntimeUtils;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -236,16 +237,16 @@ public class Scheduler {
                 strandHolder.get().strand = item.future.strand;
                 result = item.execute();
             } catch (Throwable e) {
-                panic = e;
+                panic = createError(e);
                 notifyChannels(item, panic);
               
-                if (!(e instanceof ErrorValue)) {
-                    RuntimeUtils.printCrashLog(e);
+                if (!(panic instanceof ErrorValue)) {
+                    RuntimeUtils.printCrashLog(panic);
                 }
                 // Please refer #18763.
                 // This logs cases where errors have occurred while strand is blocked.
                 if (item.isYielded()) {
-                    RuntimeUtils.printCrashLog(e);
+                    RuntimeUtils.printCrashLog(panic);
                 }
             } finally {
                 strandHolder.get().strand = null;
@@ -348,6 +349,15 @@ public class Scheduler {
                     assert false : "illegal strand state during execute " + item.getState();
             }
         }
+    }
+
+    private Throwable createError(Throwable t) {
+        if (t instanceof StackOverflowError) {
+            ErrorValue error = BallerinaErrors.createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+            error.setStackTrace(t.getStackTrace());
+            return error;
+        }
+        return t;
     }
 
     public void unblockStrand(Strand strand) {

@@ -16,10 +16,23 @@
 
 const COLON = ":";
 
+# Function to retrieve the service's annotation.
+#
+# + serviceType - The service that the annotation belongs to
+# + annotName - Name of the annotation
+# + moduleName - Name of the module
+# + return - Returns the service annotation data
 public function getServiceAnnotations(service serviceType, string annotName, string? moduleName = ()) returns any {
     return getServiceAnnotationsExternal(serviceType, getAnnotQualifiedIdentifier(annotName, moduleName));
 }
 
+# Function to retrieve the resource's annotation.
+#
+# + serviceType - The service that the resource belongs to
+# + resourceName - Name of the resource
+# + annotName - Name of the annotation
+# + moduleName - Name of the module
+# + return - Returns the resource annotation data
 public function getResourceAnnotations(service serviceType, string resourceName, string annotName,
                                         string? moduleName = ()) returns any {
     return getResourceAnnotationsExternal(serviceType, resourceName,

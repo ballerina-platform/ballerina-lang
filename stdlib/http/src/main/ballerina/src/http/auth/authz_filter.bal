@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Representation of the Authorization filter
+# Representation of the Authorization filter.
 #
 # + authzHandler - `AuthzHandler` instance for handling authorization
 # + scopes - Array of scopes
@@ -28,7 +28,7 @@ public type AuthzFilter object {
         self.scopes = scopes;
     }
 
-    # Filter function implementation which tries to authorize the request
+    # Filter function implementation which tries to authorize the request.
     #
     # + caller - Caller for outbound HTTP responses
     # + request - `Request` instance
@@ -67,7 +67,7 @@ public type AuthzFilter object {
 
 # Verifies if the authorization is successful. If not responds to the user.
 #
-# + caller - Caller for outbound HTTP responses
+# + caller - Caller for outbound HTTP response
 # + authorized - Authorization status for the request, or `AuthorizationError` if error occurred
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
 function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized) returns boolean {

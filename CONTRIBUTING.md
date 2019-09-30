@@ -78,8 +78,14 @@ Building Ballerina requires a Java SE Development Kit (JDK) version 8 to be inst
 Clone this repository using the following command.
 
 ```
-git clone --recursive https://github.com/ballerinalang/ballerina
+git clone --recursive https://github.com/ballerina-platform/ballerina-lang.git
 ```
+
+If you have forked the repository to your github account then use the following command replacing <YOUR-GITHUB-USERNAME> with your git username.
+
+````
+git clone --recursive https://github.com/<YOUR-GITHUB-USERNAME>/ballerina-lang.git
+````
 
 If you download the sources, you need to update the git submodules using the following command.
 
@@ -90,6 +96,8 @@ git submodule update --init
 Run the gradle command `./gradlew clean build` from the Ballerina root directory:
 
 Extract the Ballerina distribution created at `distribution/zip/ballerina/target/ballerina-<version>-SNAPSHOT.zip`. The `zip/ballerina` directory contains the runtime only. `zip/ballerina-tools/` contains the runtime and tools (e.g., Ballerina Composer).
+
+Note: It is possible to face an IOException error stating "Too many open files". This is due to the default number of possible open files being set to a lower number on your operating system than required for Ballerina to be compiled. You may have to increase the number of open files/file descriptors (FD) on your operating system. This is OS dependent and you can search the internet on how to do this for your operating system (Windows/OSX/Linux). You could update the maximum number of open files to 1000000 (or higher).
 
 ### Setting up your development environment
 

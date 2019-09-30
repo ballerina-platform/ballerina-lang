@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BFiniteType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
@@ -86,6 +87,8 @@ public class Next {
     private static org.ballerinalang.jvm.types.BType getFiniteType(Object value) {
         Set<Object> valueSpace = new HashSet<>();
         valueSpace.add(value);
-        return new BFiniteType(value.toString(), valueSpace);
+        int masks = value == null ? TypeFlags.NILABLE : 0;
+        return new BFiniteType(value.toString(), valueSpace,
+                TypeFlags.addToMask(masks, TypeFlags.ANYDATA, TypeFlags.PURETYPE));
     }
 }

@@ -68,7 +68,7 @@ public class Constants {
     static final String NATS_ERROR_DETAIL_RECORD = "Detail";
 
     // Represents the object which holds the connection.
-    public static final String CONNECTION_OBJ = "connection";
+    public static final String CONNECTION_OBJ = "conn";
 
     // Represents the NATS Streaming message.
     public static final String NATS_STREAMING_MSG = "nats_streaming_message";

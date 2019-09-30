@@ -20,7 +20,7 @@ public function main() {
     // Get the user home path.
     io:println("User home: " + system:getUserHome());  // E.g. “/home/john”
 
-    // Execute an OS command as a subprocess
+    // Execute an OS command as a subprocess.
     system:Process|system:Error proc = checkpanic system:exec("ls", {}, "/", "-la");
 }
 ```

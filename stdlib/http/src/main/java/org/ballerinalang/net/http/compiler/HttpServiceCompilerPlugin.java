@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.net.http.compiler;
 
+import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -29,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -49,7 +49,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_HTTP_SERVICE_CON
                                     @SupportedResourceParamTypes.Type(packageName = "http", name = "Request")
                             }
 )
-public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
+public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog = null;
 
@@ -87,7 +87,6 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
         // .getValue())) {
         resources.forEach(res -> {
             ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
-            ResourceSignatureValidator.validateResourceReturnType(isResourceReturnsErrorOrNil(res), dlog, res.pos);
             ResourceSignatureValidator.validateResourceAnnotation(res, dlog);
         });
         //        }

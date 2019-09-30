@@ -33,6 +33,7 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.ballerinalang.net.http.exception.WebSocketException;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
@@ -45,6 +46,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.net.http.WebSocketConstants.WSS_SCHEME;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 
 /**
  * Initialize the WebSocket Client.
@@ -100,7 +102,12 @@ public class InitEndpoint {
         try {
             // Wait for 5 minutes before timeout
             if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {
-                throw new WebSocketException("Waiting for WebSocket handshake has not been successful");
+                throw new WebSocketException(WebSocketConstants.ErrorCode.WsGenericError,
+                                             "Waiting for WebSocket handshake has not been successful",
+                                             WebSocketUtil.createErrorCause(
+                                                     "Connection timeout",
+                                                     IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
+                                                     IO_PACKAGE_ID));
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

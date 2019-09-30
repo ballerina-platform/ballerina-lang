@@ -26,7 +26,8 @@ service echoServer on server {
             if (length > 0) {
                 var writeResult = caller->write(content);
                 if (writeResult is int) {
-                    log:printInfo("Number of bytes written: " + writeResult.toString());
+                    log:printInfo("Number of bytes written: " 
+                                    + writeResult.toString());
                 } else {
                     log:printError("Unable to written the content", writeResult);
                 }
@@ -53,14 +54,17 @@ import ballerina/io;
 import ballerina/socket;
 
 public function main() {
-    socket:Client socketClient = new({ host: "localhost", port: 61598, callbackService: ClientService });
+    socket:Client socketClient = new({ host: "localhost", 
+                                       port: 61598, 
+                                       callbackService: ClientService });
     string msg = "Hello Ballerina\n";
     byte[] c1 = msg.toBytes();
     var writeResult = socketClient->write(c1);
     if (writeResult is int) {
         io:println("Number of bytes written: " , writeResult);
     } else {
-        io:println("Unable to written the content", writeResult.detail()["message"]);
+        io:println("Unable to written the content", 
+                        writeResult.detail()["message"]);
     }
 }
 
@@ -102,7 +106,8 @@ service ClientService = service {
 
 function getString(byte[] content) returns @tainted string | error {
     io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
-    io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
+    io:ReadableCharacterChannel 
+         characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return characterChannel.read(50);
 }
 ```
@@ -127,8 +132,10 @@ public function main() {
     var result = socketClient->receiveFrom();
     if (result is [byte[], int, socket:Address]) {
         var [content, length, address] = result;
-        io:ReadableByteChannel byteChannel = checkpanic io:createReadableChannel(content);
-        io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
+        io:ReadableByteChannel byteChannel 
+                = checkpanic io:createReadableChannel(content);
+        io:ReadableCharacterChannel characterChannel 
+                = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
         var str = characterChannel.read(60);
         if (str is string) {
             io:println("Received: ", <@untainted> str);
@@ -140,7 +147,8 @@ public function main() {
     }
     var closeResult = socketClient->close();
     if (closeResult is error) {
-        io:println("An error occurred while closing the connection ", closeResult);
+        io:println("An error occurred while closing the connection ", 
+                    closeResult);
     }
 }
 ```

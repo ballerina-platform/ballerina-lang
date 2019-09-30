@@ -41,7 +41,7 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
                                                                              + "resources" + File.separator + "run" +
                                                                              File.separator + "file"))
                                                                    .getAbsolutePath());
-        Assert.assertEquals(output, "1");
+        Assert.assertTrue(output.endsWith("1"));
     }
 
     @Test
@@ -54,9 +54,8 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
         String balFile = (new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                            "run" + File.separator + "file")).getAbsolutePath();
         String output = bMainInstance.runMainAndReadStdOut("run", args, balFile);
-        Assert.assertEquals(output,
-                            "integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, boolean: true, " +
-                                    "JSON Name Field: Maryam, XML Element Name: book, Employee Name Field: Em, " +
-                                    "string rest args: just the rest ");
+        Assert.assertTrue(output.endsWith("integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, boolean: " +
+                                          "true, JSON Name Field: Maryam, XML Element Name: book, Employee Name " +
+                                          "Field: Em, string rest args: just the rest "));
     }
 }

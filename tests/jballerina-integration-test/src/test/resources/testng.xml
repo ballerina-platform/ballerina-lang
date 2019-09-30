@@ -68,6 +68,8 @@
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCachingTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.SslProtocolTest"/>
+            <class name="org.ballerinalang.test.service.http.sample.SerializeComplexXmlTestCase"/>
         </classes>
     </test>
 
@@ -174,6 +176,8 @@
             <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
             <class name="org.ballerinalang.test.service.websocket.SslEchoTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ClientErrorsTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
         </classes>
     </test>
 

@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
@@ -36,8 +37,6 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
  * @since 1.0
  */
 public class MapLibUtils {
-
-    private static BType[] emptyTypeArr = new BType[0];
 
     public static BType getFieldType(BType mapType, String funcName) {
         switch (mapType.getTag()) {
@@ -62,6 +61,6 @@ public class MapLibUtils {
             typeSet.add(recordType.restFieldType);
         }
 
-        return typeSet.size() == 1 ? typeSet.iterator().next() : new BUnionType(typeSet.toArray(emptyTypeArr));
+        return typeSet.size() == 1 ? typeSet.iterator().next() : new BUnionType(new ArrayList<>(typeSet));
     }
 }

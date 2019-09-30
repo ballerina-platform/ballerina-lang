@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Specifies the time format defined by the RFC-1123
 public const TIME_FORMAT_RFC_1123 = "RFC_1123";
 
 # The time format defined by the RFC-1123.

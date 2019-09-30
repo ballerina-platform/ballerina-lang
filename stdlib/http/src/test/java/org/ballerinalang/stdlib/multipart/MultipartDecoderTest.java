@@ -215,7 +215,7 @@ public class MultipartDecoderTest {
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testBase64DecodeByteChannel() {
         String expectedValue = "Hello Ballerina!";
         ObjectValue byteChannelStruct = MultipartUtils.getByteChannelStruct();

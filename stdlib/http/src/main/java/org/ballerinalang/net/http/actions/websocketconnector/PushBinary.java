@@ -27,13 +27,10 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
-import org.ballerinalang.net.http.exception.WebSocketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
-
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -61,8 +58,7 @@ public class PushBinary {
             WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture, log);
         } catch (Exception e) {
             log.error("Error occurred when pushing binary data", e);
-            callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
-            callback.notifySuccess();
+            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
         return null;
     }

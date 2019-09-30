@@ -28,8 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpErrorType;
-import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -76,7 +74,7 @@ public class Register extends AbstractHttpNativeFunction {
                 httpServicesRegistry.registerService(service);
             }
         } catch (WebSocketException ex) {
-            return HttpUtil.createHttpError(ex.getMessage(), HttpErrorType.GENERIC_LISTENER_ERROR);
+            return ex;
         }
         return null;
     }
