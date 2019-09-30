@@ -200,7 +200,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         http2ServerChannel.getStreamIdRequestMap().forEach((streamId, inboundMessageHolder) -> {
             HttpCarbonMessage inboundMsg = inboundMessageHolder.getInboundMsg();
             inboundMsg.getHttp2MessageStateContext().getListenerState()
-                    .handleAbruptChannelClosure(inboundMsg);
+                    .handleAbruptChannelClosure(inboundMsg, serverConnectorFuture);
         });
         http2ServerChannel.destroy();
     }
