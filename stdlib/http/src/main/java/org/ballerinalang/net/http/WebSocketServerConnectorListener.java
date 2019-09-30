@@ -40,7 +40,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_TYPE_MESSAGE_SENT;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_FAILED;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_SUCCESS;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_BINARY;

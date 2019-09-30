@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_TYPE_CLOSE;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_FAILED;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_SUCCESS;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_CLOSE;
 import static org.ballerinalang.net.http.WebSocketUtil.observeError;

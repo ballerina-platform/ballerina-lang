@@ -35,7 +35,6 @@ import java.nio.ByteBuffer;
 
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_TYPE_MESSAGE_SENT;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_FAILED;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_SUCCESS;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_CONTROL;
 import static org.ballerinalang.net.http.WebSocketUtil.observeError;
