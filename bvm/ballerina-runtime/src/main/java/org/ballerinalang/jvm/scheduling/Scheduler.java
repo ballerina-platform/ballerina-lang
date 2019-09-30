@@ -28,9 +28,8 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -51,8 +50,7 @@ import static org.ballerinalang.jvm.scheduling.SchedulerItem.POISON_PILL;
  */
 public class Scheduler {
 
-
-    private static final Logger logger = LoggerFactory.getLogger(Scheduler.class);
+    private PrintStream error = System.err;
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
      */
@@ -81,7 +79,7 @@ public class Scheduler {
         } catch (Throwable t) {
             // Log and continue with default
             poolSize = Runtime.getRuntime().availableProcessors() * 2;
-            System.err.println("ballerina: error occurred in scheduler while reading system variable:" +
+            error.println("ballerina: error occurred in scheduler while reading system variable:" +
                     BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
         this.numThreads = poolSize;
@@ -163,7 +161,7 @@ public class Scheduler {
         try {
             this.mainBlockSem.acquire();
         } catch (InterruptedException e) {
-            logger.error("Error while waiting for poison to work", e);
+            RuntimeUtils.printCrashLog(e);
         }
     }
 
