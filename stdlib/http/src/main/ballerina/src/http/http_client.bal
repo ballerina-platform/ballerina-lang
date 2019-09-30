@@ -15,9 +15,9 @@
 // under the License.
 
 
-# Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`
-# and `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this
-# generic HTTP actions implementation.
+# Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods,
+# `HttpClient.forward()` and `HttpClient.execute()` functions are provided. More complex and specific endpoint types
+# can be created by wrapping this generic HTTP actions implementation.
 #
 # + url - The URL of the remote HTTP endpoint
 # + config - The configurations associated with the HttpClient

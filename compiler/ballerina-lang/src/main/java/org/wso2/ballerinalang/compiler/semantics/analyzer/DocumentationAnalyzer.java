@@ -27,7 +27,11 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -143,12 +147,14 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangConstant constant) {
         validateNoParameters(constant);
         validateReturnParameter(constant, null, false);
+        validateReferences(constant);
     }
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
         validateNoParameters(varNode);
         validateReturnParameter(varNode, null, false);
+        validateReferences(varNode);
     }
 
     @Override
@@ -176,6 +182,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         validateNoParameters(serviceNode);
         validateReturnParameter(serviceNode, null, false);
+        validateReferences(serviceNode);
     }
 
     @Override
@@ -186,6 +193,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             validateParameters(typeDefinition, fields, null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
+            validateReferences(typeDefinition);
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
@@ -193,6 +201,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             validateParameters(typeDefinition, fields, null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
+            validateReferences(typeDefinition);
         }
     }
 
@@ -204,6 +213,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 DiagnosticCode.PARAMETER_ALREADY_DOCUMENTED);
 
         validateReturnParameter(resourceNode, null, false);
+        validateReferences(resourceNode);
     }
 
     private void validateReferences(DocumentableNode documentableNode) {
@@ -278,6 +288,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             case MODULE:
                 symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.IMPORT);
                 break;
+            case CONST:
+                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.CONSTANT);
+                break;
             case BACKTICK_CONTENT:
             case FUNCTION:
                 symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.FUNCTION);
@@ -299,12 +312,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                             names.fromString(pos.getSource().getCompilationUnitName()));
 
             if (pkgSymbol == symTable.notFoundSymbol) {
-                int i = 0; //TODO Add warning here
-
                 return symTable.notFoundSymbol;
             }
 
-            if(pkgSymbol instanceof BPackageSymbol) {
+            if (pkgSymbol instanceof BPackageSymbol) {
                 BPackageSymbol symbol = (BPackageSymbol) pkgSymbol;
                 pkgEnv = symTable.pkgEnvMap.get(symbol);
             }

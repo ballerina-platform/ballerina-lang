@@ -17817,7 +17817,7 @@ public class BallerinaParser extends Parser {
 			{
 			setState(2685);
 			_la = _input.LA(1);
-			if (((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0)) {
+			if (((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (DOCCONST - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0)) {
 				{
 				setState(2684);
 				documentationText();
@@ -17867,7 +17867,7 @@ public class BallerinaParser extends Parser {
 			match(DocumentationLineStart);
 			setState(2689);
 			_la = _input.LA(1);
-			if (((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0)) {
+			if (((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (DOCCONST - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0)) {
 				{
 				setState(2688);
 				documentationText();
@@ -17917,7 +17917,7 @@ public class BallerinaParser extends Parser {
 			match(DocumentationLineStart);
 			setState(2693);
 			_la = _input.LA(1);
-			if (((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0)) {
+			if (((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (DOCCONST - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0)) {
 				{
 				setState(2692);
 				documentationText();
@@ -18044,7 +18044,7 @@ public class BallerinaParser extends Parser {
 				setState(2703); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( ((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0) );
+			} while ( ((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (DOCCONST - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -18153,6 +18153,7 @@ public class BallerinaParser extends Parser {
 		public TerminalNode DOCMODULE() { return getToken(BallerinaParser.DOCMODULE, 0); }
 		public TerminalNode DOCFUNCTION() { return getToken(BallerinaParser.DOCFUNCTION, 0); }
 		public TerminalNode DOCPARAMETER() { return getToken(BallerinaParser.DOCPARAMETER, 0); }
+		public TerminalNode DOCCONST() { return getToken(BallerinaParser.DOCCONST, 0); }
 		public ReferenceTypeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -18176,7 +18177,7 @@ public class BallerinaParser extends Parser {
 			{
 			setState(2711);
 			_la = _input.LA(1);
-			if ( !(((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)))) != 0)) ) {
+			if ( !(((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (DOCCONST - 200)))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			} else {
 				consume();
@@ -18232,7 +18233,7 @@ public class BallerinaParser extends Parser {
 			match(DescriptionSeparator);
 			setState(2717);
 			_la = _input.LA(1);
-			if (((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0)) {
+			if (((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (DOCCONST - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0)) {
 				{
 				setState(2716);
 				documentationText();
@@ -18282,7 +18283,7 @@ public class BallerinaParser extends Parser {
 			match(ReturnParameterDocumentationStart);
 			setState(2721);
 			_la = _input.LA(1);
-			if (((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0)) {
+			if (((((_la - 200)) & ~0x3f) == 0 && ((1L << (_la - 200)) & ((1L << (DOCTYPE - 200)) | (1L << (DOCSERVICE - 200)) | (1L << (DOCVARIABLE - 200)) | (1L << (DOCVAR - 200)) | (1L << (DOCANNOTATION - 200)) | (1L << (DOCMODULE - 200)) | (1L << (DOCFUNCTION - 200)) | (1L << (DOCPARAMETER - 200)) | (1L << (DOCCONST - 200)) | (1L << (SingleBacktickStart - 200)) | (1L << (DocumentationText - 200)) | (1L << (DoubleBacktickStart - 200)) | (1L << (TripleBacktickStart - 200)) | (1L << (DocumentationEscapedCharacters - 200)))) != 0)) {
 				{
 				setState(2720);
 				documentationText();
@@ -19018,7 +19019,7 @@ public class BallerinaParser extends Parser {
 		"\u0090\4\2\u00a7\u00a7\u00b6\u00b6\3\2\u0097\u009a\3\2\u0095\u0096\3\2"+
 		"\u009d\u009e\4\2\u009f\u00a0\u00a8\u00a8\3\2\u0091\u0092\3\2\u00ba\u00bb"+
 		"\3\2\u00b8\u00b9\3\2\u00be\u00bf\7\2KLYY]]__ww\4\2+,dd\3\2\u009b\u009c"+
-		"\3\2CD\3\2\65@\3\2\u00ca\u00d1\4\2\u00d4\u00d4\u00d7\u00d7\u0b84\2\u01e4"+
+		"\3\2CD\3\2\65@\3\2\u00ca\u00d2\4\2\u00d4\u00d4\u00d7\u00d7\u0b84\2\u01e4"+
 		"\3\2\2\2\4\u01f8\3\2\2\2\6\u0203\3\2\2\2\b\u0206\3\2\2\2\n\u0213\3\2\2"+
 		"\2\f\u021b\3\2\2\2\16\u021d\3\2\2\2\20\u0225\3\2\2\2\22\u022e\3\2\2\2"+
 		"\24\u0244\3\2\2\2\26\u024e\3\2\2\2\30\u025b\3\2\2\2\32\u0279\3\2\2\2\34"+

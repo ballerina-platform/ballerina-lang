@@ -16,7 +16,7 @@
 
 import ballerina/stringutils;
 
-# The `OutputProcess` object is responsible for sending the output (only the events of type `streams:CURRENT` to the
+# The `OutputProcess` object is responsible for sending the output (only the events of type 'streams:CURRENT' to the
 # destination stream. It takes a function pointer `outputFunc` which actually has the logic to process the output.
 public type OutputProcess object {
 

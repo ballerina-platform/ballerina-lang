@@ -1150,7 +1150,7 @@ definitionReferenceType
     ;
 
 referenceType
-    :   DOCTYPE|DOCSERVICE|DOCVARIABLE|DOCVAR|DOCANNOTATION|DOCMODULE|DOCFUNCTION|DOCPARAMETER
+    :   DOCTYPE|DOCSERVICE|DOCVARIABLE|DOCVAR|DOCANNOTATION|DOCMODULE|DOCFUNCTION|DOCPARAMETER|DOCCONST
     ;
 
 parameterDocumentation
@@ -1190,5 +1190,5 @@ tripleBacktickedContent
     ;
 
 documentationTextContent
-    : DocumentationText  | DocumentationEscapedCharacters
+    :   DocumentationText  | DocumentationEscapedCharacters
     ;
