@@ -23,7 +23,6 @@ import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import io.netty.handler.codec.http2.Http2EventAdapter;
-import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2FrameListener;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
@@ -87,7 +86,6 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Channel Inactive event received in {}", this);
         }
-//        ctx.close();
         if (HttpTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HttpTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
@@ -135,17 +133,25 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
 
         @Override
         public void onGoAwayReceived(int lastStreamId, long errorCode, ByteBuf debugData) {
-            LOG.warn("onGoAwayReceived {} {}", lastStreamId, errorCode);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("GoAwayReceived event in server frame listener. Stream id : {} Error code : {}", lastStreamId,
+                          errorCode);
+            }
         }
 
         @Override
         public void onStreamClosed(Http2Stream stream) {
-            LOG.warn("onStreamClosed {}", stream.id());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("StreamClosed event in server frame listener. Stream id : {}", stream.id());
+            }
         }
 
         @Override
-        public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) throws Http2Exception {
-            LOG.warn("onRstStreamRead {} {}", streamId, errorCode);
+        public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("RstStreamRead event in server frame listener. Stream id : {} Error code : {}", streamId,
+                          errorCode);
+            }
         }
     }
 }
