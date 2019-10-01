@@ -65,11 +65,14 @@ import static org.ballerinalang.net.http.WebSocketConstants.METRIC_MESSAGES_SENT
 import static org.ballerinalang.net.http.WebSocketConstants.METRIC_MESSAGES_SENT_DESC;
 import static org.ballerinalang.net.http.WebSocketConstants.METRIC_REQUESTS;
 import static org.ballerinalang.net.http.WebSocketConstants.METRIC_REQUESTS_DESC;
+import static org.ballerinalang.net.http.WebSocketConstants.TAG_CLIENT_OR_SERVER;
 import static org.ballerinalang.net.http.WebSocketConstants.TAG_CONNECTION_ID;
 import static org.ballerinalang.net.http.WebSocketConstants.TAG_ERROR_TYPE;
 import static org.ballerinalang.net.http.WebSocketConstants.TAG_KEY_RESULT;
 import static org.ballerinalang.net.http.WebSocketConstants.TAG_MESSAGE_TYPE;
 import static org.ballerinalang.net.http.WebSocketConstants.TAG_SERVICE;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT_OR_SERVER_CLIENT;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT_OR_SERVER_SERVER;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
 
 /**
@@ -284,7 +287,7 @@ public class WebSocketUtil {
             } catch (IllegalAccessException e) {
                 //TODO: Handle Exception
             }
-            observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+            setObserveService(observerContext, connectionInfo);
             observerContext.addTag(TAG_KEY_RESULT, result);
             Map<String, String> tags = observerContext.getTags();
             Set<Tag> allTags = new HashSet<>(tags.size());
@@ -313,7 +316,7 @@ public class WebSocketUtil {
             } catch (IllegalAccessException e) {
                 //TODO: handle exception
             }
-            observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+            setObserveService(observerContext, connectionInfo);
 
             // TODO: extract span context as a map and add to the observer context
             Map<String, String> tags = observerContext.getTags();
@@ -340,7 +343,7 @@ public class WebSocketUtil {
             } catch (IllegalAccessException e) {
                 //TODO: Handle exception
             }
-            observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+            setObserveService(observerContext, connectionInfo);
 
             observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
             // TODO: extract span context as a map and add to the observer context
@@ -366,7 +369,7 @@ public class WebSocketUtil {
         } catch (IllegalAccessException e) {
             //TODO: Handle Exception
         }
-        observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+        setObserveService(observerContext, connectionInfo);
 
         Map<String, String> tags = observerContext.getTags();
         Set<Tag> allTags = new HashSet<>(tags.size());
@@ -391,7 +394,7 @@ public class WebSocketUtil {
                 //TODO: Handle Exception
             }
 
-            observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+            setObserveService(observerContext, connectionInfo);
 
             // TODO: extract span context as a map and add to the observer context
             Map<String, String> tags = observerContext.getTags();
@@ -421,7 +424,7 @@ public class WebSocketUtil {
                 //TODO: Handle Exception
             }
 
-            observerContext.addTag(TAG_SERVICE, connectionInfo.getService().getBasePath());
+            setObserveService(observerContext, connectionInfo);
             observerContext.addTag(TAG_ERROR_TYPE, errorType);
             if (messageType != null) {
                 observerContext.addTag(TAG_MESSAGE_TYPE, messageType);
@@ -435,6 +438,20 @@ public class WebSocketUtil {
             MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
             metricRegistry.counter(new MetricId(SERVER_CONNECTOR_WEBSOCKET + "_" + METRIC_ERRORS,
                                                 METRIC_ERRORS_DESC, allTags)).increment();
+        }
+    }
+
+    private static void setObserveService(ObserverContext observerContext, WebSocketOpenConnectionInfo connectionInfo) {
+        String service = connectionInfo.getService().getBasePath();
+
+        if (service != null) {
+            //If base path is set (i.e. server)
+            observerContext.addTag(TAG_CLIENT_OR_SERVER, WEBSOCKET_CLIENT_OR_SERVER_SERVER);
+            observerContext.addTag(TAG_SERVICE, service);
+        } else {
+            //if base path is not set (i.e. client)
+            observerContext.addTag(TAG_CLIENT_OR_SERVER, WEBSOCKET_CLIENT_OR_SERVER_CLIENT);
+            observerContext.addTag(TAG_SERVICE, connectionInfo.getWebSocketEndpoint().getStringValue("url"));
         }
     }
 

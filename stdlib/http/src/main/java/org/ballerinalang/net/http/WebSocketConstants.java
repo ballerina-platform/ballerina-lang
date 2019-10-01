@@ -97,6 +97,7 @@ public class WebSocketConstants {
     //Observability Constants
     public static final String TAG_CONNECTION_ID = "connectionID";
     public static final String TAG_KEY_RESULT = "result";
+    public static final String TAG_CLIENT_OR_SERVER = "client_or_server";
     public static final String TAG_SERVICE = "service";
     public static final String TAG_MESSAGE_TYPE = "type";
     public static final String TAG_ERROR_TYPE = "error_type";
@@ -118,6 +119,9 @@ public class WebSocketConstants {
 
     public static final String METRIC_ERRORS = "errors";
     public static final String METRIC_ERRORS_DESC = "Number of errors";
+
+    public static final String WEBSOCKET_CLIENT_OR_SERVER_CLIENT = "client";
+    public static final String WEBSOCKET_CLIENT_OR_SERVER_SERVER = "server";
 
     public static final String WEBSOCKET_MESSAGE_TYPE_TEXT = "text";
     public static final String WEBSOCKET_MESSAGE_TYPE_BINARY = "binary";
