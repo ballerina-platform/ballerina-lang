@@ -243,6 +243,12 @@ public class Http2ClientChannel {
      * Destroys the Http2 client channel.
      */
     void destroy() {
+        inFlightMessages.forEach((streamId, outboundMsgHolder) -> {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Remove back pressure listener from client {} ", streamId);
+            }
+            outboundMsgHolder.getBackPressureObservable().removeListener();
+        });
         handleConnectionClose();
         this.connection.removeListener(streamCloseListener);
         inFlightMessages.clear();
