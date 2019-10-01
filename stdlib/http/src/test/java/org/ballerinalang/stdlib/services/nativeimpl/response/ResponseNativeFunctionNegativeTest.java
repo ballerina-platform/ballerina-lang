@@ -197,6 +197,6 @@ public class ResponseNativeFunctionNegativeTest {
         BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 4, 22);
         // testInResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1, "undefined field 'method' in object 'ballerina/http:Response'", 9,
-                21);
+                24);
     }
 }
