@@ -26,11 +26,11 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_BINARY;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_CLOSE;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_CONTROL;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_TEXT;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_MESSAGE_TYPE_BINARY;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_MESSAGE_TYPE_CLOSE;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_MESSAGE_TYPE_CONTROL;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_MESSAGE_TYPE_TEXT;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -57,7 +57,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
-        WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_TEXT, connectionInfo);
+        WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_TEXT, connectionInfo);
 
     }
 
@@ -68,7 +68,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
-        WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_BINARY, connectionInfo);
+        WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_BINARY, connectionInfo);
 
     }
 
@@ -79,7 +79,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
-        WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CONTROL, connectionInfo);
+        WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CONTROL, connectionInfo);
     }
 
     @Override
@@ -89,13 +89,13 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
-        WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CLOSE, connectionInfo);
+        WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CLOSE, connectionInfo);
     }
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         WebSocketDispatcher.dispatchError(connectionInfo, throwable);
-        WebSocketUtil.observeError(connectionInfo, WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED);
+        WebSocketObservability.observeError(connectionInfo, WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED);
     }
 
     @Override
@@ -114,6 +114,6 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
-        WebSocketUtil.observeClose(connectionInfo);
+        WebSocketObservability.observeClose(connectionInfo);
     }
 }

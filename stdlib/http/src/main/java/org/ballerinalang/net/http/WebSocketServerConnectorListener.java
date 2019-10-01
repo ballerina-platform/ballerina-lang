@@ -39,14 +39,13 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_FAILED;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_RESULT_SUCCESS;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_BINARY;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_CLOSE;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_CONTROL;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_MESSAGE_TYPE_TEXT;
-import static org.ballerinalang.net.http.WebSocketUtil.observeRequest;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_MESSAGE_RESULT_FAILED;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_MESSAGE_RESULT_SUCCESS;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_MESSAGE_TYPE_BINARY;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_MESSAGE_TYPE_CLOSE;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_MESSAGE_TYPE_CONTROL;
+import static org.ballerinalang.net.http.WebSocketObservability.WEBSOCKET_MESSAGE_TYPE_TEXT;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -97,11 +96,13 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker,
                                               null);
             }
-            observeRequest(connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId()),
+            WebSocketObservability.observeRequest(connectionManager.
+                                                          getConnectionInfo(webSocketHandshaker.getChannelId()),
                            WEBSOCKET_MESSAGE_RESULT_SUCCESS);
         } else {
             //TODO: HANDLE FAILED REQUEST
-            observeRequest(connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId()),
+            WebSocketObservability.observeRequest(connectionManager.
+                                                          getConnectionInfo(webSocketHandshaker.getChannelId()),
                            WEBSOCKET_MESSAGE_RESULT_FAILED);
 
         }
@@ -172,7 +173,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
-        WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_TEXT,
+        WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_TEXT,
                                        connectionManager.getConnectionInfo(
                                                webSocketTextMessage.getWebSocketConnection().getChannelId()));
     }
@@ -186,7 +187,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
-        WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_BINARY,
+        WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_BINARY,
                                        connectionManager.getConnectionInfo(
                                                webSocketBinaryMessage.getWebSocketConnection().getChannelId()));
     }
@@ -200,7 +201,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
-        WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CONTROL,
+        WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CONTROL,
                                        connectionManager.getConnectionInfo(
                                                webSocketControlMessage.getWebSocketConnection().getChannelId()));
     }
@@ -213,7 +214,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
-        WebSocketUtil.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CLOSE,
+        WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CLOSE,
                                        connectionManager.getConnectionInfo(
                                                webSocketCloseMessage.getWebSocketConnection().getChannelId()));
     }
@@ -228,14 +229,16 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
-        WebSocketUtil.observeClose(connectionInfo);
+        //TODO: Possible issue? Connections closed does not reach this part of the code is some situations?
+        //i.e when given invalid sub-protocols
+        WebSocketObservability.observeClose(connectionInfo);
     }
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         WebSocketDispatcher.dispatchError(
                 connectionManager.getConnectionInfo(webSocketConnection.getChannelId()), throwable);
-        WebSocketUtil.observeError(connectionManager.getConnectionInfo(webSocketConnection.getChannelId()),
+        WebSocketObservability.observeError(connectionManager.getConnectionInfo(webSocketConnection.getChannelId()),
                                    WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED);
     }
 

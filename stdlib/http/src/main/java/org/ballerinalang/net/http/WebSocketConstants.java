@@ -94,47 +94,6 @@ public class WebSocketConstants {
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
 
-    //Observability Constants
-    public static final String TAG_CONNECTION_ID = "connectionID";
-    public static final String TAG_KEY_RESULT = "result";
-    public static final String TAG_CLIENT_OR_SERVER = "client_or_server";
-    public static final String TAG_SERVICE = "service";
-    public static final String TAG_MESSAGE_TYPE = "type";
-    public static final String TAG_ERROR_TYPE = "error_type";
-
-    public static final String METRIC_REQUESTS = "requests";
-    public static final String METRIC_REQUESTS_DESC = "Number of WebSocket connection requests";
-
-    public static final String METRIC_CONNECTIONS = "connections";
-    public static final String METRIC_CONNECTIONS_DESC = "Number of currently active connections";
-
-    public static final String METRIC_MESSAGES_RECEIVED = "messages_received";
-    public static final String METRIC_MESSAGES_RECEIVED_DESC = "Number of messages received";
-
-    public static final String METRIC_MESSAGES_SENT = "messages_sent";
-    public static final String METRIC_MESSAGES_SENT_DESC = "Number of messages sent";
-
-    public static final String WEBSOCKET_MESSAGE_RESULT_SUCCESS = "success";
-    public static final String WEBSOCKET_MESSAGE_RESULT_FAILED = "failed";
-
-    public static final String METRIC_ERRORS = "errors";
-    public static final String METRIC_ERRORS_DESC = "Number of errors";
-
-    public static final String WEBSOCKET_CLIENT_OR_SERVER_CLIENT = "client";
-    public static final String WEBSOCKET_CLIENT_OR_SERVER_SERVER = "server";
-
-    public static final String WEBSOCKET_MESSAGE_TYPE_TEXT = "text";
-    public static final String WEBSOCKET_MESSAGE_TYPE_BINARY = "binary";
-    public static final String WEBSOCKET_MESSAGE_TYPE_CONTROL = "control";
-    public static final String WEBSOCKET_MESSAGE_TYPE_CLOSE = "close";
-
-    public static final String WEBSOCKET_ERROR_TYPE_CONNECTION = "connection";
-    public static final String WEBSOCKET_ERROR_TYPE_CLOSE = "close";
-    public static final String WEBSOCKET_ERROR_TYPE_MESSAGE_SENT = "message_sent";
-    public static final String WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED = "message_received";
-
-
-
     private WebSocketConstants() {
     }
 
