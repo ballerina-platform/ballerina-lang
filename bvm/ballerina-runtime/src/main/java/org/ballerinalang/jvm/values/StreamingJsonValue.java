@@ -150,6 +150,13 @@ public class StreamingJsonValue extends ArrayValue {
         super.add(size, value);
     }
 
+    @Override
+    public String getJSONString() {
+        // Consume and stream.
+        buildDatasource();
+        return super.getJSONString();
+    }
+
     private void buildDatasource() {
         try {
             while (datasource.hasNext()) {
