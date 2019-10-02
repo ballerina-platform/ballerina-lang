@@ -138,10 +138,13 @@ public class BLangConstants {
     public static final String INTERNAL_ERROR_MESSAGE =
             "ballerina: Oh no, something really went wrong.\n" +
             "\n" +
-            "The ballerina-internal.log file located in the current directory will indicate what the problem is.\n"+
-            "We REALLY appreciate it if you can share the code that broke Ballerina with us\n"+
-            "together with this log file\n"+
-            "by creating a bug report in https://github.com/ballerina-platform/ballerina-lang/issues.";
+            "The ballerina-internal.log file located in the current directory\n"+ 
+            "will indicate what the problem is.\n"+
+            "We really appreciate it if you can share with us\n"+
+            "the code that broke Ballerina, together with this log file\n"+
+            "by creating a bug report in\n"+
+            "https://github.com/ballerina-platform/ballerina-lang/issues.";
+
 
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";
