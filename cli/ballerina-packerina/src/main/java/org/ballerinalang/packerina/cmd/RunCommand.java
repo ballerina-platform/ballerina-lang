@@ -93,7 +93,7 @@ public class RunCommand implements BLauncherCmd {
     private boolean experimentalFlag;
 
     public RunCommand() {
-        this.outStream = System.out;
+        this.outStream = System.err;
         this.errStream = System.err;
     }
 

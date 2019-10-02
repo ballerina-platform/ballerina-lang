@@ -209,7 +209,9 @@ public class MatchStructuredErrorPatternsTest {
                 "error match pattern with a constant reference as the reason is not yet supported", 33, 15);
         BAssertUtil.validateError(result, i++,
                 "invalid error reason binding pattern, error reason should be 'var reason'", 36, 15);
-        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, i++,
+                "invalid error reason binding pattern, error reason should be 'var r'", 45, 15);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test()

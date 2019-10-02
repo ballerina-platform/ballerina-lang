@@ -51,12 +51,12 @@ public class BootstrapRunner {
 
     private static final PrintStream out = System.out;
     private static final PrintStream err = System.err;
-
+    
     public static void loadTargetAndGenerateJarBinary(Path tmpDir, String entryBir, String jarOutputPath,
-                                                      boolean dumpBir, String... birCachePaths) {
-
+                                                      boolean dumpBir, boolean skipJarLoading,
+                                                      String... birCachePaths) {
         //Load all Jars from target/tmp
-        if (Files.exists(tmpDir)) {
+        if (!skipJarLoading && Files.exists(tmpDir)) {
             File file = new File(tmpDir.toString());
             try {
                 loadAllJarsInTarget(file);
@@ -65,8 +65,13 @@ public class BootstrapRunner {
                 throw new RuntimeException("could not load pre-compiled jars for invoking the compiler backend", e);
             }
         }
-
+        
         generateJarBinary(entryBir, jarOutputPath, dumpBir, birCachePaths);
+    }
+    
+    public static void loadTargetAndGenerateJarBinary(Path tmpDir, String entryBir, String jarOutputPath,
+                                                      boolean dumpBir, String... birCachePaths) {
+        loadTargetAndGenerateJarBinary(tmpDir, entryBir, jarOutputPath, dumpBir, false, birCachePaths);
     }
 
     private static void generateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
