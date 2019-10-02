@@ -81,10 +81,16 @@ public class CreateExecutableTask implements Task {
                     Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
                     copyJarFromCachePath(buildContext, module, executablePath);
                     // Copy ballerina runtime all jar
-                    if (!skipCopyLibsFromDist) {
-                        copyRuntimeAllJar(buildContext, executablePath);
+                    URI uberJarUri = URI.create("jar:" + executablePath.toUri().toString());
+                    // Load the to jar to a file system
+                    try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
+                        if (!skipCopyLibsFromDist) {
+                            copyRuntimeAllJar(buildContext, toFs);
+                        }
+                        assembleExecutable(buildContext, module, toFs);
+                    } catch (IOException e) {
+                        throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
                     }
-                    assembleExecutable(buildContext, module, executablePath);
                 }
             }
         } else {
@@ -116,19 +122,19 @@ public class CreateExecutableTask implements Task {
         }
     }
 
-    private void copyRuntimeAllJar(BuildContext buildContext, Path executablePath) {
+    private void copyRuntimeAllJar(BuildContext buildContext, FileSystem toFs) {
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
         String ballerinaVersion = System.getProperty("ballerina.version");
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         Path runtimeAllJar = Paths.get(balHomePath, "bre", "lib", runtimeJarName);
         try {
-            copyFromJarToJar(runtimeAllJar, executablePath);
+            copyFromJarToJar(runtimeAllJar, toFs);
         } catch (IOException e) {
             throw createLauncherException("unable to copy the ballerina runtime all jar :" + e.getMessage());
         }
     }
     
-    private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage, Path executablePath) {
+    private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage, FileSystem toFs) {
         try {
             Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
             Path tmpDir = targetDir.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
@@ -136,7 +142,7 @@ public class CreateExecutableTask implements Task {
             if (bLangPackage.symbol.entryPointExists) {
                 for (File file : tmpDir.toFile().listFiles()) {
                     if (!file.isDirectory()) {
-                        copyFromJarToJar(file.toPath(), executablePath);
+                        copyFromJarToJar(file.toPath(), toFs);
                     }
                 }
             }
@@ -149,18 +155,14 @@ public class CreateExecutableTask implements Task {
         }
     }
 
-    private void copyFromJarToJar(Path fromJar, Path toJar) throws IOException {
-        URI uberJarUri = URI.create("jar:" + toJar.toUri().toString());
-        // Load the to jar to a file system
-        try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
-            Path to = toFs.getRootDirectories().iterator().next();
-            URI moduleJarUri = URI.create("jar:" + fromJar.toUri().toString());
-            // Load the from jar to a file system.
-            try (FileSystem fromFs = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())) {
-                Path from = fromFs.getRootDirectories().iterator().next();
-                // Walk and copy the files.
-                Files.walkFileTree(from, new Copy(from, to));
-            }
+    private static void copyFromJarToJar(Path fromJar, FileSystem toFs) throws IOException {
+        Path to = toFs.getRootDirectories().iterator().next();
+        URI moduleJarUri = URI.create("jar:" + fromJar.toUri().toString());
+        // Load the from jar to a file system.
+        try (FileSystem fromFs = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())) {
+            Path from = fromFs.getRootDirectories().iterator().next();
+            // Walk and copy the files.
+            Files.walkFileTree(from, new Copy(from, to));
         }
     }
 

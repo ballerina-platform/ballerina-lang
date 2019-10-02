@@ -90,7 +90,7 @@ public class LSModuleCompiler {
         PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
 
         CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, docManager, stopOnSemanticErrors);
-        Compiler compiler = LSCompilerUtil.getCompiler(context, "", compilerContext, errStrategy);
+        Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext, errStrategy);
         return compilePackagesSafe(compiler, sourceRoot, false, context);
     }
 
@@ -142,6 +142,7 @@ public class LSModuleCompiler {
                     .toString();
             pkgID = generatePackageFromManifest(pkgName, projectRoot);
         }
+        context.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, relativeFilePath);
         CompilerContext compilerContext = prepareCompilerContext(pkgID, pkgRepo, sourceDoc, docManager,
                 stopOnSemanticErrors);
 
@@ -155,7 +156,7 @@ public class LSModuleCompiler {
                 // If the flag is set, we remove all the modules in the current project from the LSPackageCache
                 LSPackageCache.getInstance(compilerContext).invalidateProjectModules(sourceDoc.getProjectModules());
             }
-            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
+            Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext, errStrategy);
             List<BLangPackage> projectPackages = compilePackagesSafe(compiler, projectRoot, false, context);
             packages.addAll(projectPackages);
             Optional<BLangPackage> currentPkg = projectPackages.stream().filter(bLangPackage -> {
@@ -166,7 +167,7 @@ public class LSModuleCompiler {
             // No need to check the option is existing since the current package always exist
             LSPackageCache.getInstance(compilerContext).invalidate(currentPkg.get().packageID);
         } else {
-            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
+            Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext, errStrategy);
             BLangPackage bLangPackage = compileSafe(compiler, projectRoot, pkgName, context);
             LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
             packages.add(bLangPackage);
