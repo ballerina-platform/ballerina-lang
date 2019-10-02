@@ -38,9 +38,8 @@ class WebSocketClientResourceValidator extends WebSocketResourceValidator {
     }
 
     void validateEndpointParameter() {
-        if (paramDetails != null && !paramDetails.isEmpty() && !(WebSocketConstants.FULL_WEBSOCKET_CLIENT_NAME.equals(
-                paramDetails.get(0).type.toString()) || WebSocketConstants.FULL_FAILOVER_WEBSOCKET_CLIENT_NAME.equals(
-                paramDetails.get(0).type.toString()))) {
+        if (paramDetails != null && !paramDetails.isEmpty() && !WebSocketConstants.FULL_WEBSOCKET_CLIENT_NAME.equals(
+                paramDetails.get(0).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The first parameter should be a " + WebSocketConstants.WEBSOCKET_CLIENT_NAME);
