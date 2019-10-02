@@ -94,6 +94,8 @@ public class WebSocketUtil {
                         readFirstFrame(webSocketConnection, webSocketConnector);
                     }
                 }
+
+                //Observe new connection
                 WebSocketObservability.observeConnection(connectionInfo);
             }
 

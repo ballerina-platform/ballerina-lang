@@ -68,6 +68,8 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
             webSocketConnection.readNextFrame();
         }
         countDownLatch.countDown();
+
+        //Observe new connection
         WebSocketObservability.observeConnection(connectionInfo);
     }
 
@@ -81,6 +83,8 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null, webSocketConnector);
         countDownLatch.countDown();
         WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+
+        //Observe connection error
         WebSocketObservability.observeError(connectionInfo, WEBSOCKET_ERROR_TYPE_CONNECTION);
     }
 

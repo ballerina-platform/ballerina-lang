@@ -96,11 +96,15 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker,
                                               null);
             }
+
+            //Observe new successful connection request
             WebSocketObservability.observeRequest(connectionManager.
                                                           getConnectionInfo(webSocketHandshaker.getChannelId()),
                            WEBSOCKET_MESSAGE_RESULT_SUCCESS);
         } else {
             //TODO: HANDLE FAILED REQUEST
+
+            //Observe failed connection requesr
             WebSocketObservability.observeRequest(connectionManager.
                                                           getConnectionInfo(webSocketHandshaker.getChannelId()),
                            WEBSOCKET_MESSAGE_RESULT_FAILED);
@@ -173,6 +177,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
+
+        //Observe new text message received
         WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_TEXT,
                                        connectionManager.getConnectionInfo(
                                                webSocketTextMessage.getWebSocketConnection().getChannelId()));
@@ -187,6 +193,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
+
+        //Observe new binary message received
         WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_BINARY,
                                        connectionManager.getConnectionInfo(
                                                webSocketBinaryMessage.getWebSocketConnection().getChannelId()));
@@ -201,6 +209,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
+
+        //Observe new control message received
         WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CONTROL,
                                        connectionManager.getConnectionInfo(
                                                webSocketControlMessage.getWebSocketConnection().getChannelId()));
@@ -214,6 +224,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
+
+        //Observe new close message received
         WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CLOSE,
                                        connectionManager.getConnectionInfo(
                                                webSocketCloseMessage.getWebSocketConnection().getChannelId()));
@@ -231,6 +243,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         }
         //TODO: Possible issue? Connections closed does not reach this part of the code is some situations?
         //i.e when given invalid sub-protocols
+
+        //Observe connection closure
         WebSocketObservability.observeClose(connectionInfo);
     }
 
@@ -238,6 +252,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         WebSocketDispatcher.dispatchError(
                 connectionManager.getConnectionInfo(webSocketConnection.getChannelId()), throwable);
+
+        //Observe error
         WebSocketObservability.observeError(connectionManager.getConnectionInfo(webSocketConnection.getChannelId()),
                                    WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED);
     }

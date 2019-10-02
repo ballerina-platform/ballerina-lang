@@ -57,6 +57,8 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
+
+        //Observe text message received
         WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_TEXT, connectionInfo);
 
     }
@@ -68,6 +70,8 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
+
+        //Observe binary message received
         WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_BINARY, connectionInfo);
 
     }
@@ -79,6 +83,8 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
+
+        //Observe control message received
         WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CONTROL, connectionInfo);
     }
 
@@ -89,12 +95,16 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
+
+        //Observe close message received
         WebSocketObservability.observeOnMessage(WEBSOCKET_MESSAGE_TYPE_CLOSE, connectionInfo);
     }
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+
+        //Observe message received error
         WebSocketObservability.observeError(connectionInfo, WEBSOCKET_ERROR_TYPE_MESSAGE_RECEIVED);
     }
 
@@ -114,6 +124,8 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
+
+        //Observe connection closure
         WebSocketObservability.observeClose(connectionInfo);
     }
 }

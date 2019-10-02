@@ -70,6 +70,8 @@ public class Close {
             closeFuture.channel().close().addListener(future -> {
                 WebSocketUtil.setListenerOpenField(connectionInfo);
                 callback.notifySuccess();
+
+                //Observe close message sent
                 WebSocketObservability.observePush(WEBSOCKET_MESSAGE_TYPE_CLOSE, WEBSOCKET_MESSAGE_RESULT_SUCCESS,
                                                    connectionInfo);
 
@@ -78,6 +80,8 @@ public class Close {
             log.error("Error occurred when closing the connections", e);
             callback.setReturnValues(new WebSocketException(ErrorCode.WsConnectionError, e.getMessage()));
             callback.notifySuccess();
+
+            //Observe error when sending close message
             WebSocketObservability.observeError((WebSocketOpenConnectionInfo)
                                  wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO),
                          WEBSOCKET_ERROR_TYPE_CLOSE);
