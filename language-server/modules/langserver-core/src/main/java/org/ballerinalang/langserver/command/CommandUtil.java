@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
@@ -138,13 +139,9 @@ public class CommandUtil {
      * @param line             Node line
      * @return {@link List}    List of commands for the line
      */
-    public static List<CodeAction> getCommandForNodeType(String topLevelNodeType, String docUri,
-                                                         int line) {
+    public static List<CodeAction> getCommandForNodeType(CodeActionNodeType topLevelNodeType, String docUri, int line) {
         List<CodeAction> actions = new ArrayList<>();
-//        if (CommonKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
-//            actions.add(getInitializerGenerationCommand(docUri, line));
-//        }
-        actions.add(getDocGenerationCommand(topLevelNodeType, docUri, line));
+        actions.add(getDocGenerationCommand(topLevelNodeType.name(), docUri, line));
         actions.add(getAllDocGenerationCommand(docUri));
         return actions;
     }

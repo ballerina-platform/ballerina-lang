@@ -5,14 +5,16 @@ function testDocumentation() {
     
 }
 
-endpoint http:Listener listener {
-    
-};
+@http:ServiceConfig {
+    basePath: "/testHello"
+}
+service helloService on new http:Listener(8080) {
 
-service<http:Service> testDocService bind { port: 9090 } {
-    testDocResource (endpoint caller, http:Request request) {
-        http:Response res = new;
-        checkpanic caller->respond(res);
+    @http:ResourceConfig {
+        path: "/sayHello"
+    }
+    resource function sayHello(http:Caller caller, http:Request request) {
+        io:println("Hello World!!");
     }
 }
 
@@ -26,8 +28,11 @@ type testDocObject object {
     private int testPrivate = 12;
     public string testString = "hello";
 
-    function testFunctionSignature();
     function testFunctionWithImpl() {
         io:println("Hello World!!");
     }
+};
+
+type testDocAbstractObject abstract object {
+    function testFunction();
 };

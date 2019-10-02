@@ -17,6 +17,8 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.CommandUtil;
@@ -402,7 +404,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 int col = params.getRange().getStart().getCharacter();
                 List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
 
-                String topLevelNodeType = CommonUtil.topLevelNodeInLine(identifier, line, documentManager);
+                CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(identifier, line, documentManager);
 
 //                // Add create test commands
 //                Path modulePath = document.getOwnerModulePath() == null ? document.getProjectRootPath()
@@ -435,8 +437,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
 
                 // Add commands base on node type
-                if (topLevelNodeType != null) {
-                    actions.addAll(getCommandForNodeType(topLevelNodeType, fileUri, line));
+                if (nodeType != null) {
+                    actions.addAll(getCommandForNodeType(nodeType, fileUri, line));
                 }
             } catch (UserErrorException e) {
                 notifyUser("Code Action", e);
