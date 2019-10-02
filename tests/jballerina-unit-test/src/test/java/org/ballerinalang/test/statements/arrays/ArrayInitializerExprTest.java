@@ -55,6 +55,13 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test arrays large initializer expression")
+    public void testLargeArrayInitExpr() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/arrays/large-array-initializer-expr.bal");
+        BValue[] returns = BRunUtil.invoke(result, "hugeArrayTest");
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 936);
+    }
+
     @Test(description = "Test arrays return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {};
