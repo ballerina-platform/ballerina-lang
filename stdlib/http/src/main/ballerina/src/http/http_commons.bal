@@ -386,5 +386,10 @@ function getInvalidTypeError() returns ClientError {
     return invalidTypeError;
 }
 
+function createErrorForNoPayload(mime:Error err) returns GenericClientError {
+    string message = "No payload";
+    return getGenericClientError(message, err);
+}
+
 //Resolve a given path against a given URI.
 function resolve(string baseUrl, string path) returns string|ClientError = external;

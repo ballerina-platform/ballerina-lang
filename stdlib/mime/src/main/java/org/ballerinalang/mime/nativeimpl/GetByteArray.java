@@ -21,6 +21,7 @@ package org.ballerinalang.mime.nativeimpl;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -88,8 +89,12 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
             }
         } catch (Exception ex) {
+            if (ex instanceof ErrorValue) {
+                return createParsingEntityBodyFailedErrorAndNotify(callback,
+                        "Error occurred while extracting blob data from entity", (ErrorValue) ex);
+            }
             createParsingEntityBodyFailedErrorAndNotify(callback,
-                                 "Error occurred while extracting blob data from entity : " + getErrorMsg(ex));
+                    "Error occurred while extracting blob data from entity : " + getErrorMsg(ex), null);
         }
         return result;
     }
