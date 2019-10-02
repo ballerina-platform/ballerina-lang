@@ -31,8 +31,6 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
@@ -51,7 +49,6 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +108,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -121,9 +117,6 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.jvm.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
-import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -292,56 +285,6 @@ public class CommonUtil {
             }
         }
         return Optional.ofNullable(token);
-    }
-
-    /**
-     * Get the top level node type at the cursor line.
-     *
-     * @param identifier Document Identifier
-     * @param cursorLine Cursor line
-     * @param docManager Workspace document manager
-     * @return {@link String}   Top level node type
-     */
-    public static String topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
-                                            WorkspaceDocumentManager docManager) {
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint");
-        Optional<Path> filePath = CommonUtil.getPathFromURI(identifier.getUri());
-        if (!filePath.isPresent()) {
-            return "";
-        }
-
-        try {
-            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath.get());
-            String fileContent = docManager.getFileContent(compilationPath);
-            String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
-            if ((splitedFileContent.length - 1) >= cursorLine) {
-                String lineContent = splitedFileContent[cursorLine];
-                List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
-
-                ListIterator<String> iterator = alphaNumericTokens.listIterator();
-                int tokenCounter = 0;
-                while (iterator.hasNext()) {
-                    String topLevelKeyword = iterator.next();
-
-                    boolean validTypeDef = (topLevelKeyword.equals(CommonKeys.RECORD_KEYWORD_KEY)
-                            || topLevelKeyword.equals(CommonKeys.OBJECT_KEYWORD_KEY))
-                            && tokenCounter > 1
-                            && alphaNumericTokens.get(tokenCounter - 2).equals("type");
-
-                    if (validTypeDef || (topLevelKeywords.contains(topLevelKeyword) &&
-                            (!iterator.hasNext() || !CONSTRUCTOR_FUNCTION_SUFFIX.equals(iterator.next())))) {
-                        return topLevelKeyword;
-                    }
-                    tokenCounter++;
-                }
-
-
-            }
-            return null;
-        } catch (WorkspaceDocumentException e) {
-            logger.error("Error occurred while reading content of file: " + filePath.get().toString());
-            return null;
-        }
     }
 
     /**

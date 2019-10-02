@@ -42,7 +42,6 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -292,15 +291,14 @@ public abstract class LSCompletionProvider {
         List<BLangImportPackage> currentModuleImports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
         List<CompletionItem> completionItems = currentModuleImports.stream()
                 .map(pkg -> {
-                    PackageID pkgID = pkg.symbol.pkgID;
-                    String orgName = pkgID.orgName.value;
-                    String pkgName = pkgID.nameComps.stream()
+                    String orgName = pkg.orgName.value;
+                    String pkgName = pkg.pkgNameComps.stream()
                             .map(id -> id.value)
                             .collect(Collectors.joining("."));
                     String label = pkg.alias.value;
                     String insertText = pkg.alias.value;
                     // If the import is a langlib module and there isn't a user defined alias we add ' before
-                    if ("ballerina".equals(orgName) && pkgID.nameComps.get(0).getValue().equals("lang")
+                    if ("ballerina".equals(orgName) && pkg.pkgNameComps.get(0).getValue().equals("lang")
                             && pkgName.endsWith("." + pkg.alias.value)) {
                         insertText = "'" + insertText;
                     }

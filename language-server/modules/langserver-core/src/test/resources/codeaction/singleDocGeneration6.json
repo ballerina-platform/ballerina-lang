@@ -1,12 +1,12 @@
 {
   "range": {
     "start": {
-      "line": 10,
-      "character": 13
+      "line": 36,
+      "character": 17
     },
     "end": {
-      "line": 10,
-      "character": 13
+      "line": 36,
+      "character": 17
     }
   },
   "expected": {
@@ -18,11 +18,11 @@
         "arguments": [
           {
             "argumentK": "node.type",
-            "argumentV": "SERVICE"
+            "argumentV": "OBJECT_FUNCTION"
           },
           {
             "argumentK": "node.line",
-            "argumentV": "10"
+            "argumentV": "36"
           }
         ]
       },
