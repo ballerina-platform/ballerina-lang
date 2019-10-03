@@ -673,7 +673,8 @@ public abstract class LSCompletionProvider {
             return false;
         }
         int tokenSize = defaultTokens.size();
-        if (defaultTokens.indexOf(BallerinaParser.ASSIGN) > 0) {
+        int assignTokenIndex = defaultTokens.indexOf(BallerinaParser.ASSIGN);
+        if (assignTokenIndex > 0 && assignTokenIndex >= tokenSize - 3 && assignTokenIndex < tokenSize) {
             // check added to avoid the external function definition
             // function xyz() returns int = external;
             return false;
