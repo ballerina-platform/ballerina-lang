@@ -135,8 +135,9 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg,
-                                           ServerConnectorFuture serverConnectorFuture) {
-        handleIncompleteInboundMessage(inboundRequestMsg, REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                           Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        handleIncompleteInboundMessage(http2OutboundRespListener.getInboundRequestMsg(),
+                                       REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
     }
 }

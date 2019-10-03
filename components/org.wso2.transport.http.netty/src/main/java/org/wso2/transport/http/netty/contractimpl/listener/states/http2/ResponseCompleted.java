@@ -107,8 +107,8 @@ public class ResponseCompleted implements ListenerState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg,
-                                           ServerConnectorFuture serverConnectorFuture) {
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                           Http2OutboundRespListener http2OutboundRespListener, int streamId) {
         LOG.warn("handleAbruptChannelClosure {}", ILLEGAL_STATE_ERROR);
     }
 }

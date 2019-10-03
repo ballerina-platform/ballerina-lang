@@ -38,6 +38,8 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.io.IOException;
+
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
@@ -123,8 +125,11 @@ public class EntityBodyReceived implements ListenerState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg,
-                                           ServerConnectorFuture serverConnectorFuture) {
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                           Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        LOG.debug("Handle handleAbruptChannelClosure in EntityBodyReceived");
+        http2OutboundRespListener.getOutboundResponseMsg().setIoException(
+                new IOException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
         try {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));

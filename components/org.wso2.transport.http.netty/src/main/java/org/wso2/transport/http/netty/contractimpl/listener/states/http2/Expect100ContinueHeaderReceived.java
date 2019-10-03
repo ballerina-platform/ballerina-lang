@@ -102,8 +102,8 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg,
-                                           ServerConnectorFuture serverConnectorFuture) {
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                           Http2OutboundRespListener http2OutboundRespListener, int streamId) {
         try {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));

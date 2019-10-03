@@ -153,8 +153,8 @@ public class SendingEntityBody implements ListenerState {
     }
 
     @Override
-    public void handleAbruptChannelClosure(HttpCarbonMessage inboundRequestMsg,
-                                           ServerConnectorFuture serverConnectorFuture) {
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                           Http2OutboundRespListener http2OutboundRespListener, int streamId) {
         IOException connectionClose = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
         outboundResponseMsg.setIoException(connectionClose);
         outboundRespStatusFuture.notifyHttpListener(connectionClose);
