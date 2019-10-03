@@ -84,7 +84,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Channel Inactive event received in {}", this);
+            LOG.debug("Channel inactive event received in Http2SourceConnectionHandler");
         }
         if (HttpTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HttpTransportContextHolder.getInstance().getHandlerExecutor()

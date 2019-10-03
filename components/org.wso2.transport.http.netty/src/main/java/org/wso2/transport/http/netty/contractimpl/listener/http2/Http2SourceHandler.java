@@ -180,7 +180,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Channel Inactive event received in {}", this);
+            LOG.debug("Channel inactive event received in HTTP2SourceHandler");
         }
         destroy();
         closeTargetChannels();
