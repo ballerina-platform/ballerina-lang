@@ -1520,7 +1520,7 @@ public class BLangPackageBuilder {
     }
 
     private void addExprToExprNodeList(List<ExpressionNode> exprList, int n) {
-        for(int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             if (exprNodeStack.empty()) {
                 throw new IllegalStateException("Expression stack cannot be empty in processing an ExpressionList");
             }
