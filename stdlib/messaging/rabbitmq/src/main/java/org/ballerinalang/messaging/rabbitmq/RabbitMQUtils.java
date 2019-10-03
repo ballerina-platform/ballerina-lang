@@ -61,7 +61,7 @@ public class RabbitMQUtils {
                 RabbitMQConstants.RABBITMQ_ERROR_DETAILS, valueMap);
     }
 
-    public static ArrayList<ObjectValue> addToList(ArrayList<ObjectValue> arrayList, ObjectValue objectValue) {
+    static ArrayList<ObjectValue> addToList(ArrayList<ObjectValue> arrayList, ObjectValue objectValue) {
         if (arrayList == null) {
             arrayList = new ArrayList<>();
         }
@@ -69,12 +69,20 @@ public class RabbitMQUtils {
         return arrayList;
     }
 
+    /**
+     * Removes a given element from the provided array list and returns the resulting list.
+     *
+     * @param arrayList   The original list
+     * @param objectValue Element to be removed
+     * @return Resulting list after removing the element
+     */
     public static ArrayList<ObjectValue> removeFromList(ArrayList<ObjectValue> arrayList, ObjectValue objectValue) {
         if (arrayList != null) {
             arrayList.remove(objectValue);
         }
         return arrayList;
     }
+
     private RabbitMQUtils() {
     }
 }

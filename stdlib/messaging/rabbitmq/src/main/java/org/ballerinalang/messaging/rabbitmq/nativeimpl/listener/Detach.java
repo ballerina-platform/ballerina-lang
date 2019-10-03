@@ -64,7 +64,6 @@ public class Detach {
         } catch (IOException e) {
             return RabbitMQUtils.returnErrorValue("Error occurred while detaching the service");
         }
-        ;
         listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES,
                 RabbitMQUtils.removeFromList(services, service));
         listenerObjectValue.addNativeData(RabbitMQConstants.STARTED_SERVICES,
