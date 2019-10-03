@@ -115,6 +115,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinInvocationArgs9.json", "function"},
                 {"completionWithinInvocationArgs10.json", "function"},
                 {"completionWithinInvocationArgs11.json", "function"},
+                {"completionWithinInvocationArgs12.json", "function"},
+                {"completionWithinInvocationArgs13.json", "function"},
                 {"chainCompletion1.json", "function"},
                 {"chainCompletion2.json", "function"},
                 {"chainCompletion3.json", "function"},
