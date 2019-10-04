@@ -32,10 +32,13 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.EoF;
 
@@ -60,8 +63,9 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
-                new BString(",")};
+        BValue[] args = {
+                new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"), new BString(",")
+        };
         BRunUtil.invoke(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
         BValue[] returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
@@ -102,8 +106,10 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
-                new BString(","), new BInteger(0)};
+        BValue[] args = {
+                new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"), new BString(","),
+                new BInteger(0)
+        };
         BRunUtil.invoke(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
         BValue[] returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
@@ -144,8 +150,10 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
-                new BString(":"), new BInteger(0)};
+        BValue[] args = {
+                new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"), new BString(":"),
+                new BInteger(0)
+        };
         BRunUtil.invoke(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
         BValue[] returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
@@ -185,8 +193,10 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
-                new BString(","), new BInteger(1)};
+        BValue[] args = {
+                new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"), new BString(","),
+                new BInteger(1)
+        };
         BRunUtil.invoke(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
         BValue[] returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
@@ -206,7 +216,6 @@ public class CsvChannelTest {
         BRunUtil.invoke(csvInputOutputProgramFile, "close");
     }
 
-
     @Test(description = "Test 'readRfcCSVRecords'")
     public void readRfcTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sampleRfc.csv";
@@ -215,8 +224,9 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
-                new BString(",")};
+        BValue[] args = {
+                new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"), new BString(",")
+        };
         BRunUtil.invoke(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
         BValue[] returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
@@ -259,8 +269,9 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
-                new BString("\t")};
+        BValue[] args = {
+                new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"), new BString("\t")
+        };
         BRunUtil.invoke(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
         BValue[] returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
@@ -295,39 +306,86 @@ public class CsvChannelTest {
 
     @Test(description = "Test 'writeDefaultCSVRecords'")
     public void testWriteDefaultCsv() {
-        String[] content = {"Name", "Email", "Telephone"};
-        BValueArray record = new BValueArray(content);
+        String[] content1 = { "Name", "Email", "Telephone" };
+        String[] content2 = { "Foo,12", "foo@ballerina/io", "332424242" };
         String sourceToWrite = currentDirectoryPath + "/recordsDefault.csv";
 
         //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite), new BString("UTF-8"),
-                new BString(",")};
-        BRunUtil.invoke(csvInputOutputProgramFile, "initWritableCsvChannel", args);
+        BValue[] params = { new BString(sourceToWrite), new BString("UTF-8"), new BString(",") };
 
-        args = new BValue[]{record};
-        BRunUtil.invoke(csvInputOutputProgramFile, "writeRecord", args);
+        BRunUtil.invoke(csvInputOutputProgramFile, "initWritableCsvChannel", params);
+        BRunUtil.invoke(csvInputOutputProgramFile, "writeRecord", new BValue[] { new BValueArray(content1) });
+        BRunUtil.invoke(csvInputOutputProgramFile, "writeRecord", new BValue[] { new BValueArray(content2) });
 
-        String[] data = {"Foo,12", "foo@ballerina/io", "332424242"};
-        record = new BValueArray(data);
-
-        args = new BValue[]{record};
-        BRunUtil.invoke(csvInputOutputProgramFile, "writeRecord", args);
+        BRunUtil.invoke(csvInputOutputProgramFile, "initReadableCsvChannel", params);
+        BValue[] returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
+        validateCsvRecord(content1, returns, true);
+        returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
+        validateCsvRecord(content2, returns, false);
 
         BRunUtil.invoke(csvInputOutputProgramFile, "close");
     }
 
+    private void validateCsvRecord(String[] content, BValue[] returns, boolean expectMore) {
+        BValueArray records = (BValueArray) returns[0];
+        Assert.assertEquals(records.getString(1), content[1]);
+        Assert.assertEquals(records.getString(2), content[2]);
+        Assert.assertEquals(records.size(), content.length);
+        returns = BRunUtil.invoke(csvInputOutputProgramFile, "hasNextRecord");
+        BBoolean hasNextRecord = (BBoolean) returns[0];
+        Assert.assertEquals(hasNextRecord.booleanValue(), expectMore);
+    }
+
+    @Test(description = "Check with user defined separator")
+    public void testReadWriteCustomSeparator() {
+        String[][] data = {
+                { "1", "James", "10000" }, { "2", "Nathan", "150000" }, { "3", "Ronald", "120000" },
+                { "4", "Roy", "6000" }, { "5", "Oliver", "1100000" }
+        };
+        String sourceToWrite = currentDirectoryPath + "/recordsUserDefine.csv";
+        BValue[] params = { new BString(sourceToWrite), new BString("UTF-8"), new BString("~") };
+        BRunUtil.invoke(csvInputOutputProgramFile, "initWritableCsvChannel", params);
+        for (String[] rec : data) {
+            BRunUtil.invoke(csvInputOutputProgramFile, "writeRecord", new BValue[] { new BValueArray(rec) });
+        }
+
+        BRunUtil.invoke(csvInputOutputProgramFile, "initReadableCsvChannel", params);
+        BValue[] returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
+        validateCsvRecord(data[0], returns, true);
+        returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
+        validateCsvRecord(data[1], returns, true);
+        returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
+        validateCsvRecord(data[2], returns, true);
+        returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
+        validateCsvRecord(data[3], returns, true);
+        returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
+        validateCsvRecord(data[4], returns, false);
+
+        BRunUtil.invoke(csvInputOutputProgramFile, "close");
+
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(sourceToWrite));
+            Assert.assertEquals(lines.get(0), "1~James~10000");
+            Assert.assertEquals(lines.get(2), "3~Ronald~120000");
+            Assert.assertEquals(lines.get(4), "5~Oliver~1100000");
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
     @Test(description = "Test 'writeTdfCSVRecords'")
     public void testWriteTdf() {
-        String[] content = {"Name", "Email", "Telephone"};
+        String[] content = { "Name", "Email", "Telephone" };
         BValueArray record = new BValueArray(content);
         String sourceToWrite = currentDirectoryPath + "/recordsTdf.csv";
 
         //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite), new BString("UTF-8"),
-                new BString("\t")};
+        BValue[] args = {
+                new BString(sourceToWrite), new BString("UTF-8"), new BString("\t")
+        };
         BRunUtil.invoke(csvInputOutputProgramFile, "initWritableCsvChannel", args);
 
-        args = new BValue[]{record};
+        args = new BValue[] { record };
         BRunUtil.invoke(csvInputOutputProgramFile, "writeRecord", args);
 
         BRunUtil.invoke(csvInputOutputProgramFile, "close");

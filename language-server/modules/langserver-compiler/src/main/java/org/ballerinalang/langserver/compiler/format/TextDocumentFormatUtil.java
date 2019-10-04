@@ -67,7 +67,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -179,8 +178,8 @@ public class TextDocumentFormatUtil {
 
         /* Virtual props */
 
-        // Add UUID for each node.
-        nodeJson.addProperty("id", UUID.randomUUID().toString());
+        // Add identity hash code for each node as the node's ID.
+        nodeJson.addProperty("id", System.identityHashCode(node));
 
         // Add the visible endpoints for a given node
         if (visibleEPsByNode.containsKey(node)) {

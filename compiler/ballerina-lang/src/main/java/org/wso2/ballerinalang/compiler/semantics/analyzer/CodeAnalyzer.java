@@ -133,6 +133,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
@@ -188,7 +189,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
-import static org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBindingPatternClause;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -1601,7 +1601,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (type == symTable.semanticError) {
             // Error of this is already printed as undef-var
             was.hasErrors = true;
-        } else if (!types.isAnydata(type)) {
+        } else if (!type.isAnydata()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, type);
         }
 
@@ -2473,9 +2473,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
-        this.typeChecker.checkExpr(send.expr, send.env, receive.type);
-        types.checkType(send, receive.matchingSendsError, send.type);
+        types.checkType(send.pos, receive.matchingSendsError, send.type, DiagnosticCode.INCOMPATIBLE_TYPES);
+        types.checkType(receive, send.expr.type, receive.type);
         addImplicitCast(send.expr.type, receive);
+        NodeKind kind = receive.parent.getKind();
+        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR) {
+            typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
+        }
         receive.sendExpression = send;
     }
 
@@ -2509,12 +2513,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         funcNode.requiredParams.forEach(param -> {
-            if (!types.isAnydata(param.type)) {
+            if (!param.type.isAnydata()) {
                 this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
             }
         });
 
-        if (funcNode.restParam != null && !types.isAnydata(funcNode.restParam.type)) {
+        if (funcNode.restParam != null && !funcNode.restParam.type.isAnydata()) {
             this.dlog.error(funcNode.restParam.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA,
                             funcNode.restParam.type);
         }
@@ -2536,17 +2540,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         types.validateErrorOrNilReturn(funcNode, DiagnosticCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL);
-    }
-
-    private void checkDuplicateNamedArgs(List<BLangExpression> args) {
-        List<BLangIdentifier> existingArgs = new ArrayList<>();
-        args.forEach(arg -> {
-            BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
-            if (existingArgs.contains(namedArg.name)) {
-                dlog.error(namedArg.pos, DiagnosticCode.DUPLICATE_NAMED_ARGS, namedArg.name);
-            }
-            existingArgs.add(namedArg.name);
-        });
     }
 
     private boolean getIsJSONContext(BType... arg) {

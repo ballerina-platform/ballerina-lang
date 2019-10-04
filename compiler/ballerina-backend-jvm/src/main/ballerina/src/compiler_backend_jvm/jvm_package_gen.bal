@@ -129,10 +129,11 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     string pkgName = getPackageName(orgName, moduleName);
 
     [bir:Package, boolean] [ module, isFromCache ] = lookupModule(moduleId);
-
-    if (isEntry || !isFromCache) {
-        addBuiltinImports(moduleId, module);
+    if(!isEntry && isFromCache) {
+        return;
     }
+
+    addBuiltinImports(moduleId, module);
 
     // generate imported modules recursively
     foreach var mod in module.importModules {
@@ -142,15 +143,12 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         }
     }
 
-    if(!isEntry && isFromCache) {
-        return;
-    }
-
     typeOwnerClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, <@untainted> lambdas);
     if (!isEntry || dlogger.getErrorCount() > 0) {
         return;
     }
+    
     injectDefaultParamInits(module);
     injectDefaultParamInitsToAttachedFuncs(module);
     // create dependant modules flat array
@@ -170,6 +168,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
     generateFrameClasses(module, jarFile.pkgEntries);
+
     foreach var [ moduleClass, v ] in jvmClassMap.entries() {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         currentClass = <@untainted> moduleClass;
@@ -564,7 +563,6 @@ function importModuleToModuleId(bir:ImportModule mod) returns bir:ModuleID {
 }
 
 function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
-
     // Add the builtin and utils modules to the imported list of modules
     bir:ImportModule annotationsModule = {modOrg : {value:"ballerina"},
                                           modName : {value:"lang.annotations"},

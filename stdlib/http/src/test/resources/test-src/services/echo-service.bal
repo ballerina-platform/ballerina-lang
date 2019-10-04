@@ -163,4 +163,12 @@ service hello on echoEP {
     resource function echo(http:Caller caller, http:Request req) {
         checkpanic caller->respond("Uninitialized configs");
     }
+
+    resource function testFunctionCall(http:Caller caller, http:Request req) {
+        checkpanic caller->respond(<@untained> self.nonRemoteFunctionCall());
+    }
+
+    function nonRemoteFunctionCall() returns string {
+        return "Non remote function invoked";
+    }
 }

@@ -46,6 +46,7 @@ public class MimeConstants {
     public static final String INVALID_CONTENT_LENGTH = "{ballerina/mime}InvalidContentLength";
     public static final String HEADER_NOT_FOUND = "{ballerina/mime}HeaderNotFound";
     public static final String SERIALIZATION_ERROR_CODE = "{ballerina/mime}SerializationError";
+    public static final String NO_CONTENT_ERROR_CODE = "{ballerina/mime}NoContentError";
 
     /**
      * Content type HTTP header.

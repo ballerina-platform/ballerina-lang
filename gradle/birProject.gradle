@@ -100,9 +100,9 @@ task createBirJar(type: Exec) {
         }
     }
 
-    inputs.files configurations.bir
-    inputs.files configurations.birJarCompile
-    inputs.dir "$buildDir/generated-bir"
+    inputs.files(configurations.bir).withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.property("bootstrapVersion", project.bootstrappedOn)
+    inputs.dir("$buildDir/generated-bir").withPathSensitivity(PathSensitivity.RELATIVE)
     outputs.dir "$buildDir/generated-bir-jar"
     outputs.cacheIf { true }
 }
