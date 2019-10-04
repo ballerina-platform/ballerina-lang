@@ -81,7 +81,7 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
     // if service is not secured, no need to check further
     if (!serviceSecured) {
         log:printWarn("Service is not secured. `enabled: false`.");
-        return true;
+        return false;
     }
     // No Auth providers found at the resource level. Thus, try at the service level.
     if (serviceLevelAuthAnn is ServiceResourceAuth) {
