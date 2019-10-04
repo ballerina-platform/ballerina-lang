@@ -92,8 +92,8 @@ public class Utils {
                 dispatchedData = XMLFactory.parse(new String(data, StandardCharsets.UTF_8));
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                dispatchedData = JSONUtils.convertJSONToRecord(JSONParser.parse(new String(data, StandardCharsets.UTF_8)),
-                        (BRecordType) intendedType);
+                dispatchedData = JSONUtils.convertJSONToRecord(JSONParser.parse(new String(data,
+                                StandardCharsets.UTF_8)), (BRecordType) intendedType);
                 break;
             default:
                 throw Utils.createNatsError("Unable to find a supported data type to bind the message data");
