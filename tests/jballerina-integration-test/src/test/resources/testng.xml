@@ -30,7 +30,6 @@
         <groups>
             <run>
                 <exclude name="broken"/>
-                <exclude name="brokenOnPackerinaChanges"/>
             </run>
         </groups>
 
@@ -277,6 +276,11 @@
 
     <test name="ballerina-packerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnPackerinaChanges"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
             <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
