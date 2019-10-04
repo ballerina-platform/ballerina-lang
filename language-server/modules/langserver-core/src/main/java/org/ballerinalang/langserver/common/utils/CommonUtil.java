@@ -300,6 +300,7 @@ public class CommonUtil {
                                                              LSContext ctx, CommonToken pkgAlias,
                                                              Map<String, String> pkgAliasMap) {
         PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
+        String currentProjectOrgName = currentPkgID == null ? "" : currentPkgID.orgName.value;
 
         String aliasComponent = "";
         if (pkgAliasMap.containsKey(packageID.toString())) {
@@ -319,22 +320,26 @@ public class CommonUtil {
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
         annotationItem.setKind(CompletionItemKind.Property);
-        if (currentPkgID.name.value.equals(packageID.name.value)) {
+        if (currentPkgID != null && currentPkgID.name.value.equals(packageID.name.value)) {
             // If the annotation resides within the current package, no need to set the additional text edits
             return annotationItem;
         }
         List<BLangImportPackage> imports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
-        Optional currentPkgImport = imports.stream()
+        Optional pkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
-                    String pkgName = bLangImportPackage.orgName + "/"
+                    String orgName = bLangImportPackage.orgName.value;
+                    String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
                             + CommonUtil.getPackageNameComponentsCombined(bLangImportPackage);
-                    String evalPkgName = packageID.orgName + "/" + packageID.nameComps.stream()
-                            .map(Name::getValue).collect(Collectors.joining("."));
-                    return pkgName.equals(evalPkgName);
+                    String annotationPkgOrgName = packageID.orgName.getValue();
+                    String annotationPkgName = annotationPkgOrgName + "/"
+                            + packageID.nameComps.stream()
+                            .map(Name::getValue)
+                            .collect(Collectors.joining("."));
+                    return importPkgName.equals(annotationPkgName);
                 })
                 .findAny();
         // if the particular import statement not available we add the additional text edit to auto import
-        if (!currentPkgImport.isPresent()) {
+        if (!pkgImport.isPresent()) {
             annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(packageID.orgName.getValue(),
                     packageID.name.getValue(), ctx));
         }
