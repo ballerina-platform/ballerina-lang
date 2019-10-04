@@ -30,6 +30,7 @@
         <groups>
             <run>
                 <exclude name="broken"/>
+                <exclude name="brokenOnPackerinaChanges"/>
             </run>
         </groups>
 
