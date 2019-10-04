@@ -34,4 +34,7 @@ public function lambdaInitTest() {
         int k = localVar;
         int l = localVar2;
     };
+
+    int copy = localVar;
+    int copy2 = localVar2;
 }

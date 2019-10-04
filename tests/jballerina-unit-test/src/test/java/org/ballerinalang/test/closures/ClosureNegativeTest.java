@@ -58,6 +58,8 @@ public class ClosureNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "variable 'b' is not initialized", 16, 13);
         BAssertUtil.validateError(compileResult, index++, "variable 'localVar2' is not initialized", 29, 17);
         BAssertUtil.validateError(compileResult, index++, "variable 'localVar2' is not initialized", 35, 17);
+        BAssertUtil.validateError(compileResult, index++, "variable 'localVar' is not initialized", 38, 16);
+        BAssertUtil.validateError(compileResult, index++, "variable 'localVar2' is not initialized", 39, 17);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }
