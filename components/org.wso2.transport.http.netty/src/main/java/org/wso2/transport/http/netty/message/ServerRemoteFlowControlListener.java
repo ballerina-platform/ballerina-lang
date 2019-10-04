@@ -73,14 +73,4 @@ public class ServerRemoteFlowControlListener implements Http2RemoteFlowControlle
             responseWriters.remove(responseWriter.getStreamId(), responseWriter);
         }
     }
-
-    public void removeAllListeners() {
-        LOG.debug("Remove all listeners {}", responseWriters.size());
-        responseWriters.forEach((streamId, writer) -> {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Remove back pressure listener from stream {} ", streamId);
-            }
-            writer.getBackPressureObservable().removeListener();
-        });
-    }
 }

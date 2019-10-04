@@ -194,7 +194,6 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void destroy() {
-//        serverRemoteFlowControlListener.removeAllListeners();
         //Handle channel close for all the streams in the connection.
         LOG.debug("Inbound request map size {}", http2ServerChannel.getStreamIdRequestMap().size());
         http2ServerChannel.getStreamIdRequestMap().forEach((streamId, inboundMessageHolder) -> {

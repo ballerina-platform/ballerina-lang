@@ -245,7 +245,7 @@ public class Http2ClientChannel {
     void destroy() {
         inFlightMessages.forEach((streamId, outboundMsgHolder) -> {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Remove back pressure listener from client {} ", streamId);
+                LOG.debug("Remove back pressure listener from stream {} ", streamId);
             }
             outboundMsgHolder.getBackPressureObservable().removeListener();
         });
