@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
