@@ -2650,15 +2650,15 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(transaction);
 
         // TODO This is a temporary workaround to flag coordinator service start
-        String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
-        if (value != null) {
-            return;
-        }
+        boolean transactionsModuleAlreadyImported = this.imports.stream()
+                .anyMatch(importPackage -> importPackage.orgName.value.equals(Names.BALLERINA_ORG.value)
+                        && importPackage.pkgNameComps.get(0).value.equals(Names.TRANSACTION_PACKAGE.value));
 
-        compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
-        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
-                Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        if (!transactionsModuleAlreadyImported) {
+            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
+            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
+                    Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        }
     }
 
     void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {
