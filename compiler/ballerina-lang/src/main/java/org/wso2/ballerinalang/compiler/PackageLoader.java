@@ -78,7 +78,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -324,7 +323,6 @@ public class PackageLoader {
      * @param enclPackageId The ID of the parent module.
      */
     private void updateModuleIDVersion(PackageID moduleID, PackageID enclPackageId) {
-
         String orgName = moduleID.orgName.value;
         String moduleName = moduleID.name.value;
         String moduleVersion;
