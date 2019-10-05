@@ -157,8 +157,8 @@ function saveToDatabase(http:Caller conn, http:Request req, boolean shouldAbort)
 
 function saveToDatabaseUpdateHelper1(string uuid) {
     io:println("inserting uuid: " + uuid);
-    var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                                     values ('John', 'Doe', '" + uuid + "', 5000.75, 'USA')");
+    var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                                     "values ('John', 'Doe', '" + uuid + "', 5000.75, 'USA')");
     if (result is jdbc:UpdateResult) {
         io:println(result);
     } else {
