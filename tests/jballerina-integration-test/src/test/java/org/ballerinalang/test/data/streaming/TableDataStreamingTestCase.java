@@ -100,6 +100,16 @@ public class TableDataStreamingTestCase extends BaseTest {
         Assert.assertEquals(Integer.parseInt(response.getData()), 208788925);
     }
 
+    @Test(description = "Tests streaming a large amount of data from a table, using setJsonPayload method")
+    public void getJosnViaSetJsonPayloadMethod() throws Exception {
+        HttpResponse response = HttpClientRequest
+                .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getJosnViaSetJsonPayloadMethod"),
+                        60000, responseBuilder);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200);
+        Assert.assertEquals(Integer.parseInt(response.getData()), 208788890);
+    }
+
     @Test(description = "Tests the outbound throttling scenario with a slow client")
     public void testStreamingLargeXMLWithSlowClient() throws Exception {
         HttpResponse response = HttpClientRequest.doGet(
