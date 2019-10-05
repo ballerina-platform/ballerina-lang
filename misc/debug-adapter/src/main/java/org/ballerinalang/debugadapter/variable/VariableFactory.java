@@ -46,13 +46,7 @@ public class VariableFactory {
         }
 
         if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(varType)) {
-            variable = new BArray();
-
-            Map<String, Value> values = VariableUtils.getChildVariables((ObjectReferenceImpl) value);
-            variable.setChildVariables(values);
-
-            dapVariable.setType(varType);
-            dapVariable.setValue("Array");
+            variable = new BArray(value, varType, varName, dapVariable);
             return variable;
         } else if ("java.lang.Object".equalsIgnoreCase(varType)
                 || "org.ballerinalang.jvm.values.MapValue".equalsIgnoreCase(varType)
@@ -66,9 +60,7 @@ public class VariableFactory {
             }
             if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(value.type().name())) {
                 // JSON array
-                dapVariable.setValue("Array");
-                Map<String, Value> values = VariableUtils.getChildVariables((ObjectReferenceImpl) value);
-                variable.setChildVariables(values);
+                variable = new BArray(value, varType, varName, dapVariable);
                 return variable;
             } else if ("java.lang.Long".equalsIgnoreCase(value.type().name())
                     || "java.lang.Boolean".equalsIgnoreCase(value.type().name())
