@@ -15,16 +15,12 @@ import java.util.stream.Collectors;
 public class BArray extends VariableImpl {
 
     private final ObjectReferenceImpl value;
-    private final String varType;
-    private final String varName;
     private Map<String, Value> childVariables;
 
-    public BArray(Value value, String varType, String varName, Variable dapVariable) {
+    public BArray(Value value, Variable dapVariable) {
         this.value = (ObjectReferenceImpl) value;
-        this.varType = varType;
-        this.varName = varName;
         this.setDapVariable(dapVariable);
-        dapVariable.setType(varType);
+        dapVariable.setType(this.toString());
         dapVariable.setValue(this.toString());
 
         Map<String, Value> values = VariableUtils.getChildVariables((ObjectReferenceImpl) value);

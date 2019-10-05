@@ -22,6 +22,7 @@ import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.VariableUtils;
 import org.ballerinalang.debugadapter.variable.types.BArray;
+import org.ballerinalang.debugadapter.variable.types.BString;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class VariableFactory {
         }
 
         if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(varType)) {
-            variable = new BArray(value, varType, varName, dapVariable);
+            variable = new BArray(value, dapVariable);
             return variable;
         } else if ("java.lang.Object".equalsIgnoreCase(varType)
                 || "org.ballerinalang.jvm.values.MapValue".equalsIgnoreCase(varType)
@@ -60,7 +61,7 @@ public class VariableFactory {
             }
             if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(value.type().name())) {
                 // JSON array
-                variable = new BArray(value, varType, varName, dapVariable);
+                variable = new BArray(value, dapVariable);
                 return variable;
             } else if ("java.lang.Long".equalsIgnoreCase(value.type().name())
                     || "java.lang.Boolean".equalsIgnoreCase(value.type().name())
@@ -74,9 +75,7 @@ public class VariableFactory {
                 return variable;
             } else if ("java.lang.String".equalsIgnoreCase(value.type().name())) {
                 // union
-                dapVariable.setType("String");
-                String stringValue = value.toString();
-                dapVariable.setValue(stringValue);
+                variable = new BString(value, dapVariable);
                 return variable;
             } else if ("org.ballerinalang.jvm.values.ErrorValue".equalsIgnoreCase(value.type().name())) {
 
@@ -153,9 +152,7 @@ public class VariableFactory {
             dapVariable.setValue(longValue.toString());
             return variable;
         } else if ("java.lang.String".equalsIgnoreCase(varType)) {
-            dapVariable.setType("String");
-            String stringValue = value.toString();
-            dapVariable.setValue(stringValue);
+            variable = new BString(value, dapVariable);
             return variable;
         } else if (varType.contains("$value$")) {
             // Record type
