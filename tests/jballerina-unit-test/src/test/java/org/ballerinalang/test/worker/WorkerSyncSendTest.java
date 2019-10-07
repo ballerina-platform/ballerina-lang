@@ -171,4 +171,12 @@ public class WorkerSyncSendTest {
         Assert.assertEquals(returns[0].getType().getName(), "Rec");
         Assert.assertEquals(((BMap) returns[0]).get("k"), new BInteger(10));
     }
+
+    @Test
+    public void multipleSendsToErroredWorker() {
+        BValue[] returns = BRunUtil.invoke(result, "multipleSendsToErroredChannel");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
+        Assert.assertEquals(returns[0].stringValue(), "error one {}");
+    }
 }
