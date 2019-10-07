@@ -35,7 +35,6 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -86,6 +85,9 @@ public class MessageDispatcher {
         return queueConfig.getStringValue(RabbitMQConstants.ALIAS_QUEUE_NAME);
     }
 
+    /**
+     * Start receiving messages and dispatch the messages to the attached service.
+     */
     public void receiveMessages() {
         console.println("[ballerina/rabbitmq] Consumer service started for queue " + queueName);
         DefaultConsumer consumer = new DefaultConsumer(channel) {
@@ -100,8 +102,8 @@ public class MessageDispatcher {
         try {
             channel.basicConsume(queueName, autoAck, consumerTag, consumer);
         } catch (IOException exception) {
-            throw new BallerinaException("Error occurred while consuming messages; " + exception.getMessage(),
-                    exception);
+            throw RabbitMQUtils.returnErrorValue("Error occurred while consuming messages; " +
+                    exception.getMessage());
         }
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         ArrayList<ObjectValue> startedServices =
