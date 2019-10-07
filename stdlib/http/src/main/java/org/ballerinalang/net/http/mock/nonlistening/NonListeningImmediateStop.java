@@ -21,21 +21,22 @@ package org.ballerinalang.net.http.mock.nonlistening;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.serviceendpoint.ImmediateStop;
 
 import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
 
 /**
- * Get the ID of the connection.
+ * Stops the mock listener immediately.
  *
  * @since 0.966
  */
 
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "stop",
+        functionName = "immediateStop",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = MOCK_LISTENER_ENDPOINT,
                 structPackage = "ballerina.http"),
         isPublic = true
 )
-public class NonListeningStop extends org.ballerinalang.net.http.serviceendpoint.Stop {
+public class NonListeningImmediateStop extends ImmediateStop {
 }

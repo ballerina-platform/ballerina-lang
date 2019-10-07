@@ -36,7 +36,7 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
 
 /**
- * Get the ID of the connection.
+ * Register a service to the mock listener.
  *
  * @since 0.966
  */

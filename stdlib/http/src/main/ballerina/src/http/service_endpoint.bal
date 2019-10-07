@@ -38,11 +38,12 @@ public type Listener object {
     }
 
     public function __gracefulStop() returns error? {
-        return ();
+        error err = error("not implemented");
+        return err;
     }
 
     public function __immediateStop() returns error? {
-        return self.stop();
+        return self.immediateStop();
     }
 
     public function __attach(service s, string? name = ()) returns error? {
@@ -96,12 +97,14 @@ public type Listener object {
     function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.
+    #
     # + return - An `error` if there is any error occurred during the listener start process
     function start() returns error? = external;
 
-    # Stops the registered service.
+    # Stops the service listener immediately.
+    #
     # + return - An `error` if there is any error occurred during the listener stop process
-    function stop() returns error? = external;
+    function immediateStop() returns error? = external;
 
     # Disengage an attached service from the listener.
     #
