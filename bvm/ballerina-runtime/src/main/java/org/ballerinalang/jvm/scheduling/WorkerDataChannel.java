@@ -121,12 +121,11 @@ public class WorkerDataChannel {
             }
 
             reschedule = false;
-            if (this.panic != null && this.channel.peek() != null && this.channel.peek().isSync) {
+            if (this.panic != null && this.channel.peek() != null) {
                 Throwable e = this.panic;
                 this.panic = null;
                 throw e;
-            } else if (this.error != null && this.channel.peek() != null && this.channel.peek().isSync) {
-                // should make sure this error happened before sending the sync message
+            } else if (this.error != null && this.channel.peek() != null) {
                 ErrorValue ret = this.error;
                 this.error = null;
                 return ret;
