@@ -19,7 +19,6 @@ package io.ballerina.plugins.idea.configuration;
 import com.intellij.openapi.fileChooser.FileChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.vfs.VfsUtilCore;
@@ -41,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,7 +65,7 @@ public class BallerinaLibrariesConfigurable implements SearchableConfigurable, C
     private final JPanel myPanel = new JPanel(new BorderLayout());
     private final CollectionListModel<ListItem> myListModel = new CollectionListModel<>();
 
-    public BallerinaLibrariesConfigurable(@NotNull String displayName, @NotNull BallerinaLibrariesService
+    BallerinaLibrariesConfigurable(@NotNull String displayName, @NotNull BallerinaLibrariesService
             librariesService, String... urls) {
 
         myDisplayName = displayName;
@@ -171,7 +171,7 @@ public class BallerinaLibrariesConfigurable implements SearchableConfigurable, C
     }
 
     @Override
-    public void apply() throws ConfigurationException {
+    public void apply() {
         myLibrariesService.setLibraryRootUrls(getUserDefinedUrls());
         if (myLibrariesService instanceof BallerinaApplicationLibrariesService) {
             ((BallerinaApplicationLibrariesService) myLibrariesService).setUseBallerinaPathFromSystemEnvironment
@@ -237,7 +237,7 @@ public class BallerinaLibrariesConfigurable implements SearchableConfigurable, C
 
     @NotNull
     private Collection<String> getUserDefinedUrls() {
-        Collection<String> libraryUrls = ContainerUtil.newArrayList();
+        Collection<String> libraryUrls = new ArrayList<>();
         for (ListItem item : myListModel.getItems()) {
             if (!item.readOnly) {
                 libraryUrls.add(item.url);
@@ -262,7 +262,7 @@ public class BallerinaLibrariesConfigurable implements SearchableConfigurable, C
         final boolean readOnly;
         final String url;
 
-        public ListItem(String url, boolean readOnly) {
+        ListItem(String url, boolean readOnly) {
             this.readOnly = readOnly;
             this.url = url;
         }

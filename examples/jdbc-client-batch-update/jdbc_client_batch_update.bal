@@ -25,8 +25,8 @@ public function main() {
     // statement execution is successful, the `update` remote function
     // returns 0.
     io:println("The update operation - Creating a table:");
-    var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT,
-                         age INT, name VARCHAR(255), PRIMARY KEY (id))");
+    var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, " +
+                         "age INT, name VARCHAR(255), PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
     json jsonMsg = {
@@ -65,8 +65,8 @@ public function main() {
     // A batch of data can be inserted using the `batchUpdate` remote function.
     // The number of inserted rows for each insert in the batch is returned as
     // an array.
-    jdbc:BatchUpdateResult retBatch = testDB->batchUpdate("INSERT INTO student
-                    (age,name) VALUES (?,?)", false, ...dataBatch);
+    jdbc:BatchUpdateResult retBatch = testDB->batchUpdate("INSERT INTO student " +
+                    "(age,name) VALUES (?,?)", false, ...dataBatch);
     error? e = retBatch.returnedError;
     if (e is error) {
         io:println("Batch update operation failed:",

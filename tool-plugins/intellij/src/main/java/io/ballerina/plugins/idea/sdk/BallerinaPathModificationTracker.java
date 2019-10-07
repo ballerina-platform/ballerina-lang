@@ -38,7 +38,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,13 +55,13 @@ import java.util.zip.ZipInputStream;
 public class BallerinaPathModificationTracker {
 
     // Paths which we should track.
-    private static final Set<String> pathsToTrack = ContainerUtil.newHashSet();
+    private static final Set<String> pathsToTrack = new HashSet<>();
     // Paths which will be used to find sources.
-    private static final Collection<VirtualFile> ballerinaPathRoots = ContainerUtil.newLinkedHashSet();
+    private static final Collection<VirtualFile> ballerinaPathRoots = new LinkedHashSet<>();
     // List which will be used to store organizations.
-    private static final List<VirtualFile> organizationNames = ContainerUtil.newArrayList();
+    private static final List<VirtualFile> organizationNames = new ArrayList<>();
     // Map which will contain packages correspond to organizations. Key - organization, value - package list.
-    private static final Map<String, List<VirtualFile>> packageMap = ContainerUtil.newHashMap();
+    private static final Map<String, List<VirtualFile>> packageMap = new HashMap<>();
 
     public BallerinaPathModificationTracker() {
         String ballerinaRepository = BallerinaEnvironmentUtil.retrieveRepositoryPathFromEnvironment();
@@ -72,7 +76,7 @@ public class BallerinaPathModificationTracker {
                 addPath(s);
             }
         } else {
-            Path caches = Paths.get(SystemProperties.getUserHome(), ".ballerina", "caches", "central.ballerina.io");
+            Path caches = Paths.get(SystemProperties.getUserHome(), ".ballerina", "balo_cache");
             addPath(caches.toString());
         }
 
@@ -122,7 +126,7 @@ public class BallerinaPathModificationTracker {
     private static void recalculateFiles() {
         organizationNames.clear();
         packageMap.clear();
-        Collection<VirtualFile> result = ContainerUtil.newLinkedHashSet();
+        Collection<VirtualFile> result = new LinkedHashSet<>();
         // Iterate through all paths which are tracked.
         for (String path : pathsToTrack) {
             // Find the corresponding virtual file.
@@ -147,7 +151,7 @@ public class BallerinaPathModificationTracker {
                     VirtualFile[] packages = organization.getChildren();
 
                     // We create a new list to save all packages which we will later use for code completion.
-                    List<VirtualFile> packageNames = ContainerUtil.newArrayList();
+                    List<VirtualFile> packageNames = new ArrayList<>();
 
                     // Iterate through all packages.
                     for (VirtualFile aPackage : packages) {
@@ -173,14 +177,15 @@ public class BallerinaPathModificationTracker {
                         for (VirtualFile file : files) {
                             // If we encounter a zip file with the same name as the package name, we extract it.
                             // This zip file contains the sources.
-                            if (file.getName().equals(packageName + ".zip")) {
-                                try {
-                                    String destinationDirectory = latestVersion.getPath() + File.separator +
-                                            packageName;
-                                    unzip(file.getPath(), destinationDirectory);
-                                } catch (IOException ignored) {
-
-                                }
+                            if (file.getName().contains(packageName) && file.getName().endsWith(".balo")) {
+                                // Todo - Enable after finalizing a proper way to extract module source files
+//                                try {
+//                                    String destinationDirectory = latestVersion.getPath() + File.separator +
+//                                            packageName;
+//                                    unzip(file.getPath(), destinationDirectory);
+//                                } catch (IOException ignored) {
+//
+//                                }
                             }
                         }
                     }
@@ -331,6 +336,7 @@ public class BallerinaPathModificationTracker {
 
     /**
      * Returns all packages in the given organization.
+     *
      * @param organization organization name
      * @return list of packages
      */
