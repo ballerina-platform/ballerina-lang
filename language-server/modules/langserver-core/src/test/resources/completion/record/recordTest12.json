@@ -1,40 +1,48 @@
 {
   "position": {
-    "line": 14,
-    "character": 5
+    "line": 5,
+    "character": 19
   },
-  "source": "annotation/source/annotationBodyCompletion6.bal",
+  "source": "record/source/recordTest12.bal",
   "items": [
     {
-      "label": "host",
+      "label": "methods",
       "kind": "Field",
       "detail": "Field",
       "sortText": "210",
-      "insertText": "host: \"${1}\"",
+      "insertText": "methods: [${1}]",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "basePath",
+      "label": "path",
       "kind": "Field",
       "detail": "Field",
       "sortText": "210",
-      "insertText": "basePath: \"${1}\"",
+      "insertText": "path: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "compression",
+      "label": "body",
       "kind": "Field",
       "detail": "Field",
       "sortText": "210",
-      "insertText": "compression: {${1}}",
+      "insertText": "body: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "chunking",
+      "label": "consumes",
       "kind": "Field",
       "detail": "Field",
       "sortText": "210",
-      "insertText": "chunking: ${1:\"AUTO\"}",
+      "insertText": "consumes: [${1}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "produces",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "produces: [${1}]",
       "insertTextFormat": "Snippet"
     },
     {
@@ -46,11 +54,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "versioning",
+      "label": "transactionInfectable",
       "kind": "Field",
       "detail": "Field",
       "sortText": "210",
-      "insertText": "versioning: {${1}}",
+      "insertText": "transactionInfectable: ${1:false}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "webSocketUpgrade",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "webSocketUpgrade: ${1:{}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -66,7 +82,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "110",
-      "insertText": "host: \"\",\nbasePath: \"\",\ncompression: {},\nchunking: \"AUTO\",\ncors: {},\nversioning: {},\nauth: {}",
+      "insertText": "methods: [],\npath: \"\",\nbody: \"\",\nconsumes: [],\nproduces: [],\ncors: {},\ntransactionInfectable: false,\nwebSocketUpgrade: {},\nauth: {}",
       "insertTextFormat": "Snippet"
     }
   ]
