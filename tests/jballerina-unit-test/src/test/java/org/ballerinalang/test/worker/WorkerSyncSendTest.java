@@ -17,6 +17,7 @@
 
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -170,5 +171,19 @@ public class WorkerSyncSendTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getType().getName(), "Rec");
         Assert.assertEquals(((BMap) returns[0]).get("k"), new BInteger(10));
+    }
+
+    @Test()
+    public void testNoFailureForReceiveWithError() {
+        BValue[] returns = BRunUtil.invoke(result, "testNoFailureForReceiveWithError");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test()
+    public void testFailureForReceiveWithError() {
+        BValue[] returns = BRunUtil.invoke(result, "testFailureForReceiveWithError");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

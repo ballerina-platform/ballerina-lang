@@ -119,6 +119,15 @@ public class WorkerFailTest {
     }
 
     @Test
+    public void testSyncSendReceiveMismatch() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/sync_send_receive_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 3);
+        validateError(result, 0, "variable assignment is required", 33, 9);
+        validateError(result, 1, "incompatible types: expected 'int', found '(E1|int)'", 37, 18);
+        validateError(result, 2, "incompatible types: expected 'string', found '(E1|E2|string)'", 42, 20);
+    }
+
+    @Test
     public void invalidSendWithErrorCheckTest() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-check.bal");
         Assert.assertEquals(result.getErrorCount(), 1);

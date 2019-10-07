@@ -462,3 +462,73 @@ public function testComplexType() returns Rec {
 
     return wait w2;
 }
+
+const R1 = "r1";
+const R2 = "r2";
+
+type E1 error<R1>;
+type E2 error<R2>;
+
+public function testNoFailureForReceiveWithError() returns boolean {
+    worker w1 returns boolean|E1|E2? {
+        if (getFalse()) {
+            return E1();
+        }
+        100 ->> w2;
+
+        if (getFalse()) {
+            return E2();
+        }
+        error? err = "hello" ->> w2;
+        return err is ();
+    }
+
+    worker w2 returns boolean|error? {
+        int|E1 v1 = <- w1;
+
+        if (getFalse()) {
+            return error("w2 err");
+        }
+        string|E1|E2 v2 = <- w1;
+        return v1 == 100 && v2 == "hello";
+    }
+
+    record { boolean|E1|E2? w1; boolean|error? w2; } x = wait { w1, w2 };
+    return x.w1 == true && x.w2 == true;
+}
+
+public function testFailureForReceiveWithError() returns boolean {
+    worker w1 returns boolean|E1|E2? {
+        if (getFalse()) {
+            return E1();
+        }
+        100 ->> w2;
+
+        if (getTrue()) {
+            return E2();
+        }
+        error? err = "hello" ->> w2;
+        return err is ();
+    }
+
+    worker w2 returns boolean|error? {
+        int|E1 v1 = <- w1;
+
+        if (getFalse()) {
+            return error("w2 err");
+        }
+        string|E1|E2 v2 = <- w1;
+        return v1 == 100 && v2 is E2;
+    }
+
+    record { boolean|E1|E2? w1; boolean|error? w2; } x = wait { w1, w2 };
+    return x.w1 is E2 && x.w2 == true;
+}
+
+function getFalse() returns boolean {
+    return false;
+}
+
+function getTrue() returns boolean {
+    return true;
+}
