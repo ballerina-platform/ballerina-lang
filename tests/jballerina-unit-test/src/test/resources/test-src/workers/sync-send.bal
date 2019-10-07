@@ -487,3 +487,24 @@ public function multipleSendsToErroredChannel() returns error? {
     error? res = wait w1;
     return res;
 }
+
+public function testSyncSendAfterSend() returns error? {
+    worker w1 returns error? {
+        5 -> w2;
+
+        error? x = "foo" ->> w2;
+        return x;
+    }
+
+    worker w2 returns error? {
+        if (true) {
+            error e = error("w2 error");
+            return e;
+        }
+
+        int x = <- w1;
+        string s = <- w1;
+    }
+
+    return wait w1;
+}
