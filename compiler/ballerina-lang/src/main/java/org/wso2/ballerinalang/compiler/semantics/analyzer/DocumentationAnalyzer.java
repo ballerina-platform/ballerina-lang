@@ -374,11 +374,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 identifier)) {
                 return true;
         //Directly validate for an identifier
-        } else if (identifierOnlyPatternMatcher(identifierContent, unqualifiedIdentifierPattern, identifier)) {
-            return true;
-        }
+        } else return identifierOnlyPatternMatcher(identifierContent, unqualifiedIdentifierPattern, identifier);
 
-        return false;
     }
 
     private boolean qualifierPatternMatcher(String identifierString,
@@ -389,17 +386,14 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                                             StringBuilder typeName,
                                             StringBuilder identifier) {
 
-        Matcher qualifierPatternMatcher = qualifierPattern.matcher(identifierString);
-        if (qualifierPatternMatcher.matches()) {
-            packageName.append(qualifierPatternMatcher.group(1));
-            if (typePatternMatcher(qualifierPatternMatcher.group(2), typePattern, unqualifiedIdentifierPattern,
+        StringBuilder typeNameStage =  new StringBuilder();
+        if (matchPattern(identifierString, qualifierPattern, packageName, typeNameStage)) {
+            if (typePatternMatcher(typeNameStage.toString(), typePattern, unqualifiedIdentifierPattern,
                     typeName, identifier)) {
                 return true;
                 //If type name is not there, directly validate for an unqualified Identifier
-            } else if (identifierOnlyPatternMatcher(qualifierPatternMatcher.group(2), unqualifiedIdentifierPattern,
-                    identifier)) {
-                return true;
-            }
+            } else return identifierOnlyPatternMatcher(typeNameStage.toString(), unqualifiedIdentifierPattern,
+                    identifier);
         }
         return  false;
     }
@@ -407,23 +401,28 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private boolean typePatternMatcher(String identifierString, Pattern typePattern,
                                        Pattern unqualifiedIdentifierPattern,
                                        StringBuilder typeName, StringBuilder identifier) {
-        Matcher typePatternMatcherForQualifiedMatch = typePattern.matcher(identifierString);
-        if (typePatternMatcherForQualifiedMatch.matches()) {
+        StringBuilder identifierStage =  new StringBuilder();
+        if (matchPattern(identifierString, typePattern, typeName, identifierStage)) {
             //If Type is there, try to match the function name part. Group 2 contains string after the '.'
-            if (identifierOnlyPatternMatcher(typePatternMatcherForQualifiedMatch.group(2), unqualifiedIdentifierPattern,
-                    identifier)) {
-                typeName.append(typePatternMatcherForQualifiedMatch.group(1));
-                return true;
-            }
+            return identifierOnlyPatternMatcher(identifierStage.toString(), unqualifiedIdentifierPattern,
+                    identifier);
         }
         return false;
     }
 
     private boolean identifierOnlyPatternMatcher(String identifierString, Pattern unqualifiedIdentifierPattern,
                                                  StringBuilder identifier) {
-        Matcher unqualifiedIdentifierPatternMatch = unqualifiedIdentifierPattern.matcher(identifierString);
-        if (unqualifiedIdentifierPatternMatch.matches()) {
-            identifier.append(unqualifiedIdentifierPatternMatch.group(1));
+        return matchPattern(identifierString, unqualifiedIdentifierPattern, identifier, null);
+    }
+
+    private boolean matchPattern(String identifierString, Pattern pattern, StringBuilder token,
+                                 StringBuilder identifierForNextStage) {
+        Matcher matcher = pattern.matcher(identifierString);
+        if (matcher.matches()) {
+            token.append(matcher.group(1));
+            if (matcher.groupCount() > 1) {
+                identifierForNextStage.append(matcher.group(2));
+            }
             return true;
         }
         return false;
