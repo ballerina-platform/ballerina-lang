@@ -18,7 +18,7 @@
       "kind": "Field",
       "detail": "Field",
       "sortText": "210",
-      "insertText": "authHandlers: ${1:[]} // Values allowed: ballerina/http:InboundAuthHandler[]|ballerina/http:InboundAuthHandler[][]",
+      "insertText": "authHandlers: ${1:[]}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -26,7 +26,7 @@
       "kind": "Field",
       "detail": "Field",
       "sortText": "210",
-      "insertText": "scopes: ${1:[]} // Values allowed: string[]|string[][]",
+      "insertText": "scopes: ${1:[]}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -34,7 +34,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "110",
-      "insertText": "enabled: false,\nauthHandlers: [], // Values allowed: ballerina/http:InboundAuthHandler[]|ballerina/http:InboundAuthHandler[][],\nscopes: [] // Values allowed: string[]|string[][]",
+      "insertText": "enabled: false,\nauthHandlers: [],\nscopes: []",
       "insertTextFormat": "Snippet"
     }
   ]

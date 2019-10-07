@@ -66,7 +66,7 @@
       "kind": "Field",
       "detail": "Field",
       "sortText": "210",
-      "insertText": "webSocketUpgrade: ${1:{}} // Values allowed: ballerina/http:WebSocketUpgradeConfig|()",
+      "insertText": "webSocketUpgrade: ${1:{}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -82,7 +82,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "110",
-      "insertText": "methods: [],\npath: \"\",\nbody: \"\",\nconsumes: [],\nproduces: [],\ncors: {},\ntransactionInfectable: false,\nwebSocketUpgrade: {}, // Values allowed: ballerina/http:WebSocketUpgradeConfig|(),\nauth: {}",
+      "insertText": "methods: [],\npath: \"\",\nbody: \"\",\nconsumes: [],\nproduces: [],\ncors: {},\ntransactionInfectable: false,\nwebSocketUpgrade: {},\nauth: {}",
       "insertTextFormat": "Snippet"
     }
   ]
