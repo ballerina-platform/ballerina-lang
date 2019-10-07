@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class StreamingJsonValue extends ArrayValue {
     public StreamingJsonValue(JSONDataSource datasource) {
         this.datasource = datasource;
         this.refValues = (RefValue[]) newArrayInstance(RefValue.class);
-        this.arrayType = new BArrayType(BTypes.typeJSON);
+        this.arrayType = new BArrayType(new BMapType(BTypes.typeJSON));
     }
 
     @Override
