@@ -54,21 +54,51 @@ jobs:
       name:  "Build without tests - Linux"
       os: linux
       language: java
-      install:
+      jdk:
+        - openjdk8
+      node_js:
+        - "8"
+      before_install:
+          - nvm use 8
           - npm install -g npm@'5.6.0'
-    - stage: "Tests (Linux only)"
-      name: "Run Build + tests (without integration)"
+    - stage: "Tests"
+      name: "Run Build + tests (without integration) - Linux"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc -x :plugin-vscode:test --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
+      os: linux
+      language: java
+      jdk:
+        - openjdk8
+      node_js:
+        - "8"
+      before_install:
+          - nvm use 8
+          - npm install -g npm@'5.6.0'
+    - script:
+        - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        # TODO enable tests for all projects
+        - ./gradlew.bat build -Dorg.gradle.parallel=false -x :language-server:language-server-core:test -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-http:test -x :ballerina-file:test -x :ballerina-task:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        # Killing background sleep loop
+        - kill %1
+      name:  "Tests - windows"
+      os: windows
+      language: node_js
+      install:
+        - choco install jdk8 -params 'installdir=c:\\java8'
+        - export JAVA_HOME="c:\\java8"
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - ./gradlew :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
-      name:  "Integration tests"
+      os: linux
+      language: java
+      jdk:
+        - openjdk8
+      name:  "Integration tests - Linux"
 
 
 after_success:
