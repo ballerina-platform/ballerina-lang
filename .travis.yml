@@ -65,7 +65,7 @@ jobs:
       name: "Run Build + tests (without integration) - Linux"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc -x :plugin-vscode:test --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
       os: linux
