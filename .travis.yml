@@ -37,9 +37,10 @@ jobs:
       name: "Build without tests - Windows"
       os: windows
       language: node_js
-      install:
+      before_install:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
+      install: true # check https://github.com/travis-ci/travis-ci/issues/8667
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - ./gradlew.bat build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
@@ -61,8 +62,10 @@ jobs:
       before_install:
           - nvm use 8
           - npm install -g npm@'5.6.0'
+      install: true # check https://github.com/travis-ci/travis-ci/issues/8667
     - stage: "Tests"
       name: "Run Build + tests (without integration) - Linux"
+      install: true # check https://github.com/travis-ci/travis-ci/issues/8667
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc -x :plugin-vscode:test --stacktrace -scan --console=plain --no-daemon
@@ -86,9 +89,10 @@ jobs:
       name:  "Tests - windows"
       os: windows
       language: node_js
-      install:
+      before_install:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
+      install: true # check https://github.com/travis-ci/travis-ci/issues/8667
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - ./gradlew :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
@@ -99,6 +103,7 @@ jobs:
       jdk:
         - openjdk8
       name:  "Integration tests - Linux"
+      install: true # check https://github.com/travis-ci/travis-ci/issues/8667
 
 
 after_success:
