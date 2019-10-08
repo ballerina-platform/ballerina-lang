@@ -98,7 +98,6 @@ service dataService on dataServiceListener {
         }
     }
 
-
     resource function getJosnViaGetJsonStringMethod(http:Caller caller, http:Request req) {
         var selectRet = testDB->select("SELECT * FROM Data LIMIT 10", ());
         if (selectRet is table<record {}>) {
