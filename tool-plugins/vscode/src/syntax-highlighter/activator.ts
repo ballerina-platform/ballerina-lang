@@ -17,23 +17,27 @@
  *
  */
 import { BallerinaExtension } from '../core';
-import { commands, ExtensionContext } from 'vscode';
-import * as vscode from 'vscode';
+import { commands, ExtensionContext, Uri } from 'vscode';
+import { ExtendedLangClient } from '../core';
+//import * as vscode from 'vscode';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     const context = <ExtensionContext> ballerinaExtInstance.context;
 
     let disposable = commands.registerCommand('ballerina.highlightSyntax', () => {
-		// Highlight first 5 letters
-		vscode.languages.registerDocumentHighlightProvider('ballerina',{
-            provideDocumentHighlights(document:vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken)
-            {
-                return [new vscode.DocumentHighlight(new vscode.Range(0,0,0,5),2)];
-            }
-        });
+        const langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+        const docUri = Uri.file("/home/tharushi/ballerina-lang/tool-plugins/vscode/abc.bal");
+        console.log(docUri);
+        
+        langClient.getAST(docUri)
+					.then((resp) => {
+						if (resp.ast) {
+							console.log("Printing AST-");
+                            console.log(resp.ast);
+                        }
+                    });
 	});
-
 	context.subscriptions.push(disposable);
 
 }

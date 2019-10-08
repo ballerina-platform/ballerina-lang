@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.extensions;
 
+import org.ballerinalang.langserver.extensions.ballerina.syntax-highlighter.BallerinaSyntaxHighlightService.java;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.fragment.BallerinaFragmentService;
@@ -42,4 +43,6 @@ public interface ExtendedLanguageServer extends LanguageServer {
     BallerinaSymbolService getBallerinaSymbolService();
     @JsonDelegate
     BallerinaFragmentService getBallerinaFragmentService();
+    @JsonDelegate
+    BallerinaSyntaxHighlightService getBallerinaSyntaxHighlightService();
 }
