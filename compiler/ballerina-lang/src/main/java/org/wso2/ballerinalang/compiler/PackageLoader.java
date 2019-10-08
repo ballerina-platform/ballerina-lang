@@ -351,7 +351,7 @@ public class PackageLoader {
             // TODO: make getDependencies return a map
             Optional<Dependency> dependency = this.manifest.getDependencies().stream()
                     .filter(d -> d.getModuleName().equals(moduleName) && d.getOrgName().equals(orgName) &&
-                            null != d.getMetadata().getVersion() &&
+                            d.getMetadata().getVersion() != null &&
                             !"*".equals(d.getMetadata().getVersion()))
                     .findFirst();
             moduleVersion = dependency.isPresent() ? dependency.get().getMetadata().getVersion() : "";
@@ -369,7 +369,7 @@ public class PackageLoader {
                     .stream()
                     .filter(dep -> dep.getOrgName().equals(moduleID.orgName.value) &&
                             dep.getModuleName().equals(moduleID.name.value) &&
-                            null != dep.getMetadata().getVersion() &&
+                            dep.getMetadata().getVersion() != null &&
                             !"*".equals(dep.getMetadata().getVersion()))
                     .findFirst();
 
