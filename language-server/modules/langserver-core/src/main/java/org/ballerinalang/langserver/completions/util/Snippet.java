@@ -38,6 +38,8 @@ public enum Snippet {
 
     DEF_RECORD(SnippetGenerator.getRecordDefinitionSnippet()),
 
+    DEF_CLOSED_RECORD(SnippetGenerator.getClosedRecordDefinitionSnippet()),
+
     DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
 
     DEF_RESOURCE_COMMON(SnippetGenerator.getCommonResourceDefinitionSnippet()),
