@@ -1,0 +1,89 @@
+{
+  "position": {
+    "line": 5,
+    "character": 19
+  },
+  "source": "record/source/recordTest12.bal",
+  "items": [
+    {
+      "label": "methods",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "methods: [${1}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "path",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "path: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "body",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "body: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "consumes",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "consumes: [${1}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "produces",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "produces: [${1}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cors",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "cors: {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactionInfectable",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "transactionInfectable: ${1:false}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "webSocketUpgrade",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "webSocketUpgrade: ${1:{}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "auth",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "auth: {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "methods: [],\npath: \"\",\nbody: \"\",\nconsumes: [],\nproduces: [],\ncors: {},\ntransactionInfectable: false,\nwebSocketUpgrade: {},\nauth: {}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

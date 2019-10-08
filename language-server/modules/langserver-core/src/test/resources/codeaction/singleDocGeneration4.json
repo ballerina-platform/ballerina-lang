@@ -1,11 +1,11 @@
 {
   "range": {
     "start": {
-      "line": 23,
+      "line": 25,
       "character": 11
     },
     "end": {
-      "line": 23,
+      "line": 25,
       "character": 11
     }
   },
@@ -18,11 +18,11 @@
         "arguments": [
           {
             "argumentK": "node.type",
-            "argumentV": "object"
+            "argumentV": "OBJECT"
           },
           {
             "argumentK": "node.line",
-            "argumentV": "23"
+            "argumentV": "25"
           }
         ]
       },
