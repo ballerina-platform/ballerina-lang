@@ -366,7 +366,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case1: Test dependency between two porject with common module as an import.")
+    @Test(description = "Case6: Test dependency between two porject with common module as an import.")
     public void testBaloPathCase6() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case6");
 
