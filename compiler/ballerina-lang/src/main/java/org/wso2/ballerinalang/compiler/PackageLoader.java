@@ -268,7 +268,6 @@ public class PackageLoader {
     
     private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId,
                                             RepoHierarchy encPkgRepoHierarchy) {
-        updateModuleIDVersion(pkgId, enclPackageId);
         Resolution resolution = resolveModuleByPath(pkgId);
         // if a resolution is found by dependency path
         if (resolution != Resolution.NOT_FOUND) {
@@ -434,6 +433,7 @@ public class PackageLoader {
 
     public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId,
                                             RepoHierarchy encPkgRepoHierarchy) {
+        updateModuleIDVersion(packageId, enclPackageId);
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
         if (packageSymbol != null) {
             return packageSymbol;
