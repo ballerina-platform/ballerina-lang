@@ -402,7 +402,7 @@ public class PathDependencyTestCase extends BaseTest {
         String moduleXJarFileName = "X" + BLANG_COMPILED_JAR_EXT;
         String executableFilePath = "target" + File.separator + "bin" + File.separator + moduleXJarFileName;
         LogLeecher bazRunLeecher = new LogLeecher(msg);
-        balClient.runMain("run", new String[] {executableFilePath}, envVariables, new String[0],
+        balClient.runMain("run", new String[]{executableFilePath}, envVariables, new String[0],
                 new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject1").toString());
         bazRunLeecher.waitForText(10000);
     }
