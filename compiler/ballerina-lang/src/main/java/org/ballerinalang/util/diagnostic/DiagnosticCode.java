@@ -326,8 +326,8 @@ public enum DiagnosticCode {
     VARIABLE_ALREADY_DOCUMENTED("variable.already.documented"),
     UNDOCUMENTED_RETURN_PARAMETER("undocumented.return.parameter"),
     NO_DOCUMENTABLE_RETURN_PARAMETER("no.documentable.return.parameter"),
-    INVALID_IDENTIFIER("invalid.identifier"),
-    INVALID_REFERENCE("invalid.reference"),
+    INVALID_DOCUMENTATION_IDENTIFIER("invalid.documentation.identifier"),
+    INVALID_DOCUMENTATION_REFERENCE("invalid.documentation.reference"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
     INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),

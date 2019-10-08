@@ -69,7 +69,6 @@ import org.ballerinalang.model.tree.expressions.IsLikeExpressionNode;
 import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.ballerinalang.model.tree.expressions.ListConstructorExprNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.model.tree.expressions.MarkdownDocumentationBReferenceAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationParameterAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationReturnParameterAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationTextAttributeNode;
@@ -100,6 +99,7 @@ import org.ballerinalang.model.tree.expressions.XMLProcessingInstructionLiteralN
 import org.ballerinalang.model.tree.expressions.XMLQNameNode;
 import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
 import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
+import org.ballerinalang.model.tree.MarkdownDocumentationReferenceAttributeNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -200,7 +200,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownBReferenceDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
@@ -616,8 +616,8 @@ public class TreeBuilder {
         return new BLangMarkdownParameterDocumentation();
     }
 
-    public static MarkdownDocumentationBReferenceAttributeNode createMarkdownBReferenceDocumentationNode() {
-        return new BLangMarkdownBReferenceDocumentation();
+    public static MarkdownDocumentationReferenceAttributeNode createMarkdownBReferenceDocumentationNode() {
+        return new BLangMarkdownReferenceDocumentation();
     }
 
     public static MarkdownDocumentationReturnParameterAttributeNode createMarkdownReturnParameterDocumentationNode() {

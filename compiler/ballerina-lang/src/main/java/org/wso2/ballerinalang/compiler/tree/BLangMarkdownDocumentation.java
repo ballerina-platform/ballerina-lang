@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownBReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
@@ -39,7 +38,7 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
 
     public LinkedList<BLangMarkdownDocumentationLine> documentationLines;
     public LinkedList<BLangMarkdownParameterDocumentation> parameters;
-    public LinkedList<BLangMarkdownBReferenceDocumentation> references;
+    public LinkedList<BLangMarkdownReferenceDocumentation> references;
     public BLangMarkdownReturnParameterDocumentation returnParameter;
 
     public BLangMarkdownDocumentation() {
@@ -114,12 +113,12 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
     }
 
     @Override
-    public LinkedList<BLangMarkdownBReferenceDocumentation> getReferences() {
+    public LinkedList<BLangMarkdownReferenceDocumentation> getReferences() {
         return references;
     }
 
     @Override
-    public void addReference(BLangMarkdownBReferenceDocumentation reference) {
+    public void addReference(BLangMarkdownReferenceDocumentation reference) {
         if (reference != null) {
             references.add(reference);
         }

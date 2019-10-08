@@ -245,11 +245,10 @@ public class BallerinaParser extends Parser {
 		"'@'", "'`'", "'..'", "'...'", "'|'", "'=>'", "'?:'", "'->>'", "'+='", 
 		"'-='", "'*='", "'/='", "'&='", "'|='", "'^='", "'<<='", "'>>='", "'>>>='", 
 		"'..<'", "'.@'", null, null, null, null, null, null, null, null, "'null'", 
-		null, null, null, null, null, null, null, null, null, "'type `'", "'service `'", 
-		"'variable `'", "'var `'", "'annotation `'", "'module `'", "'function `'", 
-		"'parameter `'", "'const `'", null, null, null, null, null, null, null, 
-		null, null, null, null, null, null, null, null, null, "'<!--'", null, 
-		null, null, null, null, "'</'", null, null, null, null, null, "'?>'", 
+		null, null, null, null, null, null, null, null, null, null, null, null, 
+		null, null, null, null, null, null, null, null, null, null, null, null, 
+		null, null, null, null, null, null, null, null, null, null, "'<!--'", 
+		null, null, null, null, null, "'</'", null, null, null, null, null, "'?>'", 
 		"'/>'", null, null, null, "'\"'", "'''", null, null, null, null, null, 
 		null, null, null, null, null, "'-->'"
 	};

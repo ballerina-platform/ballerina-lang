@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,27 +16,18 @@
  *  under the License.
  */
 
-package org.ballerinalang.model.tree.expressions;
+package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.types.DocumentationReferenceType;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 /**
-* Interface to extend to make a node Documentable.
+* Interface to extend to make a node documentable.
 *
-* @since 1.0.2
+* @since 1.1.0
 */
-public interface MarkdownDocumentationBReferenceAttributeNode extends ExpressionNode {
+public interface MarkdownDocumentationReferenceAttributeNode extends Node {
 
     String getReferenceName();
-
-    void setReferenceName(String referenceName);
-
-    BVarSymbol getSymbol();
-
-    void setSymbol(BVarSymbol symbol);
-
-    void setType(DocumentationReferenceType type);
 
     DocumentationReferenceType getType();
 }

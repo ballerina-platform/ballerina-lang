@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
@@ -129,7 +130,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownBReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
@@ -2331,65 +2331,18 @@ public class BLangPackageBuilder {
 
     void endDocumentationReference(DiagnosticPos pos, String referenceType, String identifier) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
-        if (markdownDocumentationNode == null) {
-            return;
-        }
-
-        BLangMarkdownBReferenceDocumentation referenceDocumentation = null;
-        switch (referenceType) {
-            case "service `":
-                referenceDocumentation =
-                        createBReferenceDocumentation(pos, DocumentationReferenceType.SERVICE, identifier);
-                break;
-            case "parameter `":
-                referenceDocumentation =
-                        createBReferenceDocumentation(pos, DocumentationReferenceType.PARAMETER, identifier);
-                break;
-            case "function `":
-                referenceDocumentation =
-                        createBReferenceDocumentation(pos, DocumentationReferenceType.FUNCTION, identifier);
-                break;
-            case "type `":
-                referenceDocumentation =
-                        createBReferenceDocumentation(pos, DocumentationReferenceType.TYPE, identifier);
-                break;
-            case "variable `":
-                referenceDocumentation =
-                        createBReferenceDocumentation(pos, DocumentationReferenceType.VARIABLE, identifier);
-                break;
-            case "var `":
-                referenceDocumentation =
-                        createBReferenceDocumentation(pos, DocumentationReferenceType.VARIABLE, identifier);
-                break;
-            case "annotation `":
-                referenceDocumentation =
-                        createBReferenceDocumentation(pos, DocumentationReferenceType.ANNOTATION, identifier);
-                break;
-            case "module `":
-                referenceDocumentation =
-                        createBReferenceDocumentation(pos, DocumentationReferenceType.MODULE, identifier);
-                break;
-            case "const `":
-                referenceDocumentation =
-                        createBReferenceDocumentation(pos, DocumentationReferenceType.CONST, identifier);
-                break;
-            default:
-                break;
-        }
-
+        //Processing the reference name because its of the pattern "service   `". Trim the spaces and trailing "`"
+        String processedReferenceType = referenceType.substring(0, (referenceType.length() - 1)).trim().toUpperCase();
+        BLangMarkdownReferenceDocumentation referenceDocumentation = createBReferenceDocumentation(pos,
+                DocumentationReferenceType.valueOf(processedReferenceType), identifier);
         markdownDocumentationNode.addReference(referenceDocumentation);
     }
 
     //Store single backticked content in Documentation Node
     void endSingleBacktickedBlock(DiagnosticPos pos, String identifier) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
-        if (markdownDocumentationNode == null) {
-            return;
-        }
-
-        BLangMarkdownBReferenceDocumentation referenceDocumentation =
+        BLangMarkdownReferenceDocumentation referenceDocumentation =
                 createBReferenceDocumentation(pos, DocumentationReferenceType.BACKTICK_CONTENT, identifier);
-
         markdownDocumentationNode.addReference(referenceDocumentation);
     }
 
@@ -2509,13 +2462,13 @@ public class BLangPackageBuilder {
         }
     }
 
-    private BLangMarkdownBReferenceDocumentation createBReferenceDocumentation(DiagnosticPos pos,
+    private BLangMarkdownReferenceDocumentation createBReferenceDocumentation(DiagnosticPos pos,
                                                                                DocumentationReferenceType type,
                                                                                String identifier) {
-        BLangMarkdownBReferenceDocumentation referenceDocumentation =
-                (BLangMarkdownBReferenceDocumentation) TreeBuilder.createMarkdownBReferenceDocumentationNode();
-        referenceDocumentation.setType(type);
-        referenceDocumentation.setReferenceName(identifier);
+        BLangMarkdownReferenceDocumentation referenceDocumentation =
+                (BLangMarkdownReferenceDocumentation) TreeBuilder.createMarkdownBReferenceDocumentationNode();
+        referenceDocumentation.type = type;
+        referenceDocumentation.referenceName = identifier;
         referenceDocumentation.pos = pos;
 
         return referenceDocumentation;

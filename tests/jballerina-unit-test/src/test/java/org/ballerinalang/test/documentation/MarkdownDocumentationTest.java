@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownBReferenceDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -109,31 +109,31 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(constantNode);
         documentationAttachment = constantNode.getMarkdownDocumentationAttachment();
 
-        LinkedList<BLangMarkdownBReferenceDocumentation> references = documentationAttachment.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
         Assert.assertEquals(references.size(), 8);
 
-        Assert.assertEquals(references.get(0).getType(), DocumentationReferenceType.TYPE);
+        Assert.assertEquals(references.get(0).type, DocumentationReferenceType.TYPE);
         Assert.assertEquals(references.get(0).referenceName, "typeDef");
 
-        Assert.assertEquals(references.get(1).getType(), DocumentationReferenceType.SERVICE);
+        Assert.assertEquals(references.get(1).type, DocumentationReferenceType.SERVICE);
         Assert.assertEquals(references.get(1).referenceName, "helloWorld");
 
-        Assert.assertEquals(references.get(2).getType(), DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(2).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(2).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(3).getType(), DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(3).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(4).getType(), DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
         Assert.assertEquals(references.get(4).referenceName, "add");
 
-        Assert.assertEquals(references.get(5).getType(), DocumentationReferenceType.PARAMETER);
+        Assert.assertEquals(references.get(5).type, DocumentationReferenceType.PARAMETER);
         Assert.assertEquals(references.get(5).referenceName, "x");
 
-        Assert.assertEquals(references.get(6).getType(), DocumentationReferenceType.CONST);
+        Assert.assertEquals(references.get(6).type, DocumentationReferenceType.CONST);
         Assert.assertEquals(references.get(6).referenceName, "constant");
 
-        Assert.assertEquals(references.get(7).getType(), DocumentationReferenceType.ANNOTATION);
+        Assert.assertEquals(references.get(7).type, DocumentationReferenceType.ANNOTATION);
         Assert.assertEquals(references.get(7).referenceName, "annot");
     }
 
@@ -196,31 +196,31 @@ public class MarkdownDocumentationTest {
         documentationAttachment = packageNode.getTypeDefinitions().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
-        LinkedList<BLangMarkdownBReferenceDocumentation> references = documentationAttachment.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
         Assert.assertEquals(references.size(), 8);
 
-        Assert.assertEquals(references.get(0).getType(), DocumentationReferenceType.TYPE);
+        Assert.assertEquals(references.get(0).type, DocumentationReferenceType.TYPE);
         Assert.assertEquals(references.get(0).referenceName, "typeDef");
 
-        Assert.assertEquals(references.get(1).getType(), DocumentationReferenceType.SERVICE);
+        Assert.assertEquals(references.get(1).type, DocumentationReferenceType.SERVICE);
         Assert.assertEquals(references.get(1).referenceName, "helloWorld");
 
-        Assert.assertEquals(references.get(2).getType(), DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(2).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(2).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(3).getType(), DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(3).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(4).getType(), DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
         Assert.assertEquals(references.get(4).referenceName, "add");
 
-        Assert.assertEquals(references.get(5).getType(), DocumentationReferenceType.PARAMETER);
+        Assert.assertEquals(references.get(5).type, DocumentationReferenceType.PARAMETER);
         Assert.assertEquals(references.get(5).referenceName, "x");
 
-        Assert.assertEquals(references.get(6).getType(), DocumentationReferenceType.CONST);
+        Assert.assertEquals(references.get(6).type, DocumentationReferenceType.CONST);
         Assert.assertEquals(references.get(6).referenceName, "constant");
 
-        Assert.assertEquals(references.get(7).getType(), DocumentationReferenceType.ANNOTATION);
+        Assert.assertEquals(references.get(7).type, DocumentationReferenceType.ANNOTATION);
         Assert.assertEquals(references.get(7).referenceName, "annot");
     }
 
@@ -292,31 +292,31 @@ public class MarkdownDocumentationTest {
         documentationAttachment = packageNode.getFunctions().get(4).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
-        LinkedList<BLangMarkdownBReferenceDocumentation> references = documentationAttachment.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
         Assert.assertEquals(references.size(), 8);
 
-        Assert.assertEquals(references.get(0).getType(), DocumentationReferenceType.TYPE);
+        Assert.assertEquals(references.get(0).type, DocumentationReferenceType.TYPE);
         Assert.assertEquals(references.get(0).referenceName, "typeDef");
 
-        Assert.assertEquals(references.get(1).getType(), DocumentationReferenceType.SERVICE);
+        Assert.assertEquals(references.get(1).type, DocumentationReferenceType.SERVICE);
         Assert.assertEquals(references.get(1).referenceName, "helloWorld");
 
-        Assert.assertEquals(references.get(2).getType(), DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(2).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(2).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(3).getType(), DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(3).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(4).getType(), DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
         Assert.assertEquals(references.get(4).referenceName, "add");
 
-        Assert.assertEquals(references.get(5).getType(), DocumentationReferenceType.PARAMETER);
+        Assert.assertEquals(references.get(5).type, DocumentationReferenceType.PARAMETER);
         Assert.assertEquals(references.get(5).referenceName, "x");
 
-        Assert.assertEquals(references.get(6).getType(), DocumentationReferenceType.CONST);
+        Assert.assertEquals(references.get(6).type, DocumentationReferenceType.CONST);
         Assert.assertEquals(references.get(6).referenceName, "constant");
 
-        Assert.assertEquals(references.get(7).getType(), DocumentationReferenceType.ANNOTATION);
+        Assert.assertEquals(references.get(7).type, DocumentationReferenceType.ANNOTATION);
         Assert.assertEquals(references.get(7).referenceName, "annot");
 
     }
@@ -391,31 +391,31 @@ public class MarkdownDocumentationTest {
         documentationAttachment = packageNode.getServices().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
-        LinkedList<BLangMarkdownBReferenceDocumentation> references = documentationAttachment.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
         Assert.assertEquals(references.size(), 8);
 
-        Assert.assertEquals(references.get(0).getType(), DocumentationReferenceType.TYPE);
+        Assert.assertEquals(references.get(0).type, DocumentationReferenceType.TYPE);
         Assert.assertEquals(references.get(0).referenceName, "typeDef");
 
-        Assert.assertEquals(references.get(1).getType(), DocumentationReferenceType.SERVICE);
+        Assert.assertEquals(references.get(1).type, DocumentationReferenceType.SERVICE);
         Assert.assertEquals(references.get(1).referenceName, "helloWorld");
 
-        Assert.assertEquals(references.get(2).getType(), DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(2).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(2).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(3).getType(), DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(3).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(4).getType(), DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
         Assert.assertEquals(references.get(4).referenceName, "add");
 
-        Assert.assertEquals(references.get(5).getType(), DocumentationReferenceType.PARAMETER);
+        Assert.assertEquals(references.get(5).type, DocumentationReferenceType.PARAMETER);
         Assert.assertEquals(references.get(5).referenceName, "x");
 
-        Assert.assertEquals(references.get(6).getType(), DocumentationReferenceType.CONST);
+        Assert.assertEquals(references.get(6).type, DocumentationReferenceType.CONST);
         Assert.assertEquals(references.get(6).referenceName, "constant");
 
-        Assert.assertEquals(references.get(7).getType(), DocumentationReferenceType.ANNOTATION);
+        Assert.assertEquals(references.get(7).type, DocumentationReferenceType.ANNOTATION);
         Assert.assertEquals(references.get(7).referenceName, "annot");
     }
 
@@ -465,31 +465,31 @@ public class MarkdownDocumentationTest {
         documentationAttachment = packageNode.getTypeDefinitions().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
-        LinkedList<BLangMarkdownBReferenceDocumentation> references = documentationAttachment.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
         Assert.assertEquals(references.size(), 8);
 
-        Assert.assertEquals(references.get(0).getType(), DocumentationReferenceType.TYPE);
+        Assert.assertEquals(references.get(0).type, DocumentationReferenceType.TYPE);
         Assert.assertEquals(references.get(0).referenceName, "typeDef");
 
-        Assert.assertEquals(references.get(1).getType(), DocumentationReferenceType.SERVICE);
+        Assert.assertEquals(references.get(1).type, DocumentationReferenceType.SERVICE);
         Assert.assertEquals(references.get(1).referenceName, "helloWorld");
 
-        Assert.assertEquals(references.get(2).getType(), DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(2).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(2).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(3).getType(), DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(3).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(4).getType(), DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
         Assert.assertEquals(references.get(4).referenceName, "add");
 
-        Assert.assertEquals(references.get(5).getType(), DocumentationReferenceType.PARAMETER);
+        Assert.assertEquals(references.get(5).type, DocumentationReferenceType.PARAMETER);
         Assert.assertEquals(references.get(5).referenceName, "x");
 
-        Assert.assertEquals(references.get(6).getType(), DocumentationReferenceType.CONST);
+        Assert.assertEquals(references.get(6).type, DocumentationReferenceType.CONST);
         Assert.assertEquals(references.get(6).referenceName, "constant");
 
-        Assert.assertEquals(references.get(7).getType(), DocumentationReferenceType.ANNOTATION);
+        Assert.assertEquals(references.get(7).type, DocumentationReferenceType.ANNOTATION);
         Assert.assertEquals(references.get(7).referenceName, "annot");
     }
 

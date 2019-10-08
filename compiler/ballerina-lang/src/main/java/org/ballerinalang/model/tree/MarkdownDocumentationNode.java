@@ -18,12 +18,13 @@
 
 package org.ballerinalang.model.tree;
 
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownBReferenceDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,7 +52,7 @@ public interface MarkdownDocumentationNode extends Node {
 
     String getReturnParameterDocumentation();
 
-    LinkedList<BLangMarkdownBReferenceDocumentation> getReferences();
+    List<BLangMarkdownReferenceDocumentation> getReferences();
 
-    void addReference(BLangMarkdownBReferenceDocumentation reference);
+    void addReference(BLangMarkdownReferenceDocumentation reference);
 }

@@ -537,15 +537,15 @@ LINE_COMMENT
 
 mode MARKDOWN_DOCUMENTATION;
 
-DOCTYPE         :   'type `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
-DOCSERVICE      :   'service `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
-DOCVARIABLE     :   'variable `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
-DOCVAR          :   'var `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
-DOCANNOTATION   :   'annotation `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
-DOCMODULE       :   'module `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
-DOCFUNCTION     :   'function `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
-DOCPARAMETER    :   'parameter `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
-DOCCONST        :   'const `' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCTYPE         :   'type' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCSERVICE      :   'service' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCVARIABLE     :   'variable' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCVAR          :   'var' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCANNOTATION   :   'annotation' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCMODULE       :   'module' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCFUNCTION     :   'function' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCPARAMETER    :   'parameter' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCCONST        :   'const' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
 
 SingleBacktickStart
     :   BACKTICK -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION)

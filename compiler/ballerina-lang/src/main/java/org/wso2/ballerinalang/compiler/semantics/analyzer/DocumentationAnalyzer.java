@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -46,7 +47,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownBReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -222,7 +222,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        LinkedList<BLangMarkdownBReferenceDocumentation> references = documentation.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentation.getReferences();
         references.forEach(reference -> {
             StringBuilder pckgName = new StringBuilder();
             StringBuilder typeName = new StringBuilder();
@@ -237,7 +237,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             //Do not warn if backticked content is not matched.
             if (!isValidIdentifierString) {
                 if (reference.type != DocumentationReferenceType.BACKTICK_CONTENT) {
-                    dlog.warning(reference.pos, DiagnosticCode.INVALID_IDENTIFIER,
+                    dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_IDENTIFIER,
                             reference.getReferenceName());
                 }
                 return;
@@ -248,8 +248,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                                                            typeName.toString(),
                                                            identifier.toString());
             if (!isValidIdentifier) {
-                dlog.warning(reference.pos, DiagnosticCode.INVALID_REFERENCE,
-                        reference.getReferenceName());
+                dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_REFERENCE,
+                        reference.getReferenceName(), reference.getType().getValue());
             }
         });
     }
@@ -280,6 +280,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.TYPE);
                 break;
             case VARIABLE:
+            case VAR:
                 symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.VARIABLE);
                 break;
             case ANNOTATION:
