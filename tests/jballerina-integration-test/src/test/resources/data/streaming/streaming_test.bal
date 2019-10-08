@@ -97,4 +97,21 @@ service dataService on dataServiceListener {
             log:printError("Select data from Data table failed: " + e.reason());
         }
     }
+
+
+    resource function getJosnViaGetJsonStringMethod(http:Caller caller, http:Request req) {
+        var selectRet = testDB->select("SELECT * FROM Data LIMIT 10", ());
+        if (selectRet is table<record {}>) {
+            var jsonConversionRet = jsonutils:fromTable(selectRet);
+            http:Response resp= new;
+            resp.setPayload(jsonConversionRet.toJsonString());
+            var responseToCaller = caller->respond(resp);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", responseToCaller);
+            }
+        } else {
+            error e = selectRet;
+            log:printError("Select data from Data table failed: " + e.reason());
+        }
+    }
 }
