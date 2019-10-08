@@ -14,14 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Configuration related to a streaming connection.
+# Configuration related to establishing a streaming connection.
 #
 # + ackTimeoutInSeconds - Timeout in seconds to wait for an acknowledgement for the corresponding subscription.
-#                Default value is `30`.
-# + connectionTimeoutInSeconds - Timeout in seconds to wait for a connection. Default value is `5`.
+# + connectionTimeoutInSeconds - Timeout in seconds to wait for a connection.
 # + maxPubAcksInFlight - The maximum number of publish ACKs that may be in flight at any point in time.
-#                        Default value is 16384.
-# + discoverPrefix - Subject prefix used for server discovery. Default value is `_STAN.discover`
+# + discoverPrefix - Subject prefix used for server discovery.
 public type StreamingConfig record {|
     int ackTimeoutInSeconds = 30;
     int connectionTimeoutInSeconds = 5;

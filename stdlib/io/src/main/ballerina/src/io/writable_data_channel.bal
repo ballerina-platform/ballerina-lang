@@ -20,7 +20,11 @@
 #
 # LITTLE_ENDIAN - specifies the byte order to be the least significant byte first
 public type ByteOrder "BE"|"LE";
+
+# Specifies the bytes to be in the order of most significant byte first.
 public const BIG_ENDIAN = "BE";
+
+# Specifies the byte order to be the least significant byte first.
 public const LITTLE_ENDIAN = "LE";
 
 # Represents a WritableDataChannel for writing data.

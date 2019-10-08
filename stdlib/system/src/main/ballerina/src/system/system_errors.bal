@@ -23,20 +23,29 @@ type Detail record {
     error cause?;
 };
 
+# Represents the error code for invalid operations
 public const INVALID_OPERATION_ERROR = "{ballerina/system}InvalidOperationError";
 
+# Represents an `InvalidOperationError` with a detailed message.
 public type InvalidOperationError error<INVALID_OPERATION_ERROR, Detail>;
 
+# Represents the error code for permission errors
 public const PERMISSION_ERROR = "{ballerina/system}PermissionError";
 
+# Represents an `PermissionError` with a detailed message.
 public type PermissionError error<PERMISSION_ERROR, Detail>;
 
+# Represents the error code for file system errors
 public const FILE_SYSTEM_ERROR = "{ballerina/system}FileSystemError";
 
+# Represents an `FileSystemError` with a detailed message.
 public type FileSystemError error<FILE_SYSTEM_ERROR, Detail>;
 
+# Represents the error code for file not found
 public const FILE_NOT_FOUND_ERROR = "{ballerina/system}FileNotFoundError";
 
+# Represents an `FileNotFoundError` with a detailed message.
 public type FileNotFoundError error<FILE_NOT_FOUND_ERROR, Detail>;
 
+# Represents System related errors.
 public type Error InvalidOperationError|PermissionError|FileSystemError|FileNotFoundError;

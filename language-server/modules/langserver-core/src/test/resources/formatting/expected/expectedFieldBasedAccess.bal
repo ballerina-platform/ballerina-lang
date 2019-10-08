@@ -37,4 +37,8 @@ function name() {
     foreach int i in 0 ..< 5 {
         str = str.concat(" ");
     }
+
+    if (payload is json) {
+        map<anydata> | error sd = map<anydata>.constructFrom(payload);
+    }
 }

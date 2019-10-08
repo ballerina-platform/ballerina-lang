@@ -37,6 +37,10 @@ public class LaunchSingleFile extends LauncherImpl implements Launch {
         ProcessBuilder processBuilder = new ProcessBuilder();
         String balFile = args.get("script").toString();
         processBuilder.command(getLauncherCommand(balFile));
+
+        Map<String, String> env = processBuilder.environment();
+        // set environment ballerina home
+        env.put("BALLERINA_HOME", getBallerinaHome());
         return processBuilder.start();
     }
 }

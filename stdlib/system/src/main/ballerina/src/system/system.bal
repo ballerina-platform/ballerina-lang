@@ -18,17 +18,17 @@
 # Returns the environment variable value associated with the provided name.
 #
 # + name - Name of the environment variable
-# + return - Environment variable value if it exists, otherwise an empty string
+# + return - Environment variable value if it exists, else an empty string
 public function getEnv(@untainted string name) returns string = external;
 
 # Returns the current user's name.
 #
-# + return - Current user's name if it can be determined, an empty string otherwise
+# + return - Current user's name if it can be determined, else an empty string
 public function getUsername() returns string = external;
 
 # Returns the current user's home directory path.
 #
-# + return - Current user's home directory if it can be determined, an empty string otherwise
+# + return - Current user's home directory if it can be determined, else an empty string
 public function getUserHome() returns string = external;
 
 # Returns a random UUID string.

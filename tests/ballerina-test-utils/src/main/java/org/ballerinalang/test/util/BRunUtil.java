@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypedescType;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -698,8 +699,9 @@ public class BRunUtil {
                 BPackage pkg = new BPackage(pkgID.orgName.value, pkgID.name.value, pkgID.version.value);
                 org.ballerinalang.jvm.types.BType restFieldType =
                         recordType.sealed ? null : getJVMType(recordType.restFieldType);
+                int typeFlags = getMask(recordType.isNullable(), recordType.isAnydata(), recordType.isPureType());
                 org.ballerinalang.jvm.types.BRecordType jvmRecordType = new org.ballerinalang.jvm.types.BRecordType(
-                        recordType.tsymbol.name.value, pkg, 0, fields, restFieldType, false);
+                        recordType.tsymbol.name.value, pkg, 0, fields, restFieldType, false, typeFlags);
                 return jvmRecordType;
             case TypeTags.FINITE_TYPE_TAG:
                 org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType finiteType =
@@ -712,10 +714,22 @@ public class BRunUtil {
                     Object value = ((BLangLiteral) expr).value;
                     valueSpace.add(value);
                 }
-                return new org.ballerinalang.jvm.types.BFiniteType(null, valueSpace);
+                return new org.ballerinalang.jvm.types.BFiniteType(null, valueSpace,
+                        getMask(finiteType.isNullable(), finiteType.isAnydata(), finiteType.isPureType()));
             default:
                 throw new RuntimeException("Function argument for type '" + type + "' is not supported");
         }
+    }
+
+    private static int getMask(boolean nilable, boolean isAnydata, boolean isPureType) {
+        int mask = nilable ? TypeFlags.NILABLE : 0;
+        if (isAnydata) {
+            mask = TypeFlags.addToMask(mask, TypeFlags.ANYDATA);
+        }
+        if (isPureType) {
+            mask = TypeFlags.addToMask(mask, TypeFlags.PURETYPE);
+        }
+        return mask;
     }
 
     /**

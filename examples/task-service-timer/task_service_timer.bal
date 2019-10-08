@@ -9,7 +9,7 @@ task:TimerConfiguration timerConfiguration = {
     noOfRecurrences: 10
 };
 
-// Initialize the listener using pre defined configurations.
+// Initialize the listener using the above defined configurations.
 listener task:Listener timer = new(timerConfiguration);
 
 int count = 0;

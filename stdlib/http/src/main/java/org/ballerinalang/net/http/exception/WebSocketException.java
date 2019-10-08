@@ -19,46 +19,33 @@
 package org.ballerinalang.net.http.exception;
 
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketUtil;
 
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsGenericError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode;
 
 /**
- * BallerinaException that could occur in WebSocket.
+ * Exceptions that could occur in WebSocket.
  *
  * @since 0.995
  */
 public class WebSocketException extends ErrorValue {
-    private static final long serialVersionUID = 381055783364464822L;
     private final String message;
 
-    /**
-     * Constructs a new {@link WebSocketException} with the specified detail message.
-     *
-     * @param ex the exception that caused this
-     */
     public WebSocketException(Throwable ex) {
         this(WebSocketUtil.getErrorMessage(ex));
     }
 
-    /**
-     * Constructs a new {@link WebSocketException} with the specified detail message.
-     *
-     * @param message Error Message
-     */
     public WebSocketException(String message) {
-        this(WsGenericError, message);
+        this(ErrorCode.WsGenericError, message);
     }
 
-    /**
-     * Constructs a new {@link WebSocketException} with the specified detail message and cause.
-     *
-     * @param errorCode   Cause
-     * @param message Error message
-     */
-    public WebSocketException(WebSocketConstants.ErrorCode errorCode, String message) {
+    public WebSocketException(ErrorCode errorCode, String message) {
         super(errorCode.errorCode(), WebSocketUtil.createDetailRecord(message));
+        this.message = message;
+    }
+
+    public WebSocketException(ErrorCode errorCode, String message, ErrorValue cause) {
+        super(errorCode.errorCode(), WebSocketUtil.createDetailRecord(message, cause));
         this.message = message;
     }
 
