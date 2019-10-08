@@ -195,6 +195,40 @@ public class TypeChecker {
             return targetType.equals(sourceType);
         }
 
+        if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG && targetType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            // value space should be same
+            if (((BFiniteType) sourceType).valueSpace.size() != ((BFiniteType) targetType).valueSpace.size()) {
+                return false;
+            }
+
+            for (Object sourceVal : ((BFiniteType) sourceType).valueSpace) {
+                if (!containsType(((BFiniteType) targetType).valueSpace, getType(sourceVal))) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // all the types in a finite type may evaluate to target type
+        if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            for (Object value : ((BFiniteType) sourceType).valueSpace) {
+                if (!isSameType(getType(value), targetType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (targetType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            for (Object value : ((BFiniteType) targetType).valueSpace) {
+                if (!isSameType(getType(value), sourceType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         return false;
     }
 
@@ -1692,5 +1726,14 @@ public class TypeChecker {
             }
         }
         return false;
+    }
+
+    private static boolean containsType(Set<Object> valueSpace, BType type) {
+        for (Object value : valueSpace) {
+            if (!isSameType(type, getType(value))) {
+                return false;
+            }
+        }
+        return true;
     }
 }
