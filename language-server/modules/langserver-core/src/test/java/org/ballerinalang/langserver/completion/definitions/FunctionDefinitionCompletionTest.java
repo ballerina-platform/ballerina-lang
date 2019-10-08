@@ -170,6 +170,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"returnParameterContextSuggestion11.json", "function"},
                 {"typeDescSuggestions1.json", "function"},
                 {"typeDescSuggestions2.json", "function"},
+                {"delimiterBasedCompletionOverArrays.json", "function"},
+                {"delimiterBasedCompletionOverXML.json", "function"},
 //                {"statementWithMissingSemiColon1.json", "function"},
 //                {"statementWithMissingSemiColon2.json", "function"},
 //                {"statementWithMissingSemiColon3.json", "function"},
