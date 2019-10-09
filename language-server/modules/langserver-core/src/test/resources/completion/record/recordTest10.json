@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 7,
+    "character": 8
+  },
+  "source": "record/source/recordTest10.bal",
+  "items": [
+    {
+      "label": "countryCode",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "countryCode: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "phoneNo",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "phoneNo: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "countryCode: 0,\nphoneNo: 0",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

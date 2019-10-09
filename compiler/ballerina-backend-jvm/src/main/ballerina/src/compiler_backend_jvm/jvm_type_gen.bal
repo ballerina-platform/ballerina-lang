@@ -1105,7 +1105,7 @@ function getTypeDesc(bir:BType bType) returns string {
     } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTypeDesc) {
-        return io:sprintf("L%s;", TYPEDESC_TYPE);
+        return io:sprintf("L%s;", TYPEDESC_VALUE);
     } else if (bType is bir:BTableType) {
         return io:sprintf("L%s;", TABLE_VALUE);
     } else if (bType is bir:BStreamType) {

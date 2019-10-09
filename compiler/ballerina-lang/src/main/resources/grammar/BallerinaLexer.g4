@@ -369,7 +369,7 @@ StringCharacters
 
 fragment
 StringCharacter
-    :   ~["\\]
+    :   ~["\\\u000A\u000D]
     |   EscapeSequence
     ;
     

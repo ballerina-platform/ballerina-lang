@@ -39,6 +39,7 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION_IN_OBJECT("undefined.function.in.object"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
+    UNSUPPORTED_ERROR_REASON_CONST_MATCH("error.match.over.const.reason.ref.not.supported"),
     NON_MODULE_QUALIFIED_ERROR_REASON("non.module.qualified.error.reason"),
     INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
     ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
@@ -353,7 +354,6 @@ public enum DiagnosticCode {
     MATCH_STMT_UNMATCHED_PATTERN("match.stmt.unmatched.pattern"),
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("match.stmt.pattern.always.matches"),
     MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
-    CANNOT_FIND_MATCH_ERROR_REASON_CONST("can.not.find.match.error.reason.const"),
 
     THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),
     TRY_STMT_NOT_SUPPORTED("try.stmt.not.supported"),

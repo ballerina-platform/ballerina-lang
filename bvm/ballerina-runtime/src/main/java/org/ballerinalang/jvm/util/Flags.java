@@ -31,6 +31,7 @@ public class Flags {
     public static final int PRIVATE = 1024;
     public static final int ABSTRACT = 4096;
     public static final int OPTIONAL = 8192;
+    public static final int RESOURCE = 262144;
     public static final int SERVICE = 524288;
 
     public static boolean isFlagOn(int bitmask, int flag) {

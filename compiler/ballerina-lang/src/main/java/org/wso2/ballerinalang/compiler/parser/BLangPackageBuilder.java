@@ -751,6 +751,7 @@ public class BLangPackageBuilder {
             errorVariable.reason = createIgnoreVar();
         }
         this.errorMatchPatternWS.push(ws);
+        ((BLangErrorVariable) this.varStack.peek()).isInMatchStmt = true;
     }
 
     void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reason, String restIdentifier,
