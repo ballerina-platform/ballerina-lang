@@ -263,24 +263,14 @@ public class PackageLoader {
     }
     
     private PackageEntity loadPackageEntity(PackageID pkgId) {
-        return loadPackageEntity(pkgId, null);
+        return loadPackageEntity(pkgId, null, null);
     }
     
-    private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId) {
+    private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId,
+                                            RepoHierarchy encPkgRepoHierarchy) {
         updateModuleIDVersion(pkgId, enclPackageId);
         Resolution resolution = resolveModuleByPath(pkgId);
         // if a resolution is found by dependency path
-        return getPackageEntity(pkgId, null, resolution);
-    }
-
-    private PackageEntity loadPackageEntityWithResolvedModule(PackageID pkgId, PackageID enclPackageId,
-                                            RepoHierarchy encPkgRepoHierarchy, Resolution resolution) {
-        updateModuleIDVersion(pkgId, enclPackageId);
-        return getPackageEntity(pkgId, encPkgRepoHierarchy, resolution);
-    }
-
-    private PackageEntity getPackageEntity(PackageID pkgId, RepoHierarchy encPkgRepoHierarchy, Resolution resolution) {
-
         if (resolution != Resolution.NOT_FOUND) {
             // update repo hierarchy of the resolution back to normal.
             if (null != encPkgRepoHierarchy) {
@@ -295,11 +285,11 @@ public class PackageLoader {
                 resolution = this.repos.resolve(pkgId);
             }
         }
-
+    
         if (resolution == Resolution.NOT_FOUND) {
             return null;
         }
-
+        
         CompilerInput firstEntry = resolution.inputs.get(0);
         if (firstEntry.getEntryName().endsWith(Kind.COMPILED.getExtension())) {
             // Binary package has only one file, so using first entry
@@ -310,7 +300,7 @@ public class PackageLoader {
             return new GenericPackageSource(pkgId, resolution.inputs, resolution.resolvedBy);
         }
     }
-
+    
     /**
      * Resolve a module by path if given.
      *
@@ -393,7 +383,7 @@ public class PackageLoader {
         if (bLangPackage != null) {
             return bLangPackage;
         }
-        PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId);
+        PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId, null);
         if (pkgEntity == null) {
             // Do not throw an error here. Otherwise package build will terminate immediately if
             // there are errors in atleast one package during the build. But instead we should
@@ -444,16 +434,20 @@ public class PackageLoader {
 
     public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId,
                                             RepoHierarchy encPkgRepoHierarchy) {
-        Resolution resolution = resolveModuleByPath(packageId);
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
         if (packageSymbol != null) {
             return packageSymbol;
         }
 
-        PackageEntity pkgEntity = loadPackageEntityWithResolvedModule(packageId, enclPackageId, encPkgRepoHierarchy,
-                resolution);
+        PackageEntity pkgEntity = loadPackageEntity(packageId, enclPackageId, encPkgRepoHierarchy);
+
         if (pkgEntity == null) {
             return null;
+        }
+
+        packageSymbol = this.packageCache.getSymbol(packageId);
+        if (packageSymbol != null) {
+            return packageSymbol;
         }
 
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
