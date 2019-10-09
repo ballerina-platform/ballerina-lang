@@ -32,7 +32,7 @@ public enum DocumentationReferenceType {
     MODULE("module"), // Match for module references in documentation
     FUNCTION("function"), // Match for function references in documentation
     PARAMETER("parameter"), // Match for parameter in documentation
-    BACKTICK_CONTENT("function") ;// This content is extracted from only backticks. Hence should validate for a function
+    BACKTICK_CONTENT("function"); // This content is extracted from only backticks. Hence should validate for a function
 
     private String value;
 

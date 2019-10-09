@@ -31,8 +31,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -121,7 +121,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(2).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(2).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VAR);
         Assert.assertEquals(references.get(3).referenceName, "testVar");
 
         Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
@@ -208,7 +208,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(2).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(2).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VAR);
         Assert.assertEquals(references.get(3).referenceName, "testVar");
 
         Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
@@ -304,7 +304,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(2).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(2).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VAR);
         Assert.assertEquals(references.get(3).referenceName, "testVar");
 
         Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
@@ -403,7 +403,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(2).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(2).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VAR);
         Assert.assertEquals(references.get(3).referenceName, "testVar");
 
         Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
@@ -477,7 +477,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(2).type, DocumentationReferenceType.VARIABLE);
         Assert.assertEquals(references.get(2).referenceName, "testVar");
 
-        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(3).type, DocumentationReferenceType.VAR);
         Assert.assertEquals(references.get(3).referenceName, "testVar");
 
         Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);

@@ -18,12 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.MarkdownDocumentationReferenceAttributeNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.DocumentationReferenceType;
-
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * Represents a service reference documentation node.

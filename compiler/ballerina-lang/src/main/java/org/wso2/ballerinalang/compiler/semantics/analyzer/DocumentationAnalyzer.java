@@ -375,7 +375,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 identifier)) {
                 return true;
         //Directly validate for an identifier
-        } else return identifierOnlyPatternMatcher(identifierContent, unqualifiedIdentifierPattern, identifier);
+        } else {
+            return identifierOnlyPatternMatcher(identifierContent, unqualifiedIdentifierPattern, identifier);
+        }
 
     }
 
@@ -393,8 +395,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                     typeName, identifier)) {
                 return true;
                 //If type name is not there, directly validate for an unqualified Identifier
-            } else return identifierOnlyPatternMatcher(typeOrIdentifierStage.toString(), unqualifiedIdentifierPattern,
-                    identifier);
+            } else {
+                return identifierOnlyPatternMatcher(typeOrIdentifierStage.toString(), unqualifiedIdentifierPattern,
+                        identifier);
+            }
         }
         return  false;
     }
@@ -421,7 +425,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         Matcher matcher = pattern.matcher(identifierString);
         if (matcher.matches()) {
             token.append(matcher.group(1));
-            if(matcher.groupCount() > 1) {
+            if (matcher.groupCount() > 1) {
                 contentForNextStage.append(matcher.group(2));
             }
             return true;
