@@ -32,10 +32,6 @@ public class LongResult {
      */
     private int byteCount;
 
-    public LongResult(long value) {
-        this.value = value;
-    }
-
     public LongResult(long value, int byteCount) {
         this.value = value;
         this.byteCount = byteCount;

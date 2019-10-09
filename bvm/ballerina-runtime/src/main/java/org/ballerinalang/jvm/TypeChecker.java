@@ -54,7 +54,6 @@ import org.ballerinalang.jvm.values.XMLValue;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -413,7 +412,7 @@ public class TypeChecker {
             case TypeTags.ANY_TAG:
                 return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
-                return isAnydata(sourceType);
+                return sourceType.isAnydata();
             case TypeTags.OBJECT_TYPE_TAG:
                 return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
@@ -482,7 +481,7 @@ public class TypeChecker {
                 if (!recType.sealed) {
                     types.add(recType.restFieldType);
                 }
-                BUnionType fieldType = new BUnionType(types);
+                BUnionType fieldType = new BUnionType(types, recType.typeFlags);
                 return checkContraints(fieldType, targetType.getConstrainedType(), unresolvedTypes);
             case TypeTags.JSON_TAG:
                 if (targetType.getConstrainedType().getTag() == TypeTags.JSON_TAG) {
@@ -620,7 +619,8 @@ public class TypeChecker {
             if (sourceTupleType.getRestType() != null) {
                 tupleTypes.add(sourceTupleType.getRestType());
             }
-            sourceArrayType = new BArrayType(new BUnionType(new ArrayList<>(tupleTypes)));
+            sourceArrayType =
+                    new BArrayType(new BUnionType(new ArrayList<>(tupleTypes), sourceTupleType.getTypeFlags()));
         }
 
         switch (sourceArrayType.getState()) {

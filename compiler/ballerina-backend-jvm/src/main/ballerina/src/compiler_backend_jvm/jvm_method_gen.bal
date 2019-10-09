@@ -18,16 +18,29 @@ import ballerina/bir;
 import ballerina/io;
 import ballerina/jvm;
 import ballerina/stringutils;
+import ballerinax/java;
 
 string[] generatedInitFuncs = [];
 int nextId = -1;
 int nextVarId = -1;
 
 bir:BAttachedFunction errorRecInitFunc = {name:{value:"$$<init>"}, funcType:{retType:"()"}, flags:0};
-bir:BRecordType detailRec = {name:{value:"detail"}, sealed:false, restFieldType:"()", initFunction:errorRecInitFunc};
-bir:BErrorType errType = {name:{value:"error"}, moduleId:{org:BALLERINA, name:BUILT_IN_PACKAGE_NAME},
-                                reasonType:bir:TYPE_STRING, detailType:detailRec};
-bir:BUnionType errUnion = {members:["()", errType]};
+bir:BRecordType detailRec = {name:{value:"detail"},
+                                sealed:false,
+                                restFieldType:"()",
+                                initFunction:errorRecInitFunc,
+                                typeFlags: (TYPE_FLAG_ANYDATA | TYPE_FLAG_PURETYPE)
+                            };
+
+bir:BErrorType errType = {name:{value:"error"},
+                                moduleId:{org:BALLERINA,
+                                name:BUILT_IN_PACKAGE_NAME},
+                                reasonType:bir:TYPE_STRING,
+                                detailType:detailRec};
+
+bir:BUnionType errUnion = { members:["()", errType],
+                            typeFlags: (TYPE_FLAG_NILABLE | TYPE_FLAG_PURETYPE)
+                          };
 
 function generateMethod(bir:Function birFunc,
                             jvm:ClassWriter cw,
@@ -571,9 +584,10 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
     // process error entries
     bir:ErrorEntry?[] errorEntries = func.errorEntries;
     bir:ErrorEntry? currentEE = ();
-    string[] errorVarNames = [];
+    string previousTargetBB = "";
     jvm:Label endLabel = new;
-    jvm:Label handlerLabel = new;
+    jvm:Label errorValueLabel = new;
+    jvm:Label otherErrorLabel = new;
     jvm:Label jumpLabel = new;
     int errorEntryCnt = 0;
     if (errorEntries.length() > errorEntryCnt) {
@@ -607,105 +621,106 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         // trapped we need to generate two try catches as for instructions and terminator.
         if (isTrapped && insCount > 0) {
             endLabel = new;
-            handlerLabel = new;
+            errorValueLabel = new;
+            otherErrorLabel = new;
             jumpLabel = new;
             // start try for instructions.
-            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel,
-                                                handlerLabel, jumpLabel);
+            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, endLabel,
+                                                errorValueLabel, otherErrorLabel, jumpLabel);
         }
+
+        int insKind;
         while (m < insCount) {
             jvm:Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + m.toString());
             mv.visitLabel(insLabel);
             bir:Instruction? inst = bb.instructions[m];
-            var pos = inst?.pos;
-            if (pos is bir:DiagnosticPos) {
-                generateDiagnosticPos(pos, mv);
+            if (inst is ()) {
+                continue;
+            } else {
+                insKind = inst.kind;
+                generateDiagnosticPos(inst.pos, mv);
             }
-            if (inst is bir:ConstantLoad) {
-                instGen.generateConstantLoadIns(inst);
-            } else if (inst is bir:TypeCast) {
-                instGen.generateCastIns(inst);
-            } else if (inst is bir:Move) {
-                if (inst.kind == bir:INS_KIND_MOVE) {
-                    instGen.generateMoveIns(inst);
-                } else if (inst.kind == bir:INS_KIND_XML_SEQ_STORE) {
-                    instGen.generateXMLStoreIns(inst);
-                } else if (inst.kind == bir:INS_KIND_XML_LOAD_ALL) {
-                    instGen.generateXMLLoadAllIns(inst);
-                } else if (inst.kind == bir:INS_KIND_TYPEOF) {
-                    instGen.generateTypeofIns(inst);
-                } else if (inst.kind == bir:INS_KIND_NOT) {
-                    instGen.generateNotIns(inst);
-                } else if (inst.kind == bir:INS_KIND_NEGATE) {
-                    instGen.generateNegateIns(inst);
+
+            if (insKind <= bir:BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT) {
+                instGen.generateBinaryOpIns(<bir:BinaryOp> inst);
+            } else if (insKind <= bir:INS_KIND_TYPE_CAST) {
+                if (insKind == bir:INS_KIND_MOVE) {
+                    instGen.generateMoveIns(<bir:Move> inst);
+                } else if (insKind == bir:INS_KIND_CONST_LOAD) {
+                    instGen.generateConstantLoadIns(<bir:ConstantLoad> inst);
+                } else if (insKind == bir:INS_KIND_NEW_MAP) {
+                    instGen.generateMapNewIns(<bir:NewMap> inst);
+                } else if (insKind == bir:INS_KIND_NEW_INST) {
+                    instGen.generateObjectNewIns(<bir:NewInstance> inst, localVarOffset);
+                } else if (insKind == bir:INS_KIND_MAP_STORE) {
+                    instGen.generateMapStoreIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_NEW_ARRAY) {
+                    instGen.generateArrayNewIns(<bir:NewArray> inst);
+                } else if (insKind == bir:INS_KIND_ARRAY_STORE) {
+                    instGen.generateArrayStoreIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_MAP_LOAD) {
+                    instGen.generateMapLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_ARRAY_LOAD) {
+                    instGen.generateArrayValueLoad(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_NEW_ERROR) {
+                    instGen.generateNewErrorIns(<bir:NewError> inst);
                 } else {
-                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
-                    panic err;
+                    instGen.generateCastIns(<bir:TypeCast> inst);
                 }
-            } else if (inst is bir:BinaryOp) {
-                instGen.generateBinaryOpIns(inst);
-            } else if (inst is bir:NewArray) {
-                instGen.generateArrayNewIns(inst);
-            } else if (inst is bir:NewMap) {
-                instGen.generateMapNewIns(inst);
-            } else if (inst is bir:NewTypeDesc) {
-                instGen.generateNewTypedescIns(inst);
-            } else if (inst is bir:NewTable) {
-                instGen.generateTableNewIns(inst);
-            } else if (inst is bir:NewStream) {
-                 instGen.generateStreamNewIns(inst);
-            } else if (inst is bir:NewError) {
-                instGen.generateNewErrorIns(inst);
-            } else if (inst is bir:NewInstance) {
-                instGen.generateObjectNewIns(inst, localVarOffset);
-            } else if (inst is bir:FieldAccess) {
-                if (inst.kind == bir:INS_KIND_MAP_STORE) {
-                    instGen.generateMapStoreIns(inst);
-                } else if (inst.kind == bir:INS_KIND_MAP_LOAD) {
-                    instGen.generateMapLoadIns(inst);
-                } else if (inst.kind == bir:INS_KIND_ARRAY_STORE) {
-                    instGen.generateArrayStoreIns(inst);
-                } else if (inst.kind == bir:INS_KIND_ARRAY_LOAD) {
-                    instGen.generateArrayValueLoad(inst);
-                } else if (inst.kind == bir:INS_KIND_OBJECT_STORE) {
-                    instGen.generateObjectStoreIns(inst);
-                } else if (inst.kind == bir:INS_KIND_OBJECT_LOAD) {
-                    instGen.generateObjectLoadIns(inst);
-                } else if (inst.kind == bir:INS_KIND_STRING_LOAD) {
-                    instGen.generateStringLoadIns(inst);
-                } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_STORE) {
-                    instGen.generateXMLAttrStoreIns(inst);
-                } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_LOAD) {
-                    instGen.generateXMLAttrLoadIns(inst);
-                } else if (inst.kind == bir:INS_KIND_XML_LOAD || inst.kind == bir:INS_KIND_XML_SEQ_LOAD) {
-                    instGen.generateXMLLoadIns(inst);
+            } else if (insKind <= bir:INS_KIND_NEW_STRING_XML_QNAME) {
+                if (insKind == bir:INS_KIND_IS_LIKE) {
+                    instGen.generateIsLikeIns(<bir:IsLike> inst);
+                } else if (insKind == bir:INS_KIND_TYPE_TEST) {
+                    instGen.generateTypeTestIns(<bir:TypeTest> inst);
+                } else if (insKind == bir:INS_KIND_OBJECT_STORE) {
+                    instGen.generateObjectStoreIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_OBJECT_LOAD) {
+                    instGen.generateObjectLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_NEW_XML_ELEMENT) {
+                    instGen.generateNewXMLElementIns(<bir:NewXMLElement> inst);
+                } else if (insKind == bir:INS_KIND_NEW_XML_TEXT) {
+                    instGen.generateNewXMLTextIns(<bir:NewXMLText> inst);
+                } else if (insKind == bir:INS_KIND_NEW_XML_COMMENT) {
+                    instGen.generateNewXMLCommentIns(<bir:NewXMLComment> inst);
+                } else if (insKind == bir:INS_KIND_NEW_XML_PI) {
+                    instGen.generateNewXMLProcIns(<bir:NewXMLPI> inst);
+                } else if (insKind == bir:INS_KIND_NEW_XML_QNAME) {
+                    instGen.generateNewXMLQNameIns(<bir:NewXMLQName> inst);
                 } else {
-                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
-                    panic err;
-                }
-            } else if (inst is bir:FPLoad) {
-                instGen.generateFPLoadIns(inst);
-            } else if (inst is bir:TypeTest) {
-                 instGen.generateTypeTestIns(inst);
-            } else if (inst is bir:IsLike) {
-                 instGen.generateIsLikeIns(inst);
-            } else if (inst is bir:NewXMLQName) {
-                instGen.generateNewXMLQNameIns(inst);
-            } else if (inst is bir:NewStringXMLQName) {
-                instGen.generateNewStringXMLQNameIns(inst);
-            } else if (inst is bir:NewXMLElement) {
-                instGen.generateNewXMLElementIns(inst);
-            } else if (inst is bir:NewXMLText) {
-                if (inst.kind == bir:INS_KIND_NEW_XML_TEXT) {
-                    instGen.generateNewXMLTextIns(inst);
-                } else if (inst.kind == bir:INS_KIND_NEW_XML_COMMENT) {
-                    instGen.generateNewXMLCommentIns(inst);
+                    instGen.generateNewStringXMLQNameIns(<bir:NewStringXMLQName> inst);
+                } 
+            } else if (insKind <= bir:INS_KIND_NEW_STREAM) {
+                if (insKind == bir:INS_KIND_XML_SEQ_STORE) {
+                    instGen.generateXMLStoreIns(<bir:XMLAccess> inst);
+                } else if (insKind == bir:INS_KIND_XML_SEQ_LOAD) {
+                    instGen.generateXMLLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_XML_LOAD) {
+                    instGen.generateXMLLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_XML_LOAD_ALL) {
+                    instGen.generateXMLLoadAllIns(<bir:XMLAccess> inst);
+                } else if (insKind == bir:INS_KIND_XML_ATTRIBUTE_STORE) {
+                    instGen.generateXMLAttrStoreIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_XML_ATTRIBUTE_LOAD) {
+                    instGen.generateXMLAttrLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_FP_LOAD) {
+                    instGen.generateFPLoadIns(<bir:FPLoad> inst);
+                } else if (insKind == bir:INS_KIND_STRING_LOAD) {
+                    instGen.generateStringLoadIns(<bir:FieldAccess> inst);
+                } else if (insKind == bir:INS_KIND_NEW_TABLE) {
+                    instGen.generateTableNewIns(<bir:NewTable> inst);
                 } else {
-                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
-                    panic err;
+                    instGen.generateStreamNewIns(<bir:NewStream>inst);
                 }
-            } else if (inst is bir:NewXMLPI) {
-                instGen.generateNewXMLProcIns(inst);
+            } else if (insKind <= bir:INS_KIND_NEGATE) {
+                if (insKind == bir:INS_KIND_TYPEOF) {
+                    instGen.generateTypeofIns(<bir:UnaryOp> inst);
+                } else if (insKind == bir:INS_KIND_NOT) {
+                    instGen.generateNotIns(<bir:UnaryOp> inst);
+                } else if (insKind == bir:INS_KIND_NEW_TYPEDESC) {
+                    instGen.generateNewTypedescIns(<bir:NewTypeDesc> inst);
+                } else {
+                    instGen.generateNegateIns(<bir:UnaryOp> inst);
+                } 
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -715,7 +730,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
 
         // close the started try block with a catch statement for instructions.
         if (isTrapped && insCount > 0) {
-            errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+            errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, errorValueLabel, otherErrorLabel,
+                                                jumpLabel);
         }
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
@@ -733,11 +749,12 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             if (isTrapped && !(terminator is bir:GOTO)) {
                 isTerminatorTrapped = true;
                 endLabel = new;
-                handlerLabel = new;
+                errorValueLabel = new;
+                otherErrorLabel = new;
                 jumpLabel = new;
                 // start try for terminator if current block is trapped.
-                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel,
-                                                handlerLabel, jumpLabel);
+                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, endLabel,
+                                                errorValueLabel, otherErrorLabel, jumpLabel);
             }
             generateDiagnosticPos(terminator.pos, mv);
             if (isModuleInitFunction(module, func) && terminator is bir:Return) {
@@ -746,14 +763,16 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType, isObserved);
             if (isTerminatorTrapped) {
                 // close the started try block with a catch statement for terminator.
-                errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+                errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, errorValueLabel,
+                                                    otherErrorLabel, jumpLabel);
             }
         }
 
         // set next error entry after visiting current error entry.
         if (isTrapped) {
             errorEntryCnt = errorEntryCnt + 1;
-            if (errorEntries.length() > errorEntryCnt) {
+            if (errorEntries.length() > errorEntryCnt && currentEE is bir:ErrorEntry) {
+                previousTargetBB = currentEE.targetBB.id.value;
                 currentEE = errorEntries[errorEntryCnt];
             }
         }
@@ -1250,6 +1269,9 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
                             string initClass, boolean serviceEPAvailable) {
 
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
+
+    // check for java compatibility
+    generateJavaCompatibilityCheck(mv);
 
     // set system properties
     initConfigurations(mv);
@@ -2182,20 +2204,20 @@ function isExternFunc(bir:Function func) returns boolean {
 }
 
 function getVarRef(bir:VarRef? varRef) returns bir:VarRef {
-    if (varRef is bir:VarRef) {
-        return varRef;
-    } else {
+    if (varRef is ()) {
         error err = error("Invalid variable reference");
         panic err;
+    } else {
+        return varRef;
     }
 }
 
 function getType(bir:BType? bType) returns bir:BType {
-    if (bType is bir:BType) {
-        return bType;
-    } else {
+    if (bType is ()) {
         error err = error("Invalid type");
         panic err;
+    } else {
+        return bType;
     }
 }
 
@@ -2221,11 +2243,11 @@ function isInitInvoked(string item) returns boolean {
 }
 
 function getFunctions(bir:Function?[]? functions) returns bir:Function?[] {
-    if (functions is bir:Function?[]) {
-        return functions;
-    } else {
+    if (functions is ()) {
         error err = error(io:sprintf("Invalid functions: %s", functions));
         panic err;
+    } else {
+        return functions;
     }
 }
 
@@ -2436,3 +2458,23 @@ function scheduleMethod(jvm:MethodVisitor mv, string initClass, string stopFuncN
     mv.visitLabel(labelIf);
 }
 
+function generateJavaCompatibilityCheck(jvm:MethodVisitor mv) {
+    mv.visitLdcInsn(getJavaVersion());
+    mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility", 
+                        io:sprintf("(L%s;)V", STRING_VALUE), false);
+}
+
+function getJavaVersion() returns string {
+    handle versionProperty = java:fromString("java.version");
+    string? javaVersion = java:toString(getProperty(versionProperty));
+    if (javaVersion is string) {
+        return javaVersion;
+    } else {
+        return "";
+    }
+}
+
+function getProperty(handle propertyName) returns handle = @java:Method {
+    class: "java.lang.System",
+    name: "getProperty"
+} external;

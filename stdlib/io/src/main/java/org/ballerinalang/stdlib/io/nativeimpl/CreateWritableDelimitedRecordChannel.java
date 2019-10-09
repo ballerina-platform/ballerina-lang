@@ -57,7 +57,7 @@ public class CreateWritableDelimitedRecordChannel {
     private static final String DEFAULT = "default";
 
     public static void init(Strand strand, ObjectValue textRecordChannel, ObjectValue characterChannelInfo,
-                            String recordSeparator, String fieldSeparator, String format) {
+            String fieldSeparator, String recordSeparator, String format) {
         try {
             //Will get the relevant byte channel and will create a character channel
             CharacterChannel characterChannel = (CharacterChannel) characterChannelInfo.getNativeData(IOConstants

@@ -76,7 +76,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -241,68 +240,8 @@ public class Types {
         return type.tag == TypeTags.ERROR;
     }
 
-    public boolean isAnydata(BType type) {
-        return isAnydata(type, new HashSet<>());
-    }
-
-    public boolean isAnydata(BType type, Set<BType> unresolvedTypes) {
-        if (type.tag <= TypeTags.ANYDATA) {
-            return true;
-        }
-
-        switch (type.tag) {
-            case TypeTags.MAP:
-                return isPureType(((BMapType) type).constraint, unresolvedTypes);
-            case TypeTags.RECORD:
-                if (unresolvedTypes.contains(type)) {
-                    return true;
-                }
-                unresolvedTypes.add(type);
-                BRecordType recordType = (BRecordType) type;
-                List<BType> fieldTypes = recordType.fields.stream()
-                                                          .map(field -> field.type)
-                                                          .collect(Collectors.toList());
-                return isPureType(fieldTypes, unresolvedTypes) &&
-                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
-            case TypeTags.UNION:
-                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
-            case TypeTags.TUPLE:
-                return isPureType(((BTupleType) type).tupleTypes, unresolvedTypes);
-            case TypeTags.ARRAY:
-                return isPureType(((BArrayType) type).eType, unresolvedTypes);
-            case TypeTags.FINITE:
-                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                                                                          .map(val -> val.type).collect(
-                                Collectors.toSet());
-                return isAnydata(valSpaceTypes, unresolvedTypes);
-            default:
-                return false;
-        }
-    }
-
-    private boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
-        return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
-    }
-
-    boolean isPureType(BType type) {
-        return isPureType(type, new HashSet<>());
-    }
-
-    private boolean isPureType(BType type, Set<BType> unresolvedTypes) {
-        if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream()
-                    .allMatch(memType -> isPureType(memType, unresolvedTypes));
-        }
-
-        return type.tag == TypeTags.ERROR || isAnydata(type, unresolvedTypes);
-    }
-
-    private boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
-        return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
-    }
-
     public boolean isLikeAnydataOrNotNil(BType type) {
-        return type.tag != TypeTags.NIL && (isAnydata(type) || isLikeAnydata(type));
+        return type.tag != TypeTags.NIL && (type.isAnydata() || isLikeAnydata(type));
     }
 
     private boolean isLikeAnydata(BType type) {
@@ -321,11 +260,11 @@ public class Types {
                 return true;
             } else {
                 unresolvedTypes.add(type);
-                if (isAnydata(type)) {
+                if (type.isAnydata()) {
                     return true;
                 }
             }
-        } else if (isAnydata(type)) {
+        } else if (type.isAnydata()) {
             return true;
         }
 
@@ -578,7 +517,7 @@ public class Types {
             return true;
         }
 
-        if (target.tag == TypeTags.ANYDATA && !containsErrorType(source) && isAnydata(source)) {
+        if (target.tag == TypeTags.ANYDATA && !containsErrorType(source) && source.isAnydata()) {
             return true;
         }
 
@@ -2193,7 +2132,7 @@ public class Types {
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
-        if (!isPureType(lhsType) || !isPureType(rhsType)) {
+        if (!lhsType.isPureType() || !rhsType.isPureType()) {
             return false;
         }
 

@@ -133,4 +133,12 @@ public abstract class BType {
     public boolean isNative() {
         return false;
     }
+
+    public boolean isAnydata() {
+        return this.getTag() <= TypeTags.ANYDATA_TAG;
+    }
+
+    public boolean isPureType() {
+        return this.getTag() == TypeTags.ERROR_TAG || this.isAnydata();
+    }
 }

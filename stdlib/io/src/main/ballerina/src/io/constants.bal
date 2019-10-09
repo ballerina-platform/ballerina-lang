@@ -40,7 +40,7 @@ public const TDF = "tdf";
 # TAB - Delimited text records would be separated using a tab.
 #
 # COLON - Delimited text records would be separated using a colon(:).
-public type Separator COMMA|TAB|COLON;
+public type Separator COMMA|TAB|COLON|string;
 
 # Comma (,) will be used as the field separator.
 public const COMMA = ",";

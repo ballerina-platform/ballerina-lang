@@ -44,6 +44,7 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
     public BLangInvocation detailExpr;
     public boolean reasonVarPrefixAvailable;
     public BLangLiteral reasonMatchConst;
+    public boolean isInMatchStmt;
 
     public BLangErrorVariable() {
         this.annAttachments = new ArrayList<>();
