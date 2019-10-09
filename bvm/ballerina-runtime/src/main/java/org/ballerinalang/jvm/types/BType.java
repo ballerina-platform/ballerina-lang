@@ -34,7 +34,6 @@ public abstract class BType {
     protected BPackage pkg;
     protected Class<? extends Object> valueClass;
     private int hashCode;
-    public Boolean isAnydata;
 
     protected BType(String typeName, BPackage pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
