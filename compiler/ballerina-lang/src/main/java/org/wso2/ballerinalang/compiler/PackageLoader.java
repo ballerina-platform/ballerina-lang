@@ -445,6 +445,7 @@ public class PackageLoader {
             return null;
         }
 
+        // lookup symbol cache again as the updated pkg from repo resolve can reside in cache
         packageSymbol = this.packageCache.getSymbol(packageId);
         if (packageSymbol != null) {
             return packageSymbol;
