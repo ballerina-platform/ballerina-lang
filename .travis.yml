@@ -24,13 +24,6 @@ git:
 services:
   - docker
 
-before_install:
-  - if [ $TRAVIS_OS_NAME == "linux" ]; then
-      export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
-      sh -e /etc/init.d/xvfb start;
-      sleep 3;
-    fi
-
 jobs:
   include:
     - stage: "Build and Check(Windows + Linux)"
@@ -54,10 +47,8 @@ jobs:
       name:  "Build without tests - Linux"
       os: linux
       language: java
-      jdk:
-        - openjdk8
-      node_js:
-        - "8"
+      jdk: openjdk8
+      node_js: 8
       before_install:
           - nvm use 8
           - npm install -g npm@'5.6.0'
@@ -65,18 +56,22 @@ jobs:
       name: "Run Build + tests (without integration) - Linux"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc -x :plugin-vscode:test --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
       os: linux
       language: java
-      jdk:
-        - openjdk8
-      node_js:
-        - "8"
+      jdk: openjdk8
+      node_js: 8
       before_install:
           - nvm use 8
           - npm install -g npm@'5.6.0'
+      install: 
+        - |
+          if [ $TRAVIS_OS_NAME == "linux" ]; then
+            export DISPLAY=':99.0'
+            /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          fi
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         # TODO enable tests for all projects
@@ -86,6 +81,7 @@ jobs:
       name:  "Tests - windows"
       os: windows
       language: node_js
+      node_js: 8
       install:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
@@ -96,8 +92,7 @@ jobs:
         - kill %1
       os: linux
       language: java
-      jdk:
-        - openjdk8
+      jdk: openjdk8
       name:  "Integration tests - Linux"
 
 
