@@ -15,7 +15,7 @@
     "arguments":[
       {
         "argumentK": "module",
-        "argumentV": "org/unpulled_package"
+        "argumentV": "org/unpulled_package as unpulled_package"
       }
     ]
   }

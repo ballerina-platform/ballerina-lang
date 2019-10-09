@@ -112,6 +112,15 @@ public class ImportsTests {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
     }
 
+    @Test(description = "Get the version from a single source file.")
+    public void testVersionSupportImportInSingleFile() {
+        CompileResult result = BCompileUtil.compile("test-src/balo/imports/test-case4/main.bal");
+        BValue[] returns = BRunUtil.invoke(result, "cal");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
     @AfterClass(description = "Set the home to previous location.", alwaysRun = true)
     public void cleanup() {
         System.setProperty(USER_HOME, previousUserHome);
