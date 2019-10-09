@@ -257,6 +257,7 @@ public abstract class LSCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.STMT_NAMESPACE_DECLARATION));
         completionItems.add(getStaticItem(context, Snippet.DEF_OBJECT_SNIPPET));
         completionItems.add(getStaticItem(context, Snippet.DEF_RECORD));
+        completionItems.add(getStaticItem(context, Snippet.DEF_CLOSED_RECORD));
         completionItems.add(getStaticItem(context, Snippet.KW_TYPE));
         completionItems.add(getStaticItem(context, Snippet.KW_PUBLIC));
         completionItems.add(getStaticItem(context, Snippet.KW_FINAL));
