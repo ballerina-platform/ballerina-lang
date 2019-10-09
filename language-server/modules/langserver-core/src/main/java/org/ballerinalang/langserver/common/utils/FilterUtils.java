@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -155,8 +157,9 @@ public class FilterUtils {
              */
             return resultList;
         }
-        BType modifiedBType = getModifiedBType(bSymbol, context);
-        Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol, modifiedBType, context);
+        BType modifiedBType = getModifiedBType(bSymbol, context, startField.fieldType);
+        Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol.name.value, modifiedBType,
+                context);
 
         for (int itr = 1; itr < invocationFieldList.size(); itr++) {
             ChainedFieldModel fieldModel = invocationFieldList.get(itr);
@@ -168,8 +171,8 @@ public class FilterUtils {
                 break;
             }
             bSymbol = entry.get().symbol;
-            modifiedBType = getModifiedBType(bSymbol, context);
-            scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol, modifiedBType, context);
+            modifiedBType = getModifiedBType(bSymbol, context, fieldModel.fieldType);
+            scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol.name.value, modifiedBType, context);
         }
         if (scopeEntries == null) {
             return new ArrayList<>();
@@ -241,13 +244,15 @@ public class FilterUtils {
         return actionFunctionList;
     }
     
-    private static BType getModifiedBType(BSymbol bSymbol, LSContext context) {
+    private static BType getModifiedBType(BSymbol bSymbol, LSContext context, InvocationFieldType fieldType) {
         Integer invocationType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         BType actualType;
         if ((bSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
             actualType = new BTypedescType(bSymbol.type, null);
         } else if (bSymbol instanceof BInvokableSymbol) {
              actualType = ((BInvokableSymbol) bSymbol).retType;
+        } else if (bSymbol.type instanceof BArrayType && fieldType == InvocationFieldType.ARRAY_ACCESS) {
+            return ((BArrayType) bSymbol.type).eType;
         } else {
             actualType = bSymbol.type;
         }
@@ -258,7 +263,9 @@ public class FilterUtils {
     private static List<ChainedFieldModel> getInvocationFieldList(List<CommonToken> defaultTokens, int startIndex) {
         int traverser = startIndex;
         int rightParenthesisCount = 0;
+        int rightBracketCount = 0;
         boolean invocation = false;
+        boolean arrayAccess = false;
         List<ChainedFieldModel> fieldList = new ArrayList<>();
         Pattern pattern = Pattern.compile("^\\w+$");
         boolean captureNextValidField = false;
@@ -272,14 +279,27 @@ public class FilterUtils {
                 }
                 rightParenthesisCount++;
                 traverser--;
+            } else if (type == BallerinaParser.RIGHT_BRACKET) {
+                // Mapped to both xml and array variables
+                if (!arrayAccess) {
+                    arrayAccess = true;
+                }
+                rightBracketCount++;
+                traverser--;
             } else if (type == BallerinaParser.LEFT_PARENTHESIS && rightParenthesisCount > 0) {
                 rightParenthesisCount--;
                 traverser--;
+            } else if (type == BallerinaParser.LEFT_BRACKET && rightBracketCount > 0) {
+                // Mapped to both xml and array variables
+                rightBracketCount--;
+                traverser--;
             } else if (type == BallerinaParser.DOT || type == BallerinaParser.NOT
-                    || type == BallerinaParser.OPTIONAL_FIELD_ACCESS || rightParenthesisCount > 0) {
+                    || type == BallerinaParser.OPTIONAL_FIELD_ACCESS || rightParenthesisCount > 0
+                    || rightBracketCount > 0) {
                 captureNextValidField = true;
                 traverser--;
-            } else if (matcher.find() && rightParenthesisCount == 0 && captureNextValidField) {
+            } else if (matcher.find() && rightParenthesisCount == 0 && rightBracketCount == 0
+                    && captureNextValidField) {
                 InvocationFieldType fieldType;
                 CommonToken packageAlias = null;
                 traverser--;
@@ -287,6 +307,10 @@ public class FilterUtils {
                 if (invocation) {
                     fieldType = InvocationFieldType.INVOCATION;
                     invocation = false;
+                } else if (arrayAccess) {
+                    // Mapped to both xml and array variables
+                    fieldType = InvocationFieldType.ARRAY_ACCESS;
+                    arrayAccess = false;
                 } else {
                     fieldType = InvocationFieldType.FIELD;
                 }
@@ -309,12 +333,12 @@ public class FilterUtils {
      * Analyze the given symbol type and extracts the invocations and fields from the scope entries.
      * When extracting the invocations, extract the type attached functions
      *
-     * @param bSymbol bSymbol to evaluate
+     * @param symbolName symbol name to evaluate
      * @param symbolType BType to evaluate
      * @param context Language Server Operation Context
      * @return {@link Map} Scope Entry Map
      */
-    private static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForSymbol(BSymbol bSymbol, BType symbolType,
+    private static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForSymbol(String symbolName, BType symbolType,
                                                                                 LSContext context) {
         Integer invocationToken = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
@@ -329,11 +353,23 @@ public class FilterUtils {
         if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
             Map<Name, Scope.ScopeEntry> methodEntries = objectTypeSymbol.methodScope.entries.entrySet().stream()
-                    .filter(entry -> !(entry.getValue().symbol.getName().getValue().contains(".__init")
-                            && !bSymbol.getName().getValue().equals("self")))
+                    .filter(entry -> {
+                        BSymbol entrySymbol = entry.getValue().symbol;
+                        boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
+                        return !(entrySymbol.getName().getValue().contains(".__init")
+                            && !"self".equals(symbolName)) && !(isPrivate && !"self".equals(symbolName));
+                    })
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            Map<Name, Scope.ScopeEntry> fieldEntries = objectTypeSymbol.scope.entries.entrySet().stream()
+                    .filter(entry -> {
+                        BSymbol entrySymbol = entry.getValue().symbol;
+                        boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
+                        return !(isPrivate && !"self".equals(symbolName));
+                    })
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             entries.putAll(methodEntries);
-            entries.putAll(objectTypeSymbol.scope.entries);
+            entries.putAll(fieldEntries);
+            entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
             return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BInvokableSymbol))
                     || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -506,7 +542,7 @@ public class FilterUtils {
                 return params.isEmpty() || params.get(0).type.tag == bType.tag ||
                         (types.isAssignable(bType, params.get(0).type));
             }
-            return symbol.kind != null;
+            return symbol.kind != null && symbol.kind != SymbolKind.OBJECT;
         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
     
@@ -542,6 +578,7 @@ public class FilterUtils {
      */
     public enum InvocationFieldType {
         FIELD,
-        INVOCATION
+        INVOCATION,
+        ARRAY_ACCESS
     }
 }

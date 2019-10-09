@@ -26,9 +26,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -37,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.HashSet;
@@ -75,10 +81,16 @@ public class CreateExecutableTask implements Task {
                     Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
                     copyJarFromCachePath(buildContext, module, executablePath);
                     // Copy ballerina runtime all jar
-                    if (!skipCopyLibsFromDist) {
-                        copyRuntimeAllJar(buildContext, executablePath);
+                    URI uberJarUri = URI.create("jar:" + executablePath.toUri().toString());
+                    // Load the to jar to a file system
+                    try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
+                        if (!skipCopyLibsFromDist) {
+                            copyRuntimeAllJar(buildContext, toFs);
+                        }
+                        assembleExecutable(buildContext, module, toFs);
+                    } catch (IOException e) {
+                        throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
                     }
-                    assembleExecutable(buildContext, module, executablePath);
                 }
             }
         } else {
@@ -110,19 +122,19 @@ public class CreateExecutableTask implements Task {
         }
     }
 
-    private void copyRuntimeAllJar(BuildContext buildContext, Path executablePath) {
+    private void copyRuntimeAllJar(BuildContext buildContext, FileSystem toFs) {
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
         String ballerinaVersion = System.getProperty("ballerina.version");
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         Path runtimeAllJar = Paths.get(balHomePath, "bre", "lib", runtimeJarName);
         try {
-            copyFromJarToJar(runtimeAllJar, executablePath);
+            copyFromJarToJar(runtimeAllJar, toFs);
         } catch (IOException e) {
             throw createLauncherException("unable to copy the ballerina runtime all jar :" + e.getMessage());
         }
     }
     
-    private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage, Path executablePath) {
+    private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage, FileSystem toFs) {
         try {
             Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
             Path tmpDir = targetDir.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
@@ -130,7 +142,7 @@ public class CreateExecutableTask implements Task {
             if (bLangPackage.symbol.entryPointExists) {
                 for (File file : tmpDir.toFile().listFiles()) {
                     if (!file.isDirectory()) {
-                        copyFromJarToJar(file.toPath(), executablePath);
+                        copyFromJarToJar(file.toPath(), toFs);
                     }
                 }
             }
@@ -143,34 +155,30 @@ public class CreateExecutableTask implements Task {
         }
     }
 
-    private static void copyFromJarToJar(Path fromJar, Path toJar) throws IOException {
-        URI uberJarUri = URI.create("jar:" + toJar.toUri().toString());
-        // Load the to jar to a file system
-        try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
-            Path to = toFs.getRootDirectories().iterator().next();
-            URI moduleJarUri = URI.create("jar:" + fromJar.toUri().toString());
-            // Load the from jar to a file system.
-            try (FileSystem fromFs = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())) {
-                Path from = fromFs.getRootDirectories().iterator().next();
-                // Walk and copy the files.
-                Files.walkFileTree(from, new Copy(from, to));
-            }
+    private static void copyFromJarToJar(Path fromJar, FileSystem toFs) throws IOException {
+        Path to = toFs.getRootDirectories().iterator().next();
+        URI moduleJarUri = URI.create("jar:" + fromJar.toUri().toString());
+        // Load the from jar to a file system.
+        try (FileSystem fromFs = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())) {
+            Path from = fromFs.getRootDirectories().iterator().next();
+            // Walk and copy the files.
+            Files.walkFileTree(from, new Copy(from, to));
         }
     }
-    
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
         private StandardCopyOption copyOption;
         
         
-        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+        Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
             this.fromPath = fromPath;
             this.toPath = toPath;
             this.copyOption = copyOption;
         }
         
-        public Copy(Path fromPath, Path toPath) {
+        Copy(Path fromPath, Path toPath) {
             this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
         }
         
@@ -182,17 +190,32 @@ public class CreateExecutableTask implements Task {
             }
             return FileVisitResult.CONTINUE;
         }
-        
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Path toFile = toPath.resolve(fromPath.relativize(file).toString());
-            String fileName = toFile.getFileName().toString();
-            if ((!Files.exists(toFile) &&
-                    !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1))) ||
-                    toFile.toString().startsWith("/META-INF/services")) {
-                Files.copy(file, toFile, copyOption);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-    }
+
+         @Override
+         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+             Path toFile = toPath.resolve(fromPath.relativize(file).toString());
+             String fileName = toFile.getFileName().toString();
+             if ((!Files.exists(toFile) &&
+                     !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1)))) {
+                 Files.copy(file, toFile, copyOption);
+             } else if (toFile.toString().startsWith("/META-INF/services")) {
+                 this.mergeSPIFiles(file, toFile);
+             }
+             return FileVisitResult.CONTINUE;
+         }
+
+         private void mergeSPIFiles(Path fromFilePath, Path toFilePath) throws IOException {
+             // Merge the spi implementations for each service file.
+             try (BufferedReader fromBr = new BufferedReader(new InputStreamReader(Files
+                     .newInputStream(fromFilePath), StandardCharsets.UTF_8));
+                  BufferedWriter toBw = new BufferedWriter(new OutputStreamWriter(Files
+                          .newOutputStream(toFilePath, StandardOpenOption.APPEND), StandardCharsets.UTF_8))) {
+                 String text;
+                 while ((text = fromBr.readLine()) != null) {
+                     toBw.newLine();
+                     toBw.write(text);
+                 }
+             }
+         }
+     }
 }

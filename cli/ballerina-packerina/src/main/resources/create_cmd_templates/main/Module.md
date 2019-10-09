@@ -1,3 +1,3 @@
 # Hello World
 
-Prints "hello world" to command line output
+Prints "hello world" as the output in the command line.

@@ -1,12 +1,16 @@
-import ballerina/http;
+import ballerina/file;
+import ballerina/time;
 
 function testFunction1() {
-    http:Response res = new;
+	time:Time tm = {
+		time: 0,
+		zone: {
+			id: "",
+			offset: 0
+		}
+	};
+	
+	file:FileInfo fInfo = new("test", 12, tm, false);
+    fInfo.modifiedTime.
     string testString = "Hello Ballerina!";
-    string val = res.entity.
-}
-
-function getResponseObject() returns http:Response {
-    http:Response res = new;
-    return res;
 }

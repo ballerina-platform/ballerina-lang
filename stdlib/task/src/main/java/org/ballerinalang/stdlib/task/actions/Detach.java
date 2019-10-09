@@ -40,16 +40,16 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_PACKAGE_NAM
 @BallerinaFunction(
         orgName = ORGANIZATION_NAME,
         packageName = PACKAGE_NAME,
-        functionName = "detachService",
+        functionName = "detach",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
                 structType = OBJECT_NAME_LISTENER,
                 structPackage = TASK_PACKAGE_NAME),
         isPublic = true
 )
-public class DetachService {
+public class Detach {
 
-    public static Object detachService(Strand strand, ObjectValue taskListener, ObjectValue service) {
+    public static Object detach(Strand strand, ObjectValue taskListener, ObjectValue service) {
         try {
             Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
             String serviceName = service.getType().getName();

@@ -45,6 +45,7 @@ public type Listener object {
     }
 
     public function __detach(service s) returns error? {
+        return self.detach(s);
     }
 
     public function __start() returns error? {
@@ -79,7 +80,7 @@ public type Listener object {
 
     function stop() returns ListenerError? = external;
 
-    function detachService(service attachedService) returns ListenerError? = external;
+    function detach(service attachedService) returns ListenerError? = external;
 
     function isStarted() returns boolean {
         return self.started;
