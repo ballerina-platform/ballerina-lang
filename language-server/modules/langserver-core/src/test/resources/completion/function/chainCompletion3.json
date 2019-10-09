@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given text content. This method overrides any existing content-type headers\nwith the default content-type `text/plain`. The default value `text/plain` can be overridden\nby passing the content type as an optional parameter.\n  \n**Params**  \n- `string` textContent: Text content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `text/plain`\n                is used as the default value.(Defaultable)  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `text/plain`\n                is used as the default value."
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given text content. This method overrides any existing content-type headers\nwith the default content-type `text/plain`. The default value `text/plain` can be overridden\nby passing the content type as an optional parameter.\n  \n**Params**  \n- `string` textContent: Text content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `text/plain`\n                is used as the default value.(Defaultable)"
         }
       },
       "sortText": "121",
@@ -240,7 +240,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given XML content. This method overrides any existing content-type headers\nwith the default content-type `application/xml`. The default value `application/xml` can be overridden\nby passing the content-type as an optional parameter.\n  \n**Params**  \n- `xml` xmlContent: XML content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `application/xml`\n                is used as the default value.(Defaultable)  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `application/xml`\n                is used as the default value."
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given XML content. This method overrides any existing content-type headers\nwith the default content-type `application/xml`. The default value `application/xml` can be overridden\nby passing the content-type as an optional parameter.\n  \n**Params**  \n- `xml` xmlContent: XML content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `application/xml`\n                is used as the default value.(Defaultable)"
         }
       },
       "sortText": "121",
@@ -284,7 +284,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with a given file. This method overrides any existing `content-type` headers\nwith the default content type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content type as an optional parameter.\n  \n**Params**  \n- `string` filePath: Represents the path to the file  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.(Defaultable)  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value."
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with a given file. This method overrides any existing `content-type` headers\nwith the default content type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content type as an optional parameter.\n  \n**Params**  \n- `string` filePath: Represents the path to the file  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.(Defaultable)"
         }
       },
       "sortText": "121",
@@ -330,7 +330,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given byte channel content. This method overrides any existing content-type headers\nwith the default content-type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content-type as an optional parameter.\n  \n**Params**  \n- `io:ReadableByteChannel` byteChannel: Byte channel that needs to be set to entity  \n- `string` contentType: Content-type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.(Defaultable)  \n- `string` contentType: Content-type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value."
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given byte channel content. This method overrides any existing content-type headers\nwith the default content-type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content-type as an optional parameter.\n  \n**Params**  \n- `io:ReadableByteChannel` byteChannel: Byte channel that needs to be set to entity  \n- `string` contentType: Content-type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.(Defaultable)"
         }
       },
       "sortText": "121",
@@ -438,7 +438,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets body parts to entity. This method overrides any existing `content-type` headers\nwith the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden\nby passing the content type as an optional parameter.\n  \n**Params**  \n- `mime:Entity[]` bodyParts: Represents the body parts that needs to be set to the entity  \n- `string` contentType: Content-type to be used with the payload. This is an optional parameter.\n                `multipart/form-data` is used as the default value.(Defaultable)  \n- `string` contentType: Content-type to be used with the payload. This is an optional parameter.\n                `multipart/form-data` is used as the default value."
+          "value": "**Package:** _ballerina/mime_  \n  \nSets body parts to entity. This method overrides any existing `content-type` headers\nwith the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden\nby passing the content type as an optional parameter.\n  \n**Params**  \n- `mime:Entity[]` bodyParts: Represents the body parts that needs to be set to the entity  \n- `string` contentType: Content-type to be used with the payload. This is an optional parameter.\n                `multipart/form-data` is used as the default value.(Defaultable)"
         }
       },
       "sortText": "121",
@@ -456,7 +456,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given byte[] content. This method overrides any existing `content-type` headers\nwith the default content type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content type as an optional parameter.\n  \n**Params**  \n- `byte[]` blobContent: byte[] content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.(Defaultable)  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value."
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given byte[] content. This method overrides any existing `content-type` headers\nwith the default content type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content type as an optional parameter.\n  \n**Params**  \n- `byte[]` blobContent: byte[] content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.(Defaultable)"
         }
       },
       "sortText": "121",
@@ -526,13 +526,27 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "toString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key=value for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
+        }
+      },
+      "sortText": "121",
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "setJson(json jsonContent, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given `json` content. This method overrides any existing `content-type` headers\nwith the default content type `application/json`. The default value `application/json` can be overridden\nby passing the content type as an optional parameter.\n  \n**Params**  \n- `json` jsonContent: JSON content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `application/json`\n                is used as the default value.(Defaultable)  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `application/json`\n                is used as the default value."
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given `json` content. This method overrides any existing `content-type` headers\nwith the default content type `application/json`. The default value `application/json` can be overridden\nby passing the content type as an optional parameter.\n  \n**Params**  \n- `json` jsonContent: JSON content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `application/json`\n                is used as the default value.(Defaultable)"
         }
       },
       "sortText": "121",

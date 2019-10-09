@@ -1,24 +1,16 @@
 {
   "position": {
-    "line": 5,
-    "character": 15
+    "line": 8,
+    "character": 11
   },
-  "source": "resource/source/completionAvoidRemoteFunctions.bal",
+  "source": "function/source/delimiterBasedCompletionOverArrays.bal",
   "items": [
     {
-      "label": "protocol",
+      "label": "weight",
       "kind": "Variable",
-      "detail": "string",
+      "detail": "int",
       "sortText": "130",
-      "insertText": "protocol",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "localAddress",
-      "kind": "Variable",
-      "detail": "http:Local",
-      "sortText": "130",
-      "insertText": "localAddress",
+      "insertText": "weight",
       "insertTextFormat": "Snippet"
     },
     {
@@ -33,30 +25,6 @@
       },
       "sortText": "120",
       "insertText": "toString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "config",
-      "kind": "Variable",
-      "detail": "http:ListenerConfiguration",
-      "sortText": "130",
-      "insertText": "config",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "remoteAddress",
-      "kind": "Variable",
-      "detail": "http:Remote",
-      "sortText": "130",
-      "insertText": "remoteAddress",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "filterContext",
-      "kind": "Variable",
-      "detail": "(http:FilterContext|())",
-      "sortText": "130",
-      "insertText": "filterContext",
       "insertTextFormat": "Snippet"
     }
   ]
