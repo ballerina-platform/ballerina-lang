@@ -42,18 +42,20 @@ public class ImportsTests {
 
     private static final String USER_HOME = "user.home";
     private String previousUserHome;
-    private Path tempBir;
 
     @BeforeClass(description = "Build the necessary modules.")
     public void setup() throws IOException {
         Path tempDir = Files.createTempDirectory("temp-bal-home");
-        tempBir = Paths.get(System.getProperty("user.dir"), "build", "test-bir-temp");
+        Path tempBir = Paths.get(System.getProperty("user.dir"), "build", "test-bir-temp");
         Path imports = Paths.get("test-src", "balo", "imports");
         Path homeBirCache = tempDir.resolve(Paths.get(".ballerina", "bir_cache"));
         List<Path> birFiles;
 
         previousUserHome = System.getProperty(USER_HOME);
         System.setProperty(USER_HOME, tempDir.toString());
+
+        // Delete all existing bir files.
+        BFileUtil.deleteAll(tempBir, "testModule.bir");
 
         BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module1", "test_module")).toString(),
                 "testOrg", "testModule");
@@ -110,15 +112,9 @@ public class ImportsTests {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
     }
 
-    @AfterClass(description = "Set the home to previous location.")
-    public void cleanup() throws IOException {
+    @AfterClass(description = "Set the home to previous location.", alwaysRun = true)
+    public void cleanup() {
         System.setProperty(USER_HOME, previousUserHome);
-
-        List<Path> birFiles = Files.find(tempBir, Integer.MAX_VALUE, (path, attribute) ->
-                path.toString().contains("testModule.bir")).collect(Collectors.toList());
-        for (Path birFile : birFiles) {
-            BFileUtil.delete(birFile);
-        }
     }
 }
 
