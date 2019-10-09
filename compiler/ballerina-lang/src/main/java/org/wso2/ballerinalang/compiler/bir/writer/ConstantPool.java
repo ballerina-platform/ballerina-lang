@@ -46,7 +46,6 @@ public class ConstantPool {
     private final Map<CPEntry, Integer> cpEntriesMap = new HashMap<>();
     private final List<CPEntry> cpEntries = new ArrayList<>();
 
-
     public int addCPEntry(CPEntry cpEntry) {
         int size = cpEntries.size();
         Integer position = cpEntriesMap.get(cpEntry);
@@ -57,16 +56,6 @@ public class ConstantPool {
         }
         return position;
     }
-
-//    public int addCPEntry(CPEntry cpEntry) {
-//        int i = cpEntries.indexOf(cpEntry);
-//        if (i >= 0) {
-//            return i;
-//        }
-//
-//        cpEntries.add(cpEntry);
-//        return cpEntries.size() - 1;
-//    }
 
     public int addShapeCPEntry(BType shape) {
         CPEntry.ShapeCPEntry shapeCPEntry = new CPEntry.ShapeCPEntry(shape);
@@ -86,7 +75,7 @@ public class ConstantPool {
         }
     }
 
-    private void overwriteSize(byte[] bytes) throws IOException {
+    private void overwriteSize(byte[] bytes) {
         int v = cpEntries.size();
         bytes[0] = (byte) ((v >>> 24) & 0xFF);
         bytes[1] = (byte) ((v >>> 16) & 0xFF);
