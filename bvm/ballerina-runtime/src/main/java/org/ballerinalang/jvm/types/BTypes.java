@@ -85,7 +85,8 @@ public class BTypes {
             return true;
         }
 
-        if (type.getTag() == TypeTags.FINITE_TYPE_TAG) {
+
+        if (type != null && type.getTag() == TypeTags.FINITE_TYPE_TAG) {
             // All the types in value space should be value types.
             for (Object value : ((BFiniteType) type).valueSpace) {
                 if (!isValueType(TypeChecker.getType(value))) {
