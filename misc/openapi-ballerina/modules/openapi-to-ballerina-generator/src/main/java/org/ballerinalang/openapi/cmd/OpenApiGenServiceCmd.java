@@ -24,7 +24,6 @@ import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_SERVICE_NAME
 import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_DIRECTORY_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_MD_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.RESOURCE_DIRECTORY_EXCEPTION;
-import static org.ballerinalang.openapi.OpenApiMesseges.SOURCE_DIRECTORY_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.TESTS_DIRECTORY_EXCEPTION;
 
 /**
@@ -158,7 +157,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
             try {
                 resourcePath = Paths.get(openApiFile.getCanonicalPath());
             } catch (IOException e) {
-                e.printStackTrace();
+                throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
             }
         } else {
             // Check for resources folder in ballerina module root
