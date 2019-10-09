@@ -444,19 +444,19 @@
       }
     },
     {
-      "label": "receivedTime",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "130",
-      "insertText": "receivedTime",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "reasonPhrase",
       "kind": "Variable",
       "detail": "string",
       "sortText": "130",
       "insertText": "reasonPhrase",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "receivedTime",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "receivedTime",
       "insertTextFormat": "Snippet"
     },
     {
@@ -553,14 +553,6 @@
       },
       "sortText": "120",
       "insertText": "getEntityWithoutBody()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "entity",
-      "kind": "Variable",
-      "detail": "mime:Entity",
-      "sortText": "130",
-      "insertText": "entity",
       "insertTextFormat": "Snippet"
     },
     {

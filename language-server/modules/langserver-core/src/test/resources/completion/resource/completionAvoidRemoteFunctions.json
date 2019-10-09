@@ -36,27 +36,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "config",
-      "kind": "Variable",
-      "detail": "http:ListenerConfiguration",
-      "sortText": "130",
-      "insertText": "config",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "remoteAddress",
       "kind": "Variable",
       "detail": "http:Remote",
       "sortText": "130",
       "insertText": "remoteAddress",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "filterContext",
-      "kind": "Variable",
-      "detail": "(http:FilterContext|())",
-      "sortText": "130",
-      "insertText": "filterContext",
       "insertTextFormat": "Snippet"
     }
   ]

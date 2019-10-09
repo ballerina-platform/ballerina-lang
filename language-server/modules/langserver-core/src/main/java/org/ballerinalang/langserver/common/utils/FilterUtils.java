@@ -353,11 +353,22 @@ public class FilterUtils {
         if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
             Map<Name, Scope.ScopeEntry> methodEntries = objectTypeSymbol.methodScope.entries.entrySet().stream()
-                    .filter(entry -> !(entry.getValue().symbol.getName().getValue().contains(".__init")
-                            && !"self".equals(symbolName)))
+                    .filter(entry -> {
+                        BSymbol entrySymbol = entry.getValue().symbol;
+                        boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
+                        return !(entrySymbol.getName().getValue().contains(".__init")
+                            && !"self".equals(symbolName)) && !(isPrivate && !"self".equals(symbolName));
+                    })
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            Map<Name, Scope.ScopeEntry> fieldEntries = objectTypeSymbol.scope.entries.entrySet().stream()
+                    .filter(entry -> {
+                        BSymbol entrySymbol = entry.getValue().symbol;
+                        boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
+                        return !(isPrivate && !"self".equals(symbolName));
+                    })
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             entries.putAll(methodEntries);
-            entries.putAll(objectTypeSymbol.scope.entries);
+            entries.putAll(fieldEntries);
             entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
             return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BInvokableSymbol))
                     || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))
