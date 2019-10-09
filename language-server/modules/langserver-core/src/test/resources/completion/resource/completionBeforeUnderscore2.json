@@ -28,14 +28,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "dirtyRequest",
-      "kind": "Variable",
-      "detail": "boolean",
-      "sortText": "130",
-      "insertText": "dirtyRequest",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "setByteChannel(io:ReadableByteChannel payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
@@ -669,14 +661,6 @@
       },
       "sortText": "120",
       "insertText": "toString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "entity",
-      "kind": "Variable",
-      "detail": "mime:Entity",
-      "sortText": "130",
-      "insertText": "entity",
       "insertTextFormat": "Snippet"
     }
   ]
