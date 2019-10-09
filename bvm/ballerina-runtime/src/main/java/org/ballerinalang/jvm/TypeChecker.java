@@ -197,16 +197,17 @@ public class TypeChecker {
 
         if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG && targetType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             // value space should be same
-            if (((BFiniteType) sourceType).valueSpace.size() != ((BFiniteType) targetType).valueSpace.size()) {
+            Set<Object> sourceValueSpace = ((BFiniteType) sourceType).valueSpace;
+            Set<Object> targetValueSpace = ((BFiniteType) targetType).valueSpace;
+            if (sourceValueSpace.size() != targetValueSpace.size()) {
                 return false;
             }
 
-            for (Object sourceVal : ((BFiniteType) sourceType).valueSpace) {
-                if (!containsType(((BFiniteType) targetType).valueSpace, getType(sourceVal))) {
+            for (Object sourceVal : sourceValueSpace) {
+                if (!containsType(targetValueSpace, getType(sourceVal))) {
                     return false;
                 }
             }
-
             return true;
         }
 
