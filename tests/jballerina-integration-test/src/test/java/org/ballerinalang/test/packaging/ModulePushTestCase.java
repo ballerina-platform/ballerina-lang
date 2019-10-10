@@ -50,8 +50,7 @@ public class ModulePushTestCase extends BaseTest {
         balClient = new BMainInstance(balServer);
     }
 
-    @Test(description = "Test pushing a package to central by specifying the access token as an environment variable",
-            groups = "brokenOnPackerinaChanges")
+    @Test(description = "Test pushing a package to central by specifying the access token as an environment variable")
     public void testPush() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initPushProject");
         
