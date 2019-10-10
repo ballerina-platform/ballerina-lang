@@ -622,7 +622,7 @@ public class BTestRunner {
         outStream.println("Running tests");
         // Check if the test suite is empty
         if (testSuites.isEmpty()) {
-            outStream.println("    No tests found");
+            outStream.println("\t" + "No tests found");
             // We need a new line to show a clear separation between the outputs of 'Running Tests' and
             // 'Generating Executable'
             if (buildWithTests) {
@@ -640,9 +640,9 @@ public class BTestRunner {
             // For single bal files
             if (packageName.equals(Names.DOT.value)) {
                 // If there is a source file name print it and then execute the tests
-                outStream.println("    " + suite.getSourceFileName());
+                outStream.println("\t" + suite.getSourceFileName());
             } else {
-                outStream.println("    " + packageName);
+                outStream.println("\t" + packageName);
             }
             // Check if there are tests in the test suite
             if (suite.getTests().size() == 0) {
