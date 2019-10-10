@@ -28,7 +28,7 @@ public class MathUtils {
 
     public static long divide(long numerator, long denominator) {
         try {
-            if (numerator == Math.pow(-2, 63) && denominator == -1) {
+            if (numerator == Long.MIN_VALUE && denominator == -1) {
                 // a panic will occur on division by zero or overflow,
                 // which happens if the first operand is -2^63 and the second operand is -1
                 throw BallerinaErrors.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, " int range overflow");
