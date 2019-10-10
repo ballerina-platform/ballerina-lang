@@ -37,13 +37,13 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "immediateStop",
+        functionName = "gracefulStop",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = HTTP_LISTENER_ENDPOINT,
                              structPackage = "ballerina/http"),
         isPublic = true
 )
-public class ImmediateStop extends AbstractHttpNativeFunction {
-    public static Object immediateStop(Strand strand, ObjectValue serverEndpoint) {
+public class GracefulStop extends AbstractHttpNativeFunction {
+    public static Object gracefulStop(Strand strand, ObjectValue serverEndpoint) {
         try {
             getServerConnector(serverEndpoint).stop();
             serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);

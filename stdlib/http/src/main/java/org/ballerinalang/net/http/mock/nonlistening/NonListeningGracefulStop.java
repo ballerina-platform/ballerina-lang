@@ -21,7 +21,7 @@ package org.ballerinalang.net.http.mock.nonlistening;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.serviceendpoint.ImmediateStop;
+import org.ballerinalang.net.http.serviceendpoint.GracefulStop;
 
 import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
 
@@ -33,10 +33,10 @@ import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
 
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "immediateStop",
+        functionName = "gracefulStop",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = MOCK_LISTENER_ENDPOINT,
                 structPackage = "ballerina.http"),
         isPublic = true
 )
-public class NonListeningImmediateStop extends ImmediateStop {
+public class NonListeningGracefulStop extends GracefulStop {
 }
