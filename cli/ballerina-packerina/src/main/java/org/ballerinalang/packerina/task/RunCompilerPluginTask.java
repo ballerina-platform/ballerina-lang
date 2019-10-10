@@ -32,8 +32,9 @@ public class RunCompilerPluginTask implements Task {
     public void execute(BuildContext buildContext) {
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         for (BLangPackage module : buildContext.getModules()) {
-            processorServiceLoader.forEach(plugin ->
-                    plugin.codeGenerated(module.packageID, buildContext.getExecutablePathFromTarget(module.packageID)));
+            for (CompilerPlugin plugin : processorServiceLoader) {
+                plugin.codeGenerated(module.packageID, buildContext.getExecutablePathFromTarget(module.packageID));
+            }
         }
     }
 }
