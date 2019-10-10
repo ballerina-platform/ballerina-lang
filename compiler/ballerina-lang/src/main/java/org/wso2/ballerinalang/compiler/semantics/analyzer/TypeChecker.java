@@ -2331,7 +2331,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, env);
 
-        // Visit in-line namespace declarations
+        // Visit in-line namespace declarations and define the namespace.
         for (BLangXMLAttribute attribute : bLangXMLElementLiteral.attributes) {
             if (attribute.name.getKind() == NodeKind.XML_QNAME && isXmlNamespaceAttribute(attribute)) {
                 BLangXMLQuotedString value = attribute.value;
@@ -2342,9 +2342,9 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        // Visit attributes.
+        // Visit attributes, this may depend on the namespace defined in previous attribute iteration.
         bLangXMLElementLiteral.attributes.forEach(attribute -> {
-            if (attribute.name.getKind() != NodeKind.XML_QNAME || !isXmlNamespaceAttribute(attribute)) {
+            if (!(attribute.name.getKind() == NodeKind.XML_QNAME && isXmlNamespaceAttribute(attribute))) {
                 checkExpr(attribute, xmlElementEnv, symTable.noType);
             }
         });
