@@ -111,8 +111,8 @@ public type ConnectionConfiguration record {|
 # + tlsVersion - TLS version.
 # + verifyHostname - True, if hostname verification should be enabled.
 public type SecureSocket record {|
-    crypto:TrustStore trustStore = {};
-    crypto:KeyStore keyStore = {};
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string tlsVersion = "TLS";
     boolean verifyHostname = true;
 |};

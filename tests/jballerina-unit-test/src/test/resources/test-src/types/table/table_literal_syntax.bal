@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/xmlutils;
+import ballerina/jsonutils;
 
 type Person record {
     int id;
@@ -590,7 +592,7 @@ function testTableWithAllDataToXml() returns (xml|error) {
     checkpanic dt3.add(t1);
     checkpanic dt3.add(t2);
 
-    xml x = check typedesc<xml>.constructFrom(dt3);
+    xml x = xmlutils:fromTable(dt3);
     return x;
 }
 
@@ -613,7 +615,7 @@ function testTableWithArrayDataToXml() returns (xml|error) {
     checkpanic dt3.add(t1);
     checkpanic dt3.add(t2);
 
-    xml x = check typedesc<xml>.constructFrom(dt3);
+    xml x = xmlutils:fromTable(dt3);
     return x;
 }
 
@@ -636,7 +638,7 @@ function testToJson() returns (json|error) {
     checkpanic dt.add(p2);
     checkpanic dt.add(p3);
 
-    json j = check typedesc<json>.constructFrom(dt);
+    json j = jsonutils:fromTable(dt);
     return j;
 }
 
@@ -650,7 +652,7 @@ function testToXML() returns (xml|error) {
     checkpanic dt.add(p2);
     checkpanic dt.add(p3);
 
-    xml x = check typedesc<xml>.constructFrom(dt);
+    xml x = xmlutils:fromTable(dt);
     return x;
 }
 
@@ -664,7 +666,7 @@ function testTableWithAllDataToJson() returns (json|error) {
     checkpanic dt3.add(t1);
     checkpanic dt3.add(t2);
 
-    json j = check typedesc<json>.constructFrom(dt3);
+    json j = jsonutils:fromTable(dt3);
     return j;
 }
 
@@ -676,7 +678,7 @@ function testTableWithBlobDataToJson() returns (json|error) {
     table<BlobTypeTest> dt3 = table{};
     checkpanic dt3.add(t1);
 
-    json j = check typedesc<json>.constructFrom(dt3);
+    json j = jsonutils:fromTable(dt3);
     return j;
 }
 
@@ -688,7 +690,7 @@ function testTableWithBlobDataToXml() returns (xml|error) {
     table<BlobTypeTest> dt3 = table{};
     checkpanic dt3.add(t1);
 
-    xml x = check typedesc<xml>.constructFrom(dt3);
+    xml x = xmlutils:fromTable(dt3);
     return x;
 }
 
@@ -698,7 +700,7 @@ function testStructWithDefaultDataToJson() returns (json|error) {
     table<DefaultablePerson> dt3 = table{};
     checkpanic dt3.add(p1);
 
-    json j = check typedesc<json>.constructFrom(dt3);
+    json j = jsonutils:fromTable(dt3);
     return j;
 }
 
@@ -708,7 +710,7 @@ function testStructWithDefaultDataToXml() returns (xml|error) {
     table<DefaultablePerson> dt3 = table{};
     checkpanic dt3.add(p1);
 
-    xml x = check typedesc<xml>.constructFrom(dt3);
+    xml x = xmlutils:fromTable(dt3);
     return x;
 }
 
@@ -731,7 +733,7 @@ function testTableWithArrayDataToJson() returns (json|error) {
     checkpanic dt3.add(t1);
     checkpanic dt3.add(t2);
 
-    json j = check typedesc<json>.constructFrom(dt3);
+    json j = jsonutils:fromTable(dt3);
     return j;
 }
 
@@ -760,12 +762,12 @@ function testTableAddAndAccess() returns [string, string]|error {
     checkpanic dt.add(p1);
     checkpanic dt.add(p2);
 
-    json j1 = check typedesc<json>.constructFrom(dt);
-    string s1 = j1.toString();
+    json j1 = jsonutils:fromTable(dt);
+    string s1 = j1.toJsonString();
 
     checkpanic dt.add(p3);
-    json j2 = check typedesc<json>.constructFrom(dt);
-    string s2 = j2.toString();
+    json j2 = jsonutils:fromTable(dt);
+    string s2 = j2.toJsonString();
 
     return [s1, s2];
 }
@@ -786,7 +788,7 @@ function testTableRemoveSuccess() returns [int, json]|error {
     checkpanic dt.add(p3);
 
     int count = check dt.remove(isBelow35);
-    json j = check typedesc<json>.constructFrom(dt);
+    json j = jsonutils:fromTable(dt);
 
     return [count, j];
 }
@@ -802,7 +804,7 @@ function testTableRemoveSuccessMultipleMatch() returns [int, json]|error {
     checkpanic dt.add(p3);
 
     int count = check dt.remove(isJohn);
-    json j = check typedesc<json>.constructFrom(dt);
+    json j = jsonutils:fromTable(dt);
 
     return [count, j];
 }
@@ -819,7 +821,7 @@ function testTableRemoveFailed() returns [int, json]|error {
     checkpanic dt.add(p3);
 
     int count = check dt.remove(isBelow35);
-    json j = check typedesc<json>.constructFrom(dt);
+    json j = jsonutils:fromTable(dt);
 
     return [count, j];
 }
@@ -881,6 +883,15 @@ function testRemoveOpAnonymousFilter() returns table<Order> {
     return orderTable;
 }
 
+function testTableAddOnConstrainedTableWithViolation3() {
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+
+    table<Person> t1 = table {
+        { key id, salary, name, age, married },
+        [p1, p2]
+    };
+}
 
 //function testEmptyTableCreate() returns [int, int] {
 //    table<Person> dt3 = table{};

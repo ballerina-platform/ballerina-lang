@@ -32,7 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_TYPE;
-import static org.ballerinalang.stdlib.system.utils.SystemConstants.SYSTEM_PACKAGE_PATH;
+import static org.ballerinalang.stdlib.system.utils.SystemConstants.PROCESS_FIELD;
+import static org.ballerinalang.stdlib.system.utils.SystemConstants.PROCESS_TYPE;
+import static org.ballerinalang.stdlib.system.utils.SystemConstants.SYSTEM_PACKAGE_ID;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.createTimeRecord;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeRecord;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeZoneRecord;
@@ -79,7 +81,7 @@ public class SystemUtils {
         } else {
             valueMap.put(SystemConstants.ERROR_MESSAGE, UNKNOWN_MESSAGE);
         }
-        return BallerinaValues.createRecordValue(SYSTEM_PACKAGE_PATH, SystemConstants.ERROR_DETAILS, valueMap);
+        return BallerinaValues.createRecordValue(SYSTEM_PACKAGE_ID, SystemConstants.ERROR_DETAILS, valueMap);
     }
 
     public static ObjectValue getFileInfo(File inputFile) throws IOException {
@@ -88,8 +90,18 @@ public class SystemUtils {
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
                 lastModified.toMillis(), zonedDateTime.getZone().toString());
-        return BallerinaValues.createObjectValue(SYSTEM_PACKAGE_PATH, FILE_INFO_TYPE, inputFile.getName(),
+        return BallerinaValues.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE, inputFile.getName(),
                 inputFile.length(), lastModifiedInstance, inputFile.isDirectory());
+    }
+
+    public static ObjectValue getProcessObject(Process process) throws IOException {
+        ObjectValue obj = BallerinaValues.createObjectValue(SYSTEM_PACKAGE_ID, PROCESS_TYPE);
+        obj.addNativeData(PROCESS_FIELD, process);
+        return obj;
+    }
+    
+    public static Process processFromObject(ObjectValue objVal) {
+        return (Process) objVal.getNativeData(PROCESS_FIELD);
     }
 
     /**

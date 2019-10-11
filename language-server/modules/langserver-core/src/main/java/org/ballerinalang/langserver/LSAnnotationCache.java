@@ -66,7 +66,7 @@ public class LSAnnotationCache {
     private static HashMap<PackageID, List<BAnnotationSymbol>> externalAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> varAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> constAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> channelAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> workerAnnotations = new HashMap<>();
     private static LSAnnotationCache lsAnnotationCache = null;
     private static List<PackageID> processedPackages = new ArrayList<>();
     
@@ -161,12 +161,42 @@ public class LSAnnotationCache {
             case LISTENER:
                 annotationMap = listenerAnnotations;
                 break;
+            case EXTERNAL:
+                annotationMap = externalAnnotations;
+                break;
+            case WORKER:
+                annotationMap = workerAnnotations;
+                break;
             default:
                 annotationMap = new HashMap<>();
                 break;
         }
 
         return annotationMap;
+    }
+
+    /**
+     * Get all annotations.
+     * 
+     * @return {@link List} list of all annotations in the cache
+     */
+    public List<BAnnotationSymbol> getAnnotations() {
+        List<BAnnotationSymbol> annotations = new ArrayList<>();
+        typeAnnotations.values().forEach(annotations::addAll);
+        objectAnnotations.values().forEach(annotations::addAll);
+        functionAnnotations.values().forEach(annotations::addAll);
+        objectMethodAnnotations.values().forEach(annotations::addAll);
+        resourceAnnotations.values().forEach(annotations::addAll);
+        parameterAnnotations.values().forEach(annotations::addAll);
+        returnAnnotations.values().forEach(annotations::addAll);
+        serviceAnnotations.values().forEach(annotations::addAll);
+        listenerAnnotations.values().forEach(annotations::addAll);
+        annotationAnnotations.values().forEach(annotations::addAll);
+        externalAnnotations.values().forEach(annotations::addAll);
+        varAnnotations.values().forEach(annotations::addAll);
+        constAnnotations.values().forEach(annotations::addAll);
+
+        return annotations;
     }
 
     /**
@@ -223,8 +253,8 @@ public class LSAnnotationCache {
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CONST)) {
                     addAttachment(annotationSymbol, constAnnotations, bPackageSymbol.pkgID);
                 }
-                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CHANNEL)) {
-                    addAttachment(annotationSymbol, channelAnnotations, bPackageSymbol.pkgID);
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.WORKER)) {
+                    addAttachment(annotationSymbol, workerAnnotations, bPackageSymbol.pkgID);
                 }
             }
         });

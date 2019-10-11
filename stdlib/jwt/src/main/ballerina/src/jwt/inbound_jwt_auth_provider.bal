@@ -15,15 +15,9 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/cache;
-import ballerina/internal;
 import ballerina/log;
-import ballerina/runtime;
+import ballerina/stringutils;
 import ballerina/time;
-
-const string SCOPES = "scope";
-const string GROUPS = "groups";
-const string USERNAME = "name";
 
 # Represents inbound JWT auth provider.
 #
@@ -46,7 +40,7 @@ public type InboundJwtAuthProvider object {
     # + credential - Jwt token extracted from the authentication header
     # + return - `true` if authentication is successful, othewise `false` or `auth:Error` occurred during JWT validation
     public function authenticate(string credential) returns @tainted (boolean|auth:Error) {
-        string[] jwtComponents = internal:split(credential, "\\.");
+        string[] jwtComponents = stringutils:split(credential, "\\.");
         if (jwtComponents.length() != 3) {
             return false;
         }
@@ -107,27 +101,25 @@ function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string 
 }
 
 function setPrincipal(JwtPayload jwtPayload) {
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (principal is runtime:Principal) {
-        string? iss = jwtPayload?.iss;
-        string? sub = jwtPayload?.sub;
-        principal.userId = (iss is () ? "" : iss) + ":" + (sub is () ? "" : sub);
-        // By default set sub as username.
-        principal.username = (sub is () ? "" : sub);
-        map<json>? claims = jwtPayload?.customClaims;
-        if (claims is map<json>) {
-            principal.claims = claims;
-            if (claims.hasKey(SCOPES)) {
-                var scopeString = claims[SCOPES];
-                if (scopeString is string) {
-                    principal.scopes = internal:split(scopeString, " ");
-                }
+    string? iss = jwtPayload?.iss;
+    string? sub = jwtPayload?.sub;
+    string userId = (iss is () ? "" : iss) + ":" + (sub is () ? "" : sub);
+    // By default set sub as username.
+    string username = (sub is () ? "" : sub);
+    auth:setPrincipal(userId, username);
+    map<json>? claims = jwtPayload?.customClaims;
+    if (claims is map<json>) {
+        auth:setPrincipal(claims = claims);
+        if (claims.hasKey(SCOPE)) {
+            var scopeString = claims[SCOPE];
+            if (scopeString is string) {
+                auth:setPrincipal(scopes = stringutils:split(scopeString, " "));
             }
-            if (claims.hasKey(USERNAME)) {
-                var name = claims[USERNAME];
-                if (name is string) {
-                    principal.username = name;
-                }
+        }
+        if (claims.hasKey(USERNAME)) {
+            var name = claims[USERNAME];
+            if (name is string) {
+                auth:setPrincipal(username = name);
             }
         }
     }

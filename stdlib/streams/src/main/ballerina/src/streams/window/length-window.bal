@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/time;
 
 # The `LengthWindow` is a sliding length window, that holds last windowLength events, and gets updated on every event
 # arrival and expiry.
@@ -101,7 +100,7 @@ public type LengthWindow object {
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
-                        boolean isLHSTrigger = true)
+                        public boolean isLHSTrigger = true)
                         returns @tainted [StreamEvent?, StreamEvent?][] {
         [StreamEvent?, StreamEvent?][] events = [];
         int i = 0;

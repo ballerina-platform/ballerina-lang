@@ -14,11 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
-import ballerina/'lang\.int as lint;
-import ballerina/internal;
+import ballerina/io;
+import ballerina/lang.'int as lint;
+import ballerina/mime;
 
 # This functions pulls a module from ballerina central.
 #
@@ -45,12 +44,12 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string or
         }
     } else {
         string statusCode = response.statusCode.toString();
-        if (internal:hasPrefix(statusCode, "5")) {
-            panic createError("error occured in remote registry. url: " + url);
+        if (statusCode.startsWith("5")) {
+            panic createError("unable to connect to remote repository: " + url);
         } else if (statusCode != "200") {
             json|error jsonResponse = response.getJsonPayload();
             if (jsonResponse is error) {
-                panic createError("invalid response json");
+                panic createError("invalid response received from the remote repository '" + url + "'");
             } else {
                 string message = jsonResponse.message.toString();
                 panic createError(message);
@@ -81,7 +80,7 @@ public function main(string... args) {
             http:Client|error result = trap defineEndpointWithProxy(urlWithModulePath, proxyHost, proxyPort, proxyUsername, proxyPassword);
             if (result is http:Client) {
                 httpEndpoint = result;
-                pushPackage(httpEndpoint, accessToken, organization, urlWithModulePath, pathToBalo, outputLog);
+                pushPackage(httpEndpoint, accessToken, organization, urlWithModulePath, <@untainted>pathToBalo, outputLog);
             } else {
                 panic createError("failed to resolve host : " + proxyHost + " with port " + proxyPortAsString);
             }
@@ -92,7 +91,7 @@ public function main(string... args) {
         panic createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(urlWithModulePath);
-        return <@untainted> pushPackage(httpEndpoint, accessToken, organization, urlWithModulePath, pathToBalo, outputLog);
+        return <@untainted> pushPackage(httpEndpoint, accessToken, organization, urlWithModulePath, <@untainted>pathToBalo, outputLog);
     }
 }
 
@@ -114,7 +113,7 @@ function defineEndpointWithProxy(string url, string hostname, int port, string u
             verifyHostname: false,
             shareSession: true
         },
-        proxy : getProxyConfigurations(hostname, port, username, password),
+        http1Settings:{ proxy : getProxyConfigurations(hostname, port, username, password) },
         cache: {
             enabled: false
         }
@@ -126,7 +125,7 @@ function defineEndpointWithProxy(string url, string hostname, int port, string u
 #
 # + url - URL to be invoked
 # + return - Endpoint defined
-function defineEndpointWithoutProxy (string url) returns http:Client{
+function defineEndpointWithoutProxy(string url) returns http:Client {
     http:Client httpEndpoint = new(url, {
         secureSocket:{
             trustStore:{
@@ -152,15 +151,16 @@ function getByteArrayOfFile(string filePath) returns byte[]|error {
     if (src is error) {
         panic createError("error reading balo file. path: " + filePath);
     } else {
-        int readCount = 1;
-        byte[] readContent;
-
-        while (readCount > 0) {
-            [byte[], int]|error result = src.read(1024);
-            if (result is error) {
+        boolean readContinue = true;
+        byte[] readContent = [];
+        while (readContinue) {
+            byte[]|io:Error result = src.read(1024);
+            if (result is io:EofError) {
+                readContinue = false;
+            } else if (result is io:Error) {
                 panic createError("error reading bytes of balo file. path: " + filePath);
             } else {
-                [readContent, readCount] = result;
+                readContent = result;
             }
         }
         return <@untainted> readContent;

@@ -16,11 +16,13 @@
  */
 package org.ballerinalang.net.http.compiler;
 
+import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -28,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -48,7 +49,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_HTTP_SERVICE_CON
                                     @SupportedResourceParamTypes.Type(packageName = "http", name = "Request")
                             }
 )
-public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
+public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog = null;
 
@@ -60,6 +61,15 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
     @SuppressWarnings("unchecked")
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
+        // If first resource's first parameter is WebSocketCaller, do not process in this plugin.
+        // This is done on the assumption of resources does not mix each other (HTTP and WebSocket)
+        if (resources.size() > 0 &&
+                resources.get(0).getParameters().size() > 0 &&
+                WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(
+                        resources.get(0).getParameters().get(0).type.toString())) {
+            return;
+        }
         int serviceConfigCount = 0;
         for (AnnotationAttachmentNode annotation : annotations) {
             if (annotation.getAnnotationName().getValue().equals(ANN_NAME_HTTP_SERVICE_CONFIG)) {
@@ -75,10 +85,8 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
         //        final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
         //        if (serviceType != null && HttpConstants.HTTP_SERVICE_TYPE.equals(serviceType.getTypeName()
         // .getValue())) {
-        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         resources.forEach(res -> {
             ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
-            ResourceSignatureValidator.validateResourceReturnType(isResourceReturnsErrorOrNil(res), dlog, res.pos);
             ResourceSignatureValidator.validateResourceAnnotation(res, dlog);
         });
         //        }

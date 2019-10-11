@@ -217,3 +217,24 @@ function addInvalidArrayData() {
 function isBelow35Invalid(Person p) {
     p.age = 10;
 }
+
+function testTableLiteralWithVar() {
+
+    var t1 = table {
+        { key id, salary, key name, age, married2 },
+        [{ 1, 300.5, "jane",  30, true },
+        { 2, 302.5, "anne",  23, false },
+        { 3, 320.5, "john",  33, true }
+        ]
+    };
+}
+
+public function testNonRecordAsTableConstraint(string... args) {
+    table<any> t = table {
+                { key id, name, salary },
+                [ { 1, "Mary",  300.5 },
+                  { 2, "John",  200.5 },
+                  { 3, "Jim", 330.5 }
+                ]
+            };
+}

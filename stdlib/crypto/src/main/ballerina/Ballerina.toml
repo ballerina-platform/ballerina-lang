@@ -1,13 +1,13 @@
 [project]
 org-name = "ballerina"
-version = "0.0.0"
+version = "1.0.0"
 
 [platform]
-target = "java"
+target = "java8"
 
     [[platform.libraries]]
-    artafactId = "commons-codec"
-    version = "1.9"
-    path = "./lib/commons-codec-1.9.jar"
-    groupId = "commons-codec"
+    artifactId = "crypto"
+    version = "@project.version@"
+    path = "./lib/ballerina-crypto-@project.version@.jar"
+    groupId = "ballerina"
     modules = ["crypto"]

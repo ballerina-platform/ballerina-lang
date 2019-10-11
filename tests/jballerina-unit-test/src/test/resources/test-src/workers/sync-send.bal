@@ -1,5 +1,5 @@
 import ballerina/runtime;
-import ballerina/io;
+
 
 string append = "";
 function simpleSyncSend() returns string {
@@ -11,7 +11,7 @@ function process() returns string {
    worker w1 {
      int a = 10;
      a -> w2;
-     () result = a ->> w2;
+     a ->> w2;
      a -> w2;
      foreach var i in 1 ... 5 {
                            append = append + "w1";
@@ -415,23 +415,21 @@ function errorResultWithMultipleWorkers() returns error? {
         int x = 30;
         () n = x ->> w2;
         error? res = x ->> w2;
-        res = x + 44 ->> w2;
         return res;
     }
 
-    worker w2 returns error? {
+    worker w2 returns int|error {
         int x = 0;
         x = <- w1;
         if(true) {
             error err = error("err returned from w2"); // Already errored
             return err;
         }
-        x = <- w1;
-        error? res = <- w1;
+        int res = <- w1;
         return res;
     }
 
-    error? eor = wait w2 | w1;
+    error? eor = wait w1;
     return eor;
 }
 

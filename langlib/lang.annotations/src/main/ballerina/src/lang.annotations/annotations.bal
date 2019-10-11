@@ -27,9 +27,9 @@ public const annotation typeParam on source type;
 # Defaultable argument names. This is for internal use.
 #
 # + args - Defaultable argument names are set at compile time.
-public type ArgsData record {|
+type ArgsData record {|
     string[] args = [];
 |};
 
 # Defaultable annotation data generated at compile time. This is for internal use.
-public annotation ArgsData DefaultableArgs on function;
+annotation ArgsData DefaultableArgs on function;

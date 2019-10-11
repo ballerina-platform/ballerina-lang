@@ -37,9 +37,11 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> blockRemoveKWTerminals;
     private boolean removeBlock;
     private int rightParenthesisCount;
+    private int leftParenthesisCount;
     private int rightBraceCount;
     private int rightBracketCount;
     private int ltSymbolCount;
+    private int gtSymbolCount;
     private boolean capturedAssignToken;
     private SourcePruneContext sourcePruneContext;
     private boolean forcedProcessedToken;
@@ -54,9 +56,11 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         this.capturedAssignToken = false;
         this.forcedProcessedToken = false;
         this.rightParenthesisCount = 0;
+        this.leftParenthesisCount = 0;
         this.rightBraceCount = 0;
         this.rightBracketCount = 0;
         this.ltSymbolCount = 0;
+        this.gtSymbolCount = 0;
         this.processedTokens = new ArrayList<>();
     }
 
@@ -76,6 +80,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 this.capturedAssignToken = true;
             } else if (BallerinaParser.RIGHT_BRACKET == type) {
                 rightBracketCount++;
+            } else if (BallerinaParser.GT == type) {
+                this.gtSymbolCount++;
             }
             if (!this.forcedProcessedToken) {
                 processToken(token.get());
@@ -87,8 +93,10 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         
         sourcePruneContext.put(SourcePruneKeys.REMOVE_DEFINITION_KEY, this.removeBlock);
         sourcePruneContext.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, this.rightParenthesisCount);
+        sourcePruneContext.put(SourcePruneKeys.LEFT_PARAN_COUNT_KEY, this.leftParenthesisCount);
         sourcePruneContext.put(SourcePruneKeys.RIGHT_BRACE_COUNT_KEY, this.rightBraceCount);
         sourcePruneContext.put(SourcePruneKeys.LT_COUNT_KEY, this.ltSymbolCount);
+        sourcePruneContext.put(SourcePruneKeys.GT_COUNT_KEY, this.gtSymbolCount);
         Collections.reverse(this.processedTokens);
         return this.processedTokens;
     }
@@ -108,6 +116,15 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 this.processToken(token);
                 this.forcedProcessedToken = true;
                 return false;
+            } else if (this.incompleteStatementWithParenthesis(tokenStream, token)) {
+                /*
+                Since there are no right parenthesis associated with this left parenthesis, increment the left count
+                 */
+                this.leftParenthesisCount++;
+                this.processToken(token);
+                this.forcedProcessedToken = true;
+                this.sourcePruneContext.put(SourcePruneKeys.FORCE_CAPTURED_STATEMENT_WITH_PARENTHESIS_KEY, true);
+                return false;
             } else if (tokenToLeft.isPresent() && 
                     (BallerinaParser.IF == tokenToLeft.get().getType() ||
                             BallerinaParser.WHILE == tokenToLeft.get().getType())) {
@@ -122,10 +139,13 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             xyz {f1:1, f2:{f3:4}} = 
         right brace cannot consider as a terminal token, therefore we track the previous token and consider that to
         identify blocks. Until the right brace count is zero all the following right braces are altered (refer example)
+        also gtSymbolCount check added to cover the following
+            typedesc<record {}> x = t
          */
         if (type == BallerinaParser.RIGHT_BRACE
                 && (this.lastProcessedToken == BallerinaParser.ASSIGN
-                || this.lastProcessedToken == BallerinaParser.EQUAL_GT || this.rightBraceCount > 0)) {
+                || this.lastProcessedToken == BallerinaParser.EQUAL_GT || this.rightBraceCount > 0
+                || this.gtSymbolCount > 0)) {
             this.processToken(token);
             this.forcedProcessedToken = true;
             this.rightBraceCount++;
@@ -151,6 +171,10 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         if (type == BallerinaParser.LT) {
             this.processToken(token);
             this.forcedProcessedToken = true;
+            if (this.gtSymbolCount > 0) {
+                this.gtSymbolCount--;
+                return false;
+            }
             this.ltSymbolCount++;
             return false;
         }
@@ -158,7 +182,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             this.processToken(token);
             this.forcedProcessedToken = true;
             // If we return true, then always we need to check the right parenthesis count and the right braces count
-            return !this.capturedAssignToken && this.rightParenthesisCount == 0 && this.rightBraceCount == 0;
+            return !this.removeFunctionSignatureOnReturnKWMatch(tokenStream) && this.rightParenthesisCount == 0
+                    && this.rightBraceCount == 0;
         }
         // Handle the ON token replacing since this is used in both service and JSON streaming input
         boolean onServiceRule = CommonUtil.getNDefaultTokensToLeft(tokenStream, 2, token.getTokenIndex()).stream()
@@ -171,5 +196,79 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         }
         
         return rightParenthesisCount == 0 && this.rightBraceCount == 0 && rightBracketCount == 0;
+    }
+    
+    private boolean removeFunctionSignatureOnReturnKWMatch(TokenStream tokenStream) {
+        List<CommonToken> processedDefaultTokens = this.processedTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        int processedTokenSize = processedDefaultTokens.size();
+        if (this.capturedAssignToken) {
+            return true;
+        }
+        if (processedTokenSize <= 2) {
+            /*
+            Captures the following
+            Eg: function hello() returns
+                function hello() returns a
+                tokens upto returns keyword removed from RHS
+                Same applies for worker
+             */
+            Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream,
+                    processedDefaultTokens.get(0).getTokenIndex());
+            return nextDefaultToken.isPresent() && nextDefaultToken.get().getType() != BallerinaParser.ASSIGN
+                    && nextDefaultToken.get().getType() != BallerinaParser.LEFT_BRACE;
+        }
+        if (processedTokenSize <= 4) {
+            /*
+            Captures the following
+            Eg: function hello() returns
+                function hello() returns a
+                tokens upto returns keyword removed from RHS
+                Same applies for worker
+             */
+
+            Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream,
+                    processedDefaultTokens.get(0).getTokenIndex());
+            return nextDefaultToken.isPresent() && nextDefaultToken.get().getType() != BallerinaParser.ASSIGN
+                    && nextDefaultToken.get().getType() != BallerinaParser.LEFT_BRACE;
+        }
+        
+        return false;
+    }
+
+    private boolean incompleteStatementWithParenthesis(TokenStream tokenStream, Token token) {
+        Token referenceToken = this.processedTokens.isEmpty() ? token : this.processedTokens.get(0);
+        Optional<Token> tokenOneToRight = CommonUtil.getNextDefaultToken(tokenStream, referenceToken.getTokenIndex());
+        if (!tokenOneToRight.isPresent()) {
+            return true;
+        }
+        int nextTokenType = tokenOneToRight.get().getType();
+        
+        if (nextTokenType == BallerinaParser.RIGHT_PARENTHESIS) {
+            Optional<Token> tokenTwoToRight = CommonUtil.getNextDefaultToken(tokenStream,
+                    tokenOneToRight.get().getTokenIndex());
+            
+            if (tokenTwoToRight.isPresent()) {
+                /*
+                This is to cover the following case,
+                Eg: function (int , int ) returns (s<cursor>) sumFunction = ...
+                 */
+                Optional<Token> tokenThreeToRight = CommonUtil.getNextDefaultToken(tokenStream,
+                        tokenTwoToRight.get().getTokenIndex());
+                if (tokenThreeToRight.isPresent() && tokenThreeToRight.get().getType() == BallerinaParser.ASSIGN) {
+                    return false;
+                }
+            }
+            if (!this.pruneTokens) {
+                // In the case of complete source without errors
+                return tokenTwoToRight.isPresent() && (tokenTwoToRight.get().getType() == BallerinaParser.SEMICOLON
+                        || tokenTwoToRight.get().getType() == BallerinaParser.LEFT_BRACE);
+            }
+            return !tokenTwoToRight.isPresent() || !(tokenTwoToRight.get().getType() == BallerinaParser.SEMICOLON
+                    || tokenTwoToRight.get().getType() == BallerinaParser.LEFT_BRACE);
+        }
+
+        return false;
     }
 }

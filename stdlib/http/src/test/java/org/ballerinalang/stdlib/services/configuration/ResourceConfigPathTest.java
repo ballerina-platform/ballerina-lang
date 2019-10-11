@@ -31,6 +31,10 @@ import org.testng.annotations.Test;
  */
 public class ResourceConfigPathTest {
 
+    private static final String INVALID_RESOURCE_PARAMETERS =
+            "invalid resource parameter(s): cannot specify > 2 parameters without specifying path config and/or body " +
+                    "config in the resource annotation";
+
     @Test
     public void testResourceConfigPathAnnotationsNegativeCases() {
         CompileResult compileResult = BCompileUtil
@@ -42,8 +46,8 @@ public class ResourceConfigPathTest {
         assertResponse(diag[2], "Incomplete path param expression", 26);
         assertResponse(diag[3], "Incomplete path param expression", 34);
         assertResponse(diag[4], "Invalid param expression in resource path config", 42);
-        assertResponse(diag[5], "Invalid param expression in resource path config", 50);
-        assertResponse(diag[6], "Illegal empty expression in resource path config", 50);
+        assertResponse(diag[5], "Illegal empty expression in resource path config", 50);
+        assertResponse(diag[6], "Invalid param expression in resource path config", 50);
         assertResponse(diag[7], "Illegal expression in resource path config", 58);
         assertResponse(diag[8], "Illegal closing brace detected in resource path config", 66);
         assertResponse(diag[9], "Illegal closing brace detected in resource path config", 74);
@@ -57,14 +61,14 @@ public class ResourceConfigPathTest {
                 .compile("test-src/services/configuration/resource-arg--pathparam-match.bal");
         Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 8);
-        assertResponse(diag[0], "Invalid parameter(s) in the resource signature", 10);
-        assertResponse(diag[1], "Invalid parameter(s) in the resource signature", 18);
-        assertResponse(diag[2], "Invalid parameter(s) in the resource signature", 43);
+        assertResponse(diag[0], INVALID_RESOURCE_PARAMETERS, 10);
+        assertResponse(diag[1], INVALID_RESOURCE_PARAMETERS, 18);
+        assertResponse(diag[2], INVALID_RESOURCE_PARAMETERS, 43);
         assertResponse(diag[3], "Empty data binding param value", 46);
         assertResponse(diag[4], "Invalid data binding param in the signature : expected 'naMe', but found 'name'", 55);
-        assertResponse(diag[5], "Invalid parameter(s) in the resource signature", 61);
+        assertResponse(diag[5], INVALID_RESOURCE_PARAMETERS, 61);
         assertResponse(diag[6], "Invalid data binding param in the signature : expected 'naMe', but found 'name'", 63);
-        assertResponse(diag[7], "Invalid parameter(s) in the resource signature", 69);
+        assertResponse(diag[7], INVALID_RESOURCE_PARAMETERS, 69);
     }
 
     private void assertResponse(Diagnostic diag, String msg, int line) {

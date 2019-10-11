@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/encoding;
 import ballerina/log;
+import ballerina/runtime;
 
 # Represents the outbound Basic Auth authenticator.
 #
@@ -41,11 +41,12 @@ public type OutboundBasicAuthProvider object {
         if (credential is ()) {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
             if (authContext is runtime:AuthenticationContext) {
-                return authContext.authToken;
-            } else {
-                return prepareError("Failed to generate basic auth token since credential config is not defined
-                and auth token is not defined in the authentication context at invocation context.");
+                string? authToken = authContext?.authToken;
+                if (authToken is string) {
+                    return authToken;
+                }
             }
+            return prepareError("Failed to generate basic auth token since credential config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
             return getAuthTokenForBasicAuth(credential);
         }
@@ -60,7 +61,7 @@ public type OutboundBasicAuthProvider object {
     }
 };
 
-# The `Credential` record can be used to configure Basic authentication, which is used by the HTTP endpoint.
+# The `Credential` record can be used to configure Basic Authentication, which is used by the HTTP endpoint.
 #
 # + username - The username for Basic authentication.
 # + password - The password for Basic authentication.
@@ -76,11 +77,11 @@ public type Credential record {|
 function getAuthTokenForBasicAuth(Credential credential) returns string|Error {
     string username = credential.username;
     string password = credential.password;
-    if (username == EMPTY_STRING || password == EMPTY_STRING) {
+    if (username == "" || password == "") {
         return prepareError("Username or password cannot be empty.");
     }
     string str = username + ":" + password;
-    string token = encoding:encodeBase64(str.toBytes());
+    string token = str.toBytes().toBase64();
     log:printDebug(function () returns string {
         return "Authorization header is generated for basic auth scheme.";
     });

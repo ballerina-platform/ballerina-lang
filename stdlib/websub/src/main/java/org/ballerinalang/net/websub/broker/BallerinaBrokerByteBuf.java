@@ -19,10 +19,9 @@ package org.ballerinalang.net.websub.broker;
 
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.buffer.UnpooledHeapByteBuf;
-import org.ballerinalang.model.values.BValue;
 
 /**
- * Implementation of {@link io.netty.buffer.ByteBuf}, to hold a {@link BValue}, to use with the internal broker core
+ * Implementation of {@link io.netty.buffer.ByteBuf}, to hold a value, to use with the internal broker core
  * used in Ballerina.
  *
  * @since 0.973.0

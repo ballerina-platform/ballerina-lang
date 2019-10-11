@@ -102,7 +102,7 @@
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "120",
-      "insertText": "nats:SubscriptionConfig {\n\tsubject: \"${1}\"}",
+      "insertText": "nats:SubscriptionConfig {\n\tsubject: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -125,7 +125,7 @@
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "120",
-      "insertText": "nats:StreamingSubscriptionConfig {\n\tsubject: \"${1}\"}",
+      "insertText": "nats:StreamingSubscriptionConfig {\n\tsubject: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

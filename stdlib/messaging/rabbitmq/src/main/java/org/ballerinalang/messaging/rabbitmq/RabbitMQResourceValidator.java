@@ -38,10 +38,7 @@ public class RabbitMQResourceValidator {
     private static final String INVALID_RESOURCE_SIGNATURE_FOR = "Invalid resource signature for ";
     private static final String RESOURCE_IN_SERVICE = " resource in service ";
 
-    public static void validate(BLangFunction resource, DiagnosticLog dlog, boolean resourceReturnsErrorOrNil) {
-        if (!resourceReturnsErrorOrNil) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "Invalid return type: expected error?");
-        }
+    public static void validate(BLangFunction resource, DiagnosticLog dlog) {
         switch (resource.getName().getValue()) {
             case RabbitMQConstants.FUNC_ON_MESSAGE:
                 validateOnMessageResource(resource, dlog);
@@ -116,7 +113,7 @@ public class RabbitMQResourceValidator {
 
     private static boolean validateArrayType(BType paramType) {
         return paramType.tag != TypeTags.ARRAY || (paramType instanceof BArrayType &&
-                ((BArrayType) paramType).getElementType().tag != org.ballerinalang.model.types.TypeTags.BYTE_TAG);
+                ((BArrayType) paramType).getElementType().tag != org.ballerinalang.jvm.types.TypeTags.BYTE_TAG);
     }
 
     private RabbitMQResourceValidator() {

@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -34,11 +35,11 @@ public class XMLSecurityTest {
                 "<!ELEMENT foo ANY >" +
                 "<!ENTITY xxe SYSTEM \"https://www.w3schools.com/xml/note.xml\" >]>" +
                 "<foo>&xxe;</foo>";
-        BXML xmlDocument = XMLUtils.parse(xmlString);
+        XMLValue<?> xmlDocument = XMLFactory.parse(xmlString);
         Assert.assertEquals(xmlDocument.toString(), "<foo></foo>");
     }
 
-    @Test (timeOut = 10000, expectedExceptions = org.ballerinalang.util.exceptions.BallerinaException.class)
+    @Test (timeOut = 10000, expectedExceptions = BallerinaException.class)
     public void testEntityExpansion() {
         String xmlString = "<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE lolz [\n" +
@@ -53,6 +54,6 @@ public class XMLSecurityTest {
                 "<!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\">\n" +
                 "]>\n" +
                 "<lolz>&lol9;</lolz>";
-        XMLUtils.parse(xmlString).toString();
+        XMLFactory.parse(xmlString).toString();
     }
 }

@@ -1,5 +1,5 @@
+import ballerina/lang.'int as ints;
 import ballerina/runtime;
-import ballerina/'lang\.int as ints;
 
 int lockWithinLockInt1 = 0;
 

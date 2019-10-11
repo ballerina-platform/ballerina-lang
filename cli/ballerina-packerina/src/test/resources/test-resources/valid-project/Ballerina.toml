@@ -1,0 +1,37 @@
+[project]
+org-name= "testOrg"
+version= "0.1.0"
+
+license= ["Apache 2.0"]
+authors= ["<auther-name>"]
+keywords= ["toml", "ballerina"]
+repository= "https://github.com/ballerina-platform/ballerina-lang"
+
+templates = ["mytemplate"]
+
+[dependencies]
+
+
+[platform]
+target = "java8"
+
+  [[platform.libraries]]
+  artifactId = "toml4j"
+  version = "0.7.2"
+  path = "libs/toml4j.jar"
+  groupId = "com.moandjiezana.toml"
+  modules = ["mymodule", "mytemplate"]
+
+  [[platform.libraries]]
+  artifactId = "swagger"
+  version = "0.7.2"
+  path = "libs/swagger.jar"
+  groupId = "swagger.io"
+  modules = [ "mymodule", "module2"]
+
+  [[platform.libraries]]
+  artifactId = "json"
+  version = "0.7.2"
+  path = "libs/json.jar"
+  groupId = "json.org"
+  modules = [ "myimport", "module2"]

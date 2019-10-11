@@ -156,3 +156,20 @@ function testErrorWithUnderscore() returns [string, string, string, string, stri
     return [reason, reason2, reason3, reason4, reason5, reason6, reason7, reason8,
     detail["message"], detail2["message"], detail3["message"]];
 }
+
+type Bee record {|
+    string message?;
+    boolean fatal;
+    error cause?;
+    anydata...;
+|};
+
+const R = "r";
+
+type BeeError error <R, Bee>;
+
+function testIndirectErrorDestructuring() returns [string?, boolean, map<anydata>] {
+    FooError e = BeeError(message="Msg", fatal=false, other="k");
+    var FooError(message=m, fatal=f, ...rest) = e;
+    return [m, f, rest];
+}

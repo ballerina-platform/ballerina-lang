@@ -18,7 +18,10 @@
 
 package org.ballerinalang.stdlib.system.utils;
 
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for system package functions.
@@ -41,16 +44,23 @@ public class SystemConstants {
      */
     static final String SYSTEM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
 
+    static final BPackage SYSTEM_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
+
     static final String ERROR_REASON_PREFIX = "{ballerina/system}";
 
     static final String FILE_INFO_TYPE = "FileInfo";
 
+    static final String PROCESS_TYPE = "Process";
+
+    static final String PROCESS_FIELD = "ProcessField";
+
     // System error codes
-    public static final String INVALID_OPERATION_ERROR = "{ballerina/system}InvalidOperationError";
-    public static final String PERMISSION_ERROR = "{ballerina/system}PermissionError";
-    public static final String FILE_SYSTEM_ERROR = "{ballerina/system}FileSystemError";
+    public static final String PROCESS_EXEC_ERROR = "{ballerina/system}ProcessExecError";
     static final String ERROR_DETAILS = "Detail";
     static final String ERROR_MESSAGE = "message";
+
+    // System constant fields
+    public static final int DEFAULT_MAX_DEPTH = -1;
 
     private SystemConstants() {
     }

@@ -56,8 +56,10 @@ service publisher on publisherServiceEP {
     resource function notify(http:Caller caller, http:Request req, string subscriber) {
         remoteRegisterTopic();
         json jsonPayload = <json> req.getJsonPayload();
-        string mode = jsonPayload.mode.toString();
-        string contentType = jsonPayload.content_type.toString();
+        json jsonMode = <json>jsonPayload.mode;
+        string mode = jsonMode.toJsonString();
+        json jsonContentType = <json>jsonPayload.content_type;
+        string contentType = jsonContentType.toJsonString();
 
         var err = caller->accepted();
         if (err is error) {
@@ -66,7 +68,8 @@ service publisher on publisherServiceEP {
 
         if (subscriber != "skip_subscriber_check") {
             checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
-            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubTwo");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber +
+                    "/subscriberWithNoPathInAnnot");
             checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubThree?topic=" +
                     WEBSUB_TOPIC_ONE + "&fooVal=barVal");
         }
@@ -88,8 +91,7 @@ service publisher on publisherServiceEP {
         if (req.hasHeader("x-topic")) {
             string topicName = req.getHeader("x-topic");
             websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
-            json j = <json> typedesc<json>.constructFrom(details[0]);
-            var err = caller->respond(j);
+            var err = caller->respond(details.toString());
             if (err is error) {
                 log:printError("Error responding on topicInfo request", err);
             }
@@ -147,8 +149,10 @@ service contentTypePublisher on publisherServiceEP {
     }
     resource function notify(http:Caller caller, http:Request req, string port) {
         json jsonPayload = <json> req.getJsonPayload();
-        string mode = jsonPayload.mode.toString();
-        string contentType = jsonPayload.content_type.toString();
+        json jsonMode = <json>jsonPayload.mode;
+        string mode = jsonMode.toJsonString();
+        json jsonContentType = <json>jsonPayload.content_type;
+        string contentType = jsonContentType.toJsonString();
 
         var err = caller->accepted();
         if (err is error) {

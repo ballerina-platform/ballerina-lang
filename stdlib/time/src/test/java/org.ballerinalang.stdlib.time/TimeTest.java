@@ -54,21 +54,21 @@ public class TimeTest {
                 "nanoTime returned should be less than the current system nano time");
     }
 
-    @Test(description = "Test create time with offset ID provided.", groups = "brokenOnBootstrappedJVMCodegen")
+    @Test(description = "Test create time with offset ID provided.")
     public void testCreateTimeWithZoneID() {
         BValue[] returns = BRunUtil.invoke(result, "testCreateTimeWithZoneID");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
         Assert.assertEquals((returns[1]).stringValue(), "America/Panama");
     }
 
-    @Test(description = "Test create time with offset values provided.", groups = "brokenOnBootstrappedJVMCodegen")
+    @Test(description = "Test create time with offset values provided.")
     public void testCreateTimeWithOffset() {
         BValue[] returns = BRunUtil.invoke(result, "testCreateTimeWithOffset");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
         Assert.assertEquals((returns[1]).stringValue(), "-05:00");
     }
 
-    @Test(description = "Test create time with no zone info provided.", groups = "brokenOnBootstrappedJVMCodegen")
+    @Test(description = "Test create time with no zone info provided.")
     public void testCreateTimeWithNoZone() {
         BValue[] returns = BRunUtil.invoke(result, "testCreateTimeWithNoZone");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
@@ -81,6 +81,14 @@ public class TimeTest {
         Assert.assertEquals((returns[1]).stringValue(), "-05:00");
         Assert.assertEquals(((BInteger) returns[2]).intValue(), -18000);
     }
+
+    @Test(description = "Test parsing a given time string to time.")
+    public void testParseTimeWithTimePartOnly() {
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimeWithTimePartOnly");
+        Assert.assertTrue(((BInteger) returns[0]).intValue() > 0);
+        Assert.assertEquals((returns[1]).stringValue(), "09:46:22");
+    }
+
 
     @Test(description = "Test parsing a given time string to RFC 1123 format")
     public void testParseToRFC1123Time() {
@@ -97,7 +105,7 @@ public class TimeTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
     }
 
-    @Test(description = "Test To String funciton.", groups = "brokenOnBootstrappedJVMCodegen")
+    @Test(description = "Test To String function.")
     public void testToStringWithCreateTime() {
         BValue[] returns = BRunUtil.invoke(result, "testToStringWithCreateTime");
         Assert.assertEquals((returns[0]).stringValue(), "2017-06-26T09:46:22-05:00");
@@ -109,13 +117,13 @@ public class TimeTest {
         Assert.assertEquals((returns[0]).stringValue(), "2017-03-28T23:42:45.554-05:00");
     }
 
-    @Test(description = "Test Format Time according to the given format.", groups = "brokenOnBootstrappedJVMCodegen")
+    @Test(description = "Test Format Time according to the given format.")
     public void testFormatTime() {
         BValue[] returns = BRunUtil.invoke(result, "testFormatTime");
         Assert.assertEquals((returns[0]).stringValue(), "2017-06-26T09:46:22.444-0500");
     }
 
-    @Test(description = "Test Format Time according to the given format.", groups = "brokenOnBootstrappedJVMCodegen")
+    @Test(description = "Test Format Time according to the given format.")
     public void testFormatTimeToRFC1123() {
         BValue[] returns = BRunUtil.invoke(result, "testFormatTimeToRFC1123");
         Assert.assertEquals((returns[0]).stringValue(), "Mon, 26 Jun 2017 09:46:22 -0500");
@@ -133,7 +141,6 @@ public class TimeTest {
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 555);
         Assert.assertEquals((returns[7]).stringValue(), "TUESDAY");
     }
-
 
     @Test(description = "Test Get Date Function.")
     public void testGetDateFunction() {
@@ -177,22 +184,19 @@ public class TimeTest {
         Assert.assertEquals((returns[0]).stringValue(), "2016-03-01T20:16:22.444+0530");
     }
 
-    @Test(description = "Test Time struct create with struct initialization.",
-            groups = "brokenOnBootstrappedJVMCodegen")
+    @Test(description = "Test Time struct create with struct initialization.")
     public void testManualTimeCreate() {
         BValue[] returns = BRunUtil.invoke(result, "testManualTimeCreate");
         Assert.assertEquals((returns[0]).stringValue(), "2017-06-26T09:46:22-05:00");
     }
 
-    @Test(description = "Test Time struct create with struct initialization with no zone information.",
-            groups = "brokenOnBootstrappedJVMCodegen")
+    @Test(description = "Test Time struct create with struct initialization with no zone information.")
     public void testManualTimeCreateWithNoZone() {
         BValue[] returns = BRunUtil.invoke(result, "testManualTimeCreateWithNoZone");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
     }
 
-    @Test(description = "Test Time struct create with struct initialization with no zone information.",
-            groups = "brokenOnBootstrappedJVMCodegen")
+    @Test(description = "Test Time struct create with struct initialization with no zone information.")
     public void testManualTimeCreateWithEmptyZone() {
         BValue[] returns = BRunUtil.invoke(result, "testManualTimeCreateWithEmptyZone");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
@@ -215,15 +219,15 @@ public class TimeTest {
     }
 
     @Test
-    public void testParseTimenvalidPattern() {
-        BValue[] returns = BRunUtil.invoke(result, "testParseTimenvalidPattern");
+    public void testParseTimeValidPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimeValidPattern");
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(returns[0].stringValue(), "{ballerina/time}TimeError {message:\"invalid pattern: test\"}");
     }
 
     @Test
-    public void testParseTimenFormatMismatch() {
-        BValue[] returns = BRunUtil.invoke(result, "testParseTimenFormatMismatch");
+    public void testParseTimeFormatMismatch() {
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimeFormatMismatch");
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(returns[0].stringValue(),
                 "{ballerina/time}TimeError {message:\"parse date \"2017-06-26T09:46:22.444-0500\" for "

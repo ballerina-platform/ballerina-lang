@@ -16,7 +16,6 @@
 
 import ballerina/config;
 import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
@@ -30,17 +29,16 @@ listener websub:Listener websubEP = new websub:Listener(23181, { host: "0.0.0.0"
 service websubSubscriber on websubEP {
     resource function onNotification (websub:Notification notification) {
         json payload = <json> notification.getJsonPayload();
-        io:println("WebSub Notification Received: ", payload.toString());
+        io:println("WebSub Notification Received: ", payload.toJsonString());
     }
 }
 
 @websub:SubscriberServiceConfig {
-    path:"/websubTwo",
     target: [config:getAsString("test.hub.url"), "http://one.websub.topic.com"],
     leaseSeconds: 3650,
     secret: "Kslk30SNF2AChs2"
 }
-service websubSubscriberTwo on websubEP {
+service subscriberWithNoPathInAnnot on websubEP {
     resource function onIntentVerification (websub:Caller caller, websub:IntentVerificationRequest request) {
         http:Response response = request.buildSubscriptionVerificationResponse("http://one.websub.topic.com");
         if (response.statusCode == 202) {

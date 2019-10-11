@@ -13,7 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.int as ints;
+
+import ballerina/lang.'int as ints;
 
 type Person record {|
     string name = "";
@@ -207,7 +208,7 @@ function testMapWithMissingOptionalFieldsToStruct () returns Person|error {
 }
 
 function testMapWithIncompatibleArrayToStruct () returns Person {
-    float[] marks = [87.0, 94.0, 72.0];
+    string[] marks = ["87.0", "94.0", "72.0"];
     Person parent = {
                         name:"Parent",
                         age:50,
@@ -294,7 +295,20 @@ function testJsonToStructWithMissingOptionalFields () returns Person {
     }
 }
 
-function testJsonToStructWithMissingRequiredFields () returns Person {
+type PersonWithChildren record {|
+    string name = "";
+    int age = 0;
+    Person? parent = ();
+    json info?;
+    map<anydata>? address?;
+    int[]? marks?;
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
+    Person[]? children;
+|};
+
+function testJsonToStructWithMissingRequiredFields () returns PersonWithChildren {
     json j = {name:"Child",
                  parent:(),
                  age:25,
@@ -305,8 +319,8 @@ function testJsonToStructWithMissingRequiredFields () returns Person {
                  score:5.67
              };
 
-    var p = Person.constructFrom(j);
-    if (p is Person) {
+    var p = PersonWithChildren.constructFrom(j);
+    if (p is PersonWithChildren) {
         return p;
     } else {
         panic p;
@@ -781,7 +795,7 @@ function testJsonToMapConstrainedFail() returns map<any> {
     json j1 = {
         a: {
             x: 5,
-            y: 10.5
+            y: "non-convertible"
         }
     };
     map<T1> m = {};

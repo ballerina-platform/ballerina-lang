@@ -17,8 +17,8 @@ Employee22 employee22 = {
 
 [Employee22, Person22] pp = [employee22, person22];
 
-type SMS error <string, map<string>>;
+type SMS error <string, record {| string message?; error cause?; string...; |}>;
 
 function testBasicErrorVariableWithMapDetails() {
-    SMS err1 = error("Error One", { message: "Msg One", detail: "Detail Msg" });
+    SMS err1 = error("Error One", message = "Msg One");
 }

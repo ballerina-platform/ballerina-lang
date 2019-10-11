@@ -1,4 +1,3 @@
-import ballerina/encoding;
 import ballerina/log;
 import ballerina/nats;
 
@@ -15,12 +14,13 @@ listener nats:StreamingListener lis = new(conn);
 service demoService on lis {
     resource function onMessage(nats:StreamingMessage message, json data) {
         // Converts JSON data to string.
-        string | error val = data.toString();
+        string | error val = data.toJsonString();
         if (val is string) {
             // Prints the incoming message in the console.
             log:printInfo("Message Received: " + val);
         } else {
-            log:printError("Error occurred during json to string conversion", err = val);
+            log:printError("Error occurred during json to string conversion",
+                                                                      err = val);
         }
     }
 

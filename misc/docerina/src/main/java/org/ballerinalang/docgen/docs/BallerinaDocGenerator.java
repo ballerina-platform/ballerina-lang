@@ -74,7 +74,7 @@ import java.util.stream.Collectors;
 public class BallerinaDocGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
-    private static final PrintStream out = System.out;
+    private static PrintStream out = System.out;
 
     private static final String MODULE_CONTENT_FILE = "Module.md";
     private static final Path BAL_BUILTIN = Paths.get("ballerina", "builtin");
@@ -132,6 +132,14 @@ public class BallerinaDocGenerator {
             out.println("docerina: successfully created the output directory: " + output);
         }
 
+        writeAPIDocsForModules(docsMap, output);
+
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: documentation generation is done.");
+        }
+    }
+
+    public static void writeAPIDocsForModules(Map<String, ModuleDoc> docsMap, String output) {
         // Sort modules by module path
         List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
         moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
@@ -141,9 +149,14 @@ public class BallerinaDocGenerator {
 
         // Generate project model
         Project project = new Project();
+        project.isSingleFile = moduleDocList.size() == 1 &&
+                moduleDocList.get(0).bLangPackage.packageID.name.value.equals(".");
+        if (project.isSingleFile) {
+            project.sourceFileName = moduleDocList.get(0).bLangPackage.packageID.sourceFileName.value;
+        }
         project.name = "";
         project.description = "";
-        project.version = "0.0.0";
+        project.version = BallerinaDocDataHolder.getInstance().getVersion();
         project.organization = BallerinaDocDataHolder.getInstance().getOrgName();
         project.modules = moduleDocList.stream().map(moduleDoc -> {
 
@@ -189,10 +202,11 @@ public class BallerinaDocGenerator {
                 "annotations");
         String errorsTemplateName = System.getProperty(BallerinaDocConstants.ERRORS_TEMPLATE_NAME_KEY, "errors");
 
+        String rootPathModuleLevel = project.isSingleFile ? "./" : "../";
+        String rootPathConstructLevel = project.isSingleFile ? "../" : "../../";
         // Generate module pages
         for (Module module : project.modules) {
             try {
-
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("docerina: starting to generate docs for module: " + module.id);
                 }
@@ -202,8 +216,10 @@ public class BallerinaDocGenerator {
                 Files.createDirectories(Paths.get(modDir));
 
                 // Create module index page
-                ModulePageContext modulePageContext = new ModulePageContext(module, project, "../",
-                        "API Docs - " + project.organization + module.id);
+                ModulePageContext modulePageContext = new ModulePageContext(module, project,
+                        rootPathModuleLevel,
+                        "API Docs - " + (project.isSingleFile ? project.sourceFileName
+                                : project.organization + "/" + module.id));
                 String modIndexPath = modDir + File.separator + "index" + HTML;
                 Writer.writeHtmlDocument(modulePageContext, moduleTemplateName, modIndexPath);
 
@@ -213,7 +229,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(recordsDir));
                     for (Record record : module.records) {
                         RecordPageContext recordPageContext = new RecordPageContext(record, module, project,
-                                "../../", "API Docs - Record : " + record.name);
+                                rootPathConstructLevel, "API Docs - Record : " + record.name);
                         String recordFilePath = recordsDir + File.separator + record.name + HTML;
                         Writer.writeHtmlDocument(recordPageContext, recordTemplateName, recordFilePath);
                     }
@@ -225,7 +241,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(objectsDir));
                     for (Object object : module.objects) {
                         ObjectPageContext objectPageContext = new ObjectPageContext(object, module, project,
-                                "../../", "API Docs - Object : " + object.name);
+                                rootPathConstructLevel, "API Docs - Object : " + object.name);
                         String objectFilePath = objectsDir + File.separator + object.name + HTML;
                         Writer.writeHtmlDocument(objectPageContext, objectTemplateName, objectFilePath);
                     }
@@ -237,7 +253,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(clientsDir));
                     for (Client client : module.clients) {
                         ClientPageContext clientPageContext = new ClientPageContext(client, module, project,
-                                "../../", "API Docs - Client : " + client.name);
+                                rootPathConstructLevel, "API Docs - Client : " + client.name);
                         String clientFilePath = clientsDir + File.separator + client.name + HTML;
                         Writer.writeHtmlDocument(clientPageContext, clientTemplateName, clientFilePath);
                     }
@@ -249,7 +265,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(listenersDir));
                     for (Listener listener : module.listeners) {
                         ListenerPageContext listenerPageContext = new ListenerPageContext(listener, module, project,
-                                "../../", "API Docs - Listener : " + listener.name);
+                                rootPathConstructLevel, "API Docs - Listener : " + listener.name);
                         String listenerFilePath = listenersDir + File.separator + listener.name + HTML;
                         Writer.writeHtmlDocument(listenerPageContext, listenerTemplateName, listenerFilePath);
                     }
@@ -259,7 +275,7 @@ public class BallerinaDocGenerator {
                 if (!module.functions.isEmpty()) {
                     String functionsFile = modDir + File.separator + "functions" + HTML;
                     FunctionsPageContext functionsPageContext = new FunctionsPageContext(module.functions,
-                            module, project, "../", "API Docs - Functions : " + module.id);
+                            module, project, rootPathModuleLevel, "API Docs - Functions : " + module.id);
                     Writer.writeHtmlDocument(functionsPageContext, functionsTemplateName, functionsFile);
                 }
 
@@ -267,7 +283,7 @@ public class BallerinaDocGenerator {
                 if (!module.constants.isEmpty()) {
                     String constantsFile = modDir + File.separator + "constants" + HTML;
                     ConstantsPageContext constantsPageContext = new ConstantsPageContext(module.constants,
-                            module, project, "../", "API Docs - Constants : " + module.id);
+                            module, project, rootPathModuleLevel, "API Docs - Constants : " + module.id);
                     Writer.writeHtmlDocument(constantsPageContext, constantsTemplateName, constantsFile);
                 }
 
@@ -275,7 +291,7 @@ public class BallerinaDocGenerator {
                 if (!(module.unionTypes.isEmpty() && module.finiteTypes.isEmpty())) {
                     String typesFile = modDir + File.separator + "types" + HTML;
                     TypesPageContext typesPageContext = new TypesPageContext(module.unionTypes, module, project,
-                            "../", "API Docs - Types : " + module.id);
+                            rootPathModuleLevel, "API Docs - Types : " + module.id);
                     Writer.writeHtmlDocument(typesPageContext, typesTemplateName, typesFile);
                 }
 
@@ -283,7 +299,7 @@ public class BallerinaDocGenerator {
                 if (!module.annotations.isEmpty()) {
                     String annotationsFile = modDir + File.separator + "annotations" + HTML;
                     AnnotationsPageContext annotationsPageContext = new AnnotationsPageContext(module.annotations,
-                            module, project, "../", "API Docs - Annotations : " + module.id);
+                            module, project, rootPathModuleLevel, "API Docs - Annotations : " + module.id);
                     Writer.writeHtmlDocument(annotationsPageContext, annotationsTemplateName, annotationsFile);
                 }
 
@@ -291,7 +307,7 @@ public class BallerinaDocGenerator {
                 if (!module.errors.isEmpty()) {
                     String errorsFile = modDir + File.separator + "errors" + HTML;
                     ErrorsPageContext errorsPageContext = new ErrorsPageContext(module.errors, module, project,
-                            "../", "API Docs - Errors : " + module.id);
+                            rootPathModuleLevel, "API Docs - Errors : " + module.id);
                     Writer.writeHtmlDocument(errorsPageContext, errorsTemplateName, errorsFile);
                 }
 
@@ -361,10 +377,29 @@ public class BallerinaDocGenerator {
                     .getMessage()));
             log.error(String.format("API documentation zip packaging failed for %s", output), e);
         }
+    }
 
-        if (BallerinaDocUtils.isDebugEnabled()) {
-            out.println("docerina: documentation generation is done.");
+    public static Map<String, ModuleDoc> generateModuleDocsFromBLangPackages(String sourceRoot,
+                                                                     List<BLangPackage> modules) throws IOException {
+        Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
+        for (BLangPackage bLangPackage : modules) {
+            String moduleName = bLangPackage.packageID.name.toString();
+            Path absolutePkgPath = getAbsoluteModulePath(sourceRoot, Paths.get(moduleName));
+
+            // find the Module.md file
+            Path packageMd = getModuleDocPath(absolutePkgPath);
+
+            // find the resources of the package
+            List<Path> resources = getResourcePaths(absolutePkgPath);
+
+            moduleDocMap.put(moduleName,
+                    new ModuleDoc(packageMd == null ? null : packageMd.toAbsolutePath(), resources, bLangPackage));
         }
+        return moduleDocMap;
+    }
+
+    public static void setPrintStream(PrintStream out) {
+        BallerinaDocGenerator.out = out;
     }
 
     private static void sortModuleConstructs(BLangPackage bLangPackage) {
@@ -454,27 +489,13 @@ public class BallerinaDocGenerator {
             String sourceRoot, Path packagePath, String packageFilter, boolean isNative, boolean offline)
             throws IOException {
 
-        // find the Module.md file
-        Path packageMd;
-        Path absolutePkgPath = Paths.get(sourceRoot).resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                               .resolve(packagePath);
-        Optional<Path> o = Files.find(absolutePkgPath, 1, (path, attr) -> {
-            Path fileName = path.getFileName();
-            if (fileName != null) {
-                return fileName.toString().equals(MODULE_CONTENT_FILE);
-            }
-            return false;
-        }).findFirst();
+        Path absolutePkgPath = getAbsoluteModulePath(sourceRoot, packagePath);
 
-        packageMd = o.isPresent() ? o.get() : null;
+        // find the Module.md file
+        Path packageMd = getModuleDocPath(absolutePkgPath);
 
         // find the resources of the package
-        Path resourcesDirPath = absolutePkgPath.resolve("resources");
-        List<Path> resources = new ArrayList<>();
-        if (resourcesDirPath.toFile().exists()) {
-            resources = Files.walk(resourcesDirPath).filter(path -> !path.equals(resourcesDirPath)).collect(Collectors
-                    .toList());
-        }
+        List<Path> resources = getResourcePaths(absolutePkgPath);
 
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
         if (!isNative) {
@@ -517,6 +538,35 @@ public class BallerinaDocGenerator {
             }
         }
         return dataHolder.getPackageMap();
+    }
+
+    private static List<Path> getResourcePaths(Path absolutePkgPath) throws IOException {
+        Path resourcesDirPath = absolutePkgPath.resolve("resources");
+        List<Path> resources = new ArrayList<>();
+        if (resourcesDirPath.toFile().exists()) {
+            resources = Files.walk(resourcesDirPath).filter(path -> !path.equals(resourcesDirPath)).collect(Collectors
+                    .toList());
+        }
+        return resources;
+    }
+
+    private static Path getModuleDocPath(Path absolutePkgPath) throws IOException {
+        Path packageMd;
+        Optional<Path> o = Files.find(absolutePkgPath, 1, (path, attr) -> {
+            Path fileName = path.getFileName();
+            if (fileName != null) {
+                return fileName.toString().equals(MODULE_CONTENT_FILE);
+            }
+            return false;
+        }).findFirst();
+
+        packageMd = o.isPresent() ? o.get() : null;
+        return packageMd;
+    }
+
+    private static Path getAbsoluteModulePath(String sourceRoot, Path modulePath) {
+        return Paths.get(sourceRoot).resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                               .resolve(modulePath);
     }
 
     private static String packageNameToString(PackageID pkgId) {

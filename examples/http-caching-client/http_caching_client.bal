@@ -13,7 +13,7 @@ import ballerina/log;
 // `CACHE_CONTROL_AND_VALIDATORS` (the default policy) and `RFC_7234`.
 
 http:Client cachingEP = new("http://localhost:8080",
-                            config = { cache: { isShared: true } });
+                            { cache: { isShared: true } });
 
 @http:ServiceConfig {
     basePath: "/cache"

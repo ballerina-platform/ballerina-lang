@@ -249,4 +249,20 @@ public class MatchStructuredTuplePatternsTest {
         Assert.assertEquals(results.getString(++i), "Default");
     }
 
+    @Test(description = "Test structured pattern match with empty tuple")
+    public void testStructuredMatchPatternWithEmptyTuple() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyTuple", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        BValueArray results = (BValueArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.getString(++i), msg + "empty array");
+        Assert.assertEquals(results.getString(++i), msg + "i: 1");
+        Assert.assertEquals(results.getString(++i), msg + "i: 1, j: 2");
+        Assert.assertEquals(results.getString(++i), msg + "i: 1, j: 2, k: 3");
+        Assert.assertEquals(results.getString(++i), msg + "default");
+    }
+
 }

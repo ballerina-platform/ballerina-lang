@@ -39,7 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +93,6 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
                 this.packageNames = stream.filter(path -> Files.isDirectory(path))
                         .filter(ProjectDirs::containsSourceFiles)
                         .map(ProjectDirs::getLastComp)
-                        .filter(dirName -> !isSpecialDirectory(dirName))
                         .map(Path::toString)
                         .collect(Collectors.toList());
             }
@@ -105,16 +103,6 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         }
         this.scanned = true;
         return this.packageNames;
-    }
-
-    private boolean isSpecialDirectory(Path dirName) {
-        List<String> ignoreDirs = Arrays.asList(//TODO : Top level test directory is needed for testerina and
-                                                // removing this check till it's handled properly.
-                                                //ProjectDirConstants.TEST_DIR_NAME,
-                                                ProjectDirConstants.TARGET_DIR_NAME,
-                                                ProjectDirConstants.RESOURCE_DIR_NAME);
-        String dirNameStr = dirName.toString();
-        return dirNameStr.startsWith(".") || dirName.toFile().isHidden() || ignoreDirs.contains(dirNameStr);
     }
 
     @Override
@@ -131,7 +119,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public InputStream getLockFileContent() {
-        Path tomlFilePath = projectDirPath.resolve(ProjectDirConstants.TARGET_DIR_NAME).resolve("Ballerina.lock");
+        Path tomlFilePath = projectDirPath.resolve("Ballerina.lock");
         if (Files.exists(tomlFilePath)) {
             try {
                 return Files.newInputStream(tomlFilePath);

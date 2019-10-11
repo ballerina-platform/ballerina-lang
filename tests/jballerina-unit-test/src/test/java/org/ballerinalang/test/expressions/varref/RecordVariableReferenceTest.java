@@ -39,12 +39,14 @@ import org.testng.annotations.Test;
  */
 public class RecordVariableReferenceTest {
 
-    private CompileResult result, resultNegative;
+    private CompileResult result, resultNegative, resultSemanticsNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference.bal");
         resultNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference" +
+                "-semantics-negative.bal");
     }
 
     @Test(description = "Test simple record variable definition")
@@ -126,14 +128,6 @@ public class RecordVariableReferenceTest {
         Assert.assertEquals(returns[3].stringValue(), "Z");
     }
 
-    @Test(description = "Test record var ref with index based and field based var refs")
-    public void testFieldAndIndexBasedVarRefs() {
-        BValue[] returns = BRunUtil.invoke(result, "testFieldAndIndexBasedVarRefs");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "D");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2002);
-    }
-
     @Test(description = "Test record var ref rest parameter types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
@@ -184,40 +178,58 @@ public class RecordVariableReferenceTest {
 //    }
 
     @Test
-    public void testNegativeRecordVariables() {
+    public void testRecordVariablesSemanticsNegative() {
         final String undefinedSymbol = "undefined symbol ";
 
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'fName'", 43, 12);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'married'", 43, 19);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 43, 40);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 43, 48);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 43, 61);
-        BAssertUtil.validateError(resultNegative, ++i, "variable assignment is required", 94, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 95, 12);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, undefinedSymbol + "'fName'", 43, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, undefinedSymbol + "'married'", 43, 19);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, undefinedSymbol + "'theAge'", 43, 40);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, undefinedSymbol + "'format'", 43, 48);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, undefinedSymbol + "'theMap'", 43, 61);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "variable assignment is required", 94, 5);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "incompatible types: expected 'Bar', found 'string'", 95, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'string', found 'Bar'", 95, 27);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'record type', found 'int'", 96, 38);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "record literal is not supported for record binding pattern", 97, 38);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'Person', found 'Age'", 106, 19);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "multiple matching record references found for field 'name'", 108, 5);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid record binding pattern; unknown field 'unknown2' in record type 'Person'", 119, 5);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid record binding pattern; unknown field 'unknown1' in record type 'Age'", 119, 26);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "unknown type 'Data'", 123, 6);
-        BAssertUtil.validateError(resultNegative, ++i,
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "unknown type 'Data'", 128, 6);
-        BAssertUtil.validateError(resultNegative, ++i,
-                                  "incompatible types: expected 'map<int>', found 'map<anydata>'", 161, 16);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<error>', found 'map'",
-                                  164, 16);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "incompatible types: expected 'map<int>', found 'map<anydata>'", 161, 16);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "incompatible types: expected 'map<error>', found 'map'",
+                164, 16);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid binding pattern, variable reference 'm[var1]' cannot be used with binding pattern", 198, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid binding pattern, variable reference 'm[var2]' cannot be used with binding pattern", 198, 36);
 
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
+    }
+
+    @Test
+    public void testNegativeRecordVariables() {
+        int i = -1;
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'x'", 30, 16);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'x'", 36, 21);
+        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+                "duplicate variable 'x'", 36, 27);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 }

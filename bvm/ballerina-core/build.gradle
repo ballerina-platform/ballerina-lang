@@ -24,11 +24,6 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
-    implementation project(':ballerina-streaming:siddhi-core')
-    implementation project(':ballerina-streaming:siddhi-query-api')
-    implementation project(':ballerina-streaming:siddhi-query-compiler')
-    implementation project(':ballerina-streaming:siddhi-annotations')
-    implementation 'org.slf4j:slf4j-api'
     implementation 'io.netty:netty-transport'
     implementation 'io.netty:netty-codec'
     implementation 'io.netty:netty-buffer'
@@ -57,12 +52,6 @@ configurations {
     implementation {
         exclude group: 'org.apache.servicemix.bundles', module: 'org.apache.servicemix.bundles.commons-beanutils'
     }
-}
-
-serviceLoader {
-    serviceInterface 'org.ballerinalang.util.LaunchListener'
-    serviceInterface 'org.ballerinalang.util.tracer.TracingLaunchListener'
-    serviceInterface 'org.ballerinalang.util.metrics.MetricsLaunchListener'
 }
 
 serviceLoaderBuild {

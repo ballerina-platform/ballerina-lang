@@ -7,5 +7,3 @@ $ ballerina run http_filters.bal
 # "ballerina build" command followed by
 # the service module.
 $ ballerina build http_filters.bal
-$ ls
-http_filters.balx	http_filters.bal

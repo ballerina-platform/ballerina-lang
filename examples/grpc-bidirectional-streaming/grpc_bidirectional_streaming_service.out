@@ -1,0 +1,11 @@
+# Create a Ballerina project and a module inside it.
+# Copy generated stub file `grpc_bidirectional_streaming_pb.bal` to the module.
+# For example, if you create a module named `service`, copy the stub file to the `service` module.
+
+# Add new Ballerina file `grpc_bidirectional_streaming.bal` inside the `service` module and add service implementation.
+
+# Execute the following command to build the 'service' module.
+$ ballerina build service
+
+# Run the service using the following command.
+$ ballerina run target/bin/service.jar

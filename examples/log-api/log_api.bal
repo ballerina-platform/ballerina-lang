@@ -1,4 +1,5 @@
 import ballerina/log;
+import ballerina/io;
 
 public function main() {
     error e = error("error occurred");
@@ -12,12 +13,12 @@ public function main() {
     // parameters.
     log:printDebug("debug log");
     log:printError("error log");
-    log:printError("error log with cause", err = e);
+    log:printError("error log with cause", e);
     log:printInfo("info log");
     log:printTrace("trace log");
     log:printWarn("warn log");
     // To set the log level of the API, use the following CLI parameter: <br>
-    // `-e b7a.log.level=[LOG_LEVEL]`
+    // `--b7a.log.level=[LOG_LEVEL]`
     //
     // To configure using a configuration file, place the entry given below in
     // the file:
@@ -31,5 +32,25 @@ public function main() {
     // log level to a module, provide the following configuration
     // `<MODULE_NAME>.loglevel`.
     //
-    // E.g., `-e foo.loglevel=DEBUG`
+    // E.g., `--foo.loglevel=DEBUG`
+    Fruit apple = new("Apple");
+    Fruit orange = new("Orange");
+
+    log:printDebug("Name of the fruit is Strawberry.");
+    log:printDebug(io:sprintf("Names of the fruits are %s, %s.", apple.getName(), orange.getName()));
+    log:printDebug(function() returns string {
+        return io:sprintf("Name of the fruit is is %s", apple.getName());
+    });
+    // Retrieving log messages through complex operations is allowed through an optional function pointer
+    // parameter that will be executed if and only if that particular log level is activated.
 }
+
+public type Fruit object {
+     string name;
+     public function __init(string name) {
+	    self.name = name;
+     }
+     function getName() returns string {
+        return self.name;
+     }
+};

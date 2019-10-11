@@ -68,6 +68,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static io.ballerina.plugins.idea.BallerinaConstants.BAL_FILE_EXT;
+
 /**
  * Ballerina debug process which handles debugging.
  */
@@ -133,10 +135,16 @@ public class BallerinaDebugProcess extends XDebugProcess {
     public void sessionInitialized() {
         final int[] retryAttempt = {0};
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
-
+            getSession().getConsoleView().print(
+                    "Ballerina Debugging is an experimental feature.\n" +
+                            "Visit https://ballerina.io/learn/tools-ides/intellij-plugin/" +
+                            "using-intellij-plugin-features/#debugging-ballerina-programs for known limitations and" +
+                            " workarounds\n\n",
+                    ConsoleViewContentType.SYSTEM_OUTPUT);
+            getSession().getConsoleView().print("Waiting for debug process to start...\n",
+                    ConsoleViewContentType.SYSTEM_OUTPUT);
             // If already connected with the debug server, tries to set breakpoints and attach with the remote jvm.
             if (dapClientConnector.isConnected()) {
-
                 LOGGER.debug("Connection is already created.");
                 isConnected = true;
                 startDebugSession();
@@ -170,9 +178,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     startDebugSession();
                     break;
                 }
-                if (isRemoteDebugMode) {
-                    break;
-                }
             }
             if (!dapClientConnector.isConnected()) {
                 getSession().getConsoleView().print("Connection to debug server at " +
@@ -189,7 +194,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
         }
         initBreakpointHandlersAndSetBreakpoints();
         LOGGER.debug("Sending breakpoints.");
-        breakpointHandler.sendBreakpoints(true);
+        breakpointHandler.sendBreakpoints(breakpoints, true);
     }
 
     @Override
@@ -256,24 +261,26 @@ public class BallerinaDebugProcess extends XDebugProcess {
     @Override
     public void stop() {
         // If we don't call this using the executeOnPooledThread(), the UI will hang until the debug server is stopped.
-        if (isConnected) {
-            ApplicationManager.getApplication().executeOnPooledThread(() -> {
-                try {
-                    dapClientConnector.disconnectFromServer();
-                    getSession().getConsoleView().print("Disconnected Successfully from the debug server.\n",
-                            ConsoleViewContentType.SYSTEM_OUTPUT);
-                } catch (Exception e) {
-                    getSession().getConsoleView().print("Disconnected Exceptionally from the debug server.\n",
-                            ConsoleViewContentType.SYSTEM_OUTPUT);
-                } finally {
-                    XDebugSession session = getSession();
-                    if (session != null) {
-                        session.stop();
-                    }
-                    isConnected = false;
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (!isConnected) {
+                return;
+            }
+            try {
+                dapClientConnector.disconnectFromServer();
+                getSession().getConsoleView().print("Disconnected Successfully from the debug server.\n",
+                        ConsoleViewContentType.SYSTEM_OUTPUT);
+            } catch (Exception e) {
+                getSession().getConsoleView().print("Disconnected Exceptionally from the debug server.\n",
+                        ConsoleViewContentType.SYSTEM_OUTPUT);
+            } finally {
+                XDebugSession session = getSession();
+                if (session != null) {
+                    session.stop();
                 }
-            });
-        }
+                isConnected = false;
+            }
+        });
+
     }
 
     @Nullable
@@ -303,7 +310,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public boolean checkCanInitBreakpoints() {
-        // We manually initializes the breakpoints after connecting to the debug server.
+        // We manually initialize the breakpoints after connecting to the debug server.
         return false;
     }
 
@@ -339,7 +346,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
                         session.breakpointReached(breakpoint, null, context);
                     }
                 }
-
             } catch (Exception e) {
                 LOGGER.warn("Error occurred when fetching stack frames", e);
             }
@@ -382,7 +388,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
     }
 
     private XBreakpoint<BallerinaBreakpointProperties> findBreakPoint(@NotNull StackFrame stackFrame) {
-        String filePath = stackFrame.getSource().getPath();
+        String filePath = stackFrame.getSource().getPath().trim();
         int lineNumber = stackFrame.getLine().intValue();
 
         for (XBreakpoint<BallerinaBreakpointProperties> breakpoint : breakpoints) {
@@ -392,7 +398,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
             }
             VirtualFile fileInBreakpoint = breakpointPosition.getFile();
             int line = breakpointPosition.getLine() + 1;
-            if (fileInBreakpoint.getPath().endsWith(filePath) && line == lineNumber) {
+            if (fileInBreakpoint.getPath().trim().endsWith(filePath) && line == lineNumber) {
                 return breakpoint;
             }
         }
@@ -438,9 +444,9 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 return;
             }
             getSession().updateBreakpointPresentation(breakpoint, AllIcons.Debugger.Db_verified_breakpoint, null);
-            if (isConnected && !breakpoints.contains(breakpoint)) {
+            if (isBalBreakpoint(breakpoint) && !breakpoints.contains(breakpoint)) {
                 breakpoints.add(breakpoint);
-                sendBreakpoints(false);
+                sendBreakpoints(Collections.singletonList(breakpoint), false);
             }
         }
 
@@ -451,13 +457,24 @@ public class BallerinaDebugProcess extends XDebugProcess {
             if (breakpointPosition == null) {
                 return;
             }
-            if (isConnected && breakpoints.contains(breakpoint)) {
+            if (isBalBreakpoint(breakpoint) && breakpoints.contains(breakpoint)) {
                 breakpoints.remove(breakpoint);
-                sendBreakpoints(false);
+                sendBreakpoints(Collections.singletonList(breakpoint), false);
             }
         }
 
-        void sendBreakpoints(boolean attach) {
+        private boolean isBalBreakpoint(@NotNull XLineBreakpoint<BallerinaBreakpointProperties> breakpoint) {
+
+            XSourcePosition pos = breakpoint.getSourcePosition();
+            if (!isConnected || pos == null) {
+                return false;
+            }
+
+            String fileExt = pos.getFile().getExtension();
+            return fileExt != null && fileExt.equals(BAL_FILE_EXT);
+        }
+
+        void sendBreakpoints(List<XBreakpoint<BallerinaBreakpointProperties>> breakpointList, boolean attach) {
             if (!isConnected) {
                 return;
             }
@@ -467,7 +484,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     return;
                 }
                 // Transforms IDEA breakpoint DAP breakpoints.
-                for (XBreakpoint<BallerinaBreakpointProperties> bp : breakpoints) {
+                for (XBreakpoint<BallerinaBreakpointProperties> bp : breakpointList) {
                     if (bp.getType().getId().equals("BallerinaLineBreakpoint") && bp.getSourcePosition() != null) {
                         Source source = new Source();
                         source.setName(bp.getSourcePosition().getFile().getName());

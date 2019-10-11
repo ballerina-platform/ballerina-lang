@@ -141,9 +141,6 @@ public class AnnotationDesugar {
         defineTypeAnnotations(pkgNode, env, initFunction);
         defineServiceAnnotations(pkgNode, env, initFunction);
         defineFunctionAnnotations(pkgNode, env, initFunction);
-
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
     private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
@@ -192,21 +189,13 @@ public class AnnotationDesugar {
                 // Add the lambda/invocation in a temporary block.
                 BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                 target.pos = initFunction.body.pos;
-                String identifier = (function.attachedFunction || function.attachedOuterFunction) ?
-                        function.symbol.name.value : function.name.value;
+                String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
 
                 int index;
                 if (function.attachedFunction && function.receiver.type instanceof BServiceType) {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = calculateIndex(initFunction.body.stmts, function.receiver.type.tsymbol);
                 } else {
-                    if (!function.attachedFunction) {
-                        // Temporarily avoid adding annot assignment in __init for module level functions, to avoid
-                        // the method too large error.
-                        // The function (lambda) is generated to allow desugaring, for use at BIR gen.
-                        continue;
-                    }
-
                     addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target, pkgID, owner);
                     index = initFunction.body.stmts.size();
                 }
@@ -348,7 +337,7 @@ public class AnnotationDesugar {
 
         BLangListConstructorExpr.BLangArrayLiteral valueLiteral = (BLangListConstructorExpr.BLangArrayLiteral)
                 TreeBuilder.createArrayLiteralExpressionNode();
-        valueLiteral.type = symTable.arrayType;
+        valueLiteral.type = new BArrayType(symTable.stringType);
         valueLiteral.pos = pos;
 
         for (BVarSymbol varSymbol : mainFunc.symbol.getParameters()) {

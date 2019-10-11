@@ -56,7 +56,6 @@ public class CompletionUtil {
         TreeVisitor treeVisitor = new TreeVisitor(completionContext);
         BLangPackage bLangPackage = completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         bLangPackage.accept(treeVisitor);
-        completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
     }
 
     /**
@@ -68,7 +67,7 @@ public class CompletionUtil {
     public static List<CompletionItem>  getCompletionItems(LSContext ctx) {
         List<CompletionItem> items = new ArrayList<>();
         if (ctx == null) {
-            return null;
+            return items;
         }
         // Set the invocation or field access token type
         setInvocationOrInteractionOrFieldAccessToken(ctx);

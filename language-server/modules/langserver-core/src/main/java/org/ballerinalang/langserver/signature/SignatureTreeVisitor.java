@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -88,14 +89,16 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangPackage pkgNode) {
         final SymbolEnv pkgEnv;
-        if (pkgNode.symbol == null) {
+        String relativePath = this.lsContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkgNode);
+        if (sourceOwnerPkg.symbol == null) {
             Optional<SymbolEnv> first = symTable.pkgEnvMap.entrySet().stream().filter(
-                    s -> s.getKey().pkgID.equals(pkgNode.packageID)).map(Map.Entry::getValue).findFirst();
+                    s -> s.getKey().pkgID.equals(sourceOwnerPkg.packageID)).map(Map.Entry::getValue).findFirst();
             pkgEnv = first.orElse(null);
         } else {
-            pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+            pkgEnv = symTable.pkgEnvMap.get(sourceOwnerPkg.symbol);
         }
-        List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(pkgNode, lsContext);
+        List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(sourceOwnerPkg, lsContext);
 
         topLevelNodes.stream()
                 .filter(CommonUtil.checkInvalidTypesDefs())
@@ -228,6 +231,23 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
             this.blockPositionStack.push(assignment.expr.pos);
             acceptNode(assignment.expr, symbolEnv);
             this.blockPositionStack.pop();
+        }
+    }
+
+    @Override
+    public void visit(BLangSimpleVariable variable) {
+        if (variable.expr != null) {
+            this.blockPositionStack.push(variable.expr.pos);
+            acceptNode(variable.expr, symbolEnv);
+            this.blockPositionStack.pop();
+        }
+    }
+
+    public void visit(BLangTypeInit typeInit) {
+        if (!terminateVisitor && this.isCursorWithinBlock()) {
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
+                    = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
+            this.populateSymbols(visibleSymbolEntries);
         }
     }
 

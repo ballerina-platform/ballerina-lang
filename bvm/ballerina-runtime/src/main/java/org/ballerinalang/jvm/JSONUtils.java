@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -46,8 +47,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for JSON manipulation.
@@ -163,8 +167,8 @@ public class JSONUtils {
                 return null;
             }
 
-            return BallerinaErrors.createError(KEY_NOT_FOUND_ERROR, "Key '" + elementName + "' not found in JSON " +
-                    "mapping");
+            return BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
+                                               "Key '" + elementName + "' not found in JSON mapping");
         }
 
         try {
@@ -199,7 +203,8 @@ public class JSONUtils {
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+            throw BLangExceptionHelper.getRuntimeException(
+                    getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
@@ -449,6 +454,76 @@ public class JSONUtils {
         ((MapValueImpl<String, ?>) json).remove(fieldName);
     }
 
+    public static ErrorValue getErrorIfUnmergeable(Object j1, Object j2, List<ObjectPair> visitedPairs) {
+        if (j1 == null || j2 == null) {
+            return null;
+        }
+
+        BType j1Type = TypeChecker.getType(j1);
+        BType j2Type = TypeChecker.getType(j2);
+
+        if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
+            return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
+                                               "Cannot merge JSON values of types '" + j1Type + "' and '" +
+                                                       j2Type + "'");
+        }
+
+        ObjectPair currentPair = new ObjectPair(j1, j2);
+        if (visitedPairs.contains(currentPair)) {
+            return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
+                                               "Cannot merge JSON values with cyclic references");
+        }
+        visitedPairs.add(currentPair);
+
+        MapValue<String, Object> m1 = (MapValue<String, Object>) j1;
+        MapValue<String, Object> m2 = (MapValue<String, Object>) j2;
+
+        for (Map.Entry<String, Object> entry : m2.entrySet()) {
+            String key = entry.getKey();
+
+            if (!m1.containsKey(key)) {
+                continue;
+            }
+
+            ErrorValue elementMergeNullableError = getErrorIfUnmergeable(m1.get(key), entry.getValue(), visitedPairs);
+
+            if (elementMergeNullableError == null) {
+                continue;
+            }
+
+            MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+            detailMap.put(TypeConstants.DETAIL_MESSAGE, "JSON Merge failed for key '" + key + "'");
+            detailMap.put(TypeConstants.DETAIL_CAUSE, elementMergeNullableError);
+            return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR, detailMap);
+        }
+        return null;
+    }
+
+    public static Object mergeJson(Object j1, Object j2, boolean checkMergeability) {
+        if (j1 == null) {
+            return j2;
+        }
+
+        if (j2 == null) {
+            return j1;
+        }
+
+        if (checkMergeability) {
+            BType j1Type = TypeChecker.getType(j1);
+            BType j2Type = TypeChecker.getType(j2);
+
+            if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
+                return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
+                                                   "Cannot merge JSON values of types '" + j1Type + "' and '" +
+                                                           j2Type + "'");
+            }
+        }
+
+        MapValue<String, Object> m1 = (MapValue<String, Object>) j1;
+        MapValue<String, Object> m2 = (MapValue<String, Object>) j2;
+        return m1.merge(m2, true);
+    }
+
     /**
      * Convert a JSON node to an array.
      *
@@ -505,6 +580,14 @@ public class JSONUtils {
 
         return new StreamingJsonValue(jsonDataSource);
     }
+
+    public static ErrorValue createJsonConversionError(Throwable throwable, String prefix) {
+        String detail = throwable.getMessage() != null ?
+                prefix + ": " + throwable.getMessage() :
+                "error occurred in JSON Conversion";
+        return BallerinaErrors.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR, detail);
+    }
+
     // Private methods
 
     /**
@@ -763,4 +846,25 @@ public class JSONUtils {
         String errorMsg = e.getCause() == null ? "error while mapping '" + fieldName + "': " : "";
         throw new BallerinaException(errorMsg + e.getMessage(), e);
     }
+
+    private static class ObjectPair {
+        Object lhsObject;
+        Object rhsObject;
+
+        public ObjectPair(Object lhsObject, Object rhsObject) {
+            this.lhsObject = lhsObject;
+            this.rhsObject = rhsObject;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof ObjectPair)) {
+                return false;
+            }
+
+            ObjectPair other = (ObjectPair) obj;
+            return this.lhsObject == other.lhsObject && this.rhsObject == other.rhsObject;
+        }
+    }
+
 }

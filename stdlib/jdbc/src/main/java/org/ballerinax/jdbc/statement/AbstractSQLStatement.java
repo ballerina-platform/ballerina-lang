@@ -35,6 +35,7 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
@@ -48,7 +49,6 @@ import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 import org.ballerinax.jdbc.table.BCursorTable;
 import org.ballerinax.jdbc.table.SQLDataIterator;
 import org.ballerinax.jdbc.transaction.SQLTransactionContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -157,8 +157,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         BStructureType tableConstraint = structType;
         if (structType == null) {
             tableConstraint = new BRecordType("$table$anon$constraint$",
-                    new BPackage(Names.BUILTIN_ORG.getValue(), Names.LANG.value + Names.DOT.value + Names.ANNOTATIONS,
-                            Names.DEFAULT_VERSION.getValue()), 0, false);
+                    new BPackage("ballerina", "lang.annotations", "0.0.0"), 0, false,
+                    TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
             ((BRecordType) tableConstraint).restFieldType = BTypes.typeAnydata;
         }
         return new BCursorTable(
@@ -286,17 +286,17 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             if (((BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
                 return Constants.SQLDataTypes.BINARY;
             } else {
-                throw new ApplicationException("Array data type " + type.getName() + " as a direct value is " +
+                throw new ApplicationException("array data type " + type.getName() + " as a direct value is " +
                         "supported only for byte type elements, use jdbc:Parameter instead");
             }
         default:
-            throw new ApplicationException("Unsupported data type " + type.getName() + " specified as a direct value " +
+            throw new ApplicationException("unsupported data type " + type.getName() + " specified as a direct value " +
                     "for sql operations, use jdbc:Parameter instead");
         }
     }
 
     private MapValue<String, Object> getSQLParameter() {
-        return BallerinaValues.createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.SQL_PARAMETER);
+        return BallerinaValues.createRecordValue(Constants.JDBC_PACKAGE_ID, Constants.SQL_PARAMETER);
     }
 
     /**
@@ -317,7 +317,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw ErrorGenerator.getSQLDatabaseError(e, "Error while cleaning sql resources: ");
+            throw ErrorGenerator.getSQLDatabaseError(e, "error while cleaning sql resources: ");
         }
     }
 
@@ -338,7 +338,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             }
             cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw ErrorGenerator.getSQLDatabaseError(e, "Error while cleaning sql resources: ");
+            throw ErrorGenerator.getSQLDatabaseError(e, "error while cleaning sql resources: ");
 
         }
     }
@@ -351,26 +351,11 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         notifyTxMarkForAbort(strand, transactionLocalContext);
     }
 
-    Connection getDatabaseConnection(Strand strand, ObjectValue client, SQLDatasource datasource,
-                                     boolean isSelectQuery) throws SQLException {
+    Connection getDatabaseConnection(Strand strand, ObjectValue client, SQLDatasource datasource) throws SQLException {
         Connection conn;
         try {
             boolean isInTransaction = strand.isInTransaction();
-            // Here when isSelectQuery condition is true i.e. in case of a select operation, we allow
-            // it to use a normal database connection. This is because,
-            // 1. In mysql (and possibly some other databases) another operation cannot be performed over a connection
-            // which has an open result set on top of it
-            // 2. But inside a transaction we use the same connection to perform all the db operation, so unless the
-            // result set is fully iterated, it won't be possible to perform rest of the operations inside the 
-            // transaction
-            // 3. Therefore, we allow select operations to be performed on separate db connections inside transactions
-            // (XA or general transactions)
-            // 4. However for call operations, despite of the fact that they could output resultsets
-            // (as OUT params or return values) we do not use a separate connection, because,
-            // call operations can contain UPDATE actions as well inside the procedure which may require to happen 
-            // in the
-            // same scope as any other individual UPDATE actions
-            if (!isInTransaction || isSelectQuery) {
+            if (!isInTransaction) {
                 conn = datasource.getSQLConnection();
                 return conn;
             } else {
@@ -406,7 +391,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 conn = ((SQLTransactionContext) txContext).getConnection();
             }
         } catch (SQLException e) {
-            throw new SQLException("Error while getting the connection for " + Constants.CONNECTOR_NAME + ". "
+            throw new SQLException("error while getting the connection for " + Constants.CONNECTOR_NAME + ". "
                     + e.getMessage(), e.getSQLState(), e.getErrorCode());
         }
         return conn;

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.log;
 
+import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.logging.BLogManager;
@@ -80,12 +81,11 @@ public abstract class AbstractLogFunction {
         if (logEnabled) {
             consumer.accept(pckg, logMessage.get());
         }
-        //TODO uncomment with observerUtil migration
-//        ObserveUtils.logMessageToActiveSpan(ctx, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
+        ObserveUtils.logMessageToActiveSpan(strand, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
     }
 
     static String getPackagePath() {
-        String className = Thread.currentThread().getStackTrace()[3].getClassName();
+        String className = Thread.currentThread().getStackTrace()[4].getClassName();
         int lastIndex = className.lastIndexOf(".");
         if (lastIndex != -1) {
             return className.substring(0, lastIndex).replace(".", "/");

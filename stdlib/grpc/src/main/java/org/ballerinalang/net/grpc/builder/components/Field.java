@@ -23,7 +23,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.DOT;
@@ -85,7 +84,7 @@ public class Field {
             String fieldName = fieldDescriptor.getName();
             if (Arrays.stream(BallerinaLexer.ruleNames).anyMatch(fieldName::equalsIgnoreCase) || Names.ERROR.value
                     .equalsIgnoreCase(fieldName)) {
-                fieldName = fieldType.toLowerCase(Locale.ENGLISH) + "_" + fieldName;
+                fieldName = "'" + fieldName;
             }
             return new Field(fieldName, fieldType, fieldLabel, fieldDescriptor.getDefaultValue() !=
                     null ? fieldDescriptor.getDefaultValue() : fieldDefaultValue);

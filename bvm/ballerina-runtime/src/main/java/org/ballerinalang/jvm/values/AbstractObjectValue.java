@@ -19,22 +19,28 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.jvm.util.BLangConstants.OBJECT_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+
 /**
+ * <p>
  * Abstract class to be extended by all the ballerina objects.
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @since 0.995.0
  */
@@ -118,11 +124,6 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Object copy(Map<Object, Object> refs) {
         throw new UnsupportedOperationException();
     }
@@ -162,7 +163,8 @@ public abstract class AbstractObjectValue implements ObjectValue {
             return;
         }
 
-        throw BallerinaErrors.createError(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+        throw BallerinaErrors.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
+                                                                  INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                 "invalid value for object field '" + fieldName + "': expected value of type '" + fieldType +
                         "', found '" + TypeChecker.getType(value) + "'");
     }

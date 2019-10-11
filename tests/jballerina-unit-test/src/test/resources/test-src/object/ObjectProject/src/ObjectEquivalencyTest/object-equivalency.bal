@@ -17,8 +17,6 @@
 import eq;
 import eq2;
 import req;
-import req2;
-import ballerina/io;
 
 public type person1 object {
     public int age = 0;
@@ -456,6 +454,7 @@ function testTupleMatchWithObjectEquivalency() returns string {
             return "ERROR";
         }
     }
+    return "ERROR";
 }
 
 function getPerson() returns [Foo, Person] | () | error {

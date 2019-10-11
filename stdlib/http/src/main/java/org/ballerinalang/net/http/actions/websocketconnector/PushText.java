@@ -26,9 +26,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
-
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
-import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -44,19 +43,18 @@ import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
         )
 )
 public class PushText {
+    private static final Logger log = LoggerFactory.getLogger(PushText.class);
 
     public static Object externPushText(Strand strand, ObjectValue wsConnection, String text, boolean finalFrame) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
-            WebSocketUtil.handleWebSocketCallback(callback, future);
+            WebSocketUtil.handleWebSocketCallback(callback, future, log);
         } catch (Exception e) {
-            //TODO remove this call back
-            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
-            callback.notifySuccess();
+            log.error("Error occurred when pushing text data", e);
+            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
         return null;
     }

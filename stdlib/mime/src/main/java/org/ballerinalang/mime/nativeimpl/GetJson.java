@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -34,7 +35,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 
 /**
  * Get the entity body in JSON form.
@@ -69,14 +69,18 @@ public class GetJson extends AbstractGetPayloadHandler {
 
             if (isStreamingRequired(entityObj)) {
                 result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
-                updateDataSource(entityObj, result);
+                updateJsonDataSource(entityObj, result);
             } else {
                 callback = new NonBlockingCallback(strand);
                 constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
             }
         } catch (Exception ex) {
-            return createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
-                                 "Error occurred while extracting json data from entity: " + ex.getMessage());
+            if (ex instanceof ErrorValue) {
+                return createParsingEntityBodyFailedErrorAndNotify(callback,
+                        "Error occurred while extracting json data from entity", (ErrorValue) ex);
+            }
+            return createParsingEntityBodyFailedErrorAndNotify(callback,
+                    "Error occurred while extracting json data from entity: " + getErrorMsg(ex), null);
         }
         return result;
     }

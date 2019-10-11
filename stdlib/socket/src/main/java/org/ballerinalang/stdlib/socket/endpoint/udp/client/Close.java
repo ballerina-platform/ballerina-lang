@@ -61,11 +61,11 @@ public class Close {
             }
             // This need to handle to support multiple client close.
             if (Boolean.parseBoolean(client.getNativeData(IS_CLIENT).toString())) {
-                SelectorManager.getInstance().stop();
+                SelectorManager.getInstance().stop(true);
             }
         } catch (IOException e) {
             log.error("Unable to close the socket", e);
-            return SocketUtils.createSocketError("Unable to close the client socket");
+            return SocketUtils.createSocketError("unable to close the client socket. " + e.getMessage());
         }
         return null;
     }

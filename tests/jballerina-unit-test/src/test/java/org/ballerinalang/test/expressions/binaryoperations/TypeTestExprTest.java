@@ -40,10 +40,18 @@ public class TypeTestExprTest {
     }
 
     @Test
+    public void testTypeTestExprSemanticsNegative() {
+        CompileResult negativeResult =
+                BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-expr-semantics-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        BAssertUtil.validateError(negativeResult, 0, "unknown type 'C'", 35, 14);
+    }
+
+    @Test
     public void testTypeTestExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-expr-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 38);
+        Assert.assertEquals(negativeResult.getErrorCount(), 37);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
@@ -63,7 +71,6 @@ public class TypeTestExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 91, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 93, 16);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'C'", 98, 14);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 118, 9);
         BAssertUtil.validateError(negativeResult, i++,
@@ -113,13 +120,13 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 229, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "unnecessary condition: expression will always evaluate to 'true'", 241, 9);
+                "unnecessary condition: expression will always evaluate to 'true'", 241, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "unnecessary condition: expression will always evaluate to 'true'", 246, 9);
+                "unnecessary condition: expression will always evaluate to 'true'", 246, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 9);
+                "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 9);
         BAssertUtil.validateError(negativeResult, i,
-                                  "incompatible types: '(string|int)' will not be matched to '(float|boolean)'",
+                "incompatible types: '(string|int)' will not be matched to '(float|boolean)'",
                 262, 9);
     }
 
@@ -649,5 +656,13 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+    }
+
+    @Test
+    public void testFuture() {
+        BValue[] returns = BRunUtil.invoke(result, "testFutureTrue");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        returns = BRunUtil.invoke(result, "testFutureFalse");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 }

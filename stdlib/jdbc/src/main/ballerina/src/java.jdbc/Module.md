@@ -3,15 +3,53 @@
 This module provides the functionality required to access and manipulate data stored in any type of relational database 
 that is accessible via Java Database Connectivity (JDBC).
 
+**Prerequisite:** Please add the JDBC driver corresponding to the database you are trying to interact with, 
+as a native library dependency in your Ballerina project. Then, once you build the project with `ballerina build`
+command, you should be able run the resultant jar with,`java -jar` command.
+
+e.g. Ballerina.toml content.
+Please change the path to the JDBC driver appropriately.
+
+```toml
+[project]
+org-name= "sample"
+version= "0.1.0"
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    artafactId = "mysql-connector-java"
+    version = "8.0.17"
+    path = "/path/to/mysql-connector-java-8.0.17.jar"
+    groupId = "mysql"
+    modules = ["samplemodule"]
+``` 
+
+Or, if you're trying to run a single bal file, you can copy the JDBC driver into `${BALLERINA_HOME}/bre/lib` and 
+run the bal file with `ballerina run` command.
+
 ### Client
 
-To access a database, you must first create a `Client` object. A sample for creating a JDBC client can be found below.
+To access a database, you must first create a `Client` object. The code for creating a JDBC client can be found below.
+
+#### Creating a client
+```ballerina
+jdbc:Client testDB = new({
+    url: "jdbc:mysql://localhost:3306/testdb",
+    username: "root",
+    password: "root",
+    dbOptions: { useSSL: false }
+});
+```
+The full list of client properties can be found listed under the `jdbc:PoolOptions` type.
 
 ### Connection pool handling
 
 There are 3 possible scenarios for connection pool handling.
 
-1. Global, shareable default connection pool  
+1. Global, shareable default connection pool
+
     If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
     a connection pool matching with the properties you provided already exists.
 
@@ -24,7 +62,8 @@ There are 3 possible scenarios for connection pool handling.
     });
     ```
 
-2. Client owned, unsharable connection pool  
+2. Client owned, unsharable connection pool
+
     If you define the `poolOptions` field inline, an unshareable connection pool will be created.
 
     ```ballerina
@@ -37,9 +76,10 @@ There are 3 possible scenarios for connection pool handling.
     });
     ```
 
-3. Local shareable connection pool  
+3. Local shareable connection pool
+
     If you create a record of type `jdbc:PoolOptions` and reuse that in the configuration of multiple clients, for each
-    set of clients that connect to the same database instance with the same set of properties, a shared connection pool
+    set of clients that connects to the same database instance with the same set of properties, a shared connection pool
     will be created.
 
     ```ballerina
@@ -79,20 +119,7 @@ Once the client is created, database operations can be executed through that cli
 creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch 
 updating data. Samples for these operations can be found below. 
 
-## Samples
-
-### Creating a client
-```ballerina
-jdbc:Client testDB = new({
-    url: "jdbc:mysql://localhost:3306/testdb",
-    username: "root",
-    password: "root",
-    dbOptions: { useSSL: false }
-});
-```
-The full list of client properties can be found listed under the `jdbc:PoolOptions` type.
-
-### Creating tables
+#### Creating tables
 
 This sample creates a table with two columns. One column is of type `int`, and the other is of type `varchar`.
 The CREATE statement is executed via the `update` remote function of the client.
@@ -102,14 +129,14 @@ The CREATE statement is executed via the `update` remote function of the client.
 var returned = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, age INT, 
                                name VARCHAR(255), PRIMARY KEY (id))");
 if (returned is jdbc:UpdateResult) {
-    io:println("Students table create status in DB: " + returned.updatedRowCount);
+    io:println("Students table create status in DB: ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Students table creation failed: " + <string>err.detail()["message"]);
+    io:println("Students table creation failed: ", <string>err.detail()["message"]);
 }
 ```
 
-### Inserting data
+#### Inserting data
 
 This sample shows three examples of data insertion by executing an INSERT statement using the `update` remote function 
 of the client.
@@ -119,16 +146,16 @@ In the first example, query parameter values are passed directly into the query 
 ```ballerina
 var returned = testDB->update("INSERT INTO student(age, name) values (23, 'john')");
 if (returned is jdbc:UpdateResult) {
-    io:println("Inserted row count to Students table: " + returned.updatedRowCount);
+    io:println("Inserted row count to Students table: ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Insert to Students table failed: " + <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", <string>err.detail()["message"]);
 }
 ```
 
 In the second example, the parameter values, which are in local variables, are passed directly as parameters to 
 the `update` remote function. This direct parameter passing can be done for any primitive Ballerina type like `string`, 
-`int`, `float`, or `boolean`. The sql type of the parameter is derived from the type of the Ballerina variable that 
+`int`, `float`, or `boolean`. The SQL type of the parameter is derived from the type of the Ballerina variable that 
 is passed in.
 
 ```ballerina
@@ -136,14 +163,14 @@ string name = "Anne";
 int age = 8;
 var returned = testDB->update("INSERT INTO student(age, name) values (?, ?)", age, name);
 if (returned is jdbc:UpdateResult) {
-    io:println("Inserted row count to Students table: " + returned.updatedRowCount);
+    io:println("Inserted row count to Students table: ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Insert to Students table failed: " + <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", <string>err.detail()["message"]);
 }
 ```
 
-In the third example, parameter values are passed as an `jdbc:Parameter` to the `update` remote function. Use 
+In the third example, parameter values are passed as a `jdbc:Parameter` to the `update` remote function. Use 
 `jdbc:Parameter` when you need to provide more details such as the exact SQL type of the parameter, or the parameter 
 direction. The default parameter direction is `IN`.
 
@@ -152,14 +179,14 @@ jdbc:Parameter p1 = { sqlType: jdbc:TYPE_VARCHAR, value: "James" };
 jdbc:Parameter p2 = { sqlType: jdbc:TYPE_INTEGER, value: 10 };
 var returned = testDB->update("INSERT INTO student(age, name) values (?, ?)", p2, p1);
 if (returned is jdbc:UpdateResult) {
-    io:println("Inserted row count to Students table: " + returned.updatedRowCount);
+    io:println("Inserted row count to Students table: ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Insert to Students table failed: " + <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", <string>err.detail()["message"]);
 }
 ```
 
-### Inserting data with auto-generated keys
+#### Inserting data with auto-generated keys
 
 This example demonstrates inserting data while returning the auto-generated keys. It achieves this by using the 
 `update` remote function to execute the INSERT statement.
@@ -171,15 +198,15 @@ var retWithKey = testDB->update("INSERT INTO student (age, name) values (?, ?)",
 if (retWithKey is jdbc:UpdateResult) {
     int count = retWithKey.updatedRowCount;
     int generatedKey = <int>retWithKey.generatedKeys["GENERATED_KEY"];
-    io:println("Inserted row count: " + count);
-    io:println("Generated key: " + generatedKey);
+    io:println("Inserted row count: ", count);
+    io:println("Generated key: ", generatedKey);
 } else {
     error err = retWithKey;
-    io:println("Insert to table failed: " + <string>err.detail()["message"]);
+    io:println("Insert to table failed: ", <string>err.detail()["message"]);
 }
 ```
 
-### Selecting data
+#### Selecting data
 
 This example demonstrates selecting data. First, a type is created to represent the returned result set. Next, the 
 SELECT query is executed via the `select` remote function of the client by passing that result set type. Once the 
@@ -191,38 +218,39 @@ This table can be iterated only once.
 // Define a type to represent the results set.
 type Student record {
     int id;
-    string name;
     int age;
+    string name;
 };
 
-// Select the data from the table.
-var selectRet = testDB->select("SELECT * FROM student", Student);
+// Select the data from the table. Query Parameters are passed directly. Similar to `update` examples,
+// parameters can be passed as `jdbc:Parameter`s as well.
+var selectRet = testDB->select("SELECT * FROM student WHERE id<? AND age>?", Student, 10, 12);
 if (selectRet is table<Student>) {
     // Iterating returned table.
     foreach var row in selectRet {
-        io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
+        io:println("Student:", row.id, "|", row.name, "|", row.age);
     }
 } else {
     error err = selectRet;
-    io:println("Select data from student table failed: " + <string>err.detail()["message"]);
+    io:println("Select data from student table failed: ", <string>err.detail()["message"]);
 }
 ```
 
-### Updating data
+#### Updating data
 
 This example demonstrates modifying data by executing an UPDATE statement via the `update` remote function of 
 the client.
 ```ballerina
 var returned = testDB->update("UPDATE student SET name = 'Jones' WHERE age = ?", 23);
 if (returned is jdbc:UpdateResult) {
-    io:println("Updated row count in Students table: " + returned.updatedRowCount);
+    io:println("Updated row count in Students table: ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Insert to Students table failed: " + <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", <string>err.detail()["message"]);
 }
 ```
 
-### Batch updating data
+#### Batch updating data
 
 This example demonstrates how to insert multiple records with a single INSERT statement that is executed via the 
 `batchUpdate` remote function of the client. This is done by first creating multiple parameter arrays, each 
@@ -241,18 +269,18 @@ jdbc:Parameter para4 = { sqlType: jdbc:TYPE_INTEGER, value: 6 };
 jdbc:Parameter[] parameters2 = [para3, para4];
 
 // Do the batch update by passing the batches.
-jdbc:BatchUpdateResult ret = testDB->batchUpdate("INSERT INTO Students(name, age) values (?, ?)", 
+jdbc:BatchUpdateResult ret = testDB->batchUpdate("INSERT INTO Student(name, age) values (?, ?)", 
                                                  false, parameters1, parameters2);
 error? e = ret.returnedError;
 if (e is error) {
-    io:println("Error occurred:" + <string>e.detail()["message"]);
+    io:println("Error occurred:", <string>e.detail()["message"]);
 } else {
-    io:println("Batch item 1 update count: " + ret.updatedRowCount[0]);
-    io:println("Batch item 2 update count: " + ret.updatedRowCount[1]);
+    io:println("Batch item 1 update count: ", ret.updatedRowCount[0]);
+    io:println("Batch item 2 update count: ", ret.updatedRowCount[1]);
 }
 ```
 
-### Calling stored procedures
+#### Calling stored procedures
 
 The following examples demonstrate executing stored procedures via the `call` remote function of the client.
 
@@ -261,13 +289,13 @@ The first example shows how to create and call a simple stored procedure that in
 // Create the stored procedure.
 var returned = testDB->update("CREATE PROCEDURE INSERTDATA (IN pName VARCHAR(255), IN pAge INT)
                            BEGIN
-                              INSERT INTO Students(name, age) values (pName, pAge);
+                              INSERT INTO Student(name, age) values (pName, pAge);
                            END");
 if (returned is jdbc:UpdateResult) {
-    io:println("Stored proc creation status: : " + returned.updatedRowCount);
+    io:println("Stored proc creation status: : ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Stored proc creation failed: " + <string>err.detail()["message"]);
+    io:println("Stored proc creation failed: ", <string>err.detail()["message"]);
 }
 
 // Call the stored procedure.
@@ -276,7 +304,7 @@ if (retCall is ()|table<record {}>[]) {
     io:println("Call operation successful");
 } else {
     error err = retCall;
-    io:println("Stored procedure call failed: " + <string>err.detail()["message"]);
+    io:println("Stored procedure call failed: ", <string>err.detail()["message"]);
 }
 ```
 This next example shows how to create and call a stored procedure that accepts `INOUT` and `OUT` parameters.
@@ -285,14 +313,14 @@ This next example shows how to create and call a stored procedure that accepts `
 // Create the stored procedure.
 var returned = testDB->update("CREATE PROCEDURE GETCOUNT (INOUT pID INT, OUT pCount INT)
                            BEGIN
-                                SELECT COUNT(*) INTO pID FROM Students WHERE id = pID;
-                                SELECT COUNT(*) INTO pCount FROM Students WHERE id = 2;
+                                SELECT COUNT(*) INTO pID FROM Student WHERE id = pID;
+                                SELECT COUNT(*) INTO pCount FROM Student WHERE id = 2;
                            END");
 if (returned is jdbc:UpdateResult) {
-    io:println("Stored proc creation status: : " + returned.updatedRowCount);
+    io:println("Stored proc creation status: : ", returned.updatedRowCount);
 } else {
     error err = returned;
-    io:println("Stored procedure creation failed:  " + <string>err.detail()["message"]);
+    io:println("Stored procedure creation failed:  ", <string>err.detail()["message"]);
 }
 
 // Call the stored procedure.
@@ -307,6 +335,7 @@ if (retCall is ()|table<record {}>[]) {
     io:println(param2.value);
 } else {
     error err = retCall;
-    io:println("Stored procedure call failed: " + <string>err.detail()["message"]);
+    io:println("Stored procedure call failed: ", <string>err.detail()["message"]);
 }
 ```
+>**Note:** The default thread pool size used in Ballerina is number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.

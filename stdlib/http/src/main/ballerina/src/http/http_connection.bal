@@ -21,7 +21,7 @@
 # + protocol - The protocol associated with the service endpoint
 public type Caller client object {
 
-    private ServiceEndpointConfiguration config = {};
+    private ListenerConfiguration config = {};
     private FilterContext? filterContext = ();
 
     //TODO:Make these readonly
@@ -71,8 +71,9 @@ public type Caller client object {
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
-    # + return - WebSocket service endpoint
-    public remote function acceptWebSocketUpgrade(map<string> headers) returns WebSocketCaller = external;
+    # + return - `WebSocketCaller` or error on failure to upgrade
+    public remote function acceptWebSocketUpgrade(map<string> headers) 
+                                                returns WebSocketCaller | WebSocketError = external;
 
     # Cancels the handshake.
     #

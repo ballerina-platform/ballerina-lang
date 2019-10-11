@@ -3,7 +3,8 @@
 
 {{> head }}
 
-<body>
+<body class="cBallerina-io">
+    {{> bioBody }}
     <div class="navi-wrapper">
         <div class="navi-wrapper-content">
             {{> logo }}
@@ -30,7 +31,12 @@
         <div class="main-wrapper module-wrapper">
                 <h1>
                     {{> breadcrumb }}
-                    Module : <span class="modules">{{ module.id }}</span></h1>
+                    {{#if project.isSingleFile}}
+                        {{project.sourceFileName}}
+                    {{else}}
+                        Module : <span class="modules">{{ module.id }}</span>
+                    {{/if}}
+                </h1>
                     {{{ module.description }}}
 
             {{#if module.records}}
@@ -45,7 +51,7 @@
                 <table>
                     {{#each module.records}}
                         <tr>
-                            <td class="module-title truncate records" id="{{name}}">
+                            <td class="module-title truncate records" id="{{name}}" title="{{name}}">
                                 <a class="records"
                                    href="records/{{name}}.html">{{name}}</a></td>
                             <td class="module-desc">{{{ description }}}</td>
@@ -66,7 +72,7 @@
                 <table>
                     {{#each module.objects}}
                         <tr>
-                            <td class="module-title truncate objects" id="{{name}}">
+                            <td class="module-title truncate objects" id="{{name}}" title="{{name}}">
                                 <a class="objects"
                                    href="objects/{{name}}.html">
                                     {{name}}
@@ -90,7 +96,7 @@
                 <table>
                     {{#each module.clients}}
                         <tr>
-                            <td class="module-title truncate clients" id="{{name}}">
+                            <td class="module-title truncate clients" id="{{name}}" title="{{name}}">
                                 <a class="clients"
                                    href="clients/{{name}}.html">{{name}}</a></td>
                             <td class="module-desc">{{{ description }}}</td>
@@ -111,7 +117,7 @@
                 <table>
                     {{#each module.listeners}}
                         <tr>
-                            <td class="module-title truncate listeners" id="{{name}}">
+                            <td class="module-title truncate listeners" id="{{name}}" title="{{name}}">
                                 <a class="listeners"
                                    href="listeners/{{name}}.html">{{name}}</a></td>
                             <td class="module-desc">{{{ description }}}</td>
@@ -133,7 +139,7 @@
                 <table>
                     {{#each module.functions}}
                         <tr>
-                            <td class="module-title truncate functions" id="{{name}}"><a
+                            <td class="module-title truncate functions" id="{{name}}" title="{{name}}"><a
                                     class="functions" href="functions.html#{{name}}">{{name}}</a></td>
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
@@ -154,7 +160,7 @@
                 <table>
                     {{#each module.constants}}
                         <tr>
-                            <td class="module-title truncate constant" id="{{name}}"><a
+                            <td class="module-title truncate constant" id="{{name}}" title="{{name}}"><a
                                     class="constant" href="constants.html#{{name}}">{{name}}</a></td>
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
@@ -175,7 +181,7 @@
                 <table>
                     {{#each module.annotations}}
                         <tr>
-                            <td class="module-title truncate annotations" id="{{name}}"><a
+                            <td class="module-title truncate annotations" id="{{name}}" title="{{name}}"><a
                                     class="annotations" href="annotations.html#{{name}}">{{name}}</a></td>
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
@@ -195,7 +201,7 @@
                 <table>
                     {{#each module.unionTypes}}
                         <tr>
-                            <td class="module-title truncate types" id="{{name}}">
+                            <td class="module-title truncate types" id="{{name}}" title="{{name}}">
                                 <a class="types" href="types.html#{{name}}">{{name}}</a>
                             </td>
                             <td class="module-desc">{{{ description }}}</td>
@@ -216,7 +222,7 @@
                 <table>
                     {{#each module.errors}}
                         <tr>
-                            <td class="module-title truncate errors" id="{{name}}">
+                            <td class="module-title truncate errors" id="{{name}}" title="{{name}}">
                                 <a class="errors" href="errors.html#{{name}}">{{name}}</a>
                             </td>
                             <td class="module-desc">{{{ description }}}</td>
@@ -228,7 +234,6 @@
         </div>
     </div>
 
-{{> monaco }}
 </body>
 
 {{> footer }}

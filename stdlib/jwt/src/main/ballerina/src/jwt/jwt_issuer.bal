@@ -17,7 +17,26 @@
 import ballerina/crypto;
 import ballerina/encoding;
 
-# Represents JWT issuer configurations.
+# Represents JWT validator configurations.
+#
+# + username - JWT token username
+# + issuer - JWT token issuer
+# + audience - JWT token audience
+# + customClaims - Map of custom claims
+# + expTimeInSeconds - Expiry time in seconds
+# + keyStoreConfig - JWT key store configurations
+# + signingAlg - Signing algorithm
+public type JwtIssuerConfig record {|
+    string username?;
+    string issuer;
+    string[] audience;
+    map<json> customClaims?;
+    int expTimeInSeconds = 300;
+    JwtKeyStoreConfig keyStoreConfig;
+    JwtSigningAlgorithm signingAlg = RS256;
+|};
+
+# Represents JWT key store configurations.
 #
 # + keyStore - Keystore to be used in JWT signing
 # + keyAlias - Signing key alias
@@ -85,7 +104,11 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig
     return prepareError("Failed to issue JWT since signing algorithm is not specified.");
 }
 
-function buildHeaderString(JwtHeader header) returns string|Error {
+# Build the header string from the `JwtHeader` record.
+#
+# + header - JWT header record to be built as a string
+# + return - The header string or an `Error` if building the string fails
+public function buildHeaderString(JwtHeader header) returns string|Error {
     map<json> headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
         return prepareError("Mandatory field signing algorithm (alg) is empty.");
@@ -116,12 +139,16 @@ function buildHeaderString(JwtHeader header) returns string|Error {
             headerJson[KID] = kid;
         }
     }
-    string headerValInString = headerJson.toString();
+    string headerValInString = headerJson.toJsonString();
     string encodedPayload = encoding:encodeBase64Url(headerValInString.toBytes());
     return encodedPayload;
 }
 
-function buildPayloadString(JwtPayload payload) returns string|Error {
+# Build the payload string from the `JwtPayload` record.
+#
+# + payload - JWT payload record to be built as a string
+# + return - The payload string or an `Error` if building the string fails
+public function buildPayloadString(JwtPayload payload) returns string|Error {
     map<json> payloadJson = {};
     string? sub = payload?.sub;
     if (sub is string) {
@@ -149,19 +176,21 @@ function buildPayloadString(JwtPayload payload) returns string|Error {
     } else if (aud is string[]) {
         payloadJson[AUD] = aud;
     }
-    var customClaims = payload?.customClaims;
-    if (customClaims is map<json>) {
-        payloadJson = addMapToJson(payloadJson, customClaims);
+    int? nbf = payload?.nbf;
+    if (nbf is int) {
+        payloadJson[NBF] = nbf;
     }
-    string payloadInString = payloadJson.toString();
+    var customClaims = payload?.customClaims;
+    if (customClaims is map<json> && customClaims.length() > 0) {
+        payloadJson = appendToMap(customClaims, payloadJson);
+    }
+    string payloadInString = payloadJson.toJsonString();
     return encoding:encodeBase64Url(payloadInString.toBytes());
 }
 
-function addMapToJson(map<json> inJson, map<json> mapToConvert) returns map<json> {
-    if (mapToConvert.length() != 0) {
-        foreach var key in mapToConvert.keys() {
-            inJson[key] = mapToConvert[key];
-        }
+function appendToMap(map<json> fromMap, map<json> toMap) returns map<json> {
+    foreach var key in fromMap.keys() {
+        toMap[key] = fromMap[key];
     }
-    return inJson;
+    return toMap;
 }

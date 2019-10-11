@@ -31,27 +31,49 @@ type PerDiem record {
     string? department;
 };
 
+type CommonApp record {
+    string appId;
+    string createdDt;
+    string exportDt;
+    string firstName;
+    string middleName;
+    string lastName;
+    string gender;
+    string birthDate;
+    string address1;
+    string address2;
+    string city;
+    string state;
+    string zip;
+    string country;
+    string email;
+    string phoneNumber;
+    string hispLatino;
+    string citizenship;
+    string schoolLookup;
+};
+
 io:ReadableCSVChannel? rch = ();
 io:WritableCSVChannel? wch = ();
 
 function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted error? {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
-        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel( <@untainted> byteChannel, encoding);
+        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(<@untainted>byteChannel, encoding);
         rch = new io:ReadableCSVChannel(charChannel, fieldSeparator);
     } else {
         return byteChannel;
     }
 }
 
-function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
-    io:WritableByteChannel byteChannel = <@untainted io:WritableByteChannel> io:openWritableFile(filePath);
+function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns error? {
+    io:WritableByteChannel byteChannel = check <@untainted>io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
     wch = new io:WritableCSVChannel(charChannel, fieldSeparator);
 }
 
 function initOpenCsvChannel(string filePath, string encoding, io:Separator fieldSeparator, int nHeaders = 0) returns error? {
-    var byteChannel =  <@untainted> io:openReadableFile(filePath);
+    var byteChannel = <@untainted>io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
         rch = new io:ReadableCSVChannel(charChannel, fieldSeparator, nHeaders);
@@ -60,13 +82,13 @@ function initOpenCsvChannel(string filePath, string encoding, io:Separator field
     }
 }
 
-function nextRecord() returns @tainted string[]|error {
+function nextRecord() returns @tainted string[] | error {
     var cha = rch;
-    if(cha is io:ReadableCSVChannel){
+    if (cha is io:ReadableCSVChannel) {
         var result = cha.getNext();
         if (result is string[]) {
             return result;
-        } else if(result is error) {
+        } else if (result is error) {
             return result;
         }
     }
@@ -76,7 +98,7 @@ function nextRecord() returns @tainted string[]|error {
 
 function writeRecord(string[] fields) {
     var cha = wch;
-    if(cha is io:WritableCSVChannel){
+    if (cha is io:WritableCSVChannel) {
         var result = cha.write(fields);
     }
 }
@@ -84,22 +106,22 @@ function writeRecord(string[] fields) {
 function close() {
     var rcha = rch;
     var wcha = wch;
-    if(rcha is io:ReadableCSVChannel) {
+    if (rcha is io:ReadableCSVChannel) {
         checkpanic rcha.close();
     }
-    if(wcha is io:WritableCSVChannel) {
+    if (wcha is io:WritableCSVChannel) {
         checkpanic wcha.close();
     }
 }
 
 function hasNextRecord() returns boolean? {
     var rcha = rch;
-    if(rcha is io:ReadableCSVChannel) {
+    if (rcha is io:ReadableCSVChannel) {
         return rcha.hasNext();
     }
 }
 
-function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted float|error {
+function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted float | error {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
@@ -120,7 +142,7 @@ function getTable(string filePath, string encoding, io:Separator fieldSeparator)
     }
 }
 
-function getTableWithNill(string filePath) returns @tainted [string, string]|error {
+function getTableWithNill(string filePath) returns @tainted [string, string] | error {
     string name = "";
     string dep = "";
     var rCsvChannel = io:openReadableCsvFile(filePath, skipHeaders = 1);
@@ -132,10 +154,26 @@ function getTableWithNill(string filePath) returns @tainted [string, string]|err
                 dep = dep + (rec.department ?: "-1");
             }
             error? closeResult = rCsvChannel.close();
-        }
-        else {
+        } else {
             return tblResult;
         }
     }
     return [name, dep];
+}
+
+function getTableWithHeader(string filePath) returns @tainted string[] | error {
+    var rCsvChannel = io:openReadableCsvFile(filePath, skipHeaders = 0);
+    string[] keys = [];
+    if (rCsvChannel is io:ReadableCSVChannel) {
+        var tblResult = rCsvChannel.getTable(CommonApp);
+        if (tblResult is table<CommonApp>) {
+            foreach var rec in tblResult {
+                keys.push(rec.appId);
+            }
+            error? closeResult = rCsvChannel.close();
+        } else {
+            return tblResult;
+        }
+    }
+    return keys;
 }

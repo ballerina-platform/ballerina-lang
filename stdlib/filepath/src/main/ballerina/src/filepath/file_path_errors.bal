@@ -23,21 +23,70 @@ type Detail record {
     error cause?;
 };
 
-public const FILE_PATH_ERROR = "{ballerina/filepath}Error";
+# Identifies file not found error.
+public const FILE_NOT_FOUND_ERROR = "{ballerina/filepath}FileNotFoundError";
+# Represents error occur when the file/directory does not exist at the given filepath.
+public type FileNotFoundError error<FILE_NOT_FOUND_ERROR, Detail>;
 
-public type Error error<FILE_PATH_ERROR, Detail>;
+# Identifies no link error.
+public const NOT_LINK_ERROR = "{ballerina/filepath}NotLinkError";
+# Represents error occur when the file at the given filepath is not a symbolic link.
+public type NotLinkError error<NOT_LINK_ERROR, Detail>;
 
-# Prepare the `error` as an `Error`.
-#
+# Identifies io error.
+public const IO_ERROR = "{ballerina/filepath}IOError";
+# Represents IO error occur when trying to access the file at the given filepath.
+public type IOError error<IO_ERROR, Detail>;
+
+# Identifies security error.
+public const SECURITY_ERROR = "{ballerina/filepath}SecurityError";
+# Represents security error occur when trying to access the file at the given filepath.
+public type SecurityError error<SECURITY_ERROR, Detail>;
+
+# Identifies invalid path error.
+public const INVALID_PATH_ERROR = "{ballerina/filepath}InvalidPathError";
+# Represents error occur when the given file path is invalid.
+public type InvalidPathError error<INVALID_PATH_ERROR, Detail>;
+
+# Identifies invalid pattern error.
+public const INVALID_PATTERN_ERROR = "{ballerina/filepath}InvalidPatternError";
+# Represent error occur when the given pattern is not a valid filepath pattern.
+public type InvalidPatternError error<INVALID_PATTERN_ERROR, Detail>;
+
+# Identifies relative path error.
+public const RELATIVE_PATH_ERROR = "{ballerina/filepath}RelativePathError";
+# Represents an error that occurs when the given target filepath cannot be derived relative to the base filepath.
+public type RelativePathError error<RELATIVE_PATH_ERROR, Detail>;
+
+# Identifies unc path error.
+public const UNC_PATH_ERROR = "{ballerina/filepath}UNCPathError";
+# Represents error occur in the UNC path.
+public type UNCPathError error<UNC_PATH_ERROR, Detail>;
+
+# Identifies generic error.
+public const GENERIC_ERROR = "{ballerina/filepath}GenericError";
+# Represents generic error for filepath
+public type GenericError error<GENERIC_ERROR, Detail>;
+
+# Represents filepath related error types.
+type ErrorType FILE_NOT_FOUND_ERROR | NOT_LINK_ERROR | IO_ERROR | SECURITY_ERROR | INVALID_PATH_ERROR |
+INVALID_PATTERN_ERROR | RELATIVE_PATH_ERROR | UNC_PATH_ERROR | GENERIC_ERROR;
+
+# Represents filepath related errors.
+public type Error FileNotFoundError | NotLinkError | IOError | SecurityError | InvalidPathError |
+InvalidPatternError | RelativePathError | UNCPathError | GenericError;
+
+# Prepare the `error` as a `Error`.
+# + errorType - The type of error.
 # + message - The error message.
 # + err - The `error` instance.
 # + return - Prepared `Error` instance.
-public function prepareError(string message, error? err = ()) returns Error {
-    Error filepathError;
+function prepareError(ErrorType errorType, string message, error? err = ()) returns Error {
+    error filePathError;
     if (err is error) {
-	    filepathError = error(FILE_PATH_ERROR, message = message, cause = err);
+	    filePathError = error(errorType, message = message, cause = err);
     } else {
-        filepathError = error(FILE_PATH_ERROR, message = message);
+        filePathError = error(errorType, message = message);
     }
-    return filepathError;
+    return <Error> filePathError;
 }

@@ -13,8 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/io;
-import ballerina/'lang\.int as langint;
+import ballerina/lang.'int as langint;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
 public const string BOUNDARY = "boundary";
@@ -208,9 +209,10 @@ public type Entity object {
         return getContentDispositionObject(contentDispositionVal);
     }
 
-    # Sets the entity body with the given content.
+    # Sets the body of the entity with the given content. Note that any string value is set as `text/plain`. To send a
+    # JSON-compatible string, set the content-type header to `application/json` or use the `setJsonPayload` method instead.
     #
-    # + entityBody - Entity body can be of type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel` or `Entity[]`
+    # + entityBody - Entity body can be of the type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel`, or `Entity[]`.
     public function setBody(@untainted string|xml|json|byte[]|io:ReadableByteChannel|Entity[] entityBody) {
         if (entityBody is string) {
             self.setText(entityBody);
@@ -384,7 +386,7 @@ public type Entity object {
     public function hasHeader(@untainted string headerName) returns boolean = external;
 };
 
-# Encodes a given input with MIME specific Base64 encoding scheme.
+# **Deprecated API**. Encodes a given input with MIME specific Base64 encoding scheme.
 #
 # + contentToBeEncoded - Content that needs to be encoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
 # + charset - Charset to be used. This is used only with the string input
@@ -395,7 +397,7 @@ public type Entity object {
 public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
     returns (string|byte[]|io:ReadableByteChannel|EncodeError) = external;
 
-# Decodes a given input with MIME specific Base64 encoding scheme.
+# **Deprecated API**. Decodes a given input with MIME specific Base64 encoding scheme.
 #
 # + contentToBeDecoded - Content that needs to be decoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
 # + charset - Charset to be used. This is used only with the string input
@@ -406,7 +408,7 @@ public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeE
 public function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
     returns (string|byte[]|io:ReadableByteChannel|DecodeError) = external;
 
-# Encodes a given byte[] with Base64 encoding scheme.
+# **Deprecated API**. Encodes a given byte[] with Base64 encoding scheme.
 #
 # + valueToBeEncoded - Content that needs to be encoded
 # + return - An encoded byte[]. In case of errors, an `EncodeError` record is returned
@@ -419,7 +421,7 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeE
     }
 }
 
-# Decodes a given byte[] with Base64 encoding scheme.
+# **Deprecated API**. Decodes a given byte[] with Base64 encoding scheme.
 #
 # + valueToBeDecoded - Content that needs to be decoded
 # + return - A decoded `byte[]`. In case of errors, an `DecodeError` record is returned

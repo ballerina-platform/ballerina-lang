@@ -15,9 +15,8 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
-import ballerina/internal;
+import ballerina/stringutils;
 
 listener http:Listener serviceEndpoint5 = new(9095);
 
@@ -32,7 +31,7 @@ service CustomerMgtService on serviceEndpoint5 {
     resource function customers(http:Caller caller, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
-        if (internal:equalsIgnoreCase(httpMethod, "GET")) {
+        if (stringutils:equalsIgnoreCase(httpMethod, "GET")) {
             payload = {"Customer":{"ID":"987654", "Name":"ABC PQR", "Description":"Sample Customer."}};
         } else {
             payload = {"Status":"Customer is successfully added."};
@@ -157,7 +156,7 @@ service OrderMgtService on serviceEndpoint5 {
     resource function orders(http:Caller caller, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
-        if (internal:equalsIgnoreCase(httpMethod, "GET")) {
+        if (stringutils:equalsIgnoreCase(httpMethod, "GET")) {
             payload = {"Order":{"ID":"111999", "Name":"ABC123", "Description":"Sample order."}};
         } else {
             payload = {"Status":"Order is successfully added."};
@@ -169,12 +168,12 @@ service OrderMgtService on serviceEndpoint5 {
     }
 }
 
+map<anydata> productsMap = populateSampleProducts();
+
 @http:ServiceConfig {
     basePath:"/productsservice"
 }
 service productmgt on serviceEndpoint5 {
-
-    map<anydata> productsMap = populateSampleProducts();
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -182,11 +181,11 @@ service productmgt on serviceEndpoint5 {
     }
     resource function product(http:Caller caller, http:Request req, string prodId) {
         http:Response res = new;
-        var result = json.constructFrom(self.productsMap[prodId]);
+        var result = json.constructFrom(productsMap[prodId]);
         if (result is json) {
-            res.setPayload(result);
+            res.setPayload(<@untainted> result);
         } else {
-            res.setPayload(result.reason());
+            res.setPayload(<@untainted> result.reason());
         }
         checkpanic caller->respond(res);
     }
@@ -199,7 +198,7 @@ service productmgt on serviceEndpoint5 {
         var jsonReq = req.getJsonPayload();
         if (jsonReq is json) {
             string productId = jsonReq.Product.ID.toString();
-            self.productsMap[productId] = jsonReq;
+            productsMap[productId] = jsonReq;
             json payload = {"Status":"Product is successfully added."};
 
             http:Response res = new;

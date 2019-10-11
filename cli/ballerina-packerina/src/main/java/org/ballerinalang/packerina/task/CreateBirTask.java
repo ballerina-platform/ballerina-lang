@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -38,35 +39,49 @@ public class CreateBirTask implements Task {
     public void execute(BuildContext buildContext) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-        
+
         // generate bir for modules
         BirFileWriter birFileWriter = BirFileWriter.getInstance(context);
         List<BLangPackage> modules = buildContext.getModules();
         for (BLangPackage module : modules) {
             birFileWriter.write(module, buildContext.getBirPathFromTargetCache(module.packageID));
-            for (BPackageSymbol importz : module.symbol.imports) {
-                writeImportBir(buildContext, importz, sourceRootPath, birFileWriter);
+            // If the module has a testable package we will create the bir beside it
+            if (module.testablePkgs.size() > 0) {
+                birFileWriter.write(module.testablePkgs.get(0),
+                        buildContext.getTestBirPathFromTargetCache(module.packageID));
             }
+            writeImportBir(buildContext, module.symbol.imports, sourceRootPath, birFileWriter);
         }
     }
 
-    private void writeImportBir(BuildContext buildContext, BPackageSymbol importz, Path project,
+    private void writeImportBir(BuildContext buildContext, List<BPackageSymbol> importz, Path project,
                                 BirFileWriter birWriter) {
-        // Get the jar paths
-        PackageID id = importz.pkgID;
-        Path importBir;
-        // Skip ballerina and ballerinax
-        if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
-            return;
+        for (BPackageSymbol bPackageSymbol : importz) {
+            // Get the jar paths
+            PackageID id = bPackageSymbol.pkgID;
+            // Skip ballerina and ballerinax
+            if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
+                continue;
+            }
+    
+            Path importBir;
+            // Look if it is a project module.
+            if (ProjectDirs.isModuleExist(project, id.name.value) ||
+                    buildContext.getImportPathDependency(id).isPresent()) {
+                // If so fetch from project bir cache
+                importBir = buildContext.getBirPathFromTargetCache(id);
+                birWriter.writeBIRToPath(bPackageSymbol.birPackageFile, id, importBir);
+            } else {
+                // If not fetch from home bir cache.
+                importBir = buildContext.getBirPathFromHomeCache(id);
+                // Write only if bir does not exists. No need to overwrite.
+                if (Files.notExists(importBir)) {
+                    birWriter.writeBIRToPath(bPackageSymbol.birPackageFile, id, importBir);
+                }
+            }
+    
+            // write child import bir(s)
+            writeImportBir(buildContext, bPackageSymbol.imports, project, birWriter);
         }
-        // Look if it is a project module.
-        if (ProjectDirs.isModuleExist(project, id.name.value)) {
-            // If so fetch from project bir cache
-            importBir = buildContext.getBirPathFromTargetCache(id);
-        } else {
-            // If not fetch from home bir cache.
-            importBir = buildContext.getBirPathFromHomeCache(id);
-        }
-        birWriter.writeBIRToPath(importz.birPackageFile, id, importBir);
     }
 }

@@ -29,8 +29,12 @@ import java.math.BigInteger;
 import java.math.MathContext;
 
 /**
+ * <p>
  * The {@link DecimalValue} represents a decimal value in Ballerina.
- *
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p> 
  * @since 0.995.0
  */
 public class DecimalValue {
@@ -146,10 +150,10 @@ public class DecimalValue {
         if (!isDecimalWithinIntRange(value)) {
             throw BallerinaErrors.createNumericConversionError(this.stringValue(), BTypes.typeDecimal, BTypes.typeInt);
         }
-        return Math.round(value.doubleValue());
+        return (long) Math.rint(value.doubleValue());
     }
 
-    private static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
+    public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
         return decimalValue.compareTo(BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
                decimalValue.compareTo(BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
     }
@@ -164,11 +168,11 @@ public class DecimalValue {
                 throw BallerinaErrors.createNumericConversionError(POSITIVE_INF, BTypes.typeByte);
         }
 
-        long intVal = Math.round(this.value.doubleValue());
+        int intVal = (int) Math.rint(this.value.doubleValue());
         if (!isByteLiteral(intVal)) {
             throw BallerinaErrors.createNumericConversionError(value, BTypes.typeDecimal, BTypes.typeByte);
         }
-        return (int) intVal;
+        return intVal;
     }
 
     private static boolean isByteLiteral(long longValue) {

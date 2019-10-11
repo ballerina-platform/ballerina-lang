@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.jvm.util;
 
+import org.ballerinalang.jvm.types.BPackage;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -39,6 +41,12 @@ public class BLangConstants {
     public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
     public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>"; 
     public static final String MODULE_INIT_CLASS_NAME = "___init";
+    
+    // Configs
+    public static final String BALLERINA_ARGS_INIT_PREFIX = "--";
+    public static final int BALLERINA_ARGS_INIT_PREFIX_LENGTH = BALLERINA_ARGS_INIT_PREFIX.length();
+    public static final String CONFIG_SEPARATOR = "=";
+    public static final String CONFIG_FILE_PROPERTY = "b7a.config.file";
 
     public static final String EMPTY = "";
     public static final String ANON_ORG = "$anon";
@@ -81,6 +89,24 @@ public class BLangConstants {
     public static final String BALLERINA_BUILTIN_PKG = BALLERINA_PACKAGE_PREFIX + "builtin";
     public static final String BALLERINA_RUNTIME_PKG = BALLERINA_PACKAGE_PREFIX + "runtime";
     public static final String BALLERINA_LANG_ERROR_PKG = BALLERINA_PACKAGE_PREFIX + "lang_error";
+    public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
+
+
+    public static final BPackage BALLERINA_BUILTIN_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "builtin");
+    public static final BPackage BALLERINA_RUNTIME_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "runtime");
+    public static final BPackage BALLERINA_LANG_ERROR_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "lang.error");
+
+    public static final String STRING_LANG_LIB = "lang.string";
+    public static final String MAP_LANG_LIB = "lang.map";
+    public static final String ARRAY_LANG_LIB = "lang.array";
+    public static final String TYPEDESC_LANG_LIB = "lang.typedesc";
+    public static final String VALUE_LANG_LIB = "lang.value";
+    public static final String XML_LANG_LIB = "lang.xml";
+    public static final String FUTURE_LANG_LIB = "lang.future";
+    public static final String OBJECT_LANG_LIB = "lang.object";
+    public static final String TABLE_LANG_LIB = "lang.table";
+    public static final String INT_LANG_LIB = "lang.int";
+    public static final String FLOAT_LANG_LIB = "lang.float";
 
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
@@ -100,4 +126,29 @@ public class BLangConstants {
     public static final String COLON = ":";
 
     public static final String DEFAULT_WORKER_NAME = "default";
+
+    // ballerina environment properties.
+    public static final String UTIL_LOGGING_CONFIG_CLASS_PROPERTY = "java.util.logging.config.class";
+    public static final String UTIL_LOGGING_MANAGER_CLASS_PROPERTY = "java.util.logging.manager";
+    public static final String UTIL_LOGGING_CONFIG_CLASS_VALUE = "org.ballerinalang.logging.util.LogConfigReader";
+    public static final String UTIL_LOGGING_MANAGER_CLASS_VALUE = "org.ballerinalang.logging.BLogManager";
+
+
+    // runtime related error message constant values
+    public static final String INTERNAL_ERROR_MESSAGE =
+            "ballerina: Oh no, something really went wrong. Bad. Sad.\n" +
+            "\n" +
+            "There should be a file named \"ballerina-internal.log\" in the current directory.\n" +
+            "If you are able to share with us the code that broke Ballerina then\n" +
+            "we would REALLY appreciate if you would report this to us:\n" +
+            "go to https://github.com/ballerina-platform/ballerina-lang/issues and\n" +
+            "create a bug report with both this log file and the sample code.\n" +
+            "\n" +
+            "We thank you for helping make us better dancers.";
+
+    public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
+            "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";
+
+
+    public static final String ERROR_MESSAGE_FIELD_NAME = "message";
 }

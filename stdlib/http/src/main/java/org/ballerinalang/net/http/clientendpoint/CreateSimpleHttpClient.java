@@ -26,8 +26,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
@@ -70,7 +70,7 @@ public class CreateSimpleHttpClient {
         try {
             url = new URL(urlString);
         } catch (MalformedURLException e) {
-            throw new BallerinaException("Malformed URL: " + urlString);
+            throw HttpUtil.createHttpError("malformed URL: " + urlString, HttpErrorType.GENERIC_CLIENT_ERROR);
         }
         scheme = url.getProtocol();
         Map<String, Object> properties =
@@ -97,8 +97,11 @@ public class CreateSimpleHttpClient {
             String keepAliveConfig = http1Settings.getStringValue(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
             senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
         }
-
-        populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
+        try {
+            populateSenderConfigurations(senderConfiguration, clientEndpointConfig, scheme);
+        } catch (RuntimeException e) {
+            throw HttpUtil.createHttpError(e.getMessage(), HttpErrorType.GENERIC_CLIENT_ERROR);
+        }
         ConnectionManager poolManager;
         MapValue<String, Long> userDefinedPoolConfig = (MapValue<String, Long>) clientEndpointConfig.get(
                 HttpConstants.USER_DEFINED_POOL_CONFIG);

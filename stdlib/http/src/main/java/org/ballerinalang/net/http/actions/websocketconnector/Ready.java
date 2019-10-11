@@ -27,9 +27,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
-
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
-import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
+import org.ballerinalang.net.http.exception.WebSocketException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -45,9 +45,9 @@ import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
         )
 )
 public class Ready {
+    private static final Logger log = LoggerFactory.getLogger(Ready.class);
 
     public static Object ready(Strand strand, ObjectValue wsConnection) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
@@ -55,17 +55,14 @@ public class Ready {
             boolean isReady = wsConnection.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
                 WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnection);
-                //TODO remove this call back
                 callback.setReturnValues(null);
+                callback.notifySuccess();
             } else {
-                //TODO remove this call back
-                callback.setReturnValues(WebSocketUtil.createWebSocketError("Already started reading frames"));
+                callback.notifyFailure(new WebSocketException("Already started reading frames"));
             }
-            callback.notifySuccess();
         } catch (Exception e) {
-            //TODO remove this call back
-            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
-            callback.notifySuccess();
+            log.error("Error occurred when calling ready", e);
+            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
         return null;
     }

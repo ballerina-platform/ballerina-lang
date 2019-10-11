@@ -1,4 +1,3 @@
-import ballerina/io;
 // Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,16 +13,17 @@ import ballerina/io;
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+import ballerina/stringutils;
+
 public type PackageParser object {
     BirChannelReader reader;
-    map<GlobalVariableDcl> globalVarMap;
     boolean addInterimBB = true;
     boolean symbolsOnly;
 
     public function __init(BirChannelReader reader, boolean symbolsOnly) {
         self.reader = reader;
         self.symbolsOnly = symbolsOnly;
-        self.globalVarMap = {};
     }
 
     public function parseVariableDcl() returns VariableDcl {
@@ -71,20 +71,19 @@ public type PackageParser object {
             string name = self.reader.readStringCpRef();
             int flags = self.reader.readInt32();
 
-            skipMarkDownDocAttachement(self.reader); 
+            skipMarkDownDocAttachement(self.reader);
 
             var typeValue = self.reader.readTypeCpRef();
 
             int constValueLength = self.reader.readInt64();
             _ = self.reader.readByteArray(<@untainted> constValueLength);
 
-            GlobalVariableDcl dcl = { kind:VAR_KIND_CONSTANT, 
-                                      name:{value:name}, 
-                                      typeValue:typeValue, 
+            GlobalVariableDcl dcl = { kind:VAR_KIND_CONSTANT,
+                                      name:{value:name},
+                                      typeValue:typeValue,
                                       flags:flags
                                     };
             globalVars[i] = dcl;
-            self.globalVarMap[name] = dcl;
             i = i + 1;
         }
     }
@@ -133,6 +132,7 @@ public type PackageParser object {
         map<VariableDcl> localVarMap = {};
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var name = self.reader.readStringCpRef();
+        var workerName = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
         var sig = self.parseInvokableType();
 
@@ -156,8 +156,8 @@ public type PackageParser object {
 
         int taintLength = self.reader.readInt64();
         _ = self.reader.readByteArray(<@untainted> taintLength); // read and ignore taint table
-        
-        skipMarkDownDocAttachement(self.reader); 
+
+        skipMarkDownDocAttachement(self.reader);
 
         var bodyLength = self.reader.readInt64(); // read and ignore function body length
         if (self.symbolsOnly) {
@@ -165,6 +165,7 @@ public type PackageParser object {
             return <@untainted Function> {
                 pos: pos,
                 name: { value: name },
+                workerName: { value: workerName },
                 flags: flags,
                 localVars: [],
                 basicBlocks: [],
@@ -224,7 +225,7 @@ public type PackageParser object {
             count += 1;
         }
 
-        FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs, receiver);
+        FuncBodyParser bodyParser = new(self.reader, localVarMap, typeDefs, receiver);
         count = 0;
         BasicBlock?[][] paramDefaultBBs = [];
         while (count < numDefaultParams) {
@@ -239,6 +240,7 @@ public type PackageParser object {
         return <@untainted Function> {
             pos: pos,
             name: { value: name },
+            workerName: { value: workerName },
             flags: flags,
             localVars: dcls,
             basicBlocks: basicBlocks,
@@ -284,11 +286,11 @@ public type PackageParser object {
         self.skipAnnotations();
 
         return <@untainted Package> { importModules : importModules,
-                    typeDefs : typeDefs, 
-                    globalVars : globalVars, 
+                    typeDefs : typeDefs,
+                    globalVars : globalVars,
                     functions : funcs,
-                    name : { value: pkgId.name }, 
-                    org : { value: pkgId.org }, 
+                    name : { value: pkgId.name },
+                    org : { value: pkgId.org },
                     versionValue : { value: pkgId.modVersion } };
     }
 
@@ -316,18 +318,19 @@ public type PackageParser object {
         int i = 0;
         int j = 0;
         while (i < numEE) {
-            errorEntries[j] = bodyParser.parseEE();
-            
+            ErrorEntry errorEntry = bodyParser.parseEE();
+            errorEntries[j] = errorEntry;
+
             if (self.addInterimBB) {
-                ErrorEntry? interimEntry = errorEntries[j].clone();
+                ErrorEntry? interimEntry = errorEntry.clone();
                 j += 1;
                 if (interimEntry is ErrorEntry) {
                     interimEntry.trapBB.id.value = interimEntry.trapBB.id.value + "interim";
-                    errorEntries[j] = interimEntry;                    
+                    errorEntries[j] = interimEntry;
                 }
             }
             j += 1;
-            i += 1;   
+            i += 1;
         }
         return errorEntries;
     }
@@ -387,25 +390,24 @@ public type PackageParser object {
         int flags = self.reader.readInt32();
         int isLabel = self.reader.readInt8();
 
-        skipMarkDownDocAttachement(self.reader); 
+        skipMarkDownDocAttachement(self.reader);
 
         var bType = self.reader.readTypeCpRef();
         return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: (), typeRefs : [] };
     }
 
-    function parseGlobalVars(GlobalVariableDcl?[] globalVars) {       
+    function parseGlobalVars(GlobalVariableDcl?[] globalVars) {
         int numGlobalVars = self.reader.readInt32();
-        int startIndex = globalVars.length();   
+        int startIndex = globalVars.length();
         int i = 0;
         while i < numGlobalVars {
             var kind = parseVarKind(self.reader);
             string name = self.reader.readStringCpRef();
             int flags = self.reader.readInt32();
-            skipMarkDownDocAttachement(self.reader); 
+            skipMarkDownDocAttachement(self.reader);
             var typeValue = self.reader.readTypeCpRef();
             GlobalVariableDcl dcl = {kind:kind, name:{value:name}, typeValue:typeValue, flags:flags};
             globalVars[startIndex + i] = dcl;
-            self.globalVarMap[name] = dcl;
             i = i + 1;
         }
     }
@@ -413,7 +415,7 @@ public type PackageParser object {
     public function parseSig(string sig) returns BInvokableType {
         BType returnType = "int";
         //TODO: add boolean
-        if (internal:lastIndexOf(sig, "(N)") == (sig.length() - 3)) {
+        if (stringutils:lastIndexOf(sig, "(N)") == (sig.length() - 3)) {
             returnType = "()";
         }
         return {
@@ -502,7 +504,6 @@ public type PackageParser object {
             annotValueArray: annotValueArray
         };
     }
-
 };
 
 function skipMarkDownDocAttachement(BirChannelReader reader) {
@@ -556,7 +557,7 @@ public function parseVarKind(BirChannelReader reader) returns VarKind {
     }  else if (b == 7) {
         ConstantVarKind ret = VAR_KIND_CONSTANT;
         return ret;
-    } 
+    }
 
     error err = error("unknown var kind tag " + b.toString());
     panic err;

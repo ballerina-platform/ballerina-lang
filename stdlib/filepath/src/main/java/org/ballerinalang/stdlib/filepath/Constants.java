@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.filepath;
 
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for path package file functions.
@@ -43,7 +43,11 @@ public class Constants {
 
     public static final String ERROR_REASON_PREFIX = "{ballerina/filepath}";
 
-    public static final String FILEPATH_ERROR_CODE = "{ballerina/filepath}Error";
-    static final String ERROR_DETAILS = "Detail";
-    static final String ERROR_MESSAGE = "message";
+    public static final String FILE_NOT_FOUND_ERROR = "{ballerina/filepath}FileNotFoundError";
+    public static final String NOT_LINK_ERROR = "{ballerina/filepath}NotLinkError";
+    public static final String IO_ERROR = "{ballerina/filepath}IOError";
+    public static final String SECURITY_ERROR = "{ballerina/filepath}SecurityError";
+    public static final String INVALID_PATH_ERROR = "{ballerina/filepath}InvalidPathError";
+    public static final String INVALID_PATTERN_ERROR = "{ballerina/filepath}InvalidPatternError";
+    public static final String GENERIC_ERROR = "{ballerina/filepath}GenericError";
 }

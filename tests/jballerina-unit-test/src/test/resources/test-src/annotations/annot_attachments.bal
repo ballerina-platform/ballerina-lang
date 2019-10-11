@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 type Annot record {
     string val;
@@ -34,6 +34,7 @@ const annotation map<string> v10 on source annotation;
 const annotation map<int> v11 on source var;
 public const annotation map<string> v12 on source const;
 const annotation map<string> v13 on source external;
+const annotation map<boolean> v15 on source worker;
 
 @v1 {
     val: "v1 value"
@@ -104,8 +105,8 @@ service ser on lis {
     @v5 {
         val: "54"
     }
-    resource function res(@v6 { val: "v64" } int intVal) returns @v7 string {
-        return "";
+    resource function res(@v6 { val: "v64" } int intVal) returns @v7 error? {
+        return;
     }
 }
 
@@ -116,13 +117,13 @@ service serTwo = @v8 {
     @v5 {
         val: "542"
     }
-    resource function res(@v6 { val: "v642" } int intVal) returns @v7 int {
-        return 1;
+    resource function res(@v6 { val: "v642" } int intVal) returns @v7 () {
+        return;
     }
 };
 
 type Listener object {
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public function __init() {
     }
@@ -130,11 +131,38 @@ type Listener object {
     public function __attach(service s, string? name = ()) returns error? {
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     public function __start() returns error? {
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
+        return ();
     }
 };
 
 //function externalFunction(boolean b) returns @v7 string = @v13 { strOne: "one", strTwo: "two" } external;
+
+// Test compilation for annotations with the worker attach point.
+function funcWithWorker() {
+
+    @v15 {
+        val: true
+    }
+    worker w1 {
+        // do nothing
+    }
+}
+
+function funcWithFuture() {
+    future<()> fn =
+    @v15 {
+        val: false
+    }
+    start funcWithWorker();
+}

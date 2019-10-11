@@ -32,9 +32,8 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.net.http.HttpUtil.populateEntityBody;
@@ -48,12 +47,10 @@ public class WebSubUtils {
     public static final String WEBSUB_ERROR_CODE = "{ballerina/websub}WebSubError";
 
     static ObjectValue getHttpRequest(HttpCarbonMessage httpCarbonMessage) {
-        ObjectValue httpRequest = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, REQUEST);
-        ObjectValue inRequestEntity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
-        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+        ObjectValue httpRequest = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, REQUEST);
+        ObjectValue inRequestEntity = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
 
-
-        populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage);
+        populateInboundRequest(httpRequest, inRequestEntity, httpCarbonMessage);
         populateEntityBody(httpRequest, inRequestEntity, true, true);
         return httpRequest;
     }

@@ -27,8 +27,8 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_ID;
+import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 
 /**
  * {@code DataContext} is the wrapper to hold {@code Context} and {@code CallableUnitCallback}.
@@ -64,7 +64,7 @@ public class DataContext {
         } else if (httpConnectorError != null) {
             getCallback().setReturnValues(httpConnectorError);
         } else {
-            MapValue<String, Object> err = BallerinaValues.createRecordValue(PACKAGE_BALLERINA_BUILTIN,
+            MapValue<String, Object> err = BallerinaValues.createRecordValue(BALLERINA_BUILTIN_PKG_ID,
                                                                              STRUCT_GENERIC_ERROR);
             getCallback().setReturnValues(err);
         }

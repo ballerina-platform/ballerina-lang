@@ -14,16 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/subtyping version v1;
+import testorg/subtyping;
 
 type ObjWithPvtField abstract object {
-    string name = "";
-    private int ssn = 0;
+    string name;
+    private int ssn;
 };
 
 type ObjWithPvtMethod abstract object {
-    string name = "";
-    int ssn = 0;
+    string name;
+    int ssn;
 
     private function test();
 };

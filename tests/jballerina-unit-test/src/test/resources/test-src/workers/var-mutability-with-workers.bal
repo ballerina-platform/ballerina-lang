@@ -39,9 +39,11 @@ public function testWithTuples() returns [string, int] {
     worker w1 {
       str = "Changed inside worker 1!!!";
       i = i + 40;
+      i -> w2;
     }
 
     worker w2 returns int {
+      int j = <- w1;
       i = 100 + i;
       str = str + " -- Changed inside worker 2!!!";
       return i;
@@ -51,20 +53,24 @@ public function testWithTuples() returns [string, int] {
     return [str, i];
 }
 
+const TOKEN = "token";
 public function testWithMaps() returns map<string> {
     map<string> m1 = {a: "A", b: "B", c: "C", d: "D"};
     worker w1 {
       m1["e"] = "EE";
       m1["a"] = "AA";
+      TOKEN -> w3;
     }
 
     worker w2 {
        m1["a"] = "AAA";
        m1["n"] = "N";
+       TOKEN -> w3;
     }
 
      worker w3 {
-        _ = wait {w1, w2};
+        _ = <- w1;
+        _ = <- w2;
         m1["e"] = "EEE";
         m1["a"] = "AAAA";
      }
@@ -88,9 +94,7 @@ public function complexWorkerTest() returns [int, map<string>] {
             int j = 100 * 2;
             i = j;
             m1["b"] = "BB";
-        }
 
-        worker w5 {
             i = i + 50;
             m1["m"] = "M";
             fork {
@@ -104,7 +108,7 @@ public function complexWorkerTest() returns [int, map<string>] {
         }
 
       }
-      _ = wait {w4, w5};
+      _ = wait w4;
     }
     _ = wait w1;
 
@@ -133,11 +137,17 @@ public function testWithRecords() returns Student {
        stu.email = "adamp@gmail.com";
     }
 
-     worker w3 {
-        stu.email = "adamp@wso2.com";
-     }
+    // worker w3 {
+    //    wait w2;
+    //    stu.email = "adamp@wso2.com";
+    //}
 
-    _ = wait {w1, w2, w3};
+    var f = function () {
+        wait w2;
+        stu.email = "adamp@wso2.com";
+    };
+    var fw = start f();
+    _ = wait {w1, w2, fw};
 
     return stu;
 }
@@ -165,10 +175,11 @@ public function testWithObjects() returns Person {
        p1.age = 25;
     }
 
-     worker w3 {
+    var f = function () {
         _ = wait {w1, w2};
         p1 = new(40, "Adam", "Adam Adam Page");
-     }
+    };
+    future<()> w3 = start f();
 
     _ = wait {w1, w2, w3};
     return p1;

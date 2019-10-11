@@ -21,13 +21,13 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -78,7 +78,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
-            ObserverContext observerContext = null;
+            ObserverContext observerContext;
             Map<String, Object> properties = new HashMap<>();
             if (ObserveUtils.isObservabilityEnabled()) {
                 observerContext = new ObserverContext();
@@ -87,7 +87,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 // TODO: extract span context as a map and add to the observer context
                 properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             }
-            //TODO this is temp fix till we get the service.start() API
+
             Executor.submit(wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
                             balResource.getName(), new OnUpgradeResourceCallableUnitCallback(
                             webSocketHandshaker, wsService), properties, signatureParams);
@@ -100,7 +100,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         private final WebSocketHandshaker webSocketHandshaker;
         private final WebSocketService wsService;
 
-        public OnUpgradeResourceCallableUnitCallback(WebSocketHandshaker webSocketHandshaker,
+        OnUpgradeResourceCallableUnitCallback(WebSocketHandshaker webSocketHandshaker,
                                                      WebSocketService wsService) {
             this.webSocketHandshaker = webSocketHandshaker;
             this.wsService = wsService;

@@ -42,13 +42,20 @@ public class GrpcBaseTest extends BaseTest {
         String publicCert = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
                                                                    "public.crt").toAbsolutePath().toString());
         int[] requiredPorts = new int[]{9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101, 9102, 9103,
-                9104, 9105};
+                9104, 9105, 9107};
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "grpc").getAbsolutePath();
-        String[] args = new String[] { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert };
+        String keyStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
+                        .toString());
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+        String[] args = new String[] { "--certificate.key=" + privateKey, "--public.cert=" + publicCert,
+                "--keystore=" + keyStore, "--truststore=" + trustStore };
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFile, "grpcservices", args, requiredPorts);
+        serverInstance.startServer(balFile, "grpcservices", null, args, requiredPorts);
     }
 
     @AfterGroups(value = "grpc-test", alwaysRun = true)

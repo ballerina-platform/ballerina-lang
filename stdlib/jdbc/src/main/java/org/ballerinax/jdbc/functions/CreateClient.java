@@ -26,6 +26,7 @@ import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.PoolKey;
 import org.ballerinax.jdbc.datasource.PoolOptionsWrapper;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
+import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -53,6 +54,11 @@ public class CreateClient {
     public static ObjectValue createSQLDBClient(MapValue<String, Object> clientEndpointConfig,
             MapValue<String, Object> globalPoolOptions) {
         String url = clientEndpointConfig.getStringValue(Constants.EndpointConfig.URL);
+
+        if (!isJdbcUrlValid(url)) {
+            throw ErrorGenerator.getSQLApplicationError("invalid JDBC URL: " + url);
+        }
+
         String username = clientEndpointConfig.getStringValue(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringValue(Constants.EndpointConfig.PASSWORD);
         MapValue<String, Object> dbOptions = (MapValue<String, Object>) clientEndpointConfig
@@ -73,9 +79,17 @@ public class CreateClient {
 
         SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
                 .retrieveDatasource(sqlDatasourceParams);
-        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_PATH, Constants.JDBC_CLIENT);
+        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_ID, Constants.JDBC_CLIENT);
         sqlClient.addNativeData(Constants.JDBC_CLIENT, sqlDatasource);
         return sqlClient;
+    }
+
+    // Unable to perform a complete validation since URL differs based on the database.
+    private static boolean isJdbcUrlValid(String jdbcUrl) {
+        boolean isJdbcUrlEmpty = jdbcUrl.isEmpty();
+        String[] splitComponents = jdbcUrl.split(":");
+        return !isJdbcUrlEmpty && splitComponents.length > 2 && "jdbc"
+                .equals(splitComponents[0].toLowerCase(Locale.getDefault()));
     }
 
     private CreateClient() {

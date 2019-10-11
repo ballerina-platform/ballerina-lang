@@ -275,56 +275,50 @@ public class SealedArrayTest {
                 "matched float array", "Couldn't match unsealed array type");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testNegativeSealedArrays() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 24);
+        Assert.assertEquals(resultNegative.getErrorCount(), 23);
         int i = 0;
-        BAssertUtil.validateError(resultNegative, i++, "array index out of range: index: '5', size: '5'", 19, 30);
-        BAssertUtil.validateError(resultNegative, i++, "array index out of range: index: '5', size: '5'", 25, 33);
-        BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '4', but found '3'", 30, 31);
-        BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '4', but found '5'", 31, 31);
-        BAssertUtil.validateError(
-                resultNegative, i++, "array index out of range: index: '5', size: '5'", 37, 18);
-        BAssertUtil.validateError(
-                resultNegative, i++, "variable 'sealedArray1' is not initialized", 37, 5);
-        BAssertUtil.validateError(
-                resultNegative, i++, "array index out of range: index: '5', size: '5'", 38, 18);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of sealed type: array not initialized", 39, 5);
-        BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'", 46, 17);
-        BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected 'boolean[4]', found 'boolean[3]'", 52, 47);
-        BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected 'string[2]', found 'string[]'", 52, 34);
-        BAssertUtil.validateError(
-                resultNegative, i++, "ambiguous type '(int|int[]|int[4])'", 63, 30);
-        BAssertUtil.validateError(
-                resultNegative, i++, "ambiguous type '(int|int[]|int[4]|int[5])'", 65, 40);
-        BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '4', but found '2'", 79, 18);
-        BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '4', but found '5'", 80, 18);
-        BAssertUtil.validateError(
-                resultNegative, i++, "array index out of range: index: '4', size: '4'", 83, 8);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of sealed type: can not infer array size", 85, 18);
-        BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 87, 18);
-        BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected 'int', found 'S1|S2'", 106, 20);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid array index expression: value space '3|4|5' out of range", 107, 20);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid array index expression: value space '3|4|5' out of range", 108, 23);
-        BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected 'int', found '0|1|2|S1'", 109, 20);
-        BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected 'int', found '(0|1|2|S1|S3)'", 110, 20);
-        BAssertUtil.validateError(
-                resultNegative, i, "invalid array index expression: value space '3|4|5|7' out of range", 111, 23);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 19, 30);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 25, 33);
+        BAssertUtil.validateError(resultNegative, i++, "size mismatch in sealed array. expected '4', but found '3'",
+                30, 31);
+        BAssertUtil.validateError(resultNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
+                31, 31);
+        // TODO: {enableCodeAnalyzerTests} following won't get captured after (typeChecker, semanticAnalyzer) &
+        //  codeAnalyzer separation.
+        //
+        //        BAssertUtil.validateError(resultNegative, i++,
+        //                "variable 'sealedArray1' is not initialized", 37, 5);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 37, 18);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 38, 18);
+        BAssertUtil.validateError(resultNegative, i++, "invalid usage of sealed type: array not initialized", 39, 5);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'", 46, 17);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string[2]', found 'string[]'",
+                52, 34);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'boolean[4]', found " +
+                "'boolean[3]'", 52, 47);
+        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(int|int[]|int[4])'", 63, 30);
+        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(int|int[]|int[4]|int[5])'", 65, 40);
+        BAssertUtil.validateError(resultNegative, i++, "size mismatch in sealed array. expected '4', but found '2'",
+                79, 18);
+        BAssertUtil.validateError(resultNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
+                80, 18);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '4'", 83, 8);
+        BAssertUtil.validateError(resultNegative, i++, "invalid usage of sealed type: can not infer array size", 85,
+                18);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 87,
+                18);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'S1|S2'", 106, 20);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list index expression: value space '3|4|5' out of " +
+                "range", 107, 20);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list index expression: value space '3|4|5' out of " +
+                "range", 108, 23);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '0|1|2|S1'", 109, 20);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '(0|1|2|S1|S3)'",
+                110, 20);
+        BAssertUtil.validateError(resultNegative, i, "invalid list index expression: value space '(3|4|5|7)' out of " +
+                "range", 111, 23);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",
@@ -357,8 +351,8 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}IndexOutOfRange message=failed to set element to json: message=array index" +
-                            " out of range: index: 4, size: 3.*")
+                    "error: \\{ballerina/lang.array\\}IndexOutOfRange message=failed to set element to json: " +
+                            "message=array index out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
         BInteger bInteger = new BInteger(1);
         BInteger bInteger2 = new BInteger(4);
@@ -403,8 +397,8 @@ public class SealedArrayTest {
     }
 
     @Test(description = "Test accessing invalid index of sealed array of constrained map",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 3, size: 3.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 3, size: 3.*")
     public void testSealedArrayConstrainedMapInvalidIndex() {
         BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
         bIntArray.add(0, 1);

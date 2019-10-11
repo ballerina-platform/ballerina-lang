@@ -1,6 +1,5 @@
-import ballerina/io;
-import ballerina/'lang\.int as ints;
-import ballerina/'lang\.float as floats;
+import ballerina/lang.'float as floats;
+import ballerina/lang.'int as ints;
 
 int add = 0;
 int index = 0;

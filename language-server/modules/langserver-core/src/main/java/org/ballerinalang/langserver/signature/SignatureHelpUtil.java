@@ -25,10 +25,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -91,9 +91,11 @@ import static org.ballerinalang.langserver.util.TokensUtil.searchTokenAtCursor;
  */
 public class SignatureHelpUtil {
     private static final String COMMA = ",";
+    private static final String SEMI_COLON = ";";
     private static final String EQUAL = "=";
     private static final String INIT_SYMBOL = ".__init";
     private static final Pattern KEY_VALUE_PATTERN = Pattern.compile(".*(?:\\:\\s)([^\\(\\)]+\\(.*\\))[,]?");
+    private static final Pattern EMPTY_FUNCTION_PATTERN = Pattern.compile("^(.*\\(\\))[;]{0,1}$", Pattern.DOTALL);
 
     private SignatureHelpUtil() {
     }
@@ -103,17 +105,23 @@ public class SignatureHelpUtil {
      *
      * @param serviceContext    Text Document service context instance for the signature help operation
      * @return A {@link Pair} of function path and parameter count
-     * @throws LSCompilerException when compilation fails
+     * @throws CompilationFailedException when compilation fails
      */
     public static Pair<Optional<String>, Integer> getFunctionInvocationDetails(LSServiceOperationContext serviceContext)
-            throws LSCompilerException {
+            throws CompilationFailedException {
         int paramIndex = 0;
         int cursorTokenIndex = serviceContext.get(SourcePruneKeys.CURSOR_TOKEN_INDEX_KEY);
 
         // Generate function invocation from the source pruned text
         String funcInvocation = String.join("", getSourcePrunedFunctionInvocation(serviceContext));
         boolean isInsideFuncInvocation = COMMA.equals(funcInvocation);
-        boolean isEmptyFuncInvocation = funcInvocation.isEmpty();
+        Matcher m = EMPTY_FUNCTION_PATTERN.matcher(funcInvocation);
+        boolean isEmptyFuncInvocation = funcInvocation.isEmpty(); // matches functions like 'io:println('
+        boolean isEmptyFuncInovcPattern = m.matches(); // matches functions like 'io:println()'
+        if (isEmptyFuncInovcPattern && funcInvocation.endsWith(SEMI_COLON)) {
+            // Remove semi-colon(;) if not exists
+            funcInvocation = funcInvocation.substring(0, funcInvocation.lastIndexOf(SEMI_COLON));
+        }
 
         // Visit LHS of the tokens to get function invocation statement
         int rightParenthesisCount = (isInsideFuncInvocation || isEmptyFuncInvocation) ? 1 : 0;
@@ -159,6 +167,7 @@ public class SignatureHelpUtil {
                     break;
                 }
             }
+            paramIndex += StringUtils.countMatches(funcInvocation, ',');
             Collections.reverse(collected);
             List<String> flatTokensText = collected.stream().map(Token::getText).collect(Collectors.toList());
             funcInvocation = String.join("", flatTokensText) + ")";
@@ -246,8 +255,8 @@ public class SignatureHelpUtil {
     }
 
     private static Optional<String> parseAndGetFunctionInvocationPath(String subRule, LSServiceOperationContext context)
-            throws LSCompilerException {
-        Optional<BLangPackage> bLangPackage = LSCompiler.compileContent(subRule, CompilerPhase.CODE_ANALYZE)
+            throws CompilationFailedException {
+        Optional<BLangPackage> bLangPackage = ExtendedLSCompiler.compileContent(subRule, CompilerPhase.CODE_ANALYZE)
                 .getBLangPackage();
 
         if (!bLangPackage.isPresent()) {
@@ -454,7 +463,7 @@ public class SignatureHelpUtil {
                                            String nodeName) {
         String pkgAlias = identifierNode.getValue();
         if (!pkgAlias.isEmpty()) {
-            Optional<BLangImportPackage> optImport = CommonUtil.getCurrentModuleImports(context).stream()
+            Optional<BLangImportPackage> optImport = CommonUtil.getCurrentFileImports(context).stream()
                     .filter(p -> pkgAlias.equals(p.alias.value))
                     .findFirst();
             nodeName = (optImport.isPresent() ? optImport.get().getQualifiedPackageName() : pkgAlias) + ":" + nodeName;
@@ -481,7 +490,12 @@ public class SignatureHelpUtil {
         docAttachment.parameters.forEach(attribute ->
                 paramDescMap.put(attribute.getName(), attribute.getDescription()));
 
-        bInvokableSymbol.getParameters().forEach(bVarSymbol -> {
+        List<BVarSymbol> parameters = bInvokableSymbol.getParameters();
+        if (bInvokableSymbol.restParam != null) {
+            parameters.add(bInvokableSymbol.restParam);
+        }
+
+        parameters.forEach(bVarSymbol -> {
             ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
             parameterInfoModel.setParamType(bVarSymbol.getType().toString());
             parameterInfoModel.setParamValue(bVarSymbol.getName().getValue());

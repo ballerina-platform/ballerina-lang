@@ -657,7 +657,7 @@ public class ASTBuilderUtil {
         BLangIdentifier nameNode = (BLangIdentifier)  TreeBuilder.createIdentifierNode();
 
         nameNode.setLiteral(false);
-        nameNode.setValue(Names.OBJECT_INIT_SUFFIX.getValue());
+        nameNode.setValue(Names.USER_DEFINED_INIT_SUFFIX.getValue());
         invocationNode.name = nameNode;
         invocationNode.pkgAlias = pkgNameNode;
 
@@ -716,16 +716,36 @@ public class ASTBuilderUtil {
         return fieldAccessExpr;
     }
 
-    public static BLangFunction createInitFunction(DiagnosticPos pos, String name, Name sufix) {
-        BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        initFunction.setName(createIdentifier(name + sufix.getValue()));
-        initFunction.flagSet = EnumSet.of(Flag.PUBLIC);
-        initFunction.pos = pos;
-
+    public static BLangFunction createInitFunctionWithNilReturn(DiagnosticPos pos, String name, Name suffix) {
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         typeNode.pos = pos;
         typeNode.typeKind = TypeKind.NIL;
-        initFunction.returnTypeNode = typeNode;
+        return createInitFunction(pos, name, suffix, typeNode);
+    }
+
+    static BLangFunction createInitFunctionWithErrorOrNilReturn(DiagnosticPos pos, String name, Name suffix,
+                                                                       SymbolTable symTable) {
+        if (symTable.errorOrNilType == null) {
+            // The error type may not have been loaded when compiling modules such as annotations.
+            // Such modules are builtin and can never return error, so we set a nil returning init function.
+            return createInitFunctionWithNilReturn(pos, name, suffix);
+        }
+
+        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        typeNode.pos = pos;
+        typeNode.typeKind = TypeKind.UNION;
+        typeNode.type = symTable.errorOrNilType;
+        return createInitFunction(pos, name, suffix, typeNode);
+    }
+
+    private static BLangFunction createInitFunction(DiagnosticPos pos, String name, Name suffix,
+                                                    BLangValueType returnTypeNode) {
+        BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
+        initFunction.setName(createIdentifier(name + suffix.getValue()));
+        initFunction.flagSet = EnumSet.of(Flag.PUBLIC);
+        initFunction.pos = pos;
+
+        initFunction.returnTypeNode = returnTypeNode;
 
         // Create body of the init function
         BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();

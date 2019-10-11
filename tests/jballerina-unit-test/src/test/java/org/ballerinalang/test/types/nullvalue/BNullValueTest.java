@@ -29,22 +29,28 @@ import org.testng.annotations.Test;
  */
 public class BNullValueTest {
 
-    private CompileResult result;
+    private CompileResult resultNegative, resultSemanticsNegative;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/null/null-value-negative.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/null/null-value-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile("test-src/types/null/null-value-semantics-negative.bal");
+    }
+
+    @Test(description = "Test negative test cases")
+    void testNullValueSemanticsNegative() {
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 5);
+        BAssertUtil.validateError(resultSemanticsNegative, 0, "operator '>' not defined for '()' and 'xml?'", 12, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, 1, "incompatible types: expected 'int', found '()'", 16, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, 2, "operator '+' not defined for '()' and '()'", 20, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, 3, "incompatible types: expected 'string', found '()'", 24
+                , 16);
+        BAssertUtil.validateError(resultSemanticsNegative, 4, "operator '+' not defined for '()' and '()'", 32, 13);
     }
 
     @Test(description = "Test negative test cases")
     void testNullValueNegative() {
-        Assert.assertEquals(result.getErrorCount(), 7);
-        BAssertUtil.validateError(result, 0, "operator '>' not defined for '()' and 'xml?'", 12, 13);
-        BAssertUtil.validateError(result, 1, "incompatible types: expected 'int', found '()'", 16, 13);
-        BAssertUtil.validateError(result, 2, "operator '+' not defined for '()' and '()'", 20, 13);
-        BAssertUtil.validateError(result, 3, "'null' literal is only supported for 'json'", 20, 13);
-        BAssertUtil.validateError(result, 4, "'null' literal is only supported for 'json'", 20, 20);
-        BAssertUtil.validateError(result, 5, "incompatible types: expected 'string', found '()'", 24, 16);
-        BAssertUtil.validateError(result, 6, "operator '+' not defined for '()' and '()'", 32, 13);
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultNegative, 0, "'null' literal is only supported for 'json'", 20, 12);
     }
 }

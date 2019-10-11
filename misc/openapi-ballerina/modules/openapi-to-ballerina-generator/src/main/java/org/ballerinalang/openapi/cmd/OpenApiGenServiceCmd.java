@@ -1,8 +1,8 @@
 package org.ballerinalang.openapi.cmd;
 
 import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.OpenApiMesseges;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
-import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -16,6 +16,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.ballerinalang.openapi.OpenApiMesseges.DEFINITION_EXISTS;
+import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_MODULE_ARGS_REQUIRED;
+import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_MODULE_REQUIRED;
+import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_PROJECT_ROOT;
+import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_SERVICE_NAME_REQUIRED;
+import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_DIRECTORY_EXCEPTION;
+import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_MD_EXCEPTION;
+import static org.ballerinalang.openapi.OpenApiMesseges.RESOURCE_DIRECTORY_EXCEPTION;
+import static org.ballerinalang.openapi.OpenApiMesseges.TESTS_DIRECTORY_EXCEPTION;
+
 /**
  * Class to implement "openapi gen-service" command for ballerina.
  * Ex: ballerina openapi gen-service module:serviceName contract
@@ -23,14 +33,15 @@ import java.util.List;
 
 /**
  * This class will implement the "openapi" sub-command "gen-service" for Ballerina OpenApi tool.
- *
+ * <p>
  * Ex: ballerina openapi gen-service moduleName:serivceName [-c: copy-contract] [-o: outputFile]
  */
 @CommandLine.Command(name = "gen-service")
 public class OpenApiGenServiceCmd implements BLauncherCmd {
-    private static final String CMD_NAME = "openapi";
+    private static final String CMD_NAME = "openapi-gen-service";
 
-    private static final PrintStream outStream = System.err;
+    private PrintStream outStream;
+    private String executionPath;
 
     @CommandLine.Parameters(index = "0", split = ":")
     private List<String> moduleArgs;
@@ -38,19 +49,31 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
     @CommandLine.Parameters(index = "1..*")
     private List<String> argList;
 
-    @CommandLine.Option(names = {"-c", "--skip-bind"},
-            description = "Do you want to copy the contract in to the project?")
+    @CommandLine.Option(names = {"-s", "--skip-bind"}, description = "Skip copying of the used contract to project")
     boolean skipBind = false;
 
-    @CommandLine.Option(names = { "-o", "--output" }, description = "where to write the generated " +
+    @CommandLine.Option(names = {"-o", "--output"}, description = "where to write the generated " +
             "files (current dir by default)")
     private String output = "";
 
-    @CommandLine.Option(names = { "-h", "--help" }, hidden = true)
+    @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
+
+    public OpenApiGenServiceCmd() {
+        this.outStream = System.err;
+        this.executionPath = System.getProperty("user.dir");
+    }
+
+    public OpenApiGenServiceCmd(PrintStream outStream, String executionPath) {
+        this.outStream = outStream;
+        this.executionPath = executionPath;
+    }
 
     @Override
     public void execute() {
+        //User notification of using an experimental tool
+        outStream.println(OpenApiMesseges.EXPERIMENTAL_FEATURE);
+
         CodeGenerator generator = new CodeGenerator();
 
         //Check if cli help argument is present
@@ -61,65 +84,94 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         }
 
         //Check if a module name is present
-        if (moduleArgs.size() < 2) {
-            throw LauncherUtils.createLauncherException("A module name is required to successfully " +
-                    "generate the service from the provided OpenApi contract. " +
-                    "\nE.g ballerina openapi gen-service <modulename>:<servicename>");
+        if (moduleArgs == null || moduleArgs.size() < 2) {
+            throw LauncherUtils.createLauncherException(GEN_SERVICE_MODULE_ARGS_REQUIRED);
+        } else {
+            if (moduleArgs.get(0).trim().isEmpty()) {
+                throw LauncherUtils.createLauncherException(GEN_SERVICE_MODULE_REQUIRED);
+            } else if (moduleArgs.get(1).trim().isEmpty()) {
+                throw LauncherUtils.createLauncherException(GEN_SERVICE_SERVICE_NAME_REQUIRED);
+            }
         }
 
-        //Check if relevant arguments are present
+        //Check if an OpenApi definition is provided
         if (argList == null) {
-            throw LauncherUtils.createLauncherException("An OpenApi definition file is required to " +
-                    "generate the service. \nE.g: ballerina openapi gen-service " + moduleArgs.get(0) + ":"
+            throw LauncherUtils.createLauncherException("An OpenApi definition file is required to generate the " +
+                    "service. \nE.g: ballerina openapi gen-service " + moduleArgs.get(0) + ":"
                     + moduleArgs.get(1) + " <OpenApiContract>");
         }
 
-        final Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(System.getProperty("user.dir")));
+        final Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(executionPath));
         if (projectRoot == null) {
-            // TODO: Better throw a meaningful exception
-            return;
+            throw LauncherUtils.createLauncherException(GEN_SERVICE_PROJECT_ROOT);
         }
         final Path sourceDirectory = projectRoot.resolve("src");
         final Path moduleDirectory = sourceDirectory.resolve(moduleArgs.get(0));
         final Path resourcesDirectory = Paths.get(moduleDirectory + "/resources");
+        final Path testsDirectory = Paths.get(moduleDirectory + "/tests");
         final File openApiFile = new File(argList.get(0));
         final String openApiFilePath = openApiFile.getPath();
         Path resourcePath = Paths.get(resourcesDirectory + "/" + openApiFile.getName());
 
-        //TODO Accept user confirmation to copy the contract in to the ballerina porject.
-        if (!skipBind) {
-            //Check if OpenApi contract file exists
-            if (Files.notExists(Paths.get(openApiFilePath))) {
-                throw LauncherUtils.createLauncherException("Could not resolve a valid OpenApi" +
-                        " contract in " + openApiFilePath);
-            }
+        //Check provided OpenApi file is a valid and existing one
+        if (Files.notExists(Paths.get(openApiFilePath))) {
+            throw LauncherUtils.createLauncherException("Could not resolve a valid OpenApi" +
+                    " contract in " + openApiFilePath);
+        }
 
-            if (Files.notExists(sourceDirectory)) {
-                try {
-                    Files.createDirectory(sourceDirectory);
-                } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+        if (Files.notExists(moduleDirectory)) {
+            try {
+                Files.createDirectory(moduleDirectory);
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException(MODULE_DIRECTORY_EXCEPTION + "\n"
+                        + e.getLocalizedMessage());
+            }
+        }
+
+        File moduleMd = new File(moduleDirectory + "/Module.md");
+        if (!moduleMd.exists()) {
+            try {
+                boolean createMd = true;
+                createMd = moduleMd.createNewFile();
+
+                if (!createMd) {
+                    throw LauncherUtils.createLauncherException(MODULE_MD_EXCEPTION);
                 }
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException(MODULE_MD_EXCEPTION + "\n"
+                        + e.getLocalizedMessage());
             }
+        }
 
-            if (Files.notExists(moduleDirectory)) {
-                try {
-                    Files.createDirectory(moduleDirectory);
-                } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
-                }
+        // Check for tests folder in ballerina module root
+        if (Files.notExists(testsDirectory)) {
+            try {
+                Files.createDirectory(testsDirectory);
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException(TESTS_DIRECTORY_EXCEPTION + "\n"
+                        + e.getLocalizedMessage());
             }
+        }
 
-            //Check for resources folder in ballerina project root
+        if (skipBind) {
+            try {
+                resourcePath = Paths.get(openApiFile.getCanonicalPath());
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+            }
+        } else {
+            // Check for resources folder in ballerina module root
             if (Files.notExists(resourcesDirectory)) {
                 try {
                     Files.createDirectory(resourcesDirectory);
                 } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+                    throw LauncherUtils.createLauncherException(RESOURCE_DIRECTORY_EXCEPTION + "\n"
+                            + e.getLocalizedMessage());
                 }
             }
 
-            //If file
+            // If OpenAPI contract by the same name doesn't exist in the resource folder continue to copy.
+            // Else throw an exception.
             if (Files.notExists(resourcePath)) {
                 try {
                     Files.copy(Paths.get(openApiFilePath), resourcePath);
@@ -127,24 +179,31 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
                     throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
                 }
             } else {
-                throw LauncherUtils.createLauncherException("There is already an OpenApi contract in the location "
-                        + resourcesDirectory);
+                throw LauncherUtils.createLauncherException(DEFINITION_EXISTS
+                        + " " + resourcesDirectory);
             }
+        }
 
+        if (output.isEmpty()) {
+            output = executionPath;
         }
 
         //Set source package for the generated service
         generator.setSrcPackage(moduleArgs.get(0));
 
-        try {
-            generator.generate(GeneratorConstants.GenType.valueOf("GEN_SERVICE"),
-                    resourcePath.toString(), moduleArgs.get(1), output);
-        } catch (IOException | BallerinaOpenApiException e) {
-            throw LauncherUtils.createLauncherException(
-                    "Error occurred when generating service for openapi contract at " + argList.get(0)
-                            + ". " + e.getMessage() + ".");
-        }
+        //TODO Fix relative path compiler plugin issue
+        //Set relative path for contract path which will be printed on the generated service bal file
+        //Path absPath = Paths.get(resourcePath.toString());
+        //Path basePath = Paths.get(output);
+        //Path pathRelative = basePath.relativize(absPath);
 
+        try {
+            generator.generateService(executionPath, resourcePath.toString(), resourcePath.toString(),
+                    moduleArgs.get(1), output);
+        } catch (IOException | BallerinaOpenApiException e) {
+            throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
+                    "contract at " + argList.get(0) + ". " + e.getMessage() + ".");
+        }
     }
 
     @Override

@@ -45,26 +45,28 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  * @since 0.995
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "nats",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.NATS,
         functionName = "externRequest",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Producer", structPackage = "ballerina/nats"),
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = "Producer",
+                structPackage = Constants.NATS_PACKAGE),
         isPublic = true
 )
 public class Request {
 
     @SuppressWarnings("unused")
     public static Object externRequest(Strand strand, ObjectValue producerObject, String subject, Object data,
-                                 Object duration) {
-        Object connection = producerObject.get("connection");
+                                       Object duration) {
+        Object connection = producerObject.get("conn");
 
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
 
             if (natsConnection == null) {
-                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while publishing message to " +
-                        "subject " + subject + ". NATS connection doesn't exist.");
+                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
+                        ". NATS connection doesn't exist.");
             }
             byte[] byteContent = convertDataIntoByteArray(data);
             try {
@@ -76,18 +78,21 @@ public class Request {
                     reply = incoming.get();
                 }
                 ArrayValue msgData = new ArrayValue(reply.getData());
-                ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
+                ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                         Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(), msgData, reply.getReplyTo());
                 msgObj.addNativeData(Constants.NATS_MSG, reply);
                 return msgObj;
-            } catch (IllegalArgumentException | IllegalStateException | InterruptedException
-                    | ExecutionException | TimeoutException ex) {
+            } catch (IllegalArgumentException | IllegalStateException | ExecutionException | TimeoutException ex) {
+                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while requesting message to " +
+                        "subject " + subject + ". " + ex.getMessage());
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while requesting message to " +
                         "subject " + subject + ". " + ex.getMessage());
             }
         } else {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while publishing message to " +
-                    "subject " + subject + ". Producer is logically disconnected.");
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
+                    ". Producer is logically disconnected.");
         }
     }
 }

@@ -1,0 +1,2 @@
+// Here is an example in which we create a Kafka consumer service
+// with manual offset commits.

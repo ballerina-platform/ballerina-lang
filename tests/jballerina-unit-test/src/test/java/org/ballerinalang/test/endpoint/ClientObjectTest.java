@@ -80,7 +80,7 @@ public class ClientObjectTest {
 
     @Test
     public void testReferringEndpointInDifferentPkg() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/endpoint", "pkg.bc");
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/endpoint/pkg", "pkg.bc");
 
         BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
         Assert.assertEquals(result.length, 1);
@@ -124,9 +124,6 @@ public class ClientObjectTest {
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
                                93, 13);
-        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 100, 12);
-        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 107, 13);
-
         BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 112, 5);
         BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 121, 5);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);

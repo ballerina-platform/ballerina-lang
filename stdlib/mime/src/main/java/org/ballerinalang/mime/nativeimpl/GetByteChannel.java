@@ -34,9 +34,10 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import static org.ballerinalang.mime.nativeimpl.AbstractGetPayloadHandler.getErrorMsg;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_IO_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
@@ -57,7 +58,7 @@ public class GetByteChannel {
     public static Object getByteChannel(Strand strand, ObjectValue entityObj) {
         ObjectValue byteChannelObj;
         try {
-            byteChannelObj = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_IO, READABLE_BYTE_CHANNEL_STRUCT);
+            byteChannelObj = BallerinaValues.createObjectValue(PROTOCOL_IO_PKG_ID, READABLE_BYTE_CHANNEL_STRUCT);
             populateEntityWithByteChannel(entityObj);
             Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
             if (byteChannel != null) {
@@ -76,9 +77,9 @@ public class GetByteChannel {
                     return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Byte channel is not available as payload");
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable err) {
             return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
-                    "Error occurred while constructing byte channel from entity body : " + e.getMessage());
+                    "Error occurred while constructing byte channel from entity body : " + getErrorMsg(err));
         }
     }
 

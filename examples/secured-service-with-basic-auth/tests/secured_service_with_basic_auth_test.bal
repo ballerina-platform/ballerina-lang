@@ -3,27 +3,12 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/test;
 
-function startService() {
-    config:setConfig("b7a.users.tom.password", "password1");
-    config:setConfig("b7a.users.tom.scopes", "scope2,scope3");
-    config:setConfig("b7a.users.dick.password", "password2");
-    config:setConfig("b7a.users.dick.scopes", "scope1");
-}
-
-@test:Config {
-    before: "startService"
-}
-function testFunc() {
-    testAuthSuccess();
-    testAuthnFailure();
-    testAuthzFailure();
-}
-
+@test:Config {}
 function testAuthSuccess() {
     // Creates a client.
-    auth:OutboundBasicAuthProvider outboundBasicAuthProvider1 = new({ username: "tom", password: "password1" });
+    auth:OutboundBasicAuthProvider outboundBasicAuthProvider1 = new({ username: "generalUser2", password: "password" });
     http:BasicAuthHandler outboundBasicAuthHandler1 = new(outboundBasicAuthProvider1);
-    http:Client httpEndpoint = new("https://localhost:9090", config = {
+    http:Client httpEndpoint = new("https://localhost:9090", {
         auth: {
             authHandler: outboundBasicAuthHandler1
         }
@@ -38,11 +23,12 @@ function testAuthSuccess() {
     }
 }
 
+@test:Config {}
 function testAuthnFailure() {
     // Creates a client.
-    auth:OutboundBasicAuthProvider outboundBasicAuthProvider2 = new({ username: "tom", password: "password" });
+    auth:OutboundBasicAuthProvider outboundBasicAuthProvider2 = new({ username: "invalidUser", password: "password" });
     http:BasicAuthHandler outboundBasicAuthHandler2 = new(outboundBasicAuthProvider2);
-    http:Client httpEndpoint = new("https://localhost:9090", config = {
+    http:Client httpEndpoint = new("https://localhost:9090", {
         auth: {
             authHandler: outboundBasicAuthHandler2
         }
@@ -57,11 +43,12 @@ function testAuthnFailure() {
     }
 }
 
+@test:Config {}
 function testAuthzFailure() {
     // Creates a client.
-    auth:OutboundBasicAuthProvider outboundBasicAuthProvider3 = new({ username: "dick", password: "password2" });
+    auth:OutboundBasicAuthProvider outboundBasicAuthProvider3 = new({ username: "generalUser1", password: "password" });
     http:BasicAuthHandler outboundBasicAuthHandler3 = new(outboundBasicAuthProvider3);
-    http:Client httpEndpoint = new("https://localhost:9090", config = {
+    http:Client httpEndpoint = new("https://localhost:9090", {
         auth: {
             authHandler: outboundBasicAuthHandler3
         }

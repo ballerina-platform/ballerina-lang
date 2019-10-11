@@ -64,10 +64,10 @@ public class InitServer {
             final long timeout = config.getIntValue(READ_TIMEOUT);
             listener.addNativeData(READ_TIMEOUT, timeout);
         } catch (SocketException e) {
-            return SocketUtils.createSocketError("Unable to bind the socket port");
+            return SocketUtils.createSocketError("unable to bind the socket port");
         } catch (IOException e) {
             log.error("Unable to initiate the socket listener", e);
-            return SocketUtils.createSocketError("Unable to initiate the socket listener");
+            return SocketUtils.createSocketError("unable to initiate the socket listener");
         }
         return null;
     }

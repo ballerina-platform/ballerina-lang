@@ -30,6 +30,8 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.ballerinalang.net.http.exception.WebSocketException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 /**
@@ -46,32 +48,38 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
         )
 )
 public class AcceptWebSocketUpgrade {
+    private static final Logger log = LoggerFactory.getLogger(AcceptWebSocketUpgrade.class);
 
-    public static ObjectValue acceptWebSocketUpgrade(Strand strand, ObjectValue connectionObj,
+    public static Object acceptWebSocketUpgrade(Strand strand, ObjectValue connectionObj,
                                                      MapValue<String, String> headers) {
-        WebSocketHandshaker webSocketHandshaker =
-                (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
-        WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) connectionObj
-                .getNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER);
-        if (webSocketHandshaker == null) {
-            throw new WebSocketException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
-        }
-        if (connectionManager == null) {
-            throw new WebSocketException("Cannot accept a WebSocket upgrade without WebSocket " +
-                    "connection manager");
-        }
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+        try {
+            WebSocketHandshaker webSocketHandshaker =
+                    (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+            WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) connectionObj
+                    .getNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER);
+            if (webSocketHandshaker == null) {
+                callback.notifyFailure(new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
+                                                              "Not a WebSocket upgrade request. Cannot upgrade from " +
+                                                                      "HTTP to WS"));
+                return null;
+            }
 
-        WebSocketService webSocketService = (WebSocketService) connectionObj.getNativeData(
-                WebSocketConstants.WEBSOCKET_SERVICE);
+            WebSocketService webSocketService = (WebSocketService) connectionObj.getNativeData(
+                    WebSocketConstants.WEBSOCKET_SERVICE);
 
-        DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
-        Object[] keys = headers.getKeys();
-        for (Object key : keys) {
-            httpHeaders.add(key.toString(), headers.get(key.toString()));
+            DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
+            Object[] keys = headers.getKeys();
+            for (Object key : keys) {
+                httpHeaders.add(key.toString(), headers.get(key.toString()));
+            }
+
+            WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker,
+                                          callback);
+        } catch (Exception e) {
+            log.error("Error when upgrading to WebSocket", e);
+            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
-
-        WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker,
-                                      new NonBlockingCallback(strand));
         return null;
     }
 

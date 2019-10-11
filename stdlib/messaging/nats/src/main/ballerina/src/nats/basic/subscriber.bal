@@ -13,20 +13,21 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/'lang\.object as lang;
+
+import ballerina/lang.'object as lang;
 
 # Represents a connection which will be used for subscription.
 public type Listener object {
 
-    *lang:AbstractListener;
-    private Connection connection;
+    *lang:Listener;
+    private Connection conn;
 
-    # Creates a new consumer. A new connection will be created if a refernece to a connection is not provided.
+    # Creates a new consumer. A new connection will be created if a reference to a connection is not provided.
     #
-    # + c - An already-established connection or configuration to create a new connection.
-    public function __init(Connection c) {
-        self.connection = c;
-        self.init(c);
+    # + connection - An already-established connection or configuration to create a new connection.
+    public function __init(Connection connection) {
+        self.conn = connection;
+        self.init(connection);
     }
 
     private function init(Connection c) = external;
@@ -40,9 +41,12 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     function register(service serviceType, string? name) returns error? = external;
 
-    # Starts the listener in the lifecyle.
+    # Starts the listener in the lifecycle.
     #
     # + return - Error or ().
     public function __start() returns error? {
@@ -51,12 +55,20 @@ public type Listener object {
 
     function start() = external;
 
-    # Stops the listener in the lifecyle.
+    # Gracefully stops the listener in the lifecycle.
     #
-    # + return - error or ().
-    public function __stop() returns error? {
-        return self.stop();
+    # + return - Error or ().
+    public function __gracefulStop() returns error? {
+        return self.gracefulStop();
     }
 
-    function stop() = external;
+    # Forcefully stops the listener in the lifecycle.
+    #
+    # + return - Error or ().
+    public function __immediateStop() returns error? {
+        return self.immediateStop();
+    }
+
+    function gracefulStop() = external;
+    function immediateStop() = external;
 };

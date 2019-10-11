@@ -14,7 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/subtyping version v1;
+import testorg/subtyping;
+import ballerinax/java.jdbc;
 
 type Person1 object {
     public string name = "sample name";
@@ -65,8 +66,8 @@ function testCastingRuntimeError() returns Person1 {
 }
 
 type AbstractPerson abstract object {
-    public string name = "";
-    public int age = 0;
+    public string name;
+    public int age;
 
     public function toString() returns string;
 };
@@ -147,4 +148,10 @@ type Dog object {
 function testSubtypingAnAbsObjectInSameModule() returns string {
     AbstractAnimal a = new Dog("Rocky", 10);
     return a.move(50);
+}
+
+// NOTE: There isn't a test case associated with this. Just want to ensure this scenario compiles fine.
+public function testReferencingObjectTypesAcrossModules() returns jdbc:Client {
+    jdbc:Client dbClient = subtyping:getClient();
+    return dbClient;
 }

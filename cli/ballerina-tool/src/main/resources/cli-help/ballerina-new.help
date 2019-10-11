@@ -1,21 +1,38 @@
 NAME
-    Ballerina new - Create a Ballerina project
+       ballerina-new - Create a new Ballerina project at <project-path>
 
 SYNOPSIS
-    ballerina new <project-name>
+       ballerina new <project-path>
+
 
 DESCRIPTION
-     Ballerina new command creates a new directory and initialize a
-     Ballerina project inside it.
+       New creates a new directory and initializes a Ballerina project inside
+       that directory.
 
-     The created set of artifacts includes a Ballerina.toml and Ballerina
-     project directory structure. You can use Ballerina.toml to manage
-     the organization setting and version for the project.
+       A project is a set of logically related Ballerina modules that share
+       the same 'Ballerina.toml', 'Ballerina.lock' files and the 'target'
+       directory.
 
-     Ballerina project is identified by the Ballerina.toml file. Ballerina
-     modules should be placed under src directory. 
+       The project directory will have the following structure.
+            .
+            ├── Ballerina.toml
+            ├── Ballerina.lock
+            ├── src
+            └── target
 
-EXAMPLES
-     Create a new project 
-     $ ballerina new my-project
+       Any directory becomes a Ballerina project if that directory has a
+       'Ballerina.toml' file. It contains the organization name and the
+       version. It also enables dependency management across the project.
+
+       The 'src' directory contains Ballerina modules. Use
+       'ballerina add <module-name>' command to create modules.
+
+       Both 'target' directory and 'Ballerina.lock' file are created during
+       the build process. The 'target' is the output directory that contains
+       build artifacts.
+
+       The 'Ballerina.lock' file will specify versions of the dependent modules.
+       If the 'Ballerina.lock' file exists the 'ballerina build' command will
+       use the specified versions instead of fetching the latest
+       versions of modules.
 

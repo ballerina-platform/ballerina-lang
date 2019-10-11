@@ -39,7 +39,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_ADDRESS;
 import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE_ID;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
 
 /**
@@ -49,7 +49,9 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
  */
 public class SocketUtils {
 
-    private static final String PACKAGE_SOCKET = "ballerina/socket";
+    private SocketUtils() {
+    }
+
     private static final String DETAIL_RECORD_TYPE_NAME = "Detail";
 
     /**
@@ -74,7 +76,7 @@ public class SocketUtils {
     }
 
     private static MapValue<String, Object> createDetailRecord(Object... values) {
-        MapValue<String, Object> detail = BallerinaValues.createRecordValue(PACKAGE_SOCKET, DETAIL_RECORD_TYPE_NAME);
+        MapValue<String, Object> detail = BallerinaValues.createRecordValue(SOCKET_PACKAGE_ID, DETAIL_RECORD_TYPE_NAME);
         return BallerinaValues.createRecord(detail, values);
     }
 
@@ -86,7 +88,7 @@ public class SocketUtils {
      */
     static ObjectValue createClient(SocketService socketService) {
         Object[] args = new Object[] { null };
-        final ObjectValue caller = BallerinaValues.createObjectValue(SOCKET_PACKAGE, CLIENT, args);
+        final ObjectValue caller = BallerinaValues.createObjectValue(SOCKET_PACKAGE_ID, CLIENT, args);
         caller.addNativeData(SOCKET_SERVICE, socketService);
         SocketChannel client = null;
         // An error can be thrown during the onAccept function. So there is a possibility of client not
@@ -126,14 +128,24 @@ public class SocketUtils {
      *
      * @param executorService {@link ExecutorService} that need shutdown
      */
-    public static void shutdownExecutor(ExecutorService executorService) {
+    public static void shutdownExecutorGracefully(ExecutorService executorService) {
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
+            if (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             executorService.shutdownNow();
         }
+    }
+
+    /**
+     * This will shutdown executor immediately.
+     *
+     * @param executorService {@link ExecutorService} that need shutdown
+     */
+    public static void shutdownExecutorImmediately(ExecutorService executorService) {
+        executorService.shutdownNow();
     }
 }

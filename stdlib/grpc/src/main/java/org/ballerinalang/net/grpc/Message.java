@@ -25,10 +25,12 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
 import java.util.Map;
@@ -380,7 +382,9 @@ public class Message {
         Descriptors.OneofDescriptor oneofDescriptor = fieldDescriptor.getContainingOneof();
         String msgType = oneofDescriptor.getContainingType().getName() + "_" + toCamelCase
                 (fieldDescriptor.getName());
-        MapValue<String, Object> bMsg = new MapValueImpl<>(new BRecordType(msgType, bType.getPackage(), 0, true));
+        int typeFlags = TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE);
+        MapValue<String, Object> bMsg =
+                new MapValueImpl<>(new BRecordType(msgType, bType.getPackage(), 0, true, typeFlags));
         bMsg.put(fieldDescriptor.getName(), bValue);
         return bMsg;
     }
@@ -1059,7 +1063,7 @@ public class Message {
     public String toString() {
         StringBuilder payload = new StringBuilder("Message : ");
         if (bMessage != null) {
-            payload.append("{ ").append(bMessage.toString()).append(" }");
+            payload.append("{ ").append(StringUtils.getJsonString(bMessage)).append(" }");
         } else {
             payload.append("null");
         }

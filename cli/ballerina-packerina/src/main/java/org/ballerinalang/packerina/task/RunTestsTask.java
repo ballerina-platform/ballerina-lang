@@ -18,26 +18,36 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.LogManager;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for executing tests.
  */
 public class RunTestsTask implements Task {
+
     @Override
     public void execute(BuildContext buildContext) {
-        Map<BLangPackage, JBallerinaInMemoryClassLoader> programFileMap = new HashMap<>();
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+
+        Map<BLangPackage, TestarinaClassLoader> programFileMap = new HashMap<>();
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
@@ -53,15 +63,42 @@ public class RunTestsTask implements Task {
                     //     <org-name>/<package-name>:<version>
                     //         No tests found
                 // }
-                Path jarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
-                JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(jarPath,
-                        Paths.get(System.getProperty("ballerina.home"), "bre", "lib").toFile());
+                Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
+                Path modulejarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID).getFileName();
+                // subsitute test jar if module jar if tests not exists
+                if (Files.notExists(jarPath)) {
+                    jarPath = modulejarPath;
+                }
+                String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
+                TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath,
+                        Paths.get(sourceRootPath.toString(), "target", "tmp").toFile(),
+                        modulejarName);
                 programFileMap.put(bLangPackage, classLoader);
             });
         // Create a class loader to
 
         if (programFileMap.size() > 0) {
-            TesterinaUtils.executeTests(sourceRootPath, programFileMap);
+            TesterinaUtils.executeTests(sourceRootPath, programFileMap, buildContext.out(), buildContext.err());
+        }
+    }
+
+    /**
+     * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
+     *
+     * @param sourceRootPath source directory
+     * @param configFilePath config file path
+     */
+    public static void loadConfigurations(Path sourceRootPath, String configFilePath) {
+        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
+        try {
+            ConfigRegistry.getInstance().initRegistry(new LinkedHashMap<>(), configFilePath,
+                                                      ballerinaConfPath);
+            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
+        } catch (IOException e) {
+            throw createLauncherException("failed to read the specified configuration file: " +
+                                                  ballerinaConfPath.toString());
+        } catch (RuntimeException e) {
+            throw createLauncherException(e.getMessage());
         }
     }
 }

@@ -2,7 +2,6 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/internal;
 
 // Creates an endpoint for the client.
 http:Client clientEP = new("http://localhost:9092");
@@ -45,7 +44,7 @@ service multipartResponseEncoder on new http:Listener(9092) {
             contentType = mime:MULTIPART_FORM_DATA);
         var result = caller->respond(outResponse);
         if (result is error) {
-            log:printError("Error in responding ", err = result);
+            log:printError("Error in responding ", result);
         }
     }
 }
@@ -66,7 +65,7 @@ service multipartResponseDecoder on multipartEP {
         var returnResult = clientEP->get("/multiparts/encode_out_response");
         http:Response res = new;
         if (returnResult is http:Response) {
-            // Extracts the bodyparts from the response.
+            // Extracts the body parts from the response.
             var parentParts = returnResult.getBodyParts();
             if (parentParts is mime:Entity[]) {
                 //Loops through body parts.
@@ -81,7 +80,7 @@ service multipartResponseDecoder on multipartEP {
         }
         var result = caller->respond(res);
         if (result is error) {
-            log:printError("Error in responding ", err = result);
+            log:printError("Error in responding ", result);
         }
     }
 }
@@ -89,7 +88,7 @@ service multipartResponseDecoder on multipartEP {
 // Gets the child parts that are nested within the parent.
 function handleNestedParts(mime:Entity parentPart) {
     string contentTypeOfParent = parentPart.getContentType();
-    if (internal:hasPrefix(contentTypeOfParent, "multipart/")) {
+    if (contentTypeOfParent.startsWith("multipart/")) {
         var childParts = parentPart.getBodyParts();
         if (childParts is mime:Entity[]) {
             log:printInfo("Nested Parts Detected!");
@@ -114,15 +113,15 @@ function handleContent(mime:Entity bodyPart) {
             string strValue = io:sprintf("%s", payload);
              log:printInfo("XML data: " + strValue);
         } else {
-             log:printError("Error in parsing XML data", err = payload);
+             log:printError("Error in parsing XML data", payload);
         }
     } else if (mime:APPLICATION_JSON == baseType) {
         // Extracts `json` data from the body part.
         var payload = bodyPart.getJson();
         if (payload is json) {
-            log:printInfo("JSON data: " + payload.toString());
+            log:printInfo("JSON data: " + payload.toJsonString());
         } else {
-             log:printError("Error in parsing JSON data", err = payload);
+             log:printError("Error in parsing JSON data", payload);
         }
     } else if (mime:TEXT_PLAIN == baseType) {
         // Extracts text data from the body part.
@@ -130,7 +129,7 @@ function handleContent(mime:Entity bodyPart) {
         if (payload is string) {
             log:printInfo("Text data: " + payload);
         } else {
-            log:printError("Error in parsing text data", err = payload);
+            log:printError("Error in parsing text data", payload);
         }
     } else if (mime:APPLICATION_PDF == baseType) {
         //Extracts byte channel from the body part and save it as a file.
@@ -140,13 +139,12 @@ function handleContent(mime:Entity bodyPart) {
             <@untainted io:WritableByteChannel>io:openWritableFile("ReceivedFile.pdf");
             var result = copy(payload, destinationChannel);
             if (result is error) {
-                log:printError("error occurred while performing copy ",
-                                err = result);
+                log:printError("error occurred while performing copy ", result);
             }
             close(payload);
             close(destinationChannel);
         } else {
-            log:printError("Error in parsing byte channel :", err = payload);
+            log:printError("Error in parsing byte channel :", payload);
         }
     }
 }
@@ -164,14 +162,25 @@ function getBaseType(string contentType) returns string {
 // Copies the content from the source channel to the destination channel.
 function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
                 returns error? {
-    int readCount = 1;
-    byte[] readContent;
-    while (readCount > 0) {
-    //Operation attempts to read a maximum of 1000 bytes.
-    [byte[], int] result = check src.read(1000);
-    [readContent, readCount] = result;
-    //Writes the given content into the channel.
-    var writeResult = check dst.write(readContent, 0);
+    while (true) {
+        //Operation attempts to read a maximum of 1000 bytes.
+        byte[] | io:Error result = src.read(1000);
+        if (result is io:EofError) {
+            break;
+        } else if (result is error) {
+            return <@untained> result;
+        } else {
+            //Writes the given content into the channel.
+            int i = 0;
+            while (i < result.length()) {
+                var result2 = dst.write(result, i);
+                if (result2 is error) {
+                    return result2;
+                } else {
+                    i = i + result2;
+                }
+            }
+        }
     }
     return;
 }
@@ -183,6 +192,6 @@ function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
     } channelResult = ch;
     var cr = channelResult.close();
     if (cr is error) {
-        log:printError("Error occurred while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", cr);
     }
 }

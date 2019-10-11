@@ -36,7 +36,6 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
     private final String weakCipherServiceUrl = "https://localhost:9227";
     private String strongCipherClient;
     private String weakCipherClient;
-    private String sourceRoot;
     
     @BeforeClass
     public void init() {
@@ -46,9 +45,6 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
         weakCipherClient = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "mutualSSL"
                         + File.separator + "ssl_client_with_weak_cipher.bal").getAbsolutePath();
-        sourceRoot = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "mutualSSL")
-                .getAbsolutePath();
     }
 
     @Test(description = "Test ssl with strong cipher service with strong cipher client")
@@ -67,13 +63,13 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
 
     @Test(description = "Test ssl with strong cipher service with weak cipher client")
     public void testWithStrongClientWithWeakService() throws Exception {
-        String serverResponse = "Received fatal alert: handshake_failurelocalhost/127.0.0.1:9226";
+        String serverResponse = "Received fatal alert: handshake_failure localhost/127.0.0.1:9226";
         validateClientExecution(serverResponse, weakCipherClient, strongCipherServiceUrl);
     }
 
     @Test(description = "Test ssl with weak cipher service with strong cipher client")
     public void testWithWeakClientWithStrongService() throws Exception {
-        String serverResponse = "Received fatal alert: handshake_failurelocalhost/127.0.0.1:9227";
+        String serverResponse = "Received fatal alert: handshake_failure localhost/127.0.0.1:9227";
         validateClientExecution(serverResponse, strongCipherClient, weakCipherServiceUrl);
     }
 
@@ -90,7 +86,7 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
         ballerinaClient.runMain(clientProgram, null, new String[] { serverUrl }, null, new String[]{},
-                new LogLeecher[] { clientLeecher }, sourceRoot);
+                new LogLeecher[] { clientLeecher });
         clientLeecher.waitForText(20000);
     }
 }

@@ -17,8 +17,8 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/crypto;
-import ballerina/encoding;
 import ballerina/time;
+import ballerina/stringutils;
 
 # Represents an HTTP response.
 #
@@ -112,7 +112,7 @@ public type Response object {
         entity.setHeader(headerName, headerValue);
 
         // TODO: see if this can be handled in a better manner
-        if (internal:equalsIgnoreCase(SERVER, headerName)) {
+        if (stringutils:equalsIgnoreCase(SERVER, headerName)) {
             self.server = headerValue;
         }
     }
@@ -165,8 +165,12 @@ public type Response object {
         } else {
             var payload = result.getJson();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the json payload from the request";
-                return getGenericClientError(message, payload);
+                if (payload.detail()?.cause is mime:NoContentError) {
+                    return createErrorForNoPayload(payload);
+                } else {
+                    string message = "Error occurred while retrieving the json payload from the response";
+                    return getGenericClientError(message, payload);
+               }
             } else {
                 return payload;
             }
@@ -183,8 +187,12 @@ public type Response object {
         } else {
             var payload = result.getXml();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the xml payload from the request";
-                return getGenericClientError(message, payload);
+                if (payload.detail()?.cause is mime:NoContentError) {
+                    return createErrorForNoPayload(payload);
+                } else {
+                    string message = "Error occurred while retrieving the xml payload from the response";
+                    return getGenericClientError(message, payload);
+               }
             } else {
                 return payload;
             }
@@ -201,8 +209,12 @@ public type Response object {
         } else {
             var payload = result.getText();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the text payload from the request";
-                return getGenericClientError(message, payload);
+                if (payload.detail()?.cause is mime:NoContentError) {
+                    return createErrorForNoPayload(payload);
+                } else {
+                    string message = "Error occurred while retrieving the text payload from the response";
+                    return getGenericClientError(message, payload);
+               }
             } else {
                 return payload;
             }
@@ -220,7 +232,7 @@ public type Response object {
         } else {
             var payload = result.getByteChannel();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the byte channel from the request";
+                string message = "Error occurred while retrieving the byte channel from the response";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -238,7 +250,7 @@ public type Response object {
         } else {
             var payload = result.getByteArray();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the binary payload from the request";
+                string message = "Error occurred while retrieving the binary payload from the response";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -258,7 +270,7 @@ public type Response object {
         } else {
             var bodyParts = result.getBodyParts();
             if (bodyParts is mime:Error) {
-                string message = "Error occurred while retrieving body parts from the request";
+                string message = "Error occurred while retrieving body parts from the response";
                 return getGenericClientError(message, bodyParts);
             } else {
                 return bodyParts;

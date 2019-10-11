@@ -41,6 +41,12 @@ public class AnnotationAttachmentsCompletionTest extends CompletionTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/completion for annotation attachments");
         return new Object[][] {
+                {"annotationAccessExpression1.json", "annotation"},
+                {"annotationAccessExpression2.json", "annotation"},
+                {"annotationAccessExpression3.json", "annotation"},
+                {"annotationAccessExpression4.json", "annotation"},
+                {"annotationAccessExpression5.json", "annotation"},
+                {"annotationAccessExpression6.json", "annotation"},
                 {"annotationBodyCompletion1.json", "annotation"},
                 {"annotationBodyCompletion2.json", "annotation"},
                 {"annotationBodyCompletion3.json", "annotation"},
@@ -54,7 +60,6 @@ public class AnnotationAttachmentsCompletionTest extends CompletionTest {
                 {"annotationInSameModule5.json", "annotation"},
                 {"serviceAnnotation1.json", "annotation"},
                 {"serviceAnnotation2.json", "annotation"},
-//                {"serviceAnnotation3.json", "annotation"},
                 {"resourceAnnotation1.json", "annotation"},
                 {"resourceAnnotation2.json", "annotation"},
                 {"resourceAnnotation3.json", "annotation"},
@@ -64,6 +69,9 @@ public class AnnotationAttachmentsCompletionTest extends CompletionTest {
                 {"resourceAnnotation7.json", "annotation"},
                 {"functionAnnotation1.json", "annotation"},
                 {"listenerAnnotation1.json", "annotation"},
+                {"externalAnnotation1.json", "annotation"},
+                {"externalAnnotation2.json", "annotation"},
+                {"workerAnnotation1.json", "annotation"},
         };
     }
 }

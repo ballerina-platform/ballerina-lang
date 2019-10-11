@@ -14,22 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/io;
+import ballerina/lang.'object as lang;
 import ballerina/websub;
-import ballerina/'lang\.object as lang;
 
-public type MockActionEvent record {
+public type MockActionEvent record {|
     string action;
-};
+|};
 
-public type MockDomainEvent record {
+public type MockDomainEvent record {|
     string domain;
-};
+|};
 
 public type WebhookServerForPayload object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private websub:Listener websubListener;
 
@@ -48,7 +46,7 @@ public type WebhookServerForPayload object {
                 }
             }
         };
-        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+        websub:SubscriberListenerConfiguration sseConfig = {
             host: host ?: "",
             extensionConfig: extensionConfig
         };
@@ -59,12 +57,20 @@ public type WebhookServerForPayload object {
         return self.websubListener.__attach(s, name);
     }
 
+    public function __detach(service s) returns error? {
+        return self.websubListener.__detach(s);
+    }
+
     public function __start() returns error? {
         return self.websubListener.__start();
     }
 
-    public function __stop() returns error? {
-        return self.websubListener.__stop();
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
+        return self.websubListener.__immediateStop();
     }
 };
 

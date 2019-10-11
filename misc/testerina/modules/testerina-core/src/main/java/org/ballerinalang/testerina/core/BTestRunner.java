@@ -21,24 +21,38 @@ package org.ballerinalang.testerina.core;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BBooleanType;
+import org.ballerinalang.jvm.types.BByteType;
+import org.ballerinalang.jvm.types.BDecimalType;
+import org.ballerinalang.jvm.types.BFloatType;
+import org.ballerinalang.jvm.types.BIntegerType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BStringType;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BXMLType;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.model.values.BIterator;
-import org.ballerinalang.model.values.BNewArray;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.tool.BLauncherException;
 import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.tool.util.CompileResult;
-import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -70,11 +84,30 @@ public class BTestRunner {
 
     public static final String MODULE_INIT_CLASS_NAME = "___init";
 
-    private static PrintStream errStream = System.err;
-    private static PrintStream outStream = System.out;
-    private TesterinaReport tReport = new TesterinaReport();
+    private PrintStream errStream;
+    private PrintStream outStream;
+    private TesterinaReport tReport;
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private List<String> sourcePackages = new ArrayList<>();
+
+    /**
+     * Create Test Runner instance.
+     */
+    public BTestRunner() {
+        this(System.out, System.err);
+    }
+
+    /**
+     * Create Test Runner with given loggers.
+     *
+     * @param outStream The info log stream.
+     * @param errStream The error log strem.
+     */
+    public BTestRunner(PrintStream outStream, PrintStream errStream) {
+        this.outStream = outStream;
+        this.errStream = errStream;
+        tReport = new TesterinaReport(this.outStream);
+    }
 
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
         runTest(sourceRoot, sourceFilePaths, groups, Boolean.TRUE);
@@ -117,7 +150,7 @@ public class BTestRunner {
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
-    public void runTest(Map<BLangPackage, JBallerinaInMemoryClassLoader> packageList) {
+    public void runTest(Map<BLangPackage, TestarinaClassLoader> packageList) {
         registry.setGroups(Collections.emptyList());
         registry.setShouldIncludeGroups(true);
         buildSuites(packageList);
@@ -227,8 +260,6 @@ public class BTestRunner {
             }
 
             // set the debugger
-            ProgramFile programFile = compileResult.getProgFile();
-            // processProgramFile(programFile);
         });
         registry.setTestSuitesCompiled(true);
     }
@@ -238,7 +269,7 @@ public class BTestRunner {
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
-    private void buildSuites(Map<BLangPackage, JBallerinaInMemoryClassLoader> packageList) {
+    private void buildSuites(Map<BLangPackage, TestarinaClassLoader> packageList) {
         packageList.forEach((sourcePackage, classLoader) -> {
             String packageName;
             if (sourcePackage.packageID.getName().getValue().equals(".")) {
@@ -271,7 +302,7 @@ public class BTestRunner {
      *
      * @param programFile program file generated
      */
-    private void processProgramFile(BLangPackage programFile, JBallerinaInMemoryClassLoader classLoader) {
+    private void processProgramFile(BLangPackage programFile, TestarinaClassLoader classLoader) {
         // process the compiled files
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
@@ -295,10 +326,15 @@ public class BTestRunner {
      * @param bLangPackage compiled package.
      * @param classLoader  class loader to load and run package tests.
      */
-    public void packageProcessed(BLangPackage bLangPackage, JBallerinaInMemoryClassLoader classLoader) {
+    public void packageProcessed(BLangPackage bLangPackage, TestarinaClassLoader classLoader) {
         //packageInit = false;
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
+
+        if (!bLangPackage.hasTestablePackage()) {
+            return;
+        }
+
         if (suite == null) {
             throw LauncherUtils.createLauncherException("No test suite found for [module]: "
                     + bLangPackage.packageID.getName());
@@ -316,9 +352,11 @@ public class BTestRunner {
         Class<?> initClazz = classLoader.loadClass(initClassName);
 
         suite.setInitFunction(new TesterinaFunction(initClazz,
-                bLangPackage.initFunction, TesterinaFunction.Type.TEST_INIT));
+                bLangPackage.initFunction));
         suite.setStartFunction(new TesterinaFunction(initClazz,
-                bLangPackage.startFunction, TesterinaFunction.Type.TEST_INIT));
+                bLangPackage.startFunction));
+        suite.setStopFunction(new TesterinaFunction(initClazz,
+                bLangPackage.stopFunction));
         // add all functions of the package as utility functions
         bLangPackage.functions.stream().forEach(function -> {
             try {
@@ -327,11 +365,40 @@ public class BTestRunner {
                         getClassName(function));
                 Class<?> functionClass = classLoader.loadClass(functionClassName);
                 suite.addTestUtilityFunction(new TesterinaFunction(functionClass,
-                        function, TesterinaFunction.Type.UTIL));
+                        function));
             } catch (RuntimeException e) {
                 // we do nothing here
             }
         });
+        // Add all functions of the test function to test suite
+        if (bLangPackage.hasTestablePackage()) {
+            BLangPackage testablePackage = bLangPackage.getTestablePkg();
+            String testClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                    bLangPackage.packageID.name.value,
+                    bLangPackage.packageID.name.value);
+
+            Class<?> testInitClazz = classLoader.loadClass(testClassName);
+            suite.setTestInitFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.initFunction));
+            suite.setTestStartFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.startFunction));
+            suite.setTestStopFunction(new TesterinaFunction(testInitClazz,
+                    testablePackage.stopFunction));
+
+            testablePackage.functions.stream().forEach(function -> {
+                try {
+                    String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                            bLangPackage.packageID.name.value,
+                            getClassName(function));
+                    Class<?> functionClass = classLoader.loadClass(functionClassName);
+                    suite.addTestUtilityFunction(new TesterinaFunction(functionClass,
+                            function));
+                } catch (RuntimeException e) {
+                    // we do nothing here
+                }
+            });
+        }
+
         resolveFunctions(suite);
         int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
@@ -340,7 +407,7 @@ public class BTestRunner {
     }
 
     private String getClassName(BLangFunction function) {
-        return function.pos.src.cUnitName.replace(".bal", "").replace("/", "-");
+        return function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
     }
 
     private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
@@ -585,9 +652,18 @@ public class BTestRunner {
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
-            if (suite.getInitFunction() != null && TesterinaUtils.isPackageInitialized(packageName)) {
-                suite.getInitFunction().invoke();
-                //suite.getStartFunction().invoke();
+
+            // Initialize the test suite.
+            // This will init and start the test module.
+            String suiteError;
+            try {
+                suite.start();
+            } catch (Throwable e) {
+                shouldSkip.set(true);
+                suiteError = "\t[fail] Error while initializing test suite: "
+                        + formatErrorMessage(e);
+                errStream.println(suiteError);
+                shouldSkip.set(true);
             }
 
             suite.getBeforeSuiteFunctions().forEach(test -> {
@@ -597,7 +673,7 @@ public class BTestRunner {
                 } catch (Throwable e) {
                     shouldSkip.set(true);
                     errorMsg = "\t[fail] " + test.getName() + " [before test suite function]" + ":\n\t    "
-                            + TesterinaUtils.formatError(e.getMessage());
+                            + formatErrorMessage(e);
                     errStream.println(errorMsg);
                 }
             });
@@ -615,7 +691,7 @@ public class BTestRunner {
                             errorMsg = String.format("\t[fail] " + beforeEachTest.getName() +
                                             " [before each test function for the test %s] :\n\t    %s",
                                     test.getTestFunction().getName(),
-                                    TesterinaUtils.formatError(e.getMessage()));
+                                    formatErrorMessage(e));
                             errStream.println(errorMsg);
                         }
                     });
@@ -632,7 +708,7 @@ public class BTestRunner {
                         errorMsg = String.format("\t[fail] " + test.getBeforeTestFunctionObj().getName() +
                                         " [before test function for the test %s] :\n\t    %s",
                                 test.getTestFunction().getName(),
-                                TesterinaUtils.formatError(e.getMessage()));
+                                formatErrorMessage(e));
                         errStream.println(errorMsg);
                     }
                 }
@@ -645,7 +721,7 @@ public class BTestRunner {
 
                     // Check whether the this test depends on any failed or skipped functions
                     if (!shouldSkip.get() && !shouldSkipTest.get()) {
-                        BValue[] valueSets = null;
+                        Object valueSets = null;
                         if (test.getDataProviderFunction() != null) {
                             valueSets = test.getDataProviderFunction().invoke();
                         }
@@ -656,9 +732,10 @@ public class BTestRunner {
                                     .get(), null);
                             tReport.addFunctionResult(packageName, functionResult);
                         } else {
-                            List<BValue[]> argList = extractArguments(valueSets);
+                            Class[] argTypes = extractArgumentTypes(valueSets);
+                            List<Object[]> argList = extractArguments(valueSets);
                             argList.forEach(arg -> {
-                                //test.getTestFunction().invoke(arg);
+                                test.getTestFunction().invoke(argTypes, arg);
                                 TesterinaResult result = new TesterinaResult(test.getTestFunction().getName(), true,
                                         shouldSkip.get(), null);
                                 tReport.addFunctionResult(packageName, result);
@@ -690,7 +767,7 @@ public class BTestRunner {
                     error = String.format("\t[fail] " + test.getAfterTestFunctionObj().getName() +
                                     " [after test function for the test %s] :\n\t    %s",
                             test.getTestFunction().getName(),
-                            TesterinaUtils.formatError(e.getMessage()));
+                            formatErrorMessage(e));
                     errStream.println(error);
                 }
 
@@ -703,7 +780,7 @@ public class BTestRunner {
                         errorMsg2 = String.format("\t[fail] " + afterEachTest.getName() +
                                         " [after each test function for the test %s] :\n\t    %s",
                                 test.getTestFunction().getName(),
-                                TesterinaUtils.formatError(e.getMessage()));
+                                formatErrorMessage(e));
                         errStream.println(errorMsg2);
                     }
                 });
@@ -717,26 +794,29 @@ public class BTestRunner {
                     func.invoke();
                 } catch (Throwable e) {
                     errorMsg = String.format("\t[fail] " + func.getName() + " [after test suite function] :\n\t    " +
-                            "%s", TesterinaUtils.formatError(e.getMessage()));
+                            "%s", formatErrorMessage(e));
                     errStream.println(errorMsg);
                 }
             });
+            // Call module stop and test stop function
+            suite.stop();
+
             // print module test results
             tReport.printTestSuiteSummary(packageName);
-
-            // Call module stop and test stop function
-            suite.getInitFunction().invokeStopFunctions();
         });
     }
 
     private String formatErrorMessage(Throwable e) {
-        String message = e.getMessage();
+        String message;
         if (e.getCause() instanceof ErrorValue) {
             try {
                 message = ((ErrorValue) e.getCause()).getPrintableStackTrace();
             } catch (ClassCastException castException) {
-                //do nothing this is to avoid spot bug
+                // throw the exception to top
+                throw new BallerinaException(e);
             }
+        } else {
+            throw new BallerinaException(e);
         }
         return message;
     }
@@ -751,30 +831,105 @@ public class BTestRunner {
      * @param valueSets user provided value sets
      * @return a list of function arguments
      */
-    private List<BValue[]> extractArguments(BValue[] valueSets) {
-        List<BValue[]> argsList = new ArrayList<>();
+    private List<Object[]> extractArguments(Object valueSets) {
+        List<Object[]> argsList = new ArrayList<>();
 
-        for (BValue value : valueSets) {
-            if (value instanceof BValueArray) {
-                BValueArray array = (BValueArray) value;
-                for (BIterator it = array.newIterator(); it.hasNext(); ) {
-                    BValue vals = it.getNext();
-                    if (vals instanceof BNewArray) {
-                        BNewArray bNewArray = (BNewArray) vals;
-                        BValue[] args = new BValue[(int) bNewArray.size()];
-                        for (int j = 0; j < bNewArray.size(); j++) {
-                            args[j] = bNewArray.getBValue(j);
-                        }
-                        argsList.add(args);
-                    } else {
-                        // cannot happen due to validations done at annotation processor
-                    }
+        if (valueSets instanceof ArrayValue) {
+            ArrayValue arrayValue = (ArrayValue) valueSets;
+            if (arrayValue.elementType instanceof BArrayType) {
+                // Ok we have an array of an array
+                for (int i = 0; i < arrayValue.size(); i++) {
+                    // Iterate array elements and set parameters
+                    setTestFunctionParams(argsList, (ArrayValue) arrayValue.get(i));
                 }
             } else {
-                argsList.add(new BValue[]{value});
+                // Iterate array elements and set parameters
+                setTestFunctionParams(argsList, arrayValue);
             }
+        } else {
+            // we do nothing data provider should always return an array.
         }
         return argsList;
+    }
+
+    /**
+     * Extract the parameter types from a valueset.
+     * @param valueSets use provided value sets
+     * @return a list of calss types.
+     */
+    private static Class[] extractArgumentTypes(Object valueSets) {
+        List<Class> typeList = new ArrayList<>();
+        typeList.add(Strand.class);
+        if (valueSets instanceof ArrayValue) {
+            ArrayValue arrayValue = (ArrayValue) valueSets;
+            if (arrayValue.elementType instanceof BArrayType) {
+                // Ok we have an array of an array
+                // Get the first entry
+                // Iterate elements and get class types.
+                setTestFunctionSignature(typeList, (ArrayValue) arrayValue.get(0));
+            } else {
+                // Iterate elements and get class types.
+                setTestFunctionSignature(typeList, arrayValue);
+            }
+        } else {
+            // we do nothing data provider should always return an array.
+        }
+        Class[] typeListArray = new Class[typeList.size()];
+        typeList.toArray(typeListArray);
+        return typeListArray;
+    }
+
+    private static void setTestFunctionSignature(List<Class> typeList, ArrayValue arrayValue) {
+        Class type = getArgTypeToClassMapping(arrayValue.elementType);
+        for (int i = 0; i < arrayValue.size(); i++) {
+            // Add the param type.
+            typeList.add(type);
+            // This is in jvm function signature to tel if args is passed or not.
+            typeList.add(Boolean.TYPE);
+        }
+    }
+
+    private static void setTestFunctionParams(List<Object[]> valueList, ArrayValue arrayValue) {
+        List<Object> params = new ArrayList<>();
+        // Add a place holder to Strand
+        params.add(new Object());
+        for (int i = 0; i < arrayValue.size(); i++) {
+            // Add the param type.
+            params.add(arrayValue.get(i));
+            // This is in jvm function signature to tel if args is passed or not.
+            params.add(Boolean.TRUE);
+        }
+        valueList.add(params.toArray());
+    }
+
+    private static Class getArgTypeToClassMapping(BType elementType) {
+        Class type;
+        // Refer jvm_method_gen.bal getArgTypeSignature for proper type matching
+        if (elementType instanceof BStringType) {
+            type = String.class;
+        } else if (elementType instanceof BIntegerType) {
+            type = Long.TYPE;
+        } else if (elementType instanceof BBooleanType) {
+            type = Boolean.TYPE;
+        } else if (elementType instanceof BDecimalType) {
+            type = DecimalValue.class;
+        } else if (elementType instanceof BByteType) {
+            type = Integer.TYPE;
+        } else if (elementType instanceof BArrayType || elementType instanceof BTupleType) {
+            type = ArrayValue.class;
+        } else if (elementType instanceof BFloatType) {
+            type = Double.TYPE;
+        } else if (elementType instanceof BMapType || elementType instanceof BRecordType) {
+            type = MapValue.class;
+        } else if (elementType instanceof BXMLType) {
+            type = XMLValue.class;
+        } else if (elementType instanceof BObjectType) {
+            type = ObjectValue.class;
+        } else {
+            // default case
+            type = Object.class;
+        }
+        return type;
     }
 
     /**

@@ -16,29 +16,20 @@
  * under the License.
  *
  */
-import { ExtendedLangClient } from '../core/extended-language-client';
-import { ExtensionContext } from 'vscode';
 import { getLibraryWebViewContent, getComposerWebViewOptions } from '../utils';
 import { ConstructIdentifier } from 'src/core';
 
-export function render (context: ExtensionContext, langClient: ExtendedLangClient,
-    options: {currentUri: string, sourceRootUri?: string, construct?: ConstructIdentifier},
-    retries: number = 1)
-        : string {
-   return renderDiagram(context, options);
-}
-
-function renderDiagram(context: ExtensionContext,
-    constructIdentifier: {currentUri: string, sourceRootUri?: string, construct?: ConstructIdentifier}): string {
+export function render(sourceRootUri?: string, fileUri?: string, construct?: ConstructIdentifier): string {
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"></div>
     `;
 
-    const bodyCss = "diagram";
+    const bodyCss = 'diagram';
 
     const styles = `
         body {
             background: #f1f1f1;
+            overflow: hidden;
         }
         .overlay {
             display: none;
@@ -77,34 +68,35 @@ function renderDiagram(context: ExtensionContext,
 
     const scripts = `
         function loadedScript() {
-            let constructIdentifier = ${JSON.stringify(constructIdentifier)};
             function drawDiagram() {
                 try {
                     let width = window.innerWidth - 6;
                     let height = window.innerHeight;
                     let zoom = 1;
-                    const options = {
+                    const diagramOptions = {
                         target: document.getElementById("diagram"),
                         editorProps: {
-                            docUri: constructIdentifier.currentUri,
-                            sourceRootUri: constructIdentifier.sourceRootUri,
-                            initialSelectedConstruct: constructIdentifier.construct,
+                            docUri: ${JSON.stringify(fileUri)},
+                            sourceRootUri: ${JSON.stringify(sourceRootUri)},
+                            initialSelectedConstruct: ${JSON.stringify(construct)},
                             width,
                             height,
                             zoom,
                             langClient: getLangClient()
                         }
                     };
-                    const diagram = ballerinaComposer.renderOverview(options);
+                    const diagram = ballerinaComposer.renderOverview(diagramOptions);
                     webViewRPCHandler.addMethod("updateAST", (args) => {
                         diagram.updateAST();
                         return Promise.resolve({});
                     });
                     webViewRPCHandler.addMethod("selectConstruct", (args) => {
                         diagram.selectConstruct({
-                            moduleName: args[0],
-                            constructName: args[1],
-                            subConstructName: args[2],
+                            sourceRoot: args[0],
+                            filePath: args[1],
+                            moduleName: args[2],
+                            constructName: args[3],
+                            subConstructName: args[4],
                         });
                         return Promise.resolve({});
                     });
@@ -133,22 +125,3 @@ function renderDiagram(context: ExtensionContext,
     return getLibraryWebViewContent({...getComposerWebViewOptions(), body, scripts, styles, bodyCss});
 }
 
-export function renderError() {
-    return `
-    <!DOCTYPE html>
-    <html>
-    
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-    </head>
-    <body>
-    <div>
-        Could not connect to the parser service. Please try again after restarting vscode.
-        <a href="command:workbench.action.reloadWindow">Restart</a>
-    </div>
-    </body>
-    </html>
-    `;
-}

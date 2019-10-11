@@ -17,21 +17,15 @@
  */
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,13 +33,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneId;
-import java.time.zone.ZoneRulesException;
 import java.util.Base64;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * A util class for handling common functions across native implementation.
@@ -54,98 +46,32 @@ import java.util.TimeZone;
  */
 public class Utils {
 
-    public static final String PACKAGE_TIME = "ballerina/time";
-    public static final String STRUCT_TYPE_TIME = "Time";
-    public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
-
-    public static final int READABLE_BUFFER_SIZE = 8192; //8KB
-    public static final String PROTOCOL_PACKAGE_MIME = "ballerina/mime";
-    public static final String MIME_ERROR_MESSAGE = "message";
-    public static final String ERROR_RECORD_TYPE = "Detail";
+    private static final int READABLE_BUFFER_SIZE = 8192; //8KB
+    private static final BPackage PACKAGE_ID_MIME = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "mime");
+    private static final String MIME_ERROR_MESSAGE = "message";
+    private static final String ERROR_RECORD_TYPE = "Detail";
     private static final String STRUCT_TYPE = "ReadableByteChannel";
+    private static final String ERROR_CAUSE_FIELD = "cause";
     private static final String ENCODING_ERROR = "{ballerina/mime}EncodingFailed";
     private static final String DECODING_ERROR = "{ballerina/mime}DecodingFailed";
 
 
-    public static BMap<String, BValue> createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
-        String zoneIdName;
-        try {
-            ZoneId zoneId = ZoneId.of(zoneIdValue);
-            zoneIdName = zoneId.toString();
-            //Get offset in seconds
-            TimeZone tz = TimeZone.getTimeZone(zoneId);
-            int offsetInMills = tz.getOffset(new Date().getTime());
-            int offset = offsetInMills / 1000;
-            return BLangVMStructs.createBStruct(timezoneStructInfo, zoneIdName, offset);
-        } catch (ZoneRulesException e) {
-            throw new BallerinaException("invalid timezone id: " + zoneIdValue);
-        }
-    }
-
-    public static MapValue<String, BValue> createTimeZone(MapValue timezoneStructInfo, String zoneIdValue) {
-        String zoneIdName;
-        try {
-            ZoneId zoneId = ZoneId.of(zoneIdValue);
-            zoneIdName = zoneId.toString();
-            //Get offset in seconds
-            TimeZone tz = TimeZone.getTimeZone(zoneId);
-            int offsetInMills = tz.getOffset(new Date().getTime());
-            int offset = offsetInMills / 1000;
-            return BallerinaValues.createRecord(timezoneStructInfo, zoneIdName, offset);
-        } catch (ZoneRulesException e) {
-            throw new BallerinaException("invalid timezone id: " + zoneIdValue);
-        }
-    }
-
-    public static BMap<String, BValue> createTimeStruct(StructureTypeInfo timezoneStructInfo,
-                                           StructureTypeInfo timeStructInfo, long millis, String zoneIdName) {
-        BMap<String, BValue> timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
-        return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
-    }
-
-    public static MapValue<String, BValue> createTimeStruct(MapValue timezoneStructInfo,
-                                                        MapValue timeStructInfo, long millis, String zoneIdName) {
-        MapValue<String, BValue> timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
-        return BallerinaValues.createRecord(timeStructInfo, millis, timezone);
-    }
-
-    public static StructureTypeInfo getTimeZoneStructInfo(Context context) {
-        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
-        if (timePackageInfo == null) {
-            return null;
-        }
-        return timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
-    }
-
-    public static MapValue<String, Object> getTimeZoneStructInfo() {
-        return BallerinaValues.createRecordValue(PACKAGE_TIME, STRUCT_TYPE_TIMEZONE);
-    }
-
-    public static StructureTypeInfo getTimeStructInfo(Context context) {
-        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
-        if (timePackageInfo == null) {
-            return null;
-        }
-        return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
-    }
-
-    public static MapValue<String, Object> getTimeStructInfo() {
-        return BallerinaValues.createRecordValue(PACKAGE_TIME, STRUCT_TYPE_TIME);
-    }
-
     private static ErrorValue createBase64Error(String reason, String msg, boolean isMimeSpecific) {
         if (isMimeSpecific) {
-            return BallerinaErrors.createError(reason, populateMimeErrorRecord(msg));
+            return BallerinaErrors.createError(reason, populateMimeErrorRecord(null, msg));
         }
         return BallerinaErrors.createError(IOConstants.ErrorCode.GenericError.errorCode(), msg);
     }
 
-
-    public static MapValue populateMimeErrorRecord(String msg) {
+    public static MapValue populateMimeErrorRecord(ErrorValue errorValue, String msg) {
         Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put(MIME_ERROR_MESSAGE, msg);
-        return BallerinaValues
-                .createRecordValue(PROTOCOL_PACKAGE_MIME, ERROR_RECORD_TYPE, valueMap);
+        if (errorValue != null) {
+            valueMap.put(ERROR_CAUSE_FIELD, errorValue);
+        }
+        if (msg != null) {
+            valueMap.put(MIME_ERROR_MESSAGE, msg);
+        }
+        return BallerinaValues.createRecordValue(PACKAGE_ID_MIME, ERROR_RECORD_TYPE, valueMap);
     }
 
     /**
@@ -280,7 +206,7 @@ public class Utils {
             }
             InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
             Base64ByteChannel decodedByteChannel = new Base64ByteChannel(encodedStream);
-            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE, STRUCT_TYPE);
+            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
             byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
             return byteChannelObj;
         } catch (IOException e) {
@@ -307,7 +233,7 @@ public class Utils {
             }
             InputStream decodedStream = new ByteArrayInputStream(decodedByteArray);
             Base64ByteChannel decodedByteChannel = new Base64ByteChannel(decodedStream);
-            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE, STRUCT_TYPE);
+            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
             byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
             return byteChannelObj;
         } catch (IOException e) {

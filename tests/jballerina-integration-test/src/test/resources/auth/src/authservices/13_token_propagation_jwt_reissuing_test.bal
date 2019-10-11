@@ -14,16 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/http;
 import ballerina/jwt;
 
 jwt:InboundJwtAuthProvider jwtAuthProvider13_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+        }
     }
 });
 http:BearerAuthHandler jwtAuthHandler13_1 = new(jwtAuthProvider13_1);
@@ -34,7 +37,7 @@ listener http:Listener listener13_1 = new(20017, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }
@@ -47,7 +50,7 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider13_2 = new({
         keyAlias: "ballerina",
         keyPassword: "ballerina",
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }
@@ -57,6 +60,12 @@ http:BearerAuthHandler jwtAuthHandler13_2 = new(jwtAuthProvider13_2);
 http:Client nyseEP13 = new("https://localhost:20018", {
     auth: {
         authHandler: jwtAuthHandler13_2
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -84,10 +93,12 @@ service passthroughService13 on listener13_1 {
 jwt:InboundJwtAuthProvider jwtAuthProvider13_3 = new({
     issuer: "example2",
     audience: ["ballerina"],
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+        }
     }
 });
 http:BearerAuthHandler jwtAuthHandler13_3 = new(jwtAuthProvider13_3);
@@ -98,7 +109,7 @@ listener http:Listener listener13_2 = new(20018, {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }

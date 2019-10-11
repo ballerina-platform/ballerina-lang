@@ -18,14 +18,11 @@
 
 package org.ballerinalang.net.http.websocketclientendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
@@ -36,15 +33,20 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.ballerinalang.net.http.exception.WebSocketException;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.ballerinalang.net.http.WebSocketConstants.WSS_SCHEME;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 
 /**
  * Initialize the WebSocket Client.
@@ -60,16 +62,9 @@ import java.util.concurrent.TimeUnit;
                 type = TypeKind.OBJECT,
                 structType = WebSocketConstants.WEBSOCKET_CLIENT,
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-        ),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "WebSocketClientEndpointConfig")},
-        isPublic = true
+        )
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class InitEndpoint {
 
     public static void initEndpoint(Strand strand, ObjectValue webSocketClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -77,6 +72,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
 
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
+        String scheme = URI.create(remoteUrl).getScheme();
         Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         WebSocketService wsService;
         if (clientService != null) {
@@ -90,7 +86,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             wsService = new WebSocketService(strand.scheduler);
         }
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
-        populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig);
+        populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
 
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(
@@ -104,8 +100,14 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                 new WebSocketClientHandshakeListener(webSocketClient, wsService, clientConnectorListener,
                         readyOnConnect, countDownLatch));
         try {
-            if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
-                throw new WebSocketException("Waiting for WebSocket handshake has not been successful");
+            // Wait for 5 minutes before timeout
+            if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {
+                throw new WebSocketException(WebSocketConstants.ErrorCode.WsGenericError,
+                                             "Waiting for WebSocket handshake has not been successful",
+                                             WebSocketUtil.createErrorCause(
+                                                     "Connection timeout",
+                                                     IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
+                                                     IO_PACKAGE_ID));
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -115,7 +117,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
     }
 
     private static void populateClientConnectorConfig(MapValue<String, Object> clientEndpointConfig,
-                                                      WebSocketClientConnectorConfig clientConnectorConfig) {
+            WebSocketClientConnectorConfig clientConnectorConfig, String scheme) {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
         clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -135,9 +137,11 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
-        } else {
-            HttpUtil.setDefaultTrustStore(clientConnectorConfig);
+        } else if (scheme.equals(WSS_SCHEME)) {
+            clientConnectorConfig.useJavaDefaults();
         }
+        clientConnectorConfig.setWebSocketCompressionEnabled(
+                clientEndpointConfig.getBooleanValue(WebSocketConstants.COMPRESSION_ENABLED_CONFIG));
     }
 
     private static Map<String, String> getCustomHeaders(MapValue<String, Object> headers) {
@@ -146,5 +150,8 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                 key -> customHeaders.put(key, headers.get(key).toString())
         );
         return customHeaders;
+    }
+
+    private InitEndpoint() {
     }
 }

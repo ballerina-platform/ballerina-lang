@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
-version = "0.0.0"
+version = "1.0.0"
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    artifactId = "time"
+    version = "@project.version@"
+    path = "./lib/ballerina-time-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["time"]

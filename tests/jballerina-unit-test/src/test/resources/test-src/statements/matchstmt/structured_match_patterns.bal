@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 
 type Foo record {
     string s;
@@ -62,4 +61,23 @@ function testStructuredMatchPatternsBasic2() returns string {
     }
 
     return "Default";
+}
+
+function testErrorShouldNotMatchWildCardPatternVarIgnore() returns string {
+    any|error v = error("{UserGenError}Error");
+    match v {
+        0 => { return "zero"; }
+        var _ => { return "other"; }
+    }
+    return "no-match";
+}
+
+function testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern() returns string {
+    any|error v = error("{UserGenError}Error");
+    match v {
+        0 => { return "zero"; }
+        var _ => { return "other"; }
+        error(var r) => { return <string>r; }
+    }
+    return "no-match";
 }

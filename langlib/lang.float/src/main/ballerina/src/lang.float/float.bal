@@ -17,15 +17,15 @@
 // IEEE refers to IEEE 754
 // Constants
 
+# The number π
 public const float PI = 3.141592653589793;
+# Euler's number
 public const float E =  2.718281828459045;
-// todo: fix this
-//public const float NaN = 0.0/0.0;
+# IEEE not-a-number value
+public const float NaN = 0.0/0.0;
 
-// XXX Infinity or INFINITY or POSITIVE_INFINITY (and NEGATIVE_INFINITY);
-// todo: fix this
-//public const float Infinity = 1.0/0.0;
-
+# IEEE positive infinity
+public const float Infinity = 1.0/0.0;
 
 # Tests whether a float is finite.
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
@@ -38,7 +38,7 @@ public function isFinite(float x) returns boolean = external;
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
 #
 # + x - the float to be tested
-# + return - true if `x` is either +∞ nor -∞
+# + return - true if `x` is either +∞ or -∞
 public function isInfinite(float x) returns boolean = external;
 
 # Tests whether a float is NaN.
@@ -48,160 +48,173 @@ public function isInfinite(float x) returns boolean = external;
 # + return - true if `x` is NaN
 public function isNaN(float x) returns boolean = external;
 
-# Sum of all the arguments.
-# (positive)0.0 if no args
-# NaN if any arg is NaN
+# Sum of zero or more float values.
+# Result is NaN if any arg is NaN
 #
-# + xs - float numbers to sum
-# + return - sum of the parameters
+# + xs - float values to sum
+# + return - sum of all the `xs`, +0.0 if `xs` is empty
 public function sum(float... xs) returns float = external;
 
-# Maximum of all the arguments.
-# (positive)∞ if no args
+# Maximum of zero or more float values.
+# Result is -∞ if no args
 # NaN if any arg is NaN
 #
-# + xs - parameters to check for max value
-# + return - maximum value of all provided values
+# + xs - float values to operate on
+# + return - maximum value of all the `xs`
 public function max(float... xs) returns float = external;
 
-# Minimum of all the arguments.
-# ∞ if no args
-# NaN if any arg is NaN
+# Minimum of zero or more float values.
+# Result is +∞ if no args
+# Result is NaN if any arg is NaN
 #
-# + xs - parameters to check for min value
-# + return - minimum value of all provided values
+# + xs - float values to operate on
+# + return - minimum value of all the `xs`
 public function min(float... xs) returns float = external;
 
 # IEEE abs operation.
 #
-# + x - whose absolute value is to be determined
-# + return - absolute value of the argument
+# + x - float value to operate on
+# + return - absolute value of `x`
 public function abs(float x) returns float = external;
 
-# Floating point value that is a mathematical integer and closest to `x`.
-# If there are two such integers, choose the one that is even
+# Round a float value to the closest integral value.
+# Returns the float value that is a mathematical integer and closest to `x`.
+# If there are two such values, choose the one that is even
 # (this is the round-to-nearest rounding mode, which is the default for IEEE and for Ballerina).
 # Same as Java Math.rint method
 # Same as .NET Math.Round method
 # IEEE roundToIntegralTiesToEven operation
 # Note that `<int>x` is the same as `<int>x.round()`
 #
-# + x - whose value to be rounded
-# + return - rounded value
+# + x - float value to operate on
+# + return - closest float value to `x` that is a mathematical integer
 public function round(float x) returns float = external;
 
-# Largest (closest to +∞) floating point value not greater than `x` that is a mathematical integer
+# Rounds a float down to the closest integral value.
 #
-# + x - whose value to be floored
-# + return - floored value
+# + x - float value to operate on
+# + return - largest (closest to +∞) float value not greater than `x` that is a mathematical integer.
 public function floor(float x) returns float = external;
 
-# Smallest (closest to -∞) floating point value not less than `x` that is a mathematical integer
+# Rounds a float up to the closest integral value.
 #
-# + x - value to performe ceiling on
-# + return - integer ceiling value of the argument in float
+# + x - float value to operate on
+# + return - smallest (closest to -∞) decimal value not less than `x` that is a mathematical integer
 public function ceiling(float x) returns float = external;
 
-# IEEE squareRoot operation.
+# Returns the square root of a float value.
+# Corresponds to IEEE squareRoot operation.
 #
-# + x - value to performe squareRoot operation on
-# + return - squareRoot of the argument
+# + x - float value to operate on
+# + return - square root of `x`
 public function sqrt(float x) returns float = external;
 
-# Cube root.
-# IEEE rootn(x, 3)
+# Returns the cube root of a float value.
+# Corresponds to IEEE rootn(x, 3) operation.
 #
-# + x - value to performe cube root operation on
-# + return - cube root of the argument
+# + x - float value to operate on
+# + return - cube root of `x`
 public function cbrt(float x) returns float = external;
 
-# `x` to the power of `y`.
-# IEEE pow(x, y)
+# Raises one float value to the power of another float values.
+# Corresponds to IEEE pow(x, y) operation.
 #
 # + x - base value
 # + y - the exponent
-# + return - `x` raise to the power of `y`
+# + return - `x` raised to the power of `y`
 public function pow(float x, float y) returns float = external;
 
-# Natural logarithm.
-# IEEE log operation
+# Returns the natural logarithm of a float value
+# Corresponds to IEEE log operation.
 #
-# + x - value to take log
+# + x - float value to operate on
 # + return - natural logarithm of `x`
 public function log(float x) returns float = external;
 
-# Base 10 log.
-# IEEE log10 operation
+# Returns the base 10 logarithm of a float value.
+# Corresponds to IEEE log10 operation.
 #
-# + x - value to take log
+# + x - float value to operate on
 # + return - base 10 logarithm of `x`
 public function log10(float x) returns float = external;
 
-# IEEE exp operation
+# Raises Euler's number to a power.
+# Corresponds to IEEE exp operation.
 #
-# + x - exponent
+# + x - float value to operate on
 # + return - Euler's number raised to the power `x`
 public function exp(float x) returns float = external;
 
-# IEEE sin operation
+# Returns the sine of a float value.
+# Corresponds to IEEE sin operation.
 #
-# + x - an angle, in radians
-# + return - the sin of the argument
+# + x - float value, specifying an angle in radians
+# + return - the sine of `x`
 public function sin(float x) returns float = external;
 
-# IEEE cos operation
+# Returns the cosine of a float value.
+# Corresponds to IEEE cos operation.
 #
-# + x - an angle, in radians
-# + return - the cos of the argument
+# + x - float value, specifying an angle in radians
+# + return - the cosine of `x`
 public function cos(float x) returns float = external;
 
-# IEEE tan operation
+# Returns the tangent of a float value.
+# Corresponds to IEEE tan operation
 #
-# + x - an angle, in radians
-# + return - the tan of the argument
+# + x - float value, specifying an angle in radians
+# + return - the tangent of `x`
 public function tan(float x) returns float = external;
 
-# IEEE acos operation
+# Returns the arccosine of a float value.
+# Corresponds to IEEE acos operation
 #
-# + x - a cos value
-# + return - the arc cosine of the argument
+# + x - float value to operate on
+# + return - the arccosine of `x` in radians
 public function acos(float x) returns float = external;
 
-# IEEE atan operation
+# Returns the arctangent of a float value.
+# Corresponds to IEEE atan operation.
 #
-# + x - a tan value
-# + return - the arc tan of the argument
+# + x - float value to operate on
+# + return - the arctangent of `x` in radians
 public function atan(float x) returns float = external;
 
-# IEEE asin operation
+# Returns the arcsine of a float value.
+# Corresponds to IEEE asin operation.
 #
-# + x - a sin value
-# + return - the arc sin of the argument
+# + x - float value to operate on
+# + return - the arcsine of `x` in radians
 public function asin(float x) returns float = external;
 
-# IEEE atan2(y, x) operation
+# Performs the 2-argument arctangent operation.
+# Corresponds IEEE atan2(y, x) operation.
 #
-# + y - the ordinate coordinate
-# + x - the abscissa coordinate
-# + return - the angle component in polar coordinate
+# + y - the y-coordinate
+# + x - the x-coordinate
+# + return - the angle in radians from the positive x-axis to the point
+#   whose Cartesian coordinates are `(x, y)`
 public function atan2(float y, float x) returns float = external;
 
-# IEEE sinh operation
+# Returns the hyperbolic sine of a float value.
+# Corresponds to IEEE sinh operation.
 #
-# + x - the number to take sinh
-# + return - hyperbolic sin of `x`
+# + x - float value to operate on
+# + return - hyperbolic sine of `x`
 public function sinh(float x) returns float = external;
 
-# IEEE cosh operation
+# Returns the hyperbolic cosine of a float value.
+# Corresponds to IEEE cosh operation.
 #
-# + x - the number to take cosh
-# + return - hyperbolic cos of x
+# + x - float value to operate on
+# + return - hyperbolic cosine of `x`
 public function cosh(float x) returns float = external;
 
-# IEEE tanh operation
+# Returns the hyperbolic tangent of a float value.
+# Corresponds to IEEE tanh operation.
 #
-# + x - the number to take tanh
-# + return - hyperbolic tangent of x
+# + x - float value to operate on
+# + return - hyperbolic tangent of `x`
 public function tanh(float x) returns float = external;
 
 # Return the float value represented by `s`.

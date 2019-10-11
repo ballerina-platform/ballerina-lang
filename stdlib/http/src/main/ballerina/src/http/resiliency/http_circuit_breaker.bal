@@ -16,7 +16,6 @@
 
 import ballerina/log;
 import ballerina/time;
-import ballerina/io;
 
 # A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.
 # If any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After
@@ -126,7 +125,7 @@ public type CircuitBreakerInferredConfig record {|
 public type CircuitBreakerClient client object {
 
     public string url;
-    public ClientEndpointConfig config;
+    public ClientConfiguration config;
     public CircuitBreakerInferredConfig circuitBreakerInferredConfig;
     public HttpClient httpClient;
     public CircuitHealth circuitHealth;
@@ -139,7 +138,7 @@ public type CircuitBreakerClient client object {
     # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
     # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
     # + circuitHealth - The circuit health monitor
-    public function __init(string url, ClientEndpointConfig config, CircuitBreakerInferredConfig
+    public function __init(string url, ClientConfiguration config, CircuitBreakerInferredConfig
                                         circuitBreakerInferredConfig, HttpClient httpClient, CircuitHealth circuitHealth) {
         self.url = url;
         self.config = config;
@@ -537,10 +536,10 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth,
 // Handles open circuit state.
 function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig)
              returns (ClientError) {
-    updateRejectedRequestCount(circuitHealth, circuitBreakerInferredConfig);
     time:Time effectiveErrorTime = getEffectiveErrorTime(circuitHealth);
     int timeDif = time:currentTime().time - effectiveErrorTime.time;
     int timeRemaining = circuitBreakerInferredConfig.resetTimeInMillis - timeDif;
+    updateRejectedRequestCount(circuitHealth, circuitBreakerInferredConfig);
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining.toString() + " milliseconds.";
     UpstreamServiceUnavailableError httpConnectorErr = error(UPSTREAM_SERVICE_UNAVAILABLE, message = errorMessage);

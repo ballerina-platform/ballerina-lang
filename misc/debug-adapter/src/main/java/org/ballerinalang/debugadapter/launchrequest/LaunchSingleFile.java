@@ -33,14 +33,14 @@ public class LaunchSingleFile extends LauncherImpl implements Launch {
     }
 
     @Override
-    public Process start() {
+    public Process start() throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder();
         String balFile = args.get("script").toString();
         processBuilder.command(getLauncherCommand(balFile));
-        try {
-            return processBuilder.start();
-        } catch (IOException e) {
-            return null;
-        }
+
+        Map<String, String> env = processBuilder.environment();
+        // set environment ballerina home
+        env.put("BALLERINA_HOME", getBallerinaHome());
+        return processBuilder.start();
     }
 }

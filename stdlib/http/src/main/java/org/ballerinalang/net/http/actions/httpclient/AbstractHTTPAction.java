@@ -26,6 +26,8 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -35,10 +37,10 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
-import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.net.http.CompressionConfigState;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,19 +61,19 @@ import java.net.URL;
 import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
-import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
  */
-public abstract class AbstractHTTPAction implements InterruptibleNativeCallableUnit {
+public abstract class AbstractHTTPAction {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
@@ -81,26 +83,16 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
 
-    @Override
-    public boolean persistBeforeOperation() {
-        return false;
-    }
-
-    @Override
-    public boolean persistAfterOperation() {
-        return false;
-    }
-
-    protected static HttpCarbonMessage createOutboundRequestMsg(String serviceUri, MapValue config, String path,
-                                                                ObjectValue request) {
+    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, MapValue config, 
+                                                                String path, ObjectValue request) {
         if (request == null) {
-            request = BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, REQUEST);
+            request = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, REQUEST);
         }
 
         HttpCarbonMessage requestMsg = HttpUtil.getCarbonMsg(request, HttpUtil.createHttpCarbonMessage(true));
         HttpUtil.checkEntityAvailability(request);
         HttpUtil.enrichOutboundMessage(requestMsg, request);
-        prepareOutboundRequest(serviceUri, path, requestMsg, isNoEntityBodyRequest(request));
+        prepareOutboundRequest(strand, serviceUri, path, requestMsg, isNoEntityBodyRequest(request));
         handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(config));
         return requestMsg;
     }
@@ -121,14 +113,13 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
     }
 
-    static void prepareOutboundRequest(String serviceUri, String path, HttpCarbonMessage outboundRequest,
+    static void prepareOutboundRequest(Strand strand, String serviceUri, String path, HttpCarbonMessage outboundRequest,
                                        Boolean nonEntityBodyReq) {
-        //TODO transaction code
-//        if (context.isInTransaction()) {
-//            TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
-//            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
-//            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, transactionLocalContext.getURL());
-//        }
+        if (strand.isInTransaction()) {
+            TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
+            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, transactionLocalContext.getURL());
+        }
         try {
             String uri = getServiceUri(serviceUri) + path;
             URL url = new URL(uri);
@@ -140,15 +131,17 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             setOutboundReqHeaders(outboundRequest, port, host);
 
         } catch (MalformedURLException e) {
-            throw new BallerinaException("Malformed url specified. " + e.getMessage());
+            throw HttpUtil.createHttpError("malformed URL specified. " + e.getMessage(),
+                                           HttpErrorType.GENERIC_CLIENT_ERROR);
         } catch (Exception e) {
-            throw new BallerinaException("Failed to prepare request. " + e.getMessage());
+            throw HttpUtil.createHttpError("failed to prepare request. " + e.getMessage(),
+                                           HttpErrorType.GENERIC_CLIENT_ERROR);
         }
     }
 
     private static String getServiceUri(String serviceUri) {
         if (serviceUri.isEmpty()) {
-            throw new BallerinaException("Service uri is not defined correctly.");
+            throw HttpUtil.createHttpError("service URI is not defined correctly.", HttpErrorType.GENERIC_CLIENT_ERROR);
         }
         return serviceUri;
     }
@@ -358,7 +351,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
                     exception.getMessage().contains(Constants.INBOUND_RESPONSE_ALREADY_RECEIVED)) {
                 logger.warn("Response already received before completing the outbound request", exception);
             } else {
-                throw exception;
+                throw HttpUtil.createHttpError(exception.getMessage(), HttpErrorType.GENERIC_CLIENT_ERROR);
             }
         }
     }
@@ -436,7 +429,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         @Override
         public void onResponseHandle(ResponseHandle responseHandle) {
-            ObjectValue httpFuture = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+            ObjectValue httpFuture = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                     HttpConstants.HTTP_FUTURE);
             httpFuture.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
             this.dataContext.notifyInboundResponseStatus(httpFuture, null);

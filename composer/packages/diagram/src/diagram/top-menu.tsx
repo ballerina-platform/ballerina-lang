@@ -8,17 +8,18 @@ export interface TopMenuProps {
         type: DiagramMode;
     }>;
     handleModeChange: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, props: DropdownItemProps) => void;
-    handleBackClick: () => void;
-    handleFitClick: () => void;
-    handleZoomIn: () => void;
-    handleZoomOut: () => void;
+    handleBackClick: (e: React.MouseEvent) => void;
+    handleFitClick: (e: React.MouseEvent) => void;
+    handleZoomIn: (e: React.MouseEvent) => void;
+    handleZoomOut: (e: React.MouseEvent) => void;
     selectedModeText: string;
     openedState: boolean;
-    handleOpened: () => void;
-    handleClosed: () => void;
-    handleReset: () => void;
+    handleOpened: (e: React.MouseEvent) => void;
+    handleClosed: (e: React.MouseEvent) => void;
+    handleReset: (e: React.MouseEvent) => void;
     handleDepthSelect: (depth: number) => void;
     maxInvocationDepth: number;
+    reachedInvocationDepth: number;
     zoomFactor: number;
 }
 
@@ -37,6 +38,7 @@ export const TopMenu = (props: TopMenuProps) => {
         openedState,
         zoomFactor = 1,
         maxInvocationDepth,
+        reachedInvocationDepth,
     } = props;
 
     return (
@@ -48,7 +50,8 @@ export const TopMenu = (props: TopMenuProps) => {
                 </div>
                 <div onClick={handleOpened} className="status-wrapper">
                     Zoom : <Label> {`${Math.floor(zoomFactor * 100)}%`} </Label>
-                    Depth : <Label>{maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}</Label>
+                    Depth : <Label>{maxInvocationDepth === -1 ?
+                        reachedInvocationDepth : maxInvocationDepth.toString()}</Label>
                     Design : <Label>{selectedModeText}</Label>
                 </div>
             </div> :
@@ -104,31 +107,24 @@ export const TopMenu = (props: TopMenuProps) => {
                     </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
                         <Dropdown
-                            text={maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}
-                            className="menu-dropdown-small"
+                            text={maxInvocationDepth === -1 ?
+                                reachedInvocationDepth.toString() : maxInvocationDepth.toString()}
+                            className="menu-dropdown-mid"
                         >
                             <Dropdown.Menu>
-                                <Dropdown.Item onClick={() => handleDepthSelect(0)} text={0} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(1)} text={1} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(2)} text={2} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(3)} text={3} />
-                                <Dropdown.Item onClick={() => handleDepthSelect(-1)} text={"All"} />
+                                {
+                                    (() => {
+                                        const items = [];
+
+                                        for (let i = 0; i < reachedInvocationDepth + 1; i++) {
+                                            items.push(<Dropdown.Item onClick={() => handleDepthSelect(i)} text={i} />);
+                                        }
+
+                                        return items;
+                                    })()
+                                }
                             </Dropdown.Menu>
                         </Dropdown>
-                        <Popup
-                            trigger={<Icon onClick={() => handleDepthSelect(-1)}  className="fw fw-expand-all"/>}
-                            content="Expand all"
-                            position="top center"
-                            size="small"
-                            inverted
-                        />
-                        <Popup
-                            trigger={<Icon onClick={() => handleDepthSelect(0)} className="fw fw-collapse-all"/>}
-                            content="Collapse all"
-                            position="top center"
-                            size="small"
-                            inverted
-                        />
                     </Grid.Column>
                     <Grid.Column width={3} />
                 </Grid.Row>

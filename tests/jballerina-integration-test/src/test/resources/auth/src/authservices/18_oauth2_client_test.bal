@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerina/config;
 import ballerina/oauth2;
 
 // Test the client credentials grant type with valid credentials
@@ -23,12 +23,26 @@ oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
     tokenUrl: "https://localhost:20102/oauth2/token/authorize/header",
     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
     clientSecret: "9205371918321623741",
-    scopes: ["token-scope1", "token-scope2"]
+    scopes: ["token-scope1", "token-scope2"],
+    clientConfig: {
+        secureSocket: {
+           trustStore: {
+               path: config:getAsString("truststore"),
+               password: "ballerina"
+           }
+        }
+    }
 });
 http:BearerAuthHandler oauth2Handler1 = new(oauth2Provider1);
 http:Client clientEP1 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler1
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -37,12 +51,26 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
     tokenUrl: "https://localhost:20102/oauth2/token/authorize/header",
     clientId: "invalid_client_id",
     clientSecret: "invalid_client_secret",
-    scopes: ["token-scope1", "token-scope2"]
+    scopes: ["token-scope1", "token-scope2"],
+    clientConfig: {
+        secureSocket: {
+           trustStore: {
+               path: config:getAsString("truststore"),
+               password: "ballerina"
+           }
+        }
+    }
 });
 http:BearerAuthHandler oauth2Handler2 = new(oauth2Provider2);
 http:Client clientEP2 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler2
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -52,12 +80,26 @@ oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
     tokenUrl: "https://localhost:20102/oauth2/token/authorize/body",
     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
     clientSecret: "9205371918321623741",
-    scopes: ["token-scope1", "token-scope2"]
+    scopes: ["token-scope1", "token-scope2"],
+    clientConfig: {
+        secureSocket: {
+           trustStore: {
+               path: config:getAsString("truststore"),
+               password: "ballerina"
+           }
+        }
+    }
 });
 http:BearerAuthHandler oauth2Handler3 = new(oauth2Provider3);
 http:Client clientEP3 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler3
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -67,12 +109,26 @@ oauth2:OutboundOAuth2Provider oauth2Provider4 = new({
     tokenUrl: "https://localhost:20102/oauth2/token/authorize/body",
     clientId: "invalid_client_id",
     clientSecret: "invalid_client_secret",
-    scopes: ["token-scope1", "token-scope2"]
+    scopes: ["token-scope1", "token-scope2"],
+    clientConfig: {
+        secureSocket: {
+           trustStore: {
+               path: config:getAsString("truststore"),
+               password: "ballerina"
+           }
+        }
+    }
 });
 http:BearerAuthHandler oauth2Handler4 = new(oauth2Provider4);
 http:Client clientEP4 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler4
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -83,12 +139,26 @@ oauth2:OutboundOAuth2Provider oauth2Provider5 = new({
     password: "A3ddj3w",
     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
     clientSecret: "9205371918321623741",
-    scopes: ["token-scope1", "token-scope2"]
+    scopes: ["token-scope1", "token-scope2"],
+    clientConfig: {
+        secureSocket: {
+           trustStore: {
+               path: config:getAsString("truststore"),
+               password: "ballerina"
+           }
+        }
+    }
 });
 http:BearerAuthHandler oauth2Handler5 = new(oauth2Provider5);
 http:Client clientEP5 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler5
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -102,13 +172,35 @@ oauth2:OutboundOAuth2Provider oauth2Provider6 = new({
     scopes: ["token-scope1", "token-scope2"],
     refreshConfig: {
         refreshUrl: "https://localhost:20102/oauth2/token/refresh",
-        scopes: ["token-scope1", "token-scope2"]
+        scopes: ["token-scope1", "token-scope2"],
+        clientConfig: {
+            secureSocket: {
+               trustStore: {
+                   path: config:getAsString("truststore"),
+                   password: "ballerina"
+               }
+            }
+        }
+    },
+    clientConfig: {
+        secureSocket: {
+           trustStore: {
+               path: config:getAsString("truststore"),
+               password: "ballerina"
+           }
+        }
     }
 });
 http:BearerAuthHandler oauth2Handler6 = new(oauth2Provider6);
 http:Client clientEP6 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler6
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -122,13 +214,35 @@ oauth2:OutboundOAuth2Provider oauth2Provider7 = new({
     scopes: ["token-scope1", "token-scope2"],
     refreshConfig: {
         refreshUrl: "https://localhost:20102/oauth2/token/refresh",
-        scopes: ["token-scope1", "token-scope2"]
+        scopes: ["token-scope1", "token-scope2"],
+        clientConfig: {
+            secureSocket: {
+               trustStore: {
+                   path: config:getAsString("truststore"),
+                   password: "ballerina"
+               }
+            }
+        }
+    },
+    clientConfig: {
+        secureSocket: {
+           trustStore: {
+               path: config:getAsString("truststore"),
+               password: "ballerina"
+           }
+        }
     }
 });
 http:BearerAuthHandler oauth2Handler7 = new(oauth2Provider7);
 http:Client clientEP7 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler7
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -138,12 +252,26 @@ oauth2:OutboundOAuth2Provider oauth2Provider8 = new({
     tokenUrl: "https://localhost:20102/oauth2/token/authorize/none",
     username: "johndoe",
     password: "A3ddj3w",
-    scopes: ["token-scope1", "token-scope2"]
+    scopes: ["token-scope1", "token-scope2"],
+    clientConfig: {
+        secureSocket: {
+           trustStore: {
+               path: config:getAsString("truststore"),
+               password: "ballerina"
+           }
+        }
+    }
 });
 http:BearerAuthHandler oauth2Handler8 = new(oauth2Provider8);
 http:Client clientEP8 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler8
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -155,6 +283,12 @@ http:BearerAuthHandler oauth2Handler9 = new(oauth2Provider9);
 http:Client clientEP9 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler9
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -166,6 +300,12 @@ http:BearerAuthHandler oauth2Handler10 = new(oauth2Provider10);
 http:Client clientEP10 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler10
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -177,13 +317,27 @@ oauth2:OutboundOAuth2Provider oauth2Provider11 = new({
         refreshToken: "XlfBs91yquexJqDaKEMzVg==",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
-        scopes: ["token-scope1", "token-scope2"]
+        scopes: ["token-scope1", "token-scope2"],
+        clientConfig: {
+            secureSocket: {
+               trustStore: {
+                   path: config:getAsString("truststore"),
+                   password: "ballerina"
+               }
+            }
+        }
     }
 });
 http:BearerAuthHandler oauth2Handler11 = new(oauth2Provider11);
 http:Client clientEP11 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler11
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -196,6 +350,12 @@ http:BearerAuthHandler oauth2Handler12 = new(oauth2Provider12);
 http:Client clientEP12 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler12
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -208,13 +368,27 @@ oauth2:OutboundOAuth2Provider oauth2Provider13 = new({
         refreshToken: "XlfBs91yquexJqDaKEMzVg==",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
-        scopes: ["token-scope1", "token-scope2"]
+        scopes: ["token-scope1", "token-scope2"],
+        clientConfig: {
+            secureSocket: {
+               trustStore: {
+                   path: config:getAsString("truststore"),
+                   password: "ballerina"
+               }
+            }
+        }
     }
 });
 http:BearerAuthHandler oauth2Handler13 = new(oauth2Provider13);
 http:Client clientEP13 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler13
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
@@ -226,20 +400,52 @@ oauth2:OutboundOAuth2Provider oauth2Provider14 = new({
         refreshToken: "invalid_refresh_token",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
-        scopes: ["token-scope1", "token-scope2"]
+        scopes: ["token-scope1", "token-scope2"],
+        clientConfig: {
+            secureSocket: {
+               trustStore: {
+                   path: config:getAsString("truststore"),
+                   password: "ballerina"
+               }
+            }
+        }
     }
 });
 http:BearerAuthHandler oauth2Handler14 = new(oauth2Provider14);
 http:Client clientEP14 = new("https://localhost:20101", {
     auth: {
         authHandler: oauth2Handler14
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
+    }
+});
+
+// Test the direct token mode with valid credentials (with the retrying request set as false) and without a refresh config
+oauth2:OutboundOAuth2Provider oauth2Provider15 = new({
+    accessToken: "2YotnFZFEjr1zCsicMWpAA",
+    retryRequest: false
+});
+http:BearerAuthHandler oauth2Handler15 = new(oauth2Provider15);
+http:Client clientEP15 = new("https://localhost:20101", {
+    auth: {
+        authHandler: oauth2Handler15
+    },
+    secureSocket: {
+       trustStore: {
+           path: config:getAsString("truststore"),
+           password: "ballerina"
+       }
     }
 });
 
 listener http:Listener listener18 = new(20028, {
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }
@@ -285,6 +491,8 @@ service echo18 on listener18 {
             backendResponse = clientEP13->post("/foo/bar", request);
         } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_INVALID_REFRESH_CONFIG") {
             backendResponse = clientEP14->post("/foo/bar", request);
+        } else if (testCase == "DIRECT_TOKEN_WITH_VALID_CREDENTIALS_AND_NO_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE") {
+            backendResponse = clientEP15->post("/foo/bar", request);
         }
 
         if (backendResponse is http:Response) {

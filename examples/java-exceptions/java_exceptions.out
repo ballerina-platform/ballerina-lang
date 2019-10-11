@@ -1,0 +1,5 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run java-exceptions.bal
+error java.lang.ClassNotFoundException message=a.b.c.z.SomeClass
+error java.lang.NullPointerException

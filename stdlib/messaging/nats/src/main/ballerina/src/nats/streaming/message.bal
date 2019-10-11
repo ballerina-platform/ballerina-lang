@@ -17,24 +17,23 @@
 # Represents the message a NATS Streaming Server sends to a subscription service.
 public type StreamingMessage client object {
    private byte[] content;
-
    private string subject;
 
-   public function __init(string subject, byte[] content) {
+   function __init(string subject, byte[] content) {
        self.subject = subject;
        self.content = content;
    }
 
    # Get the message content.
    #
-   # + return - the data from the message as a 'byte[]'.
+   # + return - The data from the message as a 'byte[]'.
    public function getData() returns byte[] {
        return self.content;
    }
 
    # Get the subject.
    #
-   # + return - subject value.
+   # + return - The subject that this message was sent to.
    public function getSubject() returns string {
        return self.subject;
    }

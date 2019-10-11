@@ -14,7 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/bir;
+import ballerina/file;
+import ballerina/io;
 import ballerina/jvm;
+import ballerina/stringutils;
 
 type BIRFunctionWrapper record {
     string orgName;
@@ -24,6 +28,8 @@ type BIRFunctionWrapper record {
     string fullQualifiedClassName;
     string jvmMethodDescription;
 };
+
+DiagnosticLogger dlogger = new ();
 
 map<BIRFunctionWrapper> birFunctionMap = {};
 
@@ -37,7 +43,13 @@ map<bir:Package> compiledPkgCache = {};
 
 map<string> externalMapCache = {};
 
+map<bir:ModuleID> dependentModules = {};
+
+bir:ModuleID[] dependentModuleArray = [];
+
 string currentClass = "";
+
+int lambdaIndex = 0;
 
 function lookupFullQualifiedClassName(string key) returns string {
     if (birFunctionMap.hasKey(key)) {
@@ -103,14 +115,21 @@ function lookupGlobalVarClassName(string key) returns string {
     }
 }
 
+function generateDependencyList(bir:ModuleID moduleId, @tainted JarFile jarFile) {
+    generatePackage(moduleId, jarFile, false);
+    string pkgName = getPackageName(moduleId.org, moduleId.name);
+    if (!dependentModules.hasKey(pkgName)) {
+        dependentModules[pkgName] = moduleId;
+    }
+}
+
 public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile, boolean isEntry) {
     string orgName = moduleId.org;
     string moduleName = moduleId.name;
     string pkgName = getPackageName(orgName, moduleName);
 
     [bir:Package, boolean] [ module, isFromCache ] = lookupModule(moduleId);
-
-    if (!isEntry && isFromCache) {
+    if(!isEntry && isFromCache) {
         return;
     }
 
@@ -118,15 +137,27 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
 
     // generate imported modules recursively
     foreach var mod in module.importModules {
-        generatePackage(importModuleToModuleId(mod), jarFile, false);
+        generateDependencyList(importModuleToModuleId(mod), jarFile);
+        if (dlogger.getErrorCount() > 0) {
+            return;
+        }
     }
 
     typeOwnerClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, <@untainted> lambdas);
-
-    if (!isEntry) {
+    if (!isEntry || dlogger.getErrorCount() > 0) {
         return;
     }
+    
+    injectDefaultParamInits(module);
+    injectDefaultParamInitsToAttachedFuncs(module);
+    // create dependant modules flat array
+    createDependantModuleFlatArray();
+    // enrich current package with package initializers
+    enrichPkgWithInitializers(jvmClassMap, typeOwnerClass, module, dependentModuleArray);
+
+    // generate the shutdown listener class.
+    generateShutdownSignalListener(module, typeOwnerClass, jarFile.pkgEntries);
 
     boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
@@ -137,6 +168,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
     generateFrameClasses(module, jarFile.pkgEntries);
+
     foreach var [ moduleClass, v ] in jvmClassMap.entries() {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         currentClass = <@untainted> moduleClass;
@@ -144,7 +176,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
             generateDefaultConstructor(cw, VALUE_CREATOR);
             generateUserDefinedTypeFields(cw, module.typeDefs);
-            generateValueCreatorMethods(cw, module.typeDefs, pkgName);
+            generateValueCreatorMethods(cw, module.typeDefs, moduleId);
             // populate global variable to class name mapping and generate them
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
@@ -153,23 +185,25 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
                 }
             }
 
-            if (isEntry) {
+            if (isEntry) {  // TODO: this check seems redundant: check and remove
                 bir:Function? mainFunc = getMainFunc(module?.functions);
                 string mainClass = "";
                 if (mainFunc is bir:Function) {
                     mainClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName,
-                                                        cleanupBalExt(mainFunc.pos.sourceFileName));
+                                       <@untainted> cleanupPathSeperators(cleanupBalExt(mainFunc.pos.sourceFileName)));
                 }
 
                 generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
                 if (mainFunc is bir:Function) {
                     generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
                 }
-                generateLambdaForPackageInits(cw, module, mainClass, moduleClass);
+                generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
                 jarFile.manifestEntries["Main-Class"] = moduleClass;
             }
             generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
             generateCreateTypesMethod(cw, module.typeDefs);
+            generateModuleInitializer(cw, module);
+            generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);
@@ -177,7 +211,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         cw.visitSource(v.sourceFileName);
         // generate methods
         foreach var func in v.functions {
-            generateMethod(getFunction(func), cw, module);
+            generateMethod(getFunction(func), cw, module, serviceName = getFunction(func).workerName.value);
         }
         // generate lambdas created during generating methods
         foreach var [name, call] in lambdas.entries() {
@@ -185,9 +219,22 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         }
         // clear the lambdas
         lambdas = {};
+        lambdaIndex = 0;
         cw.visitEnd();
-        byte[] classContent = cw.toByteArray();
-        jarFile.pkgEntries[moduleClass + ".class"] = classContent;
+
+        var result = cw.toByteArray();
+        if (result is error) {
+            logCompileError(result, module, module);
+            jarFile.pkgEntries[moduleClass + ".class"] = [];
+        } else {
+            jarFile.pkgEntries[moduleClass + ".class"] = result;
+        }
+    }
+}
+
+function createDependantModuleFlatArray() {
+    foreach var [k, id] in dependentModules.entries() {
+        dependentModuleArray[dependentModuleArray.length()] = id;
     }
 }
 
@@ -261,7 +308,7 @@ function lookupModule(bir:ModuleID modId) returns [bir:Package, boolean] {
         var cacheDir = findCacheDirFor(modId);
         var parsedPkg = bir:populateBIRModuleFromBinary(readFileFully(calculateBirCachePath(cacheDir, modId, ".bir")), true);
         var mappingFile = calculateBirCachePath(cacheDir, modId, ".map.json");
-        if (system:exists(mappingFile)) {
+        if (file:exists(mappingFile)) {
             var externalMap = readMap(mappingFile);
             foreach var [key,val] in externalMap.entries() {
                 externalMapCache[key] = val;
@@ -275,7 +322,7 @@ function lookupModule(bir:ModuleID modId) returns [bir:Package, boolean] {
 function findCacheDirFor(bir:ModuleID modId) returns string {
     foreach var birCacheDir in birCacheDirs {
         string birPath = calculateBirCachePath(birCacheDir, modId, ".bir");
-        if (system:exists(birPath)) {
+        if (file:exists(birPath)) {
             return birCacheDir;
         }
     }
@@ -293,12 +340,16 @@ function calculateBirCachePath(string birCacheDir, bir:ModuleID modId, string ex
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    string className = cleanupName(sourceFileName);
+    string className = cleanupSourceFileName(sourceFileName);
+    // handle source file path start with '/'.
+    if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
+        className = className.substring(1, className.length());
+    }
     if (moduleName != ".") {
         className = cleanupName(moduleName) + "/" + className;
     }
 
-    if (!internal:equalsIgnoreCase(orgName, "$anon")) {
+    if (!stringutils:equalsIgnoreCase(orgName, "$anon")) {
         className = cleanupName(orgName) + "/" + className;
     }
 
@@ -311,7 +362,7 @@ function getPackageName(string orgName, string moduleName) returns string {
         packageName = cleanupName(moduleName) + "/";
     }
 
-    if (!internal:equalsIgnoreCase(orgName, "$anon")) {
+    if (!stringutils:equalsIgnoreCase(orgName, "$anon")) {
         packageName = cleanupName(orgName) + "/" + packageName;
     }
 
@@ -319,18 +370,22 @@ function getPackageName(string orgName, string moduleName) returns string {
 }
 
 function splitPkgName(string key) returns [string, string] {
-    int index = internal:lastIndexOf(key, "/");
+    int index = stringutils:lastIndexOf(key, "/");
     string pkgName = key.substring(0, index);
     string functionName = key.substring(index + 1, key.length());
     return [pkgName, functionName];
 }
 
 function cleanupName(string name) returns string {
-    return internal:replace(name, ".","_");
+    return stringutils:replace(name, ".","_");
+}
+
+function cleanupSourceFileName(string name) returns string {
+    return stringutils:replace(name, ".", FILE_NAME_PERIOD_SEPERATOR);
 }
 
 function cleanupPackageName(string pkgName) returns string {
-    int index = internal:lastIndexOf(pkgName, "/");
+    int index = stringutils:lastIndexOf(pkgName, "/");
     if (index > 0) {
         return pkgName.substring(0, index);
     } else {
@@ -338,7 +393,7 @@ function cleanupPackageName(string pkgName) returns string {
     }
 }
 
-# Java Class will be generate for each source file. This method add class mappings to globalVar and filters the 
+# Java Class will be generate for each source file. This method add class mappings to globalVar and filters the
 # functions based on their source file name and then returns map of associated java class contents.
 #
 # + module - The module
@@ -346,9 +401,9 @@ function cleanupPackageName(string pkgName) returns string {
 # + initClass - The module init class
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
-function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
+function generateClassNameMappings(bir:Package module, string pkgName, string initClass,
                                    map<bir:AsyncCall|bir:FPLoad> lambdaCalls) returns map<JavaClass> {
-    
+
     string orgName = module.org.value;
     string moduleName = module.name.value;
     string versionValue = module.versionValue.value;
@@ -364,21 +419,32 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
     if (functions.length() > 0) {
         int funcSize = functions.length();
         int count  = 0;
-        // Generate init class. Init function should be the first function of the package, hence check first 
+        // Generate init class. Init function should be the first function of the package, hence check first
         // function.
         bir:Function initFunc = <bir:Function>functions[0];
         string functionName = initFunc.name.value;
         JavaClass class = { sourceFileName:initFunc.pos.sourceFileName, moduleClass:initClass };
         class.functions[0] = initFunc;
+        addInitAndTypeInitInstructions(module, initFunc);
         jvmClassMap[initClass] = class;
-        birFunctionMap[pkgName + functionName] = getFunctionWrapper(getFunction(initFunc), orgName, moduleName,
+        birFunctionMap[pkgName + functionName] = getFunctionWrapper(initFunc, orgName, moduleName,
                                                                     versionValue, initClass);
         count += 1;
 
+        // Add start function
         bir:Function startFunc = <bir:Function>functions[1];
         functionName = startFunc.name.value;
-
+        birFunctionMap[pkgName + functionName] = getFunctionWrapper(startFunc, orgName, moduleName,
+                                                                    versionValue, initClass);
         class.functions[1] = startFunc;
+        count += 1;
+
+        // Add stop function
+        bir:Function stopFunc = <bir:Function>functions[2];
+        functionName = stopFunc.name.value;
+        birFunctionMap[pkgName + functionName] = getFunctionWrapper(stopFunc, orgName, moduleName,
+                                                                    versionValue, initClass);
+        class.functions[2] = stopFunc;
         count += 1;
 
         // Generate classes for other functions.
@@ -402,17 +468,24 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 }
             }
 
-            BIRFunctionWrapper birFuncWrapper;
+            BIRFunctionWrapper | error birFuncWrapperOrError;
             if (isExternFunc(getFunction(birFunc))) {
-                birFuncWrapper = createExternalFunctionWrapper(birFunc, orgName, moduleName,
+                birFuncWrapperOrError = createExternalFunctionWrapper(birFunc, orgName, moduleName,
                                                     versionValue, birModuleClassName);
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc);
-                birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, birModuleClassName);
+                birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, birModuleClassName);
             }
-            birFunctionMap[pkgName + birFuncName] = birFuncWrapper;
+
+            if (birFuncWrapperOrError is error) {
+                dlogger.logError(<@untainted> birFuncWrapperOrError, <@untainted> birFunc.pos, <@untainted> module);
+                continue;
+            } else {
+                birFunctionMap[pkgName + birFuncName] = birFuncWrapperOrError;
+            }
         }
     }
+
     // link typedef - object attached native functions
     bir:TypeDef?[] typeDefs = module.typeDefs;
 
@@ -425,19 +498,25 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             typeDefMap[key] = typeDef;
         }
 
-        if (bType is bir:BObjectType && !bType.isAbstract) {
+        if ((bType is bir:BObjectType && !bType.isAbstract) || bType is bir:BServiceType) {
             bir:Function?[] attachedFuncs = getFunctions(typeDef.attachedFuncs);
+            string typeName = "";
+            if (bType is bir:BObjectType) {
+                typeName = bType.name.value;
+            } else {
+                typeName = bType.oType.name.value;
+            }
             foreach var func in attachedFuncs {
 
                 // link the bir function for lookup
                 bir:Function currentFunc = getFunction(func);
                 string functionName = currentFunc.name.value;
-                string lookupKey = bType.name.value + "." + functionName;
+                string lookupKey = typeName + "." + functionName;
 
                 if (!isExternFunc(currentFunc)) {
-                    var result = pkgName + cleanupTypeName(bType.name.value);
+                    string className = getTypeValueClassName(module, typeName);
                     birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
-                                                                        versionValue, result);
+                                                                        versionValue, className);
                     continue;
                 }
 
@@ -455,7 +534,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
     return jvmClassMap;
 }
 
-function getFunctionWrapper(bir:Function currentFunc, string orgName ,string moduleName, 
+function getFunctionWrapper(bir:Function currentFunc, string orgName ,string moduleName,
                             string versionValue,  string  moduleClass) returns BIRFunctionWrapper {
 
     bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
@@ -484,7 +563,6 @@ function importModuleToModuleId(bir:ImportModule mod) returns bir:ModuleID {
 }
 
 function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
-
     // Add the builtin and utils modules to the imported list of modules
     bir:ImportModule annotationsModule = {modOrg : {value:"ballerina"},
                                           modName : {value:"lang.annotations"},
@@ -613,4 +691,32 @@ function readFileFully(string path) returns byte[]  = external;
 
 public function lookupExternClassName(string pkgName, string functionName) returns string? {
     return externalMapCache[cleanupName(pkgName) + "/" + functionName];
+}
+
+function generateShutdownSignalListener(bir:Package pkg, string initClass, map<byte[]> jarEntries) {
+    string innerClassName = initClass + "$SignalListener";
+    jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+    cw.visit(V1_8, ACC_SUPER, innerClassName, (), JAVA_THREAD, ());
+
+    // create constructor
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", (), ());
+    mv.visitCode();
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitMethodInsn(INVOKESPECIAL, JAVA_THREAD, "<init>", "()V", false);
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+
+    // implement run() method
+    mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", (), ());
+    mv.visitCode();
+
+    mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP, "()V", false);
+
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+
+    cw.visitEnd();
+    jarEntries[innerClassName + ".class"] = checkpanic cw.toByteArray();
 }

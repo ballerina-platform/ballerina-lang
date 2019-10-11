@@ -18,11 +18,13 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,43 +34,109 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Task for creating the executable jar file.
  */
 public class CreateExecutableTask implements Task {
     
+    private static HashSet<String> excludeExtensions =  new HashSet<>(Lists.of("DSA", "SF"));
+
+    private boolean skipCopyLibsFromDist = false;
+
+    public CreateExecutableTask(boolean skipCopyLibsFromDist) {
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+    }
+
+    public CreateExecutableTask() {
+    }
+    
     @Override
     public void execute(BuildContext buildContext) {
+        Optional<BLangPackage> modulesWithEntryPoints = buildContext.getModules().stream()
+                .filter(m -> m.symbol.entryPointExists)
+                .findAny();
         
-        buildContext.out().println("Generating executables");
-        
-        for (BLangPackage module : buildContext.getModules()) {
-            if (module.symbol.entryPointExists) {
-                assembleExecutable(buildContext, module);
+        if (modulesWithEntryPoints.isPresent()) {
+            buildContext.out().println();
+            buildContext.out().println("Generating executables");
+            for (BLangPackage module : buildContext.getModules()) {
+                if (module.symbol.entryPointExists) {
+                    Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
+                    copyJarFromCachePath(buildContext, module, executablePath);
+                    // Copy ballerina runtime all jar
+                    URI uberJarUri = URI.create("jar:" + executablePath.toUri().toString());
+                    // Load the to jar to a file system
+                    try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
+                        if (!skipCopyLibsFromDist) {
+                            copyRuntimeAllJar(buildContext, toFs);
+                        }
+                        assembleExecutable(buildContext, module, toFs);
+                    } catch (IOException e) {
+                        throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
+                    }
+                }
+            }
+        } else {
+            switch (buildContext.getSourceType()) {
+                case SINGLE_BAL_FILE:
+                    SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                    throw createLauncherException("no entry points found in '" + singleFileContext.getBalFile() + "'.");
+                case SINGLE_MODULE:
+                    SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                    throw createLauncherException("no entry points found in '" + singleModuleContext.getModuleName() +
+                                                  "'.\n" +
+                            "Use `ballerina build -c` to compile the module without building executables.");
+                case ALL_MODULES:
+                    throw createLauncherException("no entry points found in any of the modules.\n" +
+                            "Use `ballerina build -c` to compile the modules without building executables.");
+                default:
+                    throw createLauncherException("unknown source type found when creating executable.");
             }
         }
     }
-    
-    private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage) {
+
+    private void copyJarFromCachePath(BuildContext buildContext, BLangPackage bLangPackage, Path executablePath) {
+        Path jarFromCachePath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
         try {
             // Copy the jar from cache to bin directory
-            Path executablePath = buildContext.getExecutablePathFromTarget(bLangPackage.packageID);
+            Files.copy(jarFromCachePath, executablePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw createLauncherException("unable to copy the jar from cache path :" + e.getMessage());
+        }
+    }
 
+    private void copyRuntimeAllJar(BuildContext buildContext, FileSystem toFs) {
+        String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
+        String ballerinaVersion = System.getProperty("ballerina.version");
+        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        Path runtimeAllJar = Paths.get(balHomePath, "bre", "lib", runtimeJarName);
+        try {
+            copyFromJarToJar(runtimeAllJar, toFs);
+        } catch (IOException e) {
+            throw createLauncherException("unable to copy the ballerina runtime all jar :" + e.getMessage());
+        }
+    }
+    
+    private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage, FileSystem toFs) {
+        try {
             Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
             Path tmpDir = targetDir.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
-            Path jarFromCachePath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
-
             // Check if the package has an entry point.
             if (bLangPackage.symbol.entryPointExists) {
-                Files.copy(jarFromCachePath, executablePath, StandardCopyOption.REPLACE_EXISTING);
                 for (File file : tmpDir.toFile().listFiles()) {
                     if (!file.isDirectory()) {
-                        copyFromJarToJar(file.toPath(), executablePath);
+                        copyFromJarToJar(file.toPath(), toFs);
                     }
                 }
             }
@@ -77,22 +145,18 @@ public class CreateExecutableTask implements Task {
             // Executable is created at give location.
             // If no entry point is found we do nothing.
         } catch (IOException | NullPointerException e) {
-            throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
+            throw createLauncherException("unable to create the executable: " + e.getMessage());
         }
     }
 
-    private static void copyFromJarToJar(Path fromJar, Path toJar) throws IOException {
-        URI uberJarUri = URI.create("jar:" + toJar.toUri().toString());
-        // Load the to jar to a file system
-        try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
-            Path to = toFs.getRootDirectories().iterator().next();
-            URI moduleJarUri = URI.create("jar:" + fromJar.toUri().toString());
-            // Load the from jar to a file system.
-            try (FileSystem fromFs = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())) {
-                Path from = fromFs.getRootDirectories().iterator().next();
-                // Walk and copy the files.
-                Files.walkFileTree(from, new Copy(from, to));
-            }
+    private static void copyFromJarToJar(Path fromJar, FileSystem toFs) throws IOException {
+        Path to = toFs.getRootDirectories().iterator().next();
+        URI moduleJarUri = URI.create("jar:" + fromJar.toUri().toString());
+        // Load the from jar to a file system.
+        try (FileSystem fromFs = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())) {
+            Path from = fromFs.getRootDirectories().iterator().next();
+            // Walk and copy the files.
+            Files.walkFileTree(from, new Copy(from, to));
         }
     }
     
@@ -113,9 +177,7 @@ public class CreateExecutableTask implements Task {
         }
         
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
-            
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
             if (!Files.exists(targetPath)) {
                 Files.createDirectory(targetPath);
@@ -124,10 +186,12 @@ public class CreateExecutableTask implements Task {
         }
         
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Path toFile = toPath.resolve(fromPath.relativize(file).toString());
-            if (!Files.exists(toFile)) {
+            String fileName = toFile.getFileName().toString();
+            if ((!Files.exists(toFile) &&
+                    !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1))) ||
+                    toFile.toString().startsWith("/META-INF/services")) {
                 Files.copy(file, toFile, copyOption);
             }
             return FileVisitResult.CONTINUE;

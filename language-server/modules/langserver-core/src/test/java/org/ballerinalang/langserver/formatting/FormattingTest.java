@@ -157,6 +157,18 @@ public class FormattingTest {
                 {"expectedForkJoin.bal", "forkJoin.bal"},
                 {"expectedEmpty.bal", "empty.bal"},
                 {"expectedDelimiter.bal", "delimiter.bal"},
+                {"expectedXmlns.bal", "xmlns.bal"},
+                {"expectedXMLTextLiteral.bal", "xmlTextLiteral.bal"},
+                {"expectedXMLCommentLiteral.bal", "xmlCommentLiteral.bal"},
+                {"expectedXMLPILiteral.bal", "xmlPILiteral.bal"},
+                {"expectedXMLElementLiteral.bal", "xmlElementLiteral.bal"},
+                {"expectedXMLAttribute.bal", "xmlAttribute.bal"},
+                {"expectedXMLAttributeAccessExpr.bal", "xmlAttributeAccessExpr.bal"},
+                {"expectedXMLQName.bal", "xmlQName.bal"},
+                {"expectedUnicodeCharTest.bal", "unicodeCharTest.bal"},
+                {"expectedTupleTypeRest.bal", "tupleTypeRest.bal"},
+                {"expectedTupleDestructure.bal", "tupleDestructure.bal"},
+                {"expectedNegativeEOF.bal", "negativeEOF.bal"},
         };
     }
 

@@ -55,21 +55,15 @@ public class BallerinaInvocationImpl extends ASTWrapperPsiElement implements Bal
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getDot() {
-    return findChildByType(DOT);
+    return findNotNullChildByType(DOT);
   }
 
   @Override
   @NotNull
   public PsiElement getLeftParenthesis() {
     return findNotNullChildByType(LEFT_PARENTHESIS);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getNot() {
-    return findChildByType(NOT);
   }
 
   @Override

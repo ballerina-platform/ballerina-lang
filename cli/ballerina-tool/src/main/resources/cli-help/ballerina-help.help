@@ -1,60 +1,54 @@
 NAME
-    Ballerina help - Display help information about ballerina
+       The Ballerina build tool
 
 SYNOPSIS
-    ballerina help [COMMAND]
+       ballerina [-v | --version] [-h | --help]
+                 <command> [<args>]
+
 
 DESCRIPTION
-     With no COMMAND given, the synopsis of the ballerina command 
-     and a list of Ballerina commands are printed on the standard
-     output.
+       Ballerina is a statically typed, concurrent programming language, focusing on network interaction and structured
+       data. It is intended to be the core of a language-centric middleware platform. It has all the general-purpose
+       functionality expected of a modern programming language, but it also has several unusual aspects that make it
+       particularly suitable for its intended purpose.
 
-     If a command is given, the help page for the given command 
-     is printed. 
+       Find more information at: https://ballerina.io/
 
-     Note that ballerina ?, ballerina –h, and ballerina --help are  
-     identical to ballerina help. Those formats are internally 
-     converted into ballerina help.
-
-     ballerina command synopsis: 
-         ballerina [COMMAND] [options]
-
-     COMMAND is one of the available commands listed below:
-         run        Run Ballerina program
-         compile    Compile Ballerina module in-to a sharable
-                    library(balo).
-         build      Compile Ballerina program in-to an executable
-         clean      Clean artifacts generated during compile/build
-         test       Test Ballerina program
-         doc        Generate Ballerina API documentation
-
-         pull       Download modules from Ballerina Central
-         push       Upload modules to Ballerina Central
-         search     Search for modules within Ballerina Central
-
-         version    Print Ballerina version
-
-         new        Initialize Ballerina project
-         create     Initialize Ballerina module from a template
-
-         sdks       List available ballerina SDKs
-         install    Install a given SDK version
-         update     Update to latest SDK version
-         remove     Delete locally installed SDK version
-
-         encrypt    Encrypt sensitive data
-         grpc       Generate connector/service using protobuf
-                    Definition
-         openapi    Generate client/service using openapi definition
-                    or export openapi file for a Ballerina service
-         format     Formats Ballerina source code.
 
 OPTIONS
-     Ballerina help does not take command line options.
+       -v, --version
+           Print the Ballerina version information.
 
-EXAMPLES
-     Look for help on how to use the ballerina command 
-     $ ballerina help 
+       -h, --help
+           Print usage details of a command.
 
-     Learn how to use the Ballerina run command  
-     $ ballerina help run
+
+BALLERINA COMMANDS
+        Here is a list of available subcommands:
+
+   Core Commands:
+        build           Compile Ballerina program into an executable
+        run             Build and run Ballerina program
+        test            Run module tests
+        doc             Generate API documentation
+        clean           Clean artifacts generated during the build
+        format          Format Ballerina sources
+
+   Module Commands:
+        pull            Pull a module from Ballerina Central
+        push            Upload module to the Ballerina Central
+        search          Search Ballerina Central for modules
+
+   Project Commands:
+        new             Create a new Ballerina project
+        add             Create a new Ballerina module in a project
+
+   Other Commands:
+        encrypt         Encrypt sensitive data
+        grpc            Generate Ballerina sources for the given protobuf definition
+        openapi         Generate Ballerina sources for the given OpenAPI definition and vice versa.
+        version         Print Ballerina version
+
+
+See 'ballerina help <command>' for more information on a specific command.
+

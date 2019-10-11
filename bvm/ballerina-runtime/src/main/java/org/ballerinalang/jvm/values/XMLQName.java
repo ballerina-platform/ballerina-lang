@@ -17,15 +17,19 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
-import java.util.List;
 import java.util.Map;
 
 /**
+ * <p>
  * Represents an XML qualified name in ballerina.
+ * </p>
+ * <p>
+ * <i>Note: This is an internal API and may change in future versions.</i>
+ * </p>
  * 
  * @since 0.995.0
  */
@@ -65,17 +69,13 @@ public final class XMLQName implements RefValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(Strand strand) {
         return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
     }
 
     @Override
     public BType getType() {
         return BTypes.typeXMLAttributes;
-    }
-
-    @Override
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
     }
 
     @Override

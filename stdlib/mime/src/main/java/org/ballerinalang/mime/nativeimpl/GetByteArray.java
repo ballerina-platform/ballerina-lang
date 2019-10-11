@@ -21,13 +21,14 @@ package org.ballerinalang.mime.nativeimpl;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -36,7 +37,6 @@ import java.nio.charset.Charset;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
@@ -69,14 +69,15 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                     if (isNotNullAndEmpty(contentTypeValue)) {
                         String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
                         if (isNotNullAndEmpty(charsetValue)) {
-                            result = new ArrayValue(messageDataSource.toString().getBytes(charsetValue));
+                            result = new ArrayValue(StringUtils.getJsonString(messageDataSource)
+                                                            .getBytes(charsetValue));
                         } else {
-                            result = new ArrayValue(messageDataSource.toString().getBytes(
-                                    Charset.defaultCharset()));
+                            result = new ArrayValue(StringUtils.getJsonString(messageDataSource)
+                                                            .getBytes(Charset.defaultCharset()));
                         }
                     }
                 }
-                return result != null ? result : new BValueArray(new byte[0]);
+                return result != null ? result : new ArrayValue(new byte[0]);
             }
 
             Object transportMessage = entityObj.getNativeData(TRANSPORT_MESSAGE);
@@ -88,8 +89,12 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
-                                 "Error occurred while extracting blob data from entity : " + ex.getMessage());
+            if (ex instanceof ErrorValue) {
+                return createParsingEntityBodyFailedErrorAndNotify(callback,
+                        "Error occurred while extracting blob data from entity", (ErrorValue) ex);
+            }
+            createParsingEntityBodyFailedErrorAndNotify(callback,
+                    "Error occurred while extracting blob data from entity : " + getErrorMsg(ex), null);
         }
         return result;
     }

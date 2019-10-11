@@ -118,6 +118,30 @@ public class BasicAsyncOperationsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
+    @Test
+    public void testAsyncInvWithoutDefaultParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncInvWithoutDefaultParams");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testAsyncInvWithDefaultParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncInvWithDefaultParams");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 45);
+    }
+
+    @Test
+    public void testAttachedAsyncInvWithoutDefaultParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testAttachedAsyncInvWithoutDefaultParams");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
+    }
+
+    @Test
+    public void testAttachedAsyncInvWithDefaultParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testAttachedAsyncInvWithDefaultParams");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
+    }
+
     @Test (description = "Test negative issues with future")
     public void testAsyncNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/expressions/async/async-operations-negative.bal");

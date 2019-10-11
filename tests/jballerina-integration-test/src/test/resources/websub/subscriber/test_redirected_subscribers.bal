@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/mime;
-import ballerina/http;
 import ballerina/websub;
 
 listener websub:Listener websubEP = new websub:Listener(23484);
@@ -40,7 +38,7 @@ service websubSubscriber on websubEP {
     resource function onNotification (websub:Notification notification) {
         var payload = notification.getJsonPayload();
         if (payload is json) {
-            io:println("WebSub Notification Received: " + payload.toString());
+            io:println("WebSub Notification Received: " + payload.toJsonString());
         } else {
             panic payload;
         }
@@ -65,7 +63,7 @@ service websubSubscriberTwo on websubEP {
     resource function onNotification (websub:Notification notification) {
         var payload = notification.getJsonPayload();
         if (payload is json) {
-            io:println("WebSub Notification Received: " + payload.toString());
+            io:println("WebSub Notification Received: " + payload.toJsonString());
         } else {
             panic payload;
         }

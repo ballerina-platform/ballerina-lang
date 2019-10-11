@@ -30,12 +30,13 @@ public class WebSocketConstants {
     public static final String PACKAGE_HTTP = "http";
     public static final String FULL_PACKAGE_HTTP = BALLERINA_PACKAGE_PREFIX + PACKAGE_HTTP;
     public static final String SEPARATOR = ":";
-    public static final String WEBSOCKET_LISTENER = "WebSocketListener";
+    public static final String LISTENER = "Listener";
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String WEBSOCKET_CALLER = "WebSocketCaller";
     public static final String WEBSOCKET_CLIENT = "WebSocketClient";
     public static final String WEBSOCKET_SERVICE = "WebSocketService";
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
+    public static final String WSS_SCHEME = "wss";
     public static final String WEBSOCKET_CALLER_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CALLER;
     public static final String FULL_WEBSOCKET_CALLER_NAME = BALLERINA_PACKAGE_PREFIX + WEBSOCKET_CALLER_NAME;
     public static final String WEBSOCKET_CLIENT_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CLIENT;
@@ -67,7 +68,9 @@ public class WebSocketConstants {
     public static final String CLIENT_READY_ON_CONNECT = "readyOnConnect";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
 
-    // WebSocketListener struct field names
+    public static final String COMPRESSION_ENABLED_CONFIG = "webSocketCompressionEnabled";
+
+    // WebSocketListener field names
     public static final String LISTENER_ID_FIELD = "id";
     public static final String LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD = "negotiatedSubProtocol";
     public static final String LISTENER_IS_SECURE_FIELD = "secure";
@@ -90,6 +93,8 @@ public class WebSocketConstants {
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
+    public static final String THE_WEBSOCKET_CONNECTION_HAS_NOT_BEEN_MADE =
+            "The WebSocket connection has not been made";
 
     private WebSocketConstants() {
     }

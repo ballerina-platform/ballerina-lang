@@ -30,8 +30,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -101,30 +104,25 @@ public class BMainInstance implements BMain {
     @Override
     public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
                         String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException {
-        runMain(balFile, flags, args, envProperties, clientArgs, leechers, balServer.getServerHome());
-    }
-    
-    @Override
-    public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
-                        String[] clientArgs, LogLeecher[] leechers, String sourceRoot) throws BallerinaTestException {
         if (balFile == null || balFile.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file name provided, name - " + balFile);
         }
-        
+
         if (args == null) {
-            args = new String[]{};
+            args = new String[] {};
         }
-        
+
+        if (flags == null) {
+            flags = new String[] {};
+        }
+
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-        
-        String[] newArgs = ArrayUtils.addAll(flags, balFile);
-        newArgs = ArrayUtils.addAll(newArgs, args);
-        
         addJavaAgents(envProperties);
-        
-        runMain("run", newArgs, envProperties, clientArgs, leechers, sourceRoot);
+
+        runMain("build", new String[] { balFile }, envProperties, null, leechers, balServer.getServerHome());
+        runJar(balFile, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers, balServer.getServerHome());
     }
 
     @Override
@@ -164,6 +162,11 @@ public class BMainInstance implements BMain {
                     + sourceRoot + " packagePath - " + packagePath);
         }
 
+        if (flags == null) {
+            flags = new String[]{};
+        }
+
+
         if (args == null) {
             args = new String[]{};
         }
@@ -171,13 +174,13 @@ public class BMainInstance implements BMain {
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-
-        String[] newArgs = ArrayUtils.addAll(flags, "--sourceroot", sourceRoot, packagePath);
-        newArgs = ArrayUtils.addAll(newArgs, args);
-
         addJavaAgents(envProperties);
 
-        runMain("run", newArgs, envProperties, clientArgs, leechers, balServer.getServerHome());
+        runMain("build", new String[] { "--sourceroot", sourceRoot, packagePath },
+                envProperties, null, leechers, balServer.getServerHome());
+        runJar(sourceRoot, packagePath, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers,
+               balServer.getServerHome());
+
     }
 
     private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
@@ -267,6 +270,107 @@ public class BMainInstance implements BMain {
             throw new BallerinaTestException("Error executing ballerina", e);
         } catch (InterruptedException e) {
             throw new BallerinaTestException("Error waiting for execution to finish", e);
+        }
+    }
+
+    /**
+     * Executing jar file built for package.
+     *
+     * @param sourceRoot    path to the source root
+     * @param packageName   package name
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environmental properties to be appended to the environment
+     * @param clientArgs    arguments which program expects
+     * @param leechers      log leechers to check the log if any
+     * @param commandDir    where to execute the command
+     * @throws BallerinaTestException if starting services failed
+     */
+    private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties,
+                        String[] clientArgs, LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
+        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
+                       args, envProperties, clientArgs, leechers, commandDir);
+    }
+
+    /**
+     * Executing jar built for bal file.
+     *
+     * @param balFile       path to bal file
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environmental properties to be appended to the environment
+     * @param clientArgs    arguments which program expects
+     * @param leechers      log leechers to check the log if any
+     * @param commandDir    where to execute the command
+     * @throws BallerinaTestException if starting services failed
+     */
+    private void runJar(String balFile, String[] args, Map<String, String> envProperties, String[] clientArgs,
+                        LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
+        String balFileName = Paths.get(balFile).getFileName().toString();
+        String jarPath = Paths.get(Paths.get(commandDir).toString(), balFileName.substring(0, balFileName.length() -
+                4) + ".jar").toString();
+        executeJarFile(jarPath, args, envProperties, clientArgs, leechers, commandDir);
+    }
+
+    /**
+     * Executing jar file.
+     *
+     * @param jarPath       path to jar file location
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environmental properties to be appended to the environment
+     * @param clientArgs    arguments which program expects
+     * @param leechers      log leechers to check the log if any
+     * @param commandDir    where to execute the command
+     * @throws BallerinaTestException if starting services failed
+     */
+    private void executeJarFile(String jarPath, String[] args, Map<String, String> envProperties, String[] clientArgs,
+                                LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
+        try {
+            List<String> runCmdSet = new ArrayList<>();
+            runCmdSet.add("java");
+            if (envProperties.containsKey(JAVA_OPTS)) {
+                runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
+            }
+            String tempBalHome = new File("src" + File.separator + "test" + File.separator +
+                                                  "resources" + File.separator + "ballerina.home").getAbsolutePath();
+            runCmdSet.add("-Dballerina.home=" + tempBalHome);
+            runCmdSet.addAll(Arrays.asList("-jar", jarPath));
+            runCmdSet.addAll(Arrays.asList(args));
+
+            ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
+            Map<String, String> env = processBuilder.environment();
+            for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                env.put(entry.getKey(), entry.getValue());
+            }
+            Process process = processBuilder.start();
+
+            ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
+            ServerLogReader serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
+            if (leechers == null) {
+                leechers = new LogLeecher[] {};
+            }
+            for (LogLeecher leecher : leechers) {
+                switch (leecher.getLeecherType()) {
+                    case INFO:
+                        serverInfoLogReader.addLeecher(leecher);
+                        break;
+                    case ERROR:
+                        serverErrorLogReader.addLeecher(leecher);
+                        break;
+                }
+            }
+            serverInfoLogReader.start();
+            serverErrorLogReader.start();
+            if (clientArgs != null && clientArgs.length > 0) {
+                writeClientArgsToProcess(clientArgs, process);
+            }
+            process.waitFor();
+
+            serverInfoLogReader.stop();
+            serverInfoLogReader.removeAllLeechers();
+
+            serverErrorLogReader.stop();
+            serverErrorLogReader.removeAllLeechers();
+        } catch (InterruptedException | IOException e) {
+            throw new BallerinaTestException("Error starting services", e);
         }
     }
 

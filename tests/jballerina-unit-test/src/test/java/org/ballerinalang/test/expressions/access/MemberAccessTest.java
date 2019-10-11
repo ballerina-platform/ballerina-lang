@@ -63,8 +63,8 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "invalid operation: type 'Employee[3]?' does not support indexing", 54, 9);
         validateError(negativeResult, i++, "invalid operation: type '(int[]|Employee[3])?' does not support indexing"
                 , 55, 9);
-        validateError(negativeResult, i++, "list index out of range: index: '4'", 60, 9);
-        validateError(negativeResult, i++, "list index out of range: index: '5'", 65, 9);
+        validateError(negativeResult, i++, "list index out of range: index: '4'", 60, 12);
+        validateError(negativeResult, i++, "list index out of range: index: '5'", 65, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'boolean?'", 74, 19);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 75, 14);
         validateError(negativeResult, i++, "undefined field 'names' in 'Employee'", 76, 17);
@@ -113,8 +113,8 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'foo|1'", 170, 20);
         validateError(negativeResult, i++, "invalid operation: type 'string' does not support member access for " +
                 "assignment", 175, 5);
-        validateError(negativeResult, i++, "list index out of range: index: '5'", 182, 9);
-        validateError(negativeResult, i++, "list index out of range: index: '5'", 187, 9);
+        validateError(negativeResult, i++, "list index out of range: index: '5'", 182, 12);
+        validateError(negativeResult, i++, "list index out of range: index: '5'", 187, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 195, 14);
         validateError(negativeResult, i, "undefined field 'age' in 'Employee'", 196, 14);
     }
@@ -144,57 +144,57 @@ public class MemberAccessTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
-                    "index: 4, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange message=array index out of" +
+                    " range: index: 4, size: 3.*")
     public void testOpenArrayMemberAccessByLiteralIndexOutOfRange() {
         BRunUtil.invoke(result, "testOpenArrayMemberAccessByLiteralIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
-                    "index: 6, size: 2.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange message=array index out of" +
+                    " range: index: 6, size: 2.*")
     public void testOpenArrayMemberAccessByConstIndexOutOfRange() {
         BRunUtil.invoke(result, "testOpenArrayMemberAccessByConstIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
-                    "index: 5, size: 2.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange message=array index out of" +
+                    " range: index: 5, size: 2.*")
     public void testOpenArrayMemberAccessByVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testOpenArrayMemberAccessByVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
-                    "index: 9, size: 2.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange message=array index out of" +
+                    " range: index: 9, size: 2.*")
     public void testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
-                    "index: 5, size: 2.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange message=array index out of" +
+                    " range: index: 5, size: 2.*")
     public void testClosedArrayMemberAccessByVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testClosedArrayMemberAccessByVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
-                    "index: 9, size: 4.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange message=array index out of" +
+                    " range: index: 9, size: 4.*")
     public void testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=tuple index out of range: " +
-                    "index: 3, size: 2.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange message=tuple index out of" +
+                    " range: index: 3, size: 2.*")
     public void testTupleMemberAccessByVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testTupleMemberAccessByVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=tuple index out of range: " +
-                    "index: 9, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange message=tuple index out of" +
+                    " range: index: 9, size: 3.*")
     public void testTupleMemberAccessByFiniteTypeVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testTupleMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
@@ -282,32 +282,32 @@ public class MemberAccessTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=string index out of range: " +
-                    "index: -1, size: 5.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange message=string index out " +
+                    "of range: index: -1, size: 5.*")
     public void testOutOfRangeStringMemberAccess1() {
         BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess1");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=string index out of range: " +
-                    "index: 11, size: 11.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange message=string index out " +
+                    "of range: index: 11, size: 11.*")
     public void testOutOfRangeStringMemberAccess2() {
         BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess2");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=string index out of range: " +
-                    "index: 25, size: 12.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange message=string index out " +
+                    "of range: index: 25, size: 12.*")
     public void testOutOfRangeStringMemberAccess3() {
         BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess3");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=string index out of range: " +
-                    "index: 4, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange message=string index out " +
+                    "of range: index: 4, size: 3.*")
     public void testOutOfRangeFiniteTypeStringMemberAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeFiniteTypeStringMemberAccess");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

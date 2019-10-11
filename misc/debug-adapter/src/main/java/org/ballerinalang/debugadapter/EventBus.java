@@ -17,13 +17,10 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.IncompatibleThreadStateException;
-import com.sun.jdi.LocalVariable;
 import com.sun.jdi.Location;
-import com.sun.jdi.StackFrame;
+import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
-import com.sun.jdi.Value;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
 import com.sun.jdi.event.Event;
@@ -33,25 +30,26 @@ import com.sun.jdi.event.StepEvent;
 import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
-import org.ballerinalang.toml.model.Manifest;
+import com.sun.jdi.request.EventRequest;
+import com.sun.jdi.request.StepRequest;
 import org.eclipse.lsp4j.debug.Breakpoint;
+import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
-import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
-import org.eclipse.lsp4j.debug.Variable;
-import org.wso2.ballerinalang.util.TomlParserUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.PackageUtils.findProjectRoot;
 
@@ -60,38 +58,45 @@ import static org.ballerinalang.debugadapter.PackageUtils.findProjectRoot;
  */
 public class EventBus {
     private final Context context;
-    private Breakpoint[] breakpointsList = new Breakpoint[0];
+    private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
+    private Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
+    AtomicInteger nextVariableReference = new AtomicInteger();
+    private List<EventRequest> stepEventRequests = new ArrayList<>();
 
-    private HashMap<Long, org.eclipse.lsp4j.debug.StackFrame[]> stackframesMap = new HashMap<>();
-    AtomicInteger nextStackFrameId = new AtomicInteger();
-
-    private Map<Long, Variable[]> variablesMap = new HashMap<>();
     private Path projectRoot;
-    private String orgName = "";
 
     public EventBus(Context context) {
         this.context = context;
     }
 
-    public void setBreakpointsList(Breakpoint[] breakpointsList) {
-        this.breakpointsList = breakpointsList.clone();
-        if (this.breakpointsList.length > 0) {
-            Breakpoint breakpoint = this.breakpointsList[0];
-            projectRoot = findProjectRoot(Paths.get(breakpoint.getSource().getPath()));
-            if (projectRoot == null) {
-                // calculate projectRoot for single file
-                File file = new File(breakpoint.getSource().getPath());
-                File parentDir = file.getParentFile();
-                projectRoot = parentDir.toPath();
-            } else {
-                Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-                orgName = manifest.getProject().getOrgName();
-            }
+    public void setBreakpointsList(String path, Breakpoint[] breakpointsList) {
+        Breakpoint[] breakpoints = breakpointsList.clone();
+        this.breakpointsList.put(path, breakpoints);
+
+        if (this.context.getDebuggee() != null) {
+            // Setting breakpoints to a already running debug session.
+            context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
+            Arrays.stream(breakpointsList).forEach(breakpoint -> {
+                this.context.getDebuggee().allClasses().forEach(referenceType -> {
+                    this.addBreakpoint(referenceType, breakpoint);
+                });
+            });
+        }
+
+        projectRoot = findProjectRoot(Paths.get(path));
+        if (projectRoot == null) {
+            // calculate projectRoot for single file
+            File file = new File(path);
+            File parentDir = file.getParentFile();
+            projectRoot = parentDir.toPath();
         }
     }
 
     public Map<Long, ThreadReference> getThreadsMap() {
+        if (context.getDebuggee() == null) {
+            return null;
+        }
         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
@@ -99,125 +104,13 @@ public class EventBus {
         return threadsMap;
     }
 
-    public Map<Long, Variable[]> getVariablesMap() {
-        return variablesMap;
-    }
-
-    public HashMap<Long, org.eclipse.lsp4j.debug.StackFrame[]> getStackframesMap() {
-        return stackframesMap;
-    }
-
     private void populateMaps() {
-        nextStackFrameId.set(1);
+        nextVariableReference.set(1);
         threadsMap = new HashMap<>();
-        stackframesMap = new HashMap<>();
-        variablesMap = new HashMap<>();
         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
-            try {
-                List<StackFrame> frames = threadReference.frames();
-                org.eclipse.lsp4j.debug.StackFrame[] stackFrames =
-                        new org.eclipse.lsp4j.debug.StackFrame[frames.size()];
-                frames.stream().map(stackFrame -> {
-                    org.eclipse.lsp4j.debug.StackFrame dapStackFrame = new org.eclipse.lsp4j.debug.StackFrame();
-                    int frameId = nextStackFrameId.getAndIncrement();
-                    Source source = new Source();
-                    try {
-                        String sourcePath = stackFrame.location().sourcePath();
-                        if (orgName.length() > 0 && sourcePath.startsWith(orgName)) {
-                            sourcePath = sourcePath.replaceFirst(orgName, "src");
-                        }
-
-                        source.setPath(projectRoot + File.separator + sourcePath);
-                        source.setName(stackFrame.location().sourceName());
-                    } catch (AbsentInformationException e) {
-                    }
-                    dapStackFrame.setId((long) frameId);
-
-                    dapStackFrame.setSource(source);
-                    dapStackFrame.setLine((long) stackFrame.location().lineNumber());
-                    dapStackFrame.setName(stackFrame.location().method().name());
-                    try {
-                        List<LocalVariable> localVariables = stackFrame.visibleVariables();
-                        Variable[] dapVariables = new Variable[localVariables.size()];
-                        stackFrame.getValues(stackFrame.visibleVariables()).
-                                entrySet().stream().map(localVariableValueEntry -> {
-                            LocalVariable localVariable = localVariableValueEntry.getKey();
-                            return getDapVariable(localVariable, localVariableValueEntry.getValue());
-                        }).collect(Collectors.toList()).toArray(dapVariables);
-                        variablesMap.put((long) frameId, dapVariables);
-                    } catch (AbsentInformationException e) {
-                    }
-                    return dapStackFrame;
-                }).collect(Collectors.toList())
-                        .toArray(stackFrames);
-                stackframesMap.put(threadReference.uniqueID(), stackFrames);
-            } catch (IncompatibleThreadStateException e) {
-            }
         });
-
-    }
-
-    private Variable getDapVariable(LocalVariable variable, Value value) {
-        String balType;
-        switch (variable.signature()) {
-            case "J":
-                balType = "Int";
-                break;
-            case "I":
-                balType = "Byte";
-                break;
-            case "D":
-                balType = "Float";
-                break;
-            case "Z":
-                balType = "Boolean";
-                break;
-            case "Ljava/lang/String;":
-                balType = "String";
-                break;
-            case "Lorg/ballerinalang/jvm/values/DecimalValue;":
-                balType = "Decimal";
-                break;
-            case "Lorg/ballerinalang/jvm/values/MapValue;":
-                balType = "Map";
-                break;
-            case "Lorg/ballerinalang/jvm/values/TableValue;":
-                balType = "Table";
-                break;
-            case "Lorg/ballerinalang/jvm/values/StreamValue;":
-                balType = "Stream";
-                break;
-            case "Lorg/ballerinalang/jvm/values/ArrayValue;":
-                balType = "Array";
-                break;
-            case "Ljava/lang/Object;":
-                balType = "Object";
-                break;
-            case "Lorg/ballerinalang/jvm/values/ErrorValue;":
-                balType = "Error";
-                break;
-            case "Lorg/ballerinalang/jvm/values/FutureValue;":
-                balType = "Future";
-                break;
-            case "Lorg/ballerinalang/jvm/values/FPValue;":
-                balType = "Invokable";
-                break;
-            case "Lorg/ballerinalang/jvm/values/TypedescValue;":
-                balType = "Desc";
-                break;
-            default:
-                balType = "Object";
-                break;
-        }
-
-        Variable dapVariable = new Variable();
-        dapVariable.setName(variable.name());
-        dapVariable.setType(balType);
-        String stringValue = value == null ? "" : value.toString();
-        dapVariable.setValue(stringValue);
-        return dapVariable;
     }
 
     public void startListening() {
@@ -235,31 +128,8 @@ public class EventBus {
                         if (event instanceof ClassPrepareEvent) {
                             ClassPrepareEvent evt = (ClassPrepareEvent) event;
 
-                            Arrays.stream(this.breakpointsList).forEach(breakpoint -> {
-                                try {
-                                    List<String> paths = evt.referenceType().sourcePaths("");
-                                    String balName = paths.size() > 0 ? paths.get(0) : "";
-
-                                    Path path = Paths.get(breakpoint.getSource().getPath());
-                                    Path projectRoot = findProjectRoot(path);
-                                    String moduleName;
-                                    if (projectRoot == null) {
-                                        moduleName = breakpoint.getSource().getName();
-                                    } else {
-                                        moduleName = PackageUtils.getRelativeFilePath(path.toString());
-                                    }
-                                    if (moduleName.equals(balName)) {
-                                        Location location = evt.referenceType().locationsOfLine(
-                                                breakpoint.getLine().intValue()).get(0);
-                                        BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
-                                                .createBreakpointRequest(location);
-                                        bpReq.enable();
-                                    }
-
-                                } catch (AbsentInformationException e) {
-
-                                }
-                            });
+                            this.breakpointsList.forEach((path, breakpoints) -> Arrays.stream(breakpoints)
+                                    .forEach(breakpoint -> addBreakpoint(evt.referenceType(), breakpoint)));
                         }
 
                         /*
@@ -272,13 +142,21 @@ public class EventBus {
                             stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
                             stoppedEventArguments.setAllThreadsStopped(true);
                             context.getClient().stopped(stoppedEventArguments);
+                            List<EventRequest> stepEventRequests = new ArrayList<>();
+                            context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
                         } else if (event instanceof StepEvent) {
                             populateMaps();
-                            StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
-                            stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
-                            stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
-                            stoppedEventArguments.setAllThreadsStopped(true);
-                            context.getClient().stopped(stoppedEventArguments);
+                            if (((StepEvent) event).location().lineNumber() > 0) {
+                                context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
+                                StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
+                                stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
+                                stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
+                                stoppedEventArguments.setAllThreadsStopped(true);
+                                context.getClient().stopped(stoppedEventArguments);
+                            } else {
+                                long threadId = ((StepEvent) event).thread().uniqueID();
+                                this.createStepRequest(threadId, StepRequest.STEP_OVER);
+                            }
                         } else if (event instanceof VMDisconnectEvent
                                 || event instanceof VMDeathEvent
                                 || event instanceof VMDisconnectedException) {
@@ -290,9 +168,67 @@ public class EventBus {
                         }
                     }
                 } catch (InterruptedException e) {
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
         }
         );
+    }
+
+    public void addBreakpoint(ReferenceType referenceType, Breakpoint breakpoint) {
+        try {
+            List<String> paths = referenceType.sourcePaths("");
+            String balName = paths.size() > 0 ? paths.get(0) : "";
+            balName = balName.replaceFirst("tests" + File.separator + "tests", "tests");
+            Path path = Paths.get(breakpoint.getSource().getPath());
+            Path projectRoot = findProjectRoot(path);
+            String moduleName;
+            if (projectRoot == null) {
+                moduleName = breakpoint.getSource().getName();
+            } else {
+                moduleName = PackageUtils.getRelativeFilePath(path.toString());
+            }
+            if (moduleName.equals(balName)) {
+                List<Location> locations = referenceType.locationsOfLine(
+                        breakpoint.getLine().intValue());
+                if (locations.size() > 0) {
+                    Location location = locations.get(0);
+                    BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
+                            .createBreakpointRequest(location);
+                    bpReq.enable();
+                }
+            }
+
+        } catch (AbsentInformationException e) {
+
+        }
+    }
+
+    public void createStepRequest(long threadId, int stepType) {
+        // Make sure there are no existing step events
+        context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
+
+        ThreadReference threadReference = getThreadsMap().get(threadId);
+        StepRequest request = context.getDebuggee().eventRequestManager().createStepRequest(threadReference,
+                StepRequest.STEP_LINE, stepType);
+        request.setSuspendPolicy(StepRequest.SUSPEND_ALL);
+
+        // TODO change this to a class inclusion filter
+        request.addClassExclusionFilter("io.*");
+        request.addClassExclusionFilter("com.*");
+        request.addClassExclusionFilter("org.*");
+        request.addClassExclusionFilter("ballerina.*");
+        request.addClassExclusionFilter("java.*");
+        request.addClassExclusionFilter("$lambda$main$");
+
+        stepEventRequests.add(request);
+        request.addCountFilter(1); // next step only
+        request.enable();
+        context.getDebuggee().resume();
+
+        // We are resuming all threads, we need to notify debug client about this.
+        ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
+        continuedEventArguments.setAllThreadsContinued(true);
+        context.getClient().continued(continuedEventArguments);
     }
 }

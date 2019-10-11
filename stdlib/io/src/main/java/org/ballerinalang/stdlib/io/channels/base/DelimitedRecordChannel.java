@@ -18,15 +18,14 @@
 package org.ballerinalang.stdlib.io.channels.base;
 
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.io.csv.Format;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -174,13 +173,13 @@ public class DelimitedRecordChannel implements IOChannel {
      * @return the requested record.
      * @throws BallerinaIOException during I/O error.
      */
-    private String readRecord() throws BallerinaIOException, IOException {
+    private String readRecord() throws BallerinaIOException {
         String record = null;
         final int minimumRecordCount = 1;
         final int numberOfSplits = 2;
         do {
             if (log.isTraceEnabled()) {
-                log.trace("char[] remaining in memory " + persistentCharSequence);
+                log.trace(String.format("char[] remaining in memory %s", persistentCharSequence));
             }
             //We need to split the string into 2
             String[] delimitedRecord = persistentCharSequence.toString().
@@ -193,6 +192,13 @@ public class DelimitedRecordChannel implements IOChannel {
                 }
             } else {
                 readRecordFromChannel();
+                if (channel.hasReachedEnd()) {
+                    delimitedRecord = persistentCharSequence.toString().
+                            split(getRecordSeparatorForReading(), numberOfSplits);
+                    record = (delimitedRecord.length == numberOfSplits) ?
+                            processIdentifiedRecord(delimitedRecord) :
+                            readFinalRecord();
+                }
             }
         } while (record == null && !channel.hasReachedEnd());
 
@@ -215,7 +221,7 @@ public class DelimitedRecordChannel implements IOChannel {
         String record = "";
         //This means there's no more to be get as records
         if (log.isDebugEnabled()) {
-            log.debug("The content returned from the channel " + channel.hashCode() + " is <void>");
+            log.debug(String.format("The content returned from the channel %d is <void>", channel.hashCode()));
         }
         //This means this will be the last record which could be get
         this.remaining = false;
@@ -225,7 +231,7 @@ public class DelimitedRecordChannel implements IOChannel {
             //Once the final record is processed there will be no chars left
             persistentCharSequence.setLength(minimumRemainingLength);
             if (log.isTraceEnabled()) {
-                log.trace("char [] remaining in memory, will be marked as the last record " + record);
+                log.trace(String.format("char [] remaining in memory, will be marked as the last record %s", record));
             }
         }
         if (log.isDebugEnabled()) {
@@ -242,15 +248,15 @@ public class DelimitedRecordChannel implements IOChannel {
      *
      * @return the record content.
      */
-    private String readRecordFromChannel() throws IOException {
+    private String readRecordFromChannel() throws BallerinaIOException {
         String readCharacters;
         readCharacters = channel.read(recordCharacterCount);
         if (log.isTraceEnabled()) {
-            log.trace("char [] get from channel," + channel.hashCode() + "=" + readCharacters);
+            log.trace(String.format("char [] get from channel,%d=%s", channel.hashCode(), readCharacters));
         }
         persistentCharSequence.append(readCharacters);
         if (log.isTraceEnabled()) {
-            log.trace("char [] appended to the memory " + persistentCharSequence);
+            log.trace(String.format("char [] appended to the memory %s", persistentCharSequence));
         }
         return readCharacters;
     }
@@ -276,40 +282,33 @@ public class DelimitedRecordChannel implements IOChannel {
         persistentCharSequence.setLength(minimumRemainingLength);
         persistentCharSequence.append(recordContent);
         if (log.isTraceEnabled()) {
-            log.trace("Record identified from remaining char[] in memory " + record);
-            log.trace("The char[] left after split " + persistentCharSequence);
+            log.trace(String.format("Record identified from remaining char[] in memory %s", record));
+            log.trace(String.format("The char[] left after split %s", persistentCharSequence));
         }
         return record;
     }
 
     /**
      * <p>
-     * Recursively split based on given regEx.
+     * Split based on given regEx.
      * </p>
      * <p>
-     * This operation will ignore blanks.
+     * This operation will produce null for blanks.
      * </p>
      *
      * @param record record which should be separated.
      * @param regex  condition which should be used to split.
      * @return the list of fields
      */
-    private String[] recursiveSplit(String record, String regex) {
-        final int recursiveIndex = 2;
-        final String empty = "";
-        ArrayList<String> records = new ArrayList<>();
-        String[] splitRecords;
-        do {
-            splitRecords = record.split(regex, recursiveIndex);
-            int numberOfFields = splitRecords.length;
-            String field = splitRecords[0];
-            record = numberOfFields == recursiveIndex ? splitRecords[1] : empty;
-            if (field.trim().isEmpty()) {
-                field = null;
+    private String[] splitIgnoreBlanks(String record, String regex) {
+        Pattern reg = Pattern.compile(regex);
+        String[] split = reg.split(record);
+        for (int i = 0; i < split.length; i++) {
+            if (split[i].isEmpty()) {
+                split[i] = null;
             }
-            records.add(field);
-        } while (splitRecords.length == recursiveIndex);
-        return records.toArray(new String[0]);
+        }
+        return split;
     }
 
     /**
@@ -321,7 +320,7 @@ public class DelimitedRecordChannel implements IOChannel {
     private String[] getFields(String record) {
         String fieldSeparatorForReading = getFieldSeparatorForReading();
         if (null != format && format.shouldIgnoreBlanks()) {
-            return recursiveSplit(record, fieldSeparatorForReading);
+            return splitIgnoreBlanks(record, fieldSeparatorForReading);
         } else {
             return record.split(fieldSeparatorForReading);
         }
@@ -337,14 +336,15 @@ public class DelimitedRecordChannel implements IOChannel {
      * </p>
      *
      * @return the list of fields.
-     * @throws IOException during I/O error.
+     * @throws BallerinaIOException during I/O errors
      */
-    public String[] read() throws IOException {
+    public String[] read() throws BallerinaIOException {
         final int emptyArrayIndex = 0;
         String[] fields = new String[emptyArrayIndex];
         if (remaining) {
             if (log.isDebugEnabled()) {
-                log.debug("Reading record " + numberOfRecordsReadThroughChannel + " from " + channel.hashCode());
+                log.debug(String.format("Reading record %d from %d", numberOfRecordsReadThroughChannel,
+                        channel.hashCode()));
             }
             String record = readRecord();
             if (!record.isEmpty() || remaining) {
@@ -362,7 +362,8 @@ public class DelimitedRecordChannel implements IOChannel {
         } else {
             //The channel could be null if it's being closed by a different source
             if (null != channel) {
-                log.warn("The final record has already being processed through the channel " + channel.hashCode());
+                log.warn(String.format("The final record has already being processed through the channel %d",
+                        channel.hashCode()));
             } else {
                 log.warn("The requested channel has already being closed");
             }
@@ -386,37 +387,6 @@ public class DelimitedRecordChannel implements IOChannel {
      * @param fields the list of fields in the record.
      * @return the record constructed through the fields.
      */
-    //TODO Remove after migration : implemented using bvm values/types
-    private String composeRecord(BValueArray fields) {
-        StringBuilder recordConsolidator = new StringBuilder();
-        String finalizedRecord;
-        long numberOfFields = fields.size();
-        final int fieldStartIndex = 0;
-        final long secondLastFieldIndex = numberOfFields - 1;
-        if (log.isDebugEnabled()) {
-            log.debug("Number of fields to be composed " + numberOfFields);
-        }
-        for (int fieldCount = fieldStartIndex; fieldCount < numberOfFields; fieldCount++) {
-            String currentFieldString = fields.getString(fieldCount);
-            if (currentFieldString.contains(getFieldSeparatorForWriting())) {
-                currentFieldString = encloseField(currentFieldString);
-            }
-            recordConsolidator.append(currentFieldString);
-            if (fieldCount < secondLastFieldIndex) {
-                //The idea here is to omit appending the field separator after the final field
-                recordConsolidator.append(getFieldSeparatorForWriting());
-            }
-        }
-        finalizedRecord = recordConsolidator.toString();
-        return finalizedRecord;
-    }
-
-    /**
-     * Will place the relevant fields together to/form a record.
-     *
-     * @param fields the list of fields in the record.
-     * @return the record constructed through the fields.
-     */
     private String composeRecord(ArrayValue fields) {
         StringBuilder recordConsolidator = new StringBuilder();
         String finalizedRecord;
@@ -424,7 +394,7 @@ public class DelimitedRecordChannel implements IOChannel {
         final int fieldStartIndex = 0;
         final long secondLastFieldIndex = numberOfFields - 1;
         if (log.isDebugEnabled()) {
-            log.debug("Number of fields to be composed " + numberOfFields);
+            log.debug(String.format("Number of fields to be composed %d", numberOfFields));
         }
         for (int fieldCount = fieldStartIndex; fieldCount < numberOfFields; fieldCount++) {
             String currentFieldString = fields.getString(fieldCount);
@@ -439,27 +409,6 @@ public class DelimitedRecordChannel implements IOChannel {
         }
         finalizedRecord = recordConsolidator.toString();
         return finalizedRecord;
-    }
-
-    /**
-     * Writes a given record to a file.
-     *
-     * @param fields the list of fields composing the record.
-     * @throws IOException during I/O error.
-     */
-    //TODO Remove after migration : implemented using bvm values/types
-    public void write(BValueArray fields) throws IOException {
-        final int writeOffset = 0;
-        String record = composeRecord(fields);
-        record = record + getRecordSeparatorForWriting();
-        if (log.isTraceEnabled()) {
-            log.trace("The record " + numberOfRecordsWrittenToChannel + " composed for writing, " + record);
-        }
-        channel.write(record, writeOffset);
-        if (log.isDebugEnabled()) {
-            log.debug("Record " + numberOfRecordsReadThroughChannel + " written to the channel " + channel.hashCode());
-        }
-        numberOfRecordsWrittenToChannel++;
     }
 
     /**
@@ -473,23 +422,14 @@ public class DelimitedRecordChannel implements IOChannel {
         String record = composeRecord(fields);
         record = record + getRecordSeparatorForWriting();
         if (log.isTraceEnabled()) {
-            log.trace("The record " + numberOfRecordsWrittenToChannel + " composed for writing, " + record);
+            log.trace(String.format("The record %d composed for writing, %s", numberOfRecordsWrittenToChannel, record));
         }
         channel.write(record, writeOffset);
         if (log.isDebugEnabled()) {
-            log.debug("Record " + numberOfRecordsReadThroughChannel + " written to the channel " + channel.hashCode());
+            log.debug(String.format("Record %d written to the channel %d", numberOfRecordsReadThroughChannel,
+                    channel.hashCode()));
         }
         numberOfRecordsWrittenToChannel++;
-    }
-
-    /**
-     * Specified whether the channel is selectable.
-     *
-     * @return true if the channel is selectable.
-     */
-    @Override
-    public boolean isSelectable() {
-        return channel.isSelectable();
     }
 
     /**
@@ -521,9 +461,9 @@ public class DelimitedRecordChannel implements IOChannel {
      * Check whether there are more records or not.
      *
      * @return true if more records in the channel else false.
-     * @throws IOException if an error occurs while reading from channel.
+     * @throws BallerinaIOException if encoding error or channel reading error happens
      */
-    public boolean hasNext() throws IOException {
+    public boolean hasNext() throws BallerinaIOException {
         if (remaining && persistentCharSequence.length() == 0) {
             //If this is the case we need to further verify whether there will be more bytes left to be read
             //Remaining can become false in the next iteration

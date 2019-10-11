@@ -37,13 +37,13 @@ import org.testng.annotations.Test;
  * @since 0.8.0
  */
 public class MapAccessExprTest {
-    private CompileResult compileResult;
-    CompileResult incorrectCompileResult;
+    private CompileResult compileResult, resultNegative, resultSemanticsNegative;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/map/map-access-expr.bal");
-        incorrectCompileResult = BCompileUtil.compile("test-src/types/map/map-access-negative.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/map/map-access-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile("test-src/types/map/map-access-semantics-negative.bal");
     }
 
     @Test(description = "Test map access expression")
@@ -154,21 +154,26 @@ public class MapAccessExprTest {
     }
 
     @Test(description = "Map access negative scenarios")
-    public void negativeTest() {
-        Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 5);
-
+    public void testNegativeSemantics() {
+        Assert.assertEquals(resultSemanticsNegative.getDiagnostics().length, 2);
         int index = 0;
         // testMapAccessWithIndex
-        BAssertUtil.validateError(incorrectCompileResult, index++, "incompatible types: expected 'string', found 'int'",
-                                  4, 20);
-
+        BAssertUtil.validateError(resultSemanticsNegative, index++, "incompatible types: expected 'string', found " +
+                        "'int'", 4, 20);
         // accessAllFields
-        BAssertUtil.validateError(incorrectCompileResult, index++, "cannot get all fields from a map", 9, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, index++, "cannot get all fields from a map", 9, 13);
+    }
+
+    @Test(description = "Map access negative scenarios")
+    public void negativeTest() {
+        Assert.assertEquals(resultNegative.getDiagnostics().length, 3);
+
+        int index = 0;
 
         // uninitialized map access
-        BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'ints' is not initialized", 14, 5);
-        BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'ints' is not initialized", 16, 41);
-        BAssertUtil.validateError(incorrectCompileResult, index, "variable 'm4' is not initialized", 39, 12);
+        BAssertUtil.validateError(resultNegative, index++, "variable 'ints' is not initialized", 9, 5);
+        BAssertUtil.validateError(resultNegative, index++, "variable 'ints' is not initialized", 11, 41);
+        BAssertUtil.validateError(resultNegative, index, "variable 'm4' is not initialized", 34, 12);
     }
 
     @Test(description = "Test map remove key positive.")
@@ -187,7 +192,8 @@ public class MapAccessExprTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}KeyNotFound message=cannot find key 'fname2'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound message=cannot find key " +
+                    "'fname2'.*")
     public void testMapRemoveNegative() {
         BRunUtil.invoke(compileResult, "testMapRemoveNegative");
     }

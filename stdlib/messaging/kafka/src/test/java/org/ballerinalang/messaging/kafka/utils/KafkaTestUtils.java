@@ -19,7 +19,10 @@
 package org.ballerinalang.messaging.kafka.utils;
 
 import io.debezium.kafka.KafkaCluster;
+import io.debezium.util.Collect;
+import kafka.server.KafkaConfig;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
@@ -32,13 +35,17 @@ public class KafkaTestUtils {
     private KafkaTestUtils() {
     }
 
-    public static final int KAFKA_BROKER_PORT = 9094;
-    public static final int ZOOKEEPER_PORT_1 = 2181;
-
     private static final Path TEST_PATH = Paths.get("src", "test", "resources");
+    public static final String TEST_SRC = "test-src";
+    public static final String TEST_CONSUMER = "consumer";
+    public static final String TEST_PRODUCER = "producer";
+    public static final String TEST_SERVICES = "services";
+    public static final String TEST_COMPILER = "compiler-validation";
+    public static final String TEST_SSL = "ssl";
+    public static final String TEST_TRANSACTIONS = "transactions";
 
-    public static String getFilePath(String fileName) {
-        return TEST_PATH.resolve(fileName).toAbsolutePath().toString();
+    public static String getFilePath(Path filePath) {
+        return TEST_PATH.resolve(filePath).toAbsolutePath().toString();
     }
 
     public static void produceToKafkaCluster(KafkaCluster kafkaCluster, String topic, String message) {
@@ -49,5 +56,15 @@ public class KafkaTestUtils {
         } catch (Exception ex) {
             //Ignore
         }
+    }
+
+    public static KafkaCluster createKafkaCluster(File dataDir, int zkPort, int brokerPort) {
+        String timeout = "20000";
+        return new KafkaCluster()
+                .usingDirectory(dataDir)
+                .deleteDataPriorToStartup(true)
+                .deleteDataUponShutdown(true)
+                .withKafkaConfiguration(Collect.propertiesOf(KafkaConfig.ZkSessionTimeoutMsProp(), timeout))
+                .withPorts(zkPort, brokerPort);
     }
 }

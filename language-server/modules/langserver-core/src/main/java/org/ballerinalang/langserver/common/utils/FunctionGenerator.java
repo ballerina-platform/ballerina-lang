@@ -18,7 +18,9 @@ package org.ballerinalang.langserver.common.utils;
 import org.ballerinalang.langserver.command.testgen.TestGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -33,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -140,7 +143,7 @@ public class FunctionGenerator {
                     list.add(generateTypeDefinition(importsAcceptor, currentPkgId, bLangExpression.type));
                 }
             }
-            return "(" + String.join(", ", list) + ")";
+            return "[" + String.join(", ", list) + "]";
         } else if (bLangNode instanceof BLangAssignment) {
             if (((BLangAssignment) bLangNode).declaredWithVar) {
                 return "any";
@@ -211,14 +214,14 @@ public class FunctionGenerator {
             if (addErrorTypeAtEnd) {
                 list.add("error");
             }
-            return "(" + String.join("|", list) + ")";
+            return String.join("|", list);
         } else if (bType instanceof BTupleType) {
             // Check for tuple type assignment eg. int, string
             List<String> list = new ArrayList<>();
             for (BType memberType : ((BTupleType) bType).tupleTypes) {
                 list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
             }
-            return "(" + String.join(", ", list) + ")";
+            return "[" + String.join(", ", list) + "]";
         } else if (bType instanceof BNilType) {
             return "()";
         } else if (bType instanceof BIntermediateCollectionType) {
@@ -243,7 +246,9 @@ public class FunctionGenerator {
             for (BType memberType : tupleTypes) {
                 list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
             }
-            return "(" + String.join(", ", list) + ")[]";
+            return "[" + String.join(", ", list) + "][]";
+        } else if (bType instanceof BTableType) {
+            return "table<record {}>";
         }
         return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol) :
                 "any";
@@ -253,26 +258,49 @@ public class FunctionGenerator {
      * Get the list of function arguments from the invokable symbol.
      *
      * @param symbol Invokable symbol to extract the arguments
-     * @param context Lang Server Operation context
+     * @param ctx Lang Server Operation context
      * @return {@link List} List of arguments
      */
-    public static List<String> getFuncArguments(BInvokableSymbol symbol, LSContext context) {
+    public static List<String> getFuncArguments(BInvokableSymbol symbol, LSContext ctx) {
         List<String> list = new ArrayList<>();
-        if (symbol.type instanceof BInvokableType) {
-            BInvokableType bInvokableType = (BInvokableType) symbol.type;
-            if (bInvokableType.paramTypes.isEmpty()) {
-                return list;
+        int invocationType = (ctx == null || ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
+                : ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        boolean skipFirstParam = CommonUtil.skipFirstParam(symbol, invocationType);
+        BVarSymbol restParam = symbol.restParam;
+        if (symbol.kind == null && SymbolKind.RECORD == symbol.owner.kind || SymbolKind.FUNCTION == symbol.owner.kind) {
+            if (symbol.type instanceof BInvokableType) {
+                BInvokableType bInvokableType = (BInvokableType) symbol.type;
+                if (bInvokableType.paramTypes.isEmpty()) {
+                    return list;
+                }
+                int argCounter = 1;
+                Set<String> argNames = new HashSet<>(); // To avoid name duplications
+                List<BType> parameterTypes = bInvokableType.getParameterTypes();
+                for (int i = 0; i < parameterTypes.size(); i++) {
+                    if (i == 0 && skipFirstParam) {
+                        continue;
+                    }
+                    BType bType = parameterTypes.get(i);
+                    String argName = CommonUtil.generateName(argCounter++, argNames);
+                    String argType = generateTypeDefinition(null, symbol.pkgID, bType);
+                    list.add(argType + " " + argName);
+                    argNames.add(argName);
+                }
+                if (restParam != null && (restParam.type instanceof BArrayType)) {
+                    list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
+                }
             }
-            int argCounter = 1;
-            Set<String> argNames = new HashSet<>();
-            for (BType bType : bInvokableType.getParameterTypes()) {
-                String argName = CommonUtil.generateName(argCounter++, argNames);
-                String argType = generateTypeDefinition(null, symbol.pkgID, bType);
-                list.add(argType + " " + argName);
-                argNames.add(argName);
+        } else {
+            List<BVarSymbol> parameterDefs = new ArrayList<>(symbol.getParameters());
+            for (int i = 0; i < parameterDefs.size(); i++) {
+                if (i == 0 && skipFirstParam) {
+                    continue;
+                }
+                BVarSymbol param = parameterDefs.get(i);
+                list.add(CommonUtil.getBTypeName(param.type, ctx, true) + " " + param.getName());
             }
-            if (symbol.restParam != null && (symbol.restParam.type instanceof BArrayType)) {
-                argNames.add("..." + CommonUtil.getBTypeName(((BArrayType) symbol.restParam.type).eType, context));
+            if (restParam != null && (restParam.type instanceof BArrayType)) {
+                list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
             }
         }
         return (!list.isEmpty()) ? list : new ArrayList<>();
@@ -452,6 +480,9 @@ public class FunctionGenerator {
                 break;
             case "byte":
                 result = "0";
+                break;
+            case "table":
+                result = "table{}";
                 break;
             default:
                 result = "()";

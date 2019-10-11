@@ -28,8 +28,10 @@ public type ReadableCSVChannel object {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
         } else if (fs == COLON) {
             self.dc = new ReadableTextRecordChannel(byteChannel, FS_COLON, CSV_RECORD_SEPARATOR);
-        } else {
+        } else if (fs == COMMA) {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "CSV");
+        } else {
+            self.dc = new ReadableTextRecordChannel(byteChannel, fs, CSV_RECORD_SEPARATOR);
         }
         self.skipHeaders(nHeaders);
     }
@@ -53,7 +55,7 @@ public type ReadableCSVChannel object {
         if (recordChannel is ReadableTextRecordChannel) {
             return recordChannel.hasNext();
         } else {
-            GenericError e = error(GENERIC_ERROR, message = "Channel not initialized");
+            GenericError e = error(GENERIC_ERROR, message = "channel not initialized");
             panic e;
         }
     }

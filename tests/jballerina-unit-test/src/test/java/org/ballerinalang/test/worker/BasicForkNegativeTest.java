@@ -40,8 +40,19 @@ public class BasicForkNegativeTest {
     @Test
     public void testBasicForkNegative() {
         Assert.assertEquals(result.getErrorCount(), 1, "Incorrect error count");
-        BAssertUtil.validateError(result, 0,
-                "worker send/receive interactions are invalid; worker(s) cannot move onwards from the state: " +
-                        "'[a -> default, b -> default, FINISHED]'", 22, 9);
+        BAssertUtil.validateError(result, 0, "empty fork statement is not allowed", 18, 5);
+    }
+
+    @Test
+    public void workerPeerCommunicationNegativeTests() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/worker-peer-communication-negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 20, 24);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 21, 13);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 32, 13);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 41, 24);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 52, 5);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 53, 16);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 }

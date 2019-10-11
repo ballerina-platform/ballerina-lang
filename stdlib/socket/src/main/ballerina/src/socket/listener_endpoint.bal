@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 # Represents service endpoint where socket server service registered and start.
 #
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     public function __init(int port, ListenerConfig? config = ()) {
         var result = self.initServer(port, config ?: {});
@@ -33,12 +33,21 @@ public type Listener object {
         return self.start();
     }
 
-    public function __stop() returns error? {
-        return self.stop();
+    public function __gracefulStop() returns error? {
+        return self.stop(true);
+    }
+
+    public function __immediateStop() returns error? {
+        return self.stop(false);
     }
 
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
+    }
+
+    public function __detach(service s) returns error? {
+        // Socket listener operations are strictly bound to the attached service. In fact, listener doesn't support
+        // for multiple services. So not removing already attached service during the detach.
     }
 
     function initServer(int port, ListenerConfig config) returns error? = external;
@@ -47,7 +56,7 @@ public type Listener object {
 
     function start() returns error? = external;
 
-    function stop() returns error? = external;
+    function stop(boolean graceful) returns error? = external;
 };
 
 # Represents the socket server configuration.

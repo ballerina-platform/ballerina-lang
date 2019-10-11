@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.filepath.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
@@ -27,6 +25,7 @@ import org.ballerinalang.stdlib.filepath.Utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.NotLinkException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,22 +41,20 @@ import java.nio.file.Paths;
         functionName = "resolve",
         isPublic = true
 )
-public class Resolve extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Resolve {
 
     public static Object resolve(Strand strand, String inputPath) {
         try {
             Path realPath = Files.readSymbolicLink(Paths.get(inputPath).toAbsolutePath());
             return realPath.toString();
         } catch (NotLinkException ex) {
-            return Utils.getPathError("NOT_LINK_ERROR", ex);
+            return Utils.getPathError(Constants.NOT_LINK_ERROR, "Path is not a symbolic link " + inputPath);
+        } catch (NoSuchFileException ex) {
+            return Utils.getPathError(Constants.FILE_NOT_FOUND_ERROR, "File does not exist at " + inputPath);
         } catch (IOException ex) {
-            return Utils.getPathError("IO_ERROR", ex);
+            return Utils.getPathError(Constants.IO_ERROR, "IO error for " + inputPath);
         } catch (SecurityException ex) {
-            return Utils.getPathError("SECURITY_ERROR", ex);
+            return Utils.getPathError(Constants.SECURITY_ERROR, "Security error for " + inputPath);
         }
     }
 

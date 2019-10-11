@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -40,30 +39,24 @@ public class WebSocketServicesRegistry {
 
     public void registerService(WebSocketService service) {
         String basePath = service.getBasePath();
-        basePath = urlDecode(basePath);
-        // TODO: Add websocket services to the service registry when service creation get available.
         try {
-            getUriTemplate().parse(basePath, service, new WebSocketDataElementFactory());
-        } catch (URITemplateException | UnsupportedEncodingException e) {
-            throw new WebSocketException(e.getMessage());
+            basePath = URLDecoder.decode(basePath, StandardCharsets.UTF_8.name());
+            createUriTemplateIfNull();
+            uriTemplate.parse(basePath, service, new WebSocketDataElementFactory());
+        } catch (Exception e) {
+            logger.error("Error when registering service", e);
+            throw new WebSocketException(e);
         }
         logger.info("WebSocketService deployed : {} with context {}", service.getName(), basePath);
-
     }
 
-    public URITemplate<WebSocketService, WebSocketMessage> getUriTemplate() throws URITemplateException {
+    private void createUriTemplateIfNull() throws URITemplateException {
         if (uriTemplate == null) {
             uriTemplate = new URITemplate<>(new Literal<>(new WebSocketDataElement(), "/"));
         }
-        return uriTemplate;
     }
 
-    private String urlDecode(String basePath) {
-        try {
-            basePath = URLDecoder.decode(basePath, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new WebSocketException(e.getMessage());
-        }
-        return basePath;
+    URITemplate<WebSocketService, WebSocketMessage> getUriTemplate() {
+        return uriTemplate;
     }
 }

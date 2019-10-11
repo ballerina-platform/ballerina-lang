@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/observe;
 import ballerina/config;
-import ballerina/'lang\.string as str;
-import ballerina/internal;
+import ballerina/http;
+import ballerina/lang.'string as str;
+import ballerina/observe;
+import ballerina/stringutils;
 
 const string METRIC_TYPE_GAUGE = "gauge";
 const string METRIC_TYPE_SUMMARY = "summary";
@@ -51,8 +51,7 @@ service PrometheusReporter on prometheusListener {
         string payload = EMPTY_STRING;
         foreach var m in metrics {
             observe:Metric metric = <observe:Metric> m;
-            string s1 = internal:replaceAll(metric.name, "/", "_");
-            string qualifiedMetricName = internal:replaceAll(s1, "/", "_");
+            string qualifiedMetricName = getQualifiedMetricName(metric.name);
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
@@ -136,7 +135,7 @@ function generateMetric(string name, map<string>? labels, int|float value) retur
 function getLabelsString(map<string> labels) returns string {
     string stringLabel = "{";
     foreach var [key, value] in labels.entries() {
-        string labelKey = internal:replaceAll(key, "\\.", "_");
+        string labelKey = stringutils:replaceAll(key, "\\.", "_");
         string entry = labelKey + "=\"" + value + "\"";
         stringLabel += (entry + ",");
     }
@@ -145,6 +144,14 @@ function getLabelsString(map<string> labels) returns string {
     } else {
         return "";
     }
+}
+
+function getQualifiedMetricName(string metricName) returns string {
+    string s1 = stringutils:replaceAll(metricName, "/", "_");
+    string s2 = stringutils:replaceAll(s1, "\\.", "_");
+    string s3 = stringutils:replaceAll(s2, "\\$", "_");
+    string s4 = stringutils:replaceAll(s3, "\\\"", "_");
+    return s4;
 }
 
 function getMetricName(string name, string summaryType) returns string {

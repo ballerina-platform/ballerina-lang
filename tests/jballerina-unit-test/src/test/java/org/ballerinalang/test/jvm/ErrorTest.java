@@ -44,7 +44,7 @@ public class ErrorTest {
 
     @Test(description = "Test panic an error", expectedExceptions = RuntimeException.class, 
           expectedExceptionsMessageRegExp = "error: reason foo 2 message=int value\n\tat errors:foo\\(errors"
-                  + ".bal:47\\)\n\t   errors:testPanic\\(errors.bal:19\\)")
+                  + ".bal:48\\)\n\t   errors:testPanic\\(errors.bal:20\\)")
     public void testPanic() {
             BRunUtil.invoke(compileResult, "testPanic", new BValue[] { new BInteger(0) });
     }
@@ -112,5 +112,17 @@ public class ErrorTest {
     @Test
     public void testSelfReferencingObject() {
         BRunUtil.invoke(compileResult, "testSelfReferencingError");
+    }
+
+    @Test(enabled = false)
+    public void testRuntimeOOMError() {
+        try {
+            CompileResult compileResult = BCompileUtil.compile("test-src/jvm/runtime-oom-error.bal");
+            BCompileUtil.runMain(compileResult, new String[]{});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("java.lang.OutOfMemoryError: Java heap space"));
+            return;
+        }
+        Assert.fail("runtime out of memory errors are not handled");
     }
 }

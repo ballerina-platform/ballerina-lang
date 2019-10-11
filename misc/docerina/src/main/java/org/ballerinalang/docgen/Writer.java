@@ -35,7 +35,6 @@ import org.ballerinalang.docgen.generator.model.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +43,6 @@ import java.util.stream.Collectors;
  * Generates the HTML pages from the Page objects.
  */
 public class Writer {
-    private static PrintStream out = System.out;
 
     /**
      * Write the HTML document from the Page object for a bal package.
@@ -112,7 +110,6 @@ public class Writer {
 
             Context context = Context.newBuilder(object).resolver(FieldValueResolver.INSTANCE).build();
             writer.println(template.apply(context));
-            out.println("docerina: HTML file written: " + filePath);
         } finally {
             if (writer != null) {
                 writer.close();
@@ -143,6 +140,8 @@ public class Writer {
                 label += "<span>() </span>";
             }
             label += " </code>";
+        } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)) {
+            label = "<span class=\"builtin-type\">" + type.name + "</span>";
         } else {
             label = getHtmlLink(type, root);
         }
@@ -167,9 +166,6 @@ public class Writer {
         if ("types".equals(type.category) || "constants".equals(type.category) || "annotations".equals(type.category)
                 || "errors".equals(type.category)) {
             link = root + type.moduleName + "/" + type.category + ".html#" + type.name;
-        }
-        if ("builtin".equals(type.moduleName)) {
-            link = "https://ballerina.io/learn/api-docs/ballerina/primitive-types.html#" + type.name;
         }
         String suffix = type.isArrayType ? "[]" : "";
         suffix += type.isNullable ? "?" : "";

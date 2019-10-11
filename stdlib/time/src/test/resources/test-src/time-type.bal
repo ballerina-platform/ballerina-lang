@@ -71,6 +71,20 @@ function testParseTime() returns [int, string, int] {
     return [timeValue, zoneId, zoneoffset];
 }
 
+function testParseTimeWithTimePartOnly() returns [int, string] {
+    string timeFormatted = "";
+    int timeValue = 0;
+    var timeRet = time:parse("09:46:22", "HH:mm:ss");
+    if (timeRet is time:Time) {
+        timeValue = timeRet.time;
+        string|error formattedRet = time:format(timeRet, "HH:mm:ss");
+        if (formattedRet is string) {
+            timeFormatted = formattedRet;
+        }
+    }
+    return [timeValue, timeFormatted];
+}
+
 function testParseRFC1123Time(string timestamp) returns [int, string, int] {
     var timeRet = time:parse(timestamp, time:TIME_FORMAT_RFC_1123);
     int timeValue = 0;
@@ -232,7 +246,7 @@ function testManualTimeCreateWithInvalidZone() returns (int) {
     return time:getYear(time);
 }
 
-function testParseTimenvalidPattern() returns [int, string, int]|time:Error {
+function testParseTimeValidPattern() returns [int, string, int]|time:Error {
     var timeRet = time:parse("2017-06-26T09:46:22.444-0500", "test");
     int timeValue = 0;
     string zoneId = "";
@@ -248,7 +262,7 @@ function testParseTimenvalidPattern() returns [int, string, int]|time:Error {
 
 }
 
-function testParseTimenFormatMismatch() returns [int, string, int]|time:Error {
+function testParseTimeFormatMismatch() returns [int, string, int]|time:Error {
     var timeRet = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd");
     int timeValue = 0;
     string zoneId = "";

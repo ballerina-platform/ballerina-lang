@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -42,6 +40,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTIO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS_CREATED_AT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_ID;
 
 /**
  * Extern function to retrieve details of subscribers registered to receive updates for a particular topic.
@@ -57,19 +56,15 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
                                  structType = SUBSCRIPTION_DETAILS, structPackage = WEBSUB_PACKAGE),
         isPublic = true
 )
-public class GetSubscribers extends BlockingNativeCallableUnit {
+public class GetSubscribers {
 
     private static final Logger log = LoggerFactory.getLogger(GetSubscribers.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static ArrayValue getSubscribers(Strand strand, ObjectValue webSubHub, String topic) {
         ArrayValue subscriberDetailArray = null;
         try {
             List<HubSubscriber> subscribers = Hub.getInstance().getSubscribers();
-            MapValue<String, Object> subscriberDetailsRecordValue = BallerinaValues.createRecordValue(WEBSUB_PACKAGE,
+            MapValue<String, Object> subscriberDetailsRecordValue = BallerinaValues.createRecordValue(WEBSUB_PACKAGE_ID,
                                                                                      SUBSCRIPTION_DETAILS);
             subscriberDetailArray = new ArrayValue(new BArrayType(subscriberDetailsRecordValue.getType()));
             for (HubSubscriber subscriber : subscribers) {

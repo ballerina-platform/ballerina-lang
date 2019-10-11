@@ -19,7 +19,7 @@ import ballerina/system;
 # Struct which represents Kafka Producer configuration.
 #
 # + bootstrapServers - List of remote server endpoints of Kafka brokers.
-# + acks - Number of acknowledgments.
+# + acks - Number of acknowledgments. This can be either `kafka:ACKS_ALL`, `kafka:ACKS_SINGLE` or `kafka:ACKS_NONE`.
 # + compressionType - Compression type to be used for messages.
 # + clientId - Identifier to be used for server side logging.
 # + metricsRecordingLevel - Metrics recording level.
@@ -28,7 +28,7 @@ import ballerina/system;
 # + interceptorClasses - Interceptor classes to be used before sending records.
 # + transactionalId - Transactional ID to be used in transactional delivery.
 # + bufferMemory - Total bytes of memory the producer can use to buffer records.
-# + noRetries - Number of retries to resend a record.
+# + retryCount - Number of retries to resend a record.
 # + batchSize - Number of records to be batched for a single request. Use 0 for no batching.
 # + linger - Delay to allow other records to be batched.
 # + sendBuffer - Size of the TCP send buffer (SO_SNDBUF).
@@ -46,10 +46,10 @@ import ballerina/system;
 # + connectionsMaxIdleTimeInMillis - Close idle connections after the number of milliseconds.
 # + transactionTimeoutInMillis - Timeout for transaction status update from the producer.
 # + enableIdempotence - Exactly one copy of each message is written in the stream when enabled.
-# + secureSocket - SSL/TLS related options
+# + secureSocket - Configurations related to SSL/TLS.
 public type ProducerConfig record {|
     string? bootstrapServers = ();
-    string? acks = ();
+    Producer_Acks acks = ACKS_SINGLE;
     string? compressionType = ();
     string? clientId = ();
     string? metricsRecordingLevel = ();
@@ -59,7 +59,7 @@ public type ProducerConfig record {|
     string? transactionalId = ();
 
     int bufferMemory = -1;
-    int noRetries = -1;
+    int retryCount = -1;
     int batchSize = -1;
     int linger = -1;
     int sendBuffer = -1;
@@ -82,6 +82,21 @@ public type ProducerConfig record {|
     SecureSocket secureSocket?;
 |};
 
+# Producer acknowledgement type `all`. This will gurantee that the record will not be lost as long as at least one
+# in-sync replica is alive.
+public const ACKS_ALL = "all";
+
+# Producer acknowledgement type `0`. If the acknowledgement type set to this, the producer will not wait for any
+# acknowledgement from the server.
+public const ACKS_NONE = "0";
+
+# Producer acknowledgement type `1`. If the acknowledgement type set to this, the leader will write the record to its
+# local log but will respond without awaiting full acknowledgement from all followers.
+public const ACKS_SINGLE = "1";
+
+# Kafka producer acknowledgement type.
+public type Producer_Acks ACKS_ALL|ACKS_NONE|ACKS_SINGLE;
+
 # Represent a Kafka producer endpoint.
 #
 # + connectorId - Unique ID for a particular connector.
@@ -90,6 +105,9 @@ public type Producer client object {
 
     public ProducerConfig? producerConfig = ();
 
+    # Creates a new Kafka `Producer`.
+    #
+    # + config - Configurations related to initializing a Kafka `Producer`.
     public function __init(ProducerConfig config) {
         self.producerConfig = config;
         var result = self.init(config);

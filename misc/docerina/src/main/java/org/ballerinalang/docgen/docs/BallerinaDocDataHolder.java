@@ -36,6 +36,7 @@ public class BallerinaDocDataHolder {
      */
     private Map<String, ModuleDoc> packageMap;
     private String orgName;
+    private String version;
 
     protected BallerinaDocDataHolder() {
         packageMap = new HashMap<String, ModuleDoc>();
@@ -61,7 +62,17 @@ public class BallerinaDocDataHolder {
         if (orgName == null) {
             orgName = System.getProperty(BallerinaDocConstants.ORG_NAME);
         }
-        orgName = orgName == null ? "ballerina/" : orgName + "/";
         return orgName;
+    }
+
+    public String getVersion() {
+        if (version != null) {
+            return version;
+        }
+        version = ConfigRegistry.getInstance().getAsString(BallerinaDocConstants.VERSION);
+        if (version == null) {
+            version = System.getProperty(BallerinaDocConstants.VERSION);
+        }
+        return version;
     }
 }

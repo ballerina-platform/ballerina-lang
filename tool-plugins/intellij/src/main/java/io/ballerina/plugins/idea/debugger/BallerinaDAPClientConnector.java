@@ -17,6 +17,7 @@
 package io.ballerina.plugins.idea.debugger;
 
 import com.google.common.base.Strings;
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.ballerina.plugins.idea.debugger.client.DAPClient;
@@ -39,10 +40,11 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ServerSocket;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -59,6 +61,7 @@ public class BallerinaDAPClientConnector {
 
     private BallerinaDebugProcess context;
     private Project project;
+    private String entryFilePath;
     private String host;
     private int port;
     private DAPClient debugClient;
@@ -70,14 +73,18 @@ public class BallerinaDAPClientConnector {
     private Capabilities initializeResult;
     private ConnectionState myConnectionState;
 
-    private static final int DEBUG_ADAPTOR_PORT = 4711;
-    private static final String CONFIG_SOURCEROOT = "sourceRoot";
+    private int debugAdapterPort;
+    private static final String CONFIG_SOURCE = "script";
+    private static final String CONFIG_DEBUGEE_HOST = "debuggeeHost";
     private static final String CONFIG_DEBUGEE_PORT = "debuggeePort";
 
-    public BallerinaDAPClientConnector(@NotNull Project project, @NotNull String host, int port) {
+    public BallerinaDAPClientConnector(@NotNull Project project, @NotNull String entryFilePath, @NotNull String host,
+                                       int port) {
         this.project = project;
+        this.entryFilePath = entryFilePath;
         this.host = host;
         this.port = port;
+        this.debugAdapterPort = findFreePort();
         myConnectionState = ConnectionState.NOT_CONNECTED;
     }
 
@@ -151,11 +158,14 @@ public class BallerinaDAPClientConnector {
     }
 
     void attachToServer() {
-        Map<String, Object> requestArgs = new HashMap<>();
-        requestArgs.put(CONFIG_SOURCEROOT, project.getBasePath());
-        requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
         try {
+            Map<String, Object> requestArgs = new HashMap<>();
+            requestArgs.put(CONFIG_SOURCE, entryFilePath);
+            requestArgs.put(CONFIG_DEBUGEE_HOST, host);
+            requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
             requestManager.attach(requestArgs);
+            getContext().getSession().getConsoleView().print("Compiling and running...\n\n",
+                    ConsoleViewContentType.SYSTEM_OUTPUT);
         } catch (Exception e) {
             LOG.warn("Attaching to the debug adapter failed", e);
         }
@@ -174,8 +184,8 @@ public class BallerinaDAPClientConnector {
     }
 
     public boolean isConnected() {
-        return debugClient != null && launcherFuture != null && !launcherFuture.isDone()
-                && !launcherFuture.isCancelled() && myConnectionState == ConnectionState.CONNECTED;
+        return debugClient != null && launcherFuture != null && !launcherFuture.isCancelled()
+                && myConnectionState == ConnectionState.CONNECTED;
     }
 
     void stop() {
@@ -227,8 +237,22 @@ public class BallerinaDAPClientConnector {
             }
         }
 
-        return !debugLauncherPath.isEmpty() ? new BallerinaSocketStreamConnectionProvider(
-                new ArrayList<>(Collections.singleton(debugLauncherPath)), project.getBasePath(), host,
-                DEBUG_ADAPTOR_PORT) : null;
+        if (debugLauncherPath.isEmpty()) {
+            return null;
+        }
+
+        List<String> processArgs = new ArrayList<>();
+        processArgs.add(debugLauncherPath);
+        processArgs.add(String.valueOf(debugAdapterPort));
+        return new BallerinaSocketStreamConnectionProvider(processArgs, project.getBasePath(), host, debugAdapterPort);
+    }
+
+    private static int findFreePort() {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            socket.setReuseAddress(true);
+            return socket.getLocalPort();
+        } catch (Exception ignore) {
+        }
+        throw new IllegalStateException("Could not find a free TCP/IP port to start debugging");
     }
 }

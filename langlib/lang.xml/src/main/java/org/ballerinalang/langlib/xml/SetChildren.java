@@ -18,20 +18,18 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -49,23 +47,9 @@ import java.util.Arrays;
         args = {@Argument(name = "children", type = TypeKind.UNION)},
         isPublic = true
 )
-public class SetChildren extends BlockingNativeCallableUnit {
+public class SetChildren {
 
     private static final String OPERATION = "set children to xml element";
-
-    @Override
-    public void execute(Context ctx) {
-        try {
-            BXML xml = (BXML) ctx.getRefArgument(0);
-            BXML children = (BXML) ctx.getRefArgument(1);
-            xml.setChildren(children);
-        } catch (Throwable e) {
-            ErrorHandler.handleXMLException(OPERATION, e);
-        }
-
-        // Setting output value.
-        ctx.setReturnValues();
-    }
 
     public static void setChildren(Strand strand, XMLValue<?> xml, Object children) {
         if (!IsElement.isElement(strand, xml)) {
@@ -78,7 +62,8 @@ public class SetChildren extends BlockingNativeCallableUnit {
             children = xmlText;
         } else if (childrenType.getTag() != TypeTags.XML_TAG) {
             BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                    new BUnionType(Arrays.asList(BTypes.typeXML, BTypes.typeString)),
+                    new BUnionType(Arrays.asList(BTypes.typeXML, BTypes.typeString),
+                            TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)),
                     childrenType);
         }
 

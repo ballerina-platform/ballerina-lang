@@ -2,7 +2,8 @@
 <html>
 
 {{> head }}
-<body>
+<body class="cBallerina-io">
+    {{> bioBody }}
     <div class="navi-wrapper">
         <div class="navi-wrapper-content">
             {{> logo }}
@@ -48,9 +49,13 @@
         <div class="main-wrapper">
             <h1>
                 {{> breadcrumb }}
-                <span class="title-type">Errors - </span> 
-                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
-                </h1>
+                <span class="title-type">Errors - </span>
+                {{#if project.isSingleFile}}
+                    {{project.sourceFileName}}
+                {{else}}
+                    <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
+                {{/if}}
+            </h1>
             <div class="errors">
                 <div class="data-wrapper">
                     {{#each errors}}

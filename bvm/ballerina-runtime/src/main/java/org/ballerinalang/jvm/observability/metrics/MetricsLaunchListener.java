@@ -48,11 +48,16 @@ public class MetricsLaunchListener implements LaunchListener {
 
     @Override
     public void beforeRunProgram(boolean service) {
-        if (DefaultMetricRegistry.getInstance() == null) {
+        if (DefaultMetricRegistry.getInstance() == null || DefaultMetricRegistry.isNoOp) {
             ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+            if (!configRegistry.isInitialized()) {
+                // If config registry is not initialized, skip setting metric registry as well.
+                return;
+            }
             if (!configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED)) {
                 // Create default MetricRegistry with NoOpMetricProvider
                 DefaultMetricRegistry.setInstance(new MetricRegistry(new NoOpMetricProvider()));
+                DefaultMetricRegistry.isNoOp = true;
                 return;
             }
 
@@ -62,6 +67,7 @@ public class MetricsLaunchListener implements LaunchListener {
             metricProvider.init();
             // Create default MetricRegistry
             DefaultMetricRegistry.setInstance(new MetricRegistry(metricProvider));
+            DefaultMetricRegistry.isNoOp = false;
             // Register Ballerina specific metrics
             registerBallerinaMetrics();
             //load metric reporter configured

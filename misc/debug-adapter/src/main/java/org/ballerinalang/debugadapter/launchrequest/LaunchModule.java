@@ -37,18 +37,17 @@ public class LaunchModule extends LauncherImpl implements Launch {
     }
 
     @Override
-    public Process start() {
+    public Process start() throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder();
         String balFile = args.get("script").toString();
         processBuilder.command(getLauncherCommand(PackageUtils.getModuleName(balFile)));
 
         Path projectRoot = PackageUtils.findProjectRoot(Paths.get(balFile));
 
+        Map<String, String> env = processBuilder.environment();
+        // set environment ballerina home
+        env.put("BALLERINA_HOME", getBallerinaHome());
         processBuilder.directory(projectRoot.toFile());
-        try {
-            return processBuilder.start();
-        } catch (IOException e) {
-            return null;
-        }
+        return processBuilder.start();
     }
 }

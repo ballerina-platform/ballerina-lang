@@ -212,7 +212,7 @@ function assertNonMappingJsonError(json|error je) returns boolean {
 
 function assertKeyNotFoundError(json|error je, string key) returns boolean {
     if (je is error) {
-        return je.reason() == "{ballerina}KeyNotFound" &&
+        return je.reason() == "{ballerina/lang.map}KeyNotFound" &&
                                 je.detail()?.message == "Key '" + key + "' not found in JSON mapping";
     }
     return false;

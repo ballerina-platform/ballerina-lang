@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/nats;
 import ballerina/io;
-import ballerina/encoding;
+import ballerina/lang.'string as strings;
+import ballerina/nats;
 
 type Entry record {
     int id;
@@ -32,7 +32,7 @@ listener nats:StreamingListener lis = new(conn);
  }
  service dataBindingByteConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, byte[] data) {
-         io:println("Received Message - service: " + encoding:byteArrayToString(data));
+         io:println("Received Message - service: " + checkpanic strings:fromBytes(data));
      }
 
      resource function onError(nats:StreamingMessage message, error errorVal) {

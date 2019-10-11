@@ -3,7 +3,8 @@
 
 {{> head }}
 
-<body>
+<body class="cBallerina-io">
+    {{> bioBody }}
     <div class="navi-wrapper">
         <div class="navi-wrapper-content">
             {{> logo }}
@@ -49,9 +50,14 @@
         <div class="main-wrapper">
             <h1>
                 {{> breadcrumb }}
-                <span class="title-type">Clients - </span> 
-                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> : 
-                <span class="clients">{{ client.name }}</span> </h1>
+                <span class="title-type">Clients - </span>
+                {{#if project.isSingleFile}}
+                    {{project.sourceFileName}}
+                {{else}}
+                    <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> :
+                {{/if}}
+                <span class="clients">{{ client.name }}</span>
+            </h1>
             <p>{{{ client.description }}}</p>
 
             <div class="constants">
@@ -64,11 +70,15 @@
 
                     {{#if client.remoteMethods }}
                         <h2>Remote Methods</h2>
-                        <div class="method-list">
+                        <table>
                             {{#each client.remoteMethods}}
-                                {{> methodSignature }}
+                                <tr>
+                                    <td class="module-title truncate functions" title="{{name}}"><a
+                                            class="functions" href="#{{name}}">{{name}}</a></td>
+                                    <td class="module-desc">{{{ description }}}</td>
+                                </tr>
                             {{/each}}
-                        </div>
+                        </table>
                     {{/if}}
 
                     {{#if client.otherMethods}}

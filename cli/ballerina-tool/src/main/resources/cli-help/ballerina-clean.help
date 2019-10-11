@@ -1,0 +1,10 @@
+NAME
+       ballerina-clean - Clean artifacts created during the build
+
+SYNOPSIS
+       ballerina clean
+
+
+DESCRIPTION
+       Clean removes artifacts generated inside the target directory during
+       the build. This command is only valid inside a Ballerina project.

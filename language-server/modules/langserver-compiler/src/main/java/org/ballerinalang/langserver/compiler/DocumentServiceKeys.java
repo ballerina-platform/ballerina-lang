@@ -51,8 +51,6 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<String> SOURCE_ROOT_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<LSContext> OPERATION_META_CONTEXT_KEY
-            = new LSContext.Key<>();
     public static final LSContext.Key<BLangPackage> CURRENT_BLANG_PACKAGE_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<List<BLangPackage>> BLANG_PACKAGES_CONTEXT_KEY
@@ -64,5 +62,9 @@ public class DocumentServiceKeys {
     public static final LSContext.Key<List<BLangImportPackage>> CURRENT_DOC_IMPORTS_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> TERMINATE_OPERATION_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> IS_CACHE_SUPPORTED
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> IS_CACHE_OUTDATED_SUPPORTED
             = new LSContext.Key<>();
 }

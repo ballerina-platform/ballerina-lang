@@ -20,7 +20,6 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
@@ -28,8 +27,6 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.util.BootstrapRunner;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
@@ -43,16 +40,14 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
-import java.util.logging.LogManager;
 
+import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
-import static org.ballerinalang.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAVA_MAIN;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MAIN_CLASS_MANIFEST_ENTRY;
@@ -63,9 +58,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MAIN_CLAS
 public class RunExecutableTask implements Task {
     
     private final String[] args;
-    private final Map<String, String> runtimeParams;
-    private final String configFilePath;
-    private final boolean observeFlag;
     private Path executablePath;
     private boolean isGeneratedExecutable = false;
     
@@ -73,13 +65,9 @@ public class RunExecutableTask implements Task {
      * Create a task to run the executable. This requires {@link CreateExecutableTask} to be completed.
      *
      * @param args           Arguments for the executable.
-     * @param runtimeParams  run time parameters
-     * @param configFilePath config file path
-     * @param observeFlag    to indicate whether observability is enabled
      */
-    public RunExecutableTask(String[] args, Map<String, String> runtimeParams, String configFilePath,
-                             boolean observeFlag) {
-        this(null, args, runtimeParams, configFilePath, observeFlag);
+    public RunExecutableTask(String[] args) {
+        this(null, args);
         this.isGeneratedExecutable = true;
     }
     
@@ -88,22 +76,20 @@ public class RunExecutableTask implements Task {
      *
      * @param executablePath The path to the executable.
      * @param args           Arguments for the executable.
-     * @param runtimeParams  run time parameters
-     * @param configFilePath config file path
-     * @param observeFlag    to indicate whether observability is enabled
      */
-    public RunExecutableTask(Path executablePath, String[] args, Map<String, String> runtimeParams,
-                             String configFilePath, boolean observeFlag) {
+    public RunExecutableTask(Path executablePath, String[] args) {
         this.executablePath = executablePath;
         this.args = args;
-        this.runtimeParams = runtimeParams;
-        this.configFilePath = configFilePath;
-        this.observeFlag = observeFlag;
     }
     
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+        
+        if (!this.isGeneratedExecutable) {
+            this.runExecutable();
+            return;
+        }
 
         BLangPackage executableModule = null;
         // set executable path from an executable built on the go
@@ -121,14 +107,14 @@ public class RunExecutableTask implements Task {
                 switch (buildContext.getSourceType()) {
                     case SINGLE_BAL_FILE:
                         SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw new BLangCompilerException("no entry points found in '" +
-                                                         singleFileContext.getBalFile() + "'");
+                        throw createLauncherException("no entry points found in '" + singleFileContext.getBalFile() +
+                                                      "'.");
                     case SINGLE_MODULE:
                         SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw new BLangCompilerException("no entry points found in '" +
-                                                         singleModuleContext.getModuleName() + "'");
+                        throw createLauncherException("no entry points found in '" +
+                                                         singleModuleContext.getModuleName() + "'.");
                     default:
-                        throw new BLangCompilerException("cannot run given source.");
+                        throw createLauncherException("unknown source type found when running executable.");
                 }
             }
         }
@@ -142,29 +128,22 @@ public class RunExecutableTask implements Task {
         
         // if the executable does not exist
         if (Files.notExists(this.executablePath)) {
-            throw new BLangCompilerException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
+            throw createLauncherException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
                                              "' as it does not exist.");
         }
     
         // if the executable is not a file and not an extension with .jar
         if (!(Files.isRegularFile(this.executablePath) &&
             this.executablePath.toString().endsWith(BLANG_COMPILED_JAR_EXT))) {
-            
-            throw new BLangCompilerException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
+    
+            throw createLauncherException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
                                              "' as it is not an executable with .jar extension.");
         }
     
         // set the source root path relative to the source path i.e. set the parent directory of the source path
         System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
         
-        // load configurations from config file
-        loadConfigurations(sourceRootPath, this.runtimeParams, this.configFilePath, this.observeFlag);
-        
-        if (this.isGeneratedExecutable) {
-            this.runGeneratedExecutable(executableModule);
-        } else {
-            this.runExecutable();
-        }
+        this.runGeneratedExecutable(executableModule);
     }
     
     /**
@@ -177,10 +156,12 @@ public class RunExecutableTask implements Task {
                 "ballerina.home is not set");
         JBallerinaInMemoryClassLoader classLoader;
         try {
+            ConfigRegistry.getInstance().setInitialized(true);
             Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
             classLoader = BootstrapRunner.createClassLoaders(executableModule,
                     Paths.get(balHome).resolve("bir-cache"),
-                    targetDirectory,  Optional.empty(), false);
+                    targetDirectory, Optional.empty(), false, false);
+            ConfigRegistry.getInstance().setInitialized(false);
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }
@@ -201,7 +182,7 @@ public class RunExecutableTask implements Task {
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
         } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getCause());
+            throw createLauncherException("invoking main method failed due to ", e.getCause());
         }
         
     }
@@ -231,7 +212,7 @@ public class RunExecutableTask implements Task {
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
         } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getCause());
+            throw createLauncherException("invoking main method failed due to ", e.getCause());
         }
     }
     
@@ -252,36 +233,6 @@ public class RunExecutableTask implements Task {
             return initClassName.replaceAll("/", ".");
         } catch (IOException e) {
             throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
-     *
-     * @param sourceRootPath source directory
-     * @param runtimeParams  run time parameters
-     * @param configFilePath config file path
-     * @param observeFlag    to indicate whether observability is enabled
-     */
-    public static void loadConfigurations(Path sourceRootPath, Map<String, String> runtimeParams,
-                                          String configFilePath, boolean observeFlag) {
-        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
-        try {
-            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
-            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-            
-            if (observeFlag) {
-                ConfigRegistry.getInstance()
-                        .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, Boolean.TRUE);
-                ConfigRegistry.getInstance()
-                        .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, Boolean.TRUE);
-            }
-            
-        } catch (IOException e) {
-            throw new BLangRuntimeException(
-                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
-        } catch (RuntimeException e) {
-            throw new BLangRuntimeException(e.getMessage(), e);
         }
     }
 }

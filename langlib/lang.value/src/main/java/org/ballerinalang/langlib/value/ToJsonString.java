@@ -18,11 +18,8 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,18 +40,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class ToJsonString {
 
     public static String toJsonString(Strand strand, Object value) {
-
-        if (value == null) {
-            return "null";
-        }
-
-        BType type = TypeChecker.getType(value);
-        if (type.getTag() < TypeTags.JSON_TAG) {
-            return String.valueOf(value);
-        }
-
-        RefValue refValue = (RefValue) value;
-
-        return refValue.stringValue();
+        return StringUtils.getJsonString(value);
     }
 }

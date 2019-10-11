@@ -55,6 +55,10 @@
             {
                 "name": "Documentation",
                 "url": "documentation"
+            },
+            {
+                "name": "Quoted Identifiers",
+                "url": "quoted-identifiers"
             }
         ]
     },
@@ -308,6 +312,10 @@
                 "url": "json-record-map-conversion"
             },
             {
+                "name": "JSON to XML Conversion",
+                "url": "json-to-xml-conversion"
+            },
+            {
                 "name": "XML",
                 "url": "xml"
             },
@@ -316,20 +324,20 @@
                 "url": "xml-literal"
             },
             {
-                "name": "XML Namespaces",
-                "url": "xml-namespaces"
-            },
-            {
                 "name": "XML Attributes",
                 "url": "xml-attributes"
             },
             {
-                "name": "XML Functions",
-                "url": "xml-functions"
-            },
-            {
                 "name": "XML Access",
                 "url": "xml-access"
+            },
+            {
+                "name": "XML Namespaces",
+                "url": "xml-namespaces"
+            },
+            {
+                "name": "XML Functions",
+                "url": "xml-functions"
             }
         ]
     },
@@ -372,10 +380,6 @@
                 "url": "error-handling"
             },
             {
-                "name": "Error Lifting",
-                "url": "error-lifting"
-            },
-            {
                 "name": "Check",
                 "url": "check"
             },
@@ -414,8 +418,8 @@
                 "url": "fork-variable-access"
             },
             {
-                "name": "Lock",
-                "url": "locks"
+                "name": "Async",
+                "url": "async"
             }
         ]
     },
@@ -453,6 +457,41 @@
             }
         ]
     },
+    {
+        "title": "Java Interoperability",
+        "column": 2,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Create Java Objects",
+                "url": "create-java-objects"
+            },
+            {
+                "name": "Invoke Java Methods",
+                "url": "invoke-java-methods"
+            },
+            {
+                "name": "Access/Mutate Java Fields",
+                "url": "access-mutate-java-fields"
+            },
+            {
+                "name": "Java Arrays",
+                "url": "java-arrays"
+            },
+            {
+                "name": "Java Varargs",
+                "url": "java-varargs"
+            },
+            {
+                "name": "Overloaded Methods/Constructors",
+                "url": "overloaded-methods-constructors"
+            },
+            {
+                "name": "Java Exceptions",
+                "url": "java-exceptions"
+            }
+        ]
+    },
  	{
         "title": "Common Libraries",
         "column": 3,
@@ -484,6 +523,10 @@
             {
                 "name": "File Path",
                 "url": "filepath"
+            },
+            {
+                "name": "File",
+                "url": "file"
             },
             {
                 "name": "Task Scheduler Appointment",
@@ -544,14 +587,6 @@
             {
                 "name": "Guarantee Test Execution Order",
                 "url": "testerina-guarantee-test-execution-order"
-            },
-            {
-                "name": "Function Mocks",
-                "url": "testerina-function-mocks"
-            },
-            {
-                "name": "Group Tests",
-                "url": "testerina-group-tests"
             }
         ]
     },
@@ -686,6 +721,10 @@
         "column": 1,
         "category": "Working over the network",
         "samples": [{
+                "name": "Client Endpoint",
+                "url": "websocket-client"
+            },
+            {
                 "name": "Basic Server Functionalities",
                 "url": "websocket-basic-sample"
             },
@@ -746,37 +785,6 @@
                 "url": "http-timeout"
             }
         ]
-    },
- 	{
-        "title": "WebSub",
-        "column": 1,
-        "category": "Working over the network",
-        "samples": [{
-                "name": "Internal Hub Sample",
-                "url": "websub-internal-hub-sample"
-            },
-            {
-                "name": "Remote Hub Sample",
-                "url": "websub-remote-hub-sample"
-            },
-            {
-                "name": "Hub Client Sample",
-                "url": "websub-hub-client-sample"
-            },
-            {
-                "name": "Service Integration Sample",
-                "url": "websub-service-integration-sample"
-            }
-        ]
-    },
- 	{
-        "title": "Listeners",
-        "column": 1,
-        "category": "Working over the network",
-        "samples": [{
-            "name": "Directory Listener",
-            "url": "directory-listener"
-        }]
     },
     {
         "title": "Database",
@@ -903,37 +911,29 @@
         ]
     },
     {
-        "title": "RabbitMQ",
+        "title": "Kafka",
         "column": 3,
         "category": "Working over the network",
         "samples": [
             {
                 "name": "Producer",
-                "url": "rabbitmq-producer"
+                "url": "kafka_message_producer"
             },
             {
-                "name": "Consumer",
-                "url": "rabbitmq-consumer"
+                "name": "Consumer Service",
+                "url": "kafka_message_consumer_service"
             },
             {
-                "name": "Consumer Acknowledgements",
-                "url": "rabbitmq-consumer-with-client-acknowledgement"
+                "name": "Consumer Client",
+                "url": "kafka_message_consumer_simple"
             },
             {
-                "name": "QoS Settings",
-                "url": "rabbitmq-consumer-with-qos-settings"
+                "name": "Transactional Producer",
+                "url": "kafka_message_producer_transactional"
             },
             {
-                "name": "Data Binding",
-                "url": "rabbitmq-consumer-with-data-binding"
-            },
-            {
-                "name": "Transaction Producer",
-                "url": "rabbitmq-transaction-producer"
-            },
-            {
-                "name": "Transaction Consumer",
-                "url": "rabbitmq-transaction-consumer"
+                "name": "Consumer Groups",
+                "url": "kafka_message_consumer_group_service"
             }
         ]
     },
@@ -978,8 +978,18 @@
         ]
     },
     {
-        "title": "Streams",
+        "title": "Lock",
         "column": 0,
+        "category": "Experimental features",
+        "samples": [{
+            "name": "Lock",
+            "url": "locks"
+        }
+        ]
+    },
+    {
+        "title": "Streams",
+        "column": 1,
         "category": "Experimental features",
         "samples": [{
                 "name": "Streams",
@@ -1009,7 +1019,7 @@
     },
     {
         "title": "Transactions",
-        "column": 1,
+        "column": 2,
         "category": "Experimental features",
         "samples": [{
                 "name": "Local Transactions",
@@ -1031,7 +1041,7 @@
     },
     {
         "title": "Table Queries",
-        "column": 2,
+        "column": 3,
         "category": "Experimental features",
         "samples": [{
                 "name": "Table Queries",

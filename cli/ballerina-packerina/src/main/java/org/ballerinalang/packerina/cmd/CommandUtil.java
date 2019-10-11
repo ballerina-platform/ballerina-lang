@@ -71,6 +71,17 @@ public class CommandUtil {
             stream.println("For more information try --help");
         }
     }
+    
+    /**
+     * Exit with error code 1.
+     *
+     * @param exit Whether to exit or not.
+     */
+    public static void exitError(boolean exit) {
+        if (exit) {
+            Runtime.getRuntime().exit(1);
+        }
+    }
 
     /**
      * Initialize a new ballerina project in the given path.
@@ -88,16 +99,17 @@ public class CommandUtil {
 
             Path manifest = path.resolve("Ballerina.toml");
             Path src = path.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
-            Path test = path.resolve("tests");
-            Path testResources = test.resolve("resources");
+            //Path test = path.resolve("tests");
+            //Path testResources = test.resolve("resources");
             Path gitignore = path.resolve(".gitignore");
 
 
             Files.createFile(manifest);
             Files.createFile(gitignore);
             Files.createDirectory(src);
-            Files.createDirectory(test);
-            Files.createDirectory(testResources);
+            // todo need to enable integration tests
+            //Files.createDirectory(test);
+            //Files.createDirectory(testResources);
 
             String defaultManifest = BCompileUtil.readFileAsString("new_cmd_defaults/manifest.toml");
             String defaultGitignore = BCompileUtil.readFileAsString("new_cmd_defaults/gitignore");

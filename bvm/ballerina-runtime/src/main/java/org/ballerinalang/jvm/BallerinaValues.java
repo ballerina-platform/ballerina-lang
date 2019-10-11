@@ -18,13 +18,16 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.ValueCreator;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * The factory utility class that creates runtime values from given package and type names.
@@ -34,48 +37,46 @@ import java.util.Map;
 public class BallerinaValues {
 
     /**
-     * Method that creates a runtime record value using the given package name and record type name.
+     * Method that creates a runtime record value using the given package id and record type name.
      *
-     * @param pkgName the name of the package that the record type resides.
+     * @param packageId the package id that the record type resides.
      * @param recordTypeName name of the record type.
      * @return value of the record.
      */
-    public static MapValue<String, Object> createRecordValue(String pkgName, String recordTypeName) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
+    public static MapValue<String, Object> createRecordValue(BPackage packageId, String recordTypeName) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         return valueCreator.createRecordValue(recordTypeName);
     }
 
     /**
-     * Method that populates record fields using the given package name, record type name and a map of field names
-     * and associated values for fields.
+     * Method that populates record fields using the given package id, record type name and a map of
+     * field names and associated values for fields.
      *
-     * @param pkgName the name of the package that the record type resides.
+     * @param packageId the package id that the record type resides.
      * @param recordTypeName name of the record type.
      * @param valueMap values to be used for fields when creating the record.
      * @return value of the populated record.
      */
-    public static MapValue<String, Object> createRecordValue(String pkgName, String recordTypeName,
-            Map<String, Object> valueMap) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
-        MapValue<String, Object> record = valueCreator.createRecordValue(recordTypeName);
-        BRecordType recordType = (BRecordType) record.getType();
-        MapValue<String, Object> mapValue = new MapValueImpl<>(recordType);
-        for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
-            mapValue.put(fieldEntry.getKey(), valueMap.get(fieldEntry.getKey()));
+    public static MapValue<String, Object> createRecordValue(BPackage packageId, String recordTypeName,
+                                                             Map<String, Object> valueMap) {
+        MapValue<String, Object> record = createRecordValue(packageId, recordTypeName);
+        for (Entry<String, Object> fieldEntry : valueMap.entrySet()) {
+            record.put(fieldEntry.getKey(), fieldEntry.getValue());
         }
-        return mapValue;
+
+        return record;
     }
 
     /**
-     * Method that creates a runtime object value using the given package name and object type name.
+     * Method that creates a runtime object value using the given package id and object type name.
      *
-     * @param pkgName the name of the package that the record type resides.
+     * @param packageId the package id that the object type resides.
      * @param objectTypeName name of the object type.
      * @param fieldValues values to be used for fields when creating the object value instance.
      * @return value of the object.
      */
-    public static ObjectValue createObjectValue(String pkgName, String objectTypeName, Object... fieldValues) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
+    public static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Object... fieldValues) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         Object[] fields = new Object[fieldValues.length * 2];
 
         // Adding boolean values for each arg
@@ -99,7 +100,11 @@ public class BallerinaValues {
         MapValue<String, Object> mapValue = new MapValueImpl<>(recordType);
         int i = 0;
         for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
-            mapValue.put(fieldEntry.getKey(), values[i++]);
+            Object value = values[i++];
+            if (Flags.isFlagOn(fieldEntry.getValue().flags, Flags.OPTIONAL) && value == null) {
+                continue;
+            }
+            mapValue.put(fieldEntry.getKey(), value);
         }
         return mapValue;
     }

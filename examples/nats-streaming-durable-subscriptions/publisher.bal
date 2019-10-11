@@ -21,9 +21,11 @@ public function main() {
             var result = publisher->publish(subject, <@untainted> message);
             if (result is nats:Error) {
                 error e = result;
-                log:printError("Error occurred while closing the connection", err = e);
+                log:printError("Error occurred while closing the connection",
+                                                                        err = e);
             } else {
-                log:printInfo("GUID " + result + " received for the produced message.");
+                log:printInfo("GUID " + result
+                                        + " received for the produced message.");
             }
         }
     }

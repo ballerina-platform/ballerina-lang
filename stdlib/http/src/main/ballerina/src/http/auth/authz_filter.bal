@@ -14,10 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/cache;
-import ballerina/reflect;
-
-# Representation of the Authorization filter
+# Representation of the Authorization filter.
 #
 # + authzHandler - `AuthzHandler` instance for handling authorization
 # + scopes - Array of scopes
@@ -31,7 +28,7 @@ public type AuthzFilter object {
         self.scopes = scopes;
     }
 
-    # Filter function implementation which tries to authorize the request
+    # Filter function implementation which tries to authorize the request.
     #
     # + caller - Caller for outbound HTTP responses
     # + request - `Request` instance
@@ -41,12 +38,18 @@ public type AuthzFilter object {
         boolean|AuthorizationError authorized = true;
         var scopes = getScopes(context);
         if (scopes is string[]|string[][]) {
-            authorized = handleAuthzRequest(self.authzHandler, request, context, scopes);
+            authorized = self.authzHandler.canProcess(request);
+            if (authorized is boolean && authorized) {
+                authorized = self.authzHandler.process(scopes);
+            }
         } else {
             if (scopes) {
                 var selfScopes = self.scopes;
                 if (selfScopes is string[]|string[][]) {
-                    authorized = handleAuthzRequest(self.authzHandler, request, context, selfScopes);
+                    authorized = self.authzHandler.canProcess(request);
+                    if (authorized is boolean && authorized) {
+                        authorized = self.authzHandler.process(selfScopes);
+                    }
                 } else {
                     authorized = true;
                 }
@@ -62,69 +65,21 @@ public type AuthzFilter object {
     }
 };
 
-function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context,
-                            string[]|string[][] scopes) returns boolean|AuthorizationError {
-    boolean|AuthorizationError authorized = true;
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (scopes is string[]) {
-        if (scopes.length() > 0) {
-            var canProcessResponse = authzHandler.canProcess(request);
-            if (canProcessResponse is boolean && canProcessResponse) {
-                if(principal is runtime:Principal) {
-                    authorized = authzHandler.process(principal.username, context.getServiceName(),
-                                            context.getResourceName(), request.method, scopes);
-                } else {
-                    authorized = false;
-                }
-            } else {
-                authorized = canProcessResponse;
-            }
-        } else {
-            // scopes are not defined, no need to authorize
-            authorized = true;
-        }
-    } else {
-        if (scopes[0].length() > 0) {
-            var canProcessResponse = authzHandler.canProcess(request);
-            if (canProcessResponse is boolean && canProcessResponse) {
-                if(principal is runtime:Principal) {
-                    authorized = authzHandler.process(principal.username, context.getServiceName(),
-                                                context.getResourceName(), request.method, scopes);
-                } else {
-                    authorized = false;
-                }
-            } else {
-                authorized = canProcessResponse;
-            }
-        }
-    }
-    return authorized;
-}
-
 # Verifies if the authorization is successful. If not responds to the user.
 #
-# + caller - Caller for outbound HTTP responses
+# + caller - Caller for outbound HTTP response
 # + authorized - Authorization status for the request, or `AuthorizationError` if error occurred
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
 function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized) returns boolean {
     Response response = new;
     response.statusCode = 403;
-    if (authorized is boolean) {
-        if (!authorized) {
-            response.setTextPayload("Authorization failure");
-            var err = caller->respond(response);
-            if (err is error) {
-                panic <error> err;
-            }
-            return false;
-        }
-    } else {
-        response.setTextPayload("Authorization failure. " + <string>authorized.reason());
-        var err = caller->respond(response);
-        if (err is error) {
-            panic <error> err;
-        }
-        return false;
+    if (authorized is boolean && authorized) {
+        return authorized;
     }
-    return true;
+    response.setTextPayload("Authorization failure.");
+    var err = caller->respond(response);
+    if (err is error) {
+        panic <error> err;
+    }
+    return false;
 }

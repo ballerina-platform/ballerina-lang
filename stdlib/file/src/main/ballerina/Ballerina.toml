@@ -1,12 +1,19 @@
 [project]
 org-name = "ballerina"
-version = "0.0.0"
+version = "0.5.0"
 
 [platform]
-target = "java"
+target = "java8"
 
     [[platform.libraries]]
-    artafactId = "org.wso2.transport.local-file-system"
+    artifactId = "file"
+    version = "@project.version@"
+    path = "./lib/ballerina-file-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["file"]
+
+    [[platform.libraries]]
+    artifactId = "org.wso2.transport.local-file-system"
     version = "6.0.55"
     path = "./lib/org.wso2.transport.local-file-system-6.0.55.jar"
     groupId = "org.wso2.transport.file"

@@ -20,6 +20,9 @@ package org.ballerinalang.jvm.values.freeze;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+
 /**
  * Class for freeze() util methods.
  *
@@ -57,15 +60,16 @@ public class FreezeUtils {
      * being frozen.
      *
      * @param currentState the current {@link State} of the value
+     * @param moduleName the name of the langlib module for whose values the error occurred
      */
-    public static void handleInvalidUpdate(State currentState) {
+    public static void handleInvalidUpdate(State currentState, String moduleName) {
         switch (currentState) {
             case FROZEN:
-                throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
-                        "modification not allowed on readonly value");
+                throw new BLangFreezeException(getModulePrefixedReason(moduleName, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                               "modification not allowed on readonly value");
             case MID_FREEZE:
-                throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
-                        "modification not allowed during freeze");
+                throw new BLangFreezeException(getModulePrefixedReason(moduleName, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                               "modification not allowed during freeze");
             default:
                 return;
         }

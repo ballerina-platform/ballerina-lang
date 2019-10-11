@@ -26,9 +26,9 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -74,7 +74,7 @@ public class CodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-no-diagnostics-data-provider")
-    public void testCodeActionWithoutDiagnostics(String config, String source) {
+    public void testCodeActionWithoutDiagnostics(String config, String source) throws IOException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -84,8 +84,10 @@ public class CodeActionTest {
         CodeActionContext codeActionContext = new CodeActionContext(new ArrayList<>());
         Range range = gson.fromJson(configJsonObject.get("range"), Range.class);
 
+        TestUtil.openDocument(this.serviceEndpoint, sourcePath);
         String response = TestUtil.getCodeActionResponse(this.serviceEndpoint, sourcePath.toString(), range,
                                                          codeActionContext);
+        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
         JsonArray result = parser.parse(response).getAsJsonObject().getAsJsonArray("result");
 
         Assert.assertEquals(numberOfCommands, result.size());
@@ -115,18 +117,18 @@ public class CodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-diagnostics-data-provider")
-    public void testCodeActionWithDiagnostics(String config, String source) throws IOException {
+    public void testCodeActionWithDiagnostics(String config, String source)
+            throws IOException, CompilationFailedException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
 
-        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
-        BallerinaFile ballerinaFile = lsCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
+        BallerinaFile ballerinaFile = ExtendedLSCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
         List<Diagnostic> lsDiagnostics = new ArrayList<>();
         ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
         CodeActionContext codeActionContext = new CodeActionContext(lsDiagnostics);
         Range range = gson.fromJson(configJsonObject.get("range"), Range.class);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
         String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
 
@@ -151,15 +153,14 @@ public class CodeActionTest {
         Assert.assertTrue(codeActionFound, "Cannot find expected Code Action for: " + title);
     }
 
-    @Test(dataProvider = "codeaction-testgen-data-provider")
-    public void testCodeActionWithTestGen(String config, Path source) throws IOException {
+    @Test(dataProvider = "codeaction-testgen-data-provider", enabled = false)
+    public void testCodeActionWithTestGen(String config, Path source) throws IOException, CompilationFailedException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
-        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
-        BallerinaFile ballerinaFile = lsCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
+        BallerinaFile ballerinaFile = ExtendedLSCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
         List<Diagnostic> lsDiagnostics = new ArrayList<>();
         ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
         CodeActionContext context = new CodeActionContext(lsDiagnostics);
@@ -193,14 +194,14 @@ public class CodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-quickfixes-data-provider")
-    public void testCodeActionWithQuickFixes(String config, String source) throws IOException {
+    public void testCodeActionWithQuickFixes(String config, String source)
+            throws IOException, CompilationFailedException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
-        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
-        BallerinaFile ballerinaFile = lsCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
+        BallerinaFile ballerinaFile = ExtendedLSCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
         List<Diagnostic> lsDiagnostics = new ArrayList<>();
         ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
         CodeActionContext context = new CodeActionContext(lsDiagnostics);
@@ -210,7 +211,7 @@ public class CodeActionTest {
         String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, context);
 
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        String title = expected.get("title").toString();
+        String title = expected.get("title").getAsString();
 
         boolean codeActionFound = false;
         JsonObject responseJson = this.getResponseJson(res);
@@ -223,8 +224,7 @@ public class CodeActionTest {
             JsonObject edit = editText.getAsJsonObject().get("documentChanges")
                     .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray().get(0)
                     .getAsJsonObject();
-            if (right.getAsJsonObject().get("title").toString().equals(title) && edit.equals(
-                    expected.get("edit"))) {
+            if (right.getAsJsonObject().get("title").getAsString().equals(title) && edit.equals(expected.get("edit"))) {
                 codeActionFound = true;
                 break;
             }
@@ -244,10 +244,15 @@ public class CodeActionTest {
                 {"fixReturnType3.json", "fixReturnType.bal"},
                 {"markUntaintedCodeAction1.json", "taintedVariable.bal"},
                 {"markUntaintedCodeAction2.json", "taintedVariable.bal"},
+                {"variableAssignmentRequiredCodeAction1.json", "createVariable.bal"},
+                {"variableAssignmentRequiredCodeAction2.json", "createVariable.bal"},
+                {"variableAssignmentRequiredCodeAction3.json", "createVariable.bal"},
+                {"variableAssignmentRequiredCodeAction4.json", "createVariable.bal"},
+                {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"typeGuardCodeAction1.json", "typeGuard.bal"},
                 {"typeGuardCodeAction2.json", "typeGuard.bal"},
                 {"typeGuardCodeAction3.json", "typeGuard.bal"},
-                {"typeGuardCodeAction4.json", "typeGuard.bal"},
+//                {"typeGuardCodeAction4.json", "typeGuard.bal"},
         };
     }
 
@@ -270,8 +275,6 @@ public class CodeActionTest {
                 {"undefinedPackageWithinFunction.json", "codeActionCommon.bal"},
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
-                {"variableAssignmentRequiredCodeAction.json", "createVariable.bal"},
-                {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"packagePull.json", "packagePull.bal"},
                 {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
                 {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}

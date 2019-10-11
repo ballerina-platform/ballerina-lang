@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/internal;
 
 function remove () returns (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
@@ -9,7 +8,7 @@ function remove () returns (json) {
 }
 
 function toString (json msg) returns (string?) {
-    return msg.toString();
+    return msg.toJsonString();
 }
 
 function testParse (string jsonStr) returns @tainted (json | error) {

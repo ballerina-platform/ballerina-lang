@@ -18,17 +18,11 @@
 
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.siddhi.core.stream.input.InputHandler;
-import org.ballerinalang.streams.StreamSubscriptionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -46,8 +40,6 @@ public class BStream implements BRefType<Object> {
 
     private String streamId = "";
 
-    private StreamSubscriptionManager streamSubscriptionManager;
-
     /**
      * The name of the underlying broker topic representing the stream object.
      */
@@ -57,7 +49,6 @@ public class BStream implements BRefType<Object> {
         if (((BStreamType) type).getConstrainedType() == null) {
             throw new BallerinaException("a stream cannot be declared without a constraint");
         }
-        this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         if (constraintType instanceof BIndexedType) {
@@ -86,11 +77,6 @@ public class BStream implements BRefType<Object> {
     }
 
     @Override
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
-    }
-
-    @Override
     public BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
@@ -104,41 +90,4 @@ public class BStream implements BRefType<Object> {
         return constraintType;
     }
 
-    /**
-     * Method to publish to a topic representing the stream in the broker.
-     *
-     * @param data the data to publish to the stream
-     */
-    public void publish(BValue data) {
-        BType dataType = data.getType();
-        if (!BVM.checkCast(data, constraintType)) {
-            throw new BallerinaException("incompatible types: value of type:" + dataType
-                    + " cannot be added to a stream of type:" + this.constraintType);
-        }
-        streamSubscriptionManager.sendMessage(this, data);
-    }
-
-    /**
-     * Method to register a subscription to the underlying topic representing the stream in the broker.
-     *
-     * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
-     *                        messages
-     */
-    public void subscribe(BFunctionPointer functionPointer) {
-        BType[] parameters = functionPointer.value().getParamTypes();
-        int lastArrayIndex = parameters.length - 1;
-        if (!BVM.isAssignable(constraintType, parameters[lastArrayIndex], new ArrayList<>())) {
-            throw new BallerinaException("incompatible function: subscription function needs to be a function"
-                                                 + " accepting:" + this.constraintType);
-        }
-        streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
-    }
-
-    public void subscribe(InputHandler inputHandler) {
-        if (constraintType.getTag() != TypeTags.OBJECT_TYPE_TAG
-                && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw new BallerinaException("Streaming Support is only available with streams accepting objects");
-        }
-        streamSubscriptionManager.registerMessageProcessor(this, inputHandler);
-    }
 }

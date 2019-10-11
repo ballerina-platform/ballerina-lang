@@ -15,16 +15,16 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/'lang\.object as lang;
+import ballerina/lang.'object as lang;
 
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
 public type Listener object {
 
-    *lang:AbstractListener;
+    *lang:Listener;
 
     private int port = 0;
-    private ServiceEndpointConfiguration config = {};
+    private ListenerConfiguration config = {};
 
     # Starts the registered service.
     #
@@ -33,10 +33,14 @@ public type Listener object {
         return self.start();
     }
 
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
     # Stops the registered service.
     #
     # + return - Returns an error if encounters an error while stopping the server, returns nil otherwise.
-    public function __stop() returns error? {
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 
@@ -49,11 +53,14 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     # Gets called when the endpoint is being initialize during module init time.
     #
     # + port - Listener port.
     # + config - The ServiceEndpointConfiguration of the endpoint.
-    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+    public function __init(int port, ListenerConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
         error? err = self.initEndpoint();
@@ -81,15 +88,11 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 #
 # + host - The server hostname.
 # + secureSocket - The SSL configurations for the client endpoint.
-# + httpVersion - HTTP version supported by the endpoint. This should be 2.0 as gRPC works only with HTTP/2.
 # + timeoutInMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout.
-# + requestLimits - Configures the parameters for request validation.
-public type ServiceEndpointConfiguration record {|
+public type ListenerConfiguration record {|
     string host = "0.0.0.0";
-    ServiceSecureSocket? secureSocket = ();
-    string httpVersion = "2.0";
-    RequestLimits? requestLimits = ();
+    ListenerSecureSocket? secureSocket = ();
     int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
 |};
 
@@ -105,12 +108,12 @@ public type ServiceEndpointConfiguration record {|
 # + certValidation - Certificate validation against CRL or OCSP related options
 # + ciphers - List of ciphers to be used (e.g.: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 #             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
-# + sslVerifyClient - The type of client certificate verification
+# + sslVerifyClient - The type of client certificate verification. (e.g.: "require" or "optional")
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 # + handshakeTimeoutInSeconds - SSL handshake time out
 # + sessionTimeoutInSeconds - SSL session time out
-public type ServiceSecureSocket record {|
+public type ListenerSecureSocket record {|
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();
     string certFile = "";
@@ -126,21 +129,8 @@ public type ServiceSecureSocket record {|
                         "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"];
     string sslVerifyClient = "";
     boolean shareSession = true;
-    ServiceOcspStapling? ocspStapling = ();
+    ListenerOcspStapling? ocspStapling = ();
     int handshakeTimeoutInSeconds?;
     int sessionTimeoutInSeconds?;
 |};
 
-# Configures limits for requests. If these limits are violated, the request is rejected.
-#
-# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
-#                  `414 - URI Too Long` response.
-# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
-#                   `413 - Payload Too Large` response.
-# + maxEntityBodySize - Maximum allowed size for the entity body. Exceeding this limit will result in a
-#                       `413 - Payload Too Large` response.
-public type RequestLimits record {|
-    int maxUriLength = -1;
-    int maxHeaderSize = -1;
-    int maxEntityBodySize = -1;
-|};

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -31,13 +32,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
+
 /**
  * Task for creating jar file.
  */
 public class CreateJarTask implements Task {
+
+    private boolean dumpBir;
+
+    public CreateJarTask(boolean dumpBir) {
+        this.dumpBir = dumpBir;
+    }
     
     @Override
     public void execute(BuildContext buildContext) {
+        
+        // This will avoid initializing Config registry during jar creation.
+        ConfigRegistry.getInstance().setInitialized(true);
         Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
         Path projectBIRCache = buildContext.get(BuildContextField.BIR_CACHE_DIR);
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
@@ -55,10 +67,26 @@ public class CreateJarTask implements Task {
             
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
+    
+            BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir, entryBir.toString(), jarOutput.toString(),
+                    this.dumpBir, buildContext.getSourceType() == SINGLE_BAL_FILE, projectBIRCache.toString(),
+                    homeBIRCache.toString(), systemBIRCache.toString());
 
-            BootstrapRunner.generateJarBinary2(tmpDir, entryBir.toString(), jarOutput.toString(),
-                    false, projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+            // If there is a testable package we will create testable jar.
+            if (module.hasTestablePackage()) {
+                // get the bir path of the module
+                Path testBir = buildContext.getTestBirPathFromTargetCache(module.packageID);
+
+                // get the jar path of the module.
+                Path testJarOutput = buildContext.getTestJarPathFromTargetCache(module.packageID);
+
+                BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir,
+                        testBir.toString(), testJarOutput.toString(), this.dumpBir,
+                        projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+            }
+
         }
+        ConfigRegistry.getInstance().setInitialized(false);
     }
     
     private void writeImportJar(Path tmpDir, List<BPackageSymbol> imports, Path sourceRoot, BuildContext buildContext,
@@ -73,7 +101,8 @@ public class CreateJarTask implements Task {
             // If the module is part of the project write it to project jar cache check if file exist
             // If not write it to home jar cache
             // skip ballerina and ballerinax
-            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)) {
+            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)  ||
+                                                                buildContext.getImportPathDependency(id).isPresent()) {
                 jarFilePath = buildContext.getJarPathFromTargetCache(id);
                 birFilePath = buildContext.getBirPathFromTargetCache(id);
             } else {
@@ -81,11 +110,10 @@ public class CreateJarTask implements Task {
                 birFilePath = buildContext.getBirPathFromHomeCache(id);
             }
             if (!Files.exists(jarFilePath)) {
-                BootstrapRunner.generateJarBinary2(tmpDir, birFilePath.toString(),
-                        jarFilePath.toString(), false, reps);
-                BootstrapRunner.generateJarBinary(birFilePath.toString(), jarFilePath.toString(), false, reps);
+                BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir,
+                        birFilePath.toString(), jarFilePath.toString(), this.dumpBir, reps);
             }
-            writeImportJar(tmpDir, bimport.imports, sourceRoot, buildContext);
+            writeImportJar(tmpDir, bimport.imports, sourceRoot, buildContext, reps);
         }
     }
 }

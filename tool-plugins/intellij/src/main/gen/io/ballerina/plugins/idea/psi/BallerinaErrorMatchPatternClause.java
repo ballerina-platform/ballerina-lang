@@ -35,10 +35,10 @@ public interface BallerinaErrorMatchPatternClause extends PsiElement {
   @NotNull
   PsiElement getEqualGt();
 
-  @Nullable
+  @NotNull
   PsiElement getLeftBrace();
 
-  @Nullable
+  @NotNull
   PsiElement getRightBrace();
 
   @Nullable

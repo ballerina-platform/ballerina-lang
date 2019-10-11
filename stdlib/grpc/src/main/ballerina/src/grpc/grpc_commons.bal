@@ -39,21 +39,11 @@ public type ValidateCert record {|
 # + enable - The status of OcspStapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - Time duration of cache validity period
-public type ServiceOcspStapling record {|
+public type ListenerOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
 |};
-
-# Defines the possible values for the keep-alive configuration in service and client endpoints.
-public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
-
-# Decides to keep the connection alive or not based on the `connection` header of the client request }
-public const KEEPALIVE_AUTO = "AUTO";
-# Keeps the connection alive irrespective of the `connection` header value }
-public const KEEPALIVE_ALWAYS = "ALWAYS";
-# Closes the connection irrespective of the `connection` header value }
-public const KEEPALIVE_NEVER = "NEVER";
 
 # Options to compress using gzip or deflate.
 #

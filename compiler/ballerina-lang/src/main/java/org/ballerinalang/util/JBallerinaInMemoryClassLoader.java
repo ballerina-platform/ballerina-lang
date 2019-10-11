@@ -25,6 +25,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.StringJoiner;
 
 /**
  * An in-memory jar class loader.
@@ -63,6 +64,15 @@ public class JBallerinaInMemoryClassLoader {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Class '" + className + "' cannot be loaded in-memory", e);
         }
+    }
+
+    public String getClassPath() {
+        URL[] urls = cl.getURLs();
+        StringJoiner joiner = new StringJoiner(":");
+        for (URL url : urls) {
+            joiner.add(url.getPath());
+        }
+        return joiner.toString();
     }
 
 }

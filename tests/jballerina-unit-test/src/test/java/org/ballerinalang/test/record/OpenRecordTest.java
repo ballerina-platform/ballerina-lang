@@ -166,10 +166,8 @@ public class OpenRecordTest {
     public void testStructLiteralAttachedFunc() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/record/record_literal_with_attached_functions_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 7, 1);
-        BAssertUtil.validateError(result, 1, "outside object method definitions are not allowed", 7, 1);
-        BAssertUtil.validateError(result, 2, "undefined symbol 'self'", 8, 12);
+        Assert.assertEquals(result.getErrorCount(), 5);
+        BAssertUtil.validateError(result, 0, "mismatched input '.'. expecting '('", 7, 16);
     }
 
     @Test(description = "Test addition of different types for default rest field type")
@@ -458,21 +456,28 @@ public class OpenRecordTest {
     }
 
     @Test
-    public void testInvalidExprsAsRecordLiteralKeys() {
-        CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_key_expr_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 9);
+    public void testExprsAsRecordLiteralKeysSemanticsNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_key_expr_semantics_negative" +
+                ".bal");
+        Assert.assertEquals(result.getErrorCount(), 6);
         BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'float'", 34, 27);
         BAssertUtil.validateError(result, 1, "missing non-defaultable required record field 's'", 35, 14);
         BAssertUtil.validateError(result, 2, "incompatible types: expected 'string', found 'int'", 36, 27);
         BAssertUtil.validateError(result, 3, "incompatible types: expected 'string', found 'boolean'", 37, 37);
         BAssertUtil.validateError(result, 4, "missing non-defaultable required record field 's'", 38, 14);
         BAssertUtil.validateError(result, 5, "incompatible types: expected '(string|int|anydata)', found 'error'", 41,
-                                  44);
-        BAssertUtil.validateError(result, 6, "invalid key 's2': identifiers cannot be used as rest field keys, " +
-                "expected a string literal or an expression", 49, 26);
-        BAssertUtil.validateError(result, 7, "invalid key 'i2': identifiers cannot be used as rest field keys, " +
-                "expected a string literal or an expression", 49, 39);
-        BAssertUtil.validateError(result, 8, "invalid key 's2': identifiers cannot be used as rest field keys, " +
-                "expected a string literal or an expression", 50, 26);
+                44);
+    }
+
+    @Test
+    public void testInvalidExprsAsRecordLiteralKeys() {
+        CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_key_expr_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, 0, "invalid key 's2': identifiers cannot be used as rest field keys, " +
+                "expected a string literal or an expression", 27, 26);
+        BAssertUtil.validateError(result, 1, "invalid key 'i2': identifiers cannot be used as rest field keys, " +
+                "expected a string literal or an expression", 27, 39);
+        BAssertUtil.validateError(result, 2, "invalid key 's2': identifiers cannot be used as rest field keys, " +
+                "expected a string literal or an expression", 28, 26);
     }
 }

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/log;
 
 # Handles the transaction initiator block.
@@ -157,7 +156,7 @@ function beginLocalParticipant(string transactionBlockId, function () returns an
 # + committedFunc - Committed function.
 # + abortedFunc - Abort function.
 # + return - Return value of the participant.
-function beginRemoteParticipant(string transactionBlockId, function () returns any|error|() trxFunc,
+function beginRemoteParticipant(string transactionBlockId, function () returns any|error trxFunc,
                                 function (string trxId) committedFunc, function (string trxId) abortedFunc) returns 
                                 any|error|() {
     TransactionContext? txnContext = registerRemoteParticipant(transactionBlockId, committedFunc, abortedFunc);
@@ -305,7 +304,9 @@ function isInitiator(string transactionId, string transactionBlockId) returns bo
 # + trxFunc - Participant logic.
 # + return - Return value of the participant.
 function transactionParticipantWrapper(function () returns any|error trxFunc) returns ParticipantFunctionResult {
-    return {data : trxFunc()};
+    any|error|() resultData = trxFunc();
+    ParticipantFunctionResult result =  {data : resultData};
+    return result;
 }
 
 

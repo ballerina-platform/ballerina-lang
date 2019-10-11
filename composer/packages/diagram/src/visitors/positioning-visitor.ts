@@ -1,7 +1,8 @@
 import {
     ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
-    Function as BalFunction, Function as FunctionNode, If, Lambda, Match, MatchStaticPatternClause, ObjectType,
-    Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
+    Function as BalFunction, Function as FunctionNode, If, Lambda, Match, MatchStaticPatternClause,
+    MatchStructuredPatternClause, ObjectType, Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
+    Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -181,7 +182,7 @@ class PositioningVisitor implements Visitor {
                     expandedFunctionVS.bBox.x = elViewState.bBox.x;
                     expandedFunctionVS.bBox.y = elViewState.bBox.y;
 
-                    ASTUtil.traversNode(expandedSubTree, this);
+                    ASTUtil.traversNode(expandedSubTree, new PositioningVisitor());
                 }
             }
             if (elViewState.hiddenBlockContext && elViewState.hiddenBlockContext.expanded) {
@@ -197,9 +198,9 @@ class PositioningVisitor implements Visitor {
                         const expandedFunctionVS = expandedSubTree.viewState as FunctionViewState;
                         expandedFunctionVS.bBox.x = hiddenNodeViewState.bBox.x;
                         expandedFunctionVS.bBox.y = hiddenNodeViewState.bBox.y;
-                        ASTUtil.traversNode(expandedSubTree, this);
+                        ASTUtil.traversNode(expandedSubTree, new PositioningVisitor());
                     } else {
-                        ASTUtil.traversNode(hiddenNode, this);
+                        ASTUtil.traversNode(hiddenNode, new PositioningVisitor());
                     }
                 });
             }
@@ -305,6 +306,13 @@ class PositioningVisitor implements Visitor {
     }
 
     public beginVisitMatchStaticPatternClause(node: MatchStaticPatternClause) {
+        const viewState: ViewState = node.viewState;
+        node.statement.viewState.bBox.x = viewState.bBox.x;
+        node.statement.viewState.bBox.y = viewState.bBox.y
+        + config.statement.height; // To print literal;
+    }
+
+    public beginVisitMatchStructuredPatternClause(node: MatchStructuredPatternClause) {
         const viewState: ViewState = node.viewState;
         node.statement.viewState.bBox.x = viewState.bBox.x;
         node.statement.viewState.bBox.y = viewState.bBox.y

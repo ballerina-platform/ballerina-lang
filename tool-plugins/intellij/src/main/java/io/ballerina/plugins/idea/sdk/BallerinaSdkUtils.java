@@ -18,9 +18,12 @@ package io.ballerina.plugins.idea.sdk;
 
 import com.google.common.base.Strings;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -70,6 +73,7 @@ import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXECUTABLE_
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXEC_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_NAME;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_PLUGIN_ID;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_VERSION_PATTERN;
 import static io.ballerina.plugins.idea.preloading.OSUtils.MAC;
 import static io.ballerina.plugins.idea.preloading.OSUtils.UNIX;
@@ -86,7 +90,7 @@ public class BallerinaSdkUtils {
     private static final String INSTALLER_PATH_UNIX = "/usr/bin/ballerina";
     private static final String INSTALLER_PATH_MAC = "/etc/paths.d/ballerina";
     // Todo
-    private static final String INSTALLER_PATH_WINDOWS = "";
+    private static final String INSTALLER_PATH_WINDOWS = "C:\\Program Files\\Ballerina\\ballerina";
 
     private BallerinaSdkUtils() {
 
@@ -174,6 +178,15 @@ public class BallerinaSdkUtils {
         return null;
     }
 
+    @Nullable
+    public static String getBallerinaPluginVersion() {
+        IdeaPluginDescriptor balPluginDescriptor = PluginManager.getPlugin(PluginId.getId(BALLERINA_PLUGIN_ID));
+        if (balPluginDescriptor != null) {
+            return balPluginDescriptor.getVersion();
+        }
+        return null;
+    }
+
     @NotNull
     public static String adjustSdkPath(@NotNull String path) {
         return path;
@@ -239,49 +252,25 @@ public class BallerinaSdkUtils {
      */
     public static String autoDetectSdk(Project project) {
 
-        // Checks for the user-configured settings.
+        // Checks for the user-configured auto detection settings.
         if (!BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
             return "";
         }
 
-        String ballerinaPath = "";
-        String platform = OSUtils.getOperatingSystem();
-        switch (platform) {
-            case (WINDOWS):
-                String ballerinaHome = System.getenv("BALLERINA_HOME");
-                if (ballerinaHome != null && !ballerinaHome.isEmpty()) {
-                    return ballerinaHome;
-                }
-                ballerinaPath = getByCommand("where ballerina").trim();
-                if (!ballerinaPath.isEmpty()) {
-                    ballerinaPath = ballerinaPath.replace("\\bin\\ballerina.bat", "");
-                }
-                return ballerinaPath;
-            case (MAC):
-                // Tries to retrieve ballerina distribution path by executing "which ballerina" command.
-                ballerinaPath = getByCommand("which ballerina");
-
-                // Removes ballerina bin from ballerinaPath.
-                if (!ballerinaPath.isEmpty()) {
-                    ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
-                    // For homebrew installations ballerina executables are in libexcec
-                    File homebrewBallerinaPath = new File(ballerinaPath, "libexec");
-                    if (homebrewBallerinaPath.exists()) {
-                        ballerinaPath = homebrewBallerinaPath.getAbsolutePath();
-                    }
-                }
-                return ballerinaPath;
-            case (UNIX):
-                // Tries to retrieve ballerina distribution path by executing "which ballerina" command.
-                ballerinaPath = getByCommand("which ballerina");
-
-                // Removes ballerina bin from ballerinaPath.
-                if (!ballerinaPath.isEmpty()) {
-                    ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
-                }
-                return ballerinaPath;
+        String ballerinaPath = getByCommand("ballerina home");
+        if (ballerinaPath.isEmpty()) {
+            // Todo - Verify
+            // Tries for default installer based locations since "ballerina" commands might not work
+            // because of the IntelliJ issue of PATH variable might not being identified by the IntelliJ java
+            // runtime.
+            String routerScriptPath = getByDefaultPath();
+            if (OSUtils.isWindows()) {
+                ballerinaPath = getByCommand(String.format("\"%s\" home", routerScriptPath));
+            } else {
+                ballerinaPath = getByCommand(String.format("%s home", routerScriptPath));
+            }
         }
-        // If we cannot find ballerina home return empty.
+
         return ballerinaPath;
     }
 
@@ -290,29 +279,43 @@ public class BallerinaSdkUtils {
         try {
             // This may returns a symlink which links to the real path.
             s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
-            String path = s.hasNext() ? s.next().trim().replace(System.lineSeparator(), "") : "";
+            String path = s.hasNext() ? s.next().trim().replace(System.lineSeparator(), "").trim() : "";
             LOG.info(cmd + "command returned: " + path);
-            if (path.isEmpty()) {
-                // Todo - Remove after having ballerina version manager
-                // Tries for default installer based locations since "which/where ballerina" commands might not work
-                // because of the IntelliJ issue of PATH variable might not being identified by the IntelliJ java
-                // runtime.
-                path = getDefaultInstallerPath();
-            }
 
-            if (path.isEmpty()) {
-                return path;
+            // Todo - verify
+            // Since errors might be coming from the input stream when retrieving ballerina distribution path, we need
+            // an additional check.
+            if (!new File(path).exists()) {
+                LOG.warn(String.format("Invalid result received by \"%s\" command. Received Output: %s", cmd, path));
+                return "";
             }
-            // Gets the actual file path if there are the symbolic links using "toRealPath()".
-            String realPath = new File(path).toPath().toRealPath().toString();
-            return realPath;
+            return path;
         } catch (Exception e) {
-            LOG.warn("Error occurred when executing the command: " + cmd);
+            LOG.warn("Unexpected error occurred when executing ballerina command: " + cmd, e);
             return "";
         }
     }
 
-    private static String getDefaultInstallerPath() {
+    /**
+     * Tries for default installer based locations since "ballerina" commands might not work
+     * because of the IntelliJ issue of PATH variable might not being identified by the IntelliJ java
+     * runtime.
+     */
+    private static String getByDefaultPath() {
+        try {
+            String path = getDefaultPath();
+            if (path.isEmpty()) {
+                return path;
+            }
+            // Resolves actual path using "toRealPath()".
+            return new File(path).toPath().toRealPath().toString();
+        } catch (Exception e) {
+            LOG.warn("Error occurred when resolving symlinks to auto detect ballerina home.");
+            return "";
+        }
+    }
+
+    private static String getDefaultPath() {
         String os = OSUtils.getOperatingSystem();
         switch (os) {
             case UNIX:
@@ -321,9 +324,24 @@ public class BallerinaSdkUtils {
                 // Reads the file content to get the ballerina home location.
                 return getContentAsString(INSTALLER_PATH_MAC);
             case WINDOWS:
-                return INSTALLER_PATH_WINDOWS;
+                // Tries to get the ballerina router script path using the default installation location.
+                return getWinDefaultPath(INSTALLER_PATH_WINDOWS);
             default:
                 return "";
+        }
+    }
+
+    private static String getWinDefaultPath(String defaultDir) {
+        try {
+            String pluginVersion = getBallerinaPluginVersion();
+            if (pluginVersion == null) {
+                return "";
+            }
+            String routerPath = String.join("-", defaultDir, pluginVersion);
+            return Paths.get(routerPath, "bin", "ballerina.bat").toString();
+        } catch (Exception e) {
+            LOG.warn("Error occurred when trying to auto detect using default installation path.", e);
+            return "";
         }
     }
 
@@ -332,7 +350,11 @@ public class BallerinaSdkUtils {
             Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8);
             StringBuilder contentBuilder = new StringBuilder();
             stream.forEach(s -> contentBuilder.append(s).append("\n"));
-            return contentBuilder.toString().trim();
+            String balHomePath = contentBuilder.toString().trim();
+            // Append "/ballerina" to content since we only need the ballerina home root.
+            balHomePath = !Strings.isNullOrEmpty(balHomePath) && balHomePath.endsWith("/bin") ?
+                    balHomePath.replace("/bin", "/bin/ballerina") : "";
+            return balHomePath;
         } catch (Exception ignored) {
             return "";
         }
@@ -493,12 +515,11 @@ public class BallerinaSdkUtils {
         return searchForBallerinaProjectRoot(currentDir.getParentFile().getAbsolutePath(), root);
     }
 
-
     @Messages.YesNoResult
     public static void showRestartDialog(Project project) {
         ApplicationManager.getApplication().invokeLater(() -> {
-            ProjectManagerEx.getInstanceEx().canClose(project);
-            String action = ProjectManagerEx.getInstanceEx().canClose(project) ? "Reload Project" : "Restart IDE";
+            String action = project != null && ProjectManagerEx.getInstanceEx().canClose(project) ?
+                    "Reload Project" : "Restart IDE";
             String message = "Project/IDE reloading action is required to apply changes. Do you wish to continue?";
             if (Messages.showYesNoDialog(message, "Apply Changes", action, "Postpone",
                     Messages.getQuestionIcon()) == Messages.YES) {

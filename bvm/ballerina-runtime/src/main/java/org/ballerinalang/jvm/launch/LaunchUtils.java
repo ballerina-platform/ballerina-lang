@@ -18,7 +18,32 @@
 
 package org.ballerinalang.jvm.launch;
 
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.util.RuntimeUtils;
+import org.ballerinalang.logging.BLogManager;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.logging.LogManager;
+
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_ENABLED;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX_LENGTH;
+import static org.ballerinalang.jvm.util.BLangConstants.CONFIG_FILE_PROPERTY;
+import static org.ballerinalang.jvm.util.BLangConstants.CONFIG_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_PROPERTY;
+import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
+import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
+import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
@@ -26,6 +51,42 @@ import java.util.ServiceLoader;
  * @since 1.0
  */
 public class LaunchUtils {
+
+    static {
+        System.setProperty(UTIL_LOGGING_CONFIG_CLASS_PROPERTY, UTIL_LOGGING_CONFIG_CLASS_VALUE);
+        System.setProperty(UTIL_LOGGING_MANAGER_CLASS_PROPERTY, UTIL_LOGGING_MANAGER_CLASS_VALUE);
+    }
+
+    private static PrintStream errStream = System.err;
+
+    public static String[] initConfigurations(String[] args) {
+
+        if (ConfigRegistry.getInstance().isInitialized()) {
+            return args;
+        }
+        Map<String, String> configArgs = new HashMap<>();
+        List<String> userProgramArgs = new ArrayList<>();
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals(BALLERINA_ARGS_INIT_PREFIX)) {
+                userProgramArgs.addAll(Arrays.asList(Arrays.copyOfRange(args, i + 1, args.length)));
+                break;
+            }
+            if (args[i].toLowerCase().startsWith(BALLERINA_ARGS_INIT_PREFIX)) {
+                String configString = args[i].substring(BALLERINA_ARGS_INIT_PREFIX_LENGTH);
+                String[] keyValuePair = configString.split(CONFIG_SEPARATOR);
+                if (keyValuePair.length >= 2) {
+                    configArgs.put(keyValuePair[0], configString.substring(keyValuePair[0].length() + 1));
+                    continue;
+                }
+            }
+            userProgramArgs.add(args[i]);
+        }
+
+        String observeFlag = configArgs.get(CONFIG_OBSERVABILITY_ENABLED);
+        // load configurations
+        loadConfigurations(configArgs, configArgs.get(CONFIG_FILE_PROPERTY), Boolean.parseBoolean(observeFlag));
+        return userProgramArgs.toArray(new String[0]);
+    }
 
     public static void startListeners(boolean isService) {
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
@@ -35,5 +96,32 @@ public class LaunchUtils {
     public static void stopListeners(boolean isService) {
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
         listeners.forEach(listener -> listener.afterRunProgram(isService));
+    }
+
+    /**
+     * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
+     */
+    private static void loadConfigurations(Map<String, String> configArgs, String configFilePath, boolean observeFlag) {
+        Path ballerinaConfPath = Paths.get(System.getProperty("user.dir")).resolve("ballerina.conf");
+        try {
+            ConfigRegistry.getInstance().initRegistry(configArgs, configFilePath, ballerinaConfPath);
+            LogManager logManager = LogManager.getLogManager();
+            if (logManager instanceof BLogManager) {
+                ((BLogManager) logManager).loadUserProvidedLogConfiguration();
+            }
+
+            if (observeFlag) {
+                ConfigRegistry.getInstance()
+                              .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, Boolean.TRUE);
+                ConfigRegistry.getInstance()
+                              .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, Boolean.TRUE);
+            }
+
+        } catch (IOException e) {
+            RuntimeUtils.handleUsageError("failed to read the specified configuration file: " +
+                                                 configFilePath);
+        } catch (RuntimeException e) {
+            RuntimeUtils.handleUsageError(e.getMessage());
+        }
     }
 }

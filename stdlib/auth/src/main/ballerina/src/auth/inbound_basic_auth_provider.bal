@@ -16,11 +16,9 @@
 
 import ballerina/config;
 import ballerina/crypto;
-import ballerina/encoding;
-import ballerina/internal;
-import ballerina/runtime;
+import ballerina/stringutils;
 
-# Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
+# Represents the inbound basic Auth provider, which is a configuration-file-based Auth provider.
 #
 # + basicAuthConfig - The Basic Auth provider configurations.
 public type InboundBasicAuthProvider object {
@@ -45,7 +43,7 @@ public type InboundBasicAuthProvider object {
     # + credential - Credential
     # + return - `true` if authentication is successful, otherwise `false` or `Error` occurred while extracting credentials
     public function authenticate(string credential) returns boolean|Error {
-        if (credential == EMPTY_STRING) {
+        if (credential == "") {
             return false;
         }
         string username;
@@ -54,18 +52,18 @@ public type InboundBasicAuthProvider object {
         string passwordFromConfig = readPassword(username);
         boolean authenticated = false;
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
-        if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX)) {
-            if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA256)) {
-                authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha256(internal:toByteArray(password, DEFAULT_CHARSET))),
+        if (passwordFromConfig.startsWith(CONFIG_PREFIX)) {
+            if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA256)) {
+                authenticated = stringutils:equalsIgnoreCase(
+                                crypto:hashSha256(password.toBytes()).toBase16(),
                                 extractHash(passwordFromConfig));
-            } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA384)) {
-                authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha384(internal:toByteArray(password, DEFAULT_CHARSET))),
+            } else if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA384)) {
+                authenticated = stringutils:equalsIgnoreCase(
+                                crypto:hashSha384(password.toBytes()).toBase16(),
                                 extractHash(passwordFromConfig));
-            } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA512)) {
-                authenticated = internal:equalsIgnoreCase(
-                                encoding:encodeHex(crypto:hashSha512(internal:toByteArray(password, DEFAULT_CHARSET))),
+            } else if (passwordFromConfig.startsWith(CONFIG_PREFIX_SHA512)) {
+                authenticated = stringutils:equalsIgnoreCase(
+                                crypto:hashSha512(password.toBytes()).toBase16(),
                                 extractHash(passwordFromConfig));
             } else {
                 authenticated = password == passwordFromConfig;
@@ -75,7 +73,8 @@ public type InboundBasicAuthProvider object {
         }
         if (authenticated) {
             setAuthenticationContext("basic", credential);
-            setPrincipal(username, self.basicAuthConfig.tableName);
+            string[] scopes = getScopes(username, self.basicAuthConfig.tableName);
+            setPrincipal(username, username, scopes);
         }
         return authenticated;
     }
@@ -104,7 +103,7 @@ function getScopes(string username, string tableName) returns string[] {
 # + configValue - Config value to extract the password from
 # + return - Password hash extracted from the configuration field
 function extractHash(string configValue) returns string {
-    return configValue.substring((<int> configValue.indexOf("{")) + 1, internal:lastIndexOf(configValue, "}"));
+    return configValue.substring((<int> configValue.indexOf("{")) + 1, stringutils:lastIndexOf(configValue, "}"));
 }
 
 # Reads the password hash for a user.
@@ -130,14 +129,5 @@ function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return groupsArr;
     }
-    return internal:split(groupString, ",");
-}
-
-function setPrincipal(string username, string tableName) {
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (principal is runtime:Principal) {
-        principal.userId = username;
-        principal.username = username;
-        principal.scopes = getScopes(username, tableName);
-    }
+    return stringutils:split(groupString, ",");
 }

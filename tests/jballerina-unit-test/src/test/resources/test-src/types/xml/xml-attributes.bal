@@ -1,3 +1,5 @@
+import ballerina/io;
+
 xmlns "http://sample.com/wso2/a1" as ns0;
 xmlns "http://sample.com/wso2/b1" as ns1;
 xmlns "http://sample.com/wso2/c1";
@@ -339,4 +341,21 @@ function testAttributeAccess() returns string? {
 
 function justFunc(string s) {
 
+}
+
+function testAttribMapUpdate() returns [xml, map<string>, xml, map<string>] {
+    xml x1 = xml `<Person name="Foo" />`;
+    map<string> attr = <map<string>> x1@;
+
+    xml originalXml = x1.clone();
+    map<string> originalAttr = attr.clone();
+
+    x1@["name"] = "Bar";
+    return [originalXml, originalAttr, x1, attr];
+}
+
+function testPrintAttribMap() {
+    xml x1 = xml `<Person name="Foo" />`;
+    map<string>? attr = x1@;
+    io:print(attr);
 }

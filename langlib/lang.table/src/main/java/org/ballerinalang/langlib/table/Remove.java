@@ -18,19 +18,13 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.util.exceptions.BLangFreezeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * {@code Remove} is the function to remove data from a table.
@@ -43,23 +37,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                            @Argument(name = "dt", type = TypeKind.TABLE),
                            @Argument(name = "func", type = TypeKind.ANY)
                    })
-public class Remove extends BlockingNativeCallableUnit {
+public class Remove {
 
-    @Override
-    public void execute(Context context) {
-        BTable table = (BTable) context.getRefArgument(0);
-        BFunctionPointer lambdaFunction = (BFunctionPointer) context.getRefArgument(1);
+    public static Object remove(Strand strand, TableValue table, FPValue<Object, Boolean> func) {
         try {
-            table.performRemoveOperation(context, lambdaFunction);
-        } catch (BLangFreezeException e) {
-            throw new BallerinaException(e.getMessage(), "Failed to remove data from the table: " + e.getDetail());
-        }
-    }
-
-    public static Object remove(Strand strand, TableValue table, FPValue fpValue) {
-        try {
-            table.performRemoveOperation();
-            return null;
+            return table.performRemoveOperation(strand, func);
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
             throw BallerinaErrors.createError(e.getMessage(),
                                               "Failed to remove data from the table: " + e.getDetail());

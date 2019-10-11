@@ -59,4 +59,6 @@ public class SourcePruneKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> CURSOR_TOKEN_INDEX_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> FORCE_CAPTURED_STATEMENT_WITH_PARENTHESIS_KEY
+            = new LSContext.Key<>();
 }

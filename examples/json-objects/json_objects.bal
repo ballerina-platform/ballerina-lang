@@ -5,7 +5,7 @@ public function main() {
     // Thus, the same can be written as
     // `map<json> j = { name: "apple", color: "red", price: j2 };`
     json j = { name: "apple", color: "red", price: 100 };
-    io:println(j);
+    io:println(j.toJsonString());
 
     // Since a JSON object is a `map<json>`, this type test evaluates to true.
     io:println("j is map<json>: ", j is map<json>);
@@ -17,7 +17,7 @@ public function main() {
     // Create a JSON object. Keys can be defined with or without quotes.
     // Values can be any `json` expression.
     json p = { fname: "John", lname: "Stallone", "age": age };
-    io:println(p);
+    io:println(p.toJsonString());
 
     // You can add or change JSON object values using member access (i.e., the `[expr]` operator).
     // In order to change fields of an object value, it needs to be accessed
@@ -25,7 +25,7 @@ public function main() {
     // Alternatively, `p` could have been defined as a `map<json>`.
     map<json> mp = <map<json>> p;
     mp["age"] = 31;
-    io:println(p);
+    io:println(p.toJsonString());
 
     // Create a nested JSON object.
     // This could also be defined as a `json` variable instead of `map<json>`.
@@ -38,7 +38,7 @@ public function main() {
              country: "Sri Lanka"
          }
     };
-    io:println(p2);
+    io:println(p2.toJsonString());
 
     // Member access expressions with `string` keys can be used to access fields of a
     // mapping of `json`.

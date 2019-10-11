@@ -19,11 +19,14 @@
 package org.ballerinalang.stdlib.mime;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -34,8 +37,6 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +61,7 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
 /**
@@ -72,10 +71,6 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
  */
 public class Util {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
-
-    private static final String PACKAGE_MIME = MimeConstants.PROTOCOL_PACKAGE_MIME;
-    private static final String ENTITY_STRUCT = ENTITY;
-    private static final String MEDIA_TYPE_STRUCT = MEDIA_TYPE;
 
     /**
      * From a given list of body parts get a ballerina value array.
@@ -188,7 +183,8 @@ public class Util {
      * @return A ballerina struct that represent a body part
      */
     public static ObjectValue getXmlBodyPart() {
-        BXMLItem xmlContent = new BXMLItem("<name>Ballerina</name>");
+        OMNode omNode = (OMNode) XMLFactory.parse("<name>Ballerina</name>").value();
+        BXMLItem xmlContent = new BXMLItem(omNode);
         ObjectValue bodyPart = createEntityObject();
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
                 xmlContent.stringValue().getBytes(StandardCharsets.UTF_8)));
@@ -306,35 +302,16 @@ public class Util {
     }
 
     public static ObjectValue createEntityObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
     }
 
-    @Deprecated
-    public static BMap<String, BValue> getEntityStruct(CompileResult result) {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME, ENTITY_STRUCT);
-    }
 
     public static ObjectValue createMediaTypeObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-    }
-
-    @Deprecated
-    public static BMap<String, BValue> getMediaTypeStruct(CompileResult result) {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME,
-                                               MEDIA_TYPE_STRUCT);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
     }
 
     public static ObjectValue getContentDispositionStruct() {
-        return BallerinaValues.createObjectValue(PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
-    }
-
-    @Deprecated
-    public static BMap<String, BValue> getContentDispositionStruct(CompileResult result) {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
-    }
-
-    public static BMap<String, BValue> getByteChannelStruct(CompileResult result) {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_IO, READABLE_BYTE_CHANNEL_STRUCT);
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, CONTENT_DISPOSITION_STRUCT);
     }
 
     //@NotNull
@@ -359,7 +336,7 @@ public class Util {
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
         Object jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
         Assert.assertNotNull(jsonData);
-        Assert.assertEquals(jsonData.toString(), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
+        Assert.assertEquals(StringUtils.getJsonString(jsonData), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
         XMLValue xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);

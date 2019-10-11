@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/config;
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/websub;
@@ -40,7 +40,13 @@ auth:OutboundBasicAuthProvider OutBoundbasicAuthProvider = new({
 http:BasicAuthHandler outboundBasicAuthHandler = new(OutBoundbasicAuthProvider);
 
 websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, {
-    auth: { authHandler: outboundBasicAuthHandler }
+    auth: { authHandler: outboundBasicAuthHandler },
+    secureSocket: {
+        trustStore: {
+            path: config:getAsString("truststore"),
+            password: "ballerina"
+        }
+    }
 });
 
 service publisher on publisherServiceEP {

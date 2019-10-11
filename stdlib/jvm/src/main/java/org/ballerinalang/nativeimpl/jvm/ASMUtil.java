@@ -17,14 +17,13 @@
  */
 package org.ballerinalang.nativeimpl.jvm;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * A util class to handle native data get and set operations with ASM and JVM stdlib.
@@ -38,6 +37,7 @@ public class ASMUtil {
     public static final String FIELD_VISITOR = "FieldVisitor";
     public static final String LABEL = "Label";
     public static final String JVM_PKG_PATH = BALLERINA_PACKAGE_PREFIX + "jvm";
+    public static final BPackage JVM_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "jvm");
     public static final String NATIVE_KEY = "native";
 
     public static final String OBJECT_DESC = "Ljava/lang/Object;";
@@ -47,24 +47,7 @@ public class ASMUtil {
     public static final String MAP_VALUE_DESC = "Lorg/ballerinalang/jvm/values/MapValue;";
 
     public static ObjectValue newObject(String type) {
-        return BallerinaValues.createObjectValue(JVM_PKG_PATH, type);
-    }
-
-    @Deprecated
-    public static <T> T getRefArgumentNativeData(Context context, int index) {
-
-        return getNativeData(context.getRefArgument(index));
-    }
-
-    @Deprecated
-    private static <T> T getNativeData(BValue ref) {
-
-        return (T) ((BMap<String, BValue>) ref).getNativeData(NATIVE_KEY);
-    }
-
-    @Deprecated
-    public static void addNativeDataToBVMObject(Object data, BMap<String, BValue> bStruct) {
-        bStruct.addNativeData(NATIVE_KEY, data);
+        return BallerinaValues.createObjectValue(JVM_PKG_ID, type);
     }
 
     public static <T> T getRefArgumentNativeData(ObjectValue objectValue) {

@@ -32,4 +32,5 @@ public interface VariableDefinitionNode extends StatementNode {
 
     // TODO: remove this and apply it as a flag set.
     boolean getIsInFork();
+    boolean getIsWorker();
 }

@@ -17,10 +17,10 @@ package org.ballerinalang.langserver.diagnostic;
 
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.Diagnostic;
@@ -57,20 +57,20 @@ public class DiagnosticsHelper {
      * Compiles and publishes diagnostics for a source file.
      *
      * @param client     Language server client
-     * @param lsCompiler LS Compiler
      * @param context    LS context
+     * @param lsDocument {@link LSDocument}
      * @param docManager LS Document manager
-     * @throws LSCompilerException throws a LS compiler exception
+     * @throws CompilationFailedException throws a LS compiler exception
      */
-    public synchronized void compileAndSendDiagnostics(LanguageClient client, LSCompiler lsCompiler, LSContext context,
-                                                       WorkspaceDocumentManager docManager) throws LSCompilerException {
+    public synchronized void compileAndSendDiagnostics(LanguageClient client, LSContext context, LSDocument lsDocument,
+                                                       WorkspaceDocumentManager docManager) throws
+                                                                                            CompilationFailedException {
         // Compile diagnostics
         List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-        LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        lsCompiler.getBLangPackages(context, docManager, true, null, true, true);
+        LSModuleCompiler.getBLangPackages(context, docManager, null, true, true, true);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-             diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
+            diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
         }
 
         Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(diagnostics, lsDocument);
@@ -124,7 +124,15 @@ public class DiagnosticsHelper {
 
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
             Diagnostic diagnostic = new Diagnostic(range, diag.getMessage());
-            diagnostic.setSeverity(DiagnosticSeverity.Error);
+            org.ballerinalang.util.diagnostic.Diagnostic.Kind diagnosticKind = diag.getKind();
+
+            // set diagnostic log kind
+            if (diagnosticKind.equals(org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR)) {
+                diagnostic.setSeverity(DiagnosticSeverity.Error);
+            } else if (diagnosticKind.equals(org.ballerinalang.util.diagnostic.Diagnostic.Kind.WARNING)) {
+                diagnostic.setSeverity(DiagnosticSeverity.Warning);
+            }
+
             clientDiagnostics.add(diagnostic);
         }
         return diagnosticsMap;

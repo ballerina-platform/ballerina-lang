@@ -113,6 +113,13 @@ public class TypeParamAnalyzer {
     }
 
     void checkForTypeParamsInArg(BType actualType, SymbolEnv env, BType expType) {
+
+        if (actualType == null) {
+            // This is added to prevent compiler panic. Ideally every invocation node should have a type. But,
+            // StreamTypeChecker skips some validation, which leads to actualType == null.
+            // TODO: Fix this properly. issue #18363
+            return;
+        }
         // Not a langlib module invocation
         if (notRequireTypeParams(env)) {
             return;
@@ -589,7 +596,8 @@ public class TypeParamAnalyzer {
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
 
         BObjectTypeSymbol actObjectSymbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(0, expType.tsymbol.name,
-                env.enclPkg.packageID, null, expType.tsymbol.scope.owner);
+                                                                                           expType.tsymbol.pkgID, null,
+                                                                                           expType.tsymbol.scope.owner);
         BObjectType objectType = new BObjectType(actObjectSymbol);
         actObjectSymbol.type = objectType;
         actObjectSymbol.scope = new Scope(actObjectSymbol);

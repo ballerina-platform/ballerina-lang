@@ -27,9 +27,17 @@ public function main() {
     // Since the `__init()` method potentially returns an `error`, the `p1` variable should
     // be of the type `Person|error`.
     Person|error p1 = new("John", 25);
-    io:println(p1);
+    if (p1 is Person) {
+        io:println(p1.name);
+    } else {
+        io:println(p1.reason());
+    }
 
     // `p2` will be an error since the name does not conform to the expected format.
     Person|error p2 = new("Sam", -20);
-    io:println(p2);
+    if (p2 is Person) {
+        io:println(p2.name);
+    } else {
+        io:println(p2.reason());
+    }
 }

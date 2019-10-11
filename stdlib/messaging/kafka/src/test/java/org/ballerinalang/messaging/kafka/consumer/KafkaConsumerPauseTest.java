@@ -35,17 +35,19 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
 /**
  * Test cases for ballerina.net.kafka consumer ( with Pause ) native functions.
  */
-@Test(singleThreaded = true)
 public class KafkaConsumerPauseTest {
     private CompileResult result;
     private static File dataDir;
@@ -53,10 +55,9 @@ public class KafkaConsumerPauseTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer_pause.bal"));
-        Properties prop = new Properties();
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+        result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_pause.bal")));
+        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-pause-test");
+        kafkaCluster = createKafkaCluster(dataDir, 14003, 14103).addBrokers(1).startup();
         kafkaCluster.createTopic("test", 1, 1);
     }
 
@@ -120,14 +121,5 @@ public class KafkaConsumerPauseTest {
                 dataDir.deleteOnExit();
             }
         }
-    }
-
-    private static KafkaCluster kafkaCluster() {
-        if (kafkaCluster != null) {
-            throw new IllegalStateException();
-        }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-pause-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2183, 9096);
-        return kafkaCluster;
     }
 }

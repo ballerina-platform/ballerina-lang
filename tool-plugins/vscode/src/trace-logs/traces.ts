@@ -36,7 +36,7 @@ export default class Traces {
         for (let index = 0; index < this.traces.length; index++) {
             const trace = this.traces[index];
             if (!trace.message.payload && trace.message.direction) {
-                trace.message.payload = this.getPayLoad(index + 1, trace.message.id, trace.message.direction);
+                trace.message.payload = this.getPayLoad(index, trace);
             }
             if (trace.message.headers && trace.message.direction) {
                 newTraces.push(trace);
@@ -44,23 +44,18 @@ export default class Traces {
             
         }
         return newTraces;
-    }
-    getPayLoad(index: number, activityId: string, direction: string): string {
-        if (index >= this.traces.length) {
+    };
+    getPayLoad(index: number, trace: any): string {
+        let nextTraces = this.traces.slice(index, this.traces.length);
+        const filteredNextTraces = nextTraces.filter((tmpTrace)=>{
+            return tmpTrace.message.payload 
+                && trace.message.id === tmpTrace.message.id
+                && trace.message.direction === tmpTrace.message.direction
+                && trace.logger === tmpTrace.logger;
+        });
+        if (!filteredNextTraces.length) {
             return "";
         }
-        if (activityId !== this.traces[index].message.id || direction !== this.traces[index].message.direction) {
-            return "";
-        }
-        const headerType = this.traces[index].message.headerType;
-
-        if (headerType.startsWith('DefaultLastHttpContent') 
-            || headerType.startsWith('EmptyLastHttpContent')
-            || headerType.startsWith('DefaultFullHttpResponse')
-            ) {
-                return this.traces[index].message.payload;
-        } else {
-            return this.getPayLoad(index + 1, activityId, direction);
-        }
+        return filteredNextTraces[0].message.payload;
     }
 }

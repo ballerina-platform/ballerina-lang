@@ -1,5 +1,5 @@
 import { Uri, ExtensionContext, WebviewOptions, WebviewPanelOptions } from "vscode";
-import { join } from "path";
+import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
 
 export function getWebViewResourceRoot(): string {
@@ -25,7 +25,7 @@ export function getCommonWebViewOptions(): Partial<WebviewOptions & WebviewPanel
 }
 
 export function getVSCodeResourceURI(filePath: string): string {
-    return Uri.file(filePath).with({ scheme: 'vscode-resource' }).toString();
+    return 'vscode-resource:' + filePath;
 }
 
 export interface WebViewOptions {
@@ -57,6 +57,11 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
             '<link rel="stylesheet" type="text/css" href="' + cssFile + '" />').join('\n') 
         : '';
 
+    const fontDir = join(getDistributionComposerURI(), 'font');
+
+    // in windows fontdir path contains \ as separator. css does not like this.
+    const fontDirWithSeparatorReplaced = fontDir.split(sep).join("/");
+
     return `
             <!DOCTYPE html>
             <html>
@@ -73,11 +78,18 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                         left: calc(50% - 20px);
                         top: calc(50% - 20px);
                     }
+                    @font-face{
+                        font-family: font-ballerina;
+                        src: url("${fontDirWithSeparatorReplaced}/font-ballerina.eot");
+                        src: url("${fontDirWithSeparatorReplaced}/font-ballerina.eot?#iefix") format("embedded-opentype"), url("${fontDirWithSeparatorReplaced}/font-ballerina.woff2") format("woff2"), url("${fontDirWithSeparatorReplaced}/font-ballerina.woff") format("woff"), url("${fontDirWithSeparatorReplaced}/font-ballerina.ttf") format("truetype"), url("${fontDirWithSeparatorReplaced}/font-ballerina.svg#font-ballerina") format("svg");
+                        font-weight:normal;
+                        font-style:normal;
+                   }
                     ${styles}
                 </style>
             </head>
             
-            <body style="overflow: hidden;" class="${bodyCss}">
+            <body class="${bodyCss}">
                 ${body}
                 <script>
                     ${scripts}
@@ -92,10 +104,10 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
 }
 
 export function getDistributionComposerURI(): string {
-    return getVSCodeResourceURI(getDistributionPath());
+    return getVSCodeResourceURI(getDistributionComposerPath());
 }
 
-function getDistributionPath(): string {
+function getDistributionComposerPath(): string {
     return join(ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library');
 }
 

@@ -15,10 +15,9 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/encoding;
+import ballerina/config;
 import ballerina/http;
-import ballerina/internal;
-import ballerina/system;
+import ballerina/stringutils;
 
 // Values that the grant_type parameter can hold.
 const GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
@@ -45,7 +44,7 @@ const string UNAUTHORIZED_CLIENT = "unauthorized_client";
 const string AUTHORIZATION_HEADER_NOT_PROVIDED = "authorization_header_not_provided";
 
 string refreshTokenString = CLIENT_ID + CLIENT_SECRET;
-string refreshTokenHash = encoding:encodeBase64(crypto:hashMd5(refreshTokenString.toBytes()));
+string refreshTokenHash = crypto:hashMd5(refreshTokenString.toBytes()).toBase64();
 
 string[] accessTokenStore = ["2YotnFZFEjr1zCsicMWpAA"];
 
@@ -54,7 +53,7 @@ string[] accessTokenStore = ["2YotnFZFEjr1zCsicMWpAA"];
 listener http:Listener oauth2Server = new(20102, {
         secureSocket: {
             keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                path: config:getAsString("keystore"),
                 password: "ballerina"
             }
         }
@@ -150,20 +149,20 @@ function getResponseForHeaderBearerRequest(http:Request req, string authorizatio
     if (isAuthorizedClient(authorizationHeader)) {
         var payload = req.getTextPayload();
         if (payload is string) {
-            string[] params = internal:split(payload, "&");
+            string[] params = stringutils:split(payload, "&");
             string grantType = "";
             string scopes = "";
             string username = "";
             string password = "";
             foreach string param in params {
-                if (internal:contains(param, "grant_type")) {
-                    grantType = internal:split(param, "=")[1];
-                } else if (internal:contains(param, "scope")) {
-                    scopes = internal:split(param, "=")[1];
-                } else if (internal:contains(param, "username")) {
-                    username = internal:split(param, "=")[1];
-                } else if (internal:contains(param, "password")) {
-                    password = internal:split(param, "=")[1];
+                if (stringutils:contains(param, "grant_type")) {
+                    grantType = stringutils:split(param, "=")[1];
+                } else if (stringutils:contains(param, "scope")) {
+                    scopes = stringutils:split(param, "=")[1];
+                } else if (stringutils:contains(param, "username")) {
+                    username = stringutils:split(param, "=")[1];
+                } else if (stringutils:contains(param, "password")) {
+                    password = stringutils:split(param, "=")[1];
                 }
             }
             res = prepareResponse(res, grantType, scopes, username, password, bearer);
@@ -182,8 +181,8 @@ function getResponseForHeaderBearerRequest(http:Request req, string authorizatio
 
 function getResponseForPostBodyBearerRequest(string payload, string bearer) returns http:Response {
     http:Response res = new;
-    if (internal:contains(payload, "client_id") && internal:contains(payload, "client_secret")) {
-        string[] params = internal:split(payload, "&");
+    if (stringutils:contains(payload, "client_id") && stringutils:contains(payload, "client_secret")) {
+        string[] params = stringutils:split(payload, "&");
         string grantType = "";
         string scopes = "";
         string username = "";
@@ -191,18 +190,18 @@ function getResponseForPostBodyBearerRequest(string payload, string bearer) retu
         string clientId = "";
         string clientSecret = "";
         foreach string param in params {
-            if (internal:contains(param, "grant_type")) {
-                grantType = internal:split(param, "=")[1];
-            } else if (internal:contains(param, "scope")) {
-                scopes = internal:split(param, "=")[1];
-            } else if (internal:contains(param, "username")) {
-                username = internal:split(param, "=")[1];
-            } else if (internal:contains(param, "password")) {
-                password = internal:split(param, "=")[1];
-            } else if (internal:contains(param, "client_id")) {
-                clientId = internal:split(param, "=")[1];
-            } else if (internal:contains(param, "client_secret")) {
-                clientSecret = internal:split(param, "=")[1];
+            if (stringutils:contains(param, "grant_type")) {
+                grantType = stringutils:split(param, "=")[1];
+            } else if (stringutils:contains(param, "scope")) {
+                scopes = stringutils:split(param, "=")[1];
+            } else if (stringutils:contains(param, "username")) {
+                username = stringutils:split(param, "=")[1];
+            } else if (stringutils:contains(param, "password")) {
+                password = stringutils:split(param, "=")[1];
+            } else if (stringutils:contains(param, "client_id")) {
+                clientId = stringutils:split(param, "=")[1];
+            } else if (stringutils:contains(param, "client_secret")) {
+                clientSecret = stringutils:split(param, "=")[1];
             }
         }
 
@@ -223,20 +222,20 @@ function getResponseForPostBodyBearerRequest(string payload, string bearer) retu
 
 function getResponseForNoBearerRequest(string payload, string bearer) returns http:Response {
     http:Response res = new;
-    string[] params = internal:split(payload, "&");
+    string[] params = stringutils:split(payload, "&");
     string grantType = "";
     string scopes = "";
     string username = "";
     string password = "";
     foreach string param in params {
-        if (internal:contains(param, "grant_type")) {
-            grantType = internal:split(param, "=")[1];
-        } else if (internal:contains(param, "scope")) {
-            scopes = internal:split(param, "=")[1];
-        } else if (internal:contains(param, "username")) {
-            username = internal:split(param, "=")[1];
-        } else if (internal:contains(param, "password")) {
-            password = internal:split(param, "=")[1];
+        if (stringutils:contains(param, "grant_type")) {
+            grantType = stringutils:split(param, "=")[1];
+        } else if (stringutils:contains(param, "scope")) {
+            scopes = stringutils:split(param, "=")[1];
+        } else if (stringutils:contains(param, "username")) {
+            username = stringutils:split(param, "=")[1];
+        } else if (stringutils:contains(param, "password")) {
+            password = stringutils:split(param, "=")[1];
         }
     }
     res = prepareResponse(res, grantType, scopes, username, password, bearer);
@@ -248,29 +247,29 @@ function getResponseForRefreshRequest(http:Request req, string authorizationHead
     if (isAuthorizedClient(authorizationHeader)) {
         var payload = req.getTextPayload();
         if (payload is string) {
-            string[] params = internal:split(payload, "&");
+            string[] params = stringutils:split(payload, "&");
             string grantType = "";
             string refreshToken = "";
             string scopes = "";
             foreach string param in params {
-                if (internal:contains(param, "grant_type")) {
-                    grantType = internal:split(param, "=")[1];
-                } else if (internal:contains(param, "refresh_token")) {
-                    refreshToken = internal:split(param, "=")[1];
+                if (stringutils:contains(param, "grant_type")) {
+                    grantType = stringutils:split(param, "=")[1];
+                } else if (stringutils:contains(param, "refresh_token")) {
+                    refreshToken = stringutils:split(param, "=")[1];
                     // If the refresh token contains the `=` symbol, then it is required to concatenate all the parts of the value since
                     // the String split breaks all those into separate parts.
-                    if (internal:hasSuffix(param, "==")) {
+                    if (param.endsWith("==")) {
                         refreshToken += "==";
                     }
-                } else if (internal:contains(param, "scope")) {
-                    scopes = internal:split(param, "=")[1];
+                } else if (stringutils:contains(param, "scope")) {
+                    scopes = stringutils:split(param, "=")[1];
                 }
             }
 
             if (grantType == GRANT_TYPE_REFRESH_TOKEN) {
                 if (refreshToken == refreshTokenHash) {
                     string input = CLIENT_ID + CLIENT_SECRET + refreshToken + scopes;
-                    string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
+                    string accessToken = crypto:hashMd5(input.toBytes()).toBase64();
                     addToAccessTokenStore(accessToken);
                     json response = {
                         "access_token": accessToken,
@@ -307,14 +306,14 @@ function getResponseForIntrospectRequest(http:Request req, string authorizationH
     if (isAuthorizedClient(authorizationHeader)) {
         var payload = req.getTextPayload();
         if (payload is string) {
-            string[] params = internal:split(payload, "&");
+            string[] params = stringutils:split(payload, "&");
             string token = "";
             string tokenTypeHint = "";
             foreach string param in params {
-                if (internal:contains(param, "token")) {
-                    token = internal:split(param, "=")[1];
-                } else if (internal:contains(param, "token_type_hint")) {
-                    tokenTypeHint = internal:split(param, "=")[1];
+                if (stringutils:contains(param, "token")) {
+                    token = stringutils:split(param, "=")[1];
+                } else if (stringutils:contains(param, "token_type_hint")) {
+                    tokenTypeHint = stringutils:split(param, "=")[1];
                 }
             }
 
@@ -348,7 +347,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
                          string bearer) returns http:Response {
     if (grantType == GRANT_TYPE_CLIENT_CREDENTIALS) {
         string input = CLIENT_ID + CLIENT_SECRET + scopes;
-        string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
+        string accessToken =crypto:hashMd5(input.toBytes()).toBase64();
         addToAccessTokenStore(accessToken);
         json response = {
             "access_token": accessToken,
@@ -361,7 +360,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
         if (username == USERNAME && password == PASSWORD) {
             if (bearer == NO_BEARER) {
                 string input = username + password + scopes;
-                string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
+                string accessToken = crypto:hashMd5(input.toBytes()).toBase64();
                 addToAccessTokenStore(accessToken);
                 json response = {
                     "access_token": accessToken,
@@ -372,7 +371,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
                 res.setPayload(response);
             } else {
                 string input = CLIENT_ID + CLIENT_SECRET + username + password + scopes;
-                string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
+                string accessToken = crypto:hashMd5(input.toBytes()).toBase64();
                 addToAccessTokenStore(accessToken);
                 json response = {
                     "access_token": accessToken,
@@ -398,7 +397,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
 
 function isAuthorizedClient(string authorizationHeader) returns boolean {
     string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
-    string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toBytes());
+    string expectedAuthorizationHeader = "Basic " + clientIdSecret.toBytes().toBase64();
     return authorizationHeader == expectedAuthorizationHeader;
 }
 
@@ -414,7 +413,7 @@ function addToAccessTokenStore(string accessToken) {
 listener http:Listener apiEndpoint = new(20101, {
         secureSocket: {
             keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                path: config:getAsString("keystore"),
                 password: "ballerina"
             }
         }
@@ -426,7 +425,7 @@ service foo on apiEndpoint {
         http:Response res = new;
         var authorizationHeader = trap req.getHeader("Authorization");
         if (authorizationHeader is string) {
-            string accessToken = internal:split(authorizationHeader, " ")[1];
+            string accessToken = stringutils:split(authorizationHeader, " ")[1];
             boolean tokenAvailable = false;
             foreach string token in accessTokenStore {
                 if (token == accessToken) {

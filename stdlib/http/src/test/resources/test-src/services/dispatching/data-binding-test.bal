@@ -1,6 +1,5 @@
-import ballerina/encoding;
 import ballerina/http;
-import ballerina/mime;
+import ballerina/lang.'string as strings;
 
 listener http:MockListener testEP = new(9090);
 
@@ -43,7 +42,7 @@ service echo on testEP {
         json|error val2 = person.team;
         json name = val1 is json ? val1 : ();
         json team = val2 is json ? val2 : ();
-        checkpanic caller->respond({ Key: name, Team: team });
+        checkpanic caller->respond(<@untainted> { Key: name, Team: team });
     }
 
     @http:ResourceConfig {
@@ -61,8 +60,15 @@ service echo on testEP {
         body: "person"
     }
     resource function body5(http:Caller caller, http:Request req, byte[] person) {
-        string name = <@untainted> encoding:byteArrayToString(person, "UTF-8");
-        checkpanic caller->respond({ Key: name });
+        http:Response res = new;
+        var name = <@untainted> strings:fromBytes(person);
+        if (name is string) {
+            res.setJsonPayload({ Key: name });
+        } else {
+            res.setTextPayload("Error occurred while byte array to string conversion");
+            res.statusCode = 500;
+        }
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {

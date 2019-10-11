@@ -15,16 +15,20 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/bir;
+import ballerina/jvm;
 
 type InstructionGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
     string currentPackageName;
+    bir:Package currentPackage;
 
-    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, string currentPackageName) {
+    function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:Package moduleId) {
         self.mv = mv;
         self.indexMap = indexMap;
-        self.currentPackageName = currentPackageName;
+        self.currentPackage = moduleId;
+        self.currentPackageName = getPackageName(moduleId.org.value, moduleId.name.value);
     }
 
     function generateConstantLoadIns(bir:ConstantLoad loadIns) {
@@ -65,52 +69,57 @@ type InstructionGenerator object {
 
 
     function generateBinaryOpIns(bir:BinaryOp binaryIns) {
-        if (binaryIns.kind == bir:BINARY_LESS_THAN) {
-            self.generateLessThanIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_ADD) {
-            self.generateAddIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_EQUAL) {
-            self.generateEqualIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_SUB) {
-            self.generateSubIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_DIV) {
-            self.generateDivIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_MUL) {
-            self.generateMulIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_MOD) {
-            self.generateRemIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_LESS_EQUAL) {
-            self.generateLessEqualIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_NOT_EQUAL) {
-            self.generateNotEqualIns(binaryIns);
-        }  else if (binaryIns.kind == bir:BINARY_GREATER_THAN) {
-            self.generateGreaterThanIns(binaryIns);
-        }  else if (binaryIns.kind == bir:BINARY_GREATER_EQUAL) {
-            self.generateGreaterEqualIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_REF_EQUAL) {
-            self.generateRefEqualIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_REF_NOT_EQUAL) {
-            self.generateRefNotEqualIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_CLOSED_RANGE) {
-            self.generateClosedRangeIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_HALF_OPEN_RANGE) {
-            self.generateClosedRangeIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_ANNOT_ACCESS) {
-            self.generateAnnotAccessIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_AND) {
-            self.generateBitwiseAndIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_OR) {
-            self.generateBitwiseOrIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_XOR) {
-            self.generateBitwiseXorIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_LEFT_SHIFT) {
-            self.generateBitwiseLeftShiftIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_RIGHT_SHIFT) {
-            self.generateBitwiseRightShiftIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT) {
-            self.generateBitwiseUnsignedRightShiftIns(binaryIns);
+        int insKind = binaryIns.kind;
+        if (insKind <= bir:BINARY_LESS_EQUAL) {
+            if (insKind == bir:BINARY_ADD) {
+                self.generateAddIns(binaryIns);
+            } else if (insKind == bir:BINARY_SUB) {
+                self.generateSubIns(binaryIns);
+            } else if (insKind == bir:BINARY_MUL) {
+                self.generateMulIns(binaryIns);
+            } else if (insKind == bir:BINARY_DIV) {
+                self.generateDivIns(binaryIns);
+            } else if (insKind == bir:BINARY_MOD) {
+                self.generateRemIns(binaryIns);
+            } else if (insKind == bir:BINARY_EQUAL) {
+                self.generateEqualIns(binaryIns);
+            } else if (insKind == bir:BINARY_NOT_EQUAL) {
+                self.generateNotEqualIns(binaryIns);
+            }  else if (insKind == bir:BINARY_GREATER_THAN) {
+                self.generateGreaterThanIns(binaryIns);
+            }  else if (insKind == bir:BINARY_GREATER_EQUAL) {
+                self.generateGreaterEqualIns(binaryIns);
+            } else if (insKind == bir:BINARY_LESS_THAN) {
+                self.generateLessThanIns(binaryIns);
+            } else {
+                self.generateLessEqualIns(binaryIns);
+            } 
+        } else if (insKind <= bir:BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT) {
+            if (insKind == bir:BINARY_REF_EQUAL) {
+                self.generateRefEqualIns(binaryIns);
+            } else if (insKind == bir:BINARY_REF_NOT_EQUAL) {
+                self.generateRefNotEqualIns(binaryIns);
+            } else if (insKind == bir:BINARY_CLOSED_RANGE) {
+                self.generateClosedRangeIns(binaryIns);
+            } else if (insKind == bir:BINARY_HALF_OPEN_RANGE) {
+                self.generateClosedRangeIns(binaryIns);
+            } else if (insKind == bir:BINARY_ANNOT_ACCESS) {
+                self.generateAnnotAccessIns(binaryIns);
+            } else if (insKind == bir:BINARY_BITWISE_AND) {
+                self.generateBitwiseAndIns(binaryIns);
+            } else if (insKind == bir:BINARY_BITWISE_OR) {
+                self.generateBitwiseOrIns(binaryIns);
+            } else if (insKind == bir:BINARY_BITWISE_XOR) {
+                self.generateBitwiseXorIns(binaryIns);
+            } else if (insKind == bir:BINARY_BITWISE_LEFT_SHIFT) {
+                self.generateBitwiseLeftShiftIns(binaryIns);
+            } else if (insKind == bir:BINARY_BITWISE_RIGHT_SHIFT) {
+                self.generateBitwiseRightShiftIns(binaryIns);
+            } else {
+                self.generateBitwiseUnsignedRightShiftIns(binaryIns);
+            }
         } else {
-            error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
+            error err = error("JVM generation is not supported for type : " + io:sprintf("%s", insKind));
             panic err;
         }
     }
@@ -470,13 +479,20 @@ type InstructionGenerator object {
     }
 
     function generateBitwiseAndIns(bir:BinaryOp binaryIns) {
-        self.loadVar(binaryIns.rhsOp1.variableDcl);
-        self.loadVar(binaryIns.rhsOp2.variableDcl);
-
-        bir:BType opType = binaryIns.rhsOp1.typeValue;
-        if (opType is bir:BTypeInt) {
+        bir:BType opType1 = binaryIns.rhsOp1.typeValue;
+        bir:BType opType2 = binaryIns.rhsOp2.typeValue;
+        
+        if (opType1 is bir:BTypeInt && opType2 is bir:BTypeInt) {
+            self.loadVar(binaryIns.rhsOp1.variableDcl);
+            self.loadVar(binaryIns.rhsOp2.variableDcl);
             self.mv.visitInsn(LAND);
         } else {
+            self.loadVar(binaryIns.rhsOp1.variableDcl);
+            generateCheckCastToByte(self.mv, opType1);
+            
+            self.loadVar(binaryIns.rhsOp2.variableDcl);
+            generateCheckCastToByte(self.mv, opType2);
+            
             self.mv.visitInsn(IAND);
         }
         self.storeToVar(binaryIns.lhsOp.variableDcl);
@@ -577,9 +593,9 @@ type InstructionGenerator object {
         if (typeOfMapNewIns is bir:BRecordType) {
             var typeRef = mapNewIns.typeRef;
             if (typeRef is bir:TypeRef) {
-                className = typeRefToClassName(typeRef, cleanupTypeName(typeOfMapNewIns.name.value));
+                className = getTypeValueClassName(typeRef.externalPkg, typeOfMapNewIns.name.value);
             } else {
-                className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
+                className = getTypeValueClassName(self.currentPackage, typeOfMapNewIns.name.value);
             }
 
             self.mv.visitTypeInsn(NEW, className);
@@ -602,21 +618,18 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, TABLE_VALUE);
         self.mv.visitInsn(DUP);
         loadType(self.mv, tableNewIns.typeValue);
-        self.loadVar(tableNewIns.indexColOp.variableDcl);
         self.loadVar(tableNewIns.keyColOp.variableDcl);
         self.loadVar(tableNewIns.dataOp.variableDcl);
-        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", BTYPE,
-                ARRAY_VALUE, ARRAY_VALUE, ARRAY_VALUE), false);
+        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;)V", BTYPE,
+                ARRAY_VALUE, ARRAY_VALUE), false);
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
     function generateStreamNewIns(bir:NewStream streamNewIns) {
         self.mv.visitTypeInsn(NEW, STREAM_VALUE);
         self.mv.visitInsn(DUP);
-        loadType(self.mv, streamNewIns.typeValue);
-        self.loadVar(streamNewIns.nameOp.variableDcl);
-        self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;L%s;)V", BTYPE,
-                STRING_VALUE), false);
+        loadType(self.mv, streamNewIns.streamType);
+        self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(streamNewIns.lhsOp.variableDcl);
     }
 
@@ -791,6 +804,8 @@ type InstructionGenerator object {
             string? targetTypeClass = getTargetClass(varRefType, bType);
             if (targetTypeClass is string) {
                 self.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+            } else {
+                addUnboxInsn(self.mv, bType);
             }
         }
         self.storeToVar(inst.lhsOp.variableDcl);
@@ -848,11 +863,10 @@ type InstructionGenerator object {
         bir:TypeDef typeDef = lookupTypeDef(typeDefRef);
         string className;
         if (typeDefRef is bir:TypeRef) {
-            className = typeRefToClassName(typeDefRef, typeDefRef.name.value);
+            className = getTypeValueClassName(typeDefRef.externalPkg, typeDefRef.name.value);
         } else {
-            className = self.currentPackageName + cleanupTypeName(typeDefRef.name.value);
+            className = getTypeValueClassName(self.currentPackage, typeDefRef.name.value);
         }
-
 
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
@@ -874,7 +888,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
 
         string lambdaName = inst.name.value + "$lambda$";
-        string lookupKey = getPackageName(inst.pkgID.org, inst.pkgID.name) + inst.name.value;
+        string pkgName = getPackageName(inst.pkgID.org, inst.pkgID.name);
+        string lookupKey = pkgName + inst.name.value;
         string methodClass = lookupFullQualifiedClassName(lookupKey);
 
         bir:BType returnType = inst.lhsOp.typeValue;
@@ -900,6 +915,15 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
                                     io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
         }
+
+        // Set annotations if available.
+        self.mv.visitInsn(DUP);
+        string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
+                                    lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+        self.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
+        self.mv.visitLdcInsn(inst.name.value);
+        self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processFPValueAnnotations",
+            io:sprintf("(L%s;L%s;L%s;)V", FUNCTION_POINTER, MAP_VALUE, STRING_VALUE), false);
 
         self.storeToVar(inst.lhsOp.variableDcl);
         lambdas[lambdaName] = inst;
@@ -1092,13 +1116,17 @@ type InstructionGenerator object {
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
-    if (bType is bir:BType) {
+    if (bType is ()) {
+        return;
+    } else {
         generateCast(mv, bType, "any");
     }
 }
 
 function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
-    if (bType is bir:BType) {
+    if (bType is ()) {
+        return;
+    } else {
         generateCast(mv, "any", bType);
     }
 }
@@ -1107,8 +1135,13 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     bir:BType bType = varDcl.typeValue;
 
     if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
+        bir:GlobalVariableDcl globalVar = <bir:GlobalVariableDcl> varDcl;
+        bir:ModuleID modId = <bir:ModuleID> globalVar?.moduleId;
+        string moduleName = getPackageName(modId.org, modId.name);
+
         string varName = varDcl.name.value;
-        string className = lookupGlobalVarClassName(currentPackageName + varName);
+        string className = lookupGlobalVarClassName(moduleName + varName);
+
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
         return;

@@ -1,8 +1,7 @@
 import ballerina/http;
-import ballerina/'lang\.int as langint;
-import ballerina/'lang\.float as langfloat;
-import ballerina/io;
-import ballerina/internal;
+import ballerina/lang.'float as langfloat;
+import ballerina/lang.'int as langint;
+import ballerina/stringutils;
 
 listener http:MockListener testEP = new(9090);
 
@@ -173,7 +172,7 @@ service echo11 on testEP {
         map<string[]> params = req.getQueryParams();
         string[]? barStr = params["foo"];
         string val = barStr is string[] ? barStr[0] : "";
-        boolean bar = internal:toBoolean(val);
+        boolean bar = stringutils:toBoolean(val);
         json responseJson = {"echo15":bar};
 
         http:Response res = new;
@@ -206,8 +205,8 @@ service echo11 on testEP {
     }
     resource function allApis(http:Caller caller, http:Request req, string key) {
         map<string[]> paramMap = req.getQueryParams();
-        string[] valueArray = req.getQueryParamValues(key) ?: ["array not found"];
-        string value = req.getQueryParamValue(key) ?: "value not found";
+        string[] valueArray = req.getQueryParamValues(<@untainted> key) ?: ["array not found"];
+        string value = req.getQueryParamValue(<@untainted> key) ?: "value not found";
         string[]? paramVals = paramMap[key];
         string mapVal = paramVals is string[] ? paramVals[0] : "";
         string[]? paramVals2 = paramMap["foo"];
@@ -216,7 +215,7 @@ service echo11 on testEP {
                                 "map_":mapVal2, "array_":valueArray[1] };
         //http:Response res = new;
         //res.setJsonPayload(<@untainted json> responseJson);
-        checkpanic caller->respond(responseJson);
+        checkpanic caller->respond(<@untainted> responseJson);
     }
 
     @http:ResourceConfig {

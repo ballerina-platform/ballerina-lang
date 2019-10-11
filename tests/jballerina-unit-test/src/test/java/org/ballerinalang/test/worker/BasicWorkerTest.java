@@ -69,7 +69,7 @@ public class BasicWorkerTest {
         BValue[] vals = BRunUtil.invoke(result, "forkWithWaitForAny", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger val = (BInteger) vals[0];
-        Assert.assertEquals(val.intValue(), 15);
+        Assert.assertTrue(val.intValue() ==  15 || val.intValue() == 5);
     }
     
     @Test
@@ -79,5 +79,4 @@ public class BasicWorkerTest {
         BInteger ret = (BInteger) vals[0];
         Assert.assertEquals(ret.intValue(), 51);
     }
-    
 }

@@ -77,7 +77,8 @@ public class RenameTest {
         return new Object[][]{
                 {"renameFunction1.json", "function"},
                 {"renameObject1.json", "object"},
-                {"renameRecord1.json", "record"}
+                {"renameRecord1.json", "record"},
+                {"renameError1.json", "error"}
         };
     }
 

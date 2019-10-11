@@ -17,16 +17,10 @@
  */
 package org.ballerinalang.testerina.util;
 
-import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.Debugger;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -49,23 +43,6 @@ public class TesterinaUtils {
     private static PrintStream errStream = System.err;
     private static TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
-    public static void startService(ProgramFile programFile) {
-        if (!programFile.isServiceEPAvailable()) {
-            throw new BallerinaException(String.format("no services found in module: %s", programFile
-                    .getEntryPkgName()));
-        }
-        PackageInfo servicesPackage = programFile.getEntryPackage();
-
-        Debugger debugger = new Debugger(programFile);
-        initDebugger(programFile, debugger);
-
-        // Invoke package init function
-        if (isPackageInitialized(programFile.getEntryPkgName())) {
-            invokePackageInitFunctions(programFile);
-            registry.addInitializedPackage(programFile.getEntryPkgName());
-        }
-        BVMExecutor.executeFunction(programFile, servicesPackage.getStartFunctionInfo());
-    }
 
     public static boolean isPackageInitialized(String entryPkgName) {
         return !registry.getInitializedPackages().contains(entryPkgName);
@@ -84,20 +61,6 @@ public class TesterinaUtils {
         } catch (IOException e) {
             errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
                                       + e.getMessage());
-        }
-    }
-
-    /**
-     * Initialize the debugger.
-     *
-     * @param programFile ballerina executable programFile
-     * @param debugger    Debugger instance
-     */
-    public static void initDebugger(ProgramFile programFile, Debugger debugger) {
-        programFile.setDebugger(debugger);
-        if (debugger.isDebugEnabled()) {
-            debugger.init();
-            debugger.waitTillDebuggeeResponds();
         }
     }
 
@@ -128,54 +91,6 @@ public class TesterinaUtils {
     }
 
     /**
-     * Helper method to run package init functions.
-     *
-     * @param programFile to be initialized
-     */
-    public static void invokePackageInitFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            BVMExecutor.executeFunction(programFile, info.getInitFunctionInfo());
-        }
-    }
-
-    /**
-     * Helper method to run test package init functions.
-     *
-     * @param programFile to be initialized
-     */
-    public static void invokePackageTestInitFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getTestInitFunctionInfo() != null) {
-                BVMExecutor.executeFunction(programFile, info.getTestInitFunctionInfo());
-            }
-        }
-    }
-
-    /**
-     * Helper method to run package start functions.
-     *
-     * @param programFile to be started
-     */
-    public static void invokePackageStartFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            BVMExecutor.executeFunction(programFile, info.getStartFunctionInfo());
-        }
-    }
-
-    /**
-     * Helper method to run test package start functions.
-     *
-     * @param programFile to be started
-     */
-    public static void invokePackageTestStartFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getTestStartFunctionInfo() != null) {
-                BVMExecutor.executeFunction(programFile, info.getTestStartFunctionInfo());
-            }
-        }
-    }
-
-    /**
      * Set manifest configurations.
      *
      * @param sourceRoot source root path
@@ -194,15 +109,28 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param programFileMap map containing bLangPackage nodes along with their compiled program files
      */
-    public static void executeTests(Path sourceRootPath, Map<BLangPackage, JBallerinaInMemoryClassLoader>
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader>
             programFileMap) {
+        executeTests(sourceRootPath, programFileMap, System.out, System.err);
+    }
+    
+    /**
+     * Execute tests in build.
+     *
+     * @param sourceRootPath source root path
+     * @param programFileMap map containing bLangPackage nodes along with their compiled program files
+     * @param outStream      error stream for logging.
+     * @param errStream      info stream for logging.
+     */
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader>
+            programFileMap, PrintStream outStream, PrintStream errStream) {
         // Set org-name and version to the Testerina Registry.
         setManifestConfigs(sourceRootPath);
-
-        BTestRunner testRunner = new BTestRunner();
+        
+        BTestRunner testRunner = new BTestRunner(outStream, errStream);
         // Run the tests
         testRunner.runTest(programFileMap);
-
+        
         if (testRunner.getTesterinaReport().isFailure()) {
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             Runtime.getRuntime().exit(1);

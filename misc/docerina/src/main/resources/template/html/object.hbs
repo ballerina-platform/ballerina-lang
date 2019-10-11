@@ -3,7 +3,8 @@
 
 {{> head }}
 
-<body>
+<body class="cBallerina-io">
+    {{> bioBody }}
     <div class="navi-wrapper">
         <div class="navi-wrapper-content">
             {{> logo }}
@@ -50,8 +51,12 @@
         <div class="main-wrapper">
             <h1>
                 {{> breadcrumb }}
-                <span class="title-type">Object - </span> 
-                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> : 
+                <span class="title-type">Object - </span>
+                {{#if project.isSingleFile}}
+                    {{project.sourceFileName}}
+                {{else}}
+                    <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
+                {{/if}} :
                 <span class="objects">{{ object.name }}</span>
             </h1>
             <p>{{{ object.description }}}</p>

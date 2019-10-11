@@ -51,9 +51,9 @@ public class SocketBaseTest extends BaseTest {
         String balFile = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "socket")
                 .getAbsolutePath();
-        String[] args = new String[] { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert };
+        String[] args = new String[] { "--certificate.key=" + privateKey, "--public.cert=" + publicCert };
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFile, "services", args, requiredPorts);
+        serverInstance.startServer(balFile, "services", new String[]{"--experimental"}, args, requiredPorts);
         executor.execute(mockSocketServer);
     }
 

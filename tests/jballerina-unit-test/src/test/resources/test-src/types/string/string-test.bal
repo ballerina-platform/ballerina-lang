@@ -1,5 +1,3 @@
-import ballerina/io;
-
 function hasPrefix(string s, string prefix) returns (boolean) {
     return s.startsWith(prefix);
 }
@@ -49,7 +47,7 @@ function xmlValueOf(xml x) returns (string) {
 }
 
 function jsonValueOf(json j) returns (string?) {
-    return j.toString();
+    return j.toJsonString();
 }
 
 function lengthOfStr(string j) returns (int) {

@@ -76,7 +76,8 @@ public class HttpResiliencyTest extends BaseTest {
         String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "resiliency").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(sourcePath, "resiliencyservices", requiredPorts);
+        serverInstance.startServer(sourcePath, "resiliencyservices", new String[]{"--experimental"},
+                                   new String[]{}, requiredPorts);
     }
 
     @Test(description = "Test basic failover functionality")
@@ -177,8 +178,8 @@ public class HttpResiliencyTest extends BaseTest {
 
     @Test(description = "Test the functionality for all endpoints failure scenario")
     public void testAllEndpointFailure() throws IOException {
-        String expectedMessage = "All the failover endpoints failed. Last error was: An error received while " +
-                "retrieving the response";
+        String expectedMessage = "All the failover endpoints failed. Last error was: " +
+                "Idle timeout triggered before initiating inbound response";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9303, FAILURES_SERVICE_PATH)

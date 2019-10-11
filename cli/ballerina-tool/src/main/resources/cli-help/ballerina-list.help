@@ -1,19 +1,16 @@
 NAME
-    Ballerina list - List dependencies for project or module
+    ballerina-dist-list - List available Ballerina distributions
 
 SYNOPSIS
-      ballerina list <module-name>
+    ballerina dist list
 
 DESCRIPTION
-     Ballerina list command prints a complete tree of dependant 
-     modules for a given Ballerina project or module.
+     Ballerina dist list lists available Ballerina distributions.
 
 OPTIONS
-     Ballerina list command takes no options.
+     --local
+        List distributions available locally.
 
 EXAMPLES
-     List modules and local transitive dependencies of a project
-     $ ballerina list
-
-     List dependencies for math module
-     $ ballerina list math
+     List available Ballerina versions.
+        → ballerina dist list

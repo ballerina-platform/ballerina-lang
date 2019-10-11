@@ -18,104 +18,207 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
+import com.moandjiezana.toml.Toml;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.toml.model.Dependency;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+
+import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_TMP_DIRECTORY;
 
 /**
- *  Copy native libraries to target/tmp.
+ * Copy native libraries to target/tmp.
  */
 public class CopyNativeLibTask implements Task {
+    private List<String> supportedPlatforms = Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS)
+            .collect(Collectors.toList());
+    private boolean skipCopyLibsFromDist;
+
+    public CopyNativeLibTask(boolean skipCopyLibsFromDist) {
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        supportedPlatforms.add("any");
+    }
+
+    public CopyNativeLibTask() {
+        this(false);
+    }
+    
     @Override
     public void execute(BuildContext buildContext) {
 
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
-        Path tmpDir = targetDir.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
+        Path tmpDir = targetDir.resolve(TARGET_TMP_DIRECTORY);
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+        String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
         // Create target/tmp folder
         try {
-            Files.createDirectory(tmpDir);
+            if (!tmpDir.toFile().exists()) {
+                Files.createDirectory(tmpDir);
+            }
         } catch (IOException e) {
-            throw new BallerinaException("unable to copy the native libary :" +
-                    e.getMessage());
+            throw createLauncherException("unable to copy the native library: " + e.getMessage());
         }
         List<BLangPackage> moduleBirMap = buildContext.getModules();
-        // Iterate through the imports and copy dependencies.
-        for (BLangPackage pkg : moduleBirMap) {
-            for (BPackageSymbol importz : pkg.symbol.imports) {
-                Path importJar = findImportBaloPath(buildContext, importz, sourceRootPath);
-                if (importJar != null && Files.exists(importJar)) {
-                    copyLibsFromBalo(importJar.toString(), tmpDir.toString());
-                }
-            }
+        if (buildContext.getSourceType() == SINGLE_BAL_FILE) {
+            copyImportedJarsForSingleBalFile(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath);
+            return;
         }
-        // Iterate through module  balo
-        for (BLangPackage module : moduleBirMap) {
-            Path baloAbsolutePath = buildContext.getBaloFromTarget(module.packageID);
+        copyImportedJarsForModules(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath);
+    }
+
+    private void copyImportedJarsForSingleBalFile(BuildContext buildContext, List<BLangPackage> moduleBirMap,
+                                                  Path sourceRootPath, Path tmpDir, String balHomePath) {
+        // Iterate through the imports and copy dependencies.
+        HashSet<String> alreadyImportedSet = new HashSet<>();
+        for (BLangPackage pkg : moduleBirMap) {
+            copyImportedLibs(pkg.symbol.imports, buildContext, sourceRootPath, tmpDir, balHomePath, alreadyImportedSet);
+        }
+    }
+
+    private void copyImportedJarsForModules(BuildContext buildContext, List<BLangPackage> moduleBirMap,
+                                            Path sourceRootPath, Path tmpDir, String balHomePath) {
+        // Iterate through the imports and copy dependencies.
+        HashSet<String> alreadyImportedSet = new HashSet<>();
+        for (BLangPackage pkg : moduleBirMap) {
+            // Copy jars from imported modules.
+            copyImportedLibs(pkg.symbol.imports, buildContext, sourceRootPath, tmpDir, balHomePath, alreadyImportedSet);
+            // Copy jars from module balo.
+            Path baloAbsolutePath = buildContext.getBaloFromTarget(pkg.packageID);
             copyLibsFromBalo(baloAbsolutePath.toString(), tmpDir.toString());
         }
     }
 
-    private static Path findImportBaloPath(BuildContext buildContext, BPackageSymbol importz, Path project) {
+    private void copyImportedLibs(List<BPackageSymbol> imports, BuildContext buildContext, Path sourceRootPath,
+                                  Path tmpDir, String balHomePath, HashSet<String> alreadyImportedSet) {
+        for (BPackageSymbol importSymbol : imports) {
+            PackageID pkgId = importSymbol.pkgID;
+            String id = pkgId.toString();
+            if (alreadyImportedSet.contains(id)) {
+                continue;
+            }
+            alreadyImportedSet.add(id);
+            copyImportedLib(buildContext, importSymbol, sourceRootPath, tmpDir, balHomePath);
+            copyImportedLibs(importSymbol.imports, buildContext, sourceRootPath,
+                             tmpDir, balHomePath, alreadyImportedSet);
+        }
+    }
+
+    private void copyImportedLib(BuildContext buildContext, BPackageSymbol importz, Path project,
+                                 Path tmpDir, String balHomePath) {
+        // Get the balo paths
+        for (String platform : supportedPlatforms) {
+            Path importJar = findImportBaloPath(buildContext, importz, project, platform);
+            if (importJar != null && Files.exists(importJar)) {
+                copyLibsFromBalo(importJar.toString(), tmpDir.toString());
+                return;
+            }
+        }
+
+        // If balo cannot be found from target or cache, get dependencies from distribution toml.
+        copyDependenciesFromToml(importz, balHomePath, tmpDir);
+    }
+
+    private static Path findImportBaloPath(BuildContext buildContext, BPackageSymbol importz, Path project,
+                                           String platform) {
         // Get the jar paths
         PackageID id = importz.pkgID;
-
-        // Skip ballerina and ballerinax
-        if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
-            return null;
-        }
+    
+        Optional<Dependency> importPathDependency = buildContext.getImportPathDependency(id);
         // Look if it is a project module.
         if (ProjectDirs.isModuleExist(project, id.name.value)) {
             // If so fetch from project balo cache
             return buildContext.getBaloFromTarget(id);
+        } else if (importPathDependency.isPresent()) {
+            return importPathDependency.get().getMetadata().getPath();
         } else {
             // If not fetch from home balo cache.
-            return buildContext.getBaloFromHomeCache(id);
+            return buildContext.getBaloFromHomeCache(id, platform);
         }
-        // return the path
     }
 
-    private  void copyLibsFromBalo(String jarFileName, String destFile) throws NullPointerException {
+    private void copyLibsFromBalo(String jarFileName, String destFile) {
         try (JarFile jar = new JarFile(jarFileName)) {
 
             java.util.Enumeration enumEntries = jar.entries();
 
             while (enumEntries.hasMoreElements()) {
                 JarEntry file = (JarEntry) enumEntries.nextElement();
-                if (file.getName().contains(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME)) {
+                if (file.getName().contains(BALO_PLATFORM_LIB_DIR_NAME)) {
                     File f = new File(destFile + File.separator +
-                            file.getName().split(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME)[1]);
-                    if (file.isDirectory()) { // if its a directory, ignore
+                                              file.getName().split(BALO_PLATFORM_LIB_DIR_NAME)[1]);
+                    if (f.exists() || file.isDirectory()) { // if file already copied or its a directory, ignore
                         continue;
                     }
                     // get the input stream
-                    try (InputStream is = jar.getInputStream(file); FileOutputStream fos = new FileOutputStream(f)) {
-                        while (is.available() > 0) {  // write contents of 'is' to 'fos'
-                            fos.write(is.read());
-                        }
+                    try (InputStream is = jar.getInputStream(file)) {
+                        Files.copy(is, f.toPath());
                     }
                 }
             }
         } catch (IOException e) {
-            throw new BLangCompilerException("Unable to copy native jar :" + e.getMessage());
+            throw createLauncherException("unable to copy native jar: " + e.getMessage());
         }
     }
 
-}
+    private void copyDependenciesFromToml(BPackageSymbol importz, String balHomePath, Path tmpDir) {
+        // Get the jar paths
+        PackageID id = importz.pkgID;
+        String version = BLANG_PKG_DEFAULT_VERSION;
+        if (!id.version.value.equals("")) {
+            version = id.version.value;
+        }
+        if (skipCopyLibsFromDist) {
+            return;
+        }
+        File tomlfile = Paths.get(balHomePath, "bir-cache", id.orgName.value, id.name.value,
+                                  version, "Ballerina.toml").toFile();
 
+        if (!tomlfile.exists()) {
+            return;
+        }
+        Toml tomlConfig = new Toml().read(tomlfile);
+        Toml platform = tomlConfig.getTable("platform");
+        if (platform == null) {
+            return;
+        }
+        List<Object> libraries = platform.getList("libraries");
+        if (libraries == null) {
+            return;
+        }
+        libraries.forEach(lib -> {
+            Path fileName = Paths.get(((HashMap) lib).get("path").toString()).getFileName();
+            Path libPath = Paths.get(balHomePath, "bre", "lib", fileName.toString());
+            try {
+                Path jarTarget = tmpDir.resolve(fileName);
+                Files.copy(libPath, jarTarget, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw createLauncherException("unable to find the dependency jar from the distribution: " +
+                                                      e.getMessage());
+            }
+        });
+    }
+}

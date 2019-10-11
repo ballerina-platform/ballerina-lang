@@ -72,3 +72,15 @@ public type Foo object {
 public function testSelfReferencingObject() returns Foo {
     return new Foo();
 }
+
+
+type objects object {
+    function getName() returns string {
+        return "works!";
+    }
+};
+
+function testObjectWithSameNameAsFileName() returns string {
+    objects o = new();
+    return o.getName();
+}

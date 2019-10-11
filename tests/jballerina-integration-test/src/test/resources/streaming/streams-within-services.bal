@@ -50,12 +50,12 @@ endpoint http:Listener storeServiceEndpoint {
     port:9090
 };
 
+future ftr = start initRealtimeRequestCounter();
+
 @http:ServiceConfig {
     basePath:"/"
 }
 service StoreService bind storeServiceEndpoint {
-
-    future ftr = start initRealtimeRequestCounter();
 
     @http:ResourceConfig {
         methods:["POST"],

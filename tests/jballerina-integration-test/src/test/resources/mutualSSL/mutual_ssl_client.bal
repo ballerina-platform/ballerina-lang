@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-http:ClientEndpointConfig mutualSslClientConf = {
+http:ClientConfiguration mutualSslClientConf = {
     secureSocket:{
         keyStore:{
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -28,8 +28,8 @@ http:ClientEndpointConfig mutualSslClientConf = {
             password: "ballerina"
         },
         protocol:{
-            name: "TLSv1.2",
-            versions: ["TLSv1.2", "TLSv1.1"]
+            name: "TLS",
+            versions: ["TLSv1.1"]
         },
         ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
         certValidation: {

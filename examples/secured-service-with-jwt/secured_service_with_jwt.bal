@@ -7,10 +7,12 @@ import ballerina/log;
 jwt:InboundJwtAuthProvider jwtAuthProvider = new({
     issuer: "ballerina",
     audience: "ballerina.io",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 
@@ -50,7 +52,8 @@ service echo on ep {
         methods: ["GET"],
         path: "/sayHello",
         auth: {
-            scopes: ["hello"]
+            scopes: ["hello"],
+            enabled: true
         }
     }
     // The authentication and authorization settings can be overridden at

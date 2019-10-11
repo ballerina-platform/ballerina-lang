@@ -86,6 +86,16 @@ public class HoverProviderTest {
                         + " character:" + position.getCharacter());
     }
 
+    @Test(description = "Test Hover for stdlib actions", dataProvider = "hoverActionPosition")
+    public void hoverForActionInvocationTest(Position position, String expectedFile) throws IOException {
+        String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
+        String expected = getExpectedValue(expectedFile);
+
+        Assert.assertEquals(parser.parse(expected).getAsJsonObject(), parser.parse(response).getAsJsonObject(),
+                "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
+                        + " character:" + position.getCharacter());
+    }
+
     @AfterClass
     public void shutDownLanguageServer() {
         TestUtil.closeDocument(this.serviceEndpoint, balPath);
@@ -98,7 +108,8 @@ public class HoverProviderTest {
         return new Object[][]{
                 {new Position(43, 11), "builtin-function1.json"},
                 {new Position(44, 19), "builtin-function2.json"},
-                {new Position(59, 60), "hoverOverConstant.json"}
+                {new Position(59, 60), "hoverOverConstant.json"},
+                {new Position(57, 35), "builtin-service1.json"}
         };
     }
 
@@ -129,6 +140,14 @@ public class HoverProviderTest {
                 {new Position(46, 7), "currentPkg-record.json"},
                 {new Position(51, 22), "currentPkg-record.json"},
                 {new Position(52, 11), "currentPkg-record.json"}
+        };
+    }
+
+    @DataProvider(name = "hoverActionPosition")
+    public Object[][] getActionPositions() {
+        log.info("Test textDocument/hover for actions");
+        return new Object[][]{
+                {new Position(65, 60), "hover-over-async-send.json"},
         };
     }
 

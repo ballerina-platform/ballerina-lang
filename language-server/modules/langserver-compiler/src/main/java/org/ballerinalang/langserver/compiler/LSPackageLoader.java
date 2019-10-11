@@ -104,7 +104,8 @@ public class LSPackageLoader {
                     String[] packageNames = packageDir.list(((dir, name) -> !name.startsWith(DOT)));
                     if (packageNames != null) {
                         for (String name : packageNames) {
-                            if ("ballerina".equals(repo) && name != null && name.contains("__internal")) {
+                            if (name == null || ("ballerina".equals(repo) && name.contains("__internal"))
+                                    || name.contains(".balx") || name.equals("lang.annotations")) {
                                 continue;
                             }
                             BallerinaPackage ballerinaPackage = new BallerinaPackage(repo, name, null);

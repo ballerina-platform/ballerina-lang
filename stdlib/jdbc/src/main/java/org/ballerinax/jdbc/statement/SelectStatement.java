@@ -60,29 +60,27 @@ public class SelectStatement extends AbstractSQLStatement {
 
     @Override
     public Object execute() {
-        //TODO: #16033
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         checkAndObserveSQLAction(strand, datasource, query);
-        String errorMessagePrefix = "Failed to execute select query: ";
+        String errorMessagePrefix = "failed to execute select query: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
-            conn = getDatabaseConnection(strand, client, datasource, true);
+            conn = getDatabaseConnection(strand, client, datasource);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
                     datasource.getDatabaseProductName());
             stmt = processedStatement.prepare();
             rs = stmt.executeQuery();
-            TableResourceManager rm = new TableResourceManager(conn, stmt, true);
+            TableResourceManager rm = new TableResourceManager(conn, stmt, !strand.isInTransaction());
             List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
             rm.addResultSet(rs);
             return constructTable(rm, rs, structType, columnDefinitions, datasource.getDatabaseProductName());
         } catch (SQLException e) {
             cleanupResources(rs, stmt, conn, true);
             handleErrorOnTransaction(this.strand);
-            //TODO: JBalMigration Commenting out transaction handling
             checkAndObserveSQLError(strand, "execute query failed: " + e.getMessage());
             return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {

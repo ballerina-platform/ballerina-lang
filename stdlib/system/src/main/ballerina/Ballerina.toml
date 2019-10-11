@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
-version = "0.0.0"
+version = "0.6.0"
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    artifactId = "system"
+    version = "@project.version@"
+    path = "./lib/ballerina-system-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["system"]

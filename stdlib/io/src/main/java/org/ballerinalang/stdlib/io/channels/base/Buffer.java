@@ -143,6 +143,7 @@ public class Buffer {
      * </p>
      *
      * @param count the number of bytes which should be reversed.
+     * @throws BallerinaIOException error when the requested byte count not available
      */
     public void reverse(int count) throws BallerinaIOException {
         if (null != byteBuffer) {
@@ -151,12 +152,11 @@ public class Buffer {
             if (reversedByteBufferPosition >= minimumBytePosition) {
                 byteBuffer.position(reversedByteBufferPosition);
             } else {
-                String message = "The specified byte count " + count + " has not being read,hence cannot reverse";
+                String message = "The specified byte count " + count + " is not being read, hence cannot be reversed";
                 throw new BallerinaIOException(message);
             }
         } else {
             String message = "ByteBuffer not initialized, please initialize it before reversing";
-            log.error(message);
             throw new BallerinaIOException(message);
         }
     }

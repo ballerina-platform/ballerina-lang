@@ -1,4 +1,4 @@
-import ballerina/encoding;
+import ballerina/lang.'string as strings;
 import ballerina/log;
 import ballerina/nats;
 
@@ -15,9 +15,14 @@ listener nats:StreamingListener lis = new(conn);
 }
 service receiveNewOnly on lis {
     resource function onMessage(nats:StreamingMessage message) {
-       // Prints the incoming message in the console.
-       log:printInfo("Message Received to service receiveNewOnly: "
-        + encoding:byteArrayToString(message.getData()));
+        // Prints the incoming message in the console.
+        string|error messageData = strings:fromBytes(message.getData());
+        if (messageData is string) {
+            log:printInfo("Message Received to service receiveNewOnly: "
+                                                                  + messageData);
+        } else {
+            log:printError("Error occurred while obtaining message data");
+        }
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
@@ -34,9 +39,14 @@ service receiveNewOnly on lis {
 }
 service receiveFromBegining on lis {
     resource function onMessage(nats:StreamingMessage message) {
-       // Prints the incoming message in the console.
-       log:printInfo("Message Received to service receiveFromBegining: "
-        + encoding:byteArrayToString(message.getData()));
+        // Prints the incoming message in the console.
+        string|error messageData = strings:fromBytes(message.getData());
+        if (messageData is string) {
+            log:printInfo("Message Received to service receiveFromBegining: "
+                                                                  + messageData);
+        } else {
+            log:printError("Error occurred while obtaining message data");
+        }
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
@@ -53,9 +63,14 @@ service receiveFromBegining on lis {
 }
 service receiveFromLastReceived on lis {
     resource function onMessage(nats:StreamingMessage message) {
-       // Prints the incoming message in the console.
-       log:printInfo("Message Received to service receiveFromLastReceived: "
-        + encoding:byteArrayToString(message.getData()));
+        // Prints the incoming message in the console.
+        string|error messageData = strings:fromBytes(message.getData());
+        if (messageData is string) {
+            log:printInfo("Message Received to service receiveFromLastReceived: "
+                                                                  + messageData);
+        } else {
+            log:printError("Error occurred while obtaining message data");
+        }
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
@@ -73,9 +88,14 @@ service receiveFromLastReceived on lis {
 }
 service receiveFromGivenIndex on lis {
     resource function onMessage(nats:StreamingMessage message) {
-       // Prints the incoming message in the console.
-       log:printInfo("Message Received to service receiveFromGivenIndex: "
-        + encoding:byteArrayToString(message.getData()));
+        // Prints the incoming message in the console.
+        string|error messageData = strings:fromBytes(message.getData());
+        if (messageData is string) {
+            log:printInfo("Message Received to service receiveFromGivenIndex: "
+                                                                  + messageData);
+        } else {
+            log:printError("Error occurred while obtaining message data");
+        }
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
@@ -86,16 +106,21 @@ service receiveFromGivenIndex on lis {
 
 [nats:TIME_DELTA_START, int] timeDelta = [nats:TIME_DELTA_START, 5];
 // Binds the consumer to listen to the messages published to the 'demo' subject.
-// Recieves messages since the provided historical time delta.
+// Receives messages since the provided historical time delta.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
     startPosition : timeDelta
 }
 service receiveSinceTimeDelta on lis {
     resource function onMessage(nats:StreamingMessage message) {
-       // Prints the incoming message in the console.
-       log:printInfo("Message Received to service receiveSinceTimeDelta: "
-        + encoding:byteArrayToString(message.getData()));
+        // Prints the incoming message in the console.
+        string|error messageData = strings:fromBytes(message.getData());
+        if (messageData is string) {
+            log:printInfo("Message Received to service receiveSinceTimeDelta: "
+                                                                  + messageData);
+        } else {
+            log:printError("Error occurred while obtaining message data");
+        }
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {

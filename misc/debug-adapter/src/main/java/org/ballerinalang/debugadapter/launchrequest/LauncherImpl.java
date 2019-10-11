@@ -22,6 +22,8 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.DebuggerAttachingVM;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,21 +34,37 @@ import java.util.Map;
  * Launcher abstract implementation.
  */
 public abstract class LauncherImpl {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LauncherImpl.class);
     private final Map<String, Object> args;
+    private final String ballerinaHome;
     private String debuggeePort;
 
     LauncherImpl(Map<String, Object> args) {
-        String debuggeePort = args.get("debuggeePort").toString();
-        this.debuggeePort = debuggeePort;
+        this.debuggeePort = args.get("debuggeePort") == null ? "" : args.get("debuggeePort").toString();
+        if (debuggeePort.length() == 0) {
+            LOGGER.error("Required param missing debuggeePort");
+        }
+
+        ballerinaHome = args.get("ballerina.home") == null ? "" : args.get("ballerina.home").toString();
+
+        if (ballerinaHome.length() == 0) {
+            LOGGER.error("Required param missing ballerina.home");
+        }
+
         this.args = args;
     }
 
     ArrayList<String> getLauncherCommand(String balFile) {
-        String ballerinaHome = args.get("ballerina.home").toString();
-        String debuggeePort = args.get("debuggeePort").toString();
         String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "ballerina";
-        if (OSUtils.WINDOWS.equals(OSUtils.getOperatingSystem())) {
+        if (OSUtils.isWindows()) {
             ballerinaExec = ballerinaExec + ".bat";
+        }
+
+        String ballerinaCmd = args.get("ballerina.command") == null ? "" : args.get("ballerina.command").toString();
+
+        // override ballerina exec if ballerina.command is provided.
+        if (ballerinaCmd.length() > 0) {
+            ballerinaExec = ballerinaCmd;
         }
 
         // TODO: validate file path
@@ -55,26 +73,28 @@ public abstract class LauncherImpl {
         boolean debugTests = args.get("debugTests") != null && (boolean) args.get("debugTests");
         if (debugTests) {
             command.add("test");
+            command.add("--debug");
+            command.add(debuggeePort);
         } else {
             command.add("run");
+            command.add("--debug");
+            command.add(debuggeePort);
         }
-        command.add("--debug");
-        command.add(debuggeePort);
-        ArrayList<String> commandOptions = (ArrayList<String>) args.get("commandOptions");
-        commandOptions = commandOptions == null ? new ArrayList<>() : commandOptions;
-        command.addAll(commandOptions);
 
         command.add("--experimental");
 
-        boolean networkLogs = args.get("networkLogs") != null && (boolean) args.get("networkLogs");
-        if (networkLogs) {
-            Double networkLogsPort = (Double) args.get("networkLogsPort");
-            command.add("-e");
-            command.add("b7a.http.tracelog.host=localhost");
-            command.add("-e");
-            command.add("b7a.http.tracelog.port=" + networkLogsPort.intValue());
-        }
         command.add(balFile);
+
+        boolean networkLogs = args.get("networkLogs") != null && (boolean) args.get("networkLogs");
+        if (networkLogs && !debugTests) {
+            Double networkLogsPort = (Double) args.get("networkLogsPort");
+            command.add("--b7a.http.tracelog.host=localhost");
+            command.add("--b7a.http.tracelog.port=" + networkLogsPort.intValue());
+        }
+
+        ArrayList<String> commandOptions = (ArrayList<String>) args.get("commandOptions");
+        commandOptions = commandOptions == null ? new ArrayList<>() : commandOptions;
+        command.addAll(commandOptions);
 
         ArrayList<String> scriptArguments = (ArrayList<String>) args.get("scriptArguments");
         scriptArguments = scriptArguments == null ? new ArrayList<>() : scriptArguments;
@@ -89,9 +109,13 @@ public abstract class LauncherImpl {
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
             return debuggee;
-        } catch (IOException e) {
-        } catch (IllegalConnectorArgumentsException e) {
+        } catch (IOException | IllegalConnectorArgumentsException e) {
+            LOGGER.error("Debugger failed to attach");
         }
         return null;
+    }
+
+    public String getBallerinaHome() {
+        return ballerinaHome;
     }
 }

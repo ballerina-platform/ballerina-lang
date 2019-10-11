@@ -7,7 +7,7 @@
   "items": [
     {
       "label": "float",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Float",
       "sortText": "160",
       "insertText": "float",
@@ -15,7 +15,7 @@
     },
     {
       "label": "xml",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Xml",
       "sortText": "160",
       "insertText": "xml",
@@ -23,7 +23,7 @@
     },
     {
       "label": "byte",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Byte",
       "sortText": "160",
       "insertText": "byte",
@@ -31,7 +31,7 @@
     },
     {
       "label": "handle",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Handle",
       "sortText": "160",
       "insertText": "handle",
@@ -39,7 +39,7 @@
     },
     {
       "label": "ArgsData",
-      "kind": "Class",
+      "kind": "Struct",
       "detail": "Record",
       "documentation": {
         "left": "Defaultable argument names. This is for internal use.\n"
@@ -50,7 +50,7 @@
     },
     {
       "label": "null",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Nil",
       "sortText": "160",
       "insertText": "null",
@@ -58,7 +58,7 @@
     },
     {
       "label": "orderInfo",
-      "kind": "Class",
+      "kind": "Struct",
       "detail": "Record",
       "sortText": "160",
       "insertText": "orderInfo",
@@ -66,7 +66,7 @@
     },
     {
       "label": "decimal",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Decimal",
       "sortText": "160",
       "insertText": "decimal",
@@ -74,15 +74,26 @@
     },
     {
       "label": "string",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "String",
       "sortText": "160",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "error",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
+      },
+      "sortText": "160",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "stream",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Stream",
       "sortText": "160",
       "insertText": "stream",
@@ -90,7 +101,7 @@
     },
     {
       "label": "json",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Json",
       "sortText": "160",
       "insertText": "json",
@@ -98,7 +109,7 @@
     },
     {
       "label": "map",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Map",
       "sortText": "160",
       "insertText": "map",
@@ -106,7 +117,7 @@
     },
     {
       "label": "table",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Table",
       "sortText": "160",
       "insertText": "table",
@@ -114,7 +125,7 @@
     },
     {
       "label": "anydata",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Anydata",
       "sortText": "160",
       "insertText": "anydata",
@@ -122,7 +133,7 @@
     },
     {
       "label": "any",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Any",
       "sortText": "160",
       "insertText": "any",
@@ -130,7 +141,7 @@
     },
     {
       "label": "int",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Int",
       "sortText": "160",
       "insertText": "int",
@@ -138,7 +149,7 @@
     },
     {
       "label": "boolean",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Boolean",
       "sortText": "160",
       "insertText": "boolean",
@@ -146,7 +157,7 @@
     },
     {
       "label": "future",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Future",
       "sortText": "160",
       "insertText": "future",
@@ -154,7 +165,7 @@
     },
     {
       "label": "service",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Service",
       "sortText": "160",
       "insertText": "service",
@@ -162,7 +173,7 @@
     },
     {
       "label": "typedesc",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Typedesc",
       "sortText": "160",
       "insertText": "typedesc",
@@ -173,7 +184,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "java.jdbc",
+      "insertText": "jdbc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -192,11 +203,11 @@
       ]
     },
     {
-      "label": "ballerinax/java.jms",
+      "label": "ballerinax/java",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "java.jms",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -210,7 +221,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerinax/java.jms;\n"
+          "newText": "import ballerinax/java;\n"
         }
       ]
     },
@@ -219,7 +230,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027object",
+      "insertText": "'object",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -233,30 +244,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027object;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/streams.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "streams.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/streams.balx;\n"
+          "newText": "import ballerina/lang.'object;\n"
         }
       ]
     },
@@ -288,7 +276,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027xml",
+      "insertText": "'xml",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -302,7 +290,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027xml;\n"
+          "newText": "import ballerina/lang.'xml;\n"
         }
       ]
     },
@@ -334,7 +322,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027array",
+      "insertText": "'array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -348,7 +336,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027array;\n"
+          "newText": "import ballerina/lang.'array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/stringutils",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "stringutils",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/stringutils;\n"
         }
       ]
     },
@@ -560,29 +571,6 @@
       ]
     },
     {
-      "label": "ballerina/artemis",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "artemis",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/artemis;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/reflect",
       "kind": "Module",
       "detail": "Package",
@@ -610,7 +598,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027string",
+      "insertText": "'string",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -624,7 +612,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027string;\n"
+          "newText": "import ballerina/lang.'string;\n"
         }
       ]
     },
@@ -694,29 +682,6 @@
             }
           },
           "newText": "import ballerina/oauth2;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/internal",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "internal",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/internal;\n"
         }
       ]
     },
@@ -817,7 +782,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027future",
+      "insertText": "'future",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -831,7 +796,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027future;\n"
+          "newText": "import ballerina/lang.'future;\n"
         }
       ]
     },
@@ -840,7 +805,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027value",
+      "insertText": "'value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -854,7 +819,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027value;\n"
+          "newText": "import ballerina/lang.'value;\n"
         }
       ]
     },
@@ -978,7 +943,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027float",
+      "insertText": "'float",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -992,7 +957,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027float;\n"
+          "newText": "import ballerina/lang.'float;\n"
         }
       ]
     },
@@ -1043,34 +1008,11 @@
       ]
     },
     {
-      "label": "ballerina/transactions.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "transactions.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/transactions.balx;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.decimal",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027decimal",
+      "insertText": "'decimal",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1084,7 +1026,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027decimal;\n"
+          "newText": "import ballerina/lang.'decimal;\n"
         }
       ]
     },
@@ -1135,34 +1077,11 @@
       ]
     },
     {
-      "label": "ballerina/cache.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "cache.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/cache.balx;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.table",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027table",
+      "insertText": "'table",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1176,30 +1095,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027table;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.annotations",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "\u0027annotations",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.\u0027annotations;\n"
+          "newText": "import ballerina/lang.'table;\n"
         }
       ]
     },
@@ -1254,7 +1150,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027stream",
+      "insertText": "'stream",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1268,7 +1164,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027stream;\n"
+          "newText": "import ballerina/lang.'stream;\n"
         }
       ]
     },
@@ -1277,7 +1173,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027error",
+      "insertText": "'error",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1291,7 +1187,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027error;\n"
+          "newText": "import ballerina/lang.'error;\n"
         }
       ]
     },
@@ -1300,7 +1196,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027typedesc",
+      "insertText": "'typedesc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1314,7 +1210,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027typedesc;\n"
+          "newText": "import ballerina/lang.'typedesc;\n"
         }
       ]
     },
@@ -1323,7 +1219,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027map",
+      "insertText": "'map",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1337,7 +1233,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027map;\n"
+          "newText": "import ballerina/lang.'map;\n"
         }
       ]
     },
@@ -1346,7 +1242,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "\u0027int",
+      "insertText": "'int",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1360,7 +1256,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027int;\n"
+          "newText": "import ballerina/lang.'int;\n"
         }
       ]
     },

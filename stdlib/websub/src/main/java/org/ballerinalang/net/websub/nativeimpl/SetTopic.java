@@ -57,13 +57,17 @@ public class SetTopic extends AbstractHttpNativeFunction {
     public static void setTopic(Strand strand, ObjectValue subscriberServiceEndpoint, String webSubServiceName,
                                 String topic) {
         ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(WEBSUB_HTTP_ENDPOINT);
+        WebSubServicesRegistry webSubServicesRegistry = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(
+                WEBSUB_SERVICE_REGISTRY));
+        if (webSubServicesRegistry.getServicesMapHolder(DEFAULT_HOST) == null) {
+            return;
+        }
         Optional<HttpService> webSubHttpService =
-                ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
-                        .getServicesByHost(DEFAULT_HOST).values().stream().filter(
+                webSubServicesRegistry.getServicesByHost(DEFAULT_HOST).values().stream().filter(
                         httpService -> webSubServiceName.equals(httpService.getBalService().getType().getName()))
                         .findFirst();
 
-        HttpService httpService = webSubHttpService.get();
+        HttpService httpService = webSubHttpService.orElse(null);
         if (httpService instanceof WebSubHttpService) {
             ((WebSubHttpService) httpService).setTopic(topic);
         }

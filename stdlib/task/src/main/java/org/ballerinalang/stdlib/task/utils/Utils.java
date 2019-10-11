@@ -22,7 +22,6 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
@@ -41,7 +40,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_YEAR;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_ERROR_REASON;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_APPOINTMENT_DATA;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_PACKAGE_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_PACKAGE_ID;
 import static org.quartz.CronExpression.isValidExpression;
 
 /**
@@ -58,18 +57,18 @@ public class Utils {
     public static ErrorValue createTaskError(String message) {
         return createTaskError(LISTENER_ERROR_REASON, message);
     }
-    
+
     public static ErrorValue createTaskError(String reason, String message) {
         MapValue<String, Object> detail = createTaskDetailRecord(message);
         return BallerinaErrors.createError(reason, detail);
     }
-    
+
     private static MapValue<String, Object> createTaskDetailRecord(String message) {
         return createTaskDetailRecord(message, null);
     }
 
     private static MapValue<String, Object> createTaskDetailRecord(String message, ErrorValue cause) {
-        MapValue<String, Object> detail = BallerinaValues.createRecordValue(TASK_PACKAGE_NAME, DETAIL_RECORD_NAME);
+        MapValue<String, Object> detail = BallerinaValues.createRecordValue(TASK_PACKAGE_ID, DETAIL_RECORD_NAME);
         return BallerinaValues.createRecord(detail, message, cause);
     }
 
@@ -117,10 +116,10 @@ public class Utils {
      *       When compiler plugins can be run for the resources without parameters, this will be redundant.
      *       Issue: https://github.com/ballerina-platform/ballerina-lang/issues/14148
      */
-    public static void validateService(ServiceInformation serviceInformation) throws BLangRuntimeException {
+    public static void validateService(ServiceInformation serviceInformation) throws SchedulingException {
         AttachedFunction[] resources = serviceInformation.getService().getType().getAttachedFunctions();
         if (resources.length != VALID_RESOURCE_COUNT) {
-            throw new BLangRuntimeException(
+            throw new SchedulingException(
                     "Invalid number of resources found in service \'" + serviceInformation.getServiceName()
                             + "\'. Task service should include only one resource.");
         }
@@ -129,14 +128,14 @@ public class Utils {
         if (RESOURCE_ON_TRIGGER.equals(resource.getName())) {
             validateOnTriggerResource(resource.getReturnParameterType());
         } else {
-            throw new BLangRuntimeException("Invalid resource function found: " + resource.getName()
+            throw new SchedulingException("Invalid resource function found: " + resource.getName()
                     + ". Expected: \'" + RESOURCE_ON_TRIGGER + "\'.");
         }
     }
 
-    private static void validateOnTriggerResource(BType returnParameterType) {
+    private static void validateOnTriggerResource(BType returnParameterType) throws SchedulingException {
         if (returnParameterType != org.ballerinalang.jvm.types.BTypes.typeNull) {
-            throw new BLangRuntimeException(
+            throw new SchedulingException(
                     "Invalid resource function signature: \'" + RESOURCE_ON_TRIGGER + "\' should not return a value.");
         }
     }

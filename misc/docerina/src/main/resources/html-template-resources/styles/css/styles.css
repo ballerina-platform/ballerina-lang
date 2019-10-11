@@ -20,6 +20,10 @@ body .type a {
 body .type a:hover {
   text-decoration: underline;
 }
+body .attach-icon {
+  width: 12px;
+  opacity: 0.3;
+}
 body .content-wrapper {
   margin: 0;
   height: 100vh;
@@ -93,6 +97,9 @@ body .content-wrapper .main-wrapper p a {
 }
 body .content-wrapper .main-wrapper p a:hover {
   text-decoration: underline;
+}
+body .content-wrapper .builtin-type {
+  color: #81007F;
 }
 body .content-wrapper .param-divider {
   margin-top: 0px;

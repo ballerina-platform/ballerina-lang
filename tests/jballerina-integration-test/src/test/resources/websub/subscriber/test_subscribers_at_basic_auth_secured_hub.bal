@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/config;
 import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
@@ -35,13 +35,19 @@ http:BasicAuthHandler basicAuthHandler1 = new(basicAuthProvider1);
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
     hubClientConfig: {
-        auth: { authHandler: basicAuthHandler1 }
+        auth: { authHandler: basicAuthHandler1 },
+        secureSocket: {
+            trustStore: {
+                path: config:getAsString("truststore"),
+                password: "ballerina"
+            }
+        }
     }
 }
 service websubSubscriber on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by One: " + payload.toString());
+        io:println("WebSub Notification Received by One: " + payload.toJsonString());
     }
 }
 
@@ -58,13 +64,19 @@ http:BasicAuthHandler basicAuthHandler2 = new(basicAuthProvider2);
     target: "http://localhost:23080/publisherTwo/discover",
     leaseSeconds: 1200,
     hubClientConfig: {
-        auth: { authHandler: basicAuthHandler2 }
+        auth: { authHandler: basicAuthHandler2 },
+        secureSocket: {
+            trustStore: {
+                path: config:getAsString("truststore"),
+                password: "ballerina"
+            }
+        }
     }
 }
 service websubSubscriberTwo on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by Two: " + payload.toString());
+        io:println("WebSub Notification Received by Two: " + payload.toJsonString());
     }
 }
 
@@ -81,13 +93,19 @@ http:BasicAuthHandler basicAuthHandler3 = new(basicAuthProvider3);
     target: "http://localhost:23080/publisher/discover",
     leaseSeconds: 1200,
     hubClientConfig: {
-        auth: { authHandler: basicAuthHandler3 }
+        auth: { authHandler: basicAuthHandler3 },
+        secureSocket: {
+            trustStore: {
+                path: config:getAsString("truststore"),
+                password: "ballerina"
+            }
+        }
     }
 }
 service websubSubscriberThree on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by Three: " + payload.toString());
+        io:println("WebSub Notification Received by Three: " + payload.toJsonString());
     }
 }
 
@@ -103,12 +121,18 @@ http:BasicAuthHandler basicAuthHandler4 = new(basicAuthProvider4);
     target: "http://localhost:23080/publisherThree/discover",
     leaseSeconds: 1200,
     hubClientConfig: {
-        auth: { authHandler: basicAuthHandler4 }
+        auth: { authHandler: basicAuthHandler4 },
+        secureSocket: {
+            trustStore: {
+                path: config:getAsString("truststore"),
+                password: "ballerina"
+            }
+        }
     }
 }
 service websubSubscriberFour on websubEP {
     resource function onNotification (websub:Notification notification) returns error? {
         json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by Four: " + payload.toString());
+        io:println("WebSub Notification Received by Four: " + payload.toJsonString());
     }
 }

@@ -17,7 +17,7 @@
  * under the License.
  *
  */
-import { ExtensionContext } from 'vscode';
+import { ExtensionContext, commands, window } from 'vscode';
 import { ballerinaExtInstance } from './core';
 import { activate as activateAPIEditor } from './api-editor';
 // import { activate as activateDiagram } from './diagram'; 
@@ -26,11 +26,11 @@ import { activate as activateDocs } from './docs';
 import { activate as activateTraceLogs } from './trace-logs';
 import { activate as activateTreeView } from './project-tree-view';
 import { activateDebugConfigProvider } from './debugger';
-import { activateTestRunner } from './test-runner';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateOverview } from './overview';
 import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
+import { log } from './utils';
 
 // TODO initializations should be contributions from each component
 function onBeforeInit(langClient: ExtendedLangClient) {
@@ -69,8 +69,6 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateTraceLogs(ballerinaExtInstance);
         // Enable Ballerina Debug Config Provider
         activateDebugConfigProvider(ballerinaExtInstance);
-        // Enable Test Runner
-        activateTestRunner(ballerinaExtInstance);
         // Enable API Docs Live Preview
         activateDocs(ballerinaExtInstance);
 		// Enable Ballerina API Designer
@@ -80,5 +78,28 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateOverview(ballerinaExtInstance);
         // Enable Ballerina Project Overview
         activateTreeView(ballerinaExtInstance);
-    });
+    }).catch((e) => {
+        log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
+        // When plugins fails to start, provide a warning upon each command execution
+        if (!ballerinaExtInstance.langClient) {
+            const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
+            cmds.forEach((cmd) => {
+                const cmdID: string = cmd.command;
+                commands.registerCommand(cmdID, () => {
+                    const actionViewLogs = "View Logs";
+                    window.showWarningMessage("Ballerina extension did not start properly."
+                        + " Please check extension logs for more info.", actionViewLogs)
+                        .then((action) => {
+                            if (action === actionViewLogs) {
+                                const logs = ballerinaExtInstance.getOutPutChannel();
+                                if (logs) {
+                                    logs.show();
+                                }
+                            }
+                        });
+
+                });
+            });
+        }
+    }); 
 }

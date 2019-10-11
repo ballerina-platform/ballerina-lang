@@ -37,8 +37,8 @@ public class Flags {
     public static final int REQUIRED = INTERFACE << 1; // Marks as a field for which the user MUST provide a value
     public static final int RECORD = REQUIRED << 1;
     public static final int PRIVATE = RECORD << 1;
-    public static final int COMPENSATE = PRIVATE << 1;
-    public static final int ABSTRACT = COMPENSATE << 1;
+    public static final int ANONYMOUS = PRIVATE << 1;
+    public static final int ABSTRACT = ANONYMOUS << 1;
     public static final int OPTIONAL = ABSTRACT << 1;
     public static final int TESTABLE = OPTIONAL << 1;
     public static final int CONSTANT = TESTABLE << 1;
@@ -50,6 +50,8 @@ public class Flags {
     public static final int LAMBDA = LISTENER << 1;
     public static final int TYPE_PARAM = LAMBDA << 1;
     public static final int LANG_LIB = TYPE_PARAM << 1;
+    public static final int WORKER = LANG_LIB << 1;
+    public static final int FORKED = WORKER << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -88,8 +90,8 @@ public class Flags {
                 case RECORD:
                     mask |= RECORD;
                     break;
-                case COMPENSATE:
-                    mask |= COMPENSATE;
+                case ANONYMOUS:
+                    mask |= ANONYMOUS;
                     break;
                 case ABSTRACT:
                     mask |= ABSTRACT;
@@ -124,6 +126,11 @@ public class Flags {
                 case LANG_LIB:
                     mask |= LANG_LIB;
                     break;
+                case WORKER:
+                    mask |= WORKER;
+                    break;
+                case FORKED:
+                    mask |= FORKED;
             }
         }
         return mask;
@@ -167,8 +174,8 @@ public class Flags {
                 case RECORD:
                     flagVal = RECORD;
                     break;
-                case COMPENSATE:
-                    flagVal = COMPENSATE;
+                case ANONYMOUS:
+                    flagVal = ANONYMOUS;
                     break;
                 case ABSTRACT:
                     flagVal = ABSTRACT;
@@ -199,6 +206,9 @@ public class Flags {
                     break;
                 case LANG_LIB:
                     flagVal = LANG_LIB;
+                    break;
+                case FORKED:
+                    flagVal = FORKED;
                     break;
                 default:
                     continue;

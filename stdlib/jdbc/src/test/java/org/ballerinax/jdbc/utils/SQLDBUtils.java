@@ -31,6 +31,7 @@ import java.net.URL;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -44,9 +45,10 @@ import java.util.Comparator;
  */
 public class SQLDBUtils {
 
-    public static final String DB_DIRECTORY = "./target/tempdb/";
-    public static final String DB_DIRECTORY_H2_1 = "./target/H2_1/";
-    public static final String DB_DIRECTORY_H2_2 = "./target/H2_2/";
+    public static final String DB_DIRECTORY = Paths.get(".", "target", "tempdb").toString() + File.separator;
+    public static final String DB_DIRECTORY_H2 = Paths.get(".", "target", "H2Client").toString() + File.separator;
+    public static final String DB_DIRECTORY_H2_1 = Paths.get(".", "target", "H2_1").toString() + File.separator;
+    public static final String DB_DIRECTORY_H2_2 = Paths.get(".", "target", "H2_2").toString() + File.separator;
     private static final Logger log = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**
@@ -120,7 +122,9 @@ public class SQLDBUtils {
     private static String readFileToString(String path) {
         InputStream is;
         String fileAsString = null;
-        URL fileResource = BCompileUtil.class.getClassLoader().getResource(path);
+        // The name of a resource is a '/'-separated path name that identifies the resource.
+        // Hence regardless of the separator corresponding to the OS forward slash should be used.
+        URL fileResource = BCompileUtil.class.getClassLoader().getResource(path.replace("\\", "/"));
         try {
             is = new FileInputStream(fileResource.getFile());
             BufferedReader buf = new BufferedReader(new InputStreamReader(is));
@@ -132,7 +136,7 @@ public class SQLDBUtils {
             }
             fileAsString = sb.toString();
         } catch (IOException e) {
-            // Ignore here
+            log.error("File reading failed", e);
         }
         return fileAsString;
     }

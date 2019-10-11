@@ -62,10 +62,12 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testServiceWithoutResourceName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-name-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input 'caller'. expecting {')', '[', '?', '|'}", 6, 16);
-        BAssertUtil.validateError(result, 1, "mismatched input ','. expecting ';'", 6, 22);
-        BAssertUtil.validateError(result, 2, "mismatched input ')'. expecting ';'", 6, 44);
-        BAssertUtil.validateError(result, 3, "extraneous input '}'", 8, 1);
+        BAssertUtil.validateError(result, 0,
+                                  "mismatched input '('. expecting {'public', 'private', 'resource', 'function', " +
+                                          "'remote', '}', '@', DocumentationLineStart}", 6, 3);
+        BAssertUtil.validateError(result, 1, "mismatched input 'caller'. expecting {')', '[', '?', '|'}", 6, 16);
+        BAssertUtil.validateError(result, 2, "mismatched input ','. expecting '='", 6, 22);
+        BAssertUtil.validateError(result, 3, "mismatched input ')'. expecting '='", 6, 44);
     }
 
     @Test
@@ -88,13 +90,13 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testParseMainFuncWithoutParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-params-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 15);
+        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 1, 15);
     }
 
     @Test
     public void testObjectAttachedFunctionWithInvalidSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/parser/object-attached-func-with-invalid-syntax.bal");
-        BAssertUtil.validateError(result, 0, "invalid token '<'", 10, 10);
+        BAssertUtil.validateError(result, 0, "mismatched input '.'. expecting '('", 6, 17);
     }
 
     @Test

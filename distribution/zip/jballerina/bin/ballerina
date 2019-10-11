@@ -30,6 +30,13 @@
 # -----------------------------------------------------------------------------
 
 # OS specific support.  $var _must_ be set to either true or false.
+
+# Set JAVA_HOME for installers
+JAVA_PATH=$BALLERINA_HOME/../../dependencies/jdk8u202-b08-jre
+if test -d "$JAVA_PATH"; then
+  JAVA_HOME=$JAVA_PATH
+fi
+
 #ulimit -n 100000
 BASE_DIR=$PWD
 cygwin=false;
@@ -238,6 +245,23 @@ if [[ $1 == "native-img" ]]; then
     else
         echo "Please set GRAALVM_HOME for native image generation"
     fi
+elif [[ $1 == "run" ]] && [[ $2 == *.jar ]]; then # if 1st arg is "run" and 2nd arg ends with ".jar".
+      $JAVACMD \
+        -Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
+        -Xms256m -Xmx1024m \
+        -XX:+HeapDumpOnOutOfMemoryError \
+        -XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
+        $JAVA_OPTS \
+        -classpath "$BALLERINA_CLASSPATH" \
+        -Dballerina.home=$BALLERINA_HOME \
+        -Dballerina.version=${project.version} \
+        -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
+        -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
+        -Denable.nonblocking=false \
+        -Djava.security.egd=file:/dev/./urandom \
+        -Dfile.encoding=UTF8 \
+        -Dballerina.target=jvm \
+        -jar "${@:2}" # ignores "run"
 else
     $JAVACMD \
         -Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \

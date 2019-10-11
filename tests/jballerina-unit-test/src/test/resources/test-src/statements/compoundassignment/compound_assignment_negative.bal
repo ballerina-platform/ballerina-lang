@@ -1,4 +1,4 @@
-import ballerina/'lang\.int as ints;
+import ballerina/lang.'int as ints;
 
 function testMapElementIncrement()  returns int|error {
     map<any> namesMap = { fname: 1 };
@@ -150,3 +150,17 @@ function testCompoundAssignmentAdditionWithStructAccess() returns int {
     x += (ibm["count"] + arr[0]);
     return x;
 }
+
+function testFunctionInvocation() returns (int) {
+    Bar bar = {};
+    foo(bar).bar += 10;
+}
+
+function foo(Bar b) returns Bar {
+    b.bar += 1;
+    return b;
+}
+
+type Bar record {
+    int bar = 0;
+};

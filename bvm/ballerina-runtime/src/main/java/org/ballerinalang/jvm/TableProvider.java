@@ -24,8 +24,8 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableIterator;
 
@@ -77,16 +77,11 @@ public class TableProvider {
         return this.indexID++;
     }
 
-    public String createTable(BType constrainedType, ArrayValue primaryKeys, ArrayValue indexedColumns) {
+    public String createTable(BType constrainedType, ArrayValue primaryKeys) {
         String tableName = TableConstants.TABLE_PREFIX + constrainedType.getName()
                 .toUpperCase() + "_" + getTableID();
         String sqlStmt = generateCreateTableStatement(tableName, constrainedType, primaryKeys);
         executeStatement(sqlStmt);
-
-        //Add Index Data
-        if (indexedColumns != null) {
-            generateIndexesForTable(tableName, indexedColumns);
-        }
         return tableName;
     }
 
@@ -113,6 +108,11 @@ public class TableProvider {
         prepareAndExecuteStatement(sqlStmt, constrainedType);
     }
 
+    public void deleteData(String tableName, MapValueImpl<String, Object> constrainedType) {
+        String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, constrainedType);
+        prepareAndExecuteStatement(sqlStmt, constrainedType);
+    }
+
     public void dropTable(String tableName) {
         String sqlStmt = TableConstants.SQL_DROP + tableName;
         executeStatement(sqlStmt);
@@ -130,7 +130,7 @@ public class TableProvider {
             itr = new TableIterator(rm, rs, type);
         } catch (SQLException e) {
             releaseResources(conn, stmt);
-            throw new BallerinaException("error in creating iterator for table : " + e.getMessage());
+            throw TableUtils.createTableOperationError("error in creating iterator for table : " + e.getMessage());
         }
         return itr;
     }
@@ -141,7 +141,7 @@ public class TableProvider {
             conn = DriverManager
                     .getConnection(TableConstants.DB_JDBC_URL, TableConstants.DB_USER_NAME, TableConstants.DB_PASSWORD);
         } catch (SQLException e) {
-            throw new BallerinaException("error in getting connection for table db : " + e.getMessage());
+            throw TableUtils.createTableOperationError("error in getting connection for table db : " + e.getMessage());
         }
         return conn;
     }
@@ -169,18 +169,19 @@ public class TableProvider {
                 case TypeTags.UNION_TAG:
                     List<BType> members = ((BUnionType) sf.getFieldType()).getMemberTypes();
                     if (members.size() != 2) {
-                        throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+                        throw TableUtils.createTableOperationError(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
                     }
                     if (members.get(0).getTag() == TypeTags.NULL_TAG) {
                         generateCreateTableStatement(members.get(1).getTag(), sf, sb);
                     } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
                         generateCreateTableStatement(members.get(0).getTag(), sf, sb);
                     } else {
-                        throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+                        throw TableUtils.createTableOperationError(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
                     }
                     break;
                 default:
-                    throw new BallerinaException("Unsupported column type for table : " + sf.getFieldType());
+                    throw TableUtils
+                            .createTableOperationError("Unsupported column type for table : " + sf.getFieldType());
             }
             seperator = ",";
         }
@@ -210,8 +211,10 @@ public class TableProvider {
                 sb.append(TableConstants.SQL_TYPE_VARCHAR);
                 break;
             case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
                 sb.append(TableConstants.SQL_TYPE_DOUBLE);
+                break;
+            case TypeTags.DECIMAL_TAG:
+                sb.append(TableConstants.SQL_TYPE_DECIMAL);
                 break;
             case TypeTags.BOOLEAN_TAG:
                 sb.append(TableConstants.SQL_TYPE_BOOLEAN);
@@ -229,7 +232,8 @@ public class TableProvider {
                 }
                 break;
             default:
-                throw new BallerinaException("Unsupported nillable field for table : " + sf.getFieldType());
+                throw TableUtils
+                        .createTableOperationError("Unsupported nillable field for table : " + sf.getFieldType());
         }
     }
 
@@ -240,20 +244,6 @@ public class TableProvider {
         return sb.toString();
     }
 
-    private void generateIndexesForTable(String tableName, ArrayValue indexColumns) {
-        int indexCount = indexColumns.size();
-        if (indexCount > 0) {
-            for (int i = 0; i < indexCount; i++) {
-                StringBuilder sb = new StringBuilder();
-                String columnName = indexColumns.getString(i);
-                sb.append(TableConstants.SQL_CREATE_INDEX).append(TableConstants.INDEX).append(columnName)
-                        .append(getIndexID()).append(TableConstants.SQL_ON).append(tableName).append("(")
-                        .append(columnName).append(")");
-                executeStatement(sb.toString());
-            }
-        }
-    }
-
     private void executeStatement(String queryStatement) {
         Statement stmt = null;
         Connection conn = this.getConnection();
@@ -261,7 +251,7 @@ public class TableProvider {
             stmt = conn.createStatement();
             stmt.executeUpdate(queryStatement);
         } catch (SQLException e) {
-            throw new BallerinaException (
+            throw TableUtils.createTableOperationError(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());
         } finally {
             releaseResources(conn, stmt);
@@ -286,6 +276,9 @@ public class TableProvider {
                     case TypeTags.FLOAT_TAG:
                         stmt.setDouble(index, (Double) params.getRefValue(index - 1));
                         break;
+                    case TypeTags.DECIMAL_TAG:
+                        stmt.setBigDecimal(index, ((DecimalValue) params.getRefValue(index - 1)).value());
+                        break;
                     case TypeTags.BOOLEAN_TAG:
                         stmt.setBoolean(index, (Boolean) params.getRefValue(index - 1));
                         break;
@@ -307,7 +300,7 @@ public class TableProvider {
             }
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new BallerinaException(
+            throw TableUtils.createTableOperationError(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());
         } finally {
             releaseResources(conn, stmt);
@@ -321,7 +314,7 @@ public class TableProvider {
             stmt = conn.prepareStatement(queryStatement);
             TableUtils.prepareAndExecuteStatement(stmt, constrainedType);
         } catch (SQLException e) {
-            throw new BallerinaException(
+            throw TableUtils.createTableOperationError(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());
         } finally {
             releaseResources(conn, stmt);
@@ -334,33 +327,16 @@ public class TableProvider {
                 stmt.close();
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in releasing table statement resource : " + e.getMessage());
+            throw TableUtils
+                    .createTableOperationError("error in releasing table statement resource : " + e.getMessage());
         }
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in releasing table connection resource : " + e.getMessage());
-        }
-    }
-
-    public int getRowCount(String tableName) {
-        Statement stmt = null;
-        Connection conn = this.getConnection();
-        try {
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(TableConstants.SQL_COUNT + tableName);
-            int rowCount = 0;
-            if (rs.next()) {
-                rowCount = rs.getInt(1);
-            }
-            return rowCount;
-        } catch (SQLException e) {
-            throw new BallerinaException("error in executing statement to get the count : " + stmt + " error:"
-                                         + e.getMessage());
-        } finally {
-            releaseResources(conn, stmt);
+            throw TableUtils
+                    .createTableOperationError("error in releasing table connection resource : " + e.getMessage());
         }
     }
 }

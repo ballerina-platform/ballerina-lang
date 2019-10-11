@@ -1,6 +1,14 @@
+import ballerinax/java;
 
-public function mockedNativeFuncWithOptionalParams(int a, float b, string c = "John", int d = 5, string e = "Doe", int... z) returns [int, float, string, int, string, int[]] = external;
+handle h1 = java:fromString("John");
+handle h2 = java:fromString("Doe");
 
-function testOptionalArgsInNativeFunc() returns [int, float, string, int, string, int[]] {
-	return mockedNativeFuncWithOptionalParams(78, 89.0, 4,5,6);
+public function mockedNativeFuncWithOptionalParams(int a, float b, handle c = h1, int d = 5, handle e = h2)
+                                                    returns [int, float, string, int, string] = @java:Method {
+    name: "mockedNativeFuncWithOptionalParams",
+    class: "org.ballerinalang.test.functions.FunctionSignatureTest"
+} external;
+
+function testOptionalArgsInNativeFunc() returns [int, float, string, int, string] {
+    return mockedNativeFuncWithOptionalParams(78, 89.0);
 }

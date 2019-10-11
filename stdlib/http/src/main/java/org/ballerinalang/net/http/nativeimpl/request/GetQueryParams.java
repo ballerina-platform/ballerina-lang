@@ -30,8 +30,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpErrorType;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.uri.URIUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.net.http.HttpConstants.QUERY_PARAM_MAP;
@@ -68,7 +69,8 @@ public class GetQueryParams {
             requestObj.addNativeData(QUERY_PARAM_MAP, params);
             return params;
         } catch (Exception e) {
-            throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());
+            throw HttpUtil.createHttpError("error while retrieving query param from message: " + e.getMessage(),
+                                           HttpErrorType.GENERIC_LISTENER_ERROR);
         }
     }
 }

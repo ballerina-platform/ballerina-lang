@@ -14,22 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/http;
 import ballerina/io;
 
-http:ServiceEndpointConfiguration mutualSslServiceConf = {
+http:ListenerConfiguration mutualSslServiceConf = {
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         },
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("truststore"),
             password: "ballerina"
         },
         protocol: {
-            name: "TLSv1.2",
-            versions: ["TLSv1.2","TLSv1.1"]
+            name: "TLS",
+            versions: ["TLSv1.1"]
         },
         ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
         sslVerifyClient: "require",

@@ -1,0 +1,8 @@
+// jBallerina is an implementation of the Ballerina language specification that targets the JVM.
+// Java interoperability in jBallerina enables developers to call existing Java code from Ballerina.
+// Ballerina spec describes a reference type called `handle`. A handle value is a reference to
+// storage managed externally to a Ballerina program. Handle values cannot be created within a Ballerina program.
+// They can be created only by functions with an external function body. In jBallerina handle value refers to
+// Java reference value, i.e., a Java object. Also, in jBallerina, Java constructors and Java methods can provide
+// the implementations of Ballerina functions that are marked as `external`.
+// In this example, let's look at how to create Java objects by invoking their constructors from Ballerina.

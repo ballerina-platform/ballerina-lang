@@ -17,25 +17,21 @@
  */
 package org.ballerinalang.toml.parser;
 
-import org.antlr.v4.runtime.ANTLRFileStream;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.ballerinalang.toml.antlr4.TomlProcessor;
+import com.moandjiezana.toml.Toml;
 import org.ballerinalang.toml.model.LockFile;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 
 /**
- * LockFile Processor which processes the toml file parsed and populate the LockFile POJO.
+ * LockFile Processor which processes the toml file parsed and populate a {@link LockFile}.
  *
  * @since 0.973.1
  */
 public class LockFileProcessor {
-
+    private static final PrintStream err = System.err;
     private static final CompilerContext.Key<LockFileProcessor> LOCK_FILE_PROC_KEY = new CompilerContext.Key<>();
     private final LockFile lockFile;
 
@@ -57,35 +53,12 @@ public class LockFileProcessor {
         LockFileProcessor lockFileProcessor = context.get(LOCK_FILE_PROC_KEY);
         if (lockFileProcessor == null) {
             SourceDirectory sourceDirectory = context.get(SourceDirectory.class);
-            LockFile lfile = LockFileProcessor.parseTomlContentAsStream(sourceDirectory.getLockFileContent());
-            LockFileProcessor instance = new LockFileProcessor(lfile);
+            LockFile lockFile = LockFileProcessor.parseTomlContentAsStream(sourceDirectory.getLockFileContent());
+            LockFileProcessor instance = new LockFileProcessor(lockFile);
             context.put(LOCK_FILE_PROC_KEY, instance);
             return instance;
         }
         return lockFileProcessor;
-    }
-
-    /**
-     * Get the char stream of the content from file.
-     *
-     * @param fileName path of the toml file
-     * @return lockFile object
-     * @throws IOException exception if the file cannot be found
-     */
-    public static LockFile parseTomlContentFromFile(String fileName) throws IOException {
-        ANTLRFileStream in = new ANTLRFileStream(fileName);
-        return getLockFile(in);
-    }
-
-    /**
-     * Get the char stream from string content.
-     *
-     * @param content toml file content as a string
-     * @return lockFile object
-     */
-    public static LockFile parseTomlContentFromString(String content) {
-        ANTLRInputStream in = new ANTLRInputStream(content);
-        return getLockFile(in);
     }
 
     /**
@@ -95,28 +68,19 @@ public class LockFileProcessor {
      * @return lockFile object
      */
     public static LockFile parseTomlContentAsStream(InputStream inputStream) {
-        ANTLRInputStream in = null;
         try {
-            in = new ANTLRInputStream(inputStream);
-        } catch (IOException ignore) {
+            Toml lockToml = new Toml().read(inputStream);
+            return lockToml.to(LockFile.class);
+        } catch (Exception e) {
+            err.println("Ballerina.lock file is corrupted. this build will ignore using the lock file in resolving " +
+                        "dependencies. a valid lock file will be generated if '--skip-lock' is set to false when " +
+                        "using build command. '--skip-lock' flag is false by default.");
         }
-        return getLockFile(in);
-    }
-
-    /**
-     * Get the lockFile object by passing the ballerina toml file.
-     *
-     * @param charStream toml file content as a char stream
-     * @return lockFile object
-     */
-    private static LockFile getLockFile(CharStream charStream) {
-        LockFile lockFile = new LockFile();
-        ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new LockFileBuildListener(lockFile), TomlProcessor.parseTomlContent(charStream, "Ballerina.lock"));
-        return lockFile;
+        
+        return null;
     }
 
     public LockFile getLockFile() {
-        return lockFile;
+        return this.lockFile;
     }
 }

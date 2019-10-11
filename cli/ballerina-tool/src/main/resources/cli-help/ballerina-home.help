@@ -1,0 +1,14 @@
+NAME
+       ballerina-home - Print the path of the current Ballerina distribution
+
+SYNOPSIS
+       ballerina <home>
+
+
+DESCRIPTION
+       Ballerina home command prints the path of current Ballerina Distribution in use.
+
+
+EXAMPLES
+       Print of Ballerina distribution which is currently configured.
+          → ballerina home

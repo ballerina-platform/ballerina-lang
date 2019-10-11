@@ -1,7 +1,6 @@
-import ballerina/encoding;
-import ballerina/io;
 import ballerina/http;
-import ballerina/mime;
+import ballerina/io;
+import ballerina/lang.'string as strings;
 
 function testContentType(http:Request req, string contentTypeValue) returns @tainted string {
     checkpanic req.setContentType(contentTypeValue);
@@ -149,17 +148,6 @@ service hello on mockEP {
         checkpanic caller->respond(res);
     }
 
-    //Enable this once the getContentLength is added back
-    //@http:resourceConfig {
-    //    path:"/getContentLength"
-    //}
-    //GetContentLength (http:ServerConnector conn, http:Request req) {
-    //    http:Response res = {};
-    //    int length = req.getContentLength();
-    //    res.setJsonPayload({value:length});
-    //    checkpanic conn->respond(res);
-    //}
-
     @http:ResourceConfig {
         path: "/getJsonPayload"
     }
@@ -216,8 +204,13 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            string name = encoding:byteArrayToString(returnResult, "UTF-8");
-            res.setTextPayload(<@untainted string> name);
+            var name = strings:fromBytes(returnResult);
+            if (name is string) {
+                res.setTextPayload(<@untainted string> name);
+            } else {
+                res.setTextPayload("Error occurred while byte array to string conversion");
+                res.statusCode = 500;
+            }
         }
         checkpanic caller->respond(res);
     }
@@ -353,8 +346,13 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            string name = <@untainted> encoding:byteArrayToString(returnResult, "UTF-8");
-            res.setJsonPayload({ lang: name });
+            var name = strings:fromBytes(returnResult);
+            if (name is string) {
+                res.setJsonPayload({ lang: <@untainted string> name });
+            } else {
+                res.setTextPayload("Error occurred while byte array to string conversion");
+                res.statusCode = 500;
+            }
         }
         checkpanic caller->respond(res);
     }

@@ -210,18 +210,14 @@ public class ResourceSignatureValidator {
                 COMPULSORY_PARAM_COUNT, resourceNode.getParameters().size());
         if (!signatureParams.stream().allMatch(signatureParam -> paramSegments.stream()
                 .anyMatch(parameter -> signatureParam.getName().getValue().equals(parameter)))) {
+            String errorMsg = "invalid resource parameter(s): cannot specify > 2 parameters without specifying " +
+                    "path config and/or body config in the resource annotation";
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                               "Invalid parameter(s) in the resource signature");
+                               errorMsg);
         }
     }
 
     private ResourceSignatureValidator() {
-    }
-
-    static void validateResourceReturnType(boolean resourceReturnsErrorOrNil, DiagnosticLog dlog, DiagnosticPos pos) {
-        if (!resourceReturnsErrorOrNil) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "invalid return type: expected error?");
-        }
     }
 
     private static String getAnnotationFieldKey(BLangRecordLiteral.BLangRecordKeyValue keyValue) {

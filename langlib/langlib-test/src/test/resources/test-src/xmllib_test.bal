@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/'lang\.xml as xmllib;
+import ballerina/lang.'xml as xmllib;
 
 xml catalog = xml `<CATALOG>
                        <CD>
@@ -163,9 +163,12 @@ function testGetContentNegative() returns string {
     return t.getContent();
 }
 
-function testCreateElement() returns xml {
+function testCreateElement() returns [xml, xml, xml] {
     xml t = xml `hello world`;
-    return xmllib:createElement("elem", t);
+    xml r1 = xmllib:createElement("elem", t);
+    xml r2 = xmllib:createElement("elem");
+
+    return [r1, r1.getChildren(), r2.getChildren()];
 }
 
 function testCreateProcessingInstruction() returns xml {
@@ -182,4 +185,22 @@ function testCopingComment() returns xml {
     // Makes a copy of an XML element.
     xml x = bookComment.copy();
     return x;
+}
+
+function testForEach() returns xml {
+    xml r = xmllib:concat();
+    foreach var x in catalog.* {
+        if (x is xml) {
+            r += x;
+        }
+    }
+    return r;
+}
+
+function testSlice() returns [xml, xml, xml] {
+    xml elemL = xml `<elemL>content</elemL>`;
+    xml elemN = xml `<elemN>content</elemN>`;
+    xml elemM = xml `<elemM>content</elemM>`;
+    xml elem = elemL + elemN + elemM;
+    return [elem.slice(0, 2), elem.slice(1), xmllib:slice(elem, 1)];
 }

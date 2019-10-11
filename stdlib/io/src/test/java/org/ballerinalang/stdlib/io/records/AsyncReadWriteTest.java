@@ -18,18 +18,13 @@
 
 package org.ballerinalang.stdlib.io.records;
 
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.stdlib.io.MockByteChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadEvent;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.stdlib.io.util.TestUtil;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -38,8 +33,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Represents the framework for read/write delimited text records.
@@ -50,54 +43,27 @@ public class AsyncReadWriteTest {
      */
     private String currentDirectoryPath = "/tmp/";
 
-    /**
-     * Will be the I/O event handler.
-     */
-    private EventManager eventManager = EventManager.getInstance();
-
     @BeforeSuite
     public void setup() {
         currentDirectoryPath = System.getProperty("user.dir") + "/build/";
     }
 
     @Test(description = "Test which will read text records from a given channel using async io framework")
-    public void readTextRecords() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+    public void readTextRecords() throws IOException, URISyntaxException, BallerinaIOException {
         int expectedFieldCount = 3;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
         Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
-
-        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(recordChannel);
-        Future<EventResult> future = eventManager.publish(event);
-        EventResult eventResult = future.get();
-        String[] readRecord = (String[]) eventResult.getResponse();
-        Assert.assertEquals(readRecord.length, expectedFieldCount);
-
-        event = new DelimitedRecordReadEvent(recordChannel, new EventContext());
-        future = eventManager.publish(event);
-        eventResult = future.get();
-        readRecord = (String[]) eventResult.getResponse();
-        Assert.assertEquals(readRecord.length, expectedFieldCount);
-
-        event = new DelimitedRecordReadEvent(recordChannel, new EventContext());
-        future = eventManager.publish(event);
-        eventResult = future.get();
-        readRecord = (String[]) eventResult.getResponse();
-        Assert.assertEquals(readRecord.length, expectedFieldCount);
-
-        event = new DelimitedRecordReadEvent(recordChannel, new EventContext());
-        future = eventManager.publish(event);
-        eventResult = future.get();
-        Throwable error = ((EventContext) eventResult.getContext()).getError();
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMessage()));
-
+        Assert.assertEquals(recordChannel.read().length, expectedFieldCount);
+        Assert.assertEquals(recordChannel.read().length, expectedFieldCount);
+        Assert.assertEquals(recordChannel.read().length, expectedFieldCount);
         recordChannel.close();
     }
 
     @Test(description = "Test which will write records to a channel using async io framework")
-    public void writeRecords() throws IOException, ExecutionException, InterruptedException {
+    public void writeRecords() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(currentDirectoryPath + "records.csv");
         Channel channel = new MockByteChannel(byteChannel);
@@ -105,19 +71,12 @@ public class AsyncReadWriteTest {
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] recordOne = {"Foo", "Bar", "911"};
-        BValueArray recordOneArr = new BValueArray(recordOne);
-
-        DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, recordOneArr);
-        Future<EventResult> future = eventManager.publish(recordWriteEvent);
-        future.get();
+        ArrayValue recordOneArr = new ArrayValue(recordOne);
+        recordChannel.write(recordOneArr);
 
         String[] recordTwo = {"Jim", "Com", "119"};
-        BValueArray recordTwoArr = new BValueArray(recordTwo);
-
-        recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, recordTwoArr);
-        future = eventManager.publish(recordWriteEvent);
-        future.get();
-
+        ArrayValue recordTwoArr = new ArrayValue(recordTwo);
+        recordChannel.write(recordTwoArr);
         recordChannel.close();
     }
 }

@@ -7,151 +7,183 @@
   "items": [
     {
       "label": "float",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Float",
+      "sortText": "230",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "xml",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Xml",
+      "sortText": "230",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestRecord",
-      "kind": "Class",
+      "kind": "Struct",
       "detail": "Record",
+      "sortText": "180",
       "insertText": "TestRecord",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "byte",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Byte",
+      "sortText": "230",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "handle",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Handle",
+      "sortText": "230",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ArgsData",
-      "kind": "Class",
+      "kind": "Struct",
       "detail": "Record",
       "documentation": {
         "left": "Defaultable argument names. This is for internal use.\n"
       },
+      "sortText": "180",
       "insertText": "ArgsData",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "null",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Nil",
+      "sortText": "230",
       "insertText": "null",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "decimal",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Decimal",
+      "sortText": "230",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "string",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "String",
+      "sortText": "230",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "error",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
+      },
+      "sortText": "200",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "stream",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Stream",
+      "sortText": "230",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "json",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Json",
+      "sortText": "230",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "map",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Map",
+      "sortText": "230",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "table",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Table",
+      "sortText": "230",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "anydata",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Anydata",
+      "sortText": "230",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestObject",
-      "kind": "Class",
+      "kind": "Interface",
       "detail": "Object",
+      "sortText": "190",
       "insertText": "TestObject",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "any",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Any",
+      "sortText": "230",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "int",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Int",
+      "sortText": "230",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "boolean",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Boolean",
+      "sortText": "230",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "future",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Future",
+      "sortText": "230",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "service",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Service",
+      "sortText": "230",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "typedesc",
-      "kind": "Keyword",
+      "kind": "Unit",
       "detail": "Typedesc",
+      "sortText": "230",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -159,7 +191,8 @@
       "label": "ballerinax/java.jdbc",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "java.jdbc",
+      "sortText": "140",
+      "insertText": "jdbc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -178,10 +211,11 @@
       ]
     },
     {
-      "label": "ballerinax/java.jms",
+      "label": "ballerinax/java",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "java.jms",
+      "sortText": "140",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -195,7 +229,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerinax/java.jms;\n"
+          "newText": "import ballerinax/java;\n"
         }
       ]
     },
@@ -203,7 +237,8 @@
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027object",
+      "sortText": "140",
+      "insertText": "'object",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -217,29 +252,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027object;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/streams.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "streams.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/streams.balx;\n"
+          "newText": "import ballerina/lang.'object;\n"
         }
       ]
     },
@@ -247,6 +260,7 @@
       "label": "ballerina/jwt",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "jwt",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -269,7 +283,8 @@
       "label": "ballerina/lang.xml",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027xml",
+      "sortText": "140",
+      "insertText": "'xml",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -283,7 +298,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027xml;\n"
+          "newText": "import ballerina/lang.'xml;\n"
         }
       ]
     },
@@ -291,6 +306,7 @@
       "label": "ballerina/crypto",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "crypto",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -313,7 +329,8 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027array",
+      "sortText": "140",
+      "insertText": "'array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -327,7 +344,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027array;\n"
+          "newText": "import ballerina/lang.'array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/stringutils",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "stringutils",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/stringutils;\n"
         }
       ]
     },
@@ -335,6 +375,7 @@
       "label": "ballerina/cache",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "cache",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -357,6 +398,7 @@
       "label": "ballerina/test",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -379,6 +421,7 @@
       "label": "ballerina/file",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "file",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -401,6 +444,7 @@
       "label": "ballerina/grpc",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "grpc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -423,6 +467,7 @@
       "label": "ballerina/config",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "config",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -445,6 +490,7 @@
       "label": "ballerina/auth",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "auth",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -467,6 +513,7 @@
       "label": "ballerina/filepath",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "filepath",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -489,6 +536,7 @@
       "label": "ballerina/ldap",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "ldap",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -511,6 +559,7 @@
       "label": "ballerina/streams",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "streams",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -530,31 +579,10 @@
       ]
     },
     {
-      "label": "ballerina/artemis",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "artemis",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/artemis;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/reflect",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "reflect",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -577,7 +605,8 @@
       "label": "ballerina/lang.string",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027string",
+      "sortText": "140",
+      "insertText": "'string",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -591,7 +620,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027string;\n"
+          "newText": "import ballerina/lang.'string;\n"
         }
       ]
     },
@@ -599,6 +628,7 @@
       "label": "ballerina/io",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "io",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -621,6 +651,7 @@
       "label": "ballerina/runtime",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -643,6 +674,7 @@
       "label": "ballerina/oauth2",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "oauth2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -662,31 +694,10 @@
       ]
     },
     {
-      "label": "ballerina/internal",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "internal",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/internal;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/jvm",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "jvm",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -709,6 +720,7 @@
       "label": "ballerina/encoding",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "encoding",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -731,6 +743,7 @@
       "label": "ballerina/utils",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "utils",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -753,6 +766,7 @@
       "label": "ballerina/rabbitmq",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "rabbitmq",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -775,7 +789,8 @@
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027future",
+      "sortText": "140",
+      "insertText": "'future",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -789,7 +804,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027future;\n"
+          "newText": "import ballerina/lang.'future;\n"
         }
       ]
     },
@@ -797,7 +812,8 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027value",
+      "sortText": "140",
+      "insertText": "'value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -811,7 +827,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027value;\n"
+          "newText": "import ballerina/lang.'value;\n"
         }
       ]
     },
@@ -819,6 +835,7 @@
       "label": "ballerina/openapi",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "openapi",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -841,6 +858,7 @@
       "label": "ballerina/math",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "math",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -863,6 +881,7 @@
       "label": "ballerina/time",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "time",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -885,6 +904,7 @@
       "label": "ballerina/observe",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "observe",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -907,6 +927,7 @@
       "label": "ballerina/system",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "system",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -929,7 +950,8 @@
       "label": "ballerina/lang.float",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027float",
+      "sortText": "140",
+      "insertText": "'float",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -943,7 +965,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027float;\n"
+          "newText": "import ballerina/lang.'float;\n"
         }
       ]
     },
@@ -951,6 +973,7 @@
       "label": "ballerina/transactions",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "transactions",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -973,6 +996,7 @@
       "label": "ballerina/nats",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "nats",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -992,32 +1016,11 @@
       ]
     },
     {
-      "label": "ballerina/transactions.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "transactions.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/transactions.balx;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.decimal",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027decimal",
+      "sortText": "140",
+      "insertText": "'decimal",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1031,7 +1034,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027decimal;\n"
+          "newText": "import ballerina/lang.'decimal;\n"
         }
       ]
     },
@@ -1039,6 +1042,7 @@
       "label": "ballerina/http",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "http",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -1061,6 +1065,7 @@
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "task",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -1080,32 +1085,11 @@
       ]
     },
     {
-      "label": "ballerina/cache.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "cache.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/cache.balx;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.table",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027table",
+      "sortText": "140",
+      "insertText": "'table",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1119,29 +1103,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027table;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.annotations",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "\u0027annotations",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.\u0027annotations;\n"
+          "newText": "import ballerina/lang.'table;\n"
         }
       ]
     },
@@ -1149,6 +1111,7 @@
       "label": "ballerina/log",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "log",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -1171,6 +1134,7 @@
       "label": "ballerina/mime",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "mime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -1193,7 +1157,8 @@
       "label": "ballerina/lang.stream",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027stream",
+      "sortText": "140",
+      "insertText": "'stream",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1207,7 +1172,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027stream;\n"
+          "newText": "import ballerina/lang.'stream;\n"
         }
       ]
     },
@@ -1215,7 +1180,8 @@
       "label": "ballerina/lang.error",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027error",
+      "sortText": "140",
+      "insertText": "'error",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1229,7 +1195,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027error;\n"
+          "newText": "import ballerina/lang.'error;\n"
         }
       ]
     },
@@ -1237,7 +1203,8 @@
       "label": "ballerina/lang.typedesc",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027typedesc",
+      "sortText": "140",
+      "insertText": "'typedesc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1251,7 +1218,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027typedesc;\n"
+          "newText": "import ballerina/lang.'typedesc;\n"
         }
       ]
     },
@@ -1259,7 +1226,8 @@
       "label": "ballerina/lang.map",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027map",
+      "sortText": "140",
+      "insertText": "'map",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1273,7 +1241,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027map;\n"
+          "newText": "import ballerina/lang.'map;\n"
         }
       ]
     },
@@ -1281,7 +1249,8 @@
       "label": "ballerina/lang.int",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027int",
+      "sortText": "140",
+      "insertText": "'int",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1295,7 +1264,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.\u0027int;\n"
+          "newText": "import ballerina/lang.'int;\n"
         }
       ]
     },
@@ -1303,6 +1272,7 @@
       "label": "ballerina/socket",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "socket",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

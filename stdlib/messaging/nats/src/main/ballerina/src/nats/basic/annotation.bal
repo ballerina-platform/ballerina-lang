@@ -14,15 +14,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# NATS basic subscription parameters
+# NATS basic subscription parameters.
 #
 # + subject - Name of the subject.
 # + queueName - Name of the queue group.
+# + pendingLimits - Parameters to set limits on the maximum number of pending messages,
+#                               or maximum size of pending messages.
 public type SubscriptionConfigData record {|
-   string subject;
-   string queueName?;
+    string subject;
+    string queueName?;
+    PendingLimits pendingLimits?;
 |};
 
+# Parameters to set limits on the maximum number of messages, or maximum size of messages this consumer will
+# hold before it starts to drop new messages waiting for the resource functions to drain the queue.
+# Setting a value to anything less than or equal to 0 will disable this check.
+#
+# + maxMessages - Maximum number of pending messages retrieved and held by the consumer service,
+#                   defaults to 65536.
+# + maxBytes - Total size of pending messages in bytes retrieved and held by the consumer service,
+#               defaults to 67108864.
+public type PendingLimits record {|
+    int maxMessages;
+    int maxBytes;
+|};
 
 # Basic Subscription config annotation.
 public annotation SubscriptionConfigData SubscriptionConfig on service;
