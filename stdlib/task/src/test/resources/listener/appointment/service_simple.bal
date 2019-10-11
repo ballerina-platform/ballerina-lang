@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/runtime;
 import ballerina/task;
 
 task:AppointmentConfiguration configuration = {
@@ -25,6 +26,14 @@ int count = 0;
 listener task:Listener appointment = new(configuration);
 
 function getCount() returns int {
+    int waitCount = 0;
+    while(count < 5) {
+        runtime:sleep(1000);
+        if (waitCount > 10) {
+            break;
+        }
+        waitCount += 1;
+    }
     return count;
 }
 
