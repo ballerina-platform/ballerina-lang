@@ -61,11 +61,9 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Stack;
 
 /**
  * Analyzes markdown documentations.
@@ -222,34 +220,16 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        LinkedList<BLangMarkdownReferenceDocumentation> references = documentation.getReferences();
+        Stack<BLangMarkdownReferenceDocumentation> references = documentation.getReferences();
         references.forEach(reference -> {
-            StringBuilder pckgName = new StringBuilder();
-            StringBuilder typeName = new StringBuilder();
-            StringBuilder identifier = new StringBuilder();
-            boolean validateFunctionInsideBackticks = (reference.type == DocumentationReferenceType.BACKTICK_CONTENT);
-            boolean isValidIdentifierString = validateStringForQualifiedIdentifier(validateFunctionInsideBackticks,
-                                                                                    reference.getReferenceName(),
-                                                                                    pckgName,
-                                                                                    typeName,
-                                                                                    identifier);
-
-            //Do not warn if backticked content is not matched.
-            if (!isValidIdentifierString) {
-                if (reference.type != DocumentationReferenceType.BACKTICK_CONTENT) {
-                    dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_IDENTIFIER,
-                            reference.getReferenceName());
-                }
-                return;
-            }
             boolean isValidIdentifier = validateIdentifier(reference.getPosition(), documentableNode,
                                                            reference.getType(),
-                                                           pckgName.toString(),
-                                                           typeName.toString(),
-                                                           identifier.toString());
+                                                           reference.qualifier,
+                                                           reference.typeName,
+                                                           reference.identifier);
             if (!isValidIdentifier) {
                 dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_REFERENCE,
-                        reference.getReferenceName(), reference.getType().getValue());
+                        reference.referenceName, reference.getType().getValue());
             }
         });
     }
@@ -259,8 +239,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                                        DocumentationReferenceType type,
                                        String packageId, String typeID,
                                        String identifier) {
-
-        BSymbol symbol = null;
+        int tag = -1;
         //Lookup namespace to validate the identifier
         switch (type) {
             case PARAMETER:
@@ -268,37 +247,37 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 if (documentableNode.getKind() == NodeKind.FUNCTION) {
                     BLangFunction funcNode = (BLangFunction) documentableNode;
                     SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
-                    symbol = resolveFullyQualifiedSymbol(pos, funcEnv, packageId, typeID, identifier, SymTag.VARIABLE);
+                    return (resolveFullyQualifiedSymbol(pos, funcEnv, packageId, typeID, identifier, SymTag.VARIABLE)
+                            != symTable.notFoundSymbol);
                 } else {
-                    symbol = symTable.notFoundSymbol;
+                    return false;
                 }
-                break;
             case SERVICE:
-                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.SERVICE);
+                tag = SymTag.SERVICE;
                 break;
             case TYPE:
-                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.TYPE);
+                tag = SymTag.TYPE;
                 break;
             case VARIABLE:
             case VAR:
-                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.VARIABLE);
+                tag = SymTag.VARIABLE;
                 break;
             case ANNOTATION:
-                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.ANNOTATION);
+                tag = SymTag.ANNOTATION;
                 break;
             case MODULE:
-                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.IMPORT);
+                tag = SymTag.IMPORT;
                 break;
             case CONST:
-                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.CONSTANT);
+                tag = SymTag.CONSTANT;
                 break;
             case BACKTICK_CONTENT:
             case FUNCTION:
-                symbol = resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, SymTag.FUNCTION);
+                tag = SymTag.FUNCTION;
                 break;
         }
-
-        return symbol != symTable.notFoundSymbol;
+        return (resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, tag)
+                != symTable.notFoundSymbol);
     }
 
     private BSymbol resolveFullyQualifiedSymbol(DiagnosticPos pos, SymbolEnv env, String packageId, String type,
@@ -343,94 +322,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
 
         return symTable.notFoundSymbol;
-    }
-
-    private boolean validateStringForQualifiedIdentifier(boolean validateFunctioninsideQuotes,
-                                                         String identifierContent,
-                                                         StringBuilder pckgName,
-                                                         StringBuilder typeName,
-                                                         StringBuilder identifier) {
-
-        //Check if a qualified identifier
-        String qualifierStage = identifierString + ":(.*)";
-        //Check for type identifier
-        String typeStage = identifierString + "\\." + identifierString +
-                (validateFunctioninsideQuotes ? "(?:\\(\\))" :  "");
-        //Check for `function()` or other identifier reference stage
-        String identifierStage = identifierString + (validateFunctioninsideQuotes ? "(?:\\(\\))" :  "");
-
-
-        //Pattern set
-        Pattern qualifierPattern = Pattern.compile(qualifierStage);
-        Pattern typePattern = Pattern.compile(typeStage);
-        Pattern unqualifiedIdentifierPattern = Pattern.compile(identifierStage);
-
-        //Matchers set
-
-        if (qualifierPatternMatcher(identifierContent, qualifierPattern, typePattern, unqualifiedIdentifierPattern,
-                pckgName, typeName, identifier)) {
-            return true;
-        //If no package name is there, validate for only typename stage
-        } else if (typePatternMatcher(identifierContent, typePattern, unqualifiedIdentifierPattern, typeName,
-                identifier)) {
-                return true;
-        //Directly validate for an identifier
-        } else {
-            return identifierOnlyPatternMatcher(identifierContent, unqualifiedIdentifierPattern, identifier);
-        }
-
-    }
-
-    private boolean qualifierPatternMatcher(String identifierString,
-                                            Pattern qualifierPattern,
-                                            Pattern typePattern,
-                                            Pattern unqualifiedIdentifierPattern,
-                                            StringBuilder packageName,
-                                            StringBuilder typeName,
-                                            StringBuilder identifier) {
-
-        StringBuilder typeOrIdentifierStage = new StringBuilder();
-        if (patternMatcher(identifierString, qualifierPattern, packageName, typeOrIdentifierStage)) {
-            if (typePatternMatcher(typeOrIdentifierStage.toString(), typePattern, unqualifiedIdentifierPattern,
-                    typeName, identifier)) {
-                return true;
-                //If type name is not there, directly validate for an unqualified Identifier
-            } else {
-                return identifierOnlyPatternMatcher(typeOrIdentifierStage.toString(), unqualifiedIdentifierPattern,
-                        identifier);
-            }
-        }
-        return  false;
-    }
-
-    private boolean typePatternMatcher(String identifierString, Pattern typePattern,
-                                       Pattern unqualifiedIdentifierPattern,
-                                       StringBuilder typeName, StringBuilder identifier) {
-        StringBuilder identifierOnlyStage = new StringBuilder();
-        if (patternMatcher(identifierString, typePattern, typeName, identifierOnlyStage)) {
-            //If Type is there, try to match the function name part. Group 2 contains string after the '.'
-            return identifierOnlyPatternMatcher(identifierOnlyStage.toString(), unqualifiedIdentifierPattern,
-                    identifier);
-        }
-        return false;
-    }
-
-    private boolean identifierOnlyPatternMatcher(String identifierString, Pattern unqualifiedIdentifierPattern,
-                                                 StringBuilder identifier) {
-        return patternMatcher(identifierString, unqualifiedIdentifierPattern, identifier, null);
-    }
-
-    private boolean patternMatcher(String identifierString, Pattern pattern, StringBuilder token,
-                                   StringBuilder contentForNextStage) {
-        Matcher matcher = pattern.matcher(identifierString);
-        if (matcher.matches()) {
-            token.append(matcher.group(1));
-            if (matcher.groupCount() > 1) {
-                contentForNextStage.append(matcher.group(2));
-            }
-            return true;
-        }
-        return false;
     }
 
     private void validateParameters(DocumentableNode documentableNode,

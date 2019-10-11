@@ -2338,6 +2338,24 @@ public class BLangPackageBuilder {
         markdownDocumentationNode.addReference(referenceDocumentation);
     }
 
+    void endDocumentationFullyQualifiedIdentifier(String qualifier, String typeName, String identifier) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkdownReferenceDocumentation referenceNode = markdownDocumentationNode.getReferences().peek();
+        referenceNode.qualifier = qualifier;
+        referenceNode.typeName = typeName;
+        referenceNode.identifier = identifier;
+    }
+
+    void logWarningAndRemoveDocumentationReference(boolean isFunctionCheck) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkdownReferenceDocumentation referenceNode = markdownDocumentationNode.getReferences().peek();
+        if (!isFunctionCheck) {
+            this.dlog.warning(referenceNode.pos, DiagnosticCode.INVALID_DOCUMENTATION_IDENTIFIER,
+                    referenceNode.referenceName);
+        }
+        markdownDocumentationNode.getReferences().pop(); // Remove the node from references
+    }
+
     //Store single backticked content in Documentation Node
     void endSingleBacktickedBlock(DiagnosticPos pos, String identifier) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
@@ -2463,13 +2481,13 @@ public class BLangPackageBuilder {
     }
 
     private BLangMarkdownReferenceDocumentation createBReferenceDocumentation(DiagnosticPos pos,
-                                                                               DocumentationReferenceType type,
-                                                                               String identifier) {
+                                                                              DocumentationReferenceType type,
+                                                                              String identifier) {
         BLangMarkdownReferenceDocumentation referenceDocumentation =
                 (BLangMarkdownReferenceDocumentation) TreeBuilder.createMarkdownBReferenceDocumentationNode();
         referenceDocumentation.type = type;
-        referenceDocumentation.referenceName = identifier;
         referenceDocumentation.pos = pos;
+        referenceDocumentation.referenceName = identifier;
 
         return referenceDocumentation;
     }

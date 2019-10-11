@@ -1,4 +1,4 @@
-/*
+package org.wso2.ballerinalang.compiler.parser.antlr4;/*
  *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -16,15 +16,14 @@
  *  under the License.
  */
 
-package org.ballerinalang.model.tree;
+import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 
-import org.ballerinalang.model.tree.types.DocumentationReferenceType;
+public class BallerinaReferenceParserErrorListener extends BaseErrorListener {
 
-/**
-* Interface to extend to make a node documentable.
-*
-* @since 1.1.0
-*/
-public interface MarkdownDocumentationReferenceAttributeNode extends Node {
-    DocumentationReferenceType getType();
+    @Override
+    public void syntaxError(Recognizer<?, ?> recognizer, Object o, int i, int i1, String s, RecognitionException e) {
+        return; // This do nothing function is used to stop antlr from emmitting errors while parsing backtick content
+    }
 }

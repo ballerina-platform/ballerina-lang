@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -38,13 +39,13 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
 
     public LinkedList<BLangMarkdownDocumentationLine> documentationLines;
     public LinkedList<BLangMarkdownParameterDocumentation> parameters;
-    public LinkedList<BLangMarkdownReferenceDocumentation> references;
+    public Stack<BLangMarkdownReferenceDocumentation> references;
     public BLangMarkdownReturnParameterDocumentation returnParameter;
 
     public BLangMarkdownDocumentation() {
         this.documentationLines = new LinkedList<>();
         this.parameters = new LinkedList<>();
-        this.references = new LinkedList<>();
+        this.references = new Stack<>();
     }
 
     @Override
@@ -113,14 +114,14 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
     }
 
     @Override
-    public LinkedList<BLangMarkdownReferenceDocumentation> getReferences() {
+    public Stack<BLangMarkdownReferenceDocumentation> getReferences() {
         return references;
     }
 
     @Override
     public void addReference(BLangMarkdownReferenceDocumentation reference) {
         if (reference != null) {
-            references.add(reference);
+            references.push(reference);
         }
     }
 }

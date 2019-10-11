@@ -30,14 +30,12 @@ import org.ballerinalang.model.tree.types.DocumentationReferenceType;
 public class BLangMarkdownReferenceDocumentation extends BLangNode
         implements MarkdownDocumentationReferenceAttributeNode {
 
-    public String referenceName;
+    public String qualifier = "";
+    public String typeName =  "";
+    public String identifier = "";
+    public String referenceName; // Complete reference inside backticked block
     public NodeKind kind;
     public DocumentationReferenceType type;
-
-    @Override
-    public String getReferenceName() {
-        return referenceName;
-    }
 
     @Override
     public NodeKind getKind() {
