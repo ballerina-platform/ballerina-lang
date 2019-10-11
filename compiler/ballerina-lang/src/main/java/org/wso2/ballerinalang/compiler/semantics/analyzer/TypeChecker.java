@@ -1470,6 +1470,12 @@ public class TypeChecker extends BLangNodeVisitor {
             // if enclosing env's node is arrow expression
             return env.enclEnv;
         }
+
+        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.TRANSACTION) {
+            // if enclosing env's node is a transaction
+            return env.enclEnv;
+        }
+
         if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
             return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
         }
@@ -2797,6 +2803,29 @@ public class TypeChecker extends BLangNodeVisitor {
             if (resolvedSymbol != symTable.notFoundSymbol) {
                 resolvedSymbol.closure = true;
                 ((BLangArrowFunction) env.node).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+            }
+        }
+
+        // Iterate through parent nodes until a function node is met to find if the variable is used inside
+        // a transaction block to mark it as a closure
+        BLangNode node = env.node;
+        SymbolEnv cEnv = env;
+        while (node != null && node.getKind() != NodeKind.FUNCTION) {
+            if (node.getKind() == NodeKind.TRANSACTION) {
+                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                        SymTag.VARIABLE);
+                if (resolvedSymbol != symTable.notFoundSymbol) {
+                    resolvedSymbol.closure = true;
+                }
+                break;
+            } else {
+                SymbolEnv enclEnv = cEnv.enclEnv;
+                if (enclEnv == null) {
+                    break;
+                }
+                cEnv = enclEnv;
+                node = cEnv.node;
             }
         }
     }
