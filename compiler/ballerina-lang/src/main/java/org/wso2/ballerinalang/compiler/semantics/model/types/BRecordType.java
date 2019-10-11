@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * {@code BRecordType} represents record type in Ballerina.
