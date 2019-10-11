@@ -55,7 +55,7 @@ public class AppointmentServiceTest {
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] configs = BRunUtil.invoke(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);
-            return (((BInteger) configs[0]).intValue() > 3);
+            return (((BInteger) configs[0]).intValue() > 1);
         });
     }
 

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/log;
 import ballerina/runtime;
 import ballerina/task;
 
@@ -39,6 +40,9 @@ function getCount() returns int {
 
 service appointmentService on appointment {
     resource function onTrigger() {
+        log:printInfo("*********************************");
+        log:printInfo("Count: " + count.toString());
+        log:printInfo("*********************************");
         count = count + 1;
     }
 }

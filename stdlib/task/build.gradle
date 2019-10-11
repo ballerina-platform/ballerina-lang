@@ -33,6 +33,7 @@ configurations {
 dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
@@ -47,6 +48,7 @@ dependencies {
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-file')
+    testCompile project(':ballerina-log-api')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
 }
 
