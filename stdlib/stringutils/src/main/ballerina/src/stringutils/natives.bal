@@ -108,7 +108,7 @@ public function replaceAll(string originalString, string regex, string replaceme
 # + return - the resultant string
 public function replaceFirst(string originalString, string regex, string replacement) returns string {
     handle value = replaceFirstExternal(java:fromString(originalString),
-                                java:fromString(stringToReplace),
+                                java:fromString(regex),
                                 java:fromString(replacement));
     string? updatedString = java:toString(value);
     if (updatedString is string) {
