@@ -50,7 +50,7 @@ public type Scheduler object {
     # + attachedService - ballerina `service` object which needs to be detached from the task.
     # + return - Returns `task:SchedulerError` if the process failed due to any reason, nil otherwise.
     public function detach(service attachedService) returns SchedulerError? {
-        var result = self.taskListener.detachService(attachedService);
+        var result = self.taskListener.detach(attachedService);
         if (result is ListenerError) {
             string message = "Scheduler failed to detach the service";
             SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);

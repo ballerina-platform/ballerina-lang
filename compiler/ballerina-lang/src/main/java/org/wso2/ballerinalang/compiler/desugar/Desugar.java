@@ -2769,16 +2769,20 @@ public class Desugar extends BLangNodeVisitor {
         // Desugar transaction code, on retry and on abort code to separate functions.
         BLangLambdaFunction trxMainFunc = createLambdaFunction(pos, "$anonTrxMainFunc$",
                                                                Collections.emptyList(),
-                                                               trxReturnNode, transactionNode.transactionBody);
+                                                               trxReturnNode,
+                                                               rewrite(transactionNode.transactionBody, env));
         BLangLambdaFunction trxOnRetryFunc = createLambdaFunction(pos, "$anonTrxOnRetryFunc$",
                                                                   Collections.emptyList(),
-                                                                  otherReturnNode, transactionNode.onRetryBody);
+                                                                  otherReturnNode,
+                                                                  rewrite(transactionNode.onRetryBody, env));
         BLangLambdaFunction trxCommittedFunc = createLambdaFunction(pos, "$anonTrxCommittedFunc$",
                                                                     Collections.emptyList(),
-                                                                    otherReturnNode, transactionNode.committedBody);
+                                                                    otherReturnNode,
+                                                                    rewrite(transactionNode.committedBody, env));
         BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$",
                                                                   Collections.emptyList(),
-                                                                  otherReturnNode, transactionNode.abortedBody);
+                                                                  otherReturnNode,
+                                                                  rewrite(transactionNode.abortedBody, env));
         trxMainFunc.cachedEnv = env.createClone();
         trxOnRetryFunc.cachedEnv = env.createClone();
         trxCommittedFunc.cachedEnv = env.createClone();

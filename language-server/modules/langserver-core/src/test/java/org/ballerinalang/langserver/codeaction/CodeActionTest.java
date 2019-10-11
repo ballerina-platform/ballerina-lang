@@ -265,6 +265,8 @@ public class CodeActionTest {
                 {"singleDocGeneration2.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration3.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration4.json", "singleDocGeneration.bal"},
+                {"singleDocGeneration5.json", "singleDocGeneration.bal"},
+                {"singleDocGeneration6.json", "singleDocGeneration.bal"},
         };
     }
 

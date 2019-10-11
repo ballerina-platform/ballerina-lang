@@ -71,7 +71,7 @@ public class LValueTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 9);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 13);
-        validateError(negativeResult, i++, "undefined field 'y' in object 'A'", 27, 5);
+        validateError(negativeResult, i++, "undefined field 'y' in object 'A'", 27, 6);
         validateError(negativeResult, i++, "invalid operation: type 'A' does not support indexing", 28, 5);
         validateError(negativeResult, i++, "optional field access cannot be used in the target expression of an " +
                 "assignment", 38, 5);

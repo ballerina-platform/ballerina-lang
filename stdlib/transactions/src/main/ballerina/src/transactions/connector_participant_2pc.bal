@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-public type Participant2pcClientConfig record {
+type Participant2pcClientConfig record {
     string participantURL = "";
     int timeoutInMillis = 0;
     record {
@@ -25,12 +25,12 @@ public type Participant2pcClientConfig record {
     } retryConfig = {};
 };
 
-public type Participant2pcClientEP client object {
+type Participant2pcClientEP client object {
 
     http:Client httpClient;
     Participant2pcClientConfig conf = {};
 
-    public function __init(Participant2pcClientConfig c) {
+    function __init(Participant2pcClientConfig c) {
         http:Client httpEP = new(c.participantURL, {
             timeoutInMillis: c.timeoutInMillis,
             retryConfig:{
@@ -41,7 +41,7 @@ public type Participant2pcClientEP client object {
         self.conf = c;
     }
 
-    public remote function prepare(string transactionId) returns string|error {
+    remote function prepare(string transactionId) returns string|error {
         http:Client httpClient = self.httpClient;
         http:Request req = new;
         PrepareRequest prepareReq = {transactionId:transactionId};
@@ -64,7 +64,7 @@ public type Participant2pcClientEP client object {
         }
     }
 
-    public remote function notify(string transactionId, string message) returns string|error {
+    remote function notify(string transactionId, string message) returns string|error {
         http:Client httpClient = self.httpClient;
         http:Request req = new;
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
