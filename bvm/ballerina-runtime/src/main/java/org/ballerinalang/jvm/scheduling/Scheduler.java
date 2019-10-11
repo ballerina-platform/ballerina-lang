@@ -76,10 +76,10 @@ public class Scheduler {
         try {
             String poolSizeConf = System.getenv(BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
             poolSize = poolSizeConf == null ?
-                    Runtime.getRuntime().availableProcessors() * 2 : Integer.parseInt(poolSizeConf);
+                    100 : Integer.parseInt(poolSizeConf);
         } catch (Throwable t) {
             // Log and continue with default
-            poolSize = Runtime.getRuntime().availableProcessors() * 2;
+            poolSize = 100;
             err.println("ballerina: error occurred in scheduler while reading system variable:" +
                     BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
