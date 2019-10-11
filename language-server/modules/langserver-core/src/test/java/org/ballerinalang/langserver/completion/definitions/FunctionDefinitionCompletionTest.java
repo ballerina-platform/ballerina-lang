@@ -123,6 +123,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"chainCompletion4.json", "function"},
                 {"chainCompletion5.json", "function"},
                 {"chainCompletion6.json", "function"},
+                {"chainCompletion7.json", "function"},
                 {"externalKeywordSuggestion1.json", "function"},
                 {"externalKeywordSuggestion2.json", "function"},
 //                {"ifWhileConditionContextCompletion1.json", "function"}, //TODO: Fix this
