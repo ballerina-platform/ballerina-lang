@@ -440,8 +440,15 @@ public class PackageLoader {
         }
 
         PackageEntity pkgEntity = loadPackageEntity(packageId, enclPackageId, encPkgRepoHierarchy);
+
         if (pkgEntity == null) {
             return null;
+        }
+
+        // lookup symbol cache again as the updated pkg from repo resolving can reside in the cache
+        packageSymbol = this.packageCache.getSymbol(pkgEntity.getPackageId());
+        if (packageSymbol != null) {
+            return packageSymbol;
         }
 
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
