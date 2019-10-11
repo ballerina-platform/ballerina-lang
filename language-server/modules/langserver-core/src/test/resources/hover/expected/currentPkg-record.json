@@ -2,7 +2,7 @@
     "result": {
         "contents": {
             "kind": "markdown",
-            "value": "**Description**  \n  \nStruct for represent person\u0027s details  \n  \n**Field**  \n- `string` name: string value name of the person  \n- `int` id: int value id of the person  \n- `int` age: int value age of the person  \n  \n"
+            "value": "**Description**  \n  \nStruct for represent person\u0027s details  \n  \n**Field**  \n- `string` **name**: string value name of the person  \n- `int` **id**: int value id of the person  \n- `int` **age**: int value age of the person  \n  \n"
         }
     },
     "id": {

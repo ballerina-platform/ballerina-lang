@@ -35,7 +35,7 @@ public class DataflowAnalysisTest {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-semantics-negative" +
                 ".bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "undefined field 'f' in object 'Foo'", 312, 9);
+        BAssertUtil.validateError(result, i++, "undefined field 'f' in object 'Foo'", 312, 13);
         BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 552, 12);
         Assert.assertEquals(result.getErrorCount(), i);
     }

@@ -61,6 +61,13 @@ public class OpenRecordNegativeTest {
         assertEquals(result.getErrorCount(), indx);
     }
 
+    @Test(description = "Test invalid record assignment error message")
+    public void invalidRecordAssignment() {
+        CompileResult result = BCompileUtil.compile("test-src/record/record-assignment-negative.bal");
+        validateError(result, 0, "incompatible types: expected 'record {| int i; record {| string name;" +
+                " anydata...; |} j; anydata...; |}', found 'int'", 4, 9);
+    }
+
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_rest_desc.bal");

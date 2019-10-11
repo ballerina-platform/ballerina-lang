@@ -1901,7 +1901,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
                     || kind == NodeKind.RECORD_DESTRUCTURE || kind == NodeKind.ERROR_DESTRUCTURE
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE
-                    || kind == NodeKind.MATCH || kind == NodeKind.FOREACH) {
+                    || kind == NodeKind.RECORD_VARIABLE || kind == NodeKind.TUPLE_VARIABLE
+                    || kind == NodeKind.ERROR_VARIABLE || kind == NodeKind.MATCH
+                    || kind == NodeKind.FOREACH) {
                 return;
             } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR
                     || kind == NodeKind.WORKER_RECEIVE || kind == NodeKind.WORKER_FLUSH
