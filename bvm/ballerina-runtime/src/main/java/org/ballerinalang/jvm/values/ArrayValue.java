@@ -891,7 +891,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         JSONGenerator gen = new JSONGenerator(byteOut);
         try {
-             gen.serialize(this);
+            gen.serialize(this);
             gen.flush();
         } catch (IOException e) {
             throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
