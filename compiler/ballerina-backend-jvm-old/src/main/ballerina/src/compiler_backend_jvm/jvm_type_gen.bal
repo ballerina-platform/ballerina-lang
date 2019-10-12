@@ -372,9 +372,13 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:
     // Load 'sealed' flag
     mv.visitLdcInsn(recordType.sealed);
 
+    // Load type flags
+    mv.visitLdcInsn(recordType.typeFlags);
+    mv.visitInsn(L2I);
+
     // initialize the record type
-    mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>", 
-            io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, PACKAGE_TYPE),
+    mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>",
+            io:sprintf("(L%s;L%s;IZI)V", STRING_VALUE, PACKAGE_TYPE),
             false);
 
     return;
@@ -977,8 +981,12 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
         i += 1;
     }
 
+    // Load type flags
+    mv.visitLdcInsn(bType.typeFlags);
+    mv.visitInsn(L2I);
+
     // initialize the union type using the members array
-    mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", io:sprintf("([L%s;)V", BTYPE), false);
+    mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", io:sprintf("([L%s;I)V", BTYPE), false);
     return;
 }
 
@@ -1010,7 +1018,11 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
         mv.visitInsn(ACONST_NULL);
     }
 
-    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", LIST, BTYPE), false);
+    // Load type flags
+    mv.visitLdcInsn(bType.typeFlags);
+    mv.visitInsn(L2I);
+
+    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;L%s;I)V", LIST, BTYPE), false);
     return;
 }
 
@@ -1180,8 +1192,12 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
         mv.visitInsn(POP);
     }
 
+    // Load type flags
+    mv.visitLdcInsn(finiteType.typeFlags);
+    mv.visitInsn(L2I);
+
     // initialize the finite type using the value space
-    mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", STRING_VALUE, SET), false);
+    mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, "<init>", io:sprintf("(L%s;L%s;I)V", STRING_VALUE, SET), false);
 }
 
 function isServiceDefAvailable(bir:TypeDef?[] typeDefs) returns boolean {

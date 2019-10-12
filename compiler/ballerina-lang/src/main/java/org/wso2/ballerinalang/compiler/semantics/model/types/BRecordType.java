@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * {@code BRecordType} represents record type in Ballerina.
@@ -45,6 +46,8 @@ public class BRecordType extends BStructureType implements RecordType {
     public static final String EMPTY = "";
     public boolean sealed;
     public BType restFieldType;
+    private Optional<Boolean> isAnyData = Optional.empty();
+    private boolean resolving = false;
 
     public BRecordType(BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
@@ -89,5 +92,29 @@ public class BRecordType extends BStructureType implements RecordType {
             return sb.toString();
         }
         return this.tsymbol.toString();
+    }
+
+    @Override
+    public final boolean isAnydata() {
+        if (!this.isAnyData.isPresent()) {
+            if (this.resolving) {
+                return true;
+            }
+            this.resolving = true;
+            this.isAnyData = Optional.of(this.findIsAnyData());
+            this.resolving = false;
+        }
+
+        return this.isAnyData.get();
+    }
+
+    private boolean findIsAnyData() {
+        for (BField field : this.fields) {
+            if (!field.type.isPureType()) {
+                return false;
+            }
+        }
+
+        return (this.sealed || this.restFieldType.isPureType());
     }
 }
