@@ -2252,16 +2252,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
-        if (exprType.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) env.enclInvokable.getReturnTypeNode().type;
-            enclInvokableHasErrorReturn = unionType.getMemberTypes().stream()
-                    .anyMatch(memberType -> types.isAssignable(memberType, symTable.errorType));
-        } else if (types.isAssignable(exprType, symTable.errorType)) {
-            enclInvokableHasErrorReturn = true;
-        }
 
-        if (!enclInvokableHasErrorReturn) {
-            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
+            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
         returnTypes.peek().add(exprType);
@@ -2563,6 +2556,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         return false;
+    }
+
+    private BType getErrorTypes(BType bType) {
+        BType errorType = symTable.semanticError;
+
+        int tag = bType.tag;
+        if (tag == TypeTags.ERROR) {
+            errorType = bType;
+        } else if (tag == TypeTags.UNION) {
+            LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
+            Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();
+            for (BType memType : memTypes) {
+                if (memType.tag == TypeTags.ERROR) {
+                    errTypes.add(memType);
+                }
+            }
+
+            errorType = errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
+        }
+
+        return errorType;
     }
 
     /**
