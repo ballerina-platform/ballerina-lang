@@ -16,27 +16,23 @@
 
 package org.ballerinalang.debugadapter.variable;
 
-import com.sun.jdi.ArrayReference;
-import com.sun.jdi.Field;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.VariableUtils;
 import org.ballerinalang.debugadapter.variable.types.BArray;
+import org.ballerinalang.debugadapter.variable.types.BBoolean;
+import org.ballerinalang.debugadapter.variable.types.BDouble;
+import org.ballerinalang.debugadapter.variable.types.BError;
+import org.ballerinalang.debugadapter.variable.types.BLong;
+import org.ballerinalang.debugadapter.variable.types.BMapObject;
+import org.ballerinalang.debugadapter.variable.types.BObjectType;
+import org.ballerinalang.debugadapter.variable.types.BObjectValue;
 import org.ballerinalang.debugadapter.variable.types.BString;
 import org.eclipse.lsp4j.debug.Variable;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Variable factory.
  */
 public class VariableFactory {
-    public VariableImpl getVariable(Value value, String varType, String varName) {
+    public VariableImpl getVariable(Value value, String parentVarType, String varName) {
         VariableImpl variable = new VariableImpl();
         Variable dapVariable = new Variable();
         variable.setDapVariable(dapVariable);
@@ -46,12 +42,12 @@ public class VariableFactory {
             return null;
         }
 
-        if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(varType)) {
+        if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(parentVarType)) {
             variable = new BArray(value, dapVariable);
             return variable;
-        } else if ("java.lang.Object".equalsIgnoreCase(varType)
-                || "org.ballerinalang.jvm.values.MapValue".equalsIgnoreCase(varType)
-                || "org.ballerinalang.jvm.values.MapValueImpl".equalsIgnoreCase(varType) // for nested json arrays
+        } else if ("java.lang.Object".equalsIgnoreCase(parentVarType)
+                || "org.ballerinalang.jvm.values.MapValue".equalsIgnoreCase(parentVarType)
+                || "org.ballerinalang.jvm.values.MapValueImpl".equalsIgnoreCase(parentVarType) // for nested json arrays
         ) {
             // JSONs
             dapVariable.setType("Object");
@@ -63,31 +59,21 @@ public class VariableFactory {
                 // JSON array
                 variable = new BArray(value, dapVariable);
                 return variable;
-            } else if ("java.lang.Long".equalsIgnoreCase(value.type().name())
-                    || "java.lang.Boolean".equalsIgnoreCase(value.type().name())
-                    || "java.lang.Double".equalsIgnoreCase(value.type().name())) {
-                // anydata
-                Field valueField = ((ObjectReferenceImpl) value).referenceType().allFields().stream().filter(
-                        field -> "value".equals(field.name())).collect(Collectors.toList()).get(0);
-                Value longValue = ((ObjectReferenceImpl) value).getValue(valueField);
-                dapVariable.setType(varType.split("\\.")[2]);
-                dapVariable.setValue(longValue.toString());
+            } else if ("java.lang.Long".equalsIgnoreCase(value.type().name())) {
+                variable = new BLong(value, dapVariable);
+                return variable;
+            } else if ("java.lang.Boolean".equalsIgnoreCase(value.type().name())) {
+                variable = new BBoolean(value, dapVariable);
+                return variable;
+            } else if ("java.lang.Double".equalsIgnoreCase(value.type().name())) {
+                variable = new BDouble(value, dapVariable);
                 return variable;
             } else if ("java.lang.String".equalsIgnoreCase(value.type().name())) {
                 // union
                 variable = new BString(value, dapVariable);
                 return variable;
             } else if ("org.ballerinalang.jvm.values.ErrorValue".equalsIgnoreCase(value.type().name())) {
-
-                List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
-
-                Field valueField = fields.stream().filter(field ->
-                        field.name().equals("reason"))
-                        .collect(Collectors.toList()).get(0);
-
-                Value error = ((ObjectReferenceImpl) value).getValue(valueField);
-                dapVariable.setType("BError");
-                dapVariable.setValue(error.toString());
+                variable = new BError(value, dapVariable);
                 return variable;
             } else if ("org.ballerinalang.jvm.values.XMLItem".equalsIgnoreCase(value.type().name())) {
                 // TODO: support xml values
@@ -95,113 +81,32 @@ public class VariableFactory {
                 dapVariable.setValue(value.toString());
                 return variable;
             } else {
-                dapVariable.setType("Object");
-                List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
-
-                Optional<Field> valueField = fields.stream().filter(field ->
-                        field.typeName().equals("java.util.HashMap$Node[]")).findFirst();
-                if (!valueField.isPresent()) {
-                    return variable;
-                }
-                Value jsonValue = ((ObjectReferenceImpl) value).getValue(valueField.get());
-                String stringValue = jsonValue == null ? "null" : "Object";
-                if (jsonValue == null) {
-                    dapVariable.setValue(stringValue);
-                    return variable;
-                }
-                Map<String, Value> values = new HashMap<>();
-                ((ArrayReference) jsonValue).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
-                    List<Field> jsonValueFields = ((ObjectReferenceImpl) jsonMap).referenceType().visibleFields();
-                    Optional<Field> jsonKeyField = jsonValueFields.stream().filter(field ->
-                            field.name().equals("key")).findFirst();
-
-                    Optional<Field> jsonValueField = jsonValueFields.stream().filter(field ->
-                            field.name().equals("value")).findFirst();
-
-                    if (jsonKeyField.isPresent() && jsonValueField.isPresent()) {
-                        Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField.get());
-                        Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField.get());
-                        values.put(jsonKey.toString(), jsonValue1);
-                    }
-                });
-                variable.setChildVariables(values);
-                dapVariable.setValue(stringValue);
+                variable = new BMapObject(value, dapVariable);
                 return variable;
             }
-        } else if ("org.ballerinalang.jvm.values.ObjectValue".equalsIgnoreCase(varType)) {
-            Map<Field, Value> fieldValueMap = ((ObjectReferenceImpl) value)
-                    .getValues(((ObjectReferenceImpl) value).referenceType().allFields());
-            Map<String, Value> values = new HashMap<>();
-            fieldValueMap.forEach((field, value1) -> {
-                // Filter out internal variables
-                if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
-                    values.put(field.name(), value1);
-                }
-            });
-
-            variable.setChildVariables(values);
-            dapVariable.setType("Object");
-            dapVariable.setValue("Object");
+        } else if ("org.ballerinalang.jvm.values.ObjectValue".equalsIgnoreCase(parentVarType)) {
+            variable = new BObjectValue(value, dapVariable);
             return variable;
-        } else if ("java.lang.Long".equalsIgnoreCase(varType) || "java.lang.Boolean".equalsIgnoreCase(varType)
-                || "java.lang.Double".equalsIgnoreCase(varType)) {
-            Field valueField = ((ObjectReferenceImpl) value).referenceType().allFields().stream().filter(
-                    field -> "value".equals(field.name())).collect(Collectors.toList()).get(0);
-            Value longValue = ((ObjectReferenceImpl) value).getValue(valueField);
-            dapVariable.setType(varType.split("\\.")[2]);
-            dapVariable.setValue(longValue.toString());
+        } else if ("java.lang.Long".equalsIgnoreCase(value.type().name())) {
+            variable = new BLong(value, dapVariable);
             return variable;
-        } else if ("java.lang.String".equalsIgnoreCase(varType)) {
+        } else if ("java.lang.Boolean".equalsIgnoreCase(value.type().name())) {
+            variable = new BBoolean(value, dapVariable);
+            return variable;
+        } else if ("java.lang.Double".equalsIgnoreCase(value.type().name())) {
+            variable = new BDouble(value, dapVariable);
+            return variable;
+        } else if ("java.lang.String".equalsIgnoreCase(parentVarType)) {
             variable = new BString(value, dapVariable);
             return variable;
-        } else if (varType.contains("$value$")) {
-            // Record type
-            String stringValue = value.type().name();
-
-            List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
-
-            Optional<Field> valueField = fields.stream().filter(field ->
-                    field.typeName().equals("java.util.HashMap$Node[]")).findFirst();
-
-            if (!valueField.isPresent()) {
-                dapVariable.setValue(stringValue);
-                return variable;
-            }
-            Value jsonValue = ((ObjectReferenceImpl) value).getValue(valueField.get());
-
-            Map<String, Value> values = new HashMap<>();
-            ((ArrayReference) jsonValue).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
-                List<Field> jsonValueFields = ((ObjectReferenceImpl) jsonMap).referenceType().visibleFields();
-
-
-                Optional<Field> jsonKeyField = jsonValueFields.stream().filter(field ->
-                        field.name().equals("key")).findFirst();
-
-
-                Optional<Field> jsonValueField = jsonValueFields.stream().filter(field ->
-                        field.name().equals("value")).findFirst();
-
-                if (jsonKeyField.isPresent() && jsonValueField.isPresent()) {
-                    Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField.get());
-                    Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField.get());
-                    values.put(jsonKey.toString(), jsonValue1);
-                }
-            });
-
-            variable.setChildVariables(values);
-            stringValue = stringValue.replace("$value$", "");
-            dapVariable.setType(stringValue);
-            dapVariable.setValue(stringValue);
+        } else if (parentVarType.contains("$value$")) {
+            variable = new BMapObject(value, dapVariable);
             return variable;
-        } else if ("org.ballerinalang.jvm.types.BObjectType".equalsIgnoreCase(varType)) {
-            Value typeName = ((ObjectReferenceImpl) value)
-                    .getValue(((ObjectReferenceImpl) value).referenceType().fieldByName("typeName"));
-            dapVariable.setType(varType);
-            String stringValue = typeName.toString();
-            dapVariable.setValue(stringValue);
+        } else if ("org.ballerinalang.jvm.types.BObjectType".equalsIgnoreCase(parentVarType)) {
+            variable = new BObjectType(value, dapVariable);
             return variable;
         } else {
-            dapVariable.setType(varType);
+            dapVariable.setType(parentVarType);
             String stringValue = value.toString();
             dapVariable.setValue(stringValue);
             return variable;

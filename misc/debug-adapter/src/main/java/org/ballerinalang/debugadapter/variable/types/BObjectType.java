@@ -23,21 +23,23 @@ import org.eclipse.lsp4j.debug.Variable;
 
 
 /**
- * string type.
+ * object type.
  */
-public class BString extends VariableImpl {
+public class BObjectType extends VariableImpl {
 
     private final ObjectReferenceImpl value;
 
-    public BString(Value value, Variable dapVariable) {
+    public BObjectType(Value value, Variable dapVariable) {
         this.value = (ObjectReferenceImpl) value;
         this.setDapVariable(dapVariable);
-        dapVariable.setType("string");
+        dapVariable.setType("object");
         dapVariable.setValue(this.toString());
     }
 
     @Override
     public String toString() {
-        return value.toString();
+        Value typeName = ((ObjectReferenceImpl) value)
+                .getValue(((ObjectReferenceImpl) value).referenceType().fieldByName("typeName"));
+        return typeName.toString();
     }
 }

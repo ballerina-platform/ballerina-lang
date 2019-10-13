@@ -373,8 +373,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                                 return null;
                             }
 
-                            VariableImpl variable = new VariableFactory().getVariable(localVariableValueEntry.getValue(),
-                                    varType, name);
+                            VariableImpl variable = new VariableFactory()
+                                    .getVariable(localVariableValueEntry.getValue(), varType, name);
                             if (variable != null && variable.getChildVariables() != null) {
                                 long variableReference = (long) nextVarReference.getAndIncrement();
                                 variable.getDapVariable().setVariablesReference(variableReference);

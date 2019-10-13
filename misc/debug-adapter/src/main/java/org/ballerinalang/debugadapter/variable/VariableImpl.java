@@ -21,6 +21,10 @@ import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Map;
 
+
+/**
+ * Variable class for internal use of debug adapter.
+ */
 public class VariableImpl {
     private Map<String, Value> childVariables;
     Variable dapVariable;

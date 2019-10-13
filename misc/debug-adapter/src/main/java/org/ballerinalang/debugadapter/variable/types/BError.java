@@ -16,28 +16,39 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.VariableImpl;
 import org.eclipse.lsp4j.debug.Variable;
 
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * string type.
+ * error type.
  */
-public class BString extends VariableImpl {
+public class BError extends VariableImpl {
 
     private final ObjectReferenceImpl value;
 
-    public BString(Value value, Variable dapVariable) {
+    public BError(Value value, Variable dapVariable) {
         this.value = (ObjectReferenceImpl) value;
         this.setDapVariable(dapVariable);
-        dapVariable.setType("string");
+        dapVariable.setType("error");
         dapVariable.setValue(this.toString());
     }
 
     @Override
     public String toString() {
-        return value.toString();
+        List<Field> fields = value.referenceType().allFields();
+
+        Field valueField = fields.stream().filter(field ->
+                field.name().equals("reason"))
+                .collect(Collectors.toList()).get(0);
+
+        Value error = value.getValue(valueField);
+
+        return error.toString();
     }
 }

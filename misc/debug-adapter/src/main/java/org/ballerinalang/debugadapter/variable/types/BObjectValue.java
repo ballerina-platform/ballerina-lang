@@ -16,28 +16,40 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.VariableImpl;
 import org.eclipse.lsp4j.debug.Variable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
- * string type.
+ * object value type.
  */
-public class BString extends VariableImpl {
+public class BObjectValue extends VariableImpl {
 
-    private final ObjectReferenceImpl value;
-
-    public BString(Value value, Variable dapVariable) {
-        this.value = (ObjectReferenceImpl) value;
+    public BObjectValue(Value value, Variable dapVariable) {
         this.setDapVariable(dapVariable);
-        dapVariable.setType("string");
+        Map<Field, Value> fieldValueMap = ((ObjectReferenceImpl) value)
+                .getValues(((ObjectReferenceImpl) value).referenceType().allFields());
+        Map<String, Value> values = new HashMap<>();
+        fieldValueMap.forEach((field, value1) -> {
+            // Filter out internal variables
+            if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
+                values.put(field.name(), value1);
+            }
+        });
+
+        this.setChildVariables(values);
+        dapVariable.setType("object");
         dapVariable.setValue(this.toString());
     }
 
     @Override
     public String toString() {
-        return value.toString();
+        return "object";
     }
 }
