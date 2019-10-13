@@ -49,7 +49,7 @@ public class CheckedExprNegativeTest {
                 "test-src/expressions/checkedexpr/checked_expr_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 1, compile.toString());
         BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
-                "operator: no error type return in enclosing invokable", 11, 19);
+                "operator: no matching error return type(s) in the enclosing invokable", 11, 19);
     }
 
     @Test
@@ -58,6 +58,6 @@ public class CheckedExprNegativeTest {
                 "test-src/expressions/checkedexpr/checked_expr_within_resource_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
         BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
-                "operator: no error type return in enclosing invokable", 28, 22);
+                "operator: no matching error return type(s) in the enclosing invokable", 28, 22);
     }
 }

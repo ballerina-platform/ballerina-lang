@@ -200,12 +200,6 @@ public class CheckedExpressionOperatorTest {
                 "Invalid error message value returned.");
     }
 
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: io error.*")
-    public void testCheckExprInBinaryExpr7() {
-        BRunUtil.invoke(result, "testCheckExprInBinaryExpr7", new BValue[]{});
-    }
-
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr8() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr8", new BValue[]{});
