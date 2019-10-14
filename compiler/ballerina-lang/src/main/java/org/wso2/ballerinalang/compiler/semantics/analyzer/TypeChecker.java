@@ -4597,38 +4597,6 @@ public class TypeChecker extends BLangNodeVisitor {
         return matchExprTypes;
     }
 
-    private BSymbol getSymbolForBuiltinMethodWithDynamicRetType(BLangInvocation iExpr, BLangBuiltInMethod function) {
-        switch (function) {
-            case CLONE:
-            case FREEZE:
-                return getSymbolForAnydataReturningBuiltinMethods(iExpr);
-            case IS_FROZEN:
-                return getSymbolForIsFrozenBuiltinMethod(iExpr);
-            case STAMP:
-                List<BLangExpression> functionArgList = iExpr.argExprs;
-                // Resolve the type of the variables passed as arguments to stamp in-built function.
-                for (BLangExpression expression : functionArgList) {
-                    checkExpr(expression, env, symTable.noType);
-                }
-                return symResolver.createSymbolForStampOperator(iExpr.pos, new Name(function.getName()),
-                        functionArgList, iExpr.expr);
-            case CONVERT:
-                functionArgList = iExpr.argExprs;
-                // Resolve the type of the variables passed as arguments to convert in-built function.
-                for (BLangExpression expression : functionArgList) {
-                    checkExpr(expression, env, symTable.noType);
-                }
-                return symResolver.createSymbolForConvertOperator(iExpr.pos, new Name(function.getName()),
-                                                                  functionArgList, iExpr.expr);
-            case CALL:
-                return getFunctionPointerCallSymbol(iExpr);
-            case DETAIL:
-                return symResolver.createSymbolForDetailBuiltInMethod(iExpr.name, iExpr.expr.type);
-            default:
-                return symTable.notFoundSymbol;
-        }
-    }
-
     private BSymbol getFunctionPointerCallSymbol(BLangInvocation iExpr) {
         if (iExpr.expr == null) {
             // shouldn't reach here
