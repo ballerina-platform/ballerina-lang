@@ -33,27 +33,49 @@ public type Listener object {
     private ListenerConfiguration config = {};
     private string instanceId;
 
+    # Starts the registered service programmetically.
+    #
+    # + return - An `error` if there is any error occurred during the listener start process
     public function __start() returns error? {
         return self.start();
     }
 
+    # Stops the service listener gracefully. Already accepted requests will be served before connection closure
+    #
+    # + return - An `error` if there is any error occurred during the listener stop process
     public function __gracefulStop() returns error? {
         return self.gracefulStop();
     }
 
+    # Stops the service listener immediatedly. It is not implemeted yet.
+    #
+    # + return - An `error` if there is any error occurred during the listener stop process
     public function __immediateStop() returns error? {
         error err = error("not implemented");
         return err;
     }
 
+    # Attach a service to the listener.
+    #
+    # + s - The service that needs to be attached
+    # + name - Name of the service
+    # + return - An `error` if there is any error occurred during the service attachment process or else nil
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
     }
 
+    # Disengage an attached service from the listener.
+    #
+    # + s - The service that needs to be detached
+    # + return - An `error` if there is any error occurred during the service detachment process or else nil
     public function __detach(service s) returns error? {
         return self.detach(s);
     }
 
+    # Gets invoked during module initialization to initialize the listener.
+    #
+    # + port - listening port of the HTTP service listener
+    # + c - Configurations for HTTP service listener
     public function __init(int port, public ListenerConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
