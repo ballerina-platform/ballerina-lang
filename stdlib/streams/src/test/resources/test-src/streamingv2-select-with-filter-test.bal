@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/time;
-import ballerina/io;
 
 type Teacher record {
     string name;
@@ -31,10 +29,11 @@ type TeacherOutput record{
     int age;
 };
 
+int index = 0;
 stream<Teacher> inputStream = new;
 stream<TeacherOutput> outputStream = new;
 TeacherOutput[] globalEmployeeArray = [];
-int startTime = 0;
+
 function startSelectQuery() returns (TeacherOutput[]) {
 
     Teacher[] teachers = [];
@@ -47,26 +46,18 @@ function startSelectQuery() returns (TeacherOutput[]) {
 
     testSelectQuery();
 
-    startTime = time:currentTime().time;
     outputStream.subscribe(printTeachers);
-
-    worker x {
-        int i = 0;
-        while (i < 3000000) {
-		    inputStream.publish(teachers[i % 3]);
-		    i += 1;
-		}
-	}
+    foreach var t in teachers {
+        inputStream.publish(t);
+    }
 
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        if(globalEmployeeArray.length() > 2999000) {
+        count += 1;
+        if((globalEmployeeArray.length()) == 2 || count == 10) {
             break;
         }
-        //int endTime = time:currentTime().time;
-        //io:println("published: ",globalEmployeeArray.length(), " time taken (s): ", (endTime - startTime)/1000,
-        //" TPS(/s): "  , globalEmployeeArray.length() * 1000/(endTime - startTime));
     }
 
     return globalEmployeeArray;
@@ -75,10 +66,10 @@ function startSelectQuery() returns (TeacherOutput[]) {
 function testSelectQuery() {
 
     forever {
-        from inputStream
+        from inputStream where inputStream.age > 25
         select inputStream.name as TeacherName, inputStream.age
         => (TeacherOutput[] emp) {
-            foreach TeacherOutput e in emp {
+            foreach var e in emp {
                 outputStream.publish(e);
             }
         }
@@ -90,10 +81,6 @@ function printTeachers(TeacherOutput e) {
 }
 
 function addToGlobalEmployeeArray(TeacherOutput e) {
-    globalEmployeeArray[globalEmployeeArray.length()] = e;
-    if (globalEmployeeArray.length() % 1000 == 0) {
-		int endTime = time:currentTime().time;
-                    io:println("published: ",globalEmployeeArray.length(), " time taken (s): ", (endTime - startTime)/1000,
-                    " TPS(/s): "  , globalEmployeeArray.length() * 1000/(endTime - startTime));
-	}
+    globalEmployeeArray[index] = e;
+    index = index + 1;
 }
