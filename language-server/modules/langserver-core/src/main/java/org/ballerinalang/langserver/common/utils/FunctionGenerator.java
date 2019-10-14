@@ -287,7 +287,8 @@ public class FunctionGenerator {
                     argNames.add(argName);
                 }
                 if (restParam != null && (restParam.type instanceof BArrayType)) {
-                    list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
+                    list.add(CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false) + "... "
+                            + restParam.getName().getValue());
                 }
             }
         } else {
@@ -300,7 +301,8 @@ public class FunctionGenerator {
                 list.add(CommonUtil.getBTypeName(param.type, ctx, true) + " " + param.getName());
             }
             if (restParam != null && (restParam.type instanceof BArrayType)) {
-                list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
+                list.add(CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false) + "... "
+                        + restParam.getName().getValue());
             }
         }
         return (!list.isEmpty()) ? list : new ArrayList<>();

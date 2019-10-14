@@ -755,20 +755,24 @@ public class BIRPackageSymbolEnter {
         public BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = names.fromString(getStringCPEntryValue(inputStream));
-            int typeFlag = inputStream.readInt();
+            int flags = inputStream.readInt();
+
+            // read and ignore type flags. These are only needed for runtime.
+            inputStream.readInt();
+
             switch (tag) {
                 case TypeTags.INT:
-                    return typeParamAnalyzer.getNominalType(symTable.intType, name, typeFlag);
+                    return typeParamAnalyzer.getNominalType(symTable.intType, name, flags);
                 case TypeTags.BYTE:
-                    return typeParamAnalyzer.getNominalType(symTable.byteType, name, typeFlag);
+                    return typeParamAnalyzer.getNominalType(symTable.byteType, name, flags);
                 case TypeTags.FLOAT:
-                    return typeParamAnalyzer.getNominalType(symTable.floatType, name, typeFlag);
+                    return typeParamAnalyzer.getNominalType(symTable.floatType, name, flags);
                 case TypeTags.DECIMAL:
-                    return typeParamAnalyzer.getNominalType(symTable.decimalType, name, typeFlag);
+                    return typeParamAnalyzer.getNominalType(symTable.decimalType, name, flags);
                 case TypeTags.STRING:
-                    return typeParamAnalyzer.getNominalType(symTable.stringType, name, typeFlag);
+                    return typeParamAnalyzer.getNominalType(symTable.stringType, name, flags);
                 case TypeTags.BOOLEAN:
-                    return typeParamAnalyzer.getNominalType(symTable.booleanType, name, typeFlag);
+                    return typeParamAnalyzer.getNominalType(symTable.booleanType, name, flags);
                 // All the above types are values type
                 case TypeTags.JSON:
                     return symTable.jsonType;
@@ -781,7 +785,7 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.NIL:
                     return symTable.nilType;
                 case TypeTags.ANYDATA:
-                    return typeParamAnalyzer.getNominalType(symTable.anydataType, name, typeFlag);
+                    return typeParamAnalyzer.getNominalType(symTable.anydataType, name, flags);
                 case TypeTags.RECORD:
                     int pkgCpIndex = inputStream.readInt();
                     PackageID pkgId = getPackageId(pkgCpIndex);
@@ -876,7 +880,7 @@ public class BIRPackageSymbolEnter {
                     return bInvokableType;
                 // All the above types are branded types
                 case TypeTags.ANY:
-                    return typeParamAnalyzer.getNominalType(symTable.anyType, name, typeFlag);
+                    return typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
                 case TypeTags.HANDLE:
                     return symTable.handleType;
                 case TypeTags.ENDPOINT:
@@ -936,7 +940,7 @@ public class BIRPackageSymbolEnter {
                     Object poppedErrorType = compositeStack.pop();
                     assert poppedErrorType == errorType;
                     if (!env.pkgSymbol.pkgID.equals(PackageID.ANNOTATIONS)
-                            && Symbols.isFlagOn(typeFlag, Flags.NATIVE)) {
+                            && Symbols.isFlagOn(flags, Flags.NATIVE)) {
                         // This is a workaround to avoid, getting no type for error detail field.
                         return symTable.errorType;
                     }
@@ -964,8 +968,8 @@ public class BIRPackageSymbolEnter {
                     break;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
-                    int flags = inputStream.readInt();
-                    BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, flags,
+                    int finiteTypeFlags = inputStream.readInt();
+                    BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteTypeFlags,
                             names.fromString(finiteTypeName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
                     symbol.scope = new Scope(symbol);
                     BFiniteType finiteType = new BFiniteType(symbol);

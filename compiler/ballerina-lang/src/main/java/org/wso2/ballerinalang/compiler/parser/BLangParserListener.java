@@ -1859,8 +1859,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, actualText, node.getText());
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
-        String invocation = ctx.invocation().anyIdentifierName().getText();
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+        BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
+        String invocation = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
+                getCurrentPos(identifierContext));
     }
 
     @Override
@@ -1934,8 +1936,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
-        String invocation = ctx.invocation().anyIdentifierName().getText();
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+        BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
+        String invocation = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
+                getCurrentPos(identifierContext));
     }
 
     @Override
@@ -1945,8 +1949,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
-        String invocation = ctx.invocation().anyIdentifierName().getText();
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+        BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
+        String invocation = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
+                getCurrentPos(identifierContext));
     }
 
     /**

@@ -18,7 +18,7 @@
         "arguments": [
           {
             "argumentK": "node.type",
-            "argumentV": "function"
+            "argumentV": "FUNCTION"
           },
           {
             "argumentK": "node.line",

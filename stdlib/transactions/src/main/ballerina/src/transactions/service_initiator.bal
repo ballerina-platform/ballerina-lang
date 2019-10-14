@@ -80,16 +80,19 @@ service InitiatorService on coordinatorListener {
         if (initiatedTxn is ()) {
             respondToBadRequest(conn, "Transaction-Unknown. Invalid TID:" + txnId);
         } else {
-            if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
-                respondToBadRequest(conn, "Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
-            } else if (!protocolCompatible(initiatedTxn.coordinationType,
-                toProtocolArray(regReq.participantProtocols))) { // Invalid-Protocol
+            if (!protocolCompatible(initiatedTxn.coordinationType, toProtocolArray(regReq.participantProtocols))) {
+                // Invalid-Protocol
                 respondToBadRequest(conn, "Invalid-Protocol in remote participant. TID:" + txnId + ",participant ID:" +
                 participantId);
             } else {
                 RemoteProtocol[] participantProtocols = regReq.participantProtocols;
-                RemoteParticipant participant = new(participantId, initiatedTxn.transactionId, participantProtocols);
-                initiatedTxn.participants[participantId] = participant;
+                if (isRegisteredParticipant(participantId, initiatedTxn.participants)) {
+                    log:printDebug("Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
+                } else {
+                    RemoteParticipant participant = new(participantId, initiatedTxn.transactionId,
+                                                        participantProtocols);
+                    initiatedTxn.participants[participantId] = participant;
+                }
                 RemoteProtocol[] coordinatorProtocols = [];
                 int i = 0;
                 foreach var participantProtocol in participantProtocols {

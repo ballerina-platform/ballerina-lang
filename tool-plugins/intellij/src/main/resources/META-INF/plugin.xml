@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -15,7 +15,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li> Added minor fixes and improvements for ballerina debugger client. </li>
+        <li> Added diagnostics related plugin performance fix. </li>
+        <li> Fixed line-based code actions. </li>
       </ul>
     ]]>
     </change-notes>

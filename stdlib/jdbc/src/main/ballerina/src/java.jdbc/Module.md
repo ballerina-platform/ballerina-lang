@@ -126,8 +126,8 @@ The CREATE statement is executed via the `update` remote function of the client.
 
 ```ballerina
 // Create the ‘Students’ table with fields ‘id’, 'name' and ‘age’.
-var returned = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, age INT, 
-                               name VARCHAR(255), PRIMARY KEY (id))");
+var returned = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, age INT, " +
+                               "name VARCHAR(255), PRIMARY KEY (id))");
 if (returned is jdbc:UpdateResult) {
     io:println("Students table create status in DB: ", returned.updatedRowCount);
 } else {
