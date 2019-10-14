@@ -2,7 +2,7 @@
     "result": {
         "contents": {
             "kind": "markdown",
-            "value": "**Description**  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n  \n**Params**  \n- values: The value(s) to be printed.  \n  \n"
+            "value": "**Description**  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n  \n**Params**  \n- **values**: The value(s) to be printed.  \n  \n"
         }
     },
     "id": {

@@ -529,9 +529,10 @@ function getName(any node) returns string {
 
 // --------------------- Sorting ---------------------------
 
-type NamedNode record {
+type NamedNode record {|
     bir:Name name = {};
-};
+    any...;
+|};
 
 type NodeSorter object {
 

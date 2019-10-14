@@ -173,14 +173,30 @@ public class WorkerSyncSendTest {
         Assert.assertEquals(((BMap) returns[0]).get("k"), new BInteger(10));
     }
 
-    @Test()
+    @Test
+    public void multipleSendsToErroredWorker() {
+        BValue[] returns = BRunUtil.invoke(result, "multipleSendsToErroredChannel");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
+        Assert.assertEquals(returns[0].stringValue(), "error one {}");
+    }
+
+    @Test
+    public void testSyncSendAfterSend() {
+        BValue[] returns = BRunUtil.invoke(result, "testSyncSendAfterSend");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
+        Assert.assertEquals(returns[0].stringValue(), "w2 error {}");
+    }
+
+    @Test
     public void testNoFailureForReceiveWithError() {
         BValue[] returns = BRunUtil.invoke(result, "testNoFailureForReceiveWithError");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test()
+    @Test
     public void testFailureForReceiveWithError() {
         BValue[] returns = BRunUtil.invoke(result, "testFailureForReceiveWithError");
         Assert.assertEquals(returns.length, 1);

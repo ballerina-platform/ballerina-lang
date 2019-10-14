@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.util.Flags;
 
 import java.util.Arrays;
@@ -55,7 +56,7 @@ public class BTypes {
     // public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
     public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null, null), 0);
     public static BRecordType typeErrorDetail = new BRecordType(TypeConstants.DETAIL_TYPE, new BPackage(null, null,
-            null), 0, false);
+            null), 0, false, TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
     public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null,
             null, null), typeString, typeErrorDetail);
     public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
@@ -72,16 +73,29 @@ public class BTypes {
         BType[] restFieldType = new BType[2];
         restFieldType[0] = BTypes.typeAnydata;
         restFieldType[1] = BTypes.typeError;
-        typeErrorDetail.restFieldType = new BUnionType(restFieldType);
+        typeErrorDetail.restFieldType = new BUnionType(Arrays.asList(restFieldType));
     }
     
     private BTypes() {
     }
 
     public static boolean isValueType(BType type) {
-        return type == BTypes.typeInt || type == BTypes.typeByte || type == BTypes.typeFloat ||
-                type == BTypes.typeDecimal || type == BTypes.typeString || type == BTypes.typeBoolean;
+        if (type == BTypes.typeInt || type == BTypes.typeByte || type == BTypes.typeFloat ||
+                type == BTypes.typeDecimal || type == BTypes.typeString || type == BTypes.typeBoolean) {
+            return true;
+        }
 
+
+        if (type != null && type.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            // All the types in value space should be value types.
+            for (Object value : ((BFiniteType) type).valueSpace) {
+                if (!isValueType(TypeChecker.getType(value))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     public static BType getTypeFromName(String typeName) {

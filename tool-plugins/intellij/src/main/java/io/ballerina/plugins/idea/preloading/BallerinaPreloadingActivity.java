@@ -27,7 +27,6 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.remoteServer.util.CloudNotifier;
 import com.intellij.util.messages.MessageBusConnection;
 import io.ballerina.plugins.idea.extensions.BallerinaLSPExtensionManager;
-import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
@@ -37,14 +36,12 @@ import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
 import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandServerDefinition;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINAX_SOURCE_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
 import static io.ballerina.plugins.idea.preloading.OSUtils.getOperatingSystem;
 
@@ -72,7 +69,6 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             @Override
             public void projectOpened(@Nullable final Project project) {
                 registerServerDefinition(project);
-                updateBallerinaPathModificationTracker(project, ProjectStatus.OPENED);
             }
         });
 
@@ -80,7 +76,6 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
             if (openProjects.length <= 1) {
                 stopProcesses();
-                updateBallerinaPathModificationTracker(project, ProjectStatus.CLOSED);
             }
             return true;
         });
@@ -93,7 +88,6 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
         for (Project project : openProjects) {
             registerServerDefinition(project);
-            updateBallerinaPathModificationTracker(project, ProjectStatus.OPENED);
         }
     }
 
@@ -191,23 +185,5 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         } catch (Exception e) {
             LOG.error("Error occurred when trying to terminate ballerina processes", e);
         }
-    }
-
-    private static void updateBallerinaPathModificationTracker(Project project, ProjectStatus status) {
-        String balSdkPath = BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath();
-        if (balSdkPath != null) {
-            Path balxPath = Paths.get(balSdkPath, BALLERINAX_SOURCE_PATH);
-            if (balxPath.toFile().isDirectory()) {
-                if (status == ProjectStatus.OPENED) {
-                    BallerinaPathModificationTracker.addPath(balxPath.toString());
-                } else if (status == ProjectStatus.CLOSED) {
-                    BallerinaPathModificationTracker.removePath(balxPath.toString());
-                }
-            }
-        }
-    }
-
-    private enum ProjectStatus {
-        OPENED, CLOSED
     }
 }
