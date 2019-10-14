@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntax-highlighter;
-
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
-
+package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
 /**
- * An extension interface for Language server to fetch information about ballerina syntax hightlighter.
+ * Represents a response for Ballerina Syntax Highlighter.
  *
  * @since 0.981.2
  */
-@JsonSegment("ballerinaSyntaxHighlighter")
-public interface BallerinaSyntaxHighlightService {
 
-    @JsonRequest
-    
+public class BallerinaSynResponse {
+    private String params;
+
+    public String getParams() {
+        return params;
+    }
+
+    public void setParams(String params) {
+        this.params = params;
+    }
+
 }

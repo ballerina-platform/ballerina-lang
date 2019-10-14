@@ -17,27 +17,45 @@
  *
  */
 import { BallerinaExtension } from '../core';
-import { commands, ExtensionContext, Uri } from 'vscode';
-import { ExtendedLangClient } from '../core';
-//import * as vscode from 'vscode';
+import { commands, ExtensionContext } from 'vscode';
+import { Base64 } from 'js-base64';
+import { Range, DocumentHighlightKind, DocumentHighlight, languages, TextDocument, Position, CancellationToken } from 'vscode';
+import { HighlightToken } from './highlight-token';
+
+function decodeBase64(encodedText: string): HighlightToken[] {
+    const tokenArray: HighlightToken[] = [];
+    let decodedText = Base64.atob(encodedText);
+    let decodedArray: number[] = JSON.parse(decodedText);
+
+    for (let index = 0; index < decodedArray.length; index = index + 3) {
+        let range: Range = new Range(0, decodedArray[index], 0, decodedArray[index] + decodedArray[index + 1]);
+        let scope = decodedArray[index + 2];
+        tokenArray.push({ scope, range });
+    }
+    return tokenArray;
+}
+
+function highlightSyntax(highlightTokenArray: HighlightToken[]) {
+    let highlights: DocumentHighlight[] = [];
+
+    for (let index = 0; index < highlightTokenArray.length; index++) {
+        highlights.push(new DocumentHighlight(new Range(highlightTokenArray[index].range.start, highlightTokenArray[index].range.end), DocumentHighlightKind.Text));
+    }
+
+    languages.registerDocumentHighlightProvider('ballerina', {
+        provideDocumentHighlights(document: TextDocument, position: Position, token: CancellationToken) {
+            return highlights;
+        }
+    });
+}
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 
-    const context = <ExtensionContext> ballerinaExtInstance.context;
+    const context = <ExtensionContext>ballerinaExtInstance.context;
 
     let disposable = commands.registerCommand('ballerina.highlightSyntax', () => {
-        const langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
-        const docUri = Uri.file("/home/tharushi/ballerina-lang/tool-plugins/vscode/abc.bal");
-        console.log(docUri);
-        
-        langClient.getAST(docUri)
-					.then((resp) => {
-						if (resp.ast) {
-							console.log("Printing AST-");
-                            console.log(resp.ast);
-                        }
-                    });
-	});
-	context.subscriptions.push(disposable);
+        highlightSyntax(decodeBase64("WzAsIDMsIDAsIDUsMiwgMCwgMTAsIDUsIDBd"));
+    });
+    context.subscriptions.push(disposable);
 
 }

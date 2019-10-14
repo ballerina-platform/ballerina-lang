@@ -37,6 +37,8 @@ import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjec
 import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjectServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightService;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
@@ -76,6 +78,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     private Listener ballerinaTraceListener;
     private BallerinaSymbolService ballerinaSymbolService;
     private BallerinaFragmentService ballerinaFragmentService;
+    private BallerinaSyntaxHighlightService ballerinaSyntaxHighlightService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -100,6 +103,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
         this.ballerinaFragmentService = new BallerinaFragmentServiceImpl(lsGlobalContext);
+        this.ballerinaSyntaxHighlightService = new BallerinaSyntaxHighlightServiceImpl();
 
         LSAnnotationCache.initiate();
         LSCodeLensesProviderFactory.getInstance().initiate();
@@ -195,6 +199,9 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     public BallerinaTraceService getBallerinaTraceService() {
         return this.ballerinaTraceService;
     }
+
+    @Override
+    public  BallerinaSyntaxHighlightService getBallerinaSyntaxHighlightService() { return this.ballerinaSyntaxHighlightService; }
 
     @Override
     public void connect(ExtendedLanguageClient languageClient) {

@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntax-highlighter;
+package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
+
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
- * Implementation of Ballerina Syntax Highlighter extension for Language Server.
+ * An extension interface for Language server to fetch information about ballerina syntax hightlighter.
  *
  * @since 0.981.2
  */
-public class BallerinaSyntaxHighlightServiceImpl implements BallerinaSyntaxHighlightService {
+@JsonSegment("ballerinaSyntaxHighlighter")
+public interface BallerinaSyntaxHighlightService {
+
+    @JsonRequest
+    CompletableFuture<BallerinaSynResponse> list(BallerinaSynRequest request);
 
 }

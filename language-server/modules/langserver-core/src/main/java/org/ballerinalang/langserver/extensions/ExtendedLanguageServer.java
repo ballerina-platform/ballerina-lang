@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.extensions;
 
-import org.ballerinalang.langserver.extensions.ballerina.syntax-highlighter.BallerinaSyntaxHighlightService.java;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightService;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.fragment.BallerinaFragmentService;
