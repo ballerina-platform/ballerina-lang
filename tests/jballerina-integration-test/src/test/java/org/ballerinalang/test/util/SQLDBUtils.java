@@ -73,14 +73,13 @@ public class SQLDBUtils {
     }
 
     private static String readFileToString(String path) {
-        String fileAsString = null;
         URL fileResource = BCompileUtil.class.getClassLoader().getResource(path);
         try {
             return FileUtils.readFileToString(new File(fileResource.toURI()), StandardCharsets.UTF_8);
         } catch (IOException | URISyntaxException e) {
             LOG.error("Error ", e);
         }
-        return fileAsString;
+        return null;
     }
 
     /**
