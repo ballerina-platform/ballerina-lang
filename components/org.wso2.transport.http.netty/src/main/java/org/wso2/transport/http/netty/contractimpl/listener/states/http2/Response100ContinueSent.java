@@ -109,6 +109,12 @@ public class Response100ContinueSent implements ListenerState {
                                                   Unpooled.EMPTY_BUFFER, true, true);
     }
 
+    @Override
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                           Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        LOG.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE);
+    }
+
     private static void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
                                                         ChannelFuture channelFuture,
                                                         Http2OutboundRespListener http2OutboundRespListener) {

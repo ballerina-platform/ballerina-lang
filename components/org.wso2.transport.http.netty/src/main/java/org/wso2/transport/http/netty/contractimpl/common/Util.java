@@ -692,6 +692,16 @@ public class Util {
                 if (throwable instanceof ClosedChannelException) {
                     throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
                 }
+
+                if (http2OutboundRespListener.getOutboundResponseMsg() != null) {
+                    http2OutboundRespListener.getOutboundResponseMsg().setIoException(
+                            new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS));
+                }
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Remove response writer and backpressure listener in case of failure");
+                }
+                http2OutboundRespListener.removeBackPressureListener();
                 http2OutboundRespListener.removeDefaultResponseWriter();
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             }

@@ -39,7 +39,9 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Promise;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
  * State between start and end of inbound request payload read.
@@ -130,5 +132,12 @@ public class ReceivingEntityBody implements ListenerState {
                                     Http2OutboundRespListener http2OutboundRespListener, int streamId) {
         Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId, REQUEST_TIMEOUT,
                                                   Unpooled.EMPTY_BUFFER, true, false);
+    }
+
+    @Override
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                           Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        handleIncompleteInboundMessage(http2OutboundRespListener.getInboundRequestMsg(),
+                                       REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
     }
 }
