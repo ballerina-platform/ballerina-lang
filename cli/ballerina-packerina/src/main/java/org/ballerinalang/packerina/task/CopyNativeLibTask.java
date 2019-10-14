@@ -19,10 +19,14 @@
 package org.ballerinalang.packerina.task;
 
 import com.moandjiezana.toml.Toml;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.toml.model.Dependency;
+import org.ballerinalang.toml.model.Library;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -57,6 +61,7 @@ public class CopyNativeLibTask implements Task {
     private List<String> supportedPlatforms = Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS)
             .collect(Collectors.toList());
     private boolean skipCopyLibsFromDist;
+    private Manifest manifest;
 
     public CopyNativeLibTask(boolean skipCopyLibsFromDist) {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
@@ -74,6 +79,8 @@ public class CopyNativeLibTask implements Task {
         Path tmpDir = targetDir.resolve(TARGET_TMP_DIRECTORY);
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
+        this.manifest = ManifestProcessor.getInstance(buildContext.get(BuildContextField.COMPILER_CONTEXT)).
+                getManifest();
         // Create target/tmp folder
         try {
             if (!tmpDir.toFile().exists()) {
@@ -138,7 +145,35 @@ public class CopyNativeLibTask implements Task {
             }
         }
 
-        // If balo cannot be found from target or cache, get dependencies from distribution toml.
+        // If platform libs are defined, copy them to target
+        List<Library> libraries = manifest.getPlatform().libraries;
+        if (libraries != null && libraries.size() > 0) {
+            List<Path> libs = libraries.stream()
+                    .filter(lib -> lib.getGroupId().equals(importz.pkgID.orgName.value) &&
+                            Arrays.asList(lib.getModules()).contains(importz.pkgID.name.value))
+                    .map(lib -> Paths.get(lib.getPath())).collect(Collectors.toList());
+
+            for (Path lib : libs) {
+                Path nativeFile = project.resolve(lib);
+                Path libFileName = lib.getFileName();
+                if (libFileName != null) {
+                    Path targetPath = tmpDir.resolve(libFileName.toString());
+
+                    if (targetPath.toFile().exists()) {
+                        return;
+                    }
+
+                    try {
+                        Files.copy(nativeFile, targetPath);
+                        return;
+                    } catch (IOException e) {
+                        throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
+                    }
+                }
+            }
+        }
+
+        // If balo cannot be found from target, cache or platform-libs, get dependencies from distribution toml.
         copyDependenciesFromToml(importz, balHomePath, tmpDir);
     }
 
