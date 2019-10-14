@@ -982,7 +982,7 @@ public class CommandUtil {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
         List<BLangPackage> bLangPackages = LSModuleCompiler.getBLangPackages(context, documentManager,
-                LSCustomErrorStrategy.class, true, false, false);
+                LSCustomErrorStrategy.class, true, false, true);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, bLangPackages);
         // Get the current package.
         BLangPackage currentBLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
