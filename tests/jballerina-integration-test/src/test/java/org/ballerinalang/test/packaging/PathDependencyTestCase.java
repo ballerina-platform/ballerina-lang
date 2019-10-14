@@ -408,6 +408,43 @@ public class PathDependencyTestCase extends BaseTest {
     }
 
     /**
+     * Case7: Build TestProject1. TestProject1 has two modules utils and foo. "foo" module import the utils module
+     * which has an interop jar as platform dependency. Then run the jar of TestProject1.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Case6: Test platform dependency of two project with common module as an interop dependency.")
+    public void testBaloPathCase7() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("case7");
+        // Build all modules of TestProject3
+        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+
+        String moduleFooBaloFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+
+        String moduleXBuildMsg = "target" + File.separator + "balo" + File.separator + moduleUtilsBaloFileName;
+        String moduleYBuildMsg = "target" + File.separator + "balo" + File.separator + moduleFooBaloFileName;
+        LogLeecher moduleXBuildLeecher = new LogLeecher(moduleXBuildMsg);
+        LogLeecher moduleYBuildLeecher = new LogLeecher(moduleYBuildMsg);
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                new LogLeecher[]{moduleXBuildLeecher, moduleYBuildLeecher},
+                caseResources.resolve("TestProject1").toString());
+        moduleXBuildLeecher.waitForText(5000);
+        moduleYBuildLeecher.waitForText(5000);
+
+        String msg = "This is a test string value !!!";
+
+        String moduleFooJarFileName = "foo" + BLANG_COMPILED_JAR_EXT;
+        String executableFilePath = "target" + File.separator + "bin" + File.separator + moduleFooJarFileName;
+        LogLeecher bazRunLeecher = new LogLeecher(msg);
+        balClient.runMain("run", new String[]{executableFilePath}, envVariables, new String[0],
+                new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject1").toString());
+        bazRunLeecher.waitForText(10000);
+    }
+
+
+    /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
      * @return env directory variable array
