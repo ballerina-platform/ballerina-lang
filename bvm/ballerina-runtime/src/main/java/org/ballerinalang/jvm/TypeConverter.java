@@ -409,6 +409,8 @@ public class TypeConverter {
     static int anyToByteCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
             return intToByte((Long) sourceVal);
+        } else if (sourceVal instanceof Byte) {
+            return ((Byte) sourceVal).intValue();
         } else if (sourceVal instanceof Double) {
             return floatToByte((Double) sourceVal);
         } else if (sourceVal instanceof Integer) {

@@ -199,6 +199,8 @@ public class Type {
                 case TypeTags.XMLNS:
                 case TypeTags.MAP: // TODO generate type for constraint type
                 case TypeTags.TABLE:
+                case TypeTags.FUTURE:
+                case TypeTags.HANDLE:
                     this.category = "builtin"; break;
                 default:
                     this.category = "UNKNOWN";

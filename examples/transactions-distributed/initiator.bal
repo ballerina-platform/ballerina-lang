@@ -27,8 +27,7 @@ service InitiatorService on new http:Listener(8080) {
             // When a participant is called, the transaction context is propagated, and that participant
             // gets infected and joins the distributed transaction.
             boolean successful = callBusinessService();
-            // call the same service again.
-            successful = callBusinessService();
+
             if (successful) {
                 res.statusCode = http:STATUS_OK;
             } else {

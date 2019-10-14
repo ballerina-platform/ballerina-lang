@@ -7,8 +7,8 @@ public function main() {
 // This is the documentation attachment of the `DummyObject` object.
 # The `DummyObject` is a user-defined object.
 # This `DummyObject` has two `string` data fields and a
-# function definition (i.e., `doThatOnObject`), which performs a certain functionality
-# on the associated `DummyObject` instance.
+# function definition (i.e., `doThatOnObject`), which performs a certain
+# functionality on the associated `DummyObject` instance.
 #
 # + fieldOne - This is the description of the `DummyObject`'s `fieldOne` field.
 # + fieldTwo - This is the description of the `DummyObject`'s `fieldTwo` field.

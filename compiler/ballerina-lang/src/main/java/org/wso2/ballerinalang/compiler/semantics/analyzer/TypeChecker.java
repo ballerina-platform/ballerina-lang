@@ -1080,7 +1080,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(syncSendExpr.expr, this.env);
 
         // Validate if the send expression type is anydata
-        if (!types.isAnydata(syncSendExpr.expr.type)) {
+        if (!syncSendExpr.expr.type.isAnydata()) {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, syncSendExpr.expr.type);
         }
 
@@ -1470,6 +1470,12 @@ public class TypeChecker extends BLangNodeVisitor {
             // if enclosing env's node is arrow expression
             return env.enclEnv;
         }
+
+        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.TRANSACTION) {
+            // if enclosing env's node is a transaction
+            return env.enclEnv;
+        }
+
         if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
             return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
         }
@@ -2799,6 +2805,29 @@ public class TypeChecker extends BLangNodeVisitor {
                 ((BLangArrowFunction) env.node).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
             }
         }
+
+        // Iterate through parent nodes until a function node is met to find if the variable is used inside
+        // a transaction block to mark it as a closure
+        BLangNode node = env.node;
+        SymbolEnv cEnv = env;
+        while (node != null && node.getKind() != NodeKind.FUNCTION) {
+            if (node.getKind() == NodeKind.TRANSACTION) {
+                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                        SymTag.VARIABLE);
+                if (resolvedSymbol != symTable.notFoundSymbol) {
+                    resolvedSymbol.closure = true;
+                }
+                break;
+            } else {
+                SymbolEnv enclEnv = cEnv.enclEnv;
+                if (enclEnv == null) {
+                    break;
+                }
+                cEnv = enclEnv;
+                node = cEnv.node;
+            }
+        }
     }
 
     private boolean isNotFunction(BSymbol funcSymbol) {
@@ -3093,7 +3122,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             if (!checkLangLibMethodInvocationExpr(iExpr, objectType)) {
-                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, objectType);
+                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, objectType);
                 resultType = symTable.semanticError;
                 return;
             }
@@ -3563,28 +3592,30 @@ public class TypeChecker extends BLangNodeVisitor {
         return recordType.restFieldType;
     }
 
-    private BType checkObjectFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BObjectType objectType) {
-        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, objectType.tsymbol);
+    private BType checkObjectFieldAccess(BLangFieldBasedAccess bLangFieldBasedAccess,
+                                         Name fieldName, BObjectType objectType) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(bLangFieldBasedAccess.pos,
+                this.env, fieldName, objectType.tsymbol);
 
         if (fieldSymbol != symTable.notFoundSymbol) {
             // Setting the field symbol. This is used during the code generation phase
-            varReferExpr.symbol = fieldSymbol;
+            bLangFieldBasedAccess.symbol = fieldSymbol;
             return fieldSymbol.type;
         }
 
         // check if it is an attached function pointer call
         Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value,
                 fieldName.value));
-        fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, objectType.tsymbol);
+        fieldSymbol = symResolver.resolveObjectField(bLangFieldBasedAccess.pos, env, objFuncName, objectType.tsymbol);
 
         if (fieldSymbol == symTable.notFoundSymbol) {
-            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
+            dlog.error(bLangFieldBasedAccess.field.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
                     objectType.tsymbol.type.getKind().typeName(), objectType.tsymbol);
             return symTable.semanticError;
         }
 
         // Setting the field symbol. This is used during the code generation phase
-        varReferExpr.symbol = fieldSymbol;
+        bLangFieldBasedAccess.symbol = fieldSymbol;
         return fieldSymbol.type;
     }
 
@@ -4667,7 +4698,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType retType;
-        if (types.isAnydata(type)) {
+        if (type.isAnydata()) {
             retType = type;
         } else {
             retType = BUnionType.create(null, type, symTable.errorType);
@@ -4681,17 +4712,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
         return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType);
-    }
-
-    private boolean isSafeNavigable(BLangAccessExpression fieldAccessExpr, BType varRefType) {
-        // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
-        // required.
-        if (fieldAccessExpr.errorSafeNavigation && varRefType.tag != TypeTags.UNION
-                && varRefType != symTable.semanticError) {
-            dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
-            return false;
-        }
-        return true;
     }
 
     private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {

@@ -318,10 +318,11 @@ public type PackageParser object {
         int i = 0;
         int j = 0;
         while (i < numEE) {
-            errorEntries[j] = bodyParser.parseEE();
+            ErrorEntry errorEntry = bodyParser.parseEE();
+            errorEntries[j] = errorEntry;
 
             if (self.addInterimBB) {
-                ErrorEntry? interimEntry = errorEntries[j].clone();
+                ErrorEntry? interimEntry = errorEntry.clone();
                 j += 1;
                 if (interimEntry is ErrorEntry) {
                     interimEntry.trapBB.id.value = interimEntry.trapBB.id.value + "interim";
@@ -503,7 +504,6 @@ public type PackageParser object {
             annotValueArray: annotValueArray
         };
     }
-
 };
 
 function skipMarkDownDocAttachement(BirChannelReader reader) {

@@ -86,7 +86,7 @@ public class ReadDir {
                 } catch (IOException e) {
                     throw new BallerinaException("Error while accessing file info", e);
                 }
-            }).toArray(ObjectValue[]::new);
+            }).skip(1).toArray(ObjectValue[]::new);
             return new ArrayValue(results, new BArrayType(fileInfoType));
         } catch (IOException | BallerinaException ex) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, ex);

@@ -62,8 +62,8 @@ function testUpdate(string jdbcURL) returns int {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)
-                                values (15, 'Anne', 1000, 'UK')");
+    var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)" +
+                                "values (15, 'Anne', 1000, 'UK')");
     int insertCount = 0;
     if (insertCountRet is jdbc:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
@@ -163,11 +163,11 @@ function testUpdateInMemory(string jdbcURL) returns @tainted [int, string] {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    _ = checkpanic testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
-    creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
+    _ = checkpanic testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300)," +
+    "creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
 
-    var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country)
-                                values (15, 'Anne', 1000, 'UK')");
+    var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country) " +
+                                "values (15, 'Anne', 1000, 'UK')");
     int insertCount = 0;
     if (insertCountRet is jdbc:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;

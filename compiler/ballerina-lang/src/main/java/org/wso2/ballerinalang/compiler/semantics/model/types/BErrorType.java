@@ -33,6 +33,12 @@ public class BErrorType extends BType implements ErrorType {
     public BType reasonType;
     public BType detailType;
 
+    private static final String DOLLAR = "$";
+    private static final String ERROR = "error<";
+    private static final String SPACE = " ";
+    private static final String COMMA = ",";
+    private static final String CLOSE_ERROR = ">";
+
     public BErrorType(BTypeSymbol tSymbol, BType reasonType, BType detailType) {
         super(TypeTags.ERROR, tSymbol);
         this.reasonType = reasonType;
@@ -70,10 +76,9 @@ public class BErrorType extends BType implements ErrorType {
 
     @Override
     public String toString() {
-
-        if (tsymbol != null) {
+        if (tsymbol != null && tsymbol.name != null && !tsymbol.name.value.startsWith(DOLLAR)) {
             return String.valueOf(tsymbol);
         }
-        return "error<" + reasonType + "," + detailType + '>';
+        return ERROR + reasonType + COMMA + SPACE + detailType + CLOSE_ERROR;
     }
 }
