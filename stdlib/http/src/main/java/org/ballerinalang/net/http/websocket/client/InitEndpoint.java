@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http.websocketclientendpoint;
+package org.ballerinalang.net.http.websocket.client;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
@@ -27,12 +27,10 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.WebSocketClientConnectorListener;
-import org.ballerinalang.net.http.WebSocketClientHandshakeListener;
-import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketService;
-import org.ballerinalang.net.http.WebSocketUtil;
-import org.ballerinalang.net.http.exception.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.server.WebSocketService;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
@@ -45,7 +43,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.net.http.WebSocketConstants.WSS_SCHEME;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.WSS_SCHEME;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 
 /**
@@ -98,7 +96,7 @@ public class InitEndpoint {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         handshakeFuture.setClientHandshakeListener(
                 new WebSocketClientHandshakeListener(webSocketClient, wsService, clientConnectorListener,
-                        readyOnConnect, countDownLatch));
+                                                     readyOnConnect, countDownLatch));
         try {
             // Wait for 5 minutes before timeout
             if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {

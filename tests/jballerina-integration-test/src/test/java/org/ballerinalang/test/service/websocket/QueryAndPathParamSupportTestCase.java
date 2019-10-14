@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * Test WebSocket Path and Query Parameters.
  */
 @Test(groups = {"websocket-test"})
-public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketTestCommons {
+public class QueryAndPathParamSupportTestCase extends WebSocketTestCommons {
 
     @Test(description = "Tests path and query parameters support for WebSockets in Ballerina")
     public void testPathAndQueryParams() throws URISyntaxException, InterruptedException {
