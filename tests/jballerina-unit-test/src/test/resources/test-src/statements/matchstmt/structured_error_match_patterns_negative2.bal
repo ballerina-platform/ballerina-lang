@@ -39,3 +39,12 @@ function testIndirectErrorMatchPattern() returns string {
     }
     return "Default";
 }
+
+function noVarReasonErrorMatch(any|error a) returns string {
+    match a {
+        error(r) => { return <string> r;} // should be error(var r);
+		12 => { return "matched 12";}
+    }
+
+    return "default";
+}

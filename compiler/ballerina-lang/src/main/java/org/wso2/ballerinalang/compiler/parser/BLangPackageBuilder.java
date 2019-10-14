@@ -668,7 +668,7 @@ public class BLangPackageBuilder {
     }
 
     private IdentifierNode createIdentifier(DiagnosticPos pos, String value) {
-        IdentifierNode node = TreeBuilder.createIdentifierNode();
+        BLangIdentifier node = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         if (value == null) {
             return node;
         }
@@ -684,6 +684,7 @@ public class BLangPackageBuilder {
             node.setValue(value);
             node.setLiteral(false);
         }
+        node.pos = pos;
         return node;
     }
 
@@ -1565,7 +1566,8 @@ public class BLangPackageBuilder {
         invocationWsStack.push(ws);
     }
 
-    void createInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation, boolean argsAvailable) {
+    void createInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation, boolean argsAvailable,
+                              DiagnosticPos identifierPos) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
@@ -1577,7 +1579,7 @@ public class BLangPackageBuilder {
         }
 
         invocationNode.expr = (BLangExpression) exprNodeStack.pop();
-        invocationNode.name = (BLangIdentifier) createIdentifier(pos, invocation);
+        invocationNode.name = (BLangIdentifier) createIdentifier(identifierPos, invocation);
         invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(pos, null);
         addExpressionNode(invocationNode);
     }

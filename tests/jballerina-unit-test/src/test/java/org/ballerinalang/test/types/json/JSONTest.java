@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.test.types.json;
 
+import org.ballerinalang.jvm.JSONDataSource;
+import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
@@ -29,6 +31,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -182,5 +185,11 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "JSON value is not a mapping");
+    }
+
+    @Test
+    public void testStreamingJsonType() {
+        StreamingJsonValue jsonValue = new StreamingJsonValue(Mockito.mock(JSONDataSource.class));
+        Assert.assertEquals(jsonValue.getType().toString(), "map<json>[]");
     }
 }

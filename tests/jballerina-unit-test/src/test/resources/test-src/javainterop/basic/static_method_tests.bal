@@ -99,3 +99,14 @@ public function acceptSomethingReturnSomethingAndThrowsUncheckedException(handle
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+public type Person object {
+    int age = 9;
+    public function __init(int age) {
+        self.age = age;
+    }
+};
+
+public function getObjectOrError() returns Person|error = @java:Method {
+    name: "returnObjectOrError",
+    class: "org.ballerinalang.test.javainterop.basic.StaticMethodTest"
+} external;

@@ -79,3 +79,15 @@ function testAnyToTypedesc() returns typedesc<any>|error {
 function utilFunc() returns string {
     return "util function";
 }
+
+
+typedesc<any> glbTypeDesc = json;
+
+function testModuleLevelTypeDesc() returns typedesc<any> {
+    return glbTypeDesc;
+}
+
+function testMethodLevelTypeDesc() returns typedesc<any> {
+    typedesc<any> methodLocalTypeDesc = json;
+    return methodLocalTypeDesc;
+}

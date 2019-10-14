@@ -40,7 +40,7 @@ public function main(string... args) {
     var numCacheDirs = args.length() - 4;
     int i = 0;
     while (i < numCacheDirs) {
-        birCacheDirs[i] = args[4 + i];
+        birCacheDirs[i] = <@untainted> args[4 + i];
         i = i + 1;
     }
 

@@ -22,11 +22,13 @@ import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.Map;
 
 /**
  * <p>
@@ -45,7 +47,7 @@ public class StreamingJsonValue extends ArrayValue {
     public StreamingJsonValue(JSONDataSource datasource) {
         this.datasource = datasource;
         this.refValues = (RefValue[]) newArrayInstance(RefValue.class);
-        this.arrayType = new BArrayType(BTypes.typeJSON);
+        this.arrayType = new BArrayType(new BMapType(BTypes.typeJSON));
     }
 
     @Override
@@ -148,6 +150,20 @@ public class StreamingJsonValue extends ArrayValue {
 
     void appendToCache(Object value) {
         super.add(size, value);
+    }
+
+    @Override
+    public String getJSONString() {
+        // Consume and materialize the stream.
+        buildDatasource();
+        return super.getJSONString();
+    }
+
+    @Override
+    public Object copy(Map<Object, Object> refs) {
+        // Consume and materialize the stream.
+        buildDatasource();
+        return super.copy(refs);
     }
 
     private void buildDatasource() {
