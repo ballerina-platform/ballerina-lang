@@ -52,6 +52,15 @@ public class AttachDetachTest extends WebSocketTestCommons {
         client.handshake();
     }
 
+    @Test(description = "Try attaching a WebSocket Client service")
+    public void attachClientService() throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.setCountDownLatch(countDownLatch);
+        client.sendText("client_attach");
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), "Client service cannot be attached to the Listener");
+    }
+
     @Test(description = "Detach the service first")
     public void detachFirst() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
