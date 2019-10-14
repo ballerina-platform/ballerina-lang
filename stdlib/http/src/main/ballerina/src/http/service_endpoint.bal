@@ -40,7 +40,7 @@ public type Listener object {
         return self.start();
     }
 
-    # Stops the service listener gracefully. Already accepted requests will be served before connection closure
+    # Stops the service listener gracefully. Already accepted requests will be served before connection closure.
     #
     # + return - An `error` if there is any error occurred during the listener stop process
     public function __gracefulStop() returns error? {
