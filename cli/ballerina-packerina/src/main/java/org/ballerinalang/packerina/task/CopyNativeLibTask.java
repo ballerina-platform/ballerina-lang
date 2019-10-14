@@ -19,7 +19,6 @@
 package org.ballerinalang.packerina.task;
 
 import com.moandjiezana.toml.Toml;
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -167,7 +166,7 @@ public class CopyNativeLibTask implements Task {
                         Files.copy(nativeFile, targetPath);
                         return;
                     } catch (IOException e) {
-                        throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
+                        throw createLauncherException("dependency jar not found : " + lib.toString());
                     }
                 }
             }
