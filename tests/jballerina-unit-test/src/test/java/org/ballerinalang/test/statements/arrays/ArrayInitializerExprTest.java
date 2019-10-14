@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -28,7 +27,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 /**
  * Test arrays initializer expression.
@@ -55,13 +53,6 @@ public class ArrayInitializerExprTest {
         long actual = ((BInteger) returns[0]).intValue();
         long expected = 110;
         Assert.assertEquals(actual, expected);
-    }
-
-    @Test(description = "Test compiling large array initializer expression")
-    public void testLargeArrayInitExpr() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/arrays/large-array-initializer-expr.bal",
-                CompilerPhase.DESUGAR);
-        Assert.assertEquals(((BLangPackage) result.getAST()).functions.get(0).name.value, "hugeArrayTest");
     }
 
     @Test(description = "Test arrays return value")
