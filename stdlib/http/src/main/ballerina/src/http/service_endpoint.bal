@@ -64,10 +64,11 @@ public type Listener object {
         return self.register(s, name);
     }
 
-    # Disengage an attached service from the listener.
+    # Detaches a Http or WebSocket service from the listener. Note that detaching a WebSocket service would not affect
+    # the functionality of the existing connections.
     #
-    # + s - The service that needs to be detached
-    # + return - An `error` if there is any error occurred during the service detachment process or else nil
+    # + s - The service to be detached
+    # + return - error if occurred during detaching of a service or `nil`
     public function __detach(service s) returns error? {
         return self.detach(s);
     }

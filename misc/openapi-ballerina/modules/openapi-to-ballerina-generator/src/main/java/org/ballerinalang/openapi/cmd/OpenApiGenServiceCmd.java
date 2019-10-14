@@ -24,7 +24,6 @@ import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_SERVICE_NAME
 import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_DIRECTORY_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_MD_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.RESOURCE_DIRECTORY_EXCEPTION;
-import static org.ballerinalang.openapi.OpenApiMesseges.SOURCE_DIRECTORY_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.TESTS_DIRECTORY_EXCEPTION;
 
 /**
@@ -50,8 +49,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
     @CommandLine.Parameters(index = "1..*")
     private List<String> argList;
 
-    @CommandLine.Option(names = {"-c", "--skip-bind"},
-            description = "Do you want to copy the contract in to the project?")
+    @CommandLine.Option(names = {"-s", "--skip-bind"}, description = "Skip copying of the used contract to project")
     boolean skipBind = false;
 
     @CommandLine.Option(names = {"-o", "--output"}, description = "where to write the generated " +
@@ -115,63 +113,59 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         final String openApiFilePath = openApiFile.getPath();
         Path resourcePath = Paths.get(resourcesDirectory + "/" + openApiFile.getName());
 
-        //TODO Accept user confirmation to copy the contract in to the ballerina porject.
-        if (!skipBind) {
-            //Check if OpenApi contract file exists
-            if (Files.notExists(Paths.get(openApiFilePath))) {
-                throw LauncherUtils.createLauncherException("Could not resolve a valid OpenApi" +
-                        " contract in " + openApiFilePath);
-            }
+        //Check provided OpenApi file is a valid and existing one
+        if (Files.notExists(Paths.get(openApiFilePath))) {
+            throw LauncherUtils.createLauncherException("Could not resolve a valid OpenApi" +
+                    " contract in " + openApiFilePath);
+        }
 
-            if (Files.notExists(sourceDirectory)) {
-                try {
-                    Files.createDirectory(sourceDirectory);
-                } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException(SOURCE_DIRECTORY_EXCEPTION + "\n"
-                            + e.getLocalizedMessage());
+        if (Files.notExists(moduleDirectory)) {
+            try {
+                Files.createDirectory(moduleDirectory);
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException(MODULE_DIRECTORY_EXCEPTION + "\n"
+                        + e.getLocalizedMessage());
+            }
+        }
+
+        File moduleMd = new File(moduleDirectory + "/Module.md");
+        if (!moduleMd.exists()) {
+            try {
+                boolean createMd = true;
+                createMd = moduleMd.createNewFile();
+
+                if (!createMd) {
+                    throw LauncherUtils.createLauncherException(MODULE_MD_EXCEPTION);
                 }
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException(MODULE_MD_EXCEPTION + "\n"
+                        + e.getLocalizedMessage());
             }
+        }
 
-            if (Files.notExists(moduleDirectory)) {
-                try {
-                    Files.createDirectory(moduleDirectory);
-                } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException(MODULE_DIRECTORY_EXCEPTION + "\n"
-                            + e.getLocalizedMessage());
-                }
+        // Check for tests folder in ballerina module root
+        if (Files.notExists(testsDirectory)) {
+            try {
+                Files.createDirectory(testsDirectory);
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException(TESTS_DIRECTORY_EXCEPTION + "\n"
+                        + e.getLocalizedMessage());
             }
+        }
 
+        if (skipBind) {
+            try {
+                resourcePath = Paths.get(openApiFile.getCanonicalPath());
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+            }
+        } else {
             // Check for resources folder in ballerina module root
             if (Files.notExists(resourcesDirectory)) {
                 try {
                     Files.createDirectory(resourcesDirectory);
                 } catch (IOException e) {
                     throw LauncherUtils.createLauncherException(RESOURCE_DIRECTORY_EXCEPTION + "\n"
-                            + e.getLocalizedMessage());
-                }
-            }
-
-            File moduleMd = new File(moduleDirectory + "/Module.md");
-            if (!moduleMd.exists()) {
-                try {
-                    boolean createMd = true;
-                    createMd = moduleMd.createNewFile();
-
-                    if (!createMd) {
-                        throw LauncherUtils.createLauncherException(MODULE_MD_EXCEPTION);
-                    }
-                } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException(MODULE_MD_EXCEPTION + "\n"
-                            + e.getLocalizedMessage());
-                }
-            }
-
-            // Check for tests folder in ballerina module root
-            if (Files.notExists(testsDirectory)) {
-                try {
-                    Files.createDirectory(testsDirectory);
-                } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException(TESTS_DIRECTORY_EXCEPTION + "\n"
                             + e.getLocalizedMessage());
                 }
             }

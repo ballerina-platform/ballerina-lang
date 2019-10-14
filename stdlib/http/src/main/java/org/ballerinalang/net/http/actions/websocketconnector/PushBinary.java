@@ -24,9 +24,9 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
-import org.ballerinalang.net.http.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

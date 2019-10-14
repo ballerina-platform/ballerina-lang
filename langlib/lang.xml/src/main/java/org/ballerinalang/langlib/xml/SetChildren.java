@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -61,7 +62,8 @@ public class SetChildren {
             children = xmlText;
         } else if (childrenType.getTag() != TypeTags.XML_TAG) {
             BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                    new BUnionType(Arrays.asList(BTypes.typeXML, BTypes.typeString)),
+                    new BUnionType(Arrays.asList(BTypes.typeXML, BTypes.typeString),
+                            TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)),
                     childrenType);
         }
 

@@ -165,8 +165,12 @@ public type Response object {
         } else {
             var payload = result.getJson();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the json payload from the response";
-                return getGenericClientError(message, payload);
+                if (payload.detail()?.cause is mime:NoContentError) {
+                    return createErrorForNoPayload(payload);
+                } else {
+                    string message = "Error occurred while retrieving the json payload from the response";
+                    return getGenericClientError(message, payload);
+               }
             } else {
                 return payload;
             }
@@ -183,8 +187,12 @@ public type Response object {
         } else {
             var payload = result.getXml();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the xml payload from the response";
-                return getGenericClientError(message, payload);
+                if (payload.detail()?.cause is mime:NoContentError) {
+                    return createErrorForNoPayload(payload);
+                } else {
+                    string message = "Error occurred while retrieving the xml payload from the response";
+                    return getGenericClientError(message, payload);
+               }
             } else {
                 return payload;
             }
@@ -201,8 +209,12 @@ public type Response object {
         } else {
             var payload = result.getText();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the text payload from the response";
-                return getGenericClientError(message, payload);
+                if (payload.detail()?.cause is mime:NoContentError) {
+                    return createErrorForNoPayload(payload);
+                } else {
+                    string message = "Error occurred while retrieving the text payload from the response";
+                    return getGenericClientError(message, payload);
+               }
             } else {
                 return payload;
             }
