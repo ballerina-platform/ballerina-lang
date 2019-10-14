@@ -3271,11 +3271,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 .filter(param -> !param.defaultableParam)
                 .collect(Collectors.toList());
 
-        if (nonRestArgs.size() < requiredParams.size()) {
-            // make sure all the required parameters are given.
-            dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, iExpr.name.value);
-        }
-
         List<BVarSymbol> valueProvidedParams = new ArrayList<>();
         for (int i = 0; i < nonRestArgs.size(); i++) {
             BLangExpression arg = nonRestArgs.get(i);
