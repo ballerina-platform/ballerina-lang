@@ -10,7 +10,7 @@ const string OK = "ok";
 public const int COUNT = 1;
 
 // Declare a final variable.
-// The value of the `final` variable is readonly. Once a value is assigned to a final
+// The value of the `final` variable is read-only. Once a value is assigned to a final
 // variable, it becomes immutable. All parameters of a function call are
 // implicitly final.
 final int status = 1;

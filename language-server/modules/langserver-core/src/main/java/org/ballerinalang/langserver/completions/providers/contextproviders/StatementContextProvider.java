@@ -103,6 +103,8 @@ public class StatementContextProvider extends LSCompletionProvider {
                     .filterItems(context);
             completionItems.addAll(this.getCompletionItemList(itemList, context));
             completionItems.addAll(this.getTypeguardDestructuredItems(filteredList, context));
+        } else {
+            return this.getProvider(InvocationArgsContextProvider.class).getCompletions(context);
         }
 
         filteredList.removeIf(this.attachedOrSelfKeywordFilter());

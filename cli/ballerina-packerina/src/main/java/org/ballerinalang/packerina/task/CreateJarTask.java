@@ -32,6 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
+
 /**
  * Task for creating jar file.
  */
@@ -65,10 +67,10 @@ public class CreateJarTask implements Task {
             
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
-
-            BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir,
-                    entryBir.toString(), jarOutput.toString(), this.dumpBir,
-                    projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+    
+            BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir, entryBir.toString(), jarOutput.toString(),
+                    this.dumpBir, buildContext.getSourceType() == SINGLE_BAL_FILE, projectBIRCache.toString(),
+                    homeBIRCache.toString(), systemBIRCache.toString());
 
             // If there is a testable package we will create testable jar.
             if (module.hasTestablePackage()) {

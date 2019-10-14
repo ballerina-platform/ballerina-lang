@@ -84,11 +84,11 @@ public class FunctionPointersNegativeTest {
         Assert.assertEquals(result.getErrorCount(), 6);
         int i = 0;
         BAssertUtil.validateError(result, i++, "undefined function 'getFullName'", 35, 16);
-        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 45, 14);
+        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 45, 15);
         BAssertUtil.validateError(result, i++, "undefined function 'f3'", 46, 9);
-        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 77, 14);
+        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 77, 15);
         BAssertUtil.validateError(result, i++, "undefined function 'f3'", 78, 9);
-        BAssertUtil.validateError(result, i++, "undefined function 'getLname' in object 'Employee'", 83, 9);
+        BAssertUtil.validateError(result, i++, "undefined function 'getLname' in object 'Employee'", 83, 11);
     }
 
     @Test

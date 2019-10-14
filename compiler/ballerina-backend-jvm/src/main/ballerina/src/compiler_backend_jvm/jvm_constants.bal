@@ -285,6 +285,7 @@ const string MATH_UTILS = "org/ballerinalang/jvm/MathUtils";
 const string BAL_ERROR_REASONS = "org/ballerinalang/jvm/util/exceptions/BallerinaErrorReasons";
 const string RUNTIME_ERRORS = "org/ballerinalang/jvm/util/exceptions/RuntimeErrors";
 const string BLANG_EXCEPTION_HELPER = "org/ballerinalang/jvm/util/exceptions/BLangExceptionHelper";
+const string COMPATIBILITY_CHECKER = "org/ballerinalang/jvm/util/CompatibilityChecker";
 
 // other java classes
 const string OBJECT = "java/lang/Object";
@@ -361,3 +362,8 @@ const int BAL_REQUIRED = 256;
 const int BAL_PRIVATE = 1024;
 const int BAL_OPTIONAL = 8192;
 const int BAL_SERVICE = 524288;
+
+// type flags
+const int TYPE_FLAG_NILABLE = 1;
+const int TYPE_FLAG_ANYDATA = 2;
+const int TYPE_FLAG_PURETYPE = 4;

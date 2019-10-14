@@ -19,6 +19,7 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -96,7 +97,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
         @Override
         public Object transform(TableValue df) throws IOException {
-            MapValue<String, Object> objNode = new MapValueImpl<>(BTypes.typeJSON);
+            MapValue<String, Object> objNode = new MapValueImpl<>(new BMapType(BTypes.typeJSON));
             BStructureType structType = df.getStructType();
             BField[] structFields = null;
             if (structType != null) {

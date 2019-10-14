@@ -29,6 +29,7 @@ import java.util.List;
  * @since 0.971.0
  */
 public abstract class BStructureType extends BType {
+
     public List<BField> fields;
 
     public BStructureType(int tag, BTypeSymbol tSymbol) {

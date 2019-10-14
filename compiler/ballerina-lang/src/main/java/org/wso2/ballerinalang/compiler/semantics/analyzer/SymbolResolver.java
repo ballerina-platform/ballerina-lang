@@ -985,7 +985,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
             return;
         } else if (type.tag == TypeTags.STREAM) {
-            if (!types.isPureType(constraintType)) {
+            if (!constraintType.isPureType()) {
                 dlog.error(constrainedTypeNode.constraint.pos, DiagnosticCode.STREAM_INVALID_CONSTRAINT,
                            constraintType);
                 resultType = symTable.semanticError;

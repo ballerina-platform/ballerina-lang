@@ -31,8 +31,8 @@ service dataService on new http:Listener(9090) {
             // Set a payload indicating an error in case the data retrieval
             // fails.
             res.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
-            res.setPayload({ "Error": "Error occured while retrieving data
-            from the database" });
+            res.setPayload({ "Error": "Error occured while retrieving data " +
+            "from the database" });
         }
 
         // Respond to the client.
