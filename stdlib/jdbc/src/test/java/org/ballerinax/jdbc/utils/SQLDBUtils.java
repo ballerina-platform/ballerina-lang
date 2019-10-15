@@ -17,17 +17,16 @@
  */
 package org.ballerinax.jdbc.utils;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -120,25 +119,15 @@ public class SQLDBUtils {
     }
 
     private static String readFileToString(String path) {
-        InputStream is;
-        String fileAsString = null;
         // The name of a resource is a '/'-separated path name that identifies the resource.
         // Hence regardless of the separator corresponding to the OS forward slash should be used.
         URL fileResource = BCompileUtil.class.getClassLoader().getResource(path.replace("\\", "/"));
         try {
-            is = new FileInputStream(fileResource.getFile());
-            BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-            String line = buf.readLine();
-            StringBuilder sb = new StringBuilder();
-            while (line != null) {
-                sb.append(line).append("\n");
-                line = buf.readLine();
-            }
-            fileAsString = sb.toString();
-        } catch (IOException e) {
+            return FileUtils.readFileToString(new File(fileResource.toURI()), StandardCharsets.UTF_8);
+        } catch (IOException | URISyntaxException e) {
             log.error("File reading failed", e);
         }
-        return fileAsString;
+        return null;
     }
 
     /**
