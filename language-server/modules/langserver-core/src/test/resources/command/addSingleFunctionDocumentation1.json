@@ -1,5 +1,5 @@
 {
-  "nodeType": "function",
+  "nodeType": "FUNCTION",
   "nodeLine": "0",
   "expected": {
     "result":{

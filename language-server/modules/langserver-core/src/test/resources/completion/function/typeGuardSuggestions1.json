@@ -26,7 +26,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int_  \n  \nMaximum of one or more int values.\n  \n**Params**  \n- ns: other int values  \n  \n**Returns** `int`   \n- maximum value of value of `x` and all the `xs`  \n  \n"
+          "value": "**Package:** _ballerina/lang.int_  \n  \nMaximum of one or more int values.\n  \n**Params**  \n- `int[]` ns: other int values  \n  \n**Returns** `int`   \n- maximum value of value of `x` and all the `xs`  \n  \n"
         }
       },
       "sortText": "120",
@@ -104,7 +104,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int_  \n  \nMinimum of one or more int values\n  \n**Params**  \n- ns: other int values  \n  \n**Returns** `int`   \n- minimum value of `n` and all the `ns`  \n  \n"
+          "value": "**Package:** _ballerina/lang.int_  \n  \nMinimum of one or more int values\n  \n**Params**  \n- `int[]` ns: other int values  \n  \n**Returns** `int`   \n- minimum value of `n` and all the `ns`  \n  \n"
         }
       },
       "sortText": "120",
