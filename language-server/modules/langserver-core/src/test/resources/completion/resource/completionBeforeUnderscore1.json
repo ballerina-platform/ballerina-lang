@@ -545,7 +545,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n**Params**  \n- values: The value(s) to be printed."
+          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n**Params**  \n- `(any|error)[]` values: The value(s) to be printed."
         }
       },
       "sortText": "120",
@@ -563,7 +563,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n**Params**  \n- values: The value(s) to be printed."
+          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n**Params**  \n- `(any|error)[]` values: The value(s) to be printed."
         }
       },
       "sortText": "120",
@@ -581,7 +581,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n\nb - boolean\n\nB - boolean (ALL_CAPS)\n\nd - int\n\nf - float\n\nx - hex\n\nX - HEX (ALL_CAPS)\n\ns - string (This specifier is applicable for any of the supported types in Ballerina.\n            These values will be converted to their string representation.)\n  \n**Params**  \n- `string` format: A format string  \n- args: Arguments referenced by the format specifiers in the format string.  \n  \n**Returns** `string`   \n- Formatted string  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n\nb - boolean\n\nB - boolean (ALL_CAPS)\n\nd - int\n\nf - float\n\nx - hex\n\nX - HEX (ALL_CAPS)\n\ns - string (This specifier is applicable for any of the supported types in Ballerina.\n            These values will be converted to their string representation.)\n  \n**Params**  \n- `string` format: A format string  \n- `(any|error)[]` args: Arguments referenced by the format specifiers in the format string.  \n  \n**Returns** `string`   \n- Formatted string  \n  \n"
         }
       },
       "sortText": "120",

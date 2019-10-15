@@ -259,7 +259,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `string` b"
         }
       },
       "sortText": "120",
@@ -299,7 +299,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` param1  \n- `int` param2"
         }
       },
       "sortText": "120",

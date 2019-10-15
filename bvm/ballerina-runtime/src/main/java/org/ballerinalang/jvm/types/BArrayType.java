@@ -138,4 +138,9 @@ public class BArrayType extends BType {
     public ArrayState getState() {
         return state;
     }
+
+    @Override
+    public boolean isAnydata() {
+        return this.elementType.isPureType();
+    }
 }

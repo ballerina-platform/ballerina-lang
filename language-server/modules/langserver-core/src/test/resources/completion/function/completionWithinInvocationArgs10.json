@@ -12,10 +12,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a string.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n- `string` defaultValue: The default value to be use in case there is no mapping for the provided key(Defaultable)  \n- `string` defaultValue: The default value to be use in case there is no mapping for the provided key  \n  \n**Returns** `string`   \n- Configuration value mapped by the key  \n  \n"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a string.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n- `string` defaultValue: The default value to be use in case there is no mapping for the provided key(Defaultable)  \n  \n**Returns** `string`   \n- Configuration value mapped by the key  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "getAsString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -30,10 +30,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as an int.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n- `int` defaultValue: The default value to be use in case there is no mapping for the provided key(Defaultable)  \n- `int` defaultValue: The default value to be use in case there is no mapping for the provided key  \n  \n**Returns** `int`   \n- Configuration value mapped by the key  \n  \n"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as an int.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n- `int` defaultValue: The default value to be use in case there is no mapping for the provided key(Defaultable)  \n  \n**Returns** `int`   \n- Configuration value mapped by the key  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "getAsInt(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -48,10 +48,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a float.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n- `float` defaultVal: The default value to be use in case there is no mapping for the provided key(Defaultable)  \n- `float` defaultVal: The default value to be use in case there is no mapping for the provided key  \n  \n**Returns** `float`   \n- Configuration value mapped by the key  \n  \n"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a float.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n- `float` defaultVal: The default value to be use in case there is no mapping for the provided key(Defaultable)  \n  \n**Returns** `float`   \n- Configuration value mapped by the key  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "getAsFloat(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -66,10 +66,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a boolean.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n- `boolean` defaultValue: The default value to be use in case there is no mapping for the provided key(Defaultable)  \n- `boolean` defaultValue: The default value to be use in case there is no mapping for the provided key  \n  \n**Returns** `boolean`   \n- Configuration value mapped by the key  \n  \n"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a boolean.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n- `boolean` defaultValue: The default value to be use in case there is no mapping for the provided key(Defaultable)  \n  \n**Returns** `boolean`   \n- Configuration value mapped by the key  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "getAsBoolean(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -78,16 +78,16 @@
       }
     },
     {
-      "label": "getAsMap(string key)(map\u003cany\u003e)",
+      "label": "getAsMap(string key)(map<any>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a map. If there is no mapping, an empty map will be returned.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n  \n**Returns** `map\u003cany\u003e`   \n- Configuration value mapped by the key  \n  \n"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a map. If there is no mapping, an empty map will be returned.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n  \n**Returns** `map<any>`   \n- Configuration value mapped by the key  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "getAsMap(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -105,7 +105,7 @@
           "value": "**Package:** _ballerina/config_  \n  \nChecks whether the given key is in the configuration registry.\n  \n**Params**  \n- `string` key: The configuration key to be looked-up  \n  \n**Returns** `boolean`   \n- Returns true if the key is present; if not returs false  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "contains(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -123,7 +123,7 @@
           "value": "**Package:** _ballerina/config_  \n  \nSets the specified key/value pair as a configuration.\n  \n**Params**  \n- `string` key: The key of the configuration value to be set  \n- `(string|int|float|boolean)` value: The configuration value to be set"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "setConfig(${1});",
       "insertTextFormat": "Snippet",
       "command": {
