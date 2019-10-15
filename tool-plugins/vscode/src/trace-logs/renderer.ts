@@ -183,6 +183,9 @@ export function renderDetailView (context: ExtensionContext, langClient: Extende
         .ui.active.transition.visible.dimmer{
             background: #1e1e1e!important;
         }
+        .payload{
+            margin-top:15px;
+        }
         `;
 
     const scripts = `
