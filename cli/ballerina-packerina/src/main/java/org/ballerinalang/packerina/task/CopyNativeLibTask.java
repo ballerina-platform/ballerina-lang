@@ -147,15 +147,17 @@ public class CopyNativeLibTask implements Task {
         // If platform libs are defined, copy them to target
         List<Library> libraries = manifest.getPlatform().libraries;
         if (libraries != null && libraries.size() > 0) {
-            List<Path> libs = libraries.stream()
-                    .filter(lib -> lib.getGroupId().equals(importz.pkgID.orgName.value) &&
-                            Arrays.asList(lib.getModules()).contains(importz.pkgID.name.value))
-                    .map(lib -> Paths.get(lib.getPath())).collect(Collectors.toList());
+            for (Library library : libraries) {
+                if (library.getGroupId().equals(importz.pkgID.orgName.value) &&
+                        Arrays.asList(library.getModules()).contains(importz.pkgID.name.value)) {
+                    Path lib = Paths.get(library.getPath());
+                    Path nativeFile = project.resolve(lib);
+                    Path libFileName = lib.getFileName();
 
-            for (Path lib : libs) {
-                Path nativeFile = project.resolve(lib);
-                Path libFileName = lib.getFileName();
-                if (libFileName != null) {
+                    if (libFileName == null) {
+                        continue;
+                    }
+
                     Path targetPath = tmpDir.resolve(libFileName.toString());
 
                     if (targetPath.toFile().exists()) {
@@ -166,7 +168,8 @@ public class CopyNativeLibTask implements Task {
                         Files.copy(nativeFile, targetPath);
                         return;
                     } catch (IOException e) {
-                        throw createLauncherException("dependency jar not found : " + lib.toString());
+                        throw createLauncherException("dependency jar '" + lib.toString() + "' cannot be copied " +
+                                "due to " + e.getMessage());
                     }
                 }
             }
