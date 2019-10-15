@@ -39,7 +39,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskTestUtils.getFilePath;
  */
 @Test
 public class AppointmentServiceTest {
-    @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
+    @Test(description = "Tests the functionality of initiating a Task Timer Listener.", enabled = false)
     public void testCreateAppointment() {
         CompileResult compileResult = BCompileUtil.compile(true,
                 getFilePath(Paths.get("listener", "appointment", "service_simple.bal")));
