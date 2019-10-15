@@ -1,0 +1,65 @@
+function
+
+serialized json output:
+
+
+ERROR [ballerina-parser/parserModule] - 2:1: expected IDENTIFIER; found 'EOF'
+ERROR [ballerina-parser/parserModule] - 2:1: expected LBRACE; found 'EOF'
+ERROR [ballerina-parser/parserModule] - LBRACE inserted
+ERROR [ballerina-parser/parserModule] - 2:1: expected RBRACE; found 'EOF'
+ERROR [ballerina-parser/parserModule] - RBRACE inserted
+
+{
+	"nodeKind": "package",
+	"tokenList": [{
+		"tokenType": 51,
+		"text": "EOF",
+		"startPos": 1,
+		"endPos": 1,
+		"lineNumber": 2,
+		"index": 2,
+		"whiteSpace": "\n"
+	}],
+	"definitionList": [{
+		"nodeKind": "function",
+		"tokenList": [{
+			"tokenType": 53,
+			"text": "function",
+			"startPos": 1,
+			"endPos": 8,
+			"lineNumber": 1,
+			"index": 1,
+			"whiteSpace": null
+		}],
+		"fnSignature": {
+			"nodeKind": "errorFunctionSignature",
+			"tokenList": [],
+			"functionIdentifier": {
+				"nodeKind": "errorIdentifier",
+				"tokenList": [],
+				"identifier": null
+			}
+		},
+		"blockNode": {
+			"nodeKind": "errorFunctionBody",
+			"tokenList": [{
+				"tokenType": 0,
+				"text": "{",
+				"startPos": -1,
+				"endPos": -1,
+				"lineNumber": 0,
+				"index": -1,
+				"whiteSpace": ""
+			}, {
+				"tokenType": 1,
+				"text": "}",
+				"startPos": -1,
+				"endPos": -1,
+				"lineNumber": 0,
+				"index": -1,
+				"whiteSpace": ""
+			}],
+			"statementList": []
+		}
+	}]
+}
