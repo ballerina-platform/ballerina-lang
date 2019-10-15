@@ -108,8 +108,8 @@ public class ReceivingEntityBody implements ListenerState {
             http2MessageStateContext.getListenerState()
                     .writeOutboundResponseBody(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
         } else {
-            Http2StateUtil.writeResponseBody(http2MessageStateContext, http2OutboundRespListener,
-                                             outboundResponseMsg, httpContent, streamId);
+            Http2StateUtil.beginResponseWrite(http2MessageStateContext, http2OutboundRespListener,
+                                              outboundResponseMsg, httpContent, streamId);
         }
     }
 

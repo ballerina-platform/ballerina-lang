@@ -455,10 +455,10 @@ public class Http2StateUtil {
         }
     }
 
-    public static void writeResponseBody(Http2MessageStateContext http2MessageStateContext,
-                                         Http2OutboundRespListener http2OutboundRespListener,
-                                         HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
-                                         int streamId) throws Http2Exception {
+    public static void beginResponseWrite(Http2MessageStateContext http2MessageStateContext,
+                                          Http2OutboundRespListener http2OutboundRespListener,
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                          int streamId) throws Http2Exception {
         // In HTTP/2, 100-continue response and the final response must use the same stream. If the 100-continue
         // response is sent as a normal response then end stream flag will be sent with it erroneously.
         if (Util.getHttpResponseStatus(outboundResponseMsg).code() == HttpResponseStatus.CONTINUE.code()) {
