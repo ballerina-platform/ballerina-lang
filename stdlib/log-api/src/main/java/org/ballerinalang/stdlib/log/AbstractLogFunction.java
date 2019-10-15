@@ -80,8 +80,8 @@ public abstract class AbstractLogFunction {
         boolean logEnabled = LOG_MANAGER.getPackageLogLevel(pckg).value() <= logLevel.value();
         if (logEnabled) {
             consumer.accept(pckg, logMessage.get());
+            ObserveUtils.logMessageToActiveSpan(strand, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
         }
-        ObserveUtils.logMessageToActiveSpan(strand, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
     }
 
     static String getPackagePath() {
