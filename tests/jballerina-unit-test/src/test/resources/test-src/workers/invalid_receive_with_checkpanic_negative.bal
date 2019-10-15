@@ -14,9 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function main() {
+public function foo() {
     worker w1 {
         "hello" -> w2;
+    }
+
+    worker w2 {
+        string s = checkpanic <- w1;
+    }
+}
+
+public function bar() {
+    worker w1 {
+        "hello" ->> w2;
     }
 
     worker w2 {
