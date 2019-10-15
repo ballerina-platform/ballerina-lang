@@ -117,6 +117,24 @@ public function receiveWithCheck() returns error|int {
     return wait w2;
 }
 
+public function receiveWithCheckpanic() {
+    worker w1 returns boolean|error {
+        int i = 2;
+        if (true) {
+            error err = error("err", message = "err msg");
+            return err;
+        }
+        i -> w2;
+        return false;
+    }
+
+    worker w2 {
+        int j = checkpanic <- w1;
+    }
+
+    wait w2;
+}
+
 public function sendToDefaultWithPanicBeforeSendInWorker() returns int {
     worker w1 {
         int i = 2;

@@ -2469,7 +2469,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         types.checkType(receive, send.type, receive.type);
         addImplicitCast(send.type, receive);
         NodeKind kind = receive.parent.getKind();
-        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR) {
+        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
         receive.sendExpression = send.expr;

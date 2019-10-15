@@ -179,6 +179,14 @@ public class WorkerFailTest {
     }
 
     @Test
+    public void invalidReceiveWithCheckpanic() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid_receive_with_checkpanic_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        validateError(result, 0, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
+                "equivalent to error type", 23, 31);
+    }
+
+    @Test
     public void invalidActionsInFork() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-actions-in-fork.bal");
         Assert.assertEquals(result.getErrorCount(), 2);

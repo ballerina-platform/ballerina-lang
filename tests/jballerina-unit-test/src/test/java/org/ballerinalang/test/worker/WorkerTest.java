@@ -93,6 +93,12 @@ public class WorkerTest {
         Assert.assertEquals(ret.getReason(), "err");
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: err message=err msg.*")
+    public void receiveWithCheckpanic() {
+        BRunUtil.invoke(result, "receiveWithCheckpanic");
+    }
+
     @Test
     public void sendToDefaultWithPanicBeforeSendInWorker() {
         Exception actualException = null;
