@@ -137,22 +137,15 @@ public class BUnionType extends BType {
         }
 
         BUnionType that = (BUnionType) o;
-        int memberTypeCount = memberTypes.size();
-        if (that.memberTypes.size() != memberTypeCount) {
+        if (this.memberTypes.size() != that.memberTypes.size()) {
             return false;
         }
 
-        for (int i = 0; i < memberTypeCount; i++) {
-            BType m = memberTypes.get(i);
-            boolean found = false;
-            for (int j = 0; j < memberTypeCount; j++) {
-                BType n = that.memberTypes.get(j);
-                if (m.equals(n)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
+        // Note: Ordered comparison is used here as an optimization to speed up the union equals method.
+        // union types that are like (A|B is B|A) will be fall through to assignable check in jvm/TypeChecker
+        // Refer: https://github.com/ballerina-platform/ballerina-lang/pull/19197#discussion_r328972983
+        for (int i = 0; i < memberTypes.size(); i++) {
+            if (!this.memberTypes.get(i).equals(that.memberTypes.get(i))) {
                 return false;
             }
         }
