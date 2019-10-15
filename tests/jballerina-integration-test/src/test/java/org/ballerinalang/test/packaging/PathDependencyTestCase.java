@@ -413,7 +413,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case6: Test platform dependency of two project with common module as an interop dependency.")
+    @Test(description = "Case7: Test platform dependency of two project with common module as an interop dependency")
     public void testBaloPathCase7() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case7");
         // Build all modules of TestProject3
