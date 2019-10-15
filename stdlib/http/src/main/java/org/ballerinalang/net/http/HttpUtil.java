@@ -57,6 +57,7 @@ import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.net.http.caching.RequestCacheControlObj;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -392,7 +393,7 @@ public class HttpUtil {
     static void handleFailure(HttpCarbonMessage requestMessage, ErrorValue error) {
         String errorMsg = getErrorMessage(error);
         int statusCode = getStatusCode(requestMessage, errorMsg);
-        ErrorHandlerUtils.printError("error: " + error.toString());
+        ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
@@ -1045,10 +1046,6 @@ public class HttpUtil {
     private static boolean is100ContinueRequest(HttpCarbonMessage reqMsg, int statusCode) {
         return HttpConstants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
-    }
-
-    public static MapValue getResourceConfigAnnotation(AttachedFunction resource, String pkgPath) {
-        return (MapValue) resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
     }
 
     public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {

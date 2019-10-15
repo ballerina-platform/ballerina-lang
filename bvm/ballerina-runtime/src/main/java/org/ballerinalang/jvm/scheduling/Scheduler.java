@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.RuntimeUtils;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -83,15 +84,16 @@ public class Scheduler {
      */
     private int numThreads;
     private Semaphore mainBlockSem;
+    private static LogicalProcessorCount logicalProcessorCount = new LogicalProcessorCount();
 
     public Scheduler(boolean immortal) {
         try {
             String poolSizeConf = System.getenv(BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
-            this.numThreads = poolSizeConf == null ?
-                    Runtime.getRuntime().availableProcessors() * 2 : Integer.parseInt(poolSizeConf);
+            this.numThreads = poolSizeConf == null
+                    ? logicalProcessorCount.getAllowedThreadCount() : Integer.parseInt(poolSizeConf);
         } catch (Throwable t) {
             // Log and continue with default
-            this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
+            logicalProcessorCount.getAllowedThreadCount();
             logger.error("Error occurred in scheduler while reading system variable:" +
                     BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR, t);
         }
@@ -236,16 +238,16 @@ public class Scheduler {
                 strandHolder.get().strand = item.future.strand;
                 result = item.execute();
             } catch (Throwable e) {
-                panic = e;
+                panic = createError(e);
                 notifyChannels(item, panic);
               
-                if (!(e instanceof ErrorValue)) {
-                    RuntimeUtils.printCrashLog(e);
+                if (!(panic instanceof ErrorValue)) {
+                    RuntimeUtils.printCrashLog(panic);
                 }
                 // Please refer #18763.
                 // This logs cases where errors have occurred while strand is blocked.
                 if (item.isYielded()) {
-                    RuntimeUtils.printCrashLog(e);
+                    RuntimeUtils.printCrashLog(panic);
                 }
             } finally {
                 strandHolder.get().strand = null;
@@ -350,6 +352,15 @@ public class Scheduler {
         }
     }
 
+    private Throwable createError(Throwable t) {
+        if (t instanceof StackOverflowError) {
+            ErrorValue error = BallerinaErrors.createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+            error.setStackTrace(t.getStackTrace());
+            return error;
+        }
+        return t;
+    }
+
     public void unblockStrand(Strand strand) {
         strand.lock();
         if (strand.schedulerItem.parked) {
@@ -441,6 +452,17 @@ public class Scheduler {
                                                                                              url, "2pc");
             strand.setLocalTransactionContext(transactionLocalContext);
             futureValue.transactionLocalContext = transactionLocalContext;
+        }
+    }
+
+    private static class LogicalProcessorCount {
+        private int threadCount;
+        LogicalProcessorCount() {
+            threadCount = Runtime.getRuntime().availableProcessors() * 2;
+        }
+
+        int getAllowedThreadCount() {
+            return threadCount;
         }
     }
 }

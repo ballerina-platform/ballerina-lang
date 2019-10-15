@@ -55,6 +55,10 @@
             {
                 "name": "Documentation",
                 "url": "documentation"
+            },
+            {
+                "name": "Quoted Identifiers",
+                "url": "quoted-identifiers"
             }
         ]
     },

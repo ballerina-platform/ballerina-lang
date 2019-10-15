@@ -393,6 +393,7 @@ public type BRecordType record {|
     BType restFieldType;
     BRecordField?[] fields = [];
     BAttachedFunction initFunction;
+    int typeFlags;
 |};
 
 public type BObjectType record {|
@@ -437,12 +438,14 @@ public type BObjectField record {
 public type BUnionType record {|
     UNION_TYPE_NAME typeName = UNION_TYPE_NAME;
     BType?[]  members;
+    int typeFlags;
 |};
 
 public type BTupleType record {|
     TUPLE_TYPE_NAME typeName = TUPLE_TYPE_NAME;
     BType?[]  tupleTypes;
     BType?  restType = ();
+    int typeFlags;
 |};
 
 public type BFutureType record {|
@@ -455,6 +458,7 @@ public type BFiniteType record {|
     Name name = {};
     int flags;
     [(int | string | boolean | float | byte| () | Decimal), BType] [] values;
+    int typeFlags;
 |};
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
