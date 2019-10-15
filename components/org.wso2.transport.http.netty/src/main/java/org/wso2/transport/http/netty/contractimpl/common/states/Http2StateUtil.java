@@ -460,7 +460,7 @@ public class Http2StateUtil {
                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
                                          int streamId) throws Http2Exception {
         // In HTTP/2, 100-continue response and the final response must use the same stream. If the 100-continue
-        // response is sent as a normal response then end stream flag will be sent with it which is incorrect.
+        // response is sent as a normal response then end stream flag will be sent with it erroneously.
         if (Util.getHttpResponseStatus(outboundResponseMsg).code() == HttpResponseStatus.CONTINUE.code()) {
             http2MessageStateContext.setListenerState(new Response100ContinueSent(http2MessageStateContext));
             http2MessageStateContext.getListenerState()
