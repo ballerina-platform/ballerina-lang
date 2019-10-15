@@ -19,42 +19,41 @@
 import { BallerinaExtension } from '../core';
 import { commands, ExtensionContext } from 'vscode';
 import { Base64 } from 'js-base64';
-import { Range, DocumentHighlightKind, DocumentHighlight, languages, TextDocument, Position, CancellationToken } from 'vscode';
+import { Range } from 'vscode';
 import { HighlightToken } from './highlight-token';
 
-function decodeBase64(encodedText: string): HighlightToken[] {
+function decodeBase64(element: { line: number, token: string }): HighlightToken[] {
     const tokenArray: HighlightToken[] = [];
-    let decodedText = Base64.atob(encodedText);
+    let decodedText = Base64.atob(element.token);
     let decodedArray: number[] = JSON.parse(decodedText);
 
     for (let index = 0; index < decodedArray.length; index = index + 3) {
-        let range: Range = new Range(0, decodedArray[index], 0, decodedArray[index] + decodedArray[index + 1]);
+        let range: Range = new Range(element.line, decodedArray[index], element.line, decodedArray[index] + decodedArray[index + 1]);
         let scope = decodedArray[index + 2];
         tokenArray.push({ scope, range });
     }
     return tokenArray;
 }
 
-function highlightSyntax(highlightTokenArray: HighlightToken[]) {
-    let highlights: DocumentHighlight[] = [];
+function highlightLines(highlightingInfo: { line: number, token: string }[]) {
+    let highlights: HighlightToken[] = [];
 
-    for (let index = 0; index < highlightTokenArray.length; index++) {
-        highlights.push(new DocumentHighlight(new Range(highlightTokenArray[index].range.start, highlightTokenArray[index].range.end), DocumentHighlightKind.Text));
-    }
-
-    languages.registerDocumentHighlightProvider('ballerina', {
-        provideDocumentHighlights(document: TextDocument, position: Position, token: CancellationToken) {
-            return highlights;
-        }
+    highlightingInfo.forEach(element => {
+        highlights.push(...decodeBase64(element));
     });
+    console.log(highlights);
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     const context = <ExtensionContext>ballerinaExtInstance.context;
 
+    const highlightingInfo: { line: number, token: string }[] =
+        [{ line: 0, token: "WzAsIDMsIDAsIDUsMiwgMCwgMTAsIDUsIDBd" },
+        { line: 1, token: "WzE2LCAyLCAwLCAyMCwgMywgMCwgMjUsIDIsIDBd" }];
+
     let disposable = commands.registerCommand('ballerina.highlightSyntax', () => {
-        highlightSyntax(decodeBase64("WzAsIDMsIDAsIDUsMiwgMCwgMTAsIDUsIDBd"));
+        highlightLines(highlightingInfo);
     });
     context.subscriptions.push(disposable);
 
