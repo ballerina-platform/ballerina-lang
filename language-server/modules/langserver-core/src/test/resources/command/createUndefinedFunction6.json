@@ -1,7 +1,7 @@
 {
   "arguments": {
     "node.line": 4,
-    "node.column": 12
+    "node.column": 49
   },
   "expected": {
     "result": {
@@ -20,7 +20,7 @@
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction addTwoIntegers2(int a, int b) returns int {\n    return 0;\n}\n"
+                "newText": "\n\n    function testServiceFunction() returns http:Response {\n    return new http:Response();\n    }\n"
               }
             ]
           }
