@@ -108,12 +108,8 @@ public class ReceivingEntityBody implements ListenerState {
             http2MessageStateContext.getListenerState()
                     .writeOutboundResponseBody(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
         } else {
-            // Move the state to SendingHeaders.
-            http2MessageStateContext.setListenerState(
-                    new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
-            http2MessageStateContext.getListenerState()
-                    .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent,
-                            streamId);
+            Http2StateUtil.writeResponseBody(http2MessageStateContext, http2OutboundRespListener,
+                                             outboundResponseMsg, httpContent, streamId);
         }
     }
 

@@ -46,6 +46,8 @@ import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.InboundMessageHolder;
+import org.wso2.transport.http.netty.contractimpl.listener.states.http2.Response100ContinueSent;
+import org.wso2.transport.http.netty.contractimpl.listener.states.http2.SendingHeaders;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
@@ -450,6 +452,27 @@ public class Http2StateUtil {
             outboundRequest.setHttp2MessageStateContext(http2MessageStateContext);
         } else if (http2MessageStateContext.getSenderState() == null) {
             http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, null));
+        }
+    }
+
+    public static void writeResponseBody(Http2MessageStateContext http2MessageStateContext,
+                                         Http2OutboundRespListener http2OutboundRespListener,
+                                         HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                         int streamId) throws Http2Exception {
+        // In HTTP/2, 100-continue response and the final response must use the same stream. If the 100-continue
+        // response is sent as a normal response then end stream flag will be sent with it which is incorrect.
+        if (Util.getHttpResponseStatus(outboundResponseMsg).code() == HttpResponseStatus.CONTINUE.code()) {
+            http2MessageStateContext.setListenerState(new Response100ContinueSent(http2MessageStateContext));
+            http2MessageStateContext.getListenerState()
+                    .writeOutboundResponseBody(http2OutboundRespListener, outboundResponseMsg, httpContent,
+                                               streamId);
+        } else {
+            // When the initial frames of the response is to be sent.
+            http2MessageStateContext.setListenerState(
+                    new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
+            http2MessageStateContext.getListenerState()
+                    .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent,
+                                                  streamId);
         }
     }
 }
