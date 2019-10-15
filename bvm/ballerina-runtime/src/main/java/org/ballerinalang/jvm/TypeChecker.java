@@ -433,7 +433,7 @@ public class TypeChecker {
             case TypeTags.STREAM_TAG:
                 return checkIsStreamType(sourceType, (BStreamType) targetType, unresolvedTypes);
             case TypeTags.JSON_TAG:
-                return checkIsJSONType(sourceType, (BJSONType) targetType, unresolvedTypes);
+                return checkIsJSONType(sourceType, unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsRecordType(sourceType, (BRecordType) targetType, unresolvedTypes);
             case TypeTags.FUNCTION_POINTER_TAG:
@@ -503,29 +503,31 @@ public class TypeChecker {
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
+        BType targetConstrainedType = targetType.getConstrainedType();
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
-                return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                return checkContraints(((BMapType) sourceType).getConstrainedType(), targetConstrainedType,
                         unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recType = (BRecordType) sourceType;
-                List<BType> types = new ArrayList<>();
-                for (BField f : recType.getFields().values()) {
-                    types.add(f.type);
-                }
-                if (!recType.sealed) {
-                    types.add(recType.restFieldType);
-                }
-                BUnionType fieldType = new BUnionType(types, recType.typeFlags);
-                return checkContraints(fieldType, targetType.getConstrainedType(), unresolvedTypes);
+                BUnionType wideTypeUnion = new BUnionType(getWideTypeComponents(recType));
+                return checkContraints(wideTypeUnion, targetConstrainedType, unresolvedTypes);
             case TypeTags.JSON_TAG:
-                if (targetType.getConstrainedType().getTag() == TypeTags.JSON_TAG) {
-                    return true;
-                }
-                return false;
+                return targetConstrainedType.getTag() == TypeTags.JSON_TAG;
             default:
                 return false;
         }
+    }
+
+    private static List<BType> getWideTypeComponents(BRecordType recType) {
+        List<BType> types = new ArrayList<>();
+        for (BField f : recType.getFields().values()) {
+            types.add(f.type);
+        }
+        if (!recType.sealed) {
+            types.add(recType.restFieldType);
+        }
+        return types;
     }
 
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
@@ -544,7 +546,8 @@ public class TypeChecker {
                                unresolvedTypes);
     }
 
-    private static boolean checkIsJSONType(BType sourceType, BJSONType targetType, List<TypePair> unresolvedTypes) {
+    private static boolean checkIsJSONType(BType sourceType, List<TypePair> unresolvedTypes) {
+        BJSONType jsonType = (BJSONType) BTypes.typeJSON;
         switch (sourceType.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
@@ -556,11 +559,18 @@ public class TypeChecker {
                 return true;
             case TypeTags.ARRAY_TAG:
                 // Element type of the array should be 'is type' JSON
-                return checkIsType(((BArrayType) sourceType).getElementType(), targetType, unresolvedTypes);
+                return checkIsType(((BArrayType) sourceType).getElementType(), jsonType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
-                return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+                return isFiniteTypeMatch((BFiniteType) sourceType, jsonType);
             case TypeTags.MAP_TAG:
-                return checkIsType(((BMapType) sourceType).getConstrainedType(), targetType, unresolvedTypes);
+                return checkIsType(((BMapType) sourceType).getConstrainedType(), jsonType, unresolvedTypes);
+            case TypeTags.UNION_TAG:
+                for (BType memberType : ((BUnionType) sourceType).getMemberTypes()) {
+                    if (!checkIsJSONType(memberType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+                return true;
             default:
                 return false;
         }
