@@ -37,14 +37,14 @@ import java.util.concurrent.TimeUnit;
  * @since 0.990.1
  */
 @Test(groups = {"websocket-test"})
-public class WebSocketSimpleProxyTestCommons extends WebSocketTestCommons {
+public class SimpleProxyTestCommons extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
     private String url;
     private int port;
     private boolean sslEnabled;
 
-    public WebSocketSimpleProxyTestCommons(int port, boolean sslEnabled, String url) {
+    public SimpleProxyTestCommons(int port, boolean sslEnabled, String url) {
         this.port = port;
         this.sslEnabled = sslEnabled;
         this.url = url;

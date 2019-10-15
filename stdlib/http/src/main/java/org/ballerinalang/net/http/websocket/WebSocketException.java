@@ -16,12 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.net.http.exception;
+package org.ballerinalang.net.http.websocket;
 
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.net.http.WebSocketUtil;
 
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.ErrorCode;
 
 /**
  * Exceptions that could occur in WebSocket.

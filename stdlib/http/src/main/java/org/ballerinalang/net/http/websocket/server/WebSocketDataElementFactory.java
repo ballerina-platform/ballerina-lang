@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http;
+package org.ballerinalang.net.http.websocket.server;
 
 import org.ballerinalang.net.uri.parser.DataElementFactory;
 

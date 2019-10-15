@@ -22,19 +22,18 @@ import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.List;
-
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CALLER;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
+import java.util.Optional;
 
 /**
- * Compiler plugin for validating WebSocket service.
+ * Compiler plugin for validating WebSocket server service.
  *
  * @since 0.965.0
  */
@@ -46,7 +45,7 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
         paramTypes = {
                 @SupportedResourceParamTypes.Type(
                         packageName = WebSocketConstants.PACKAGE_HTTP,
-                        name = WEBSOCKET_CALLER
+                        name = WebSocketConstants.WEBSOCKET_CALLER
                 )
         }
 )
@@ -65,23 +64,43 @@ public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         // If first resource's first parameter is HttpCaller, do not process in this plugin.
         // This is done on the assumption of resources does not mix each other (HTTP and WebSocket)
-        if (resources.size() > 0 && resources.get(0).getParameters().size() > 0
+        if (!resources.isEmpty() && !resources.get(0).getParameters().isEmpty()
                 && HttpConstants.HTTP_CALLER_NAME.equals(resources.get(0).getParameters().get(0).type.toString())) {
             return;
         }
-        if (annotations.size() > 1) {
-            int count = 0;
-            for (AnnotationAttachmentNode annotation : annotations) {
-                if (annotation.getAnnotationName().getValue().equals(WEBSOCKET_ANNOTATION_CONFIGURATION)) {
-                    count++;
-                }
-            }
-            if (count > 1) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                                   "There cannot be more than one " + WEBSOCKET_SERVICE + " annotations");
-            }
-        }
+        validateAnnotationCountAndPath(serviceNode, annotations);
         resources.forEach(
                 res -> new WebSocketServiceResourceValidator(dlog, res).validate());
+    }
+
+    private void validateAnnotationCountAndPath(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+        int count = 0;
+        for (AnnotationAttachmentNode annotation : annotations) {
+            if (annotation.getAnnotationName().getValue().equals(
+                    WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION)) {
+                validatePathAnnotationForPathParam(annotation);
+                count++;
+            }
+        }
+        if (count > 1) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                               "There cannot be more than one " + WebSocketConstants.WEBSOCKET_SERVICE +
+                                       " annotations");
+        }
+    }
+
+    private void validatePathAnnotationForPathParam(AnnotationAttachmentNode annotation) {
+        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
+                ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
+        Optional<BLangRecordLiteral.BLangRecordKeyValue> pathPair = keyValues.stream().filter(
+                pair -> pair.key.toString().equals("path")).findAny();
+        if (pathPair.isPresent()) {
+            BLangExpression valueExpr = pathPair.get().valueExpr;
+            String pathParam = valueExpr.toString();
+            if (pathParam.contains("{") || pathParam.contains("}")) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, valueExpr.getPosition(),
+                                   "Path params are not supported in service path");
+            }
+        }
     }
 }

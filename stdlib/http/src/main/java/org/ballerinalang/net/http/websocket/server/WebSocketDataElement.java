@@ -16,8 +16,9 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http;
+package org.ballerinalang.net.http.websocket.server;
 
+import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.net.uri.parser.DataReturnAgent;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
@@ -25,9 +26,10 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 /**
  * Data element for WebSocket URI template.
  */
-public class WebSocketDataElement implements DataElement<WebSocketService, WebSocketMessage> {
+public class WebSocketDataElement implements DataElement<WebSocketServerService, WebSocketMessage> {
 
-    private WebSocketService webSocketService;
+    private WebSocketServerService webSocketService;
+    private boolean isFirstTraverse = true;
 
     @Override
     public boolean hasData() {
@@ -35,12 +37,23 @@ public class WebSocketDataElement implements DataElement<WebSocketService, WebSo
     }
 
     @Override
-    public void setData(WebSocketService webSocketService) {
-        this.webSocketService = webSocketService;
+    public void setData(WebSocketServerService webSocketService) {
+        if (isFirstTraverse && webSocketService == null) {
+            throw new WebSocketException("Service has not been registered");
+        }
+        if (isFirstTraverse) {
+            isFirstTraverse = false;
+            this.webSocketService = webSocketService;
+        } else if (webSocketService == null) {
+            isFirstTraverse = true;
+            this.webSocketService = null;
+        } else {
+            throw new WebSocketException("Two services have the same addressable URI");
+        }
     }
 
     @Override
-    public boolean getData(WebSocketMessage inboundMessage, DataReturnAgent<WebSocketService> dataReturnAgent) {
+    public boolean getData(WebSocketMessage inboundMessage, DataReturnAgent<WebSocketServerService> dataReturnAgent) {
         if (webSocketService == null) {
             return false;
         }

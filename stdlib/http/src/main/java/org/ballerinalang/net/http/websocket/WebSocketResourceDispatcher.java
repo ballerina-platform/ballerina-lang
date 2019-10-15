@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.net.http;
+package org.ballerinalang.net.http.websocket;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
@@ -32,10 +32,19 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.net.http.exception.WebSocketException;
+import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpDispatcher;
+import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.net.http.websocket.server.OnUpgradeResourceCallback;
+import org.ballerinalang.net.http.websocket.server.WebSocketConnectionManager;
+import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
+import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
+import org.ballerinalang.net.http.websocket.server.WebSocketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -45,13 +54,12 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
-import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
-import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
@@ -59,44 +67,71 @@ import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_S
  *
  * @since 0.94
  */
-public class WebSocketDispatcher {
+public class WebSocketResourceDispatcher {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketDispatcher.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketResourceDispatcher.class);
 
-    private WebSocketDispatcher() {
+    private WebSocketResourceDispatcher() {
     }
 
-    /**
-     * This will find the best matching service for given web socket request.
-     *
-     * @param webSocketHandshaker incoming message.
-     * @return matching service.
-     */
-    static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
-                                        WebSocketHandshaker webSocketHandshaker) {
-        try {
-            HttpResourceArguments pathParams = new HttpResourceArguments();
-            String serviceUri = webSocketHandshaker.getTarget();
-            serviceUri = HttpUtil.sanitizeBasePath(serviceUri);
-            URI requestUri = URI.create(serviceUri);
-            WebSocketService service = servicesRegistry.getUriTemplate().matches(requestUri.getPath(), pathParams,
-                    webSocketHandshaker);
-            if (service == null) {
-                throw new WebSocketException("no Service found to handle the service request: " + serviceUri);
-            }
-            HttpCarbonMessage msg = webSocketHandshaker.getHttpCarbonRequest();
-            msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
-            msg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
-            msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
-            return service;
-        } catch (WebSocketException e) {
-            webSocketHandshaker.cancelHandshake(404, e.detailMessage());
-            return null;
+    public static void dispatchUpgrade(WebSocketHandshaker webSocketHandshaker, WebSocketServerService wsService,
+                                       MapValue httpEndpointConfig, WebSocketConnectionManager connectionManager) {
+        HttpResource onUpgradeResource = wsService.getUpgradeResource();
+        webSocketHandshaker.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
+                                                               onUpgradeResource.getCorsHeaders());
+        AttachedFunction balResource = onUpgradeResource.getBalResource();
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
+                .getHttpCarbonRequest(), httpEndpointConfig);
+
+        ObjectValue httpCaller = (ObjectValue) signatureParams[0];
+        httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketHandshaker);
+        httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
+        httpCaller.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
+
+        Executor.submit(
+                wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
+                balResource.getName(), new OnUpgradeResourceCallback(
+                        webSocketHandshaker, wsService, connectionManager), new HashMap<>(), signatureParams);
+    }
+
+    public static void dispatchOnOpen(WebSocketConnection webSocketConnection, ObjectValue webSocketCaller,
+                                       WebSocketServerService wsService) {
+        AttachedFunction onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+        if (onOpenResource != null) {
+            executeOnOpenResource(wsService, onOpenResource, webSocketCaller,
+                                  webSocketConnection);
+        } else {
+            webSocketConnection.readNextFrame();
         }
     }
 
-    static void dispatchTextMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                    WebSocketTextMessage textMessage) throws IllegalAccessException {
+    public static void executeOnOpenResource(WebSocketService wsService, AttachedFunction onOpenResource,
+                                             ObjectValue webSocketEndpoint, WebSocketConnection webSocketConnection) {
+        BType[] parameterTypes = onOpenResource.getParameterType();
+        Object[] bValues = new Object[parameterTypes.length * 2];
+        bValues[0] = webSocketEndpoint;
+        bValues[1] = true;
+
+        CallableUnitCallback onOpenCallableUnitCallback = new CallableUnitCallback() {
+            @Override
+            public void notifySuccess() {
+                webSocketConnection.readNextFrame();
+            }
+
+            @Override
+            public void notifyFailure(ErrorValue error) {
+                webSocketConnection.readNextFrame();
+                ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
+                WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
+            }
+        };
+
+        Executor.submit(wsService.getScheduler(), wsService.getBalService(), onOpenResource.getName(),
+                        onOpenCallableUnitCallback,
+                        null, bValues);
+    }
+    public static void dispatchOnText(WebSocketOpenConnectionInfo connectionInfo, WebSocketTextMessage textMessage)
+            throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         AttachedFunction onTextMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_TEXT);
@@ -106,7 +141,7 @@ public class WebSocketDispatcher {
         }
         BType[] parameterTypes = onTextMessageResource.getParameterType();
         Object[] bValues = new Object[parameterTypes.length * 2];
-        bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[0] = connectionInfo.getWebSocketCaller();
         bValues[1] = true;
         boolean finalFragment = textMessage.isFinalFragment();
         BType dataType = parameterTypes[1];
@@ -119,19 +154,19 @@ public class WebSocketDispatcher {
                 bValues[5] = true;
             }
             Executor.submit(wsService.getScheduler(), wsService.getBalService(), onTextMessageResource.getName(),
-                    new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
+                            new WebSocketResourceCallback(webSocketConnection), null, bValues);
         } else if (dataTypeTag == TypeTags.JSON_TAG || dataTypeTag == TypeTags.RECORD_TYPE_TAG ||
                 dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG) {
             if (finalFragment) {
                 connectionInfo.appendAggregateString(textMessage.getText());
                 Object aggregate = getAggregatedObject(webSocketConnection, dataType,
-                        connectionInfo.getAggregateString());
+                                                       connectionInfo.getAggregateString());
                 if (aggregate != null) {
                     bValues[2] = aggregate;
                     bValues[3] = true;
                     Executor.submit(wsService.getScheduler(), wsService.getBalService(),
-                            WebSocketConstants.RESOURCE_NAME_ON_TEXT,
-                            new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
+                                    WebSocketConstants.RESOURCE_NAME_ON_TEXT,
+                                    new WebSocketResourceCallback(webSocketConnection), null, bValues);
                 }
                 connectionInfo.resetAggregateString();
             } else {
@@ -177,8 +212,9 @@ public class WebSocketDispatcher {
         return null;
     }
 
-    static void dispatchBinaryMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                      WebSocketBinaryMessage binaryMessage) throws IllegalAccessException {
+    public static void dispatchOnBinary(WebSocketOpenConnectionInfo connectionInfo,
+                                        WebSocketBinaryMessage binaryMessage)
+            throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         AttachedFunction onBinaryMessageResource = wsService.getResourceByName(
@@ -189,7 +225,7 @@ public class WebSocketDispatcher {
         }
         BType[] paramDetails = onBinaryMessageResource.getParameterType();
         Object[] bValues = new Object[paramDetails.length * 2];
-        bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[0] = connectionInfo.getWebSocketCaller();
         bValues[1] = true;
         bValues[2] = new ArrayValue(binaryMessage.getByteArray());
         bValues[3] = true;
@@ -198,21 +234,22 @@ public class WebSocketDispatcher {
             bValues[5] = true;
         }
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_BINARY,
-                new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
+                        new WebSocketResourceCallback(webSocketConnection), null, bValues);
 
     }
 
-    static void dispatchControlMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                       WebSocketControlMessage controlMessage) throws IllegalAccessException {
+    public static void dispatchOnPingOnPong(WebSocketOpenConnectionInfo connectionInfo,
+                                            WebSocketControlMessage controlMessage)
+            throws IllegalAccessException {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
-            WebSocketDispatcher.dispatchPingMessage(connectionInfo, controlMessage);
+            WebSocketResourceDispatcher.dispatchOnPing(connectionInfo, controlMessage);
         } else if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
-            WebSocketDispatcher.dispatchPongMessage(connectionInfo, controlMessage);
+            WebSocketResourceDispatcher.dispatchOnPong(connectionInfo, controlMessage);
         }
     }
 
-    private static void dispatchPingMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                            WebSocketControlMessage controlMessage) throws IllegalAccessException {
+    private static void dispatchOnPing(WebSocketOpenConnectionInfo connectionInfo,
+                                       WebSocketControlMessage controlMessage) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         AttachedFunction onPingMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PING);
@@ -222,16 +259,16 @@ public class WebSocketDispatcher {
         }
         BType[] paramTypes = onPingMessageResource.getParameterType();
         Object[] bValues = new Object[paramTypes.length * 2];
-        bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[0] = connectionInfo.getWebSocketCaller();
         bValues[1] = true;
         bValues[2] = new ArrayValue(controlMessage.getByteArray());
         bValues[3] = true;
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_PING,
-                new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
+                        new WebSocketResourceCallback(webSocketConnection), null, bValues);
     }
 
-    private static void dispatchPongMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                            WebSocketControlMessage controlMessage) throws IllegalAccessException {
+    private static void dispatchOnPong(WebSocketOpenConnectionInfo connectionInfo,
+                                       WebSocketControlMessage controlMessage) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         AttachedFunction onPongMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PONG);
@@ -241,16 +278,16 @@ public class WebSocketDispatcher {
         }
         BType[] paramDetails = onPongMessageResource.getParameterType();
         Object[] bValues = new Object[paramDetails.length * 2];
-        bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[0] = connectionInfo.getWebSocketCaller();
         bValues[1] = true;
         bValues[2] = new ArrayValue(controlMessage.getByteArray());
         bValues[3] = true;
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_PONG,
-                new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
+                        new WebSocketResourceCallback(webSocketConnection), null, bValues);
     }
 
-    static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                     WebSocketCloseMessage closeMessage) throws IllegalAccessException {
+    public static void dispatchOnClose(WebSocketOpenConnectionInfo connectionInfo, WebSocketCloseMessage closeMessage)
+            throws IllegalAccessException {
         WebSocketUtil.setListenerOpenField(connectionInfo);
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
@@ -269,7 +306,7 @@ public class WebSocketDispatcher {
         }
         BType[] paramDetails = onCloseResource.getParameterType();
         Object[] bValues = new Object[paramDetails.length * 2];
-        bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[0] = connectionInfo.getWebSocketCaller();
         bValues[1] = true;
         bValues[2] = closeCode;
         bValues[3] = true;
@@ -286,7 +323,7 @@ public class WebSocketDispatcher {
                     } else {
                         finishFuture = webSocketConnection.finishConnectionClosure(closeCode, null);
                     }
-                    finishFuture.addListener(closeFuture -> connectionInfo.getWebSocketEndpoint()
+                    finishFuture.addListener(closeFuture -> connectionInfo.getWebSocketCaller()
                             .set(WebSocketConstants.LISTENER_IS_SECURE_FIELD, false));
                 }
             }
@@ -299,14 +336,14 @@ public class WebSocketDispatcher {
         };
 
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_CLOSE,
-                onCloseCallback, null, bValues);
+                        onCloseCallback, null, bValues);
     }
 
-    static void dispatchError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
+    public static void dispatchOnError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
         try {
             WebSocketUtil.setListenerOpenField(connectionInfo);
         } catch (IllegalAccessException e) {
-            connectionInfo.getWebSocketEndpoint().set(WebSocketConstants.LISTENER_IS_OPEN_FIELD, false);
+            connectionInfo.getWebSocketCaller().set(WebSocketConstants.LISTENER_IS_OPEN_FIELD, false);
         }
         WebSocketService webSocketService = connectionInfo.getService();
         AttachedFunction onErrorResource = webSocketService.getResourceByName(
@@ -319,7 +356,7 @@ public class WebSocketDispatcher {
             return;
         }
         Object[] bValues = new Object[onErrorResource.getParameterType().length * 2];
-        bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[0] = connectionInfo.getWebSocketCaller();
         bValues[1] = true;
         bValues[2] = WebSocketUtil.createErrorByType(throwable);
         bValues[3] = true;
@@ -336,14 +373,14 @@ public class WebSocketDispatcher {
         };
 
         Executor.submit(webSocketService.getScheduler(), webSocketService.getBalService(),
-                WebSocketConstants.RESOURCE_NAME_ON_ERROR, onErrorCallback, null, bValues);
+                        WebSocketConstants.RESOURCE_NAME_ON_ERROR, onErrorCallback, null, bValues);
     }
 
     private static boolean isUnexpectedError(Throwable throwable) {
         return !(throwable instanceof CorruptedFrameException);
     }
 
-    static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo) throws IllegalAccessException {
+    public static void dispatchOnIdleTimeout(WebSocketOpenConnectionInfo connectionInfo) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         AttachedFunction onIdleTimeoutResource = wsService.getResourceByName(
@@ -354,7 +391,7 @@ public class WebSocketDispatcher {
         }
         BType[] paramDetails = onIdleTimeoutResource.getParameterType();
         Object[] bValues = new Object[paramDetails.length * 2];
-        bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[0] = connectionInfo.getWebSocketCaller();
         bValues[1] = true;
 
         CallableUnitCallback onIdleTimeoutCallback = new CallableUnitCallback() {
@@ -371,7 +408,7 @@ public class WebSocketDispatcher {
         };
 
         Executor.submit(wsService.getScheduler(), wsService.getBalService(),
-                WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT, onIdleTimeoutCallback, null, bValues);
+                        WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT, onIdleTimeoutCallback, null, bValues);
     }
 
     private static void pongAutomatically(WebSocketControlMessage controlMessage) {
