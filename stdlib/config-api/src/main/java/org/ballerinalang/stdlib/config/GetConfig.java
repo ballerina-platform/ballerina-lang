@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -38,23 +39,27 @@ import java.util.Map;
 public class GetConfig {
 
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+    private static final String lookupErrReason = "{ballerina/config}LookupError";
 
     public static Object get(Strand strand, String configKey, Object type) {
 
-        // TODO: Add a try-catch
-        switch (type.toString()) {
-            case "STRING":
-                return configRegistry.getAsString(configKey);
-            case "INT":
-                return configRegistry.getAsInt(configKey);
-            case "FLOAT":
-                return configRegistry.getAsFloat(configKey);
-            case "BOOLEAN":
-                return configRegistry.getAsBoolean(configKey);
-            case "MAP":
-                return buildMapValue(configRegistry.getAsMap(configKey));
-            default:
-                throw new IllegalStateException("invalid value type: " + type.toString());
+        try {
+            switch (type.toString()) {
+                case "STRING":
+                    return configRegistry.getAsString(configKey);
+                case "INT":
+                    return configRegistry.getAsInt(configKey);
+                case "FLOAT":
+                    return configRegistry.getAsFloat(configKey);
+                case "BOOLEAN":
+                    return configRegistry.getAsBoolean(configKey);
+                case "MAP":
+                    return buildMapValue(configRegistry.getAsMap(configKey));
+                default:
+                    throw new IllegalStateException("invalid value type: " + type.toString());
+            }
+        } catch (IllegalArgumentException e) {
+            throw BallerinaErrors.createError(lookupErrReason, e.getMessage());
         }
     }
 
