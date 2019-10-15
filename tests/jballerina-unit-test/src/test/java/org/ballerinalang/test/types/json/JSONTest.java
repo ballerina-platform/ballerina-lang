@@ -180,6 +180,14 @@ public class JSONTest {
     }
 
     @Test
+    public void testCloseRecordToMapJsonAssigment() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testCloseRecordToMapJsonAssigment");
+        BValueArray array = (BValueArray) returns[0];
+        Assert.assertEquals(array.getRefValue(0).stringValue(), "{name:\"\", age:10}");
+        Assert.assertEquals(array.getRefValue(1).stringValue(), "{name:\"\", age:30}");
+    }
+
+    @Test
     public void testFieldAccessOfNullableJSON() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/jsontype/nullable-json-test.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
