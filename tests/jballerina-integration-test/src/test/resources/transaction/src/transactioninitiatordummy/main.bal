@@ -14,22 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/task;
-
-task:AppointmentConfiguration configuration = {
-    appointmentDetails: "* * * * * ? *"
-};
-
-int count = 0;
-
-listener task:Listener appointment = new(configuration);
-
-function getCount() returns int {
-    return count;
+function foo() {
+    transaction with retries = 0 {
+		bar();
+	}
 }
 
-service appointmentService on appointment {
-    resource function onTrigger() {
-        count = count + 1;
-    }
+function bar() {
+    int i = 1 + 2;
 }

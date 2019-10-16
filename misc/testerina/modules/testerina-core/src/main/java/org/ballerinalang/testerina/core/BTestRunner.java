@@ -204,13 +204,13 @@ public class BTestRunner {
             throw new BallerinaException("No test functions found in the provided ballerina files.");
         }
         List<String> groupList = new ArrayList<>();
-        testSuites.forEach((packageName, suite) -> {
-            suite.getTests().forEach(test -> {
+        for (TestSuite suite : testSuites.values()) {
+            for (Test test : suite.getTests()) {
                 if (test.getGroups().size() > 0) {
                     groupList.addAll(test.getGroups());
                 }
-            });
-        });
+            }
+        }
         return groupList.stream().distinct().collect(Collectors.toList());
     }
 
@@ -351,25 +351,11 @@ public class BTestRunner {
                 MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
 
-        suite.setInitFunction(new TesterinaFunction(initClazz,
-                bLangPackage.initFunction));
-        suite.setStartFunction(new TesterinaFunction(initClazz,
-                bLangPackage.startFunction));
-        suite.setStopFunction(new TesterinaFunction(initClazz,
-                bLangPackage.stopFunction));
+        suite.setInitFunction(new TesterinaFunction(initClazz, bLangPackage.initFunction));
+        suite.setStartFunction(new TesterinaFunction(initClazz, bLangPackage.startFunction));
+        suite.setStopFunction(new TesterinaFunction(initClazz, bLangPackage.stopFunction));
         // add all functions of the package as utility functions
-        bLangPackage.functions.stream().forEach(function -> {
-            try {
-                String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                        bLangPackage.packageID.name.value,
-                        getClassName(function));
-                Class<?> functionClass = classLoader.loadClass(functionClassName);
-                suite.addTestUtilityFunction(new TesterinaFunction(functionClass,
-                        function));
-            } catch (RuntimeException e) {
-                // we do nothing here
-            }
-        });
+        addTestUtilityFunctions(bLangPackage, classLoader, suite, bLangPackage);
         // Add all functions of the test function to test suite
         if (bLangPackage.hasTestablePackage()) {
             BLangPackage testablePackage = bLangPackage.getTestablePkg();
@@ -385,18 +371,7 @@ public class BTestRunner {
             suite.setTestStopFunction(new TesterinaFunction(testInitClazz,
                     testablePackage.stopFunction));
 
-            testablePackage.functions.stream().forEach(function -> {
-                try {
-                    String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                            bLangPackage.packageID.name.value,
-                            getClassName(function));
-                    Class<?> functionClass = classLoader.loadClass(functionClassName);
-                    suite.addTestUtilityFunction(new TesterinaFunction(functionClass,
-                            function));
-                } catch (RuntimeException e) {
-                    // we do nothing here
-                }
-            });
+            addTestUtilityFunctions(bLangPackage, classLoader, suite, testablePackage);
         }
 
         resolveFunctions(suite);
@@ -404,6 +379,20 @@ public class BTestRunner {
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);
         suite.setProgramFile(classLoader);
+    }
+
+    private void addTestUtilityFunctions(BLangPackage bLangPackage, TestarinaClassLoader classLoader, TestSuite suite,
+                                         BLangPackage testablePackage) {
+        for (BLangFunction function : testablePackage.functions) {
+            try {
+                String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                        bLangPackage.packageID.name.value, getClassName(function));
+                Class<?> functionClass = classLoader.loadClass(functionClassName);
+                suite.addTestUtilityFunction(new TesterinaFunction(functionClass, function));
+            } catch (RuntimeException e) {
+                // we do nothing here
+            }
+        }
     }
 
     private String getClassName(BLangFunction function) {
@@ -428,8 +417,9 @@ public class BTestRunner {
      */
     private static void resolveFunctions(TestSuite suite) {
         List<TesterinaFunction> functions = suite.getTestUtilityFunctions();
-        List<String> functionNames = functions.stream().map(testerinaFunction -> testerinaFunction.getName()).collect
-                (Collectors.toList());
+        List<String> functionNames = functions.stream()
+                .map(TesterinaFunction::getName)
+                .collect(Collectors.toList());
         for (Test test : suite.getTests()) {
             if (test.getTestName() != null && functionNames.contains(test.getTestName())) {
                 test.setTestFunction(functions.stream().filter(e -> e.getName().equals(test
@@ -491,7 +481,7 @@ public class BTestRunner {
                 }
             }
             for (String dependsOnFn : test.getDependsOnTestFunctions()) {
-                if (!functions.stream().parallel().anyMatch(func -> func.getName().equals(dependsOnFn))) {
+                if (functions.stream().noneMatch(func -> func.getName().equals(dependsOnFn))) {
                     throw LauncherUtils.createLauncherException("Cannot find the specified dependsOn function : "
                             + dependsOnFn);
                 }
@@ -538,11 +528,13 @@ public class BTestRunner {
         int[] indegrees = new int[numberOfNodes];
         int[] sortedElts = new int[numberOfNodes];
 
-        List<Integer> dependencyMatrix[] = new ArrayList[numberOfNodes];
+        List<Integer>[] dependencyMatrix = new ArrayList[numberOfNodes];
         for (int i = 0; i < numberOfNodes; i++) {
             dependencyMatrix[i] = new ArrayList<>();
         }
-        List<String> testNames = tests.stream().map(k -> k.getTestName()).collect(Collectors.toList());
+        List<String> testNames = tests.stream()
+                .map(Test::getTestName)
+                .collect(Collectors.toList());
 
         int i = 0;
         for (Test test : tests) {
@@ -622,7 +614,7 @@ public class BTestRunner {
         outStream.println("Running tests");
         // Check if the test suite is empty
         if (testSuites.isEmpty()) {
-            outStream.println("    No tests found");
+            outStream.println("\t" + "No tests found");
             // We need a new line to show a clear separation between the outputs of 'Running Tests' and
             // 'Generating Executable'
             if (buildWithTests) {
@@ -640,9 +632,9 @@ public class BTestRunner {
             // For single bal files
             if (packageName.equals(Names.DOT.value)) {
                 // If there is a source file name print it and then execute the tests
-                outStream.println("    " + suite.getSourceFileName());
+                outStream.println("\t" + suite.getSourceFileName());
             } else {
-                outStream.println("    " + packageName);
+                outStream.println("\t" + packageName);
             }
             // Check if there are tests in the test suite
             if (suite.getTests().size() == 0) {
@@ -846,8 +838,6 @@ public class BTestRunner {
                 // Iterate array elements and set parameters
                 setTestFunctionParams(argsList, arrayValue);
             }
-        } else {
-            // we do nothing data provider should always return an array.
         }
         return argsList;
     }
@@ -871,8 +861,6 @@ public class BTestRunner {
                 // Iterate elements and get class types.
                 setTestFunctionSignature(typeList, arrayValue);
             }
-        } else {
-            // we do nothing data provider should always return an array.
         }
         Class[] typeListArray = new Class[typeList.size()];
         typeList.toArray(typeListArray);

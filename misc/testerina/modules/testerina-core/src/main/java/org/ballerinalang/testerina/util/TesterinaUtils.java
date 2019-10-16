@@ -122,8 +122,8 @@ public class TesterinaUtils {
      * @param outStream      error stream for logging.
      * @param errStream      info stream for logging.
      */
-    public static void executeTests(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader>
-            programFileMap, PrintStream outStream, PrintStream errStream) {
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader> programFileMap,
+                                    PrintStream outStream, PrintStream errStream) {
         // Set org-name and version to the Testerina Registry.
         setManifestConfigs(sourceRootPath);
         

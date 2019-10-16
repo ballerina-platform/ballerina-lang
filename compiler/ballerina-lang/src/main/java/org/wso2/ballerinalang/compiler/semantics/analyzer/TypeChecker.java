@@ -701,6 +701,12 @@ public class TypeChecker extends BLangNodeVisitor {
             List<BType> expTypes = tupleType.tupleTypes;
             List<BType> results = new ArrayList<>();
             BType restType = null;
+
+            // [int, boolean, string...] x = [1, true];
+            if (tupleType.restType != null && listConstructor.exprs.size() < expTypes.size() + 1) {
+                restType = tupleType.restType;
+            }
+
             for (int i = 0; i < listConstructor.exprs.size(); i++) {
                 // Infer type from lhs since lhs might be union
                 // TODO: Need to fix with tuple casting
