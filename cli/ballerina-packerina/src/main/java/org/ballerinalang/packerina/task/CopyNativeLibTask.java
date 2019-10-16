@@ -148,6 +148,11 @@ public class CopyNativeLibTask implements Task {
         List<Library> libraries = manifest.getPlatform().libraries;
         if (libraries != null && libraries.size() > 0) {
             for (Library library : libraries) {
+
+                if (library.getGroupId() == null || library.getModules() == null) {
+                    continue;
+                }
+
                 if (library.getGroupId().equals(importz.pkgID.orgName.value) &&
                         Arrays.asList(library.getModules()).contains(importz.pkgID.name.value)) {
                     Path lib = Paths.get(library.getPath());
