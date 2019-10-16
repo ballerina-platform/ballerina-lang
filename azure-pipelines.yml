@@ -6,6 +6,8 @@ jobs:
   variables:
     GRADLE_USER_HOME: $(Pipeline.Workspace)/.gradle
   steps:
+  - checkout: self
+    submodules: true
   - task: NodeTool@0
     inputs:
       versionSpec: '8.12.0'
