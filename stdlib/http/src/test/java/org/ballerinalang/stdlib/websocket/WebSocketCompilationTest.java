@@ -21,6 +21,8 @@ package org.ballerinalang.stdlib.websocket;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -30,6 +32,7 @@ import org.testng.annotations.Test;
 public class WebSocketCompilationTest {
 
     private static final String TEST_PATH = "test-src/websocket/";
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketCompilationTest.class);
 
     @Test(description = "Successfully compiling WebSocketService")
     public void testSuccessServer() {
@@ -176,6 +179,20 @@ public class WebSocketCompilationTest {
         CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "success_failover_client.bal");
 
         Assert.assertEquals(compileResult.toString(), "Compilation Successful");
+    }
+
+//    @Test(description = "Invalid resource onOpen in WebSocketFailoverClientService")
+//    public void testFailOnOpenFailoverClient() {
+//        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onOpen_failoverClient.bal");
+//        Assert.assertEquals(compileResult.toString(), "Compilation Failed");
+//    }
+
+    @Test(description = "Service path cannot support path params")
+    public void testServicePathParams() {
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "path_param_service.bal");
+
+        assertExpectedDiagnosticsLength(compileResult, 1);
+        BAssertUtil.validateError(compileResult, 0, "Path params are not supported in service path", 23, 11);
     }
 
     private void assertExpectedDiagnosticsLength(CompileResult compileResult, int expectedLength) {

@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class FailoverClientWithRetry extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer15100;
-    private String retryUrl = "ws://localhost:21029";
+    private String retryUrl = "ws://localhost:21034";
     private String url = "ws://localhost:21031";
     private int port = 15100;
     private WebSocketRemoteServer remoteServer15200 = new WebSocketRemoteServer(15200);
