@@ -1,0 +1,10 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run error_type_binding_pattern.bal
+Reason String: Sample Error
+Info: Detail Msg
+Fatal: true
+Reason String: Sample Error
+Detail Mapping: info=Detail Msg fatal=true
+Detail Mapping: fatal=true
+Detail Message: Failed Message
