@@ -2927,15 +2927,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         } else {
-            BMapType targetErrorDetailMap = (BMapType) expectedError.detailType;
-            List<BLangNamedArgsExpression> providedErrorDetails = getProvidedErrorDetails(iExpr, reasonArgGiven);
-            if (providedErrorDetails == null) {
-                // error in provided error details
-                return;
-            }
-            for (BLangNamedArgsExpression errorDetailArg : providedErrorDetails) {
-                checkExpr(errorDetailArg, env, targetErrorDetailMap.constraint);
-            }
+            // This is when there is a semantic error in error type, bail out!
+            return;
         }
         setErrorReasonParam(iExpr, reasonArgGiven, expectedError);
         setErrorDetailArgsToNamedArgsList(iExpr);
