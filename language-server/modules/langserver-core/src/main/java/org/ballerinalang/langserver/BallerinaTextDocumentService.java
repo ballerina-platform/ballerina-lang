@@ -17,6 +17,7 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.CommandUtil;
@@ -619,7 +620,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
                 documentManager.openFile(Paths.get(new URL(docUri).toURI()), content);
-                LanguageClient client = this.languageServer.getClient();
+                ExtendedLanguageClient client = this.languageServer.getClient();
                 LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DID_OPEN);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
                 LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
@@ -655,7 +656,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
 
             // Schedule diagnostics
-            LanguageClient client = this.languageServer.getClient();
+            ExtendedLanguageClient client = this.languageServer.getClient();
             this.diagPushDebouncer.call(compilationPath, () -> {
                 // Need to lock since debouncer triggers later
                 Optional<Lock> nLock = documentManager.lockFile(compilationPath);
@@ -664,7 +665,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     String fileURI = params.getTextDocument().getUri();
                     ctx.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
                     LSDocument lsDocument = new LSDocument(fileURI);
-                    diagnosticsHelper.compileAndSendDiagnostics(client, ctx, lsDocument, documentManager);
+                    diagnosticsHelper.compileAndSendDiagnostics( client, ctx, lsDocument, documentManager);
                     // Clear current cache upon successfull compilation
                     // If the compiler fails, still we'll have the cached entry(marked as outdated)
                     LSCompilerCache.clear(ctx, lsDocument.getProjectRoot());

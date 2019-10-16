@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.diagnostic;
 
+import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -62,7 +63,7 @@ public class DiagnosticsHelper {
      * @param docManager LS Document manager
      * @throws CompilationFailedException throws a LS compiler exception
      */
-    public synchronized void compileAndSendDiagnostics(LanguageClient client, LSContext context, LSDocument lsDocument,
+    public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, LSContext context, LSDocument lsDocument,
                                                        WorkspaceDocumentManager docManager) throws
                                                                                             CompilationFailedException {
         // Compile diagnostics
@@ -84,6 +85,9 @@ public class DiagnosticsHelper {
 
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
+
+        // Publish text highlighting
+        diagnosticMap.forEach((key, value) -> client.publishTextHighlighting());
 
         // Replace old map
         lastDiagnosticMap = diagnosticMap;

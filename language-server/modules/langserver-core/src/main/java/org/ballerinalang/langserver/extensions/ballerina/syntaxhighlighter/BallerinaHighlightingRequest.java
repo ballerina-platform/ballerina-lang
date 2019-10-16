@@ -16,21 +16,23 @@
  *  under the License.
  */
 package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
-
-import java.util.concurrent.CompletableFuture;
-
 /**
- * Implementation of Ballerina Syntax Highlighter extension for Language Server.
+ * Represents a request for Ballerina Syntax Highlighter.
  *
  * @since 1.0.2
  */
-public class BallerinaSyntaxHighlightServiceImpl implements BallerinaSyntaxHighlightService {
 
-    public CompletableFuture<BallerinaHighlightingResponse> list(BallerinaHighlightingRequest request){
-        System.out.println(request.getParams());
-        BallerinaHighlightingResponse reply = new BallerinaHighlightingResponse();
-        reply.setParams("Done");
-        return CompletableFuture.supplyAsync(() -> reply);
+public class BallerinaHighlightingRequest {
+    private String params;
+
+    public BallerinaHighlightingRequest() {
     }
 
+    public BallerinaHighlightingRequest(String params) {
+        this.params = params;
+    }
+
+    public String getParams() {
+        return params;
+    }
 }
