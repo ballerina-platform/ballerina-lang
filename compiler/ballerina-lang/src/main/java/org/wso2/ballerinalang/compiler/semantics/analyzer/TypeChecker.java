@@ -237,7 +237,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return expr.type;
         }
 
-        // TODO Check the possibility of using a try/finally here
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
         DiagnosticCode preDiagCode = this.diagCode;
@@ -245,6 +244,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.diagCode = diagCode;
         this.expType = expType;
         this.isTypeChecked = true;
+        expr.expectedType = expType;
 
         expr.accept(this);
 
@@ -253,6 +253,9 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = prevEnv;
         this.expType = preExpType;
         this.diagCode = preDiagCode;
+        if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
+            expr.expectedType = resultType;
+        }
         return resultType;
     }
 
