@@ -51,7 +51,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
     public void testNoAuthHeaders3() throws Exception {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test3"),
                 serverInstance.getServerHome());
-        assertOK(response);
+        assertUnauthorized(response);
     }
 
     @Test(description = "Auth enabled resource, Auth disabled service test case with no auth headers")
@@ -93,7 +93,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
     public void testNoAuthHeaders9() throws Exception {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo3/test3"),
                 serverInstance.getServerHome());
-        assertOK(response);
+        assertUnauthorized(response);
     }
 
     @Test(description = "Auth enabled resource, Auth enabled service test case with valid auth headers")
@@ -201,7 +201,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test3"),
                 headersMap, serverInstance.getServerHome());
-        assertOK(response);
+        assertUnauthorized(response);
     }
 
     @Test(description = "Auth enabled resource, Auth disabled service test case with invalid auth headers")
@@ -231,7 +231,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         assertOK(response);
     }
 
-    @Test(description = "Auth enabled resource, Auth disabled service test case with invalid auth headers")
+    @Test(description = "Auth enabled resource, Auth default service test case with invalid auth headers")
     public void testInvalidAuthHeaders7() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
@@ -240,7 +240,7 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         assertUnauthorized(response);
     }
 
-    @Test(description = "Auth disabled resource, Auth disabled service test case with invalid auth headers")
+    @Test(description = "Auth disabled resource, Auth default service test case with invalid auth headers")
     public void testInvalidAuthHeaders8() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
@@ -249,12 +249,12 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
         assertOK(response);
     }
 
-    @Test(description = "Auth default resource, Auth disabled service test case with invalid auth headers")
+    @Test(description = "Auth default resource, Auth default service test case with invalid auth headers")
     public void testInvalidAuthHeaders9() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo3/test3"),
                 headersMap, serverInstance.getServerHome());
-        assertOK(response);
+        assertUnauthorized(response);
     }
 }
