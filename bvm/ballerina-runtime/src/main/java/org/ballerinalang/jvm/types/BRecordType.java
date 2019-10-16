@@ -33,6 +33,7 @@ public class BRecordType extends BStructureType {
 
     public boolean sealed;
     public BType restFieldType;
+    public int typeFlags;
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -41,10 +42,12 @@ public class BRecordType extends BStructureType {
      * @param pkg package of the record type
      * @param flags of the record type
      * @param sealed flag indicating the sealed status
+     * @param typeFlags flags associated with the type
      */
-    public BRecordType(String typeName, BPackage pkg, int flags, boolean sealed) {
+    public BRecordType(String typeName, BPackage pkg, int flags, boolean sealed, int typeFlags) {
         super(typeName, pkg, flags, MapValueImpl.class);
         this.sealed = sealed;
+        this.typeFlags = typeFlags;
     }
 
     /**
@@ -56,12 +59,14 @@ public class BRecordType extends BStructureType {
      * @param fields record fields
      * @param restFieldType type of the rest field
      * @param sealed flag to indicate whether the record is sealed
+     * @param typeFlags flags associated with the type
      */
     public BRecordType(String typeName, BPackage pkg, int flags, Map<String, BField> fields, BType restFieldType,
-            boolean sealed) {
+            boolean sealed, int typeFlags) {
         super(typeName, pkg, flags, MapValueImpl.class, fields);
         this.restFieldType = restFieldType;
         this.sealed = sealed;
+        this.typeFlags = typeFlags;
     }
 
     @Override
@@ -90,5 +95,15 @@ public class BRecordType extends BStructureType {
     @Override
     public String getAnnotationKey() {
         return this.typeName;
+    }
+
+    @Override
+    public boolean isAnydata() {
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.ANYDATA);
+    }
+
+    @Override
+    public boolean isPureType() {
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.PURETYPE);
     }
 }

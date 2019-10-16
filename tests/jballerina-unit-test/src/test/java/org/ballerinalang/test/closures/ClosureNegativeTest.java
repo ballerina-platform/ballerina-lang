@@ -52,11 +52,14 @@ public class ClosureNegativeTest {
     @Test(description = "Test private field access")
     public void testPrivateFieldAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/closures/closure-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 4);
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "variable 'a' is not initialized", 5, 22);
         BAssertUtil.validateError(compileResult, index++, "variable 'count' is not initialized", 14, 9);
-        BAssertUtil.validateError(compileResult, index++, "variable 'b' is not initialized", 16, 9);
-        BAssertUtil.validateError(compileResult, index, "variable 'b' is not initialized", 16, 13);
+        BAssertUtil.validateError(compileResult, index++, "variable 'b' is not initialized", 16, 13);
+        BAssertUtil.validateError(compileResult, index++, "variable 'localVar2' is not initialized", 29, 17);
+        BAssertUtil.validateError(compileResult, index++, "variable 'localVar2' is not initialized", 35, 17);
+        BAssertUtil.validateError(compileResult, index++, "variable 'localVar' is not initialized", 38, 16);
+        BAssertUtil.validateError(compileResult, index++, "variable 'localVar2' is not initialized", 39, 17);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

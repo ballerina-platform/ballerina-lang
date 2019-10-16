@@ -122,6 +122,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"chainCompletion3.json", "function"},
                 {"chainCompletion4.json", "function"},
                 {"chainCompletion5.json", "function"},
+                {"chainCompletion6.json", "function"},
+                {"chainCompletion7.json", "function"},
                 {"externalKeywordSuggestion1.json", "function"},
                 {"externalKeywordSuggestion2.json", "function"},
 //                {"ifWhileConditionContextCompletion1.json", "function"}, //TODO: Fix this
@@ -170,6 +172,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"returnParameterContextSuggestion11.json", "function"},
                 {"typeDescSuggestions1.json", "function"},
                 {"typeDescSuggestions2.json", "function"},
+                {"delimiterBasedCompletionOverArrays.json", "function"},
+                {"delimiterBasedCompletionOverXML.json", "function"},
 //                {"statementWithMissingSemiColon1.json", "function"},
 //                {"statementWithMissingSemiColon2.json", "function"},
 //                {"statementWithMissingSemiColon3.json", "function"},

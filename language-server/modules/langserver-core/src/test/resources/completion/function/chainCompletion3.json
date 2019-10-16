@@ -1,22 +1,50 @@
 {
   "position": {
     "line": 5,
-    "character": 44
+    "character": 48
   },
   "source": "function/source/chainCompletion3.bal",
   "items": [
     {
-      "label": "setText(string textContent, string contentType)",
+      "label": "fromJsonString()((json|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given text content. This method overrides any existing content-type headers\nwith the default content-type `text/plain`. The default value `text/plain` can be overridden\nby passing the content type as an optional parameter.\n  \n**Params**  \n- `string` textContent: Text content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `text/plain`\n                is used as the default value.(Defaultable)  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `text/plain`\n                is used as the default value."
+          "value": "**Package:** _ballerina/lang.value_  \n  \nParses a string in JSON format and returns the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
         }
       },
       "sortText": "121",
-      "insertText": "setText(${1});",
+      "insertText": "fromJsonString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "keys()(string[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a list of all the keys of map `m`.\n  \n  \n  \n**Returns** `string[]`   \n- a new list of all keys  \n  \n"
+        }
+      },
+      "sortText": "121",
+      "insertText": "keys()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remove(string k)((any|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nRemoves a member of a map.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `(any|error)`   \n- the member of `m` that had key `k`  \nThis removed the member of `m` with key `k` and returns it.  \nIt panics if there is no such member.  \n  \n"
+        }
+      },
+      "sortText": "121",
+      "insertText": "remove(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -24,45 +52,67 @@
       }
     },
     {
-      "label": "getContentLength()((int|error))",
+      "label": "removeAll()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGets the content length of entity.\n  \n  \n  \n**Returns** `(int|error)`   \n- Content length as an `int`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nRemoves all members of a map.\nThis panics if any member cannot be removed.\n  \n"
         }
       },
       "sortText": "121",
-      "insertText": "getContentLength()",
+      "insertText": "removeAll();",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getText()((string|mime:ParserError))",
+      "label": "iterator()()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts text body from the entity. If the entity body is not text compatible an error is returned.\n  \n  \n  \n**Returns** `(string|mime:ParserError)`   \n- `string` data extracted from the the entity body or `ParserError` in case of errors.  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** ``   \n- a new iterator object that will iterate over the members of `m`  \n  \n"
         }
       },
       "sortText": "121",
-      "insertText": "getText()",
+      "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "setContentDisposition(mime:ContentDisposition contentDisposition)",
+      "label": "isReadOnly()(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the content disposition of the entity.\n  \n**Params**  \n- `mime:ContentDisposition` contentDisposition: Content disposition that needs to be set to entity"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
       "sortText": "121",
-      "insertText": "setContentDisposition(${1});",
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "zone",
+      "kind": "Variable",
+      "detail": "time:TimeZone",
+      "sortText": "221",
+      "insertText": "zone",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "get(string k)((any|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns the member of map `m` with key `k`.\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if `m` does not have a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `(any|error)`   \n- member with key `k`  \n  \n"
+        }
+      },
+      "sortText": "121",
+      "insertText": "get(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -70,31 +120,17 @@
       }
     },
     {
-      "label": "getJson()((json|mime:ParserError))",
+      "label": "map(function ((any|error)) returns ((any|error)) func)(map<(any|error)>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts JSON body from the entity. If the entity body is not a JSON, an error is returned.\n  \n  \n  \n**Returns** `(json|mime:ParserError)`   \n- `json` data extracted from the the entity body. An `ParserError` record is returned in case of  \n           errors.  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function each member of a map and returns a map of the result.\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ((any|error)) returns ((any|error))` func: a function to apply to each member  \n  \n**Returns** `map<(any|error)>`   \n- new map containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "121",
-      "insertText": "getJson()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setHeader(string headerName, string headerValue)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the given header value against the existing header. If a header already exists, its value is replaced\nwith the given header value.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: Represents the header value"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setHeader(${1});",
+      "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -102,17 +138,31 @@
       }
     },
     {
-      "label": "setBody((string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) entityBody)",
+      "label": "toJsonString()(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the body of the entity with the given content. Note that any string value is set as `text/plain`. To send a\nJSON-compatible string, set the content-type header to `application/json` or use the `setJsonPayload` method instead.\n  \n**Params**  \n- `(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` entityBody: Entity body can be of the type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel`, or `Entity[]`."
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
         }
       },
       "sortText": "121",
-      "insertText": "setBody(${1});",
+      "insertText": "toJsonString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "reduce(function ((any|error),(any|error)) returns ((any|error)) func, (any|error) initial)((any|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining function `func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
+        }
+      },
+      "sortText": "121",
+      "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -120,45 +170,17 @@
       }
     },
     {
-      "label": "getBodyParts()((mime:Entity[]|mime:ParserError))",
+      "label": "hasKey(string k)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.\n  \n  \n  \n**Returns** `(mime:Entity[]|mime:ParserError)`   \n- An array of body parts(`Entity[]`) extracted from the entity body. An `ParserError` record will be  \n           returned in case of errors.  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nTests whether m has a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `boolean`   \n- true if m has a member with key `k`  \n  \n"
         }
       },
       "sortText": "121",
-      "insertText": "getBodyParts()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getHeaderNames()(string[])",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGets all header names.\n  \n  \n  \n**Returns** `string[]`   \n- All header names as a `string[]`  \n  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getHeaderNames()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "removeHeader(string headerName)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nRemoves the given header from the entity.\n  \n**Params**  \n- `string` headerName: Represents the header name"
-        }
-      },
-      "sortText": "121",
-      "insertText": "removeHeader(${1});",
+      "insertText": "hasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -166,17 +188,17 @@
       }
     },
     {
-      "label": "setContentId(string contentId)",
+      "label": "forEach(function ((any|error)) returns () func)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the content ID of the entity.\n  \n**Params**  \n- `string` contentId: Content ID that needs to be set to entity"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function to each member of a map.\nThe function `func` is applied to each member of `m`.\n  \n**Params**  \n- `function ((any|error)) returns ()` func: a function to apply to each member"
         }
       },
       "sortText": "121",
-      "insertText": "setContentId(${1});",
+      "insertText": "forEach(${1});",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -184,364 +206,118 @@
       }
     },
     {
-      "label": "getXml()((xml|mime:ParserError))",
+      "label": "length()(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts `xml` body from the entity. If the entity body is not an XML, an error is returned.\n  \n  \n  \n**Returns** `(xml|mime:ParserError)`   \n- `xml` data extracted from the the entity body. An `ParserError` record is returned in case of  \n           errors.  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Returns** `int`   \n- number of members in `m`  \n  \n"
         }
       },
       "sortText": "121",
-      "insertText": "getXml()",
+      "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getContentId()(string)",
+      "label": "cloneReadOnly()(anydata)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGets the content ID of entity.\n  \n  \n  \n**Returns** `string`   \n- Content ID as a `string`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
       "sortText": "121",
-      "insertText": "getContentId()",
+      "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "cLength",
+      "label": "filter(function ((any|error)) returns (boolean) func)(map<(any|error)>)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ((any|error)) returns (boolean)` func: a predicate to apply to each element to test whether it should be included  \n  \n**Returns** `map<(any|error)>`   \n- new map containing members for which `func` evaluates to true  \n  \n"
+        }
+      },
+      "sortText": "121",
+      "insertText": "filter(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "entries()(map<[string,(any|error)]>)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Returns** `map<[string,(any|error)]>`   \n- a new map of [key, member] pairs  \n  \n"
+        }
+      },
+      "sortText": "121",
+      "insertText": "entries()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mergeJson(json j2)((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nMerges two json values.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- the merge of `j1` with `j2` or an error if the merge fails  \n  \nThe merge of `j1` with `j2` is defined as follows:  \n- if `j1` is `()`, then the result is `j2`  \n- if `j2` is `()`, then the result is `j1`  \n- if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,  \n  set `j1[k]` to the merge of `j1[k]` with `j`  \n    - if `j1[k]` is undefined, then set `j1[k]` to `j`  \n    - if any merge fails, then the merge of `j1` with `j2` fails  \n    - otherwise, the result is `j1`.  \n- otherwise, the merge fails  \nIf the merge fails, then `j1` is unchanged.  \n  \n"
+        }
+      },
+      "sortText": "121",
+      "insertText": "mergeJson(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "clone()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+        }
+      },
+      "sortText": "121",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key=value for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
+        }
+      },
+      "sortText": "121",
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "time",
       "kind": "Variable",
       "detail": "int",
       "sortText": "221",
-      "insertText": "cLength",
+      "insertText": "time",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getBodyPartsAsChannel()((io:ReadableByteChannel|mime:ParserError))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the body parts as a byte channel.\n  \n  \n  \n**Returns** `(io:ReadableByteChannel|mime:ParserError)`   \n- Body parts as a byte channel  \n  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getBodyPartsAsChannel()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setXml(xml xmlContent, string contentType)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given XML content. This method overrides any existing content-type headers\nwith the default content-type `application/xml`. The default value `application/xml` can be overridden\nby passing the content-type as an optional parameter.\n  \n**Params**  \n- `xml` xmlContent: XML content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `application/xml`\n                is used as the default value.(Defaultable)  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `application/xml`\n                is used as the default value."
-        }
-      },
-      "sortText": "121",
-      "insertText": "setXml(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "hasHeader(string headerName)(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nChecks whether the requested header key exists in the header map.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `boolean`   \n- True if the specified header key exists  \n  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "hasHeader(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "cId",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "221",
-      "insertText": "cId",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setFileAsEntityBody(string filePath, string contentType)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with a given file. This method overrides any existing `content-type` headers\nwith the default content type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content type as an optional parameter.\n  \n**Params**  \n- `string` filePath: Represents the path to the file  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.(Defaultable)  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value."
-        }
-      },
-      "sortText": "121",
-      "insertText": "setFileAsEntityBody(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getContentType()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGets the content type of entity.\n  \n  \n  \n**Returns** `string`   \n- Content type as a `string`  \n  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getContentType()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "removeAllHeaders()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nRemoves all headers associated with the entity.  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "removeAllHeaders();",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setByteChannel(io:ReadableByteChannel byteChannel, string contentType)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given byte channel content. This method overrides any existing content-type headers\nwith the default content-type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content-type as an optional parameter.\n  \n**Params**  \n- `io:ReadableByteChannel` byteChannel: Byte channel that needs to be set to entity  \n- `string` contentType: Content-type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.(Defaultable)  \n- `string` contentType: Content-type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value."
-        }
-      },
-      "sortText": "121",
-      "insertText": "setByteChannel(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "cType",
-      "kind": "Variable",
-      "detail": "mime:MediaType",
-      "sortText": "221",
-      "insertText": "cType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setContentLength(int contentLength)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the content length of the entity.\n  \n**Params**  \n- `int` contentLength: Content length that needs to be set to entity"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setContentLength(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getHeaders(string headerName)(string[])",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGets all the header values associated with the given header name.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string[]`   \n- All the header values associated with the given header name as a `string[]`. An exception is thrown  \n           if no header is found. Use `hasHeader()` beforehand to check the existence of header.  \n  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getHeaders(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "addHeader(string headerName, string headerValue)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nAdds the given header value against the given header.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: Represents the header value to be added"
-        }
-      },
-      "sortText": "121",
-      "insertText": "addHeader(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getByteChannel()((io:ReadableByteChannel|mime:ParserError))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a byte channel.\n  \n  \n  \n**Returns** `(io:ReadableByteChannel|mime:ParserError)`   \n- An `io:ReadableByteChannel`. An `ParserError` record will be returned in case of errors  \n  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getByteChannel()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getContentDisposition()(mime:ContentDisposition)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGets the content disposition of entity.\n  \n  \n  \n**Returns** `mime:ContentDisposition`   \n- A `ContentDisposition` object  \n  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getContentDisposition()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setBodyParts(mime:Entity[] bodyParts, string contentType)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets body parts to entity. This method overrides any existing `content-type` headers\nwith the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden\nby passing the content type as an optional parameter.\n  \n**Params**  \n- `mime:Entity[]` bodyParts: Represents the body parts that needs to be set to the entity  \n- `string` contentType: Content-type to be used with the payload. This is an optional parameter.\n                `multipart/form-data` is used as the default value.(Defaultable)  \n- `string` contentType: Content-type to be used with the payload. This is an optional parameter.\n                `multipart/form-data` is used as the default value."
-        }
-      },
-      "sortText": "121",
-      "insertText": "setBodyParts(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "setByteArray(byte[] blobContent, string contentType)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given byte[] content. This method overrides any existing `content-type` headers\nwith the default content type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content type as an optional parameter.\n  \n**Params**  \n- `byte[]` blobContent: byte[] content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.(Defaultable)  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value."
-        }
-      },
-      "sortText": "121",
-      "insertText": "setByteArray(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getByteArray()((byte[]|mime:ParserError))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider\nusing getByteChannel() method instead.\n  \n  \n  \n**Returns** `(byte[]|mime:ParserError)`   \n- `byte[]` data extracted from the the entity body. An `ParserError` record is returned in case of  \n           errors.  \n  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getByteArray()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setContentType(string mediaType)((()|mime:InvalidContentTypeError))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the content-type to entity.\n  \n**Params**  \n- `string` mediaType: Content type that needs to be set to the entity  \n  \n**Returns** `(()|mime:InvalidContentTypeError)`   \n- Nil if successful, error in case of invalid media-type  \n  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setContentType(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getHeader(string headerName)(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGets the header value associated with the given header name.\n  \n**Params**  \n- `string` headerName: Represents header name  \n  \n**Returns** `string`   \n- Header value associated with the given header name as a `string`. If multiple header values are  \n           present, then the first value is returned. An exception is thrown if no header is found. Use  \n           `hasHeader()` beforehand to check the existence of header.  \n  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getHeader(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "cDisposition",
-      "kind": "Variable",
-      "detail": "mime:ContentDisposition",
-      "sortText": "221",
-      "insertText": "cDisposition",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setJson(json jsonContent, string contentType)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given `json` content. This method overrides any existing `content-type` headers\nwith the default content type `application/json`. The default value `application/json` can be overridden\nby passing the content type as an optional parameter.\n  \n**Params**  \n- `json` jsonContent: JSON content that needs to be set to entity  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `application/json`\n                is used as the default value.(Defaultable)  \n- `string` contentType: Content type to be used with the payload. This is an optional parameter. `application/json`\n                is used as the default value."
-        }
-      },
-      "sortText": "121",
-      "insertText": "setJson(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }

@@ -22,7 +22,7 @@ package org.ballerinalang.langserver.codeaction;
  */
 public enum CodeActionNodeType {
     FUNCTION,
-    OBJECT_FUNCTION(),
+    OBJECT_FUNCTION,
     RESOURCE,
     SERVICE,
     OBJECT,

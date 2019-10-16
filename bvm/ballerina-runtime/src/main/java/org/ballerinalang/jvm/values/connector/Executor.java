@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -70,7 +71,8 @@ public class Executor {
             }
             return service.call(strand, resourceName, args);
         };
-        BUnionType unionType = new BUnionType(new BType[]{BTypes.typeError, BTypes.typeNull});
+        BUnionType unionType = new BUnionType(new BType[] { BTypes.typeError, BTypes.typeNull },
+                TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.PURETYPE));
         scheduler.schedule(new Object[1], func, null, callback, properties, unionType);
     }
 
