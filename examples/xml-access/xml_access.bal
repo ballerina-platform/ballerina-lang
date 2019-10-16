@@ -2,7 +2,6 @@ import ballerina/io;
 
 public function main() {
 
-
     // The XML element with nested children.
     xml bookXML = xml `<book>
                 <name>Sherlock Holmes</name>
@@ -32,7 +31,6 @@ public function main() {
     io:println(bookXML.author.fname@["title"]);
     io:println(bookXML["author"]["fname"]@["title"]);
 
-    
     // You can access the elements by their namespace-qualified (fully-qualified) name.
     io:println(bookXML["{http://ballerina.com/a}year"].getTextValue());
     xmlns "http://ballerina.com/a" as foo;
