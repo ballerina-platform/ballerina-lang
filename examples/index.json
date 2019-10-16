@@ -351,7 +351,7 @@
             },
             {
                 "name": "Record-Typed Binding Pattern",
-                "url": "record-type-binding-pattern"
+                 "url": "record-typed-binding-pattern"
             },
             {
                 "name": "Error-Typed Binding Pattern",
