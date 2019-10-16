@@ -19,6 +19,7 @@ package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BHandleType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
@@ -246,5 +247,12 @@ public class InstanceMethodTest {
             Assert.assertTrue(e.getMessage().contains("message=Unchecked Exception"));
             Assert.assertTrue(e.getMessage().contains("cause=error java.lang.Throwable message=Unchecked cause"));
         }
+    }
+
+    @Test(description = "Test tuple return with null values")
+    public void testTupleReturn() { ;
+        BValue[] returns = BRunUtil.invoke(result, "getArrayValue");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.HANDLE_TAG);
     }
 }
