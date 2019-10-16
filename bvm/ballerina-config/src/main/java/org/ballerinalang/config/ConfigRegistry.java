@@ -211,7 +211,7 @@ public class ConfigRegistry {
                 }
                 return (Boolean) value;
             } catch (ClassCastException e) {
-                throw new IllegalArgumentException(key + " does not map to a valid boolean");
+                throw new IllegalArgumentException("config key '" + key + "' does not map to a valid 'boolean'");
             }
         }
 
@@ -245,7 +245,7 @@ public class ConfigRegistry {
                 }
                 return (Long) value;
             } catch (ClassCastException | NumberFormatException e) {
-                throw new IllegalArgumentException(key + " does not map to a valid int");
+                throw new IllegalArgumentException("config key '" + key + "' does not map to a valid 'int'");
             }
         }
 
@@ -281,7 +281,7 @@ public class ConfigRegistry {
                 }
                 return (Double) value;
             } catch (ClassCastException | NumberFormatException e) {
-                throw new IllegalArgumentException(key + " does not map to a valid float");
+                throw new IllegalArgumentException("config key '" + key + "' does not map to a valid 'float'");
             }
         }
 

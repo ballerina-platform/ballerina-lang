@@ -364,6 +364,7 @@ public class BLangPackageBuilder {
 
     private Stack<Set<Whitespace>> errorMatchPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> simpleMatchPatternWS = new Stack<>();
+    private Stack<Set<Whitespace>> recordKeyWS = new Stack<>();
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -1416,8 +1417,15 @@ public class BLangPackageBuilder {
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
         keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
+        if (!this.recordKeyWS.isEmpty()) {
+            keyValue.addWS(this.recordKeyWS.pop());
+        }
         keyValue.key.computedKey = computedKey;
         recordLiteralNodes.peek().keyValuePairs.add(keyValue);
+    }
+
+    void addRecordKeyWS(Set<Whitespace> ws) {
+        this.recordKeyWS.push(ws);
     }
 
     void addMapStructLiteral(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1521,14 +1529,13 @@ public class BLangPackageBuilder {
     }
 
     private void addExprToExprNodeList(List<ExpressionNode> exprList, int n) {
-        if (exprNodeStack.empty()) {
-            throw new IllegalStateException("Expression stack cannot be empty in processing an ExpressionList");
+        for (int i = 0; i < n; i++) {
+            if (exprNodeStack.empty()) {
+                throw new IllegalStateException("Expression stack cannot be empty in processing an ExpressionList");
+            }
+            exprList.add(exprNodeStack.pop());
         }
-        ExpressionNode expr = exprNodeStack.pop();
-        if (n > 1) {
-            addExprToExprNodeList(exprList, n - 1);
-        }
-        exprList.add(expr);
+        Collections.reverse(exprList);
     }
 
 

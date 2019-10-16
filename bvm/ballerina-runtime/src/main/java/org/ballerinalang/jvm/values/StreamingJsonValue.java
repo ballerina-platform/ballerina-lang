@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.Map;
 
 /**
  * <p>
@@ -149,6 +150,20 @@ public class StreamingJsonValue extends ArrayValue {
 
     void appendToCache(Object value) {
         super.add(size, value);
+    }
+
+    @Override
+    public String getJSONString() {
+        // Consume and materialize the stream.
+        buildDatasource();
+        return super.getJSONString();
+    }
+
+    @Override
+    public Object copy(Map<Object, Object> refs) {
+        // Consume and materialize the stream.
+        buildDatasource();
+        return super.copy(refs);
     }
 
     private void buildDatasource() {

@@ -949,13 +949,23 @@ public class CommonUtil {
     }
 
     public static BallerinaParser prepareParser(String content) {
-        ANTLRInputStream inputStream = new ANTLRInputStream(content);
-        BallerinaLexer lexer = new BallerinaLexer(inputStream);
-        lexer.removeErrorListeners();
-        CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
+        CommonTokenStream commonTokenStream = getTokenStream(content);
         BallerinaParser parser = new BallerinaParser(commonTokenStream);
         parser.removeErrorListeners();
         return parser;
+    }
+
+    static CommonTokenStream getTokenStream(String content) {
+        ANTLRInputStream inputStream = new ANTLRInputStream(content);
+        BallerinaLexer lexer = new BallerinaLexer(inputStream);
+        lexer.removeErrorListeners();
+        return new CommonTokenStream(lexer);
+    }
+
+    public static List<Token> getTokenList(String content) {
+        CommonTokenStream tokenStream = getTokenStream(content);
+        tokenStream.fill();
+        return new ArrayList<>(tokenStream.getTokens());
     }
 
     public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {

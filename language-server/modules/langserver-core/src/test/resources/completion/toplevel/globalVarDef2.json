@@ -1165,7 +1165,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \n  \n**Params**  \n- `int` port  \n- `(http:ListenerConfiguration|())` config(Defaultable)"
         }
       },
       "sortText": "120",
@@ -1183,7 +1183,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \n  \n**Params**  \n- `int` port  \n- `(http:ListenerConfiguration|())` config(Defaultable)"
         }
       },
       "sortText": "120",
