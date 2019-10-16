@@ -512,8 +512,6 @@ public class TypeChecker {
                 BRecordType recType = (BRecordType) sourceType;
                 BUnionType wideTypeUnion = new BUnionType(getWideTypeComponents(recType));
                 return checkContraints(wideTypeUnion, targetConstrainedType, unresolvedTypes);
-            case TypeTags.JSON_TAG:
-                return targetConstrainedType.getTag() == TypeTags.JSON_TAG;
             default:
                 return false;
         }
