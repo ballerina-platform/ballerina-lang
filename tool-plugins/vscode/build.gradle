@@ -79,6 +79,6 @@ task test(type: Exec) {
     }
 }
 
-build {
+check {
     dependsOn test
 }
