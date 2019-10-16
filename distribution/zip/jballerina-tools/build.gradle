@@ -101,6 +101,8 @@ dependencies {
     dist project(':ballerina-formatter')
     dist project(':ballerina-backend-jvm')
     birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
+    dist project(':ballerina-backend-llvm')
+    birJar project(path: ':ballerina-backend-llvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-packerina')
     dist project(':openapi-ballerina:ballerina-to-openapi-generator')

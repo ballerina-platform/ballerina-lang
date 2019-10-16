@@ -65,13 +65,33 @@ public class BootstrapRunner {
                 throw new RuntimeException("could not load pre-compiled jars for invoking the compiler backend", e);
             }
         }
-        
-        generateJarBinary(entryBir, jarOutputPath, dumpBir, birCachePaths);
+
+        // TODO : get this value from the method parameters
+        boolean isNative = true;
+        if (isNative) {
+            // TODO : get the last parameter from the method parameters
+            genObjectFile(entryBir, jarOutputPath, true);
+        } else {
+            generateJarBinary(entryBir, jarOutputPath, dumpBir, birCachePaths);
+        }
     }
     
     public static void loadTargetAndGenerateJarBinary(Path tmpDir, String entryBir, String jarOutputPath,
                                                       boolean dumpBir, String... birCachePaths) {
         loadTargetAndGenerateJarBinary(tmpDir, entryBir, jarOutputPath, dumpBir, false, birCachePaths);
+    }
+
+    private static void genObjectFile(String entryBir, String objFileOutputPath, boolean dumpLLVM) {
+        try {
+            Class<?> backendMain = Class.forName("ballerina.compiler_backend_llvm.___init");
+            Method backendMainMethod = backendMain.getMethod("main", String[].class);
+            List<String> params = createArgsForCompilerBackend(entryBir, objFileOutputPath, dumpLLVM);
+            backendMainMethod.invoke(null, new Object[]{params.toArray(new String[0])});
+        } catch (InvocationTargetException e) {
+            throw new BLangCompilerException(e.getTargetException().getMessage(), e);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
+            throw new BLangCompilerException("could not invoke compiler backend", e);
+        }
     }
 
     private static void generateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
@@ -126,6 +146,7 @@ public class BootstrapRunner {
         return sj.toString();
     }
 
+    // TODO : Combine these two functions
     private static List<String> createArgsForCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
                                                              String[] birCachePaths) {
         List<String> commands = new ArrayList<>();
@@ -134,6 +155,15 @@ public class BootstrapRunner {
         commands.add(jarOutputPath);
         commands.add(dumpBir ? "true" : "false"); // dump bir
         commands.addAll(Arrays.asList(birCachePaths));
+        return commands;
+    }
+
+    private static List<String> createArgsForCompilerBackend(String entryBir, String objFileOutputPath, boolean dumpLLVM) {
+        List<String> commands = new ArrayList<>();
+        commands.add(entryBir);
+        commands.add(getMapPath());
+        commands.add(objFileOutputPath);
+        commands.add(dumpLLVM ? "true" : "false"); // dump LLVM-IR
         return commands;
     }
 
