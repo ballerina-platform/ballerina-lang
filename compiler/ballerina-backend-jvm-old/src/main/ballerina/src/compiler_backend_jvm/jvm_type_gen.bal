@@ -219,6 +219,15 @@ function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] reco
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
         mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+
+        mv.visitInsn(DUP);
+        mv.visitTypeInsn(NEW, STRAND);
+        mv.visitInsn(DUP);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", io:sprintf("(L%s;)V", SCHEDULER) , false);
+        mv.visitInsn(SWAP);
+        mv.visitMethodInsn(INVOKESTATIC, className, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+
         mv.visitInsn(ARETURN);
         i += 1;
     }

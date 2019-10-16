@@ -656,7 +656,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:NewArray) {
                 instGen.generateArrayNewIns(inst);
             } else if (inst is bir:NewMap) {
-                instGen.generateMapNewIns(inst);
+                instGen.generateMapNewIns(inst, localVarOffset);
             } else if (inst is bir:NewTypeDesc) {
                 instGen.generateNewTypedescIns(inst);
             } else if (inst is bir:NewTable) {
