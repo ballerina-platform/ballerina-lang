@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -2739,16 +2740,12 @@ public class Desugar extends BLangNodeVisitor {
         trxAbortedFunc.cachedEnv = env.createClone();
 
         // Retrive the symbol for beginTransactionInitiator function.
-        BSymbol trxModSym = env.enclPkg.imports
-                .stream()
-                .filter(importPackage ->
-                                importPackage.symbol.pkgID.toString().equals(Names.TRANSACTION_ORG.value + Names
-                                        .ORG_NAME_SEPARATOR.value + Names.TRANSACTION_PACKAGE.value))
-                .findAny().get().symbol;
+        PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE, Names.EMPTY);
+        BPackageSymbol transactionPkgSymbol = new BPackageSymbol(packageID, null, 0);
         BInvokableSymbol invokableSymbol =
-                (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(trxModSym),
-                                                            TRX_INITIATOR_BEGIN_FUNCTION,
-                                                            SymTag.FUNCTION);
+                (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(transactionPkgSymbol),
+                        TRX_INITIATOR_BEGIN_FUNCTION,
+                        SymTag.FUNCTION);
         BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
                                                                        getTransactionBlockId());
         List<BLangExpression> requiredArgs = Lists.of(transactionBlockId, transactionNode.retryCount, trxMainFunc,
