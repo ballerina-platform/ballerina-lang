@@ -245,8 +245,8 @@ public class ErrorTest {
                                   "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
         BAssertUtil.validateError(negativeCompileResult, i++,
                                   "invalid error reason type 'int', expected a subtype of 'string'", 41, 28);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'map<any>', expected a subtype of "
-                + "'record {| string message?; error cause?; (anydata|error)...; |}'", 41, 33);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'map<any>', "
+                + "expected a subtype of 'record {| string message?; error cause?; (anydata|error)...; |}'", 41, 33);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'boolean', expected a subtype "
                 + "of 'record {| string message?; error cause?; (anydata|error)...; |}'", 42, 36);
         BAssertUtil.validateError(negativeCompileResult, i++,
