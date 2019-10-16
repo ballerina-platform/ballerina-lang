@@ -1456,30 +1456,28 @@ public class BLangPackageBuilder {
         BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         List<BLangTableLiteral.BLangTableColumn> keyNames = tableLiteralNodes.peek().columns;
         List<ExpressionNode> recordValues = exprNodeListStack.pop();
-        if (keyNames.size() == recordValues.size()) {
-            int index = 0;
-            for (ExpressionNode expr : recordValues) {
-                BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
-                //Value
-                keyValue.valueExpr = (BLangExpression) expr;
-                //key
-                BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-                keyExpr.pos = pos;
-                IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
-                identifierNode.setValue(keyNames.get(index).columnName);
-                keyExpr.variableName = (BLangIdentifier) identifierNode;
-                keyValue.key = new BLangRecordKey(keyExpr);
-                //Key-Value pair
-                recordLiteral.keyValuePairs.add(keyValue);
-                ++index;
-            }
-            recordLiteral.addWS(ws);
-            recordLiteral.pos = pos;
-            if (commaWsStack.size() > 0) {
-                recordLiteral.addWS(commaWsStack.pop());
-            }
-            this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
+        int index = 0;
+        for (ExpressionNode expr : recordValues) {
+            BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+            //Value
+            keyValue.valueExpr = (BLangExpression) expr;
+            //key
+            BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            keyExpr.pos = pos;
+            IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
+            identifierNode.setValue(keyNames.get(index).columnName);
+            keyExpr.variableName = (BLangIdentifier) identifierNode;
+            keyValue.key = new BLangRecordKey(keyExpr);
+            //Key-Value pair
+            recordLiteral.keyValuePairs.add(keyValue);
+            ++index;
         }
+        recordLiteral.addWS(ws);
+        recordLiteral.pos = pos;
+        if (commaWsStack.size() > 0) {
+            recordLiteral.addWS(commaWsStack.pop());
+        }
+        this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
     }
 
     void endTableDataArray(Set<Whitespace> ws) {
