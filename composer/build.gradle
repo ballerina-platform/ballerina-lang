@@ -91,6 +91,6 @@ artifacts.add('composer', file("packages/distribution/build/"))
 artifacts.add('highlighter', file("packages/syntax-highlighter/lib/"))
 artifacts.add('fonts', file("packages/font/build/"))
 
-build {
+check {
     dependsOn test
 }
