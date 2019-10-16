@@ -478,6 +478,13 @@ public class BJSONValueTest {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
     }
 
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=" +
+                    "incompatible types: 'json\\[\\]' cannot be cast to 'map<json>\\[\\]'.*")
+    public void testMapJsonToJsonArray() {
+        BRunUtil.invoke(compileResult, "testMapJsonToJsonArray");
+    }
+
     @Test
     public void testIntArrayToJsonAssignment() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIntArrayToJsonAssignment");

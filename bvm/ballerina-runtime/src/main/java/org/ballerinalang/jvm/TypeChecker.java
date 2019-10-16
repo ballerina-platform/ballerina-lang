@@ -518,11 +518,6 @@ public class TypeChecker {
                 }
                 BUnionType fieldType = new BUnionType(types, recType.typeFlags);
                 return checkContraints(fieldType, targetType.getConstrainedType(), unresolvedTypes);
-            case TypeTags.JSON_TAG:
-                if (targetType.getConstrainedType().getTag() == TypeTags.JSON_TAG) {
-                    return true;
-                }
-                return false;
             default:
                 return false;
         }
