@@ -374,6 +374,10 @@ public class CommandExecutionTest {
         return new Object[][] {
                 {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction3.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
+                {"createUndefinedFunction5.json", "createUndefinedFunction3.bal"},
+                {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
         };
     }
 
