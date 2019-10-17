@@ -33,25 +33,19 @@ service helloWorld on new http:Listener(9107, {httpVersion: "2.0"}) {
     }
     resource function abnormalResource(http:Caller caller, http:Request request) {
         var result = caller->continue();
-        if (result is error) {
-            log:printError("Error sending response", err = result);
-        }
+        handleError(result);
         http:Response res = new;
         var payload = request.getTextPayload();
         if (payload is string) {
             res.statusCode = 200;
             res.setPayload(<@untaintedstring>payload);
             var result1 = caller->respond(res);
-            if (result1 is error) {
-                log:printError("Error sending response", err = result1);
-            }
+            handleError(result1);
         } else {
             res.statusCode = 500;
             res.setPayload(<@untainted><string>payload.detail()?.message);
             var result1 = caller->respond(res);
-            if (result1 is error) {
-                log:printError("Error sending response", err = result1);
-            }
+            handleError(result1);
         }
     }
 
@@ -66,5 +60,11 @@ service helloWorld on new http:Listener(9107, {httpVersion: "2.0"}) {
         } else {
             checkpanic caller->respond("Error sending client request");
         }
+    }
+}
+
+function handleError(error? result) {
+    if (result is error) {
+        log:printError(result.reason(), err = result);
     }
 }
