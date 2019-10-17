@@ -2730,8 +2730,9 @@ public class FormattingNodeTree {
                             this.getFormattingConfig(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt(),
                                     formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(),
                                     formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
-                                    false, this.getWhiteSpaceCount(indentWithParentIndentation),
-                                    true));
+                                    false, this.getWhiteSpaceCount(useParentIndentation ? indentWithParentIndentation
+                                            + FormattingConstants.SPACE_TAB : indentWithParentIndentation),
+                                    useParentIndentation));
                 }
             }
 
@@ -6654,19 +6655,41 @@ public class FormattingNodeTree {
             JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentWithParentIndentation = this.getParentIndentation(formatConfig);
-            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
+            boolean isWaitBroken = false;
 
-            this.preserveHeight(ws, indentWithParentIndentation, useParentIndentation);
+            this.preserveHeight(ws, indentWithParentIndentation, false);
 
             // Update whitespaces for wait.
             for (JsonElement wsItem : ws) {
                 JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
-                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                     if (text.equals(Tokens.WAIT) || text.equals(Tokens.OPENING_BRACE)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     } else if (text.equals(Tokens.CLOSING_BRACE) || text.equals(Tokens.COMMA)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    }
+                } else {
+                    if (text.equals(Tokens.WAIT)) {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                currentWS.get(FormattingConstants.WS).getAsString()
+                                        + FormattingConstants.SPACE_TAB);
+                        isWaitBroken = true;
+                    }
+
+                    if (isWaitBroken) {
+                        if (text.equals(Tokens.OPENING_BRACE) || text.equals(Tokens.CLOSING_BRACE)) {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    currentWS.get(FormattingConstants.WS).getAsString()
+                                            + FormattingConstants.SPACE_TAB);
+                        } else if (text.equals(Tokens.COMMA)) {
+                            currentWS.addProperty(FormattingConstants.WS, currentWS.get(FormattingConstants.WS)
+                                    .getAsString() + FormattingConstants.SPACE_TAB + FormattingConstants.SPACE_TAB);
+                        }
+                    } else if (text.equals(Tokens.COMMA)) {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                currentWS.get(FormattingConstants.WS).getAsString()
+                                        + FormattingConstants.SPACE_TAB);
                     }
                 }
             }
@@ -6674,7 +6697,8 @@ public class FormattingNodeTree {
             // Update key value pairs' whitespaces.
             if (node.has("keyValuePairs")) {
                 JsonArray keyValuePairs = node.getAsJsonArray("keyValuePairs");
-                this.iterateAndFormatMembers(indentWithParentIndentation, keyValuePairs);
+                this.iterateAndFormatMembers(isWaitBroken ? indentWithParentIndentation + FormattingConstants.SPACE_TAB
+                        : indentWithParentIndentation, keyValuePairs);
             }
 
             // Update the expression.
@@ -6682,7 +6706,8 @@ public class FormattingNodeTree {
                 JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
                 expression.add(FormattingConstants.FORMATTING_CONFIG,
                         this.getFormattingConfig(0, 1, 0, false,
-                                this.getWhiteSpaceCount(indentWithParentIndentation), true));
+                                this.getWhiteSpaceCount(isWaitBroken ? indentWithParentIndentation
+                                        + FormattingConstants.SPACE_TAB : indentWithParentIndentation), true));
             }
         }
     }

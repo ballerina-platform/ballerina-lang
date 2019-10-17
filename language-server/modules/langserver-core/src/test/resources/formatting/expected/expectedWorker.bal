@@ -65,9 +65,9 @@ function test3() {
 
     _ = wait
     {
-    w1
-    ,
-    w2
+        w1
+        ,
+        w2
     }
     ;
 }

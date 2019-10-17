@@ -42,7 +42,7 @@ function testArrayToTupleAssignment3() returns [string, string[]] {
 function testArrayToTupleAssignment4() returns [string, string[]] {
     string[3] x = ["a", "b", "c"];
     [string, string...][i,
-    ...
-    j] = x;
+        ...
+        j] = x;
     return [i, j];
 }
