@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -47,22 +46,19 @@ import org.slf4j.LoggerFactory;
 public class Ready {
     private static final Logger log = LoggerFactory.getLogger(Ready.class);
 
-    public static Object ready(Strand strand, ObjectValue wsConnection) {
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
+    public static Object ready(Strand strand, ObjectValue wsClient) {
         try {
-            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
+            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsClient
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            boolean isReady = wsConnection.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
+            boolean isReady = wsClient.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
-                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnection);
-                callback.setReturnValues(null);
-                callback.notifySuccess();
+                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsClient);
             } else {
-                callback.notifyFailure(new WebSocketException("Already started reading frames"));
+                return new WebSocketException("Already started reading frames");
             }
         } catch (Exception e) {
             log.error("Error occurred when calling ready", e);
-            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
+            return WebSocketUtil.createErrorByType(e);
         }
         return null;
     }

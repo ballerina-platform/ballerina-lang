@@ -21,8 +21,6 @@ package org.ballerinalang.stdlib.websocket;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,7 +30,6 @@ import org.testng.annotations.Test;
 public class WebSocketCompilationTest {
 
     private static final String TEST_PATH = "test-src/websocket/";
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketCompilationTest.class);
 
     @Test(description = "Successfully compiling WebSocketService")
     public void testSuccessServer() {
@@ -181,11 +178,14 @@ public class WebSocketCompilationTest {
         Assert.assertEquals(compileResult.toString(), "Compilation Successful");
     }
 
-//    @Test(description = "Invalid resource onOpen in WebSocketFailoverClientService")
-//    public void testFailOnOpenFailoverClient() {
-//        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onOpen_failoverClient.bal");
-//        Assert.assertEquals(compileResult.toString(), "Compilation Failed");
-//    }
+    @Test(description = "Invalid resource onOpen in WebSocketFailoverClientService")
+    public void testFailOnOpenFailoverClient() {
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH +
+                "fail_onBinary_failoverClient.bal");
+        assertExpectedDiagnosticsLength(compileResult, 2);
+        Assert.assertTrue(compileResult.toString().contains("Invalid resource signature for onBinary resource " +
+                "in service : The first parameter should be a WebSocketFailoverClient"));
+    }
 
     @Test(description = "Service path cannot support path params")
     public void testServicePathParams() {

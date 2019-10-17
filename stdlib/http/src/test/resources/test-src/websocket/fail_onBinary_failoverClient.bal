@@ -18,27 +18,11 @@ import ballerina/http;
 
 service wsClientService = @http:WebSocketServiceConfig {} service {
 
-    resource function onText(http:WebSocketClient caller, string text) {
+    resource function onText(http:WebSocketFailoverClient caller, string text) {
 
     }
 
     resource function onBinary(http:WebSocketClient caller, byte[] text, boolean isFinal) {
-
-    }
-
-    resource function onClose(http:WebSocketClient caller, int val, string text) {
-
-    }
-
-    resource function onIdleTimeout(http:WebSocketClient caller) {
-
-    }
-
-    resource function onPing(http:WebSocketClient caller, byte[] data) {
-
-    }
-
-    resource function onPong(http:WebSocketClient caller, byte[] data) {
 
     }
 };

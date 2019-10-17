@@ -422,9 +422,8 @@ public class WebSocketUtil {
                 HttpConstants.CLIENT_ENDPOINT_CONFIG).getBooleanValue(WebSocketConstants.CLIENT_READY_ON_CONNECT);
         ClientHandshakeFuture handshakeFuture = clientConnector.connect();
         handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
-        handshakeFuture.setClientHandshakeListener(
-                new WebSocketFailoverClientHandshakeListener(webSocketClient, wsService, clientConnectorListener,
-                        readyOnConnect));
+        handshakeFuture.setClientHandshakeListener(new WebSocketFailoverClientHandshakeListener(webSocketClient,
+                wsService, clientConnectorListener, readyOnConnect));
     }
 
     private static void establishInitialWebSocketConnection(ObjectValue webSocketClient, WebSocketService wsService) {
@@ -441,9 +440,8 @@ public class WebSocketUtil {
                 HttpConstants.CLIENT_ENDPOINT_CONFIG).getBooleanValue(WebSocketConstants.CLIENT_READY_ON_CONNECT);
         ClientHandshakeFuture handshakeFuture = clientConnector.connect();
         handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
-        handshakeFuture.setClientHandshakeListener(
-                new WebSocketClientHandshakeListener(webSocketClient, wsService, clientConnectorListener,
-                        readyOnConnect));
+        handshakeFuture.setClientHandshakeListener(new WebSocketClientHandshakeListener(webSocketClient, wsService,
+                clientConnectorListener, readyOnConnect));
     }
 
     private static void waitingForHandShake(ObjectValue  webSocketClient) {
@@ -453,11 +451,9 @@ public class WebSocketUtil {
             // Wait for 5 minutes before timeout
             if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {
                 throw new WebSocketException(WebSocketConstants.ErrorCode.WsGenericError,
-                        "Waiting for WebSocket handshake has not been successful",
-                        WebSocketUtil.createErrorCause(
-                                "Connection timeout",
-                                IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
-                                IO_PACKAGE_ID));
+                        "Waiting for WebSocket handshake has not been successful", WebSocketUtil.createErrorCause(
+                                "Connection timeout", IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
+                        IO_PACKAGE_ID));
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -492,8 +488,7 @@ public class WebSocketUtil {
             establishWebSocketConnection(webSocketClient, wsService);
             return true;
         }
-        logger.debug(STATEMENT_FOR_RECONNECT +
-                webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+        logger.debug(STATEMENT_FOR_RECONNECT + webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
         return false;
     }
 
