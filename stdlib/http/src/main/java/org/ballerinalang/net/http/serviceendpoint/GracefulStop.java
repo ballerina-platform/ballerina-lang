@@ -30,7 +30,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 
 /**
- * Stops the listener immediately and close the connection.
+ * Stop the listener immediately and close the connection.
  *
  * @since 0.966
  */
