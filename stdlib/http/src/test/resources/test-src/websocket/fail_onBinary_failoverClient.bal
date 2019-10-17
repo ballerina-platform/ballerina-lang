@@ -29,7 +29,3 @@ service wsClientService = @http:WebSocketServiceConfig {} service {
 
 http:WebSocketFailoverClient wsClient = new({callbackService: wsClientService,
 targetUrls: ["ws://echo.websocket.org"] });
-
-
-
-
