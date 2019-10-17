@@ -513,7 +513,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isModuleVariable(BSymbol symbol) {
-        return symbol.owner.getKind() == SymbolKind.PACKAGE;
+        return symbol.tag == SymTag.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
     @Override
@@ -587,22 +587,22 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
                 BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
                 if (isMutableVariable(varRef) && isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
-                    if (varRef.symbol.type.tag == TypeTags.OBJECT) {
-                        addTaintError(pos, varRef.symbol.name.value,
+                    if (varRef.symbol != null && varRef.symbol.type.tag == TypeTags.OBJECT) {
+                        addTaintError(pos, getVariableName(varRef),
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT);
                     } else {
-                        addTaintError(pos, varRef.symbol.name.value,
+                        addTaintError(pos, getVariableName(varRef),
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
                     }
                     return;
-                } else if (varRef.symbol != null && varRef.symbol.closure && varTaintedStatus == TaintedStatus.TAINTED
+                } else if (varRef.symbol != null && varRef.symbol.closure
                         && !varRef.symbol.tainted && notInSameScope(varRef, env)) {
-                    addTaintError(pos, varRef.symbol.name.value,
+                    addTaintError(pos, getVariableName(varRef),
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE);
                     return;
                 } else if (varRef.symbol != null && isMarkedUntainted(varRef)
                         && (varRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
-                    addTaintError(pos, varRef.symbol.name.value,
+                    addTaintError(pos, getVariableName(varRef),
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 }
             }
@@ -639,16 +639,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private String getVariableName(BLangVariableReference varRef) {
+        if (isStructuredAccessOnVariableReference(varRef)) {
+            return getVariableName((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+        }
+        return varRef.symbol.name.value;
+    }
+
     private boolean isMutableVariable(BLangVariableReference varRef) {
-        if (varRef.symbol == null) {
-            if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
-                    || varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                BLangExpression expr = ((BLangAccessExpression) varRef).expr;
-                if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF || varRef.getKind() == NodeKind.CONSTANT_REF) {
-                    return isMutableVariable((BLangVariableReference) expr);
-                }
-            }
-            return false;
+        if (isStructuredAccessOnVariableReference(varRef)) {
+            return isMutableVariable((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
         }
         if (varRef.symbol.getKind() == SymbolKind.CONSTANT || (varRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
             return false;
@@ -661,14 +661,29 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isMarkedTainted(BLangVariableReference varRef) {
+        if (isStructuredAccessOnVariableReference(varRef)) {
+            return isMarkedTainted((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+        }
         return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.TAINTED;
     }
 
+    private boolean isStructuredAccessOnVariableReference(BLangVariableReference variableReference) {
+        return (variableReference.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
+                || variableReference.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                || variableReference.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR);
+    }
+
     private boolean isMarkedUntainted(BLangVariableReference varRef) {
+        if (isStructuredAccessOnVariableReference(varRef)) {
+            return isMarkedUntainted((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+        }
         return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.UNTAINTED;
     }
 
     private boolean isGlobalVarOrServiceVar(BLangVariableReference varRef) {
+        if (isStructuredAccessOnVariableReference(varRef)) {
+            return isGlobalVarOrServiceVar((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+        }
         return varRef.symbol != null && varRef.symbol.owner != null
                 && (isModuleVariable(varRef.symbol)
                 || (varRef.symbol.owner.flags & Flags.SERVICE) == Flags.SERVICE);

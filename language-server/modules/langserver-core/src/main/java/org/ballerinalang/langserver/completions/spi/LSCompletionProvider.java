@@ -257,6 +257,7 @@ public abstract class LSCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.STMT_NAMESPACE_DECLARATION));
         completionItems.add(getStaticItem(context, Snippet.DEF_OBJECT_SNIPPET));
         completionItems.add(getStaticItem(context, Snippet.DEF_RECORD));
+        completionItems.add(getStaticItem(context, Snippet.DEF_CLOSED_RECORD));
         completionItems.add(getStaticItem(context, Snippet.KW_TYPE));
         completionItems.add(getStaticItem(context, Snippet.KW_PUBLIC));
         completionItems.add(getStaticItem(context, Snippet.KW_FINAL));
@@ -358,12 +359,10 @@ public abstract class LSCompletionProvider {
      *
      * @return {@link Predicate} Symbol filter predicate
      */
-    protected Predicate<SymbolInfo> attachedOrSelfKeywordFilter() {
+    protected Predicate<SymbolInfo> attachedSymbolFilter() {
         return symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED))
-                    || (CommonKeys.SELF_KEYWORD_KEY.equals(bSymbol.getName().getValue())
-                    && (bSymbol.owner.flags & Flags.RESOURCE) == Flags.RESOURCE);
+            return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
         };
     }
 
@@ -673,7 +672,8 @@ public abstract class LSCompletionProvider {
             return false;
         }
         int tokenSize = defaultTokens.size();
-        if (defaultTokens.indexOf(BallerinaParser.ASSIGN) > 0) {
+        int assignTokenIndex = defaultTokens.indexOf(BallerinaParser.ASSIGN);
+        if (assignTokenIndex > 0 && assignTokenIndex >= tokenSize - 3 && assignTokenIndex < tokenSize) {
             // check added to avoid the external function definition
             // function xyz() returns int = external;
             return false;

@@ -2,7 +2,7 @@
     "result": {
         "contents": {
             "kind": "markdown",
-            "value": "**Description**  \n  \nTest function to show current package works  \n  \n**Params**  \n- `string` s: string parameter  \n- `int` sd: int parameter  \n  \n**Returns** `int`  \n- return an int  \n  \n"
+            "value": "**Description**  \n  \nTest function to show current package works  \n  \n**Params**  \n- `string` **s**: string parameter  \n- `int` **sd**: int parameter  \n  \n**Returns** `int`  \n- return an int  \n  \n"
         }
     },
     "id": {

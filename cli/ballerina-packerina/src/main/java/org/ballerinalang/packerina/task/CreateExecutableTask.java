@@ -26,9 +26,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -37,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.HashSet;
@@ -159,20 +165,20 @@ public class CreateExecutableTask implements Task {
             Files.walkFileTree(from, new Copy(from, to));
         }
     }
-    
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
         private StandardCopyOption copyOption;
         
         
-        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+        Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
             this.fromPath = fromPath;
             this.toPath = toPath;
             this.copyOption = copyOption;
         }
         
-        public Copy(Path fromPath, Path toPath) {
+        Copy(Path fromPath, Path toPath) {
             this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
         }
         
@@ -184,17 +190,32 @@ public class CreateExecutableTask implements Task {
             }
             return FileVisitResult.CONTINUE;
         }
-        
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Path toFile = toPath.resolve(fromPath.relativize(file).toString());
-            String fileName = toFile.getFileName().toString();
-            if ((!Files.exists(toFile) &&
-                    !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1))) ||
-                    toFile.toString().startsWith("/META-INF/services")) {
-                Files.copy(file, toFile, copyOption);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-    }
+
+         @Override
+         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+             Path toFile = toPath.resolve(fromPath.relativize(file).toString());
+             String fileName = toFile.getFileName().toString();
+             if ((!Files.exists(toFile) &&
+                     !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1)))) {
+                 Files.copy(file, toFile, copyOption);
+             } else if (toFile.toString().startsWith("/META-INF/services")) {
+                 this.mergeSPIFiles(file, toFile);
+             }
+             return FileVisitResult.CONTINUE;
+         }
+
+         private void mergeSPIFiles(Path fromFilePath, Path toFilePath) throws IOException {
+             // Merge the spi implementations for each service file.
+             try (BufferedReader fromBr = new BufferedReader(new InputStreamReader(Files
+                     .newInputStream(fromFilePath), StandardCharsets.UTF_8));
+                  BufferedWriter toBw = new BufferedWriter(new OutputStreamWriter(Files
+                          .newOutputStream(toFilePath, StandardOpenOption.APPEND), StandardCharsets.UTF_8))) {
+                 String text;
+                 while ((text = fromBr.readLine()) != null) {
+                     toBw.newLine();
+                     toBw.write(text);
+                 }
+             }
+         }
+     }
 }

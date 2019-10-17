@@ -101,4 +101,9 @@ public class BArrayType extends BType implements ArrayType {
                     sb.append("[").append(tempSize).append("]").toString() : sb.append("[]").toString();
         }
     }
+
+    @Override
+    public final boolean isAnydata() {
+        return this.eType.isPureType();
+    }
 }

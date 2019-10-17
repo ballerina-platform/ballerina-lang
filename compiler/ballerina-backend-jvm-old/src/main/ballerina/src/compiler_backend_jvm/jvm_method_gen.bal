@@ -23,11 +23,24 @@ string[] generatedInitFuncs = [];
 int nextId = -1;
 int nextVarId = -1;
 
+
 bir:BAttachedFunction errorRecInitFunc = {name:{value:"$$<init>"}, funcType:{retType:"()"}, flags:0};
-bir:BRecordType detailRec = {name:{value:"detail"}, sealed:false, restFieldType:"()", initFunction:errorRecInitFunc};
-bir:BErrorType errType = {name:{value:"error"}, moduleId:{org:BALLERINA, name:BUILT_IN_PACKAGE_NAME},
-                                reasonType:bir:TYPE_STRING, detailType:detailRec};
-bir:BUnionType errUnion = {members:["()", errType]};
+bir:BRecordType detailRec = {name:{value: "detail"},
+                                sealed: false,
+                                restFieldType: "()",
+                                initFunction: errorRecInitFunc,
+                                typeFlags: (TYPE_FLAG_ANYDATA | TYPE_FLAG_PURETYPE)
+                            };
+
+bir:BErrorType errType = {name:{value:"error"},
+                            moduleId: {org: BALLERINA, name: BUILT_IN_PACKAGE_NAME},
+                            reasonType: bir:TYPE_STRING,
+                            detailType: detailRec
+                        };
+
+bir:BUnionType errUnion = { members:["()", errType],
+                            typeFlags: (TYPE_FLAG_NILABLE | TYPE_FLAG_PURETYPE)
+                          };
 
 function generateMethod(bir:Function birFunc,
                             jvm:ClassWriter cw,
@@ -643,7 +656,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:NewArray) {
                 instGen.generateArrayNewIns(inst);
             } else if (inst is bir:NewMap) {
-                instGen.generateMapNewIns(inst);
+                instGen.generateMapNewIns(inst, localVarOffset);
             } else if (inst is bir:NewTypeDesc) {
                 instGen.generateNewTypedescIns(inst);
             } else if (inst is bir:NewTable) {

@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -61,34 +62,41 @@ public class Utils {
         int dataParamTypeTag = intendedType.getTag();
         Object dispatchedData;
         switch (dataParamTypeTag) {
-        case TypeTags.STRING_TAG:
-        case TypeTags.JSON_TAG:
-            dispatchedData = new String(data, StandardCharsets.UTF_8);
-            break;
-        case TypeTags.INT_TAG:
-            dispatchedData = Integer.valueOf(new String(data, StandardCharsets.UTF_8));
-            break;
-        case TypeTags.BOOLEAN_TAG:
-            dispatchedData = Boolean.valueOf(new String(data, StandardCharsets.UTF_8));
-            break;
-        case TypeTags.FLOAT_TAG:
-            dispatchedData = Double.valueOf(new String(data, StandardCharsets.UTF_8));
-            break;
-        case TypeTags.DECIMAL_TAG:
-            dispatchedData = new DecimalValue(new String(data, StandardCharsets.UTF_8));
-            break;
-        case TypeTags.ARRAY_TAG:
-            dispatchedData = new ArrayValue(data);
-            break;
-        case TypeTags.XML_TAG:
-            dispatchedData = XMLFactory.parse(new String(data, StandardCharsets.UTF_8));
-            break;
-        case TypeTags.RECORD_TYPE_TAG:
-            dispatchedData = JSONUtils.convertJSONToRecord(JSONParser.parse(new String(data, StandardCharsets.UTF_8)),
-                    (BRecordType) intendedType);
-            break;
-        default:
-            throw Utils.createNatsError("Unable to find a supported data type to bind the message data");
+            case TypeTags.STRING_TAG:
+                dispatchedData = new String(data, StandardCharsets.UTF_8);
+                break;
+            case TypeTags.JSON_TAG:
+                try {
+                    dispatchedData = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
+                } catch (BallerinaException e) {
+                    throw createNatsError("Error occurred in converting message content to json: " +
+                            e.getMessage());
+                }
+                break;
+            case TypeTags.INT_TAG:
+                dispatchedData = Integer.valueOf(new String(data, StandardCharsets.UTF_8));
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                dispatchedData = Boolean.valueOf(new String(data, StandardCharsets.UTF_8));
+                break;
+            case TypeTags.FLOAT_TAG:
+                dispatchedData = Double.valueOf(new String(data, StandardCharsets.UTF_8));
+                break;
+            case TypeTags.DECIMAL_TAG:
+                dispatchedData = new DecimalValue(new String(data, StandardCharsets.UTF_8));
+                break;
+            case TypeTags.ARRAY_TAG:
+                dispatchedData = new ArrayValue(data);
+                break;
+            case TypeTags.XML_TAG:
+                dispatchedData = XMLFactory.parse(new String(data, StandardCharsets.UTF_8));
+                break;
+            case TypeTags.RECORD_TYPE_TAG:
+                dispatchedData = JSONUtils.convertJSONToRecord(JSONParser.parse(new String(data,
+                                StandardCharsets.UTF_8)), (BRecordType) intendedType);
+                break;
+            default:
+                throw Utils.createNatsError("Unable to find a supported data type to bind the message data");
         }
         return dispatchedData;
     }

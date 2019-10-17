@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type TransactionContext record {
+type TransactionContext record {
     string contextVersion = "1.0";
     string transactionId = "";
     string transactionBlockId = "";
@@ -42,27 +42,27 @@ function toProtocolArray(RemoteProtocol[] remoteProtocols) returns UProtocol?[] 
     return protocols;
 }
 
-public type RequestError record {
+type RequestError record {
     string errorMessage = "";
 };
 
-public type PrepareRequest record {
+type PrepareRequest record {
     string transactionId = "";
 };
 
-public type PrepareResponse record {
+type PrepareResponse record {
     string message = "";
 };
 
-public type NotifyRequest record {
+type NotifyRequest record {
     string transactionId = "";
     string message = "";
 };
 
-public type NotifyResponse record {
+type NotifyResponse record {
     string message = "";
 };
 
-public type ParticipantFunctionResult record {|
+type ParticipantFunctionResult record {|
     any|error data;
 |};

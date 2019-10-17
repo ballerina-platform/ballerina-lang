@@ -574,7 +574,7 @@ type InstructionGenerator object {
         return self.indexMap.getIndex(varDcl);
     }
 
-    function generateMapNewIns(bir:NewMap mapNewIns) {
+    function generateMapNewIns(bir:NewMap mapNewIns, int localVarOffset) {
         bir:BType typeOfMapNewIns = mapNewIns.bType;
         string className = MAP_VALUE_IMPL;
 
@@ -588,17 +588,24 @@ type InstructionGenerator object {
 
             self.mv.visitTypeInsn(NEW, className);
             self.mv.visitInsn(DUP);
+            self.mv.visitInsn(DUP);
             if (typeRef is bir:TypeRef) {
                 loadExternalOrLocalType(self.mv, typeRef);
             } else {
                 loadType(self.mv, mapNewIns.bType);
             }
+            self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+
+            // Invoke the init-function of this type.
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            self.mv.visitInsn(SWAP);
+            self.mv.visitMethodInsn(INVOKESTATIC, className, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
         } else {
             self.mv.visitTypeInsn(NEW, className);
             self.mv.visitInsn(DUP);
             loadType(self.mv, mapNewIns.bType);
+            self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         }
-        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
 
