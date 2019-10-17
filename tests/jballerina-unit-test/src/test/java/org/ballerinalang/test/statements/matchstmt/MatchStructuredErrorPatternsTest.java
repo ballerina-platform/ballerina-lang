@@ -211,6 +211,11 @@ public class MatchStructuredErrorPatternsTest {
                 "invalid error reason binding pattern, error reason should be 'var reason'", 36, 15);
         BAssertUtil.validateError(result, i++,
                 "invalid error reason binding pattern, error reason should be 'var r'", 45, 15);
+        BAssertUtil.validateError(result, i++,
+                "invalid error detail type 'ErrorDataABC', expected a subtype of " +
+                        "'record {| string message?; error cause?; (anydata|error)...; |}'", 52, 24);
+        BAssertUtil.validateError(result, i++, "unknown type 'ErrorDataABC'", 52, 24);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'm'", 57, 62);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
