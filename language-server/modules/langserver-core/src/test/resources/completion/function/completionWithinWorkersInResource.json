@@ -398,6 +398,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "sampleService",
+      "sortText": "130",
+      "insertText": "self",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "typedesc",
       "kind": "Unit",
       "detail": "Typedesc",

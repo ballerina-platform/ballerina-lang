@@ -77,11 +77,10 @@ public abstract class AbstractLogFunction {
                 return msg;
             }
         };
-        boolean logEnabled = LOG_MANAGER.getPackageLogLevel(pckg).value() <= logLevel.value();
-        if (logEnabled) {
+        if (LOG_MANAGER.getPackageLogLevel(pckg).value() <= logLevel.value()) {
             consumer.accept(pckg, logMessage.get());
+            ObserveUtils.logMessageToActiveSpan(strand, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
         }
-        ObserveUtils.logMessageToActiveSpan(strand, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
     }
 
     static String getPackagePath() {
