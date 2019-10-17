@@ -264,7 +264,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- vals: values to add to the end of the array"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nAdds values to the end of an array.\n  \n**Params**  \n- `(any|error)[]` vals: values to add to the end of the array"
         }
       },
       "sortText": "121",
@@ -332,7 +332,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \nAdds values to the start of an array.\nThe values newly added to the array will be in the same order\nas they are in `vals`.\n  \n**Params**  \n- vals: values to add to the start of the array"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nAdds values to the start of an array.\nThe values newly added to the array will be in the same order\nas they are in `vals`.\n  \n**Params**  \n- `(any|error)[]` vals: values to add to the start of the array"
         }
       },
       "sortText": "121",

@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -364,6 +363,7 @@ public class BLangPackageBuilder {
 
     private Stack<Set<Whitespace>> errorMatchPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> simpleMatchPatternWS = new Stack<>();
+    private Stack<Set<Whitespace>> recordKeyWS = new Stack<>();
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -1416,8 +1416,15 @@ public class BLangPackageBuilder {
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
         keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
+        if (!this.recordKeyWS.isEmpty()) {
+            keyValue.addWS(this.recordKeyWS.pop());
+        }
         keyValue.key.computedKey = computedKey;
         recordLiteralNodes.peek().keyValuePairs.add(keyValue);
+    }
+
+    void addRecordKeyWS(Set<Whitespace> ws) {
+        this.recordKeyWS.push(ws);
     }
 
     void addMapStructLiteral(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1521,14 +1528,13 @@ public class BLangPackageBuilder {
     }
 
     private void addExprToExprNodeList(List<ExpressionNode> exprList, int n) {
-        if (exprNodeStack.empty()) {
-            throw new IllegalStateException("Expression stack cannot be empty in processing an ExpressionList");
+        for (int i = 0; i < n; i++) {
+            if (exprNodeStack.empty()) {
+                throw new IllegalStateException("Expression stack cannot be empty in processing an ExpressionList");
+            }
+            exprList.add(exprNodeStack.pop());
         }
-        ExpressionNode expr = exprNodeStack.pop();
-        if (n > 1) {
-            addExprToExprNodeList(exprList, n - 1);
-        }
-        exprList.add(expr);
+        Collections.reverse(exprList);
     }
 
 
@@ -2653,15 +2659,15 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(transaction);
 
         // TODO This is a temporary workaround to flag coordinator service start
-        String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
-        if (value != null) {
-            return;
-        }
+        boolean transactionsModuleAlreadyImported = this.imports.stream()
+                .anyMatch(importPackage -> importPackage.orgName.value.equals(Names.BALLERINA_ORG.value)
+                        && importPackage.pkgNameComps.get(0).value.equals(Names.TRANSACTION_PACKAGE.value));
 
-        compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
-        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
-                Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        if (!transactionsModuleAlreadyImported) {
+            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
+            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
+                    Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        }
     }
 
     void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {

@@ -48,7 +48,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nConcatenates zero or more strings.\n  \n**Params**  \n- strs: strings to be concatenated  \n  \n**Returns** `string`   \n- concatenation of all of the `strs`; empty string if `strs` is empty  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConcatenates zero or more strings.\n  \n**Params**  \n- `string[]` strs: strings to be concatenated  \n  \n**Returns** `string`   \n- concatenation of all of the `strs`; empty string if `strs` is empty  \n  \n"
         }
       },
       "sortText": "120",
@@ -120,7 +120,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string` separator: separator string  \n- strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string` separator: separator string  \n- `string[]` strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
         }
       },
       "sortText": "120",

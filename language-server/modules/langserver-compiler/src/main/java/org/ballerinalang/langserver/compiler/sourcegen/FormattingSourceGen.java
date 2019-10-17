@@ -415,11 +415,9 @@ public class FormattingSourceGen {
         if ("CompilationUnit".equals(kind)) {
             if (node.has("ws")) {
                 JsonArray compilationUnitWS = node.getAsJsonArray(FormattingConstants.WS);
-                for (JsonElement wsItem : compilationUnitWS) {
-                    JsonObject currentWS = wsItem.getAsJsonObject();
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("<EOF>")) {
-                        currentWS.addProperty(FormattingConstants.TEXT, "");
-                    }
+                if (compilationUnitWS.size() > 0) {
+                    compilationUnitWS.get(compilationUnitWS.size() - 1).getAsJsonObject()
+                            .addProperty(FormattingConstants.TEXT, "");
                 }
             }
         }

@@ -73,10 +73,11 @@ public class Scheduler {
      */
     private final int numThreads;
 
+    private static int poolSize = Runtime.getRuntime().availableProcessors() * 2;
+
     private Semaphore mainBlockSem;
 
     public Scheduler(boolean immortal) {
-        int poolSize = 100;
         try {
             if (poolSizeConf != null) {
                 poolSize = Integer.parseInt(poolSizeConf);

@@ -95,12 +95,10 @@ public class FunctionPointersNegativeTest {
     public void testFPWithMissingArgs() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative" +
                                                     "/fp_invocation_with_missing_args.bal");
-        Assert.assertEquals(result.getErrorCount(), 6);
+        Assert.assertEquals(result.getErrorCount(), 4);
         int i = 0;
         BAssertUtil.validateError(result, i++, "missing required parameter 'i' in call to 'fn'()", 9, 16);
-        BAssertUtil.validateError(result, i++, "not enough arguments in call to 'fn()'", 9, 16);
         BAssertUtil.validateError(result, i++, "missing required parameter 'i' in call to 'fn'()", 20, 16);
-        BAssertUtil.validateError(result, i++, "not enough arguments in call to 'fn()'", 20, 16);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn()'", 31, 16);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn()'", 42, 16);
     }

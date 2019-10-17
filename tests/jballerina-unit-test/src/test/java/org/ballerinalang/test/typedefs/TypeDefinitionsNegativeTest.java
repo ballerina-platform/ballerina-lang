@@ -31,10 +31,17 @@ public class TypeDefinitionsNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/typedefs/type-definitions-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 21);
+        Assert.assertEquals(compileResult.getErrorCount(), 3);
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "uninitialized field 'g'", 7, 18);
+        BAssertUtil.validateError(compileResult, index++, "uninitialized field 'g'", 9, 40);
+        BAssertUtil.validateError(compileResult, index, "uninitialized field 'g'", 11, 19);
+    }
 
-        // TODO: {enableCodeAnalyzerTests} commented errors won't get captured after (typeChecker, semanticAnalyzer) &
-        //  codeAnalyzer separation.
+    @Test
+    public void testSemanticsNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/typedefs/type-definitions-semantics-negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 21);
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "unknown type 'A'", 1, 9);
@@ -43,7 +50,6 @@ public class TypeDefinitionsNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "unknown type 'D'", 5, 13);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'E'", 7, 9);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'F'", 9, 18);
-        //        BAssertUtil.validateError(compileResult, index++, "uninitialized field 'g'", 11, 18);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'G'", 11, 18);
 
         BAssertUtil.validateError(compileResult, index++, "unknown type 'A'", 13, 15);
@@ -52,7 +58,6 @@ public class TypeDefinitionsNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "unknown type 'D'", 13, 42);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'E'", 13, 45);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'F'", 13, 60);
-        //        BAssertUtil.validateError(compileResult, index++, "uninitialized field 'g'", 13, 76);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'G'", 13, 76);
 
         BAssertUtil.validateError(compileResult, index++, "unknown type 'A'", 15, 17);
@@ -61,7 +66,6 @@ public class TypeDefinitionsNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "unknown type 'D'", 15, 47);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'E'", 15, 51);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'F'", 15, 68);
-        //        BAssertUtil.validateError(compileResult, index++, "uninitialized field 'g'", 15, 85);
         BAssertUtil.validateError(compileResult, index, "unknown type 'G'", 15, 85);
     }
 }

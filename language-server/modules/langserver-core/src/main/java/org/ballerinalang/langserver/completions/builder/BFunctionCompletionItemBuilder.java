@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,13 +126,17 @@ public final class BFunctionCompletionItemBuilder {
         String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
                 + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR;
         StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
-        for (int i = 0; i < bInvokableSymbol.params.size(); i++) {
-            BVarSymbol paramSymbol = bInvokableSymbol.params.get(i);
+        List<BVarSymbol> functionParameters = new ArrayList<>(bInvokableSymbol.params);
+        if (bInvokableSymbol.restParam != null) {
+            functionParameters.add(bInvokableSymbol.restParam);
+        }
+        for (int i = 0; i < functionParameters.size(); i++) {
+            BVarSymbol paramSymbol = functionParameters.get(i);
             String paramType = CommonUtil.getBTypeName(paramSymbol.type, ctx, false);
             if (i == 0 && skipFirstParam) {
                 continue;
             }
-            
+
             Optional<BVarSymbol> defaultVal = defaultParams.stream()
                     .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(paramSymbol.name.value))
                     .findFirst();
