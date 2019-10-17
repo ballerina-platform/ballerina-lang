@@ -86,7 +86,7 @@ type WebSocketConnector object {
 
     function externClose(int statusCode, string reason, int timeoutInSecs) returns WebSocketError? = external;
 
-    # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
+    # Calls when the endpoint is ready to receive messages. It can be called only once per endpoint. For the
     # WebSocketListener can be called only in upgrade or onOpen resources.
     #
     # + return - `error` if an error occurs when sending

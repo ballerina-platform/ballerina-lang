@@ -94,7 +94,7 @@ public type WebSocketClient client object {
         return self.conn.close(statusCode, reason, timeoutInSeconds);
     }
 
-    # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
+    # Calls when the endpoint is ready to receive messages. It can be called only once per endpoint. For the
     # WebSocketListener, it can be called only in the `upgrade` or `onOpen` resources.
     #
     # + return - Returns a`WebSocketError` if an error occurs while checking the connection state.
@@ -193,15 +193,15 @@ public type WebSocketClientConfiguration record {|
 
 # Configurations for reconnecting to the WebSocket.
 #
-# + maxCount - The maximum number of reconnection attempts done. If 0, the
-#              reconnection attempts will continue indefinitely.
+# + maxCount - The maximum number of retry attempts. If the count is zero, the
+#              client will retry indefinitely.
 # + intervalInMillis - The number of milliseconds to delay before attempting to reconnect.
 # + backOffFactor - The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems
 #                persist.
-# + maxIntervalInMillis - The maximum number of milliseconds to delay a reconnection attempt.
+# + maxWaitIntervalInMillis - Maximum time of the retry interval in milliseconds.
 public type WebSocketRetryConfig record {|
     int maxCount = 0;
     int intervalInMillis = 1000;
     float backOffFactor = 1.0;
-    int maxIntervalInMillis = 30000;
+    int maxWaitIntervalInMillis = 30000;
 |};

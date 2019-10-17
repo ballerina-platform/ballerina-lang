@@ -19,7 +19,9 @@
 package org.ballerinalang.net.http.websocket.client;
 
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,18 +30,12 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.io.IOException;
 
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.STATEMENT;
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
-import static org.ballerinalang.net.http.websocket.WebSocketUtil.determineAction;
-import static org.ballerinalang.net.http.websocket.WebSocketUtil.handleExceptionAndDispatchCloseMessage;
-import static org.ballerinalang.net.http.websocket.WebSocketUtil.hasRetryConfig;
-
 /**
  * Failover client listener for WebSocket.
  *
  * @since 1.1.0
  */
-public class WebSocketFailoverClientListener extends WebSocketClientListenerImpl {
+public class WebSocketFailoverClientListener extends WebSocketClientListener {
 
     private WebSocketOpenConnectionInfo connectionInfo;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketFailoverClientListener.class);
@@ -53,20 +49,20 @@ public class WebSocketFailoverClientListener extends WebSocketClientListenerImpl
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         ObjectValue webSocketClient = connectionInfo.getWebSocketCaller();
         int statusCode = webSocketCloseMessage.getCloseCode();
-        if (statusCode == STATUS_CODE_ABNORMAL_CLOSURE) {
-            determineAction(connectionInfo, null, webSocketCloseMessage);
+        if (statusCode == WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE) {
+            WebSocketUtil.determineAction(connectionInfo, null, webSocketCloseMessage);
         } else {
-            if (hasRetryConfig(webSocketClient)) {
-                logger.debug(STATEMENT);
+            if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
+                logger.debug(WebSocketConstants.STATEMENT);
             }
-            handleExceptionAndDispatchCloseMessage(connectionInfo, webSocketCloseMessage);
+            WebSocketUtil.handleExceptionAndDispatchCloseMessage(connectionInfo, webSocketCloseMessage);
         }
     }
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         if (throwable instanceof IOException) {
-            determineAction(connectionInfo, throwable, null);
+            WebSocketUtil.determineAction(connectionInfo, throwable, null);
         } else {
             logger.error("Error occurred: ", throwable);
             WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);

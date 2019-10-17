@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.websocket.client;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
@@ -33,20 +34,12 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.io.IOException;
 
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.CONNECTED_TO;
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.FAILOVER_CONFIG;
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.RETRY_CONFIG;
-import static org.ballerinalang.net.http.websocket.WebSocketUtil.countDownForHandshake;
-import static org.ballerinalang.net.http.websocket.WebSocketUtil.determineAction;
-import static org.ballerinalang.net.http.websocket.WebSocketUtil.hasRetryConfig;
-
 /**
  * The handshake listener for the failover client.
  *
  * @since 1.1.0
  */
-public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHandshakeListenerImpl {
+public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHandshakeListener {
 
     private final ObjectValue webSocketClient;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketFailoverClientHandshakeListener.class);
@@ -61,7 +54,8 @@ public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHan
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
         super.onSuccess(webSocketConnection, carbonResponse);
-        FailoverContext failoverConfig = (FailoverContext) webSocketClient.getNativeData(FAILOVER_CONFIG);
+        FailoverContext failoverConfig = (FailoverContext) webSocketClient.getNativeData(WebSocketConstants.
+                FAILOVER_CONFIG);
         setFailoverWebSocketEndpoint(failoverConfig, webSocketClient, webSocketConnection);
         failoverConfig.setFailoverFinished(false);
         // Read the next frame when readyOnConnect is true in first the connection or after the first connection
@@ -71,11 +65,11 @@ public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHan
         // Following these are created for future connection
         // Check whether the config has retry config or not
         // It has retry config, set these variables to default variable
-        if (hasRetryConfig(webSocketClient)) {
-            ((RetryContext) webSocketClient.getNativeData(RETRY_CONFIG)).setReconnectAttempts(0);
+        if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
+            ((RetryContext) webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG)).setReconnectAttempts(0);
         }
         int currentIndex = failoverConfig.getCurrentIndex();
-        logger.debug(CONNECTED_TO + failoverConfig.getTargetUrls().get(currentIndex));
+        logger.debug(WebSocketConstants.CONNECTED_TO + failoverConfig.getTargetUrls().get(currentIndex));
         // Set failover context variable's value
         failoverConfig.setInitialIndex(currentIndex);
         failoverConfig.setConnectionMade();
@@ -86,15 +80,15 @@ public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHan
         if (response != null) {
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
+        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                 WebSocketConstants.WEBSOCKET_CONNECTOR);
         WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null,
                 webSocketConnector);
         if (throwable instanceof IOException) {
-            determineAction(connectionInfo, throwable, null);
+            WebSocketUtil.determineAction(connectionInfo, throwable, null);
         } else {
             logger.error("Error occurred: ", throwable);
-            countDownForHandshake(webSocketClient);
+            WebSocketUtil.countDownForHandshake(webSocketClient);
             WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
         }
     }

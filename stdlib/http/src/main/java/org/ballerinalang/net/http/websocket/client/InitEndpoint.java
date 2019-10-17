@@ -27,15 +27,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketService;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.CONNECTOR_FACTORY;
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.RETRY_CONFIG;
-import static org.ballerinalang.net.http.websocket.WebSocketUtil.getWebSocketService;
-import static org.ballerinalang.net.http.websocket.WebSocketUtil.hasRetryConfig;
-import static org.ballerinalang.net.http.websocket.WebSocketUtil.initialiseWebSocketConnection;
-import static org.ballerinalang.net.http.websocket.WebSocketUtil.populateRetryConnectorConfig;
 
 /**
  * Initialize the WebSocket Client.
@@ -59,19 +53,19 @@ public class InitEndpoint {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
-        if (hasRetryConfig(webSocketClient)) {
+        if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
             @SuppressWarnings(WebSocketConstants.UNCHECKED)
             MapValue<String, Object> retryConfig = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
-                    RETRY_CONFIG);
+                    WebSocketConstants.RETRY_CONFIG);
             RetryContext retryConnectorConfig = new RetryContext();
-            populateRetryConnectorConfig(retryConfig, retryConnectorConfig);
-            webSocketClient.addNativeData(RETRY_CONFIG, retryConnectorConfig);
+            WebSocketUtil.populateRetryConnectorConfig(retryConfig, retryConnectorConfig);
+            webSocketClient.addNativeData(WebSocketConstants.RETRY_CONFIG, retryConnectorConfig);
         }
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
-        WebSocketService wsService = getWebSocketService(clientEndpointConfig, strand);
+        WebSocketService wsService = WebSocketUtil.getWebSocketService(clientEndpointConfig, strand);
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
-        webSocketClient.addNativeData(CONNECTOR_FACTORY, connectorFactory);
-        initialiseWebSocketConnection(remoteUrl, webSocketClient, wsService);
+        webSocketClient.addNativeData(WebSocketConstants.CONNECTOR_FACTORY, connectorFactory);
+        WebSocketUtil.initialiseWebSocketConnection(remoteUrl, webSocketClient, wsService);
     }
 
     private InitEndpoint() {

@@ -99,7 +99,7 @@ public class WebSocketConstants {
     public static final String MAX_COUNT = "maxCount";
     public static final String INTERVAL = "intervalInMillis";
     public static final String BACK_OF_FACTOR = "backOffFactor";
-    public static final String MAX_INTERVAL = "maxIntervalInMillis";
+    public static final String MAX_INTERVAL = "maxWaitIntervalInMillis";
     public static final String IS_PRINT = "isPrint";
     public static final String FAILOVER_INTEVAL = "failoverIntervalInMillis";
     public static final String IS_CONNECTION_MADE = "isConnectionMade";

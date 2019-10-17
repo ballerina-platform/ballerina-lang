@@ -46,13 +46,13 @@ import org.slf4j.LoggerFactory;
 public class Ready {
     private static final Logger log = LoggerFactory.getLogger(Ready.class);
 
-    public static Object ready(Strand strand, ObjectValue wsClient) {
+    public static Object ready(Strand strand, ObjectValue wsConnector) {
         try {
-            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsClient
+            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnector
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            boolean isReady = wsClient.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
+            boolean isReady = wsConnector.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
-                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsClient);
+                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnector);
             } else {
                 return new WebSocketException("Already started reading frames");
             }
