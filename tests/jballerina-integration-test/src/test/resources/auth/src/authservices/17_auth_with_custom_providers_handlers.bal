@@ -174,9 +174,13 @@ public type OutboundCustomAuthHandler object {
     }
 
     public function prepare(http:Request req) returns http:Request|http:AuthenticationError {
-        string token = check self.authProvider.generateToken();
-        req.setHeader(http:AUTH_HEADER, "Custom " + token);
-        return req;
+        string|auth:Error token = self.authProvider.generateToken();
+        if (token is string) {
+            req.setHeader(http:AUTH_HEADER, "Custom " + token);
+            return req;
+        } else {
+            return http:AuthenticationError(message = token.reason(), cause = token);
+        }
     }
 
     public function inspect(http:Request req, http:Response resp) returns http:Request|http:AuthenticationError? {
@@ -186,12 +190,13 @@ public type OutboundCustomAuthHandler object {
             string[] headerValues = resp.getHeaders(header);
             headerMap[header] = headerValues;
         }
-        string? token = check self.authProvider.inspect(headerMap);
+        string|auth:Error? token = self.authProvider.inspect(headerMap);
         if (token is string) {
             req.setHeader(http:AUTH_HEADER, "Custom " + token);
             return req;
+        } else if (token is auth:Error) {
+            return http:AuthenticationError(message = token.reason(), cause = token);
         }
-        return ();
     }
 };
 
