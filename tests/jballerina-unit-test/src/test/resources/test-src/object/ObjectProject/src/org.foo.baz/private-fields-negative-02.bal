@@ -22,7 +22,7 @@ public type FooPerson object {
     }
 };
 
-type FooFamily object {
+public type FooFamily object {
     public string spouse = "";
     public int noOfChildren = 0;
     public string[] children = [];

@@ -209,7 +209,7 @@ public class CopyNativeLibTask implements Task {
         if (libraries == null) {
             return;
         }
-        libraries.forEach(lib -> {
+        for (Object lib : libraries) {
             Path fileName = Paths.get(((HashMap) lib).get("path").toString()).getFileName();
             Path libPath = Paths.get(balHomePath, "bre", "lib", fileName.toString());
             try {
@@ -217,8 +217,8 @@ public class CopyNativeLibTask implements Task {
                 Files.copy(libPath, jarTarget, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 throw createLauncherException("unable to find the dependency jar from the distribution: " +
-                                                      e.getMessage());
+                        e.getMessage());
             }
-        });
+        }
     }
 }
