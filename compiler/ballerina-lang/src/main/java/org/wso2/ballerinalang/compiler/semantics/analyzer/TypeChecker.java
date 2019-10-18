@@ -237,7 +237,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return expr.type;
         }
 
-        // TODO Check the possibility of using a try/finally here
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
         DiagnosticCode preDiagCode = this.diagCode;
@@ -245,6 +244,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.diagCode = diagCode;
         this.expType = expType;
         this.isTypeChecked = true;
+        expr.expectedType = expType;
 
         expr.accept(this);
 
@@ -253,6 +253,9 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = prevEnv;
         this.expType = preExpType;
         this.diagCode = preDiagCode;
+        if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
+            expr.expectedType = resultType;
+        }
         return resultType;
     }
 
@@ -701,6 +704,12 @@ public class TypeChecker extends BLangNodeVisitor {
             List<BType> expTypes = tupleType.tupleTypes;
             List<BType> results = new ArrayList<>();
             BType restType = null;
+
+            // [int, boolean, string...] x = [1, true];
+            if (tupleType.restType != null && listConstructor.exprs.size() < expTypes.size() + 1) {
+                restType = tupleType.restType;
+            }
+
             for (int i = 0; i < listConstructor.exprs.size(); i++) {
                 // Infer type from lhs since lhs might be union
                 // TODO: Need to fix with tuple casting
@@ -2337,18 +2346,20 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, env);
 
-        // Visit in-line namespace declarations
-        bLangXMLElementLiteral.attributes.forEach(attribute -> {
-            if (attribute.name.getKind() == NodeKind.XML_QNAME
-                    && ((BLangXMLQName) attribute.name).prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+        // Visit in-line namespace declarations and define the namespace.
+        for (BLangXMLAttribute attribute : bLangXMLElementLiteral.attributes) {
+            if (attribute.name.getKind() == NodeKind.XML_QNAME && isXmlNamespaceAttribute(attribute)) {
+                BLangXMLQuotedString value = attribute.value;
+                if (value.getKind() == NodeKind.XML_QUOTED_STRING && value.textFragments.size() > 1) {
+                    dlog.error(value.pos, DiagnosticCode.INVALID_XML_NS_INTERPOLATION);
+                }
                 checkExpr(attribute, xmlElementEnv, symTable.noType);
             }
-        });
+        }
 
-        // Visit attributes.
+        // Visit attributes, this may depend on the namespace defined in previous attribute iteration.
         bLangXMLElementLiteral.attributes.forEach(attribute -> {
-            if (attribute.name.getKind() != NodeKind.XML_QNAME
-                    || !((BLangXMLQName) attribute.name).prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            if (!(attribute.name.getKind() == NodeKind.XML_QNAME && isXmlNamespaceAttribute(attribute))) {
                 checkExpr(attribute, xmlElementEnv, symTable.noType);
             }
         });
@@ -2367,6 +2378,13 @@ public class TypeChecker extends BLangNodeVisitor {
         bLangXMLElementLiteral.modifiedChildren =
                 concatSimilarKindXMLNodes(bLangXMLElementLiteral.children, xmlElementEnv);
         resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlType, expType);
+    }
+
+    private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
+        BLangXMLQName attrName = (BLangXMLQName) attribute.name;
+        return (attrName.prefix.value.isEmpty()
+                    && attrName.localname.value.equals(XMLConstants.XMLNS_ATTRIBUTE))
+                || attrName.prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE);
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
@@ -2918,15 +2936,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         } else {
-            BMapType targetErrorDetailMap = (BMapType) expectedError.detailType;
-            List<BLangNamedArgsExpression> providedErrorDetails = getProvidedErrorDetails(iExpr, reasonArgGiven);
-            if (providedErrorDetails == null) {
-                // error in provided error details
-                return;
-            }
-            for (BLangNamedArgsExpression errorDetailArg : providedErrorDetails) {
-                checkExpr(errorDetailArg, env, targetErrorDetailMap.constraint);
-            }
+            // This is when there is a semantic error in error type, bail out!
+            return;
         }
         setErrorReasonParam(iExpr, reasonArgGiven, expectedError);
         setErrorDetailArgsToNamedArgsList(iExpr);
@@ -3299,11 +3310,6 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BVarSymbol> requiredParams = nonRestParams.stream()
                 .filter(param -> !param.defaultableParam)
                 .collect(Collectors.toList());
-
-        if (nonRestArgs.size() < requiredParams.size()) {
-            // make sure all the required parameters are given.
-            dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, iExpr.name.value);
-        }
 
         List<BVarSymbol> valueProvidedParams = new ArrayList<>();
         for (int i = 0; i < nonRestArgs.size(); i++) {
@@ -4631,38 +4637,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return matchExprTypes;
-    }
-
-    private BSymbol getSymbolForBuiltinMethodWithDynamicRetType(BLangInvocation iExpr, BLangBuiltInMethod function) {
-        switch (function) {
-            case CLONE:
-            case FREEZE:
-                return getSymbolForAnydataReturningBuiltinMethods(iExpr);
-            case IS_FROZEN:
-                return getSymbolForIsFrozenBuiltinMethod(iExpr);
-            case STAMP:
-                List<BLangExpression> functionArgList = iExpr.argExprs;
-                // Resolve the type of the variables passed as arguments to stamp in-built function.
-                for (BLangExpression expression : functionArgList) {
-                    checkExpr(expression, env, symTable.noType);
-                }
-                return symResolver.createSymbolForStampOperator(iExpr.pos, new Name(function.getName()),
-                        functionArgList, iExpr.expr);
-            case CONVERT:
-                functionArgList = iExpr.argExprs;
-                // Resolve the type of the variables passed as arguments to convert in-built function.
-                for (BLangExpression expression : functionArgList) {
-                    checkExpr(expression, env, symTable.noType);
-                }
-                return symResolver.createSymbolForConvertOperator(iExpr.pos, new Name(function.getName()),
-                                                                  functionArgList, iExpr.expr);
-            case CALL:
-                return getFunctionPointerCallSymbol(iExpr);
-            case DETAIL:
-                return symResolver.createSymbolForDetailBuiltInMethod(iExpr.name, iExpr.expr.type);
-            default:
-                return symTable.notFoundSymbol;
-        }
     }
 
     private BSymbol getFunctionPointerCallSymbol(BLangInvocation iExpr) {

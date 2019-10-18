@@ -297,7 +297,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `string` b"
         }
       },
       "sortText": "120",
@@ -429,6 +429,14 @@
       "detail": "Service",
       "sortText": "230",
       "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "serviceName",
+      "sortText": "130",
+      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {

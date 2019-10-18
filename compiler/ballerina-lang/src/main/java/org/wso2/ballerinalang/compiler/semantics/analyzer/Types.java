@@ -519,8 +519,7 @@ public class Types {
 
         if (target.tag == TypeTags.MAP && source.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
-            BMapType mapType = (BMapType) target;
-            return isAssignableRecordType(recordType, mapType);
+            return isAssignableRecordType(recordType, (BMapType) target);
         }
 
         if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
@@ -622,9 +621,17 @@ public class Types {
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
 
-    private boolean isAssignableRecordType(BRecordType recordType, BMapType mapType) {
-        return  recordType.fields.stream().allMatch(field -> isAssignable(field.type, mapType.constraint)) &&
-                isAssignable(recordType.restFieldType, mapType.constraint);
+    private boolean isAssignableRecordType(BRecordType recordType, BMapType targetMapType) {
+        if (recordType.sealed) {
+            return recordFieldsAssignableToMap(recordType, targetMapType);
+        } else {
+            return isAssignable(recordType.restFieldType, targetMapType.constraint)
+                    && recordFieldsAssignableToMap(recordType, targetMapType);
+        }
+    }
+
+    private boolean recordFieldsAssignableToMap(BRecordType recordType, BMapType targetMapType) {
+        return recordType.fields.stream().allMatch(field -> isAssignable(field.type, targetMapType.constraint));
     }
 
     private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, List<TypePair> unresolvedTypes) {

@@ -132,7 +132,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string[]` strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
         }
       },
       "sortText": "121",

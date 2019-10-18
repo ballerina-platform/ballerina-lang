@@ -359,12 +359,10 @@ public abstract class LSCompletionProvider {
      *
      * @return {@link Predicate} Symbol filter predicate
      */
-    protected Predicate<SymbolInfo> attachedOrSelfKeywordFilter() {
+    protected Predicate<SymbolInfo> attachedSymbolFilter() {
         return symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED))
-                    || (CommonKeys.SELF_KEYWORD_KEY.equals(bSymbol.getName().getValue())
-                    && (bSymbol.owner.flags & Flags.RESOURCE) == Flags.RESOURCE);
+            return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
         };
     }
 

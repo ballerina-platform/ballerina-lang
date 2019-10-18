@@ -50,7 +50,20 @@ const string CONFIG_USER_SECTION = "b7a.users";
 # + credential - The credential values.
 # + return - A `string` tuple with the extracted username and password or `Error` occurred while extracting credentials
 public function extractUsernameAndPassword(string credential) returns [string, string]|Error {
-    string decodedHeaderValue = check strings:fromBytes(check arrays:fromBase64(credential));
+    string decodedHeaderValue = "";
+
+    byte[]|error result = arrays:fromBase64(credential);
+    if (result is error) {
+        return prepareError(result.reason(), result);
+    } else {
+        string|error fromBytesResults = strings:fromBytes(result);
+        if (fromBytesResults is string) {
+            decodedHeaderValue = fromBytesResults;
+        } else {
+            return prepareError(fromBytesResults.reason(), fromBytesResults);
+        }
+    }
+
     string[] decodedCredentials = stringutils:split(decodedHeaderValue, ":");
     if (decodedCredentials.length() != 2) {
         return prepareError("Incorrect credential format. Format should be username:password");

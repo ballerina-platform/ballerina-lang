@@ -42,7 +42,13 @@ public type OutboundJwtAuthProvider object {
         string authToken = "";
         var jwtIssuerConfig = self.jwtIssuerConfig;
         if (jwtIssuerConfig is JwtIssuerConfig) {
-            authToken = check getAuthTokenForJWTAuth(jwtIssuerConfig);
+            var result = getAuthTokenForJWTAuth(jwtIssuerConfig);
+
+            if (result is error) {
+                return auth:Error(message = result.reason(), cause = result);
+            }
+
+            authToken = <string> result;
         } else {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
             if (authContext is runtime:AuthenticationContext) {

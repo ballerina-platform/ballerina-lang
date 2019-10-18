@@ -64,22 +64,26 @@ public class Scheduler {
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
 
     private AtomicInteger totalStrands = new AtomicInteger();
+
+    private static String poolSizeConf = System.getenv(BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
+
     /**
-     * By default number of threads = (Available logical Processors * 2).
      * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
+     * Default is 100.
      */
     private final int numThreads;
+
+    private static int poolSize = Runtime.getRuntime().availableProcessors() * 2;
+
     private Semaphore mainBlockSem;
 
     public Scheduler(boolean immortal) {
-        int poolSize;
         try {
-            String poolSizeConf = System.getenv(BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
-            poolSize = poolSizeConf == null ?
-                    Runtime.getRuntime().availableProcessors() * 2 : Integer.parseInt(poolSizeConf);
+            if (poolSizeConf != null) {
+                poolSize = Integer.parseInt(poolSizeConf);
+            }
         } catch (Throwable t) {
             // Log and continue with default
-            poolSize = Runtime.getRuntime().availableProcessors() * 2;
             err.println("ballerina: error occurred in scheduler while reading system variable:" +
                     BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }

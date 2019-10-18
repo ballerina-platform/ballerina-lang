@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -146,6 +147,7 @@ public class FilterUtils {
                                                             int delimIndex) {
         List<SymbolInfo> resultList = new ArrayList<>();
         List<ChainedFieldModel> invocationFieldList = getInvocationFieldList(defaultTokens, delimIndex);
+        SymbolTable symbolTable = SymbolTable.getInstance(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
 
         ChainedFieldModel startField = invocationFieldList.get(0);
         List<SymbolInfo> symbolList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
@@ -158,11 +160,20 @@ public class FilterUtils {
             return resultList;
         }
         BType modifiedBType = getModifiedBType(bSymbol, context, startField.fieldType);
-        Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol.name.value, modifiedBType,
-                context);
+        Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(startField.name.getText(),
+                modifiedBType, context);
 
         for (int itr = 1; itr < invocationFieldList.size(); itr++) {
             ChainedFieldModel fieldModel = invocationFieldList.get(itr);
+            if (modifiedBType instanceof BJSONType) {
+                /*
+                Specially handle the json type to support json field access
+                Eg: myJson.test_field.toString()
+                 */
+                modifiedBType = BUnionType.create(null, modifiedBType, symbolTable.errorType);
+                scopeEntries = getInvocationsAndFieldsForSymbol(fieldModel.name.getText(), modifiedBType, context);
+                continue;
+            }
             if (scopeEntries == null) {
                 break;
             }
@@ -172,7 +183,7 @@ public class FilterUtils {
             }
             bSymbol = entry.get().symbol;
             modifiedBType = getModifiedBType(bSymbol, context, fieldModel.fieldType);
-            scopeEntries = getInvocationsAndFieldsForSymbol(bSymbol.name.value, modifiedBType, context);
+            scopeEntries = getInvocationsAndFieldsForSymbol(fieldModel.name.getText(), modifiedBType, context);
         }
         if (scopeEntries == null) {
             return new ArrayList<>();

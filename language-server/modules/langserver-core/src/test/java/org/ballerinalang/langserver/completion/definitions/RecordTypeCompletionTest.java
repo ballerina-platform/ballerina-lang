@@ -48,6 +48,7 @@ public class RecordTypeCompletionTest extends CompletionTest {
                 {"recordTest10.json", "record"},
                 {"recordTest11.json", "record"},
                 {"recordTest12.json", "record"},
+                {"recordTest13.json", "record"},
         };
     }
 }

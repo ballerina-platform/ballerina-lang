@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Authorization header name."
+          "value": "Represents the Authorization header name."
         }
       },
       "sortText": "130",
@@ -26,7 +26,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Indicates that the authentication credentials should be sent via the Authentication Header"
+          "value": "Indicates that the authentication credentials should be sent via the Authentication header."
         }
       },
       "sortText": "130",
@@ -54,7 +54,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Indicates that the authentication credentials should not be sent"
+          "value": "Indicates that the authentication credentials should not be sent."
         }
       },
       "sortText": "130",
@@ -656,7 +656,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Resiliency errors"
+          "value": "Represents the reason string for the `http:FailoverAllEndpointsFailedError`"
         }
       },
       "sortText": "130",
@@ -670,7 +670,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:FailoverActionFailedError`"
         }
       },
       "sortText": "130",
@@ -684,7 +684,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:UpstreamServiceUnavailableError`"
         }
       },
       "sortText": "130",
@@ -698,7 +698,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:AllLoadBalanceEndpointsFailedError`"
         }
       },
       "sortText": "130",
@@ -712,7 +712,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:AllRetryAttemptsFailed`"
         }
       },
       "sortText": "130",
@@ -726,7 +726,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:IdleTimeoutError`"
         }
       },
       "sortText": "130",
@@ -740,7 +740,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Security errors"
+          "value": "Represents the reason string for the `http:AuthenticationError`"
         }
       },
       "sortText": "130",
@@ -754,7 +754,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:AuthorizationError`"
         }
       },
       "sortText": "130",
@@ -768,7 +768,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Outbound request errors in client"
+          "value": "Represents the reason string for the `http:InitializingOutboundRequestError`"
         }
       },
       "sortText": "130",
@@ -782,7 +782,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:WritingOutboundRequestHeadersError`"
         }
       },
       "sortText": "130",
@@ -796,7 +796,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:WritingOutboundRequestBodyError`"
         }
       },
       "sortText": "130",
@@ -810,7 +810,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Inbound response errors in client"
+          "value": "Represents the reason string for the `http:InitializingInboundResponseError`"
         }
       },
       "sortText": "130",
@@ -824,7 +824,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:ReadingInboundResponseBodyError`"
         }
       },
       "sortText": "130",
@@ -838,7 +838,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:ReadingInboundResponseBodyError`"
         }
       },
       "sortText": "130",
@@ -852,7 +852,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Inbound request errors in listener"
+          "value": "Represents the reason string for the `http:InitialingInboundRequestError`"
         }
       },
       "sortText": "130",
@@ -866,7 +866,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:ReadingInboundRequestHeadersError`"
         }
       },
       "sortText": "130",
@@ -880,7 +880,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:ReadingInboundRequestBodyError`"
         }
       },
       "sortText": "130",
@@ -894,7 +894,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Outbound response errors in listener"
+          "value": "Represents the reason string for the `http:InitializingOutboundResponseError`"
         }
       },
       "sortText": "130",
@@ -908,7 +908,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:WritingOutboundResponseHeadersError`"
         }
       },
       "sortText": "130",
@@ -922,7 +922,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:WritingOutboundResponseBodyError`"
         }
       },
       "sortText": "130",
@@ -936,7 +936,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:Initiating100ContinueResponseError`"
         }
       },
       "sortText": "130",
@@ -950,7 +950,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:Writing100ContinueResponseError`"
         }
       },
       "sortText": "130",
@@ -964,7 +964,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Generic errors (mostly to wrap errors from other modules)"
+          "value": "Error reason for generic client error"
         }
       },
       "sortText": "130",
@@ -978,7 +978,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:GenericListenerError`"
         }
       },
       "sortText": "130",
@@ -992,7 +992,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Other client-related errors"
+          "value": "Represents the reason string for the `http:UnsupportedActionError`"
         }
       },
       "sortText": "130",
@@ -1006,7 +1006,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:Http2ClientError`"
         }
       },
       "sortText": "130",
@@ -1020,7 +1020,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:MaximumWaitTimeExceededError`"
         }
       },
       "sortText": "130",
@@ -1034,7 +1034,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Represents the reason string for the `http:SslError`"
         }
       },
       "sortText": "130",
@@ -2112,7 +2112,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Error reason for failures during connection closure"
         }
       },
       "sortText": "130",
@@ -2126,7 +2126,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Error reason for WebSocket handshake failures"
         }
       },
       "sortText": "130",
@@ -2140,7 +2140,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Error reason for exceeding maximum frame size"
         }
       },
       "sortText": "130",
@@ -2154,7 +2154,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Error reason for other side breaking the protocol"
         }
       },
       "sortText": "130",
@@ -2168,7 +2168,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Error reason for connection failures"
         }
       },
       "sortText": "130",
@@ -2182,7 +2182,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Error reason for invalid continuation frame"
         }
       },
       "sortText": "130",
@@ -2196,7 +2196,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Error reason for errors not captured by the specific errors"
         }
       },
       "sortText": "130",
@@ -2296,7 +2296,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of the Authorization filter\n"
+        "left": "Representation of the Authorization filter.\n"
       },
       "sortText": "190",
       "insertText": "AuthzFilter",
@@ -2695,6 +2695,9 @@
       "label": "FailoverAllEndpointsFailedError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred due to all the failover endpoint failure"
+      },
       "sortText": "200",
       "insertText": "FailoverAllEndpointsFailedError",
       "insertTextFormat": "Snippet"
@@ -2703,6 +2706,9 @@
       "label": "FailoverActionFailedError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred due to failover action failure"
+      },
       "sortText": "200",
       "insertText": "FailoverActionFailedError",
       "insertTextFormat": "Snippet"
@@ -2711,6 +2717,9 @@
       "label": "UpstreamServiceUnavailableError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred due to upstream service unavailability"
+      },
       "sortText": "200",
       "insertText": "UpstreamServiceUnavailableError",
       "insertTextFormat": "Snippet"
@@ -2719,6 +2728,9 @@
       "label": "AllLoadBalanceEndpointsFailedError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred due to all the load balance endpoint failure"
+      },
       "sortText": "200",
       "insertText": "AllLoadBalanceEndpointsFailedError",
       "insertTextFormat": "Snippet"
@@ -2727,6 +2739,9 @@
       "label": "AllRetryAttemptsFailed",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred due to all the the retry attempts failure"
+      },
       "sortText": "200",
       "insertText": "AllRetryAttemptsFailed",
       "insertTextFormat": "Snippet"
@@ -2735,6 +2750,9 @@
       "label": "IdleTimeoutError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents the error that triggered upon a request/response idle timeout"
+      },
       "sortText": "200",
       "insertText": "IdleTimeoutError",
       "insertTextFormat": "Snippet"
@@ -2743,6 +2761,9 @@
       "label": "AuthenticationError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a listener error that occurred due to inbound request authentication failure"
+      },
       "sortText": "200",
       "insertText": "AuthenticationError",
       "insertTextFormat": "Snippet"
@@ -2751,6 +2772,9 @@
       "label": "AuthorizationError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a listener error that occurred due to inbound request authorization failure"
+      },
       "sortText": "200",
       "insertText": "AuthorizationError",
       "insertTextFormat": "Snippet"
@@ -2759,6 +2783,9 @@
       "label": "InitializingOutboundRequestError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred due to outbound request initialization failure"
+      },
       "sortText": "200",
       "insertText": "InitializingOutboundRequestError",
       "insertTextFormat": "Snippet"
@@ -2767,6 +2794,9 @@
       "label": "WritingOutboundRequestHeadersError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred while writing outbound request headers"
+      },
       "sortText": "200",
       "insertText": "WritingOutboundRequestHeadersError",
       "insertTextFormat": "Snippet"
@@ -2775,6 +2805,9 @@
       "label": "WritingOutboundRequestBodyError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred while writing outbound request entity body"
+      },
       "sortText": "200",
       "insertText": "WritingOutboundRequestBodyError",
       "insertTextFormat": "Snippet"
@@ -2783,6 +2816,9 @@
       "label": "InitializingInboundResponseError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred due to inbound response initialization failure"
+      },
       "sortText": "200",
       "insertText": "InitializingInboundResponseError",
       "insertTextFormat": "Snippet"
@@ -2791,6 +2827,9 @@
       "label": "ReadingInboundResponseHeadersError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred while reading inbound response headers"
+      },
       "sortText": "200",
       "insertText": "ReadingInboundResponseHeadersError",
       "insertTextFormat": "Snippet"
@@ -2799,6 +2838,9 @@
       "label": "ReadingInboundResponseBodyError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred while reading inbound response entity body"
+      },
       "sortText": "200",
       "insertText": "ReadingInboundResponseBodyError",
       "insertTextFormat": "Snippet"
@@ -2807,6 +2849,9 @@
       "label": "InitializingInboundRequestError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a listener error that occurred due to inbound request initialization failure"
+      },
       "sortText": "200",
       "insertText": "InitializingInboundRequestError",
       "insertTextFormat": "Snippet"
@@ -2815,6 +2860,9 @@
       "label": "ReadingInboundRequestHeadersError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a listener error that occurred while reading inbound request headers"
+      },
       "sortText": "200",
       "insertText": "ReadingInboundRequestHeadersError",
       "insertTextFormat": "Snippet"
@@ -2823,6 +2871,9 @@
       "label": "ReadingInboundRequestBodyError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a listener error that occurred while writing the inbound request entity body"
+      },
       "sortText": "200",
       "insertText": "ReadingInboundRequestBodyError",
       "insertTextFormat": "Snippet"
@@ -2831,6 +2882,9 @@
       "label": "InitializingOutboundResponseError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a listener error that occurred due to outbound response initialization failure"
+      },
       "sortText": "200",
       "insertText": "InitializingOutboundResponseError",
       "insertTextFormat": "Snippet"
@@ -2839,6 +2893,9 @@
       "label": "WritingOutboundResponseHeadersError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a listener error that occurred while writing outbound response headers"
+      },
       "sortText": "200",
       "insertText": "WritingOutboundResponseHeadersError",
       "insertTextFormat": "Snippet"
@@ -2847,6 +2904,9 @@
       "label": "WritingOutboundResponseBodyError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a listener error that occurred while writing outbound response entity body"
+      },
       "sortText": "200",
       "insertText": "WritingOutboundResponseBodyError",
       "insertTextFormat": "Snippet"
@@ -2855,6 +2915,9 @@
       "label": "Initiating100ContinueResponseError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents an error that occurred due to 100 continue response initialization failure"
+      },
       "sortText": "200",
       "insertText": "Initiating100ContinueResponseError",
       "insertTextFormat": "Snippet"
@@ -2863,6 +2926,9 @@
       "label": "Writing100ContinueResponseError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents an error that occurred while writing 100 continue response"
+      },
       "sortText": "200",
       "insertText": "Writing100ContinueResponseError",
       "insertTextFormat": "Snippet"
@@ -2871,6 +2937,9 @@
       "label": "GenericClientError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a generic client error"
+      },
       "sortText": "200",
       "insertText": "GenericClientError",
       "insertTextFormat": "Snippet"
@@ -2879,6 +2948,9 @@
       "label": "GenericListenerError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a generic listener error"
+      },
       "sortText": "200",
       "insertText": "GenericListenerError",
       "insertTextFormat": "Snippet"
@@ -2887,6 +2959,9 @@
       "label": "UnsupportedActionError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred due to unsupported action invocation"
+      },
       "sortText": "200",
       "insertText": "UnsupportedActionError",
       "insertTextFormat": "Snippet"
@@ -2895,6 +2970,9 @@
       "label": "Http2ClientError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents an HTTP/2 client generic error"
+      },
       "sortText": "200",
       "insertText": "Http2ClientError",
       "insertTextFormat": "Snippet"
@@ -2903,6 +2981,9 @@
       "label": "MaximumWaitTimeExceededError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred exceeding maximum wait time"
+      },
       "sortText": "200",
       "insertText": "MaximumWaitTimeExceededError",
       "insertTextFormat": "Snippet"
@@ -2911,6 +2992,9 @@
       "label": "SslError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred due to SSL failure"
+      },
       "sortText": "200",
       "insertText": "SslError",
       "insertTextFormat": "Snippet"
@@ -2920,7 +3004,7 @@
       "kind": "Event",
       "detail": "Union",
       "documentation": {
-        "left": "Ballerina Http Union Errors"
+        "left": "Defines the resiliency error types that returned from client"
       },
       "sortText": "200",
       "insertText": "ResiliencyError",
@@ -2930,6 +3014,9 @@
       "label": "ClientAuthError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the Auth error types that returned from client"
+      },
       "sortText": "200",
       "insertText": "ClientAuthError",
       "insertTextFormat": "Snippet"
@@ -2938,6 +3025,9 @@
       "label": "OutboundRequestError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the client error types that returned while sending outbound request"
+      },
       "sortText": "200",
       "insertText": "OutboundRequestError",
       "insertTextFormat": "Snippet"
@@ -2946,6 +3036,9 @@
       "label": "InboundResponseError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the client error types that returned while receiving inbound response"
+      },
       "sortText": "200",
       "insertText": "InboundResponseError",
       "insertTextFormat": "Snippet"
@@ -2954,6 +3047,9 @@
       "label": "InboundRequestError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the listener error types that returned while receiving inbound request"
+      },
       "sortText": "200",
       "insertText": "InboundRequestError",
       "insertTextFormat": "Snippet"
@@ -2962,6 +3058,9 @@
       "label": "OutboundResponseError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the listener error types that returned while sending outbound response"
+      },
       "sortText": "200",
       "insertText": "OutboundResponseError",
       "insertTextFormat": "Snippet"
@@ -2970,6 +3069,9 @@
       "label": "ClientError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible client error types"
+      },
       "sortText": "200",
       "insertText": "ClientError",
       "insertTextFormat": "Snippet"
@@ -2978,6 +3080,9 @@
       "label": "ListenerError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible listener error types"
+      },
       "sortText": "200",
       "insertText": "ListenerError",
       "insertTextFormat": "Snippet"
@@ -3396,70 +3501,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "WsConnectionClosureError",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "200",
-      "insertText": "WsConnectionClosureError",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WsInvalidHandshakeError",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "200",
-      "insertText": "WsInvalidHandshakeError",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WsPayloadTooBigError",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "200",
-      "insertText": "WsPayloadTooBigError",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WsProtocolError",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "200",
-      "insertText": "WsProtocolError",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WsConnectionError",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "200",
-      "insertText": "WsConnectionError",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WsInvalidContinuationFrameError",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "200",
-      "insertText": "WsInvalidContinuationFrameError",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WsGenericError",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "200",
-      "insertText": "WsGenericError",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WebSocketError",
-      "kind": "Event",
-      "detail": "Union",
-      "sortText": "200",
-      "insertText": "WebSocketError",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "WebSocketCaller",
       "kind": "Interface",
       "detail": "Object",
@@ -3490,6 +3531,94 @@
       },
       "sortText": "180",
       "insertText": "WebSocketClientConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsConnectionClosureError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Raised during failures in connection closure"
+      },
+      "sortText": "200",
+      "insertText": "WsConnectionClosureError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsInvalidHandshakeError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Raised during the handshake when the WebSocket upgrade fails"
+      },
+      "sortText": "200",
+      "insertText": "WsInvalidHandshakeError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsPayloadTooBigError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Raised when receiving a frame with a payload exceeding the maximum size"
+      },
+      "sortText": "200",
+      "insertText": "WsPayloadTooBigError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsProtocolError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Raised when the other side breaks the protocol"
+      },
+      "sortText": "200",
+      "insertText": "WsProtocolError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsConnectionError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Raised during connection failures"
+      },
+      "sortText": "200",
+      "insertText": "WsConnectionError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsInvalidContinuationFrameError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Raised when an out of order/invalid continuation frame is received"
+      },
+      "sortText": "200",
+      "insertText": "WsInvalidContinuationFrameError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsGenericError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Raised for errors not captured by the specific errors"
+      },
+      "sortText": "200",
+      "insertText": "WsGenericError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketError",
+      "kind": "Event",
+      "detail": "Union",
+      "documentation": {
+        "left": "The union of all the WebSocket related errors"
+      },
+      "sortText": "200",
+      "insertText": "WebSocketError",
       "insertTextFormat": "Snippet"
     },
     {
@@ -3597,7 +3726,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n- `string` verb: HTTP verb used for submit method  \n  \n**Returns** `(http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n  \n**Returns** `(http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
         }
       },
       "sortText": "120",

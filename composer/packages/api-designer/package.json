@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/api-designer",
-  "version": "0.990.4-SNAPSHOT",
+  "version": "1.0.2-SNAPSHOT",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@ballerina/composer-cli": "^0.990.4-SNAPSHOT",
+    "@ballerina/composer-cli": "^1.0.2-SNAPSHOT",
     "copyfiles": "^2.1.0"
   },
   "dependencies": {
