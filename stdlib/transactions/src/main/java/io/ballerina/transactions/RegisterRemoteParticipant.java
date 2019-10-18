@@ -60,11 +60,14 @@ public class RegisterRemoteParticipant {
             // We have no business here. This is a no-op.
             return null;
         }
+
+        // Create transaction context and store in the strand.
         TransactionLocalContext transactionLocalContext = TransactionLocalContext
                 .create(gTransactionId, strand.getProperty(TRANSACTION_URL).toString(), "2pc");
         strand.transactionLocalContext = transactionLocalContext;
-        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
+
         // Register committed and aborted function handler if exists.
+        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
                                                          transactionBlockId, fpCommitted, fpAborted, strand);
         MapValue<String, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
