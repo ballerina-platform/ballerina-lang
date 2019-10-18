@@ -294,7 +294,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(TextDocumentPositionParams position) {
+    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition
+                                                                                (TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DEFINITION);
@@ -571,7 +572,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> implementation(TextDocumentPositionParams position) {
+    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> implementation
+                                                                                (TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             List<Location> implementationLocations = new ArrayList<>();
