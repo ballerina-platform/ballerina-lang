@@ -332,32 +332,27 @@ public class PackageLoader {
             // Not a top level package or bal
             if (this.lockFile.getImports().containsKey(enclPackageId.toString())) {
                 List<LockFileImport> foundBaseImport = lockFile.getImports().get(enclPackageId.toString());
-                Optional<LockFileImport> foundNestedImport = foundBaseImport
-                        .stream()
-                        .filter(nestedImport ->
-                                moduleID.orgName.value.equals(nestedImport.getOrgName()) &&
-                                        moduleID.name.value.equals(nestedImport.getName()))
-                        .findFirst();
-                moduleVersion = foundNestedImport.isPresent() ? foundNestedImport.get().getVersion() : "";
-                if (!moduleVersion.isEmpty()) {
-                    moduleID.version = new Name(moduleVersion);
-                    return;
+
+                for (LockFileImport nestedImport : foundBaseImport) {
+                    if (moduleID.orgName.value.equals(nestedImport.getOrgName()) &&
+                            moduleID.name.value.equals(nestedImport.getName())) {
+                        moduleID.version = new Name(nestedImport.getVersion());
+                        return;
+                    }
                 }
             }
         }
 
         // Set version from the Ballerina.toml of the current project.
         if (enclPackageId != null && this.manifest != null) {
-            // TODO: make getDependencies return a map
-            Optional<Dependency> dependency = this.manifest.getDependencies().stream()
-                    .filter(d -> d.getModuleName().equals(moduleName) && d.getOrgName().equals(orgName) &&
-                            d.getMetadata().getVersion() != null &&
-                            !"*".equals(d.getMetadata().getVersion()))
-                    .findFirst();
-            moduleVersion = dependency.isPresent() ? dependency.get().getMetadata().getVersion() : "";
-            if (!moduleVersion.isEmpty()) {
-                moduleID.version = new Name(moduleVersion);
-                return;
+
+            for (Dependency dependency : this.manifest.getDependencies()) {
+                if (dependency.getModuleName().equals(moduleName) && dependency.getOrgName().equals(orgName) &&
+                        dependency.getMetadata().getVersion() != null &&
+                        !"*".equals(dependency.getMetadata().getVersion())) {
+                    moduleID.version = new Name(dependency.getMetadata().getVersion());
+                    return;
+                }
             }
         }
 
@@ -365,17 +360,14 @@ public class PackageLoader {
         if (enclPackageId != null && this.dependencyManifests.size() > 0
                 && this.dependencyManifests.containsKey(enclPackageId)) {
 
-            Optional<Dependency> manifestDependency = this.dependencyManifests.get(enclPackageId).getDependencies()
-                    .stream()
-                    .filter(dep -> dep.getOrgName().equals(moduleID.orgName.value) &&
-                            dep.getModuleName().equals(moduleID.name.value) &&
-                            dep.getMetadata().getVersion() != null &&
-                            !"*".equals(dep.getMetadata().getVersion()))
-                    .findFirst();
-
-            moduleVersion = manifestDependency.isPresent() ? manifestDependency.get().getMetadata().getVersion() : "";
-            if (!moduleVersion.isEmpty()) {
-                moduleID.version = new Name(moduleVersion);
+            for (Dependency manifestDependency : this.dependencyManifests.get(enclPackageId).getDependencies()) {
+                if (manifestDependency.getOrgName().equals(moduleID.orgName.value) &&
+                        manifestDependency.getModuleName().equals(moduleID.name.value) &&
+                        manifestDependency.getMetadata().getVersion() != null &&
+                        !"*".equals(manifestDependency.getMetadata().getVersion())) {
+                    moduleID.version = new Name(manifestDependency.getMetadata().getVersion());
+                    return;
+                }
             }
         }
     }
