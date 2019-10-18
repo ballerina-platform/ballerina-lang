@@ -16,35 +16,36 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.bytedeco.javacpp.LLVM;
 import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMInt1Type;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMInt1Type",
+        functionName = "LLVMInt1TypeInContext",
+        args = {
+                @Argument(name = "c", type = RECORD, structType = "LLVMContextRef"),
+        },
         returnType = {
                 @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMInt1Type extends BlockingNativeCallableUnit {
+public class LLVMInt1TypeInContextClass {
 
-    @Override
-    public void execute(Context context) {
-        LLVMTypeRef returnValue = LLVMInt1Type();
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMTypeRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static Object LLVMInt1TypeInContext(MapValue<String, Object> c) {
+        LLVM.LLVMContextRef cRef = (LLVM.LLVMContextRef) FFIUtil.getRecodeArgumentNative(c);
+        LLVMTypeRef returnValue = LLVM.LLVMInt1TypeInContext(cRef);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

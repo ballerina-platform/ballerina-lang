@@ -16,10 +16,7 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,15 +41,14 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildBr;
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildBr extends BlockingNativeCallableUnit {
+public class LLVMBuildBrClass {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMBuilderRef arg0 = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVM.LLVMBasicBlockRef dest = FFIUtil.getRecodeArgumentNative(context, 1);
-        LLVMValueRef returnValue = LLVMBuildBr(arg0, dest);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMValueRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static Object LLVMBuildBr(MapValue<String, Object> arg0, MapValue<String, Object> dest) {
+        LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVM.LLVMBasicBlockRef destRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(dest);
+        LLVMValueRef returnValue = LLVM.LLVMBuildBr(arg0Ref, destRef);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

@@ -16,10 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,18 +47,18 @@ import static org.bytedeco.javacpp.LLVM.LLVMFunctionType;
                 @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMFunctionType1 extends BlockingNativeCallableUnit {
+public class LLVMFunctionType1Class{
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMTypeRef returnType = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVMTypeRef[] paramTypes = FFIUtil.getRecodeArrayArgumentNative(context, 1, LLVMTypeRef[]::new);
-        PointerPointer<LLVMTypeRef> paramTypesWrapped = new PointerPointer<>(paramTypes);
-        int paramCount = (int) context.getIntArgument(0);
-        int isVarArg = (int) context.getIntArgument(1);
-        LLVMTypeRef returnValue = LLVMFunctionType(returnType, paramTypesWrapped, paramCount, isVarArg);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMTypeRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static Object LLVMFunctionType1(MapValue<String, Object> returnType, ArrayValue paramTypes, long paramCount,
+                                            long isVarArg) {
+        LLVM.LLVMTypeRef returnTypeRef = (LLVM.LLVMTypeRef)FFIUtil.getRecodeArgumentNative(returnType);
+        LLVMTypeRef[] paramTypesRef = (LLVMTypeRef[]) FFIUtil.getRecodeArrayArgumentNative(paramTypes);
+        PointerPointer<LLVMTypeRef> paramTypesWrapped = new PointerPointer<>(paramTypesRef);
+        int paramCountRef = (int) paramCount;
+        int isVarArgRef = (int) isVarArg;
+        LLVMTypeRef returnValue = LLVMFunctionType(returnTypeRef, paramTypesWrapped, paramCountRef, isVarArgRef);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

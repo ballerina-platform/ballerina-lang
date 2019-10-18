@@ -16,44 +16,40 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMBasicBlockRef;
+import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 
+import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMAppendBasicBlock;
+import static org.bytedeco.javacpp.LLVM.LLVMGetParam;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMAppendBasicBlock",
+        functionName = "LLVMGetParam",
         args = {
                 @Argument(name = "fn", type = RECORD, structType = "LLVMValueRef"),
-                @Argument(name = "name", type = STRING),
+                @Argument(name = "index", type = INT),
         },
         returnType = {
-                @ReturnType(type = RECORD, structType = "LLVMBasicBlockRef", structPackage = "ballerina/llvm"),
+                @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMAppendBasicBlock extends BlockingNativeCallableUnit {
+public class LLVMGetParamClass {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMValueRef fn = FFIUtil.getRecodeArgumentNative(context, 0);
-        String name = context.getStringArgument(0);
-        LLVMBasicBlockRef returnValue = LLVMAppendBasicBlock(fn, name);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMBasicBlockRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static Object LLVMGetParam(MapValue<String, Object> fn, long index) {
+        LLVM.LLVMValueRef fnRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
+        int indexRef = (int) index;
+        LLVMValueRef returnValue = LLVM.LLVMGetParam(fnRef, indexRef);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }
