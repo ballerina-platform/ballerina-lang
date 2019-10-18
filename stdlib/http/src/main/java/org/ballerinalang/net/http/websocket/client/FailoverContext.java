@@ -33,7 +33,7 @@ public class FailoverContext {
     private int initialIndex = 0;
 
     /**
-     * Get finished failover value.
+     * Get the value of completed failover.
      *
      * @return finishedFailover
      */
@@ -44,14 +44,14 @@ public class FailoverContext {
     /**
      * Assign the finishedFailover of the FailoverContext to the variable finishedFailover.
      *
-     * @param finishedFailover if true, do failover in the remaining url.
+     * @param If `finishedFailover` is true, do reconnect in the target URL.
      */
     public void setFailoverFinished(boolean finishedFailover) {
         this.finishedFailover = finishedFailover;
     }
 
     /**
-     * Get index.
+     * Get the index.
      *
      * @return currentIndex
      */
@@ -60,7 +60,7 @@ public class FailoverContext {
     }
 
     /**
-     * Assign the index of the FailoverContext to the variable index.
+     * Assigns the index of the FailoverContext to the variable index.
      *
      * @param currentIndex a current index.
      */
@@ -69,7 +69,7 @@ public class FailoverContext {
     }
 
     /**
-     * Get target urls.
+     * Gets the target URLs.
      *
      * @return targetUrls
      */
@@ -88,7 +88,7 @@ public class FailoverContext {
 
     /**
      * Assign the failover interval of the FailoverContext to
-     * the variable failoverInterval.
+     * the `failoverInterval` variable.
      *
      * @param failoverInterval a failover interval.
      */
@@ -97,7 +97,7 @@ public class FailoverContext {
     }
 
     /**
-     * Assign the failover interval of the FailoverContext to the variable failoverInterval.
+     * Assigns the failover interval of the `FailoverContext` to the `failoverInterval` variable.
      * @return failoverInterval
      */
     public int getFailoverInterval() {
@@ -105,7 +105,7 @@ public class FailoverContext {
     }
 
     /**
-     * Get connectionMade.
+     * Gets the `connectionMade`.
      *
      * @return connectionMade
      */
@@ -114,14 +114,14 @@ public class FailoverContext {
     }
 
     /**
-     * Assign the connection state of the FailoverContext to the variable connectionMade.
+     * Assigns the connection state of the FailoverContext to the `connectionMade` variable.
      */
     public void setConnectionMade() {
         this.connectionMade = true;
     }
 
     /**
-     * Get initial index.
+     * Gets the initial index.
      *
      * @return initialIndex
      */
@@ -130,7 +130,7 @@ public class FailoverContext {
     }
 
     /**
-     * Assign the initialIndex of the FailoverContext to the variable initialIndex.
+     * Assigns the `initialIndex` of the FailoverContext to the `initialIndex` variable.
      *
      * @param initialIndex a initial index.
      */

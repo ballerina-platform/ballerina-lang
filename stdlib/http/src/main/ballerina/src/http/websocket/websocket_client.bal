@@ -42,7 +42,7 @@ public type WebSocketClient client object {
 
     # Pushes text to the connection.
     #
-    # + data - Data to be sent, If it is a byte[], it is converted to a UTF-8 string for sending
+    # + data - Data to be sent. If it is a byte[], it is converted to a UTF-8 string for sending.
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - Returns a`WebSocketError` if an error occurs while sending the text message to the server.
     #   The message will be lost if an error occurs.
@@ -85,8 +85,8 @@ public type WebSocketClient client object {
     # + reason - Reason for closing the connection
     # + timeoutInSeconds - Time to wait for the close frame to be received from the remote endpoint before closing the
     #                   connection. If the timeout exceeds, then the connection is terminated even though a close frame
-    #                   is not received from the remote endpoint. If the value is < 0 (e.g., -1), then the connection waits
-    #                   until a close frame is received. If the WebSocket frame is received from the remote endpoint,
+    #                   is not received from the remote endpoint. If the value is < 0 (e.g., -1), then the connection
+    #                   waits until a close frame is received. If the WebSocket frame is received from the remote endpoint
     #                   within the waiting period, the connection is terminated immediately.
     # + return - Returns a `WebSocketError` if an error occurs while closing the webSocket connection.
     public remote function close(public int? statusCode = 1000, public string? reason = (),
@@ -167,18 +167,18 @@ public type WebSocketClient client object {
 #
 # + callbackService - The callback service for the client. Resources in this service gets called on the
 #                     receipt of messages from the server.
-# + subProtocols - Negotiable sub protocols for the client
-# + customHeaders - Custom headers, which should be sent to the server
+# + subProtocols - Negotiable sub protocols for the client.
+# + customHeaders - Custom headers, which should be sent to the server.
 # + idleTimeoutInSeconds - Idle timeout of the client. Upon timeout, the `onIdleTimeout` resource (if defined)
 #                          of the client service will be triggered.
-# + readyOnConnect - set to `true` if the client is ready to receive messages as soon as the connection is established.
-#                    This is set to `true` by default. If changed to `false` the function `ready()` of the
+# + readyOnConnect - Set to `true` if the client is ready to receive messages as soon as the connection is established.
+#                    This is set to `true` by default. If changed to `false`, the `ready()` function of the
 #                    `WebSocketClient` needs to be called once to start receiving messages.
-# + secureSocket - SSL/TLS-related options
+# + secureSocket - SSL/TLS-related options.
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set, is negative, or is zero, the default frame size of 65536 will be used.
-# + webSocketCompressionEnabled - Enable support for compression in WebSocket
-# + retryConfig - Configurations related to retrying
+# + webSocketCompressionEnabled - Enable support for compression in WebSocket.
+# + retryConfig - Configurations related to retrying.
 public type WebSocketClientConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];

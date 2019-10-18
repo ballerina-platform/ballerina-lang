@@ -113,7 +113,7 @@ public class Close {
             }
         } catch (InterruptedException err) {
             callback.setReturnValues(new WebSocketException(ErrorCode.WsConnectionClosureError,
-                    "Connection interrupted while closing the connection"));
+                                                            "Connection interrupted while closing the connection."));
             Thread.currentThread().interrupt();
         }
     }

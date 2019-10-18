@@ -35,7 +35,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import java.io.IOException;
 
 /**
- * The handshake listener for the client.
+ * The handshake listener of the client.
  *
  * @since 1.1.0
  */
@@ -56,14 +56,14 @@ public class WebSocketClientHandshakeListenerImpl extends WebSocketClientHandsha
         super.onSuccess(webSocketConnection, carbonResponse);
         logger.debug(WebSocketConstants.CONNECTED_TO + webSocketClient.getStringValue(
                 WebSocketConstants.CLIENT_URL_CONFIG));
-        // Following these are created for future connection
-        // Check whether the config has retry config or not
-        // It has retry config, set these variables to default variable
+        // The following are created for future connections.
+        // Checks whether the config has retry config or not.
+        // If it has a retry config, set these variables to the default variable.
         RetryContext retryConfig;
         if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
             retryConfig = (RetryContext) webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG);
             setWebSocketEndpoint(retryConfig, webSocketClient, webSocketConnection);
-            // Read the next frame when readyOnConnect is true in first the connection or after the first connection
+            // After the first connection, read the next frame in the every connection
             if (retryConfig.isConnectionMade()) {
                 webSocketConnection.readNextFrame();
             }

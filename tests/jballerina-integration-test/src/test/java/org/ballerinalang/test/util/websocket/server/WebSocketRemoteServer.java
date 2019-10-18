@@ -63,10 +63,10 @@ public final class WebSocketRemoteServer {
         bootstrap.bind(port).sync();
     }
 
-    public void stop() {
+    public void stop() throws InterruptedException {
         log.info("Shutting down websocket remote server at '" + port + "'");
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
+        bossGroup.shutdownGracefully().sync();
+        workerGroup.shutdownGracefully().sync();
         Utils.waitForPortsToClose(new int[]{port}, 30000);
     }
 }

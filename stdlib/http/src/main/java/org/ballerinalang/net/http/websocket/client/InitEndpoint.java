@@ -32,7 +32,7 @@ import org.ballerinalang.net.http.websocket.server.WebSocketService;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 
 /**
- * Initialize the WebSocket Client.
+ * Initializes the WebSocket Client.
  *
  * @since 0.966
  */

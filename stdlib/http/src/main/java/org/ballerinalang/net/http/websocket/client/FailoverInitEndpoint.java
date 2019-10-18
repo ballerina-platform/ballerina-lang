@@ -37,7 +37,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 /**
- * Initialize the WebSocket Client.
+ * Initializes the Failover WebSocket Client.
  *
  * @since 1.1.0
  */
@@ -63,8 +63,8 @@ public class FailoverInitEndpoint {
         ArrayValue targets = clientEndpointConfig.getArrayValue(WebSocketConstants.TARGET_URLS);
         ArrayList<String> newTargetUrls = new ArrayList<>();
         int index = 0;
-        // check whether url has valid format or not
-        // if It isn't in the valid format, remove that from the url set
+        // Checks whether the URL has a valid format or not.
+        // If It isn't in the valid format, remove that from the URL set.
         for (int i = 0; i < targets.size(); i++) {
             URI uri = new URI(targets.get(i).toString());
             String scheme = uri.getScheme();
@@ -80,7 +80,7 @@ public class FailoverInitEndpoint {
         if (newTargetUrls.size() == 0) {
             throw new WebSocketException("TargetUrls should have atleast one valid URL.");
         }
-        // Create the connector factory and set it as the native data
+        // Creates the connector factory and sets it as the native data.
         webSocketClient.addNativeData(WebSocketConstants.CONNECTOR_FACTORY, HttpUtil.createHttpWsConnectionFactory());
         if (clientEndpointConfig.get(WebSocketConstants.RETRY_CONFIG) != null) {
             @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -91,11 +91,11 @@ public class FailoverInitEndpoint {
             WebSocketUtil.populateRetryConnectorConfig(retryConfig, retryConnectorConfig);
             webSocketClient.addNativeData(WebSocketConstants.RETRY_CONFIG, retryConnectorConfig);
         }
-        // Set the failover config values
+        // Sets the failover config values.
         FailoverContext failoverConfig = new FailoverContext();
         WebSocketUtil.populateFailoverConnectorConfig(clientEndpointConfig, failoverConfig, newTargetUrls);
         webSocketClient.addNativeData(WebSocketConstants.FAILOVER_CONFIG, failoverConfig);
-        // Call the function with first url in the target url set
+        // Calls the function with the first URL in the target URLs set.
         WebSocketUtil.establishInitialFailoverConnection(WebSocketUtil.
                         getWebSocketClientConnector(newTargetUrls.get(0), webSocketClient),
                 webSocketClient, WebSocketUtil.getWebSocketService(clientEndpointConfig, strand));

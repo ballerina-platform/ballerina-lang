@@ -78,7 +78,7 @@ public class WebSocketResourceDispatcher {
                                        MapValue httpEndpointConfig, WebSocketConnectionManager connectionManager) {
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         webSocketHandshaker.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
-                onUpgradeResource.getCorsHeaders());
+                                                               onUpgradeResource.getCorsHeaders());
         AttachedFunction balResource = onUpgradeResource.getBalResource();
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
                 .getHttpCarbonRequest(), httpEndpointConfig);
@@ -95,11 +95,11 @@ public class WebSocketResourceDispatcher {
     }
 
     public static void dispatchOnOpen(WebSocketConnection webSocketConnection, ObjectValue webSocketCaller,
-                                      WebSocketServerService wsService) {
+                                       WebSocketServerService wsService) {
         AttachedFunction onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
         if (onOpenResource != null) {
             executeOnOpenResource(wsService, onOpenResource, webSocketCaller,
-                    webSocketConnection);
+                                  webSocketConnection);
         } else {
             webSocketConnection.readNextFrame();
         }
@@ -127,8 +127,8 @@ public class WebSocketResourceDispatcher {
         };
 
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), onOpenResource.getName(),
-                onOpenCallableUnitCallback,
-                null, bValues);
+                        onOpenCallableUnitCallback,
+                        null, bValues);
     }
     public static void dispatchOnText(WebSocketOpenConnectionInfo connectionInfo, WebSocketTextMessage textMessage)
             throws IllegalAccessException {
@@ -154,19 +154,19 @@ public class WebSocketResourceDispatcher {
                 bValues[5] = true;
             }
             Executor.submit(wsService.getScheduler(), wsService.getBalService(), onTextMessageResource.getName(),
-                    new WebSocketResourceCallback(webSocketConnection), null, bValues);
+                            new WebSocketResourceCallback(webSocketConnection), null, bValues);
         } else if (dataTypeTag == TypeTags.JSON_TAG || dataTypeTag == TypeTags.RECORD_TYPE_TAG ||
                 dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG) {
             if (finalFragment) {
                 connectionInfo.appendAggregateString(textMessage.getText());
                 Object aggregate = getAggregatedObject(webSocketConnection, dataType,
-                        connectionInfo.getAggregateString());
+                                                       connectionInfo.getAggregateString());
                 if (aggregate != null) {
                     bValues[2] = aggregate;
                     bValues[3] = true;
                     Executor.submit(wsService.getScheduler(), wsService.getBalService(),
-                            WebSocketConstants.RESOURCE_NAME_ON_TEXT,
-                            new WebSocketResourceCallback(webSocketConnection), null, bValues);
+                                    WebSocketConstants.RESOURCE_NAME_ON_TEXT,
+                                    new WebSocketResourceCallback(webSocketConnection), null, bValues);
                 }
                 connectionInfo.resetAggregateString();
             } else {
@@ -191,7 +191,7 @@ public class WebSocketResourceDispatcher {
                     return bxml;
                 case TypeTags.RECORD_TYPE_TAG:
                     return JSONUtils.convertJSONToRecord(JSONParser.parse(aggregateString),
-                            (BStructureType) dataType);
+                                                         (BStructureType) dataType);
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                         return new ArrayValue(
@@ -234,7 +234,7 @@ public class WebSocketResourceDispatcher {
             bValues[5] = true;
         }
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_BINARY,
-                new WebSocketResourceCallback(webSocketConnection), null, bValues);
+                        new WebSocketResourceCallback(webSocketConnection), null, bValues);
 
     }
 
@@ -264,7 +264,7 @@ public class WebSocketResourceDispatcher {
         bValues[2] = new ArrayValue(controlMessage.getByteArray());
         bValues[3] = true;
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_PING,
-                new WebSocketResourceCallback(webSocketConnection), null, bValues);
+                        new WebSocketResourceCallback(webSocketConnection), null, bValues);
     }
 
     private static void dispatchOnPong(WebSocketOpenConnectionInfo connectionInfo,
@@ -283,7 +283,7 @@ public class WebSocketResourceDispatcher {
         bValues[2] = new ArrayValue(controlMessage.getByteArray());
         bValues[3] = true;
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_PONG,
-                new WebSocketResourceCallback(webSocketConnection), null, bValues);
+                        new WebSocketResourceCallback(webSocketConnection), null, bValues);
     }
 
     public static void dispatchOnClose(WebSocketOpenConnectionInfo connectionInfo, WebSocketCloseMessage closeMessage)
@@ -336,7 +336,7 @@ public class WebSocketResourceDispatcher {
         };
 
         Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_CLOSE,
-                onCloseCallback, null, bValues);
+                        onCloseCallback, null, bValues);
     }
 
     public static void dispatchOnError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
@@ -373,7 +373,7 @@ public class WebSocketResourceDispatcher {
         };
 
         Executor.submit(webSocketService.getScheduler(), webSocketService.getBalService(),
-                WebSocketConstants.RESOURCE_NAME_ON_ERROR, onErrorCallback, null, bValues);
+                        WebSocketConstants.RESOURCE_NAME_ON_ERROR, onErrorCallback, null, bValues);
     }
 
     private static boolean isUnexpectedError(Throwable throwable) {
@@ -408,7 +408,7 @@ public class WebSocketResourceDispatcher {
         };
 
         Executor.submit(wsService.getScheduler(), wsService.getBalService(),
-                WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT, onIdleTimeoutCallback, null, bValues);
+                        WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT, onIdleTimeoutCallback, null, bValues);
     }
 
     private static void pongAutomatically(WebSocketControlMessage controlMessage) {

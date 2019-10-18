@@ -30,7 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This Class tests retry support of WebSocket client and server.
+ * This Class tests the retry support of the WebSocket client and server.
  */
 @Test(groups = {"websocket-test"})
 public class RetryClientTest extends WebSocketTestCommons {
@@ -95,9 +95,9 @@ public class RetryClientTest extends WebSocketTestCommons {
         remoteServer.stop();
         CountDownLatch countDownLatchForRestart = new CountDownLatch(1);
         remoteServer.run();
-        countDownLatchForRestart.await(30, TimeUnit.SECONDS);
+        countDownLatchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendBinary(bufferData);
-        countDownLatchForRestart.await(20, TimeUnit.SECONDS);
+        countDownLatchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferData);
         client.shutDown();
         remoteServer.stop();

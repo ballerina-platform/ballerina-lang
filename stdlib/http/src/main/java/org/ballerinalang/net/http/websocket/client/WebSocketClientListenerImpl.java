@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import java.io.IOException;
 
 /**
- * Client connector listener for WebSocket.
+ * Client connector listener for the WebSocket.
  *
  * @since 1.1.0
  */

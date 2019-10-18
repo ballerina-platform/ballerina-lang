@@ -31,7 +31,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This Class tests failover support of WebSocket client.
+ * This Class tests failover support of the WebSocket client.
  */
 @Test(groups = {"websocket-test"})
 public class FailoverClientTest extends WebSocketTestCommons {

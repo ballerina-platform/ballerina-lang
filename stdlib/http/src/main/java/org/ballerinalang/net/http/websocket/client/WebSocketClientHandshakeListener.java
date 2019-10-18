@@ -65,7 +65,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         WebSocketUtil.populateWebSocketCaller(webSocketConnection, webSocketClient);
         clientConnectorListener.setConnectionInfo(connectionInfo);
         if (readyOnConnect) {
-            webSocketConnection.readNextFrame();
+            WebSocketUtil.readFirstFrame(webSocketConnection, webSocketClient);
         }
         WebSocketUtil.countDownForHandshake(webSocketClient);
     }

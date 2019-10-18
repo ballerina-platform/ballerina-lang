@@ -33,7 +33,7 @@ public class RetryContext {
     private boolean connectionMade = false;
 
     /**
-     * Get webSocket connector factory.
+     * Get the `interval`.
      *
      * @return interval
      */
@@ -42,7 +42,7 @@ public class RetryContext {
     }
 
     /**
-     * Assign the interval of the RetryContext to the variable interval.
+     * Assigns the interval of the `RetryContext` to the `interval` variable.
      *
      * @param interval a initial index.
      */
@@ -51,7 +51,7 @@ public class RetryContext {
     }
 
     /**
-     * Get backOfFactor.
+     * Get the `backOfFactor`.
      *
      * @return backOfFactor
      */
@@ -60,7 +60,7 @@ public class RetryContext {
     }
 
     /**
-     * Assign the backOfFactor of the RetryContext to the variable backOfFactor.
+     * Assign the` backOfFactor` of the `RetryContext` to the `backOfFactor` variable.
      *
      * @param backOfFactor a initial index.
      */
@@ -69,7 +69,7 @@ public class RetryContext {
     }
 
     /**
-     * Get maxInterval.
+     * Gets the `maxInterval`.
      *
      * @return maxInterval
      */
@@ -78,7 +78,7 @@ public class RetryContext {
     }
 
     /**
-     * Assign the maxInterval of the RetryContext to the variable maxInterval.
+     * Assigns the `maxInterval` of the `RetryContext` to the `maxInterval` variable.
      *
      * @param maxInterval a index.
      */
@@ -87,7 +87,7 @@ public class RetryContext {
     }
 
     /**
-     * Get maxAttempts.
+     * Gets the `maxAttempts`.
      *
      * @return maxAttempts
      */
@@ -96,7 +96,7 @@ public class RetryContext {
     }
 
     /**
-     * Assign the maxAttempts of the RetryContext to the variable maxAttempts.
+     * Assign the `maxAttempts` of the `RetryContext` to the `maxAttempts` variable.
      *
      * @param maxAttempts a index.
      */
@@ -105,7 +105,7 @@ public class RetryContext {
     }
 
     /**
-     * Get reconnectAttempts.
+     * Gets the `reconnectAttempts`.
      *
      * @return reconnectAttempts
      */
@@ -114,7 +114,7 @@ public class RetryContext {
     }
 
     /**
-     * Assign the reconnectAttempts of the RetryContext to the variable reconnectAttempts.
+     * Assigns the `reconnectAttempts` of the `RetryContext` to the `reconnectAttempts` variable.
      *
      * @param reconnectAttempts a index.
      */
@@ -123,7 +123,7 @@ public class RetryContext {
     }
 
     /**
-     * Get initial index.
+     * Gets the initial index.
      *
      * @return initialIndex
      */
@@ -132,7 +132,7 @@ public class RetryContext {
     }
 
     /**
-     * Assign the initialIndex of the RetryContext to the variable initialIndex.
+     * Assigns the initial Index of the RetryContext to the `initialIndex` variable.
      *
      * @param initialIndex a initial index.
      */
@@ -141,7 +141,7 @@ public class RetryContext {
     }
 
     /**
-     * Get index.
+     * Gets the index.
      *
      * @return currentIndex
      */
@@ -150,7 +150,7 @@ public class RetryContext {
     }
 
     /**
-     * Assign the index of the RetryContext to the variable index.
+     * Assigns the index of the `RetryContext` to the `index` variable.
      *
      * @param index a index.
      */
@@ -159,7 +159,7 @@ public class RetryContext {
     }
 
     /**
-     * Get connectionMade.
+     * Gets the `connectionMade`.
      *
      * @return connectionMade
      */
@@ -168,7 +168,7 @@ public class RetryContext {
     }
 
     /**
-     * Assign the connection state of the RetryContext to the variable connectionMade.
+     * Assigns the connection state of the `RetryContext` to the `connectionMade` variable.
      */
     public void setConnectionMade() {
         this.connectionMade = true;

@@ -35,7 +35,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import java.io.IOException;
 
 /**
- * The handshake listener for the failover client.
+ * The handshake listener of the failover client.
  *
  * @since 1.1.0
  */
@@ -58,7 +58,7 @@ public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHan
                 FAILOVER_CONFIG);
         setFailoverWebSocketEndpoint(failoverConfig, webSocketClient, webSocketConnection);
         failoverConfig.setFailoverFinished(false);
-        // Read the next frame when readyOnConnect is true in first the connection or after the first connection
+        // After the first connection, read the next frame in the every connection
         if (failoverConfig.isConnectionMade()) {
             webSocketConnection.readNextFrame();
         }
