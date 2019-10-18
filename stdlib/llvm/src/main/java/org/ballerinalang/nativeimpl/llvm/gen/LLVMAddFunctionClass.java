@@ -16,10 +16,7 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -29,7 +26,6 @@ import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMAddFunction;
 
 /**
  * Auto generated class.
@@ -46,16 +42,14 @@ import static org.bytedeco.javacpp.LLVM.LLVMAddFunction;
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMAddFunction extends BlockingNativeCallableUnit {
+public class LLVMAddFunctionClass {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMModuleRef m = FFIUtil.getRecodeArgumentNative(context, 0);
-        String name = context.getStringArgument(0);
-        LLVM.LLVMTypeRef functionTy = FFIUtil.getRecodeArgumentNative(context, 1);
-        LLVMValueRef returnValue = LLVMAddFunction(m, name, functionTy);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMValueRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static Object LLVMAddFunction(MapValue<String, Object> m, String name, MapValue<String, Object> functionTy) {
+        LLVM.LLVMModuleRef mRef = (LLVM.LLVMModuleRef) FFIUtil.getRecodeArgumentNative(m);
+        LLVM.LLVMTypeRef functionTyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(functionTy);
+        LLVMValueRef returnValue =  LLVM.LLVMAddFunction(mRef, name, functionTyRef);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

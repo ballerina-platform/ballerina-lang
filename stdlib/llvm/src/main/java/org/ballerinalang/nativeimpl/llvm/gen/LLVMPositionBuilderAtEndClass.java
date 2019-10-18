@@ -16,35 +16,30 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
+import org.bytedeco.javacpp.LLVM;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMVoidType;
+import static org.bytedeco.javacpp.LLVM.LLVMPositionBuilderAtEnd;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMVoidType",
-        returnType = {
-                @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
-        }
-)
-public class LLVMVoidType extends BlockingNativeCallableUnit {
+        functionName = "LLVMPositionBuilderAtEnd",
+        args = {
+                @Argument(name = "builder", type = RECORD, structType = "LLVMBuilderRef"),
+                @Argument(name = "block", type = RECORD, structType = "LLVMBasicBlockRef"),
+        })
+public class LLVMPositionBuilderAtEndClass {
 
-    @Override
-    public void execute(Context context) {
-        LLVMTypeRef returnValue = LLVMVoidType();
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMTypeRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static void LLVMPositionBuilderAtEnd(MapValue<String, Object> builder, MapValue<String, Object> block) {
+        LLVM.LLVMBuilderRef builderRef = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(builder);
+        LLVM.LLVMBasicBlockRef blockRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(block);
+        LLVM.LLVMPositionBuilderAtEnd(builderRef, blockRef);
     }
 }
