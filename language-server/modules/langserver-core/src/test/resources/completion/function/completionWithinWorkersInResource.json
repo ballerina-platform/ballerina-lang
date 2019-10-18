@@ -148,7 +148,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` nestingMethod  \n  \n**Returns** `string`   \n  \n"
         }
       },
       "sortText": "120",
@@ -225,7 +225,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `(int|error)`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `(int|error)`   \n  \n"
         }
       },
       "sortText": "120",
@@ -395,6 +395,14 @@
       "detail": "Service",
       "sortText": "230",
       "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "sampleService",
+      "sortText": "130",
+      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {

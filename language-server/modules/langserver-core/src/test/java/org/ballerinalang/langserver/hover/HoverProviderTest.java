@@ -96,6 +96,16 @@ public class HoverProviderTest {
                         + " character:" + position.getCharacter());
     }
 
+    @Test(description = "Test Hover for stdlib actions", dataProvider = "hoverAnnotationPosition")
+    public void hoverForAnnotationsTest(Position position, String expectedFile) throws IOException {
+        String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
+        String expected = getExpectedValue(expectedFile);
+
+        Assert.assertEquals(parser.parse(expected).getAsJsonObject(), parser.parse(response).getAsJsonObject(),
+                "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
+                        + " character:" + position.getCharacter());
+    }
+
     @AfterClass
     public void shutDownLanguageServer() {
         TestUtil.closeDocument(this.serviceEndpoint, balPath);
@@ -140,6 +150,14 @@ public class HoverProviderTest {
                 {new Position(46, 7), "currentPkg-record.json"},
                 {new Position(51, 22), "currentPkg-record.json"},
                 {new Position(52, 11), "currentPkg-record.json"}
+        };
+    }
+
+    @DataProvider(name = "hoverAnnotationPosition")
+    public Object[][] getAnnotationPositions() {
+        log.info("Test textDocument/hover for Annotations");
+        return new Object[][]{
+                {new Position(68, 13), "annotations.json"}
         };
     }
 

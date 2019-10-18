@@ -24,8 +24,8 @@ public function main() {
     // statement execution is successful, the `update` remote function
     // returns 0.
     io:println("The update operation - Creating a table");
-    var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT,
-                         age INT, name VARCHAR(255), PRIMARY KEY (id))");
+    var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, " +
+                         "age INT, name VARCHAR(255), PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
     // Insert data to the table using the `update` remote function. If the DML
@@ -33,8 +33,8 @@ public function main() {
     // the updated row count. The query parameters are given in the query
     // statement itself.
     io:println("\nThe update operation - Inserting data to a table");
-    ret = testDB->update("INSERT INTO student(age, name) values
-                          (23, 'john')");
+    ret = testDB->update("INSERT INTO student(age, name) values " +
+                          "(23, 'john')");
     handleUpdate(ret, "Insert to student table with no parameters");
 
     // The query parameters are given as variables for the `update` remote
@@ -77,8 +77,8 @@ public function main() {
     io:println("\nThe Update operation - Inserting data");
     age = 31;
     name = "Kate";
-    var retWithKey = testDB->update("INSERT INTO student
-                        (age, name) values (?, ?)", age, name);
+    var retWithKey = testDB->update("INSERT INTO student " +
+                        "(age, name) values (?, ?)", age, name);
     if (retWithKey is jdbc:UpdateResult) {
         int count = retWithKey.updatedRowCount;
         int generatedKey = <int>retWithKey.generatedKeys["GENERATED_KEY"];

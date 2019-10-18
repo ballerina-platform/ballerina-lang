@@ -107,6 +107,15 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
                             }
                         });
             }
+            if (topLevelNode instanceof BLangTypeDefinition
+                    && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangObjectTypeNode) {
+                ((BLangObjectTypeNode) ((BLangTypeDefinition) topLevelNode).typeNode).functions.forEach(function -> {
+                    DocAttachmentInfo resourceInfo = getDocumentationEditForNode(function);
+                    if (resourceInfo != null) {
+                        textEdits.add(getTextEdit(resourceInfo));
+                    }
+                });
+            }
         }
 
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);

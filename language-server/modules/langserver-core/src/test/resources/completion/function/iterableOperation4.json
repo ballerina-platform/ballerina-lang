@@ -12,10 +12,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nParse a string in JSON format and return the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `value` parsed to json or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nParses a string in JSON format and returns the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "fromJsonString()",
       "insertTextFormat": "Snippet"
     },
@@ -26,10 +26,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a list of all the keys of map `m`.\n  \n  \n  \n**Returns** `string[]`   \n- list of all keys  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a list of all the keys of map `m`.\n  \n  \n  \n**Returns** `string[]`   \n- a new list of all keys  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "keys()",
       "insertTextFormat": "Snippet"
     },
@@ -40,10 +40,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nRemoves the member of `m` with key `k` and returns it.\nPanics if there is no such member.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `(any|error)`   \n- removed member  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nRemoves a member of a map.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `(any|error)`   \n- the member of `m` that had key `k`  \nThis removed the member of `m` with key `k` and returns it.  \nIt panics if there is no such member.  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "remove(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -58,10 +58,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nRemoves all members of `m`.\nPanics if any member cannot be removed.\n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nRemoves all members of a map.\nThis panics if any member cannot be removed.\n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "removeAll();",
       "insertTextFormat": "Snippet"
     },
@@ -72,10 +72,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns an iterator over the members of `m`.\n  \n  \n  \n**Returns** ``   \n- iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** ``   \n- a new iterator object that will iterate over the members of `m`  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -89,7 +89,7 @@
           "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -100,10 +100,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns the member of map `m` with key `k`.\nPanics if `m` does not have a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `(any|error)`   \n- member matching key `k`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns the member of map `m` with key `k`.\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if `m` does not have a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `(any|error)`   \n- member with key `k`  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "get(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -112,16 +112,16 @@
       }
     },
     {
-      "label": "map(function ((any|error)) returns ((any|error)) func)(map\u003c(any|error)\u003e)",
+      "label": "map(function ((any|error)) returns ((any|error)) func)(map<(any|error)>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReturn a map with the result of applying function `func` to each member of map `m`.\n  \n**Params**  \n- `function ((any|error)) returns ((any|error))` func: a function to apply to each member  \n  \n**Returns** `map\u003c(any|error)\u003e`   \n- new map containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function each member of a map and returns a map of the result.\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ((any|error)) returns ((any|error))` func: a function to apply to each member  \n  \n**Returns** `map<(any|error)>`   \n- new map containing result of applying function `func` to each member  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -136,10 +136,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturn the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     },
@@ -150,10 +150,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReduce operate on each member of `m` using combining function `func` to produce\na new value combining all members of `m`.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value to first evaluation of combining function `func`  \n  \n**Returns** `(any|error)`   \n- result of applying combining function to each member of the map  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining function `func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -168,10 +168,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nTells whether m has a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `boolean`   \n- true if m has a member with key `k`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nTests whether m has a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `boolean`   \n- true if m has a member with key `k`  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "hasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -186,10 +186,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies `func` to each member of `m`.\n  \n**Params**  \n- `function ((any|error)) returns ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function to each member of a map.\nThe function `func` is applied to each member of `m`.\n  \n**Params**  \n- `function ((any|error)) returns ()` func: a function to apply to each member"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "forEach(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -204,10 +204,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns number of members in `m`.\n  \n  \n  \n**Returns** `int`   \n- number of members in the map  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Returns** `int`   \n- number of members in `m`  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
@@ -218,24 +218,24 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "filter(function ((any|error)) returns (boolean) func)(map\u003c(any|error)\u003e)",
+      "label": "filter(function ((any|error)) returns (boolean) func)(map<(any|error)>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a new map constructed from those elements of \u0027m\u0027 for which `func` returns true.\n  \n**Params**  \n- `function ((any|error)) returns (boolean)` func: a predicate to apply to each element to determine if it should be included  \n  \n**Returns** `map\u003c(any|error)\u003e`   \n- new map containig members which evaluate function \u0027func\u0027 to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ((any|error)) returns (boolean)` func: a predicate to apply to each element to test whether it should be included  \n  \n**Returns** `map<(any|error)>`   \n- new map containing members for which `func` evaluates to true  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -244,16 +244,16 @@
       }
     },
     {
-      "label": "entries()(map\u003c[string,(any|error)]\u003e)",
+      "label": "entries()(map<[string,(any|error)]>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Returns** `map\u003c[string,(any|error)]\u003e`   \n- map of [key, member] pairs  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Returns** `map<[string,(any|error)]>`   \n- a new map of [key, member] pairs  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "entries()",
       "insertTextFormat": "Snippet"
     },
@@ -264,10 +264,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturn the result of merging json value `j1` with `j2`.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- merged json value or error  \n  \nIf the merge fails, then return an error.  \nThe merge of j1 with j2 is defined as follows:  \n- if j1 is (), then the result is j2  \n- if j2 is nil, then the result is j1  \n- if j1 is a mapping and j2 is a mapping, then for each entry [k, j] in j2,  \n  set j1[k] to the merge of j1[k] with j  \n    - if j1[k] is undefined, then set j1[k] to j  \n    - if any merge fails, then the merge of j1 with j2 fails  \n    - otherwise, the result is j1.  \n- otherwise, the merge fails  \n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nMerges two json values.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- the merge of `j1` with `j2` or an error if the merge fails  \n  \nThe merge of `j1` with `j2` is defined as follows:  \n- if `j1` is `()`, then the result is `j2`  \n- if `j2` is `()`, then the result is `j1`  \n- if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,  \n  set `j1[k]` to the merge of `j1[k]` with `j`  \n    - if `j1[k]` is undefined, then set `j1[k]` to `j`  \n    - if any merge fails, then the merge of `j1` with `j2` fails  \n    - otherwise, the result is `j1`.  \n- otherwise, the merge fails  \nIf the merge fails, then `j1` is unchanged.  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "mergeJson(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -282,10 +282,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -296,10 +296,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a simple, human-readable representation of `value` as a string.\n  \n  \n  \n**Returns** `string`   \n- simple, human-readable string representation of `value`  \n  \n- if `value` is a string, then returns `value`  \n- if `value` is `()`, then returns an empty string  \n- if `value` is boolean, then the string `true` or `false`  \n- if `value` is an int, then return `value` represented as a decimal string  \n- if `value` is a float or decimal, then return `value` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `value`  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `value` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `value` is a map, then returns key\u003dvalue for each member separated by a space character  \n- if `value` is xml, then returns `value` in XML format (as if it occurred within an XML element)  \n- if `value` is table, TBD  \n- if `value` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `value` is an object, then  \n    - if `value` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `value`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `value` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `\u003d\u003d` operator).  \n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key=value for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     }

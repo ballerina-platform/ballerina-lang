@@ -26,8 +26,8 @@ public function main() {
     worker w1 {
         var sendResult = newChannel1->basicPublish("Hello from Ballerina", "MyQueue1");
         if (sendResult is error) {
-            io:println("An error occurred while sending the message to
-                     MyQueue1 using newChannel1.");
+            io:println("An error occurred while sending the message to " +
+                     "MyQueue1 using newChannel1.");
         }
     }
 
@@ -36,8 +36,8 @@ public function main() {
     worker w2 {
         var sendResult = newChannel2->basicPublish("Hello from Ballerina", "MyQueue1");
         if (sendResult is error) {
-            io:println("An error occurred while sending the message to
-                    MyQueue1 using newChannel2.");
+            io:println("An error occurred while sending the message to " +
+                    "MyQueue1 using newChannel2.");
         }
     }
 
@@ -46,8 +46,8 @@ public function main() {
     worker w3 {
         var sendResult = newChannel1->basicPublish("Hello from Ballerina", "MyQueue2");
         if (sendResult is error) {
-            io:println("An error occurred while sending the message to
-                    MyQueue2 using newChannel1.");
+            io:println("An error occurred while sending the message to " +
+                    "MyQueue2 using newChannel1.");
         }
     }
     _ = wait {w1, w2, w3};

@@ -1,0 +1,32 @@
+{
+  "arguments": {
+    "node.line": 5,
+    "node.column": 25
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 10,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 10,
+                    "character": 0
+                  }
+                },
+                "newText": "\n    function testObjectFunction(int a, int b){\n\n    }\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

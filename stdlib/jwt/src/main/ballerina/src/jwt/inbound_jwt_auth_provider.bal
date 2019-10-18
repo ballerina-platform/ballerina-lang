@@ -60,7 +60,8 @@ public type InboundJwtAuthProvider object {
         if (validationResult is JwtPayload) {
             auth:setAuthenticationContext("jwt", credential);
             setPrincipal(validationResult);
-            addToAuthenticationCache(self.jwtValidatorConfig, credential, validationResult?.exp, validationResult);
+            addToAuthenticationCache(self.jwtValidatorConfig, credential, <@untainted> validationResult?.exp,
+                <@untainted> validationResult);
             return true;
         } else {
             return auth:prepareError("JWT validation failed.", validationResult);

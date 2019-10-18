@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
@@ -256,7 +257,8 @@ public class ServicesBuilderUtils {
         } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
             return new BArrayType(BTypes.typeByte);
         } else {
-            return new BRecordType(protoType, bPackage, 0, true);
+            return new BRecordType(protoType, bPackage, 0, true,
+                    TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
         }
     }
 
