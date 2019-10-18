@@ -33,7 +33,7 @@ import java.io.IOException;
  * Test post HTTP Listener action functionality.
  */
 @Test(groups = "http-test")
-public class HTTPListenerActionsTestCase extends HttpBaseTest {
+public class HTTPCallerActionsTestCase extends HttpBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 20000;
     private final int servicePort = 9229;
     private static final String POST_RESPOND_LOG = "Service Level Variable : respond";

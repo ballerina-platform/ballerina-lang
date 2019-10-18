@@ -30,20 +30,20 @@ import org.ballerinalang.net.http.HttpUtil;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 
 /**
- * Get the ID of the connection.
+ * Stop the listener immediately and close the connection.
  *
  * @since 0.966
  */
 
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "stop",
+        functionName = "gracefulStop",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = HTTP_LISTENER_ENDPOINT,
                              structPackage = "ballerina/http"),
         isPublic = true
 )
-public class Stop extends AbstractHttpNativeFunction {
-    public static Object stop(Strand strand, ObjectValue serverEndpoint) {
+public class GracefulStop extends AbstractHttpNativeFunction {
+    public static Object gracefulStop(Strand strand, ObjectValue serverEndpoint) {
         try {
             getServerConnector(serverEndpoint).stop();
             serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
