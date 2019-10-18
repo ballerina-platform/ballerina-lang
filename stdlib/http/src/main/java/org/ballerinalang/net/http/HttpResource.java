@@ -227,7 +227,13 @@ public class HttpResource {
         }
     }
 
-    protected static MapValue getResourceConfigAnnotation(AttachedFunction resource) {
+    /**
+     * Get the `MapValue` resource configuration of the given resource.
+     *
+     * @param resource The resource
+     * @return the resource configuration of the given resource
+     */
+    public static MapValue getResourceConfigAnnotation(AttachedFunction resource) {
         return (MapValue) resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
     }
 
