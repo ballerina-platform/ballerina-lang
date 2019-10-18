@@ -15,9 +15,8 @@
 // under the License.
 
 
-# Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`
-# and `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this
-# generic HTTP actions implementation.
+# The internal representation of basic http:Client. Users are not encouraged to use this unless you write more complex
+# and specific endpoint types by wrapping this generic HTTP actions implementation.
 #
 # + url - The URL of the remote HTTP endpoint
 # + config - The configurations associated with the HttpClient
