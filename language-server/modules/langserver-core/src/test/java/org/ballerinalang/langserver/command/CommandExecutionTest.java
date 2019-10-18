@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecuto
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
-import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.command.executors.CreateVariableExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
@@ -138,24 +137,6 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    @Test(description = "Test Create Initializer for object", enabled = false)
-    public void testCreateInitializer() {
-        LSContextManager.getInstance().clearAllContexts();
-        log.info("Test workspace/executeCommand for command {}", CreateObjectInitializerExecutor.COMMAND);
-        String configJsonPath = "command" + File.separator + "createInitializer.json";
-        Path sourcePath = sourcesPath.resolve("source").resolve("commonDocumentation.bal");
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        List<Object> args = Arrays.asList(
-                new CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
-                new CommandArgument("doc.uri", sourcePath.toUri().toString()),
-                new CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
-        JsonObject responseJson = getCommandResponse(args, CreateObjectInitializerExecutor.COMMAND);
-        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
-                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertEquals(responseJson, expected, "Test Failed for: createInitializer.json");
-    }
-
     @Test(dataProvider = "create-function-data-provider")
     public void testCreateFunction(String config, String source) {
         LSContextManager.getInstance().clearAllContexts();
@@ -192,6 +173,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
+    @Test(dataProvider = "change-abstract-type-data-provider")
     public void testChangeAbstractTypeObj(String config, String source) {
         LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
@@ -397,6 +379,15 @@ public class CommandExecutionTest {
         return new Object[][]{
 //                {"testGenerationForFunctions.json", Paths.get("testgen", "module1", "functions.bal")},
                 {"testGenerationForServices.json", Paths.get("testgen", "module2", "services.bal")}
+        };
+    }
+
+    @DataProvider(name = "change-abstract-type-data-provider")
+    public Object[][] testChangeAbstractTypeDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CreateTestExecutor.COMMAND);
+        return new Object[][]{
+                {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
+                {"changeAbstractTypeObj2.json", "changeAbstractType.bal"},
         };
     }
 
