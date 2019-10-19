@@ -3,7 +3,7 @@ NAME
 
 SYNOPSIS
        ballerina test [<options>] <module-name> [<config properties>]
-       ballerina test -a | --all [<options>] -- [<config properties>]
+       ballerina test -a | --all [<options>] [--] [<config properties>]
 
 
 DESCRIPTION

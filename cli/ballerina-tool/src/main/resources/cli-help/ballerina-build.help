@@ -4,7 +4,7 @@ NAME
 SYNOPSIS
        ballerina build [<options>]
                        <ballerina-file-path> | <module-name> [<config properties>]
-       ballerina build -a | --all [<options>] -- [<config properties>]
+       ballerina build -a | --all [<options>] [--] [<config properties>]
 
 
 DESCRIPTION

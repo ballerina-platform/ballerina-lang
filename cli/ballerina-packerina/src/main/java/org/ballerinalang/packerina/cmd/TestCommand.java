@@ -289,7 +289,7 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  \"ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\\n\" +\n" +
+        out.append(" ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
                            "[<module-name> | -a | --all]  [--] [(--key=value)...]\n");
     }
 
