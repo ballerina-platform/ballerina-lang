@@ -395,7 +395,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name version;
         PackageID enclPackageID = env.enclPkg.packageID;
         // The pattern of the import statement is 'import [org-name /] module-name [version sem-ver]'
-        // There cases should be considered here.
+        // Three cases should be considered here.
         // 1. import org-name/module-name version
         // 2. import org-name/module-name
         //      2a. same project
@@ -412,12 +412,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)) {
                     version = enclPackageID.version;
                 } else {
-                    version = new Name("");
+                    version = Names.EMPTY;
                 }
             }
         } else {
             orgName = enclPackageID.orgName;
-            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
+            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? Names.EMPTY : enclPackageID.version;
         }
 
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()

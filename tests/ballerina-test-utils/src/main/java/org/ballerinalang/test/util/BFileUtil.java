@@ -148,10 +148,8 @@ public class BFileUtil {
         }
         List<Path> files = Files.find(path, Integer.MAX_VALUE, (p, attribute) ->
                 p.toString().contains(pattern)).collect(Collectors.toList());
-        if (files.size() > 0) {
-            for (Path file : files) {
-                BFileUtil.delete(file);
-            }
+        for (Path file : files) {
+            BFileUtil.delete(file);
         }
     }
 }
