@@ -78,7 +78,7 @@ public class FailoverContext {
     }
 
     /**
-     * Assign the target urls of the FailoverContext to the variable targetUrls.
+     * Assigns the target URLs of the `FailoverContext` to the `targetUrls` variable.
      *
      * @param targetUrls a target urls.
      */

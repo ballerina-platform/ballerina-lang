@@ -60,7 +60,7 @@ public class WebSocketServerListener implements WebSocketConnectorListener {
         HttpResourceArguments pathParams = new HttpResourceArguments();
         URI requestUri = createRequestUri(webSocketHandshaker);
         WebSocketServerService wsService = servicesRegistry.findMatching(requestUri.getPath(), pathParams,
-                webSocketHandshaker);
+                                                                         webSocketHandshaker);
         if (wsService == null) {
             webSocketHandshaker.cancelHandshake(404, "No Service found to handle the service request");
             return;
@@ -70,7 +70,7 @@ public class WebSocketServerListener implements WebSocketConnectorListener {
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         if (onUpgradeResource != null) {
             WebSocketResourceDispatcher.dispatchUpgrade(webSocketHandshaker, wsService, httpEndpointConfig,
-                    connectionManager);
+                                                        connectionManager);
         } else {
             ServerHandshakeFuture future = webSocketHandshaker.handshake(
                     wsService.getNegotiableSubProtocols(), wsService.getIdleTimeoutInSeconds() * 1000, null,

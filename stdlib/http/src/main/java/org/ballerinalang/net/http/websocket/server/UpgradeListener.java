@@ -42,7 +42,7 @@ class UpgradeListener implements ServerHandshakeListener {
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection) {
         ObjectValue webSocketCaller = WebSocketUtil.createAndPopulateWebSocketCaller(webSocketConnection, wsService,
-                connectionManager);
+                                                                                     connectionManager);
         WebSocketResourceDispatcher.dispatchOnOpen(webSocketConnection, webSocketCaller, wsService);
     }
 
@@ -51,6 +51,6 @@ class UpgradeListener implements ServerHandshakeListener {
         String msg = "Unable to complete WebSocket handshake: ";
         logger.error(msg, throwable);
         throw new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
-                msg + throwable.getMessage());
+                                     msg + throwable.getMessage());
     }
 }

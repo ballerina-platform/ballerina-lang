@@ -50,7 +50,7 @@ public class WebSocketFailoverClientListener extends WebSocketClientListener {
         ObjectValue webSocketClient = connectionInfo.getWebSocketCaller();
         int statusCode = webSocketCloseMessage.getCloseCode();
         if (statusCode == WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE) {
-            WebSocketUtil.determineAction(connectionInfo, null, webSocketCloseMessage);
+            WebSocketUtil.determineFailoverOrReconnect(connectionInfo, null, webSocketCloseMessage);
         } else {
             if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
                 logger.debug(WebSocketConstants.STATEMENT);
@@ -62,7 +62,7 @@ public class WebSocketFailoverClientListener extends WebSocketClientListener {
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         if (throwable instanceof IOException) {
-            WebSocketUtil.determineAction(connectionInfo, throwable, null);
+            WebSocketUtil.determineFailoverOrReconnect(connectionInfo, throwable, null);
         } else {
             logger.error("Error occurred: ", throwable);
             WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);

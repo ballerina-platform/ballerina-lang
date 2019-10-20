@@ -85,7 +85,7 @@ public class WebSocketFailoverClientHandshakeListener extends WebSocketClientHan
         WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null,
                 webSocketConnector);
         if (throwable instanceof IOException) {
-            WebSocketUtil.determineAction(connectionInfo, throwable, null);
+            WebSocketUtil.determineFailoverOrReconnect(connectionInfo, throwable, null);
         } else {
             logger.error("Error occurred: ", throwable);
             WebSocketUtil.countDownForHandshake(webSocketClient);

@@ -675,7 +675,7 @@ public class WebSocketUtil {
         return interval;
     }
 
-    public static void determineAction(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable,
+    public static void determineFailoverOrReconnect(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable,
                                 WebSocketCloseMessage webSocketCloseMessage) {
         ObjectValue webSocketClient = connectionInfo.getWebSocketCaller();
         if (hasRetryConfig(webSocketClient)) {

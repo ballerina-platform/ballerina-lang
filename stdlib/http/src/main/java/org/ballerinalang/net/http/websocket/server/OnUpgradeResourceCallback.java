@@ -61,7 +61,7 @@ public class OnUpgradeResourceCallback implements CallableUnitCallback {
                     // Ignore as it is not possible have an Illegal access
                 }
                 WebSocketResourceDispatcher.dispatchOnOpen(webSocketConnection, connectionInfo.getWebSocketCaller(),
-                        wsService);
+                                                           wsService);
             }
         }
     }
