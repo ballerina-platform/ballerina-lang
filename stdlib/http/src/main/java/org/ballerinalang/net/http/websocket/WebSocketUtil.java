@@ -146,8 +146,8 @@ public class WebSocketUtil {
         try {
             return Math.toIntExact(size);
         } catch (ArithmeticException e) {
-            logger.warn("The value set for maxFrameSize needs to be less than " + Integer.MAX_VALUE +
-                    ". The maxFrameSize value is set to " + Integer.MAX_VALUE);
+            logger.warn("The value set for maxFrameSize needs to be less than {} " +
+                    ". The maxFrameSize value is set to {}" , Integer.MAX_VALUE, Integer.MAX_VALUE);
             return Integer.MAX_VALUE;
         }
 
@@ -161,8 +161,8 @@ public class WebSocketUtil {
         try {
             return Math.toIntExact(timeout);
         } catch (ArithmeticException e) {
-            logger.warn("The value set for idleTimeoutInSeconds needs to be less than" + Integer.MAX_VALUE +
-                    ". The idleTimeoutInSeconds value is set to " + Integer.MAX_VALUE);
+            logger.warn("The value set for idleTimeoutInSeconds needs to be less than {}" +
+                    ". The idleTimeoutInSeconds value is set to {}", Integer.MAX_VALUE, Integer.MAX_VALUE);
             return Integer.MAX_VALUE;
         }
     }
@@ -301,56 +301,56 @@ public class WebSocketUtil {
     }
 
     /**
-     * Set value of the interval in the retry config
+     * Set value of the interval in the retry config.
      * @param interval retry interval
      * @param retryConnectorConfig retry connector config
      */
     private static void setInterval(int interval, RetryContext retryConnectorConfig) {
         if (interval < 0) {
-            logger.warn(WebSocketConstants.STATEMENT_FOR_INTEVAL + "The interval[" + interval +
-                    "] value is set to 1000.");
+            logger.warn("{} The interval[{}] value is set to 1000.", WebSocketConstants.STATEMENT_FOR_INTEVAL,
+                    interval);
             interval = 1000;
         }
         retryConnectorConfig.setInterval(interval);
     }
 
     /**
-     * Set value of the backOfFactor in the retry config
+     * Set value of the backOfFactor in the retry config.
      * @param backOfFactor
      * @param retryConnectorConfig retry connector config
      */
     private static void setBackOfFactor(float backOfFactor, RetryContext retryConnectorConfig) {
         if (backOfFactor < 0) {
-            logger.warn(WebSocketConstants.STATEMENT_FOR_BACK_OF_FACTOR + "The backOfFactor[" + backOfFactor +
-                    "] value is set to 1.0");
+            logger.warn("{} The backOfFactor[{}] value is set to 1.0", WebSocketConstants.STATEMENT_FOR_BACK_OF_FACTOR,
+                    backOfFactor);
             backOfFactor = (float) 1.0;
         }
         retryConnectorConfig.setBackOfFactor(backOfFactor);
     }
 
     /**
-     * Set value of the maxInterval in the retry config
+     * Set value of the maxInterval in the retry config.
      * @param maxInterval
      * @param retryConnectorConfig retry connector config
      */
     private static void setMaxInterval(int maxInterval, RetryContext retryConnectorConfig) {
         if (maxInterval < 0) {
-            logger.warn(WebSocketConstants.STATEMENT_FOR_MAX_INTERVAL + "The maxInterval[" + maxInterval +
-                    "] value is set to 30000");
+            logger.warn("{} The maxInterval[{}] value is set to 30000", WebSocketConstants.STATEMENT_FOR_MAX_INTERVAL,
+                    maxInterval);
             maxInterval =  30000;
         }
         retryConnectorConfig.setMaxInterval(maxInterval);
     }
 
     /**
-     * Set value of the maxAttempts in the retry config
+     * Set value of the maxAttempts in the retry config.
      * @param maxAttempts
      * @param retryConnectorConfig retry connector config
      */
     private static void setMaxAttempts(int maxAttempts, RetryContext retryConnectorConfig) {
         if (maxAttempts < 0) {
-            logger.warn(WebSocketConstants.STATEMENT_FOR_MAX_ATTEPTS + "The maxAttempts[ " + maxAttempts +
-                    "] value is set to 0");
+            logger.warn("{} The maxAttempts[{}] value is set to 0", WebSocketConstants.STATEMENT_FOR_MAX_ATTEPTS,
+                    maxAttempts);
             maxAttempts = 0;
         }
         retryConnectorConfig.setMaxAttempts(maxAttempts);
@@ -368,8 +368,8 @@ public class WebSocketUtil {
         int failoverInterval = Integer.parseInt(clientEndpointConfig.get(WebSocketConstants.FAILOVER_INTEVAL)
                 .toString());
         if (failoverInterval < 0) {
-            logger.warn(WebSocketConstants.STATEMENT_FOR_FAILOVER_INTERVAL + "The failoverInterval [" +
-                    failoverInterval + "] value is set to 1.0");
+            logger.warn("{} The failoverInterval [{}] value is set to 1.0",
+                    WebSocketConstants.STATEMENT_FOR_FAILOVER_INTERVAL, failoverInterval);
             failoverInterval = 1000;
         }
         failoverClientConnectorConfig.setFailoverInterval(failoverInterval);
@@ -690,11 +690,20 @@ public class WebSocketUtil {
                 return;
             }
         }
-        setError(connectionInfo, throwable, webSocketCloseMessage);
+        setDispatcher(connectionInfo, throwable, webSocketCloseMessage);
     }
 
-    public static void handleExceptionAndDispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                                       WebSocketCloseMessage webSocketCloseMessage) {
+    private static void dispatchIntoResource(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable,
+                                        WebSocketCloseMessage webSocketCloseMessage) {
+        if (throwable != null) {
+            WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
+        } else {
+            dispatchOnClose(connectionInfo, webSocketCloseMessage);
+        }
+    }
+
+    public static void dispatchOnClose(WebSocketOpenConnectionInfo connectionInfo,
+                                        WebSocketCloseMessage webSocketCloseMessage) {
         try {
             WebSocketResourceDispatcher.dispatchOnClose(connectionInfo, webSocketCloseMessage);
         } catch (IllegalAccessException e) {
@@ -702,20 +711,11 @@ public class WebSocketUtil {
         }
     }
 
-    private static void closeConnection(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable,
-                                        WebSocketCloseMessage webSocketCloseMessage) {
-        if (throwable != null) {
-            WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
-        } else {
-            handleExceptionAndDispatchCloseMessage(connectionInfo, webSocketCloseMessage);
-        }
-    }
-
-    private static void setError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable,
+    private static void setDispatcher(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable,
                                  WebSocketCloseMessage webSocketCloseMessage) {
-        ObjectValue getWebSocketCaller = connectionInfo.getWebSocketCaller();
-        countDownForHandshake(getWebSocketCaller);
-        closeConnection(connectionInfo, throwable, webSocketCloseMessage);
+        ObjectValue webSocketCaller = connectionInfo.getWebSocketCaller();
+        countDownForHandshake(webSocketCaller);
+        dispatchIntoResource(connectionInfo, throwable, webSocketCloseMessage);
     }
 
     public static void countDownForHandshake(ObjectValue webSocketClient) {

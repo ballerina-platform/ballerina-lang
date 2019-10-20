@@ -69,14 +69,14 @@ public class FailoverInitEndpoint {
             URI uri = new URI(targets.get(i).toString());
             String scheme = uri.getScheme();
             if (!"ws".equalsIgnoreCase(scheme) && !"wss".equalsIgnoreCase(scheme)) {
-                logger.error(targets.get(i).toString() + " drop from the targets url" +
-                        "because webSocket client supports only WS(S) scheme.");
+                logger.error("{} drop from the targets url" +
+                        "because webSocket client supports only WS(S) scheme.", targets.get(i).toString());
             } else {
                 newTargetUrls.add(index, targets.get(i).toString());
                 index++;
             }
         }
-        logger.debug("New targetUrls: " + newTargetUrls);
+        logger.debug("New targetUrls: {}", newTargetUrls);
         if (newTargetUrls.size() == 0) {
             throw new WebSocketException("TargetUrls should have atleast one valid URL.");
         }

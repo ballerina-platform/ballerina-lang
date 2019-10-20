@@ -86,7 +86,7 @@ public class WebSocketClientHandshakeListenerImpl extends WebSocketClientHandsha
                 return;
             }
         }
-        setError(connectionInfo, throwable);
+        dispatchOnError(connectionInfo, throwable);
     }
 
     private void setReconnectContexValue(RetryContext retryConfig) {
@@ -94,7 +94,7 @@ public class WebSocketClientHandshakeListenerImpl extends WebSocketClientHandsha
         retryConfig.setReconnectAttempts(0);
     }
 
-    private void setError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
+    private void dispatchOnError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
         WebSocketUtil.countDownForHandshake(webSocketClient);
         WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
     }

@@ -60,7 +60,7 @@ public class WebSocketClientListenerImpl extends WebSocketClientListener {
                 }
             }
         }
-        WebSocketUtil.handleExceptionAndDispatchCloseMessage(connectionInfo, webSocketCloseMessage);
+        WebSocketUtil.dispatchOnClose(connectionInfo, webSocketCloseMessage);
     }
 
     @Override

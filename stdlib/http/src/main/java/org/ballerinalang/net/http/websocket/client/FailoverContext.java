@@ -44,7 +44,7 @@ public class FailoverContext {
     /**
      * Assign the finishedFailover of the FailoverContext to the variable finishedFailover.
      *
-     * @param If `finishedFailover` is true, do reconnect in the target URL.
+     * @param finishedFailover  if it is true, do reconnect in the target URL.
      */
     public void setFailoverFinished(boolean finishedFailover) {
         this.finishedFailover = finishedFailover;

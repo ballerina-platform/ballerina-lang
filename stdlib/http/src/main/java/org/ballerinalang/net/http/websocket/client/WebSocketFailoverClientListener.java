@@ -55,7 +55,7 @@ public class WebSocketFailoverClientListener extends WebSocketClientListener {
             if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
                 logger.debug(WebSocketConstants.STATEMENT);
             }
-            WebSocketUtil.handleExceptionAndDispatchCloseMessage(connectionInfo, webSocketCloseMessage);
+            WebSocketUtil.dispatchOnClose(connectionInfo, webSocketCloseMessage);
         }
     }
 

@@ -136,16 +136,16 @@ public class WebSocketConstants {
     public static final String STATEMENT_FOR_FAILOVDER_RECONNECT = "Maximum retry attempts but couldn't connect " +
             "to the one of the server in the targets: ";
     public static final String STATEMENT = "Reconnect attempt not made because of close initiated by the server: ";
-    public static final String STATEMENT_FOR_BACK_OF_FACTOR = "The decay's value set for the configuration needs to be " +
-            "greater than -1. ";
+    public static final String STATEMENT_FOR_BACK_OF_FACTOR = "The decay's value set for the configuration needs " +
+            "to be greater than -1. ";
     public static final String STATEMENT_FOR_MAX_INTERVAL = "The maxInterval's value set for the configuration" +
             " needs to be greater than -1. ";
-    public static final String STATEMENT_FOR_MAX_ATTEPTS = "The maximum doReconnect attempt's value set for the configuration needs" +
-            " to be greater than -1. ";
+    public static final String STATEMENT_FOR_MAX_ATTEPTS = "The maximum doReconnect attempt's value set for the" +
+            " configuration needs to be greater than -1. ";
     public static final String STATEMENT_FOR_INTEVAL = "The interval's value set for the configuration needs to be " +
             "greater than -1. ";
-    public static final String STATEMENT_FOR_FAILOVER_INTERVAL = "The maxInterval's value set for the configuration needs to be " +
-            "greater than -1. ";
+    public static final String STATEMENT_FOR_FAILOVER_INTERVAL = "The maxInterval's value set for the configuration " +
+            "needs to be greater than -1. ";
 
     private WebSocketConstants() {
     }
