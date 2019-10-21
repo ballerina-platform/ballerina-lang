@@ -344,7 +344,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     void handleErrorOnTransaction(Strand strand) {
-        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         if (transactionLocalContext == null) {
             return;
         }
@@ -361,14 +361,14 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else {
                 //This is when there is an infected transaction block. But this is not participated to the transaction
                 //since the action call is outside of the transaction block.
-                if (!strand.getLocalTransactionContext().hasTransactionBlock()) {
+                if (!strand.transactionLocalContext.hasTransactionBlock()) {
                     conn = datasource.getSQLConnection();
                     return conn;
                 }
             }
             String connectorId = retrieveConnectorId(client);
             boolean isXAConnection = datasource.isXAConnection();
-            TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+            TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
             String globalTxId = transactionLocalContext.getGlobalTransactionId();
             String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
             BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
