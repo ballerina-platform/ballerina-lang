@@ -177,7 +177,8 @@ public class StringTest {
         ByteArrayUtils.assertJBytesWithBBytes(bytes, bByteArray.getBytes());
     }
 
-    @Test
+    // Temporarily disabling this test due to https://github.com/ballerina-platform/ballerina-lang/issues/19501
+    @Test(enabled = false)
     public void testMultilineStringLiterals() {
         CompileResult multilineLiterals = BCompileUtil.compile("test-src/types/string/string_negative.bal");
         int indx = 0;
