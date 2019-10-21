@@ -19,7 +19,6 @@ package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BHandleType;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
@@ -251,8 +250,8 @@ public class InstanceMethodTest {
 
     @Test(description = "Test tuple return with null values")
     public void testTupleReturn() { ;
-        BValue[] returns = BRunUtil.invoke(result, "getArrayValue");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.HANDLE_TAG);
+        BValue[] returns = BRunUtil.invoke(result, "testErrorOrTupleReturn");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNull(returns[0]);
     }
 }

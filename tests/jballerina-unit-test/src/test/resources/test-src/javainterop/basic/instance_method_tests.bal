@@ -64,6 +64,10 @@ function testUnionWithErrorReturnHandle(handle receiver) returns error|int|boole
      return unionWithErrorReturnHandle(receiver);
 }
 
+function testErrorOrTupleReturn() returns error|[string,string] {
+   [string,string] ret = check getArrayValue();
+   return ret;
+}
 
 // Interop functions
 
