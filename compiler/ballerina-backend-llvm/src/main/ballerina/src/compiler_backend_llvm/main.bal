@@ -23,7 +23,6 @@ public function main(string... args) {
     string mapPath = <@untainted> args[1];
     string targetPath = args[2];
     boolean dumpBir = stringutils:equalsIgnoreCase(args[3], "true");
-
     var jarFile = generateObjFile(pathToEntryBir, mapPath, dumpBir);
 }
 

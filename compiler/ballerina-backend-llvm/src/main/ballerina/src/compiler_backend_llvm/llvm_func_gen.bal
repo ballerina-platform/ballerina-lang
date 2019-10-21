@@ -10,14 +10,14 @@ type FuncGenrator object {
     llvm:LLVMValueRef varAllocBB;
     llvm:LLVMBuilderRef builder;
 
-    function __init(bir:Function func, llvm:LLVMValueRef funcRef, llvm:LLVMModuleRef mod, map<llvm:LLVMValueRef> localVarRefs
-                    llvm:LLVMValueRef varAllocBB, llvm:LLVMBuilderRef builder) {
-        this.func = func;
-        this.funcRef = funcRef;
-        this.mode = mod;
-        this.localVarRefs = localVarRefs;
-        this.varAllocBB = varAllocBB;
-        this.builder = builder;
+    function __init(bir:Function func, llvm:LLVMValueRef funcRef, llvm:LLVMModuleRef mod,
+                    map<llvm:LLVMValueRef> localVarRefs, llvm:LLVMValueRef varAllocBB, llvm:LLVMBuilderRef builder) {
+        self.func = func;
+        self.funcRef = funcRef;
+        self.mode = mod;
+        self.localVarRefs = localVarRefs;
+        self.varAllocBB = varAllocBB;
+        self.builder = builder;
     }
 
     function genFunctionDecl() {
@@ -60,7 +60,7 @@ type FuncGenrator object {
     function genLocalVarAllocationBbBody() {
         varAllocBB = genBbDecl("var_allloc");
         int paramIndex = 0;
-        foreach localVar in func.localVars{
+        foreach var localVar in func.localVars{
             var varName = localVarName(localVar);
             var varType = genBType(localVar.typeValue);
             llvm:LLVMValueRef localVarRef = llvm:llvmBuildAlloca(builder, varType, varName);
@@ -75,15 +75,16 @@ type FuncGenrator object {
     }
 
     function isParamter(bir:VariableDcl localVar) returns boolean {
-        match localVar.kind {
-            bir:ArgVarKind => return true;
-            any => return false;
+        if (localVar.kind is bir:ArgVarKind) {
+            return true;
+        } else {
+            return false;
         }
     }
 
     function genBbBodies() returns map<BbTermGenrator> {
         map<BbTermGenrator> bbTermGenrators;
-        foreach bb in func.basicBlocks {
+        foreach var bb in func.basicBlocks {
             BbBodyGenrator g = new(builder, self, bb);
             bbTermGenrators[bb.id.value] = g.genBasicBlockBody();
         }
@@ -96,7 +97,7 @@ type FuncGenrator object {
     }
 
     function genBbTerminators(map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbTermGenrators) {
-        foreach g in bbTermGenrators {
+        foreach var g in bbTermGenrators {
             g.genBasicBlockTerminator(funcGenrators, bbTermGenrators);
         }
     }
@@ -108,13 +109,12 @@ type FuncGenrator object {
         return llvm:llvmBuildLoad(builder, localVarRef, tempName);
     }
 
-    function getLocalVarRefById(string id) returns llvm:LLVMValueRef {
-        match localVarRefs[id] {
-            llvm:LLVMValueRef varRef => return varRef;
-            any => {
-                error err = { message: "Local var by name '" + id + "' dosn't exist in " + func.name.value };
-                throw err;
-            }
+    function getLocalVarRefById(string id) returns llvm:LLVMValueRef|error {
+        if (localVarRefs[id] is llvm:LLVMValueRef) {
+            return localVarRefs[id];
+        } else {
+            error err = { message: "Local var by name '" + id + "' dosn't exist in " + func.name.value };
+            return err;
         }
     }
 
@@ -128,5 +128,6 @@ type FuncGenrator object {
         return func.typeValue.retType != "()";
     }
 };
+
 
 
