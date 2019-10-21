@@ -24,30 +24,30 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
 import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 
+import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.bytedeco.javacpp.LLVM.LLVMGetParam;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMAddFunction",
+        functionName = "LLVMGetParam",
         args = {
-                @Argument(name = "m", type = RECORD, structType = "LLVMModuleRef"),
-                @Argument(name = "name", type = STRING),
-                @Argument(name = "functionTy", type = RECORD, structType = "LLVMTypeRef"),
+                @Argument(name = "fn", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "index", type = INT),
         },
         returnType = {
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMAddFunctionClass {
+public class LLVMGetParam {
 
-    public static Object LLVMAddFunction(MapValue<String, Object> m, String name, MapValue<String, Object> functionTy) {
-        LLVM.LLVMModuleRef mRef = (LLVM.LLVMModuleRef) FFIUtil.getRecodeArgumentNative(m);
-        LLVM.LLVMTypeRef functionTyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(functionTy);
-        LLVMValueRef returnValue =  LLVM.LLVMAddFunction(mRef, name, functionTyRef);
+    public static Object llvmGetParam(MapValue<String, Object> fn, long index) {
+        LLVM.LLVMValueRef fnRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
+        int indexRef = (int) index;
+        LLVMValueRef returnValue = LLVM.LLVMGetParam(fnRef, indexRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;

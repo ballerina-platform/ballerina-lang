@@ -16,47 +16,45 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
-import org.bytedeco.javacpp.PointerPointer;
+import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 
-import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMFunctionType;
+import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.bytedeco.javacpp.LLVM.LLVMBuildICmp;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMFunctionType1",
+        functionName = "LLVMBuildICmp",
         args = {
-                @Argument(name = "returnType", type = RECORD, structType = "LLVMTypeRef"),
-                @Argument(name = "paramTypes", type = ARRAY, elementType = RECORD),
-                @Argument(name = "paramCount", type = INT),
-                @Argument(name = "isVarArg", type = INT),
+                @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
+                @Argument(name = "op", type = INT),
+                @Argument(name = "lhs", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "rhs", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "name", type = STRING),
         },
         returnType = {
-                @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
+                @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMFunctionType1Class{
+public class LLVMBuildICmp {
 
-    public static Object LLVMFunctionType1(MapValue<String, Object> returnType, ArrayValue paramTypes, long paramCount,
-                                            long isVarArg) {
-        LLVM.LLVMTypeRef returnTypeRef = (LLVM.LLVMTypeRef)FFIUtil.getRecodeArgumentNative(returnType);
-        LLVMTypeRef[] paramTypesRef = (LLVMTypeRef[]) FFIUtil.getRecodeArrayArgumentNative(paramTypes);
-        PointerPointer<LLVMTypeRef> paramTypesWrapped = new PointerPointer<>(paramTypesRef);
-        int paramCountRef = (int) paramCount;
-        int isVarArgRef = (int) isVarArg;
-        LLVMTypeRef returnValue = LLVMFunctionType(returnTypeRef, paramTypesWrapped, paramCountRef, isVarArgRef);
+    public static Object llvmBuildICmp(MapValue<String, Object> arg0, long op, MapValue<String, Object> lhs,
+            MapValue<String, Object> rhs, String name) {
+        LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        int opRef = (int) op;
+        LLVMValueRef lhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(lhs);
+        LLVMValueRef rhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(rhs);
+        LLVMValueRef returnValue = LLVMBuildICmp(arg0Ref, opRef, lhsRef, rhsRef, name);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;

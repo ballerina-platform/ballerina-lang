@@ -18,29 +18,37 @@ package org.ballerinalang.nativeimpl.llvm.gen;
 
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
+import org.bytedeco.javacpp.LLVM.LLVMBasicBlockRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
+import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.bytedeco.javacpp.LLVM.LLVMAppendBasicBlock;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMInt64Type",
+        functionName = "LLVMAppendBasicBlock",
+        args = {
+                @Argument(name = "fn", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "name", type = STRING),
+        },
         returnType = {
-                @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
+                @ReturnType(type = RECORD, structType = "LLVMBasicBlockRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMInt64TypeClass{
+public class LLVMAppendBasicBlock {
 
-    public static Object LLVMInt64Type() {
-        LLVMTypeRef returnValue = LLVM.LLVMInt64Type();
-        MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord();
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        return  rerunWrapperRecode;
+    public static Object llvmppendBasicBlock(MapValue<String, Object> fn, String name) {
+        LLVM.LLVMValueRef fnRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
+        LLVMBasicBlockRef returnValue = LLVM.LLVMAppendBasicBlock(fnRef, name);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

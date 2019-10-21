@@ -25,31 +25,33 @@ import org.bytedeco.javacpp.LLVM;
 import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildStore;
+import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.bytedeco.javacpp.LLVM.LLVMBuildAdd;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildStore",
+        functionName = "LLVMBuildAdd",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
-                @Argument(name = "val", type = RECORD, structType = "LLVMValueRef"),
-                @Argument(name = "ptr", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "lhs", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "rhs", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "name", type = STRING),
         },
         returnType = {
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildStoreClass {
+public class LLVMBuildAdd {
 
-    public static Object LLVMBuildStore(MapValue<String, Object> arg0, MapValue<String, Object> val,
-                                        MapValue<String, Object> ptr) {
+    public static Object llvmBuildAdd(MapValue<String, Object> arg0, MapValue<String, Object> lhs,
+                                      MapValue<String, Object> rhs, String name) {
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
-        LLVM.LLVMValueRef valRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(val);
-        LLVM.LLVMValueRef ptrRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ptr);
-        LLVMValueRef returnValue = LLVM.LLVMBuildStore(arg0Ref, valRef, ptrRef);
+        LLVMValueRef lhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(lhs);
+        LLVMValueRef rhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(rhs);
+        LLVMValueRef returnValue = LLVMBuildAdd(arg0Ref, lhsRef, rhsRef, name);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;

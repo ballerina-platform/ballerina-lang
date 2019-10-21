@@ -18,38 +18,29 @@ package org.ballerinalang.nativeimpl.llvm.gen;
 
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.ballerinalang.model.types.TypeKind.STRING;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildAlloca",
-        args = {
-                @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
-                @Argument(name = "ty", type = RECORD, structType = "LLVMTypeRef"),
-                @Argument(name = "name", type = STRING),
-        },
+        functionName = "LLVMInt64Type",
         returnType = {
-                @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
+                @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildAllocaClass {
+public class LLVMInt64Type {
 
-    public static Object LLVMBuildAlloca(MapValue<String, Object> arg0, MapValue<String, Object> ty, String name) {
-        LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
-        LLVM.LLVMTypeRef tyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(ty);
-        LLVMValueRef returnValue = LLVM.LLVMBuildAlloca(arg0Ref, tyRef, name);
-        MapValue<String, Object> returnWrapperRecord = FFIUtil.newRecord();
-        FFIUtil.addNativeToRecode(returnValue, returnWrapperRecord);
-        return returnWrapperRecord;
+    public static Object llvmInt64Type() {
+        LLVMTypeRef returnValue = LLVM.LLVMInt64Type();
+        MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord();
+        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
+        return  rerunWrapperRecode;
     }
 }
