@@ -7555,7 +7555,7 @@ public class FormattingNodeTree {
                     && reason.has(FormattingConstants.NAME)) {
                 JsonObject name = reason.getAsJsonObject(FormattingConstants.NAME);
                 String value = name.get(FormattingConstants.VALUE).getAsString();
-                if (value.equals("$reason$")) {
+                if (value.equals("$reason$") || value.equals("_")) {
                     reasonAvailable = false;
                 }
             }

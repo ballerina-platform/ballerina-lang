@@ -38,7 +38,7 @@ public class GetCurrentTransactionId {
 
     public static String getCurrentTransactionId(Strand strand) {
         String currentTransactionId = "";
-        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         if (transactionLocalContext != null) {
             currentTransactionId = transactionLocalContext.getGlobalTransactionId() + ":" + transactionLocalContext
                     .getCurrentTransactionBlockId();

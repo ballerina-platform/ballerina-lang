@@ -14,22 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/task;
+const R1 = "first reason";
+const R2 = "second reason";
 
-task:AppointmentConfiguration configuration = {
-    appointmentDetails: "* * * * * ? *"
-};
+type E1 error<R1>;
+type E2 error<R2>;
 
-int count = 0;
-
-listener task:Listener appointment = new(configuration);
-
-function getCount() returns int {
-    return count;
+function foo() returns E1? {
+    int i = check bar(); // should fail - check returns E2, but return type is E1?
 }
 
-service appointmentService on appointment {
-    resource function onTrigger() {
-        count = count + 1;
+function bar() returns int|E2 {
+    return E2();
+}
+
+public function main() {
+    E1? x = foo();
+}
+
+public function baz() {
+    worker w1 returns error? {
+        if (true) {
+            return error("generic error");
+        }
+
+        5 -> w2;
     }
+
+    worker w2 returns E1? {
+        int j = check <- w1; // should fail - the check-ed error is of type `error`
+    }
+
+    E1? res = wait w2;
 }

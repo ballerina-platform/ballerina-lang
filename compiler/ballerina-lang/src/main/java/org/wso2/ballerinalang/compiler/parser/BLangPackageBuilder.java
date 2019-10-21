@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -1464,30 +1463,28 @@ public class BLangPackageBuilder {
         BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         List<BLangTableLiteral.BLangTableColumn> keyNames = tableLiteralNodes.peek().columns;
         List<ExpressionNode> recordValues = exprNodeListStack.pop();
-        if (keyNames.size() == recordValues.size()) {
-            int index = 0;
-            for (ExpressionNode expr : recordValues) {
-                BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
-                //Value
-                keyValue.valueExpr = (BLangExpression) expr;
-                //key
-                BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-                keyExpr.pos = pos;
-                IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
-                identifierNode.setValue(keyNames.get(index).columnName);
-                keyExpr.variableName = (BLangIdentifier) identifierNode;
-                keyValue.key = new BLangRecordKey(keyExpr);
-                //Key-Value pair
-                recordLiteral.keyValuePairs.add(keyValue);
-                ++index;
-            }
-            recordLiteral.addWS(ws);
-            recordLiteral.pos = pos;
-            if (commaWsStack.size() > 0) {
-                recordLiteral.addWS(commaWsStack.pop());
-            }
-            this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
+        int index = 0;
+        for (ExpressionNode expr : recordValues) {
+            BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+            //Value
+            keyValue.valueExpr = (BLangExpression) expr;
+            //key
+            BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            keyExpr.pos = pos;
+            IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
+            identifierNode.setValue(keyNames.get(index).columnName);
+            keyExpr.variableName = (BLangIdentifier) identifierNode;
+            keyValue.key = new BLangRecordKey(keyExpr);
+            //Key-Value pair
+            recordLiteral.keyValuePairs.add(keyValue);
+            ++index;
         }
+        recordLiteral.addWS(ws);
+        recordLiteral.pos = pos;
+        if (commaWsStack.size() > 0) {
+            recordLiteral.addWS(commaWsStack.pop());
+        }
+        this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
     }
 
     void endTableDataArray(Set<Whitespace> ws) {
@@ -2660,15 +2657,15 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(transaction);
 
         // TODO This is a temporary workaround to flag coordinator service start
-        String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
-        if (value != null) {
-            return;
-        }
+        boolean transactionsModuleAlreadyImported = this.imports.stream()
+                .anyMatch(importPackage -> importPackage.orgName.value.equals(Names.BALLERINA_ORG.value)
+                        && importPackage.pkgNameComps.get(0).value.equals(Names.TRANSACTION_PACKAGE.value));
 
-        compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
-        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
-                Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        if (!transactionsModuleAlreadyImported) {
+            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
+            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
+                    Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        }
     }
 
     void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {

@@ -26,12 +26,11 @@ type Person record {
     boolean married;
 };
 
-
 type DefaultablePerson record {
     int id = 0;
     int age = 0;
     float salary = 0.0;
-    string name = "";
+    string name = "empty";
     boolean married = false;
 };
 
@@ -692,6 +691,18 @@ function testTableWithBlobDataToXml() returns (xml|error) {
 
     xml x = xmlutils:fromTable(dt3);
     return x;
+}
+
+function testTableLiteralWithDefaultableRecord() returns (json|error) {
+    table<DefaultablePerson> t1 = table {
+        { key id, age, salary, name, married },
+        [{ 1, 23, 340.50, "John" },
+         { 2, 34, 345.32 }
+        ]
+    };
+
+    json j = jsonutils:fromTable(t1);
+    return j;
 }
 
 function testStructWithDefaultDataToJson() returns (json|error) {
