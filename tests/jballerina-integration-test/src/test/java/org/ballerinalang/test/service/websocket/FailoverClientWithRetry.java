@@ -137,11 +137,8 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
         client.handshake();
         client.setCountDownLatch(countDownLatch);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
-        //Assert.assertNotNull(closeWebSocketFrame);
-        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
-        Assert.assertTrue(closeWebSocketFrame.reasonText().contains("Unexpected condition"));
-        closeWebSocketFrame.release();
+        client.sendBinary(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+        Assert.assertNull(client.getBufferReceived());
     }
 
     @Test(description = "Tests the retry function using webSocket client (starting the server " +
