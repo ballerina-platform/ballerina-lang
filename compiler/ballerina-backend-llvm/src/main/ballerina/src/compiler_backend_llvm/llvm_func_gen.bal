@@ -14,7 +14,7 @@ type FuncGenrator object {
                     map<llvm:LLVMValueRef> localVarRefs, llvm:LLVMValueRef varAllocBB, llvm:LLVMBuilderRef builder) {
         self.func = func;
         self.funcRef = funcRef;
-        self.mode = mod;
+        self.mod = mod;
         self.localVarRefs = localVarRefs;
         self.varAllocBB = varAllocBB;
         self.builder = builder;
