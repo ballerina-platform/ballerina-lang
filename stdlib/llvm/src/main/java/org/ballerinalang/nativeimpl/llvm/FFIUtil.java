@@ -1,6 +1,5 @@
 package org.ballerinalang.nativeimpl.llvm;
 
-import java.util.function.IntFunction;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;

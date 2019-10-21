@@ -27,17 +27,15 @@ public function main(string... args) {
     var jarFile = generateObjFile(pathToEntryBir, mapPath, dumpBir);
 }
 
-function generateObjFile(string pathToEntryBir, string mapPath, boolean dumpLLVM) {
+function generateObjFile(string pathToEntryBir, string targetPath, boolean dumpLLVM) {
     byte[] birBinary = readFileFully(pathToEntryBir);
     io:ReadableByteChannel byteChannel = checkpanic io:createReadableChannel(birBinary);
-
     bir:ChannelReader reader = new(byteChannel);
     checkValidBirChannel(reader);
     bir:ConstPoolParser cpParser = new(reader);
     bir:BirChannelReader birReader = new(reader, cpParser.parse());
     bir:PackageParser pkgParser = new(birReader, false);
-    bir:Package mod = pkgParser.parsePackage();
-    io:println("generateObjFile - Hello, World!");
+    genPackage(pkgParser.parsePackage(), targetPath, dumpLLVM);
 }
 
 function checkValidBirChannel(bir:ChannelReader reader) {

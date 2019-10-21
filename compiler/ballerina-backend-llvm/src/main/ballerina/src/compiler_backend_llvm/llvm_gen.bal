@@ -14,4 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function readFileFully(string path) returns byte[]  = external;
+import ballerina/llvm;
+import ballerina/bir;
+import ballerina/io;
+
+function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
+    var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
+    io:println("genPackage - Hello, World!");
+}
+
+function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns llvm:LLVMModuleRef {
+    var moduleName = orgName.value + pkgName.value + ver.value;
+    return llvm:llvmModuleCreateWithName(moduleName);
+}
+
+function readFileFully(string path) returns byte[] = external;
