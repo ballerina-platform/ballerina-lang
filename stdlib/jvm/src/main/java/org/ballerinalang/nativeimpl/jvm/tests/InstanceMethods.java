@@ -169,7 +169,7 @@ public class InstanceMethods {
         String name = null;
         String type = null;
         try {
-            return new ArrayValue(new String[] {name, type}, new BTupleType(new ArrayList<BType>(){
+            return new ArrayValue(new String[]{name, type}, new BTupleType(new ArrayList<BType>() {
                 {
                     add(BTypes.typeString);
                     add(BTypes.typeString);
