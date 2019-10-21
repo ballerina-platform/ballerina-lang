@@ -16,6 +16,7 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
@@ -48,7 +49,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildICmp;
 )
 public class LLVMBuildICmp {
 
-    public static Object llvmBuildICmp(MapValue<String, Object> arg0, long op, MapValue<String, Object> lhs,
+    public static Object llvmBuildICmp(Strand strand, MapValue<String, Object> arg0, long op, MapValue<String, Object> lhs,
             MapValue<String, Object> rhs, String name) {
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         int opRef = (int) op;

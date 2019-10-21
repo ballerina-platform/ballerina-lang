@@ -16,6 +16,7 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
@@ -49,7 +50,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMFunctionType;
 )
 public class LLVMFunctionType1 {
 
-    public static Object llvmFunctionType1(MapValue<String, Object> returnType, ArrayValue paramTypes, long paramCount,
+    public static Object llvmFunctionType1(Strand strand, MapValue<String, Object> returnType, ArrayValue paramTypes, long paramCount,
                                             long isVarArg) {
         LLVM.LLVMTypeRef returnTypeRef = (LLVM.LLVMTypeRef)FFIUtil.getRecodeArgumentNative(returnType);
         LLVMTypeRef[] paramTypesRef = (LLVMTypeRef[]) FFIUtil.getRecodeArrayArgumentNative(paramTypes);

@@ -16,6 +16,7 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,7 +38,7 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
 )
 public class LLVMInt1Type {
 
-    public static Object llvmInt1Type() {
+    public static Object llvmInt1Type(Strand strand) {
         LLVMTypeRef returnValue = LLVM.LLVMInt1Type();
         MapValue<String, Object> returnWrapperRecord = FFIUtil.newRecord();
         FFIUtil.addNativeToRecode(returnValue, returnWrapperRecord);

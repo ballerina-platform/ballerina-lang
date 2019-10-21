@@ -16,6 +16,7 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
@@ -44,7 +45,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMGetParam;
 )
 public class LLVMGetParam {
 
-    public static Object llvmGetParam(MapValue<String, Object> fn, long index) {
+    public static Object llvmGetParam(Strand strand, MapValue<String, Object> fn, long index) {
         LLVM.LLVMValueRef fnRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
         int indexRef = (int) index;
         LLVMValueRef returnValue = LLVM.LLVMGetParam(fnRef, indexRef);
