@@ -521,7 +521,7 @@ public class WebSocketUtil {
      * Failover and Reconnect when webSocket connection is lost.
      *
      * @param connectionInfo information about the connection
-     * @return if attempts failover or retry, return true
+     * @return if failover or retry attempts, return true
      */
     private static boolean failoverAndRetry(WebSocketOpenConnectionInfo connectionInfo) {
         ObjectValue webSocketClient = connectionInfo.getWebSocketCaller();

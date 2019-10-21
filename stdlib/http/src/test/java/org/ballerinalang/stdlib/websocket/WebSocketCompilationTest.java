@@ -171,9 +171,9 @@ public class WebSocketCompilationTest {
                 "of 'error?' containing '()'", 21, 80);
     }
 
-    @Test(description = "Successfully compiling failover WebSocketClientService")
+    @Test(description = "Successfully compiling WebSocketFailoverClientService")
     public void testSuccessfailoverClient() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "success_failover_client.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "success_failover_client.bal");
 
         Assert.assertEquals(compileResult.toString(), "Compilation Successful");
     }
