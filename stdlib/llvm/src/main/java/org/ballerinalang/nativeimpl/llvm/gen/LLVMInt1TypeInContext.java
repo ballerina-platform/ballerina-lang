@@ -16,6 +16,7 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,7 +42,7 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
 )
 public class LLVMInt1TypeInContext {
 
-    public static Object llvmInt1TypeInContext(MapValue<String, Object> c) {
+    public static Object llvmInt1TypeInContext(Strand strand, MapValue<String, Object> c) {
         LLVM.LLVMContextRef cRef = (LLVM.LLVMContextRef) FFIUtil.getRecodeArgumentNative(c);
         LLVMTypeRef returnValue = LLVM.LLVMInt1TypeInContext(cRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
