@@ -247,4 +247,11 @@ public class InstanceMethodTest {
             Assert.assertTrue(e.getMessage().contains("cause=error java.lang.Throwable message=Unchecked cause"));
         }
     }
+
+    @Test(description = "Test tuple return with null values")
+    public void testTupleReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorOrTupleReturn");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNull(returns[0]);
+    }
 }
