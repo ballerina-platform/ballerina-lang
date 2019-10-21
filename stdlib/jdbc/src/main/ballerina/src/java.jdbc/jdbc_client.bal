@@ -15,16 +15,16 @@
 // under the License.
 
 # Represents the base JDBC Client
-public type JdbcClient client object {
+type JdbcClient client object {
 
     # The call remote function implementation for JDBC client to invoke stored procedures/functions.
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
-    # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
+    # + parameters - The parameters to be passed to the procedure/function call
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `Error` will be returned if there is any error
-    public remote function call(@untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
+    remote function call(@untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
         returns @tainted table<record {}>[]|()|Error {
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
@@ -33,28 +33,28 @@ public type JdbcClient client object {
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
-    # + parameters - The parameters to be passed to the select query. The number of parameters is variable
+    # + parameters - The parameters to be passed to the select query
     # + return - A `table` returned by the SQL query statement else `Error` will be returned if there is an error
-    public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType,
+    remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType,
                                   Param... parameters) returns @tainted table<record {}>|Error {
         return nativeSelect(self, sqlQuery, recordType, ...parameters);
     }
 
-    # The update remote function implementation for JDBC Client to update data and schema of the database.
+    # The update remote function implementation for JDBC Client to insert/delete/modify data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
-    # + parameters - The parameters to be passed to the update query. The number of parameters is variable
+    # + parameters - The parameters to be passed to the update query
     # + return - A `UpdateResult` with the updated row count and key column values,
     #            else `Error` will be returned if there is any error
-    public remote function update(@untainted string sqlQuery, Param... parameters) returns UpdateResult|Error {
+    remote function update(@untainted string sqlQuery, Param... parameters) returns UpdateResult|Error {
         return nativeUpdate(self, sqlQuery, ...parameters);
     }
 
-    # The batchUpdate remote function implementation for JDBC Client to batch data insert.
+    # The batchUpdate remote function implementation for JDBC Client to execute batch operations.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters belonging to each
-    #                individual update
+    #                update statement
     # + rollbackAllInFailure - If one of the commands in a batch update fails to execute properly, the JDBC driver
     #           may or may not continue to process the remaining commands in the batch. This property can be
     #           used to override this behavior. When it is set to true, if there is a failure in a few commands and
@@ -63,8 +63,8 @@ public type JdbcClient client object {
     # + return - A `BatchUpdateResult` with the updated row count and returned error if any. If all the commands
     #            in the batch have executed successfully, the error will be `nil`. If one or more commands have failed,
     #            the `returnedError` field will give the corresponding `Error` along with the int[] which
-    #            contains updated row count or the status returned from the each command in the batch.
-    public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
+    #            contains updated row count or the status returned from each command in the batch.
+    remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
                                        Param?[]... parameters)
                                        returns BatchUpdateResult {
         return nativeBatchUpdate(self, sqlQuery, rollbackAllInFailure, ...parameters);
@@ -90,4 +90,4 @@ function createClient(ClientConfiguration config, PoolOptions globalPoolOptions)
 #
 # + jdbcClient - The Client object which represents the connection pool
 # + return - Possible error during closing the client
-public function close(JdbcClient jdbcClient) returns error? = external;
+function close(JdbcClient jdbcClient) returns error? = external;

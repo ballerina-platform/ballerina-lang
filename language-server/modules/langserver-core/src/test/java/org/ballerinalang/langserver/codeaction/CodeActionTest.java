@@ -25,7 +25,6 @@ import com.google.gson.JsonParser;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
-import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
@@ -105,9 +104,6 @@ public class CodeActionTest {
                     break;
                 case AddAllDocumentationExecutor.COMMAND:
                     Assert.assertEquals(title, "Document All");
-                    break;
-                case CreateObjectInitializerExecutor.COMMAND:
-                    Assert.assertEquals(title, "Create Initializer");
                     break;
                 default:
                     Assert.fail("Invalid Command Found: [" + title + "]");

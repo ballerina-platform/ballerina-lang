@@ -88,7 +88,7 @@ public class RabbitMQTransactionContext implements BallerinaTransactionContext {
      * @param strand Strand.
      */
     public void handleTransactionBlock(Strand strand) {
-        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
         if (Objects.isNull(txContext)) {
             try {
