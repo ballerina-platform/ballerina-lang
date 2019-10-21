@@ -20,6 +20,7 @@ import ballerina/io;
 
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
+    io:print(mod);
     io:println("genPackage - Hello, World!");
 }
 

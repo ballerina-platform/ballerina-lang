@@ -87,10 +87,15 @@ dependencies {
     dist 'org.ow2.asm:asm-util:7.1'
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
 
+    dist 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2'
+
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
     dist project(':ballerina-jvm')
     birJar project(path: ':ballerina-jvm', configuration: 'birJar')
+    dist project(':ballerina-llvm')
+    birJar project(path: ':ballerina-llvm', configuration: 'birJar')
     dist project(':ballerina-encoding')
     dist project(':ballerina-bir')
     birJar project(path: ':ballerina-bir', configuration: 'birJar')
