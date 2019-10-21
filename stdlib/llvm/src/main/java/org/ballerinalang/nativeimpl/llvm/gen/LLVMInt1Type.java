@@ -18,28 +18,29 @@ package org.ballerinalang.nativeimpl.llvm.gen;
 
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMPositionBuilderAtEnd;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMPositionBuilderAtEnd",
-        args = {
-                @Argument(name = "builder", type = RECORD, structType = "LLVMBuilderRef"),
-                @Argument(name = "block", type = RECORD, structType = "LLVMBasicBlockRef"),
-        })
-public class LLVMPositionBuilderAtEndClass {
+        functionName = "LLVMInt1Type",
+        returnType = {
+                @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
+        }
+)
+public class LLVMInt1Type {
 
-    public static void LLVMPositionBuilderAtEnd(MapValue<String, Object> builder, MapValue<String, Object> block) {
-        LLVM.LLVMBuilderRef builderRef = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(builder);
-        LLVM.LLVMBasicBlockRef blockRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(block);
-        LLVM.LLVMPositionBuilderAtEnd(builderRef, blockRef);
+    public static Object llvmInt1Type() {
+        LLVMTypeRef returnValue = LLVM.LLVMInt1Type();
+        MapValue<String, Object> returnWrapperRecord = FFIUtil.newRecord();
+        FFIUtil.addNativeToRecode(returnValue, returnWrapperRecord);
+        return returnWrapperRecord;
     }
 }

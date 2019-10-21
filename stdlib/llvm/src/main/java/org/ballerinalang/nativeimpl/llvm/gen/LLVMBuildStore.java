@@ -25,28 +25,31 @@ import org.bytedeco.javacpp.LLVM;
 import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildBr;
+import static org.bytedeco.javacpp.LLVM.LLVMBuildStore;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildBr",
+        functionName = "LLVMBuildStore",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
-                @Argument(name = "dest", type = RECORD, structType = "LLVMBasicBlockRef"),
+                @Argument(name = "val", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "ptr", type = RECORD, structType = "LLVMValueRef"),
         },
         returnType = {
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildBrClass {
+public class LLVMBuildStore {
 
-    public static Object LLVMBuildBr(MapValue<String, Object> arg0, MapValue<String, Object> dest) {
+    public static Object llvmBuildStore(MapValue<String, Object> arg0, MapValue<String, Object> val,
+                                        MapValue<String, Object> ptr) {
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
-        LLVM.LLVMBasicBlockRef destRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(dest);
-        LLVMValueRef returnValue = LLVM.LLVMBuildBr(arg0Ref, destRef);
+        LLVM.LLVMValueRef valRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(val);
+        LLVM.LLVMValueRef ptrRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ptr);
+        LLVMValueRef returnValue = LLVM.LLVMBuildStore(arg0Ref, valRef, ptrRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;

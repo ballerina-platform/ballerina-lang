@@ -22,31 +22,28 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMBasicBlockRef;
+import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMAppendBasicBlock;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMAppendBasicBlock",
+        functionName = "LLVMInt1TypeInContext",
         args = {
-                @Argument(name = "fn", type = RECORD, structType = "LLVMValueRef"),
-                @Argument(name = "name", type = STRING),
+                @Argument(name = "c", type = RECORD, structType = "LLVMContextRef"),
         },
         returnType = {
-                @ReturnType(type = RECORD, structType = "LLVMBasicBlockRef", structPackage = "ballerina/llvm"),
+                @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMAppendBasicBlockClass {
+public class LLVMInt1TypeInContext {
 
-    public static Object LLVMAppendBasicBlock(MapValue<String, Object> fn, String name) {
-        LLVM.LLVMValueRef fnRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
-        LLVMBasicBlockRef returnValue = LLVM.LLVMAppendBasicBlock(fnRef, name);
+    public static Object llvmInt1TypeInContext(MapValue<String, Object> c) {
+        LLVM.LLVMContextRef cRef = (LLVM.LLVMContextRef) FFIUtil.getRecodeArgumentNative(c);
+        LLVMTypeRef returnValue = LLVM.LLVMInt1TypeInContext(cRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;

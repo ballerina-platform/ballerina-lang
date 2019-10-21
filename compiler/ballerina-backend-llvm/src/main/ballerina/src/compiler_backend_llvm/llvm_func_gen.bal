@@ -10,15 +10,22 @@ type FuncGenrator object {
     llvm:LLVMValueRef varAllocBB;
     llvm:LLVMBuilderRef builder;
 
-    new(mod, builder, func) {
+    function __init(bir:Function func, llvm:LLVMValueRef funcRef, llvm:LLVMModuleRef mod, map<llvm:LLVMValueRef> localVarRefs
+                    llvm:LLVMValueRef varAllocBB, llvm:LLVMBuilderRef builder) {
+        this.func = func;
+        this.funcRef = funcRef;
+        this.mode = mod;
+        this.localVarRefs = localVarRefs;
+        this.varAllocBB = varAllocBB;
+        this.builder = builder;
     }
 
     function genFunctionDecl() {
         var name = func.name.value;
         llvm:LLVMTypeRef[] argTypes = genFunctionArgTypes(func.argsCount);
         var retTypeRef = genBType(func.typeValue.retType);
-        var functionType = llvm:LLVMFunctionType1(retTypeRef, argTypes, func.argsCount, 0);
-        funcRef = llvm:LLVMAddFunction(mod, name, functionType);
+        var functionType = llvm:llvmFunctionType1(retTypeRef, argTypes, func.argsCount, 0);
+        funcRef = llvm:llvmAddFunction(mod, name, functionType);
     }
 
     function genFunctionArgTypes(int argsCount) returns llvm:LLVMTypeRef[] {
@@ -30,14 +37,14 @@ type FuncGenrator object {
     }
 
     function genVoidFunctionArgTypes() returns llvm:LLVMTypeRef[] {
-        return [llvm:LLVMVoidType()];
+        return [llvm:llvmVoidType()];
     }
 
     function genNonVoidFunctionArgTypes(int argsCount) returns llvm:LLVMTypeRef[] {
         llvm:LLVMTypeRef[] argTypes = [];
         int i = 0;
         while (i < func.argsCount) {
-            argTypes[i] = llvm:LLVMInt64Type();
+            argTypes[i] = llvm:llvmInt64Type();
             i += 1;
         }
         return argTypes;
@@ -56,12 +63,12 @@ type FuncGenrator object {
         foreach localVar in func.localVars{
             var varName = localVarName(localVar);
             var varType = genBType(localVar.typeValue);
-            llvm:LLVMValueRef localVarRef = llvm:LLVMBuildAlloca(builder, varType, varName);
+            llvm:LLVMValueRef localVarRef = llvm:llvmBuildAlloca(builder, varType, varName);
             localVarRefs[localVar.name.value] = localVarRef;
 
             if (isParamter(localVar)){
-                var parmRef = llvm:LLVMGetParam(funcRef, paramIndex);
-                var loaded = llvm:LLVMBuildStore(builder, parmRef, localVarRef);
+                var parmRef = llvm:llvmGetParam(funcRef, paramIndex);
+                var loaded = llvm:llvmBuildStore(builder, parmRef, localVarRef);
                 paramIndex += 1;
             }
         }
@@ -84,8 +91,8 @@ type FuncGenrator object {
     }
 
     function genLocalVarAllocationBBTerminator(map<BbTermGenrator> bbTermGenrators) {
-        llvm:LLVMPositionBuilderAtEnd(builder, varAllocBB);
-        var brInsRef = llvm:LLVMBuildBr(builder, findBbRefById(bbTermGenrators, "bb0"));
+        llvm:llvmPositionBuilderAtEnd(builder, varAllocBB);
+        var brInsRef = llvm:llvmBuildBr(builder, findBbRefById(bbTermGenrators, "bb0"));
     }
 
     function genBbTerminators(map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbTermGenrators) {
@@ -98,7 +105,7 @@ type FuncGenrator object {
         bir:VarRef refOprand = oprand;
         string tempName = localVarName(refOprand.variableDcl) + "_temp";
         var localVarRef = getLocalVarRefById(refOprand.variableDcl.name.value);
-        return llvm:LLVMBuildLoad(builder, localVarRef, tempName);
+        return llvm:llvmBuildLoad(builder, localVarRef, tempName);
     }
 
     function getLocalVarRefById(string id) returns llvm:LLVMValueRef {
@@ -112,8 +119,8 @@ type FuncGenrator object {
     }
 
     function genBbDecl(string name) returns llvm:LLVMValueRef {
-        var bbRef = llvm:LLVMAppendBasicBlock(funcRef, name);
-        llvm:LLVMPositionBuilderAtEnd(builder, bbRef);
+        var bbRef = llvm:llvmAppendBasicBlock(funcRef, name);
+        llvm:llvmPositionBuilderAtEnd(builder, bbRef);
         return bbRef;
     }
 

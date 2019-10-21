@@ -26,30 +26,32 @@ import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildLoad;
+import static org.bytedeco.javacpp.LLVM.LLVMBuildSDiv;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildLoad",
+        functionName = "LLVMBuildSDiv",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
-                @Argument(name = "pointerVal", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "lhs", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "rhs", type = RECORD, structType = "LLVMValueRef"),
                 @Argument(name = "name", type = STRING),
         },
         returnType = {
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildLoadClass {
+public class LLVMBuildSDiv {
 
-    public static Object LLVMBuildLoad(MapValue<String, Object> arg0, MapValue<String, Object> pointerVal,
-                                        String name) {
+    public static Object llvmBuildSDiv(MapValue<String, Object> arg0, MapValue<String, Object> lhs,
+            MapValue<String, Object> rhs, String name) {
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
-        LLVM.LLVMValueRef pointerValRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(pointerVal);
-        LLVMValueRef returnValue = LLVM.LLVMBuildLoad(arg0Ref, pointerValRef, name);
+        LLVMValueRef lhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(lhs);
+        LLVMValueRef rhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(rhs);
+        LLVMValueRef returnValue = LLVMBuildSDiv(arg0Ref, lhsRef, rhsRef, name);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;
