@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -69,7 +70,8 @@ public class HomeBirRepo implements Repo<Path> {
             }
         
             if (Files.exists(ballerinaVersionCachePath)) {
-                String ballerinaVersion = new String(Files.readAllBytes(ballerinaVersionCachePath));
+                String ballerinaVersion = new String(Files.readAllBytes(ballerinaVersionCachePath),
+                        StandardCharsets.UTF_8);
                 // if ballerina version cache file exists but its a different version, then consider it that the
                 // current ballerina version it not compatible with the bir(if such exists)
                 if (!RepoUtils.getBallerinaVersion().equals(ballerinaVersion)) {

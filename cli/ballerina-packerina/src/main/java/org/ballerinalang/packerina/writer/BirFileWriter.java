@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -106,10 +107,14 @@ public class BirFileWriter {
         try {
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
             Files.write(birFilePath, pkgBirBinaryContent);
-            
-            if (createBalVersionCache) {
-                Files.write(birFilePath.getParent().getParent().resolve(BIR_BALLERINA_VERSION_CACHE_FILE_NAME),
-                        RepoUtils.getBallerinaVersion().getBytes());
+    
+            Path versionDir = birFilePath.getParent();
+            if (createBalVersionCache && versionDir != null) {
+                Path moduleDir = versionDir.getParent();
+                if (moduleDir != null) {
+                    Files.write(moduleDir.resolve(BIR_BALLERINA_VERSION_CACHE_FILE_NAME),
+                            RepoUtils.getBallerinaVersion().getBytes(Charset.defaultCharset()));
+                }
             }
         } catch (IOException e) {
             String msg = "error writing the compiled module(bir) of '" +

@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
