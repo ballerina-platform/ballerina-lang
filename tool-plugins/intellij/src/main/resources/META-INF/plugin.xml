@@ -5,18 +5,17 @@
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
-      <a href="https://ballerina.io/">Ballerina</a> is a simple programming language whose syntax and platform address
-      the hard problems of integration. It is a general purpose, concurrent, transactional, statically and strongly
-      typed programming language with both textual and graphical syntaxes. Its specialization is integration - it
-      brings fundamental concepts, ideas and tools of distributed system integration into the language and offers a
-      type safe, concurrent environment to implement such applications. These include distributed transactions,
-      reliable messaging, stream processing, workflows and container management platforms.
+      The Ballerina IntelliJ plugin provides the <a href="https://ballerina.io/">Ballerina</a> development capabilities
+      in IntelliJ IDEA.
+      <br><br>For instructions on how to download, install, and use the features of the plugin, refer the
+      <a href="https://v1-0.ballerina.io/learn/tools-ides/intellij-plugin/">Ballerina IntelliJ plugin Guide</a>.
     ]]></description>
 
     <change-notes><![CDATA[
       <ul>
-        <li> Added diagnostics related plugin performance fix. </li>
-        <li> Fixed line-based code actions. </li>
+        <li> Added fixes for ballerina external library tracker.</li>
+        <li> Added debugger related minor fixes and improvements. </li>
+        <li> Fixed package reference highlighting inside annotation attachments. </li>
       </ul>
     ]]>
     </change-notes>
