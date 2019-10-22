@@ -73,7 +73,6 @@ public class Scheduler {
     private static int poolSize = Runtime.getRuntime().availableProcessors() * 2;
 
     private Semaphore mainBlockSem;
-    private static LogicalProcessorCount logicalProcessorCount = new LogicalProcessorCount();
 
     public Scheduler(boolean immortal) {
         try {
@@ -370,17 +369,6 @@ public class Scheduler {
     public void poison() {
         for (int i = 0; i < numThreads; i++) {
             runnableList.add(POISON_PILL);
-        }
-    }
-
-    private static class LogicalProcessorCount {
-        private int threadCount;
-        LogicalProcessorCount() {
-            threadCount = Runtime.getRuntime().availableProcessors() * 2;
-        }
-
-        int getAllowedThreadCount() {
-            return threadCount;
         }
     }
 }
