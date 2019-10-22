@@ -1,4 +1,4 @@
-package org.wso2.ballerinalang.compiler.parser.antlr4;/*
+/*
  *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -16,14 +16,16 @@ package org.wso2.ballerinalang.compiler.parser.antlr4;/*
  *  under the License.
  */
 
-import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
+package org.ballerinalang.model.tree;
 
-public class BallerinaReferenceParserErrorListener extends BaseErrorListener {
-
-    @Override
-    public void syntaxError(Recognizer<?, ?> recognizer, Object o, int i, int i1, String s, RecognitionException e) {
-        return; // This do nothing function is used to stop antlr from emmitting errors while parsing backtick content
-    }
+/**
+ * This class contains a list of diagnostic codes.
+ * @since 1.1.0
+ */
+public enum DocReferenceErrorType {
+    NO_ERROR,
+    BACKTICK_IDENTIFIER_ERROR, // Identifier invalid in `reference` type of reference.
+    IDENTIFIER_ERROR, // Identifier invalid in keyword `reference` type of reference.
+    REFERENCE_ERROR, // Invalid reference.
+    PARAMETER_REFERENCE_ERROR // Incorrectly used parameter `reference` in a place other than a function.
 }

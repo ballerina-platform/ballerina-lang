@@ -616,7 +616,7 @@ public class TreeBuilder {
         return new BLangMarkdownParameterDocumentation();
     }
 
-    public static MarkdownDocumentationReferenceAttributeNode createMarkdownBReferenceDocumentationNode() {
+    public static MarkdownDocumentationReferenceAttributeNode createMarkdownReferenceDocumentationNode() {
         return new BLangMarkdownReferenceDocumentation();
     }
 

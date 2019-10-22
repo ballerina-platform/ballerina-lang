@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.DocumentableNode;
+import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
@@ -71,7 +72,6 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.tree.types.DocumentationReferenceType;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -2331,36 +2331,18 @@ public class BLangPackageBuilder {
 
     void endDocumentationReference(DiagnosticPos pos, String referenceType, String identifier) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
-        //Processing the reference name because its of the pattern "service   `". Trim the spaces and trailing "`"
+        // Processing the reference name because its of the pattern "service   `". Trim the spaces and trailing "`".
         String processedReferenceType = referenceType.substring(0, (referenceType.length() - 1)).trim().toUpperCase();
-        BLangMarkdownReferenceDocumentation referenceDocumentation = createBReferenceDocumentation(pos,
+        BLangMarkdownReferenceDocumentation referenceDocumentation = createReferenceDocumentation(pos,
                 DocumentationReferenceType.valueOf(processedReferenceType), identifier);
         markdownDocumentationNode.addReference(referenceDocumentation);
     }
 
-    void endDocumentationFullyQualifiedIdentifier(String qualifier, String typeName, String identifier) {
-        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
-        BLangMarkdownReferenceDocumentation referenceNode = markdownDocumentationNode.getReferences().peek();
-        referenceNode.qualifier = qualifier;
-        referenceNode.typeName = typeName;
-        referenceNode.identifier = identifier;
-    }
-
-    void logWarningAndRemoveDocumentationReference(boolean isFunctionCheck) {
-        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
-        BLangMarkdownReferenceDocumentation referenceNode = markdownDocumentationNode.getReferences().peek();
-        if (!isFunctionCheck) {
-            this.dlog.warning(referenceNode.pos, DiagnosticCode.INVALID_DOCUMENTATION_IDENTIFIER,
-                    referenceNode.referenceName);
-        }
-        markdownDocumentationNode.getReferences().pop(); // Remove the node from references
-    }
-
-    //Store single backticked content in Documentation Node
+    // Store single backticked content in Documentation Node.
     void endSingleBacktickedBlock(DiagnosticPos pos, String identifier) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownReferenceDocumentation referenceDocumentation =
-                createBReferenceDocumentation(pos, DocumentationReferenceType.BACKTICK_CONTENT, identifier);
+                createReferenceDocumentation(pos, DocumentationReferenceType.BACKTICK_CONTENT, identifier);
         markdownDocumentationNode.addReference(referenceDocumentation);
     }
 
@@ -2480,11 +2462,11 @@ public class BLangPackageBuilder {
         }
     }
 
-    private BLangMarkdownReferenceDocumentation createBReferenceDocumentation(DiagnosticPos pos,
+    private BLangMarkdownReferenceDocumentation createReferenceDocumentation(DiagnosticPos pos,
                                                                               DocumentationReferenceType type,
                                                                               String identifier) {
         BLangMarkdownReferenceDocumentation referenceDocumentation =
-                (BLangMarkdownReferenceDocumentation) TreeBuilder.createMarkdownBReferenceDocumentationNode();
+                (BLangMarkdownReferenceDocumentation) TreeBuilder.createMarkdownReferenceDocumentationNode();
         referenceDocumentation.type = type;
         referenceDocumentation.pos = pos;
         referenceDocumentation.referenceName = identifier;

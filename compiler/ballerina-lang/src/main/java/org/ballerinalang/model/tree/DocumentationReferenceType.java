@@ -16,11 +16,11 @@
  *  under the License.
  */
 
-package org.ballerinalang.model.tree.types;
+package org.ballerinalang.model.tree;
 
 /**
+ * Used to identify the type of backticked reference in Markdown Documentation strings.
  * @since 1.1.0
- * Used to identify the type of backticked reference in Markdown Documentation strings
  */
 public enum DocumentationReferenceType {
     TYPE("type"), // Match for type reference in documentation

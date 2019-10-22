@@ -17,14 +17,22 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.DocReferenceErrorType;
 import org.ballerinalang.model.tree.DocumentableNode;
+import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.ballerinalang.model.tree.types.DocumentationReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangReferenceParserListener;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.parser.antlr4.ReferenceParserErrorListener;
+import org.wso2.ballerinalang.compiler.parser.antlr4.SilentParserErrorStrategy;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -61,9 +69,9 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * Analyzes markdown documentations.
@@ -81,9 +89,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private SymbolEnv env;
     private Names names;
 
-
-    //Building regex to match Lexer's Unquoted identifier
-    private static String identifierString;
+    // Used to parse the content inside backticks for Ballerina Flavored Markdown.
+    private BLangReferenceParserListener listener;
+    private BallerinaParser parser;
 
     public static DocumentationAnalyzer getInstance(CompilerContext context) {
         DocumentationAnalyzer documentationAnalyzer = context.get(DOCUMENTATION_ANALYZER_KEY);
@@ -99,19 +107,20 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
-        instantiateDocumentationReferenceGrammer();
+        setupReferenceParser();
     }
 
-    private static void instantiateDocumentationReferenceGrammer() {
-        String initialChar = "a-zA-Z_";
-        String unicodeNonidentifierChar = "\u0000-\u007F\uE000-\uF8FF\u200E\u200F\u2028\u2029\u00A1-\u00A7" +
-            "\u00A9\u00AB-\u00AC\u00AE\u00B0-\u00B1\u00B6-\u00B7\u00BB\u00BF\u00D7\u00F7\u2010-" +
-            "\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-" +
-            "\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF";
-        String digit = "0-9";
-        String identifierInitialChar = "[" + initialChar + "]|[^" + unicodeNonidentifierChar + "]";
-        String identifierFollowingChar = "[" + initialChar + digit + "]|[^" + unicodeNonidentifierChar + "]";
-        identifierString = "((?:" + identifierInitialChar + ")(?:" + identifierFollowingChar + ")*)";
+    private void setupReferenceParser() {
+        ANTLRInputStream ais = new ANTLRInputStream();
+        BallerinaLexer lexer = new BallerinaLexer(ais);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(new ReferenceParserErrorListener());
+        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        SilentParserErrorStrategy errorStrategy = new SilentParserErrorStrategy();
+        parser = new BallerinaParser(tokenStream);
+        this.listener = new BLangReferenceParserListener();
+        parser.addParseListener(this.listener);
+        parser.setErrorHandler(errorStrategy);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -220,37 +229,44 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        Stack<BLangMarkdownReferenceDocumentation> references = documentation.getReferences();
-        references.forEach(reference -> {
-            boolean isValidIdentifier = validateIdentifier(reference.getPosition(), documentableNode,
-                                                           reference.getType(),
-                                                           reference.qualifier,
-                                                           reference.typeName,
-                                                           reference.identifier);
-            if (!isValidIdentifier) {
-                dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_REFERENCE,
-                        reference.referenceName, reference.getType().getValue());
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentation.getReferences();
+        for (BLangMarkdownReferenceDocumentation reference : references) {
+            DocReferenceErrorType status = invokeDocumentationReferenceParser(reference);
+            if (status != DocReferenceErrorType.NO_ERROR) {
+                // Log warning only if not backticked content.
+                if (status != DocReferenceErrorType.BACKTICK_IDENTIFIER_ERROR) {
+                    dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_IDENTIFIER,
+                            reference.referenceName);
+                }
+                continue;
             }
-        });
+            status = validateIdentifier(reference, documentableNode);
+            if (status != DocReferenceErrorType.NO_ERROR) {
+                if (status == DocReferenceErrorType.REFERENCE_ERROR) {
+                    dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_REFERENCE,
+                            reference.referenceName, reference.getType().getValue());
+                } else {
+                    dlog.warning(reference.pos, DiagnosticCode.INVALID_USAGE_OF_PARAMETER_REFERENCE,
+                            reference.referenceName);
+                }
+            }
+        }
     }
 
-    private boolean validateIdentifier(DiagnosticPos pos,
-                                       DocumentableNode documentableNode,
-                                       DocumentationReferenceType type,
-                                       String packageId, String typeID,
-                                       String identifier) {
+    private DocReferenceErrorType validateIdentifier(BLangMarkdownReferenceDocumentation reference,
+                                       DocumentableNode documentableNode) {
         int tag = -1;
-        //Lookup namespace to validate the identifier
-        switch (type) {
+        SymbolEnv env = this.env;
+        // Lookup namespace to validate the identifier.
+        switch (reference.getType()) {
             case PARAMETER:
-                //Parameters are only available for function nodes.
+                // Parameters are only available for function nodes.
                 if (documentableNode.getKind() == NodeKind.FUNCTION) {
                     BLangFunction funcNode = (BLangFunction) documentableNode;
-                    SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
-                    return (resolveFullyQualifiedSymbol(pos, funcEnv, packageId, typeID, identifier, SymTag.VARIABLE)
-                            != symTable.notFoundSymbol);
+                    env = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
+                    break;
                 } else {
-                    return false;
+                     return DocReferenceErrorType.PARAMETER_REFERENCE_ERROR;
                 }
             case SERVICE:
                 tag = SymTag.SERVICE;
@@ -276,8 +292,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 tag = SymTag.FUNCTION;
                 break;
         }
-        return (resolveFullyQualifiedSymbol(pos, this.env, packageId, typeID, identifier, tag)
-                != symTable.notFoundSymbol);
+
+        BSymbol symbol = resolveFullyQualifiedSymbol(reference.pos, env, reference.qualifier, reference.typeName,
+                reference.identifier, tag);
+        return (symbol != symTable.notFoundSymbol) ?
+                DocReferenceErrorType.NO_ERROR : DocReferenceErrorType.REFERENCE_ERROR;
     }
 
     private BSymbol resolveFullyQualifiedSymbol(DiagnosticPos pos, SymbolEnv env, String packageId, String type,
@@ -295,27 +314,27 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 return symTable.notFoundSymbol;
             }
 
-            if (pkgSymbol instanceof BPackageSymbol) {
+            if (pkgSymbol.tag == SymTag.PACKAGE) {
                 BPackageSymbol symbol = (BPackageSymbol) pkgSymbol;
                 pkgEnv = symTable.pkgEnvMap.get(symbol);
             }
         }
 
-        //If there is no type in the reference we need to search in the package level and the current scope only.
+        // If there is no type in the reference we need to search in the package level and the current scope only.
         if (typeName == Names.EMPTY) {
             return symResolver.lookupSymbolInPackage(pos, env, pkgName, identifierName, tag);
         }
 
-        //Check for type in the environment
+        // Check for type in the environment.
         BSymbol typeSymbol = symResolver.lookupSymbolInPackage(pos, env, pkgName, typeName, SymTag.TYPE);
         if (typeSymbol == symTable.notFoundSymbol) {
             return symTable.notFoundSymbol;
         }
 
-        if (typeSymbol instanceof BObjectTypeSymbol) {
+        if (typeSymbol.tag == SymTag.OBJECT) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
-            //If the type is available at the global scope or package level then lets dive in to the scope of the type
-            //`pkgEnv` is `env` if no package was identified or else it's the package's environment
+            // If the type is available at the global scope or package level then lets dive in to the scope of the type
+            // `pkgEnv` is `env` if no package was identified or else it's the package's environment
             String functionID = typeName + "." + identifierName;
             Name functionName = names.fromString(functionID);
             return symResolver.lookupMemberSymbol(pos, objectTypeSymbol.methodScope, pkgEnv, functionName, tag);
@@ -323,6 +342,40 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         return symTable.notFoundSymbol;
     }
+
+    private DocReferenceErrorType invokeDocumentationReferenceParser(BLangMarkdownReferenceDocumentation reference) {
+        ANTLRInputStream ais = new ANTLRInputStream(reference.referenceName);
+        BallerinaLexer lexer = new BallerinaLexer(ais);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(new ReferenceParserErrorListener());
+        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        this.listener.reset();
+        parser.setInputStream(tokenStream);
+
+        // Invoke function identifier rule for backticked block for cases such as `function()` if is Function is true.
+        if (reference.getType() == DocumentationReferenceType.BACKTICK_CONTENT) {
+            parser.documentationFullyqualifiedFunctionIdentifier();
+            if (this.listener.getState()) {
+                return DocReferenceErrorType.BACKTICK_IDENTIFIER_ERROR;
+            }
+        } else {
+            // Else the normal rule to capture type `identifier` type references.
+            parser.documentationFullyqualifiedIdentifier();
+            if (this.listener.getState()) {
+                return DocReferenceErrorType.IDENTIFIER_ERROR;
+            }
+        }
+        // If brackets are used with keywords other than function, its invalid.
+        if ((reference.getType() != DocumentationReferenceType.FUNCTION) && this.listener.hasBrackets()) {
+            return DocReferenceErrorType.IDENTIFIER_ERROR;
+        }
+        reference.qualifier = listener.getPkgName();
+        reference.typeName = listener.getTypeName();
+        reference.identifier = listener.getIdentifier();
+
+        return DocReferenceErrorType.NO_ERROR;
+    }
+
 
     private void validateParameters(DocumentableNode documentableNode,
                                     List<? extends SimpleVariableNode> actualParameters,

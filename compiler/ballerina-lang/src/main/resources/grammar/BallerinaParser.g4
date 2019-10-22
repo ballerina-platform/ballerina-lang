@@ -1198,13 +1198,13 @@ documentationTextContent
     |   DocumentationEscapedCharacters
     ;
 
-// Rules for parsing the content in the backticked block for documentation validation
+// Rules for parsing the content in the backticked block for documentation validation.
 documentationFullyqualifiedIdentifier
-    :   documentationIdentifierQualifier?  documentationIdentifierTypename? documentationIdentifier braket?
+    :   documentationIdentifierQualifier? documentationIdentifierTypename? documentationIdentifier braket?
     ;
 
 documentationFullyqualifiedFunctionIdentifier
-    :   documentationIdentifierQualifier?  documentationIdentifierTypename? documentationIdentifier braket
+    :   documentationIdentifierQualifier? documentationIdentifierTypename? documentationIdentifier braket
     ;
 
 documentationIdentifierQualifier
@@ -1237,5 +1237,5 @@ documentationIdentifier
     ;
 
 braket
-    : LEFT_PARENTHESIS RIGHT_PARENTHESIS
+    :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
     ;

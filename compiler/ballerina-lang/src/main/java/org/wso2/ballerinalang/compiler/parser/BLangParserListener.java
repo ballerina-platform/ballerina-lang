@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -28,14 +26,11 @@ import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.ObjectTypeNameLabelContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaReferenceParserErrorListener;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaReferenceParserErrorStrategy;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -3443,27 +3438,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         BallerinaParser.SingleBacktickedContentContext backtickedContent = ctx.singleBacktickedContent();
         this.pkgBuilder.endDocumentationReference(getCurrentPos(ctx), referenceType.getText(),
                 backtickedContent.getText());
-        //Running the parser again to validate the content in the backticked block and populate the reference object
-        invokeDocumentationReferenceIdentifierRule(backtickedContent.getText(), getCurrentPos(ctx), false);
-    }
-
-    private void invokeDocumentationReferenceIdentifierRule(String content, DiagnosticPos pos, boolean isFunction) {
-        ANTLRInputStream ais = new ANTLRInputStream(content);
-        BallerinaLexer lexer = new BallerinaLexer(ais);
-        lexer.removeErrorListeners();
-        lexer.addErrorListener(new BallerinaReferenceParserErrorListener());
-        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-        BallerinaReferenceParserErrorStrategy errorStrategy = new BallerinaReferenceParserErrorStrategy();
-        BallerinaParser parser = new BallerinaParser(tokenStream);
-        parser.addParseListener(new BLangReferenceParserListener(this.pkgBuilder));
-        parser.setErrorHandler(errorStrategy);
-        // Invoke function identifier rule for backticked block for cases such as `function()` if is Function is true
-        if (isFunction) {
-            parser.documentationFullyqualifiedFunctionIdentifier();
-        } else {
-            // Else the normal rule to capture type `identifier` type references
-            parser.documentationFullyqualifiedIdentifier();
-        }
     }
 
     @Override
@@ -3473,8 +3447,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         BallerinaParser.SingleBacktickedContentContext backtickedContent = ctx.singleBacktickedContent();
         this.pkgBuilder.endSingleBacktickedBlock(getCurrentPos(ctx), backtickedContent.getText());
-        //Running the parser again to validate the content in the backticked block and populate the reference object
-        invokeDocumentationReferenceIdentifierRule(backtickedContent.getText(), getCurrentPos(ctx), true);
     }
 
     /**

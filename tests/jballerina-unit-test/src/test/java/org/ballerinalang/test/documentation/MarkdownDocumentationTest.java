@@ -19,11 +19,11 @@
 package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.types.DocumentationReferenceType;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * Test cases for markdown documentations.
@@ -110,7 +109,7 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(constantNode);
         documentationAttachment = constantNode.getMarkdownDocumentationAttachment();
 
-        Stack<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
         Assert.assertEquals(references.size(), 8);
 
         Assert.assertEquals(references.get(0).type, DocumentationReferenceType.TYPE);
@@ -197,7 +196,7 @@ public class MarkdownDocumentationTest {
         documentationAttachment = packageNode.getTypeDefinitions().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
-        Stack<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
         Assert.assertEquals(references.size(), 8);
 
         Assert.assertEquals(references.get(0).type, DocumentationReferenceType.TYPE);
@@ -293,7 +292,7 @@ public class MarkdownDocumentationTest {
         documentationAttachment = packageNode.getFunctions().get(4).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
-        Stack<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
         Assert.assertEquals(references.size(), 8);
 
         Assert.assertEquals(references.get(0).type, DocumentationReferenceType.TYPE);
@@ -392,7 +391,7 @@ public class MarkdownDocumentationTest {
         documentationAttachment = packageNode.getServices().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
-        Stack<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
         Assert.assertEquals(references.size(), 8);
 
         Assert.assertEquals(references.get(0).type, DocumentationReferenceType.TYPE);
@@ -466,7 +465,7 @@ public class MarkdownDocumentationTest {
         documentationAttachment = packageNode.getTypeDefinitions().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
-        Stack<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
         Assert.assertEquals(references.size(), 8);
 
         Assert.assertEquals(references.get(0).type, DocumentationReferenceType.TYPE);
