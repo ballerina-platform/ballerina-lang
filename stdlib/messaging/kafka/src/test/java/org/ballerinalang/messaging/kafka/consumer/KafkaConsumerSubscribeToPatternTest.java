@@ -56,25 +56,21 @@ public class KafkaConsumerSubscribeToPatternTest {
     }
 
     @Test(description = "Test functionality of getAvailableTopics() function")
-    public void testKafkaConsumerSubscribeToPattern () {
+    public void testKafkaConsumerSubscribeToPattern() {
         result = BCompileUtil.compile(getFilePath(
                 Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_subscribe_to_pattern.bal")));
-        try {
-            await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] returnBValuesAll = BRunUtil.invoke(result, "funcKafkaGetAvailableTopicsCount");
-                Assert.assertEquals(returnBValuesAll.length, 1);
-                Assert.assertTrue(returnBValuesAll[0] instanceof BInteger);
-                long availableTopicCount = ((BInteger) returnBValuesAll[0]).intValue();
+        await().atMost(15000, TimeUnit.MILLISECONDS).until(() -> {
+            // Unsubscribe from topics first
+            BValue[] returnBValuesUnsubscribe = BRunUtil.invoke(result, "funcKafkaTestUnsubscribe");
+            Assert.assertEquals(returnBValuesUnsubscribe.length, 1);
+            Assert.assertNull(returnBValuesUnsubscribe[0]);
 
-                BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaTestGetSubscribedTopicCount");
-                Assert.assertEquals(returnBValues.length, 1);
-                Assert.assertTrue(returnBValues[0] instanceof BInteger);
-                long topicCount = ((BInteger) returnBValues[0]).intValue();
-                return (topicCount == 0 && availableTopicCount == 0);
-            });
-        } catch (Throwable e) {
-            Assert.fail(e.getMessage());
-        }
+            BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaTestGetSubscribedTopicCount");
+            Assert.assertEquals(returnBValues.length, 1);
+            Assert.assertTrue(returnBValues[0] instanceof BInteger);
+            long topicCount = ((BInteger) returnBValues[0]).intValue();
+            return (topicCount == 0);
+        });
 
         kafkaCluster.createTopic("test1", 1, 1);
         kafkaCluster.createTopic("test2", 1, 1);

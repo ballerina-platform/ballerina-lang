@@ -1193,7 +1193,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` arg1  \n- `string` arg2  \n- `http:Response` arg3"
         }
       },
       "sortText": "120",
@@ -1211,7 +1211,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` arg1  \n- `string` arg2  \n- `http:Response` arg3"
         }
       },
       "sortText": "120",

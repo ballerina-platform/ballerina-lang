@@ -124,3 +124,15 @@ function testIndexOf() returns [int?, int?] {
     int? i2 = arr.indexOf(50);
     return [i1, i2];
 }
+
+function testPush1() returns int {
+    [int, string, float...] tup = [10, "Ballerina"];
+    tup.push(12.34, 45.67);
+    return tup.length();
+}
+
+function testPush2() returns int {
+    [int...] tup = [];
+    tup.push(10, 11, 12, 13);
+    return tup.length();
+}

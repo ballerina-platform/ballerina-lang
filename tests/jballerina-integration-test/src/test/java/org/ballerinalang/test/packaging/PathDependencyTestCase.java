@@ -358,7 +358,92 @@ public class PathDependencyTestCase extends BaseTest {
                 new LogLeecher[]{bazPushLeecher}, caseResources.resolve("TestProject2").toString());
         bazPushLeecher.waitForText(5000);
     }
-    
+
+    /**
+     * Case6: Build TestProject2. Then build TestProject1 which refer to the balo of TestProject2. TestProject2 has two
+     * modules X and Y which imports the same module from TestProject2 which is Z.
+     * Then run the jar of TestProject1
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Case6: Test dependency between two porject with common module as an import.")
+    public void testBaloPathCase6() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("case6");
+
+        // Build Z module of TestProject2
+        String moduleZBaloFileName = "Z-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+
+        String moduleZBuildMsg = "target" + File.separator + "balo" + File.separator + moduleZBaloFileName;
+        LogLeecher moduleZBuildLeecher = new LogLeecher(moduleZBuildMsg);
+        balClient.runMain("build", new String[]{"-c", "-a"}, envVariables, new String[]{},
+                new LogLeecher[]{moduleZBuildLeecher}, caseResources.resolve("TestProject2").toString());
+        moduleZBuildLeecher.waitForText(5000);
+
+        // Build all modules of TestProject1
+        String moduleXBaloFileName = "X-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+
+        String moduleYBaloFileName = "Y-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+
+        String moduleXBuildMsg = "target" + File.separator + "balo" + File.separator + moduleXBaloFileName;
+        String moduleYBuildMsg = "target" + File.separator + "balo" + File.separator + moduleYBaloFileName;
+        LogLeecher moduleXBuildLeecher = new LogLeecher(moduleXBuildMsg);
+        LogLeecher moduleYBuildLeecher = new LogLeecher(moduleYBuildMsg);
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                new LogLeecher[]{moduleXBuildLeecher, moduleYBuildLeecher},
+                caseResources.resolve("TestProject1").toString());
+        moduleXBuildLeecher.waitForText(5000);
+        moduleYBuildLeecher.waitForText(5000);
+
+        // Run and see output
+        String msg = "Hello world from module X!";
+        String moduleXJarFileName = "X" + BLANG_COMPILED_JAR_EXT;
+        String executableFilePath = "target" + File.separator + "bin" + File.separator + moduleXJarFileName;
+        LogLeecher bazRunLeecher = new LogLeecher(msg);
+        balClient.runMain("run", new String[]{executableFilePath}, envVariables, new String[0],
+                new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject1").toString());
+        bazRunLeecher.waitForText(10000);
+    }
+
+    /**
+     * Case7: Build TestProject1. TestProject1 has two modules utils and foo. "foo" module import the utils module
+     * which has an interop jar as platform dependency. Then run the jar of TestProject1.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Case7: Test platform dependency of two project with common module as an interop dependency")
+    public void testBaloPathCase7() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("case7");
+        // Build all modules of TestProject3
+        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+
+        String moduleFooBaloFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+
+        String moduleXBuildMsg = "target" + File.separator + "balo" + File.separator + moduleUtilsBaloFileName;
+        String moduleYBuildMsg = "target" + File.separator + "balo" + File.separator + moduleFooBaloFileName;
+        LogLeecher moduleXBuildLeecher = new LogLeecher(moduleXBuildMsg);
+        LogLeecher moduleYBuildLeecher = new LogLeecher(moduleYBuildMsg);
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                new LogLeecher[]{moduleXBuildLeecher, moduleYBuildLeecher},
+                caseResources.resolve("TestProject1").toString());
+        moduleXBuildLeecher.waitForText(5000);
+        moduleYBuildLeecher.waitForText(5000);
+
+        String msg = "This is a test string value !!!";
+
+        String moduleFooJarFileName = "foo" + BLANG_COMPILED_JAR_EXT;
+        String executableFilePath = "target" + File.separator + "bin" + File.separator + moduleFooJarFileName;
+        LogLeecher bazRunLeecher = new LogLeecher(msg);
+        balClient.runMain("run", new String[]{executableFilePath}, envVariables, new String[0],
+                new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject1").toString());
+        bazRunLeecher.waitForText(10000);
+    }
+
+
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *

@@ -416,7 +416,7 @@ public class ObjectTest {
     public void testObjectNegativeTestForNonInitializable() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object 'Person'", 5, 13);
+        BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object 'Person'", 5, 15);
     }
 
     @Test(description = "Negative test to test returning different type without type name")
@@ -522,27 +522,27 @@ public class ObjectTest {
 
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 34, 17);
         BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/mod:1.0.0:Employee'",
-                                  34, 17);
+                                  34, 21);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
                                   38, 14);
         BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/mod:1.0.0:Employee'",
-                                  38, 14);
+                                  38, 19);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 45, 17);
         BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/pkg1:1.0.0:Employee'", 45,
-                                    17);
+                                    21);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'email'", 46, 17);
         BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'testorg/pkg1:1.0.0:Employee'",
-                                46, 17);
+                                46, 21);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
                                   49, 14);
         BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object " +
                                                    "'testorg/pkg1:1.0.0:Employee'",
-                                  49, 14);
+                                  49, 19);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol " + "'Employee" +
                 ".getEmail'", 50, 17);
         BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object " +
                                                    "'testorg/pkg1:1.0.0:Employee'",
-                                  50, 17);
+                                  50, 22);
     }
 
     @Test(description = "Negative test to test unknown object field type")
@@ -602,12 +602,12 @@ public class ObjectTest {
         BAssertUtil.validateError(result, i++,
                                   "attempt to refer to non-accessible symbol 'Person.incrementSalary'", 45, 5);
         BAssertUtil.validateError(result, i++,
-                                  "undefined function 'incrementSalary' in object 'Person'", 45, 5);
+                                  "undefined function 'incrementSalary' in object 'Person'", 45, 12);
         BAssertUtil.validateError(result, i++,
                                   "attempt to refer to non-accessible symbol 'Person.decrementAndUpdateSalary'", 46,
                                   13);
         BAssertUtil.validateError(result, i,
-                                  "undefined function 'decrementAndUpdateSalary' in object 'Person'", 46, 13);
+                                  "undefined function 'decrementAndUpdateSalary' in object 'Person'", 46, 20);
     }
 
     @Test

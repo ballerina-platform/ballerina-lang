@@ -1092,7 +1092,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "A WebSocket client endpoint, which provides failover support over multiple WebSocket targets."
+        "left": "A WebSocket client endpoint, which provides failover support for multiple WebSocket targets."
       },
       "sortText": "190",
       "insertText": "WebSocketFailoverClient",

@@ -241,7 +241,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `float`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` x  \n- `function (int,string) returns (float)` bar  \n  \n**Returns** `float`   \n  \n"
         }
       },
       "sortText": "120",

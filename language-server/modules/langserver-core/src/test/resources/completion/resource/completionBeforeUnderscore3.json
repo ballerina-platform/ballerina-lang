@@ -340,6 +340,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "serviceName",
+      "sortText": "130",
+      "insertText": "self",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "typedesc",
       "kind": "Unit",
       "detail": "Typedesc",

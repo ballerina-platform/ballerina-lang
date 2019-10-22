@@ -62,7 +62,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.ResourceFunctionReturnTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.HTTPListenerActionsTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPCallerActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
@@ -70,6 +70,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.SslProtocolTest"/>
             <class name="org.ballerinalang.test.service.http.sample.SerializeComplexXmlTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
         </classes>
     </test>
 
@@ -100,6 +101,7 @@
             <class name="org.ballerinalang.test.service.http2.HTTP2ClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
+            <class name="org.ballerinalang.test.service.http2.Http2100ContinueTestCase"/>
         </classes>
     </test>
 
@@ -142,6 +144,7 @@
         <classes>
             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
             <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
+            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>
         </classes>
     </test>
 
@@ -292,6 +295,7 @@
             <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
         </classes>
     </test>
 

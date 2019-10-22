@@ -1165,7 +1165,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets invoked during module initialization to initialize the listener.\n  \n**Params**  \n- `int` port: Listening port of the HTTP service listener  \n- `(http:ListenerConfiguration|())` config(Defaultable)"
         }
       },
       "sortText": "120",
@@ -1183,7 +1183,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets invoked during module initialization to initialize the listener.\n  \n**Params**  \n- `int` port: Listening port of the HTTP service listener  \n- `(http:ListenerConfiguration|())` config(Defaultable)"
         }
       },
       "sortText": "120",

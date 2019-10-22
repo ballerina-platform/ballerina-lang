@@ -1218,6 +1218,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             DiagnosticPos pos = getCurrentPos(ctx);
             this.pkgBuilder.addNameReference(pos, getWS(ctx), null, ctx.Identifier().getText());
             this.pkgBuilder.createSimpleVariableReference(pos, getWS(ctx));
+        } else if (ctx.LEFT_BRACKET() != null) {
+            this.pkgBuilder.addRecordKeyWS(getWS(ctx));
         }
     }
 
@@ -1857,8 +1859,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, actualText, node.getText());
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
-        String invocation = ctx.invocation().anyIdentifierName().getText();
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+        BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
+        String invocation = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
+                getCurrentPos(identifierContext));
     }
 
     @Override
@@ -1932,8 +1936,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
-        String invocation = ctx.invocation().anyIdentifierName().getText();
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+        BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
+        String invocation = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
+                getCurrentPos(identifierContext));
     }
 
     @Override
@@ -1943,8 +1949,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
-        String invocation = ctx.invocation().anyIdentifierName().getText();
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+        BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
+        String invocation = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
+                getCurrentPos(identifierContext));
     }
 
     /**

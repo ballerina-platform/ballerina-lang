@@ -25,10 +25,10 @@ import com.intellij.openapi.roots.ui.configuration.ContentEntriesEditor;
 import com.intellij.openapi.roots.ui.configuration.ModuleConfigurationEditorProvider;
 import com.intellij.openapi.roots.ui.configuration.ModuleConfigurationState;
 import com.intellij.openapi.roots.ui.configuration.OutputEditor;
-import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaModuleType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -47,15 +47,15 @@ public class BallerinaModuleEditorsProvider implements ModuleConfigurationEditor
         }
 
         String moduleName = module.getName();
-        List<ModuleConfigurationEditor> editors = ContainerUtil.newArrayList();
+        List<ModuleConfigurationEditor> editors = new ArrayList<>();
         editors.add(new ContentEntriesEditor(moduleName, state));
         editors.add(new OutputEditorEx(state));
         editors.add(new ClasspathEditor(state));
-        return editors.toArray(new ModuleConfigurationEditor[editors.size()]);
+        return editors.toArray(new ModuleConfigurationEditor[0]);
     }
 
     static class OutputEditorEx extends OutputEditor {
-        protected OutputEditorEx(ModuleConfigurationState state) {
+        OutputEditorEx(ModuleConfigurationState state) {
             super(state);
         }
 

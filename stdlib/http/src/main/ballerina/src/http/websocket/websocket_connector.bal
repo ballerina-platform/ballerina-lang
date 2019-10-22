@@ -29,7 +29,12 @@ type WebSocketConnector object {
     returns WebSocketError? {
         string text = "";
         if (data is byte[]) {
-            text = check strings:fromBytes(data);
+            string|error result = strings:fromBytes(data);
+
+            if (result is error) {
+                return WsGenericError(message = result.reason(), cause = result);
+            }
+            text = <string> result;
         } else if (data is json) {
             text = data.toJsonString();
         } else {
