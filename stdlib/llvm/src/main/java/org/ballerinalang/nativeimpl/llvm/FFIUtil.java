@@ -1,5 +1,6 @@
 package org.ballerinalang.nativeimpl.llvm;
 
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -14,8 +15,12 @@ public class FFIUtil {
         return new MapValueImpl<String, Object>();
     }
 
+    public static MapValue<String, Object> newRecord(BType type) {
+        return new MapValueImpl<String, Object>(type);
+    }
+
     public static Object getRecodeArgumentNative(MapValue<String, Object> value) {
-        return value.getStringValue(NATIVE_KEY);
+        return value.getNativeData(NATIVE_KEY);
     }
 
     public static Object[] getRecodeArrayArgumentNative(ArrayValue value) {

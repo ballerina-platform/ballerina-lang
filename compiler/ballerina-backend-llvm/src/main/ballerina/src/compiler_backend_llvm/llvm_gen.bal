@@ -20,8 +20,8 @@ import ballerina/io;
 
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
+    genFunctions(mod, pkg.functions);
     io:print(mod);
-    io:println("genPackage - Hello, World!");
 }
 
 function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns llvm:LLVMModuleRef {
@@ -29,4 +29,15 @@ function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns 
     return llvm:llvmModuleCreateWithName(moduleName);
 }
 
+function genFunctions(llvm:LLVMModuleRef mod, bir:Function?[] funcs) {
+    var builder = llvm:llvmCreateBuilder();
+
+    genPrintfDeclration(mod);
+}
+
 function readFileFully(string path) returns byte[] = external;
+
+function genPrintfDeclration(llvm:LLVMModuleRef mod) {
+    llvm:LLVMTypeRef[] pointer_to_char_type = [llvm:llvmPointerType(llvm:llvmInt8Type(), 0)];
+    io:println("genPrintfDeclration - Hello, World!");
+}
