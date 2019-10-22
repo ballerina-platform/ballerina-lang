@@ -74,7 +74,9 @@ public class CreateBirTask implements Task {
                 // If not fetch from home bir cache.
                 importBir = buildContext.getBirPathFromHomeCache(id);
                 // Write only if bir does not exists. No need to overwrite.
-                birWriter.writeBIRToPath(bPackageSymbol.birPackageFile, id, importBir, true);
+                if (Files.notExists(importBir)) {
+                    birWriter.writeBIRToPath(bPackageSymbol.birPackageFile, id, importBir);
+                }
             }
     
             // write child import bir(s)
