@@ -284,12 +284,18 @@ function initiatorFunc(boolean throw1, boolean throw2,
         log:printInfo("aborted ran");
         S1 = S1 + " aborted-block";
     }
-    if (!isAbort && remote2) {
+    // Commit order of transaction initiator and participants cannot be guaranteed.
+    // Hence following logic will wait until participant function get committed.
+    // We need to skip cases like abort and retry without running remote participant second time.
+    if (!isAbort && !(trx_ran_once && !remote2)) {
         boolean waitResult = waitForCondition(5000, 20, function () returns boolean { return resourceCommited; });
         if (!waitResult) {
               error err = error("Participants failed to commit");
               panic err;
         }
+    } else if (remote2 && !trx_ran_once) {
+         error err = error("Cannot have a state with remote2 = true without any transaction retry");
+         panic err;
     }
     S1 = S1 + commitedString + " after-trx";
     return S1;
