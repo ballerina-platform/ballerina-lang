@@ -373,18 +373,6 @@ public class Scheduler {
         }
     }
 
-    private void infectResourceFunction(Strand strand, FutureValue futureValue) {
-        String gTransactionId = (String) strand.getProperty(GLOBAL_TRANSACTION_ID);
-        if (gTransactionId != null) {
-            String globalTransactionId = strand.getProperty(GLOBAL_TRANSACTION_ID).toString();
-            String url = strand.getProperty(TRANSACTION_URL).toString();
-            TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
-                                                                                             url, "2pc");
-            strand.setLocalTransactionContext(transactionLocalContext);
-            futureValue.transactionLocalContext = transactionLocalContext;
-        }
-    }
-
     private static class LogicalProcessorCount {
         private int threadCount;
         LogicalProcessorCount() {
