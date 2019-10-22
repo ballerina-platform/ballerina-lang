@@ -129,10 +129,13 @@ public class TypeNarrower extends BLangNodeVisitor {
             return;
         }
 
-        unaryExpr.narrowedTypeInfo = getNarrowedTypes(unaryExpr.expr, env).entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> entry.getKey(),
-                        entry -> new NarrowedTypes(entry.getValue().falseType, entry.getValue().trueType)));
+        Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(unaryExpr.expr, env);
+        Map<BVarSymbol, BType.NarrowedTypes> newMap = new HashMap<>(narrowedTypes.size());
+        for (Map.Entry<BVarSymbol, NarrowedTypes> entry : narrowedTypes.entrySet()) {
+            newMap.put(entry.getKey(), new NarrowedTypes(entry.getValue().falseType, entry.getValue().trueType));
+        }
+
+        unaryExpr.narrowedTypeInfo = newMap;
     }
 
     @Override

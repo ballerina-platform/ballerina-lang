@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-final string REMOTE_BACKEND_URL200 = "ws://localhost:15000/websocket";
+final string REMOTE_BACKEND_URL = "ws://localhost:15000/websocket";
 
 @http:WebSocketServiceConfig {
     path: "/client/service"
@@ -25,7 +25,7 @@ service clientFailure200 on new http:Listener(21020) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new(
-             REMOTE_BACKEND_URL200);
+             REMOTE_BACKEND_URL);
         var returnVal = wsEp->pushText("Client worked");
         if (returnVal is error) {
             panic <error> returnVal;
@@ -33,7 +33,7 @@ service clientFailure200 on new http:Listener(21020) {
     }
 
     resource function onText(http:WebSocketCaller caller, string text) {
-        http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL200, {callbackService: ClientService200});
+        http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL, {callbackService: ClientService200});
         var returnVal = caller->pushText("Client worked");
         if (returnVal is error) {
             panic <error> returnVal;
@@ -42,7 +42,7 @@ service clientFailure200 on new http:Listener(21020) {
 
     resource function onBinary(http:WebSocketCaller caller, byte[] data) {
         http:WebSocketClient wsClientEp = new(
-            REMOTE_BACKEND_URL200,
+            REMOTE_BACKEND_URL,
             {callbackService: callback200});
     }
 }

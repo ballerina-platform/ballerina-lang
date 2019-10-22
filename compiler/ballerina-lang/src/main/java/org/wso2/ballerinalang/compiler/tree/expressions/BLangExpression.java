@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType.NarrowedTypes;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
@@ -50,6 +51,11 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
      * Indicates whether the expression has already been type checked.
      */
     public boolean typeChecked;
+
+    /**
+     * Indicates the contextually expected type.
+     */
+    public BType expectedType;
 
     public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
 }
