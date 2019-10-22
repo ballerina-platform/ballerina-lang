@@ -77,7 +77,7 @@ public class FailoverInitEndpoint {
             }
         }
         logger.debug("New targetUrls: {}", newTargetUrls);
-        if (newTargetUrls.size() == 0) {
+        if (newTargetUrls.isEmpty()) {
             throw new WebSocketException("TargetUrls should have atleast one valid URL.");
         }
         // Creates the connector factory and sets it as the native data.
@@ -96,9 +96,10 @@ public class FailoverInitEndpoint {
         WebSocketUtil.populateFailoverConnectorConfig(clientEndpointConfig, failoverConfig, newTargetUrls);
         webSocketClient.addNativeData(WebSocketConstants.FAILOVER_CONFIG, failoverConfig);
         // Calls the function with the first URL in the target URLs set.
-        WebSocketUtil.establishInitialFailoverConnection(WebSocketUtil.
-                        getWebSocketClientConnector(newTargetUrls.get(0), webSocketClient),
-                webSocketClient, WebSocketUtil.getWebSocketService(clientEndpointConfig, strand));
+        WebSocketUtil.establishFailoverConnection(WebSocketUtil.
+                        getWebSocketClientConnector(newTargetUrls.get(0), webSocketClient), webSocketClient,
+                WebSocketUtil.validateAndCreateWebSocketService(clientEndpointConfig, strand));
+        WebSocketUtil.waitForHandshake(webSocketClient);
     }
 
     private FailoverInitEndpoint() {

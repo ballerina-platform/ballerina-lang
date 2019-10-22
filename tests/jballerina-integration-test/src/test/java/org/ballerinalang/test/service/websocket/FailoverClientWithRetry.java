@@ -47,7 +47,6 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
     public void testFailoverRetryWithSecondServer() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        remoteServer15200 = new WebSocketRemoteServer(port);
         remoteServer15200.run();
         String textSent = "hi all";
         WebSocketTestClient client = new WebSocketTestClient(retryUrl);

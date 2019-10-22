@@ -30,6 +30,10 @@ import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketService;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
+
+import java.net.URI;
 
 /**
  * Initializes the WebSocket Client.
@@ -62,10 +66,22 @@ public class InitEndpoint {
             webSocketClient.addNativeData(WebSocketConstants.RETRY_CONFIG, retryConnectorConfig);
         }
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
-        WebSocketService wsService = WebSocketUtil.getWebSocketService(clientEndpointConfig, strand);
+        WebSocketService wsService = WebSocketUtil.validateAndCreateWebSocketService(clientEndpointConfig, strand);
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
         webSocketClient.addNativeData(WebSocketConstants.CONNECTOR_FACTORY, connectorFactory);
-        WebSocketUtil.initialiseWebSocketConnection(remoteUrl, webSocketClient, wsService);
+
+        WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
+        String scheme = URI.create(remoteUrl).getScheme();
+        WebSocketUtil.populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
+        // Create the client connector
+        WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(clientConnectorConfig);
+        WebSocketClientListenerImpl clientConnectorListener = new WebSocketClientListenerImpl();
+        // Add the client connector as the native data, when client is not as a failover client
+        // Because Here, using one url So no need to create the client connector again
+        webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
+        webSocketClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, clientConnectorListener);
+        WebSocketUtil.establishWebSocketConnection(webSocketClient, wsService);
+        WebSocketUtil.waitForHandshake(webSocketClient);
     }
 
     private InitEndpoint() {
