@@ -201,7 +201,9 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     }
 
     @Override
-    public  BallerinaSyntaxHighlightService getBallerinaSyntaxHighlightService() { return this.ballerinaSyntaxHighlightService; }
+    public  BallerinaSyntaxHighlightService getBallerinaSyntaxHighlightService() {
+        return this.ballerinaSyntaxHighlightService;
+    }
 
     @Override
     public void connect(ExtendedLanguageClient languageClient) {

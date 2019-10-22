@@ -28,5 +28,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     let disposable = commands.registerCommand('ballerina.highlightSyntax', () => {
         setEditorDecorations(highlightingInfo);
     });
+    
     context.subscriptions.push(disposable);
 }

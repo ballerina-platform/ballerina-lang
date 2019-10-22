@@ -26,8 +26,9 @@ import java.util.concurrent.CompletableFuture;
  */
 public class BallerinaSyntaxHighlightServiceImpl implements BallerinaSyntaxHighlightService {
 
-    public CompletableFuture<BallerinaHighlightingResponse> list(BallerinaHighlightingRequest request){
-        System.out.println(request.getParams());
+    public CompletableFuture<BallerinaHighlightingResponse> list(BallerinaHighlightingRequest request) {
+
+//        request.getParams();
         BallerinaHighlightingResponse reply = new BallerinaHighlightingResponse();
         reply.setParams("Done");
         return CompletableFuture.supplyAsync(() -> reply);

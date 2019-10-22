@@ -85,7 +85,6 @@ import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -665,7 +664,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     String fileURI = params.getTextDocument().getUri();
                     ctx.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
                     LSDocument lsDocument = new LSDocument(fileURI);
-                    diagnosticsHelper.compileAndSendDiagnostics( client, ctx, lsDocument, documentManager);
+                    diagnosticsHelper.compileAndSendDiagnostics(client, ctx, lsDocument, documentManager);
                     // Clear current cache upon successfull compilation
                     // If the compiler fails, still we'll have the cached entry(marked as outdated)
                     LSCompilerCache.clear(ctx, lsDocument.getProjectRoot());

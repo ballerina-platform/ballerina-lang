@@ -29,7 +29,6 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
@@ -63,9 +62,9 @@ public class DiagnosticsHelper {
      * @param docManager LS Document manager
      * @throws CompilationFailedException throws a LS compiler exception
      */
-    public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, LSContext context, LSDocument lsDocument,
-                                                       WorkspaceDocumentManager docManager) throws
-                                                                                            CompilationFailedException {
+    public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, LSContext context,
+                                                       LSDocument lsDocument, WorkspaceDocumentManager docManager)
+            throws CompilationFailedException {
         // Compile diagnostics
         List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
         LSModuleCompiler.getBLangPackages(context, docManager, null, true, true, true);
