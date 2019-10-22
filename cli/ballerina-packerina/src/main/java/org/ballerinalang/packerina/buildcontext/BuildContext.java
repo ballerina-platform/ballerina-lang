@@ -270,11 +270,13 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     }
     
     public Path getBirCacheFromHome() {
-        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME + "-" +
+                                                             RepoUtils.getBallerinaVersion());
     }
     
     public Path getJarCacheFromHome() {
-        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME + "-" +
+                                                             RepoUtils.getBallerinaVersion());
     }
 
     public Path getBaloCacheFromHome() {
