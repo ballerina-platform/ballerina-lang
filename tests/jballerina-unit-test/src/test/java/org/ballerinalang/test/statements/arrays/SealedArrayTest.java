@@ -36,13 +36,14 @@ import org.testng.annotations.Test;
  */
 public class SealedArrayTest {
 
-    private CompileResult compileResult;
-    private CompileResult resultNegative;
+    private CompileResult compileResult, resultNegative, semanticsNegative;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/arrays/sealed-array.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/arrays/sealed-array-negative.bal");
+        semanticsNegative = BCompileUtil.compile("test-src/statements/arrays/sealed-array-semantics-negative" +
+                ".bal");
     }
 
     @Test
@@ -277,48 +278,53 @@ public class SealedArrayTest {
 
     @Test()
     public void testNegativeSealedArrays() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 23);
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultNegative, 0, "variable 'sealedArray1' is not initialized", 19, 5);
+    }
+
+    @Test()
+    public void testSemanticsNegativeSealedArrays() {
+        Assert.assertEquals(semanticsNegative.getErrorCount(), 23);
         int i = 0;
-        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 19, 30);
-        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 25, 33);
-        BAssertUtil.validateError(resultNegative, i++, "size mismatch in sealed array. expected '4', but found '3'",
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 19, 30);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 25, 33);
+        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '3'",
                 30, 31);
-        BAssertUtil.validateError(resultNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
+        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
                 31, 31);
-        // TODO: {enableCodeAnalyzerTests} following won't get captured after (typeChecker, semanticAnalyzer) &
-        //  codeAnalyzer separation.
-        //
-        //        BAssertUtil.validateError(resultNegative, i++,
-        //                "variable 'sealedArray1' is not initialized", 37, 5);
-        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 37, 18);
-        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '5'", 38, 18);
-        BAssertUtil.validateError(resultNegative, i++, "invalid usage of sealed type: array not initialized", 39, 5);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'", 46, 17);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string[2]', found 'string[]'",
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 37, 18);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 38, 18);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of sealed type: array not initialized",
+                39, 5);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'",
+                46, 17);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'string[2]', found 'string[]'",
                 52, 34);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'boolean[4]', found " +
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'boolean[4]', found " +
                 "'boolean[3]'", 52, 47);
-        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(int|int[]|int[4])'", 63, 30);
-        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(int|int[]|int[4]|int[5])'", 65, 40);
-        BAssertUtil.validateError(resultNegative, i++, "size mismatch in sealed array. expected '4', but found '2'",
+        BAssertUtil.validateError(semanticsNegative, i++, "ambiguous type '(int|int[]|int[4])'", 63, 30);
+        BAssertUtil.validateError(semanticsNegative, i++, "ambiguous type '(int|int[]|int[4]|int[5])'", 65, 40);
+        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '2'",
                 79, 18);
-        BAssertUtil.validateError(resultNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
+        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
                 80, 18);
-        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '4'", 83, 8);
-        BAssertUtil.validateError(resultNegative, i++, "invalid usage of sealed type: can not infer array size", 85,
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '4'", 83, 8);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of sealed type: can not infer array size", 85,
                 18);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 87,
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 87,
                 18);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'S1|S2'", 106, 20);
-        BAssertUtil.validateError(resultNegative, i++, "invalid list index expression: value space '3|4|5' out of " +
-                "range", 107, 20);
-        BAssertUtil.validateError(resultNegative, i++, "invalid list index expression: value space '3|4|5' out of " +
-                "range", 108, 23);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '0|1|2|S1'", 109, 20);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '(0|1|2|S1|S3)'",
-                110, 20);
-        BAssertUtil.validateError(resultNegative, i, "invalid list index expression: value space '(3|4|5|7)' out of " +
-                "range", 111, 23);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'S1|S2'",
+                106, 20);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list index expression: value space '3|4|5' " +
+                "out of range", 107, 20);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list index expression: value space '3|4|5' " +
+                "out of range", 108, 23);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
+                "'0|1|2|S1'", 109, 20);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
+                        "'(0|1|2|S1|S3)'", 110, 20);
+        BAssertUtil.validateError(semanticsNegative, i, "invalid list index expression: value space " +
+                "'(3|4|5|7)' out of range", 111, 23);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",

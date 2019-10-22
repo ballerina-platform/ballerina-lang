@@ -204,7 +204,6 @@ public enum DiagnosticCode {
     INVALID_FUNCTION_POINTER_INVOCATION("invalid.function.pointer.invocation"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
-    NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
     TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),
     NON_PUBLIC_ARG_ACCESSED_WITH_NAMED_ARG("non.public.arg.accessed.with.named.arg"),
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
@@ -303,6 +302,7 @@ public enum DiagnosticCode {
     XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed"),
     INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration"),
     CANNOT_UPDATE_XML_SEQUENCE("cannot.update.xml.sequence"),
+    INVALID_XML_NS_INTERPOLATION("invalid.xml.ns.interpolation"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
@@ -368,7 +368,7 @@ public enum DiagnosticCode {
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
-    CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.error.return.in.encl.invokable"),
+    CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.matching.error.return.in.encl.invokable"),
 
     START_REQUIRE_INVOCATION("start.require.invocation"),
     INVALID_EXPR_STATEMENT("invalid.expr.statement"),

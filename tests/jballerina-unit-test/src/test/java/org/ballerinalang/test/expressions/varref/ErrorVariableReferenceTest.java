@@ -225,7 +225,7 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
                 "expected '[any,string,map,[error,any]]', found '[int,string,error,[error,Foo]]'", 79, 58);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes + "expected 'Bar', " +
-                "found 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 93, 32);
+                "found 'record {| string message?; error cause?; (anydata|error)...; |}'", 93, 32);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 94, 20);
         BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference " +

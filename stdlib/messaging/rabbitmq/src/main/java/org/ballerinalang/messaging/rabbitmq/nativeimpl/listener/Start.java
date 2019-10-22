@@ -18,12 +18,9 @@
 
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.listener;
 
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.DefaultConsumer;
-import com.rabbitmq.client.Envelope;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.MessageDispatcher;
@@ -36,7 +33,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 
 /**
@@ -53,85 +49,57 @@ import java.util.ArrayList;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
 public class Start {
-    private static MessageDispatcher messageDispatcher;
-    private static final PrintStream console;
-    private static String queueName;
+    private static boolean started = false;
 
     public static Object start(Strand strand, ObjectValue listenerObjectValue) {
         boolean autoAck;
-        RabbitMQTransactionContext rabbitMQTransactionContext;
         ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
-        rabbitMQTransactionContext = (RabbitMQTransactionContext) channelObject.
+        RabbitMQTransactionContext rabbitMQTransactionContext = (RabbitMQTransactionContext) channelObject.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         ArrayList<ObjectValue> services =
                 (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
-        for (ObjectValue service : services) {
-            MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
-                    RabbitMQConstants.SERVICE_CONFIG);
-            @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-            MapValue<String, Object> queueConfig =
-                    (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
-            queueName = queueConfig.getStringValue(RabbitMQConstants.ALIAS_QUEUE_NAME);
-            String ackMode = serviceConfig.getStringValue(RabbitMQConstants.ALIAS_ACK_MODE);
-            switch (ackMode) {
-                case RabbitMQConstants.AUTO_ACKMODE:
-                    autoAck = true;
-                    break;
-                case RabbitMQConstants.CLIENT_ACKMODE:
-                    autoAck = false;
-                    break;
-                default:
-                    throw new BallerinaException("Unsupported acknowledgement mode");
-            }
-            boolean isQosSet = channelObject.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
-            if (!isQosSet) {
-                try {
-                    handleBasicQos(channel, queueConfig);
-                } catch (RabbitMQConnectorException exception) {
-                    return RabbitMQUtils.returnErrorValue("Error occurred while setting the QoS settings."
-                            + exception.getDetail());
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+        ArrayList<ObjectValue> startedServices =
+                (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.STARTED_SERVICES);
+        if (services != null && !services.isEmpty()) {
+            for (ObjectValue service : services) {
+                if (startedServices == null || !startedServices.contains(service)) {
+                    MapValue serviceConfig =
+                            (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
+                                    RabbitMQConstants.SERVICE_CONFIG);
+                    @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+                    MapValue<String, Object> queueConfig =
+                            (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
+                    autoAck = getAckMode(service);
+                    boolean isQosSet = channelObject.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
+                    if (!isQosSet) {
+                        try {
+                            handleBasicQos(channel, queueConfig);
+                        } catch (RabbitMQConnectorException exception) {
+                            return RabbitMQUtils.returnErrorValue("Error occurred while setting the QoS settings."
+                                    + exception.getDetail());
+                        }
+                    }
+                    MessageDispatcher messageDispatcher = new MessageDispatcher(listenerObjectValue,
+                            rabbitMQTransactionContext, service, channel, autoAck, strand.scheduler);
+                    messageDispatcher.receiveMessages();
                 }
             }
-            messageDispatcher = new MessageDispatcher(rabbitMQTransactionContext, service, channel, autoAck,
-                    strand.scheduler);
-            receiveMessages(channel, queueName, autoAck);
         }
-        console.println("[ballerina/rabbitmq] Consumer service started for queue " + queueName);
+        started = true;
         return null;
     }
 
-    /**
-     * Receive messages from the RabbitMQ server.
-     *
-     * @param channel   RabbitMQ Channel object.
-     * @param queueName Name of the queue messages are consumed from.
-     */
-    private static void receiveMessages(Channel channel, String queueName, boolean autoAck) {
-        try {
-            channel.basicConsume(queueName, autoAck,
-                    new DefaultConsumer(channel) {
-                        @Override
-                        public void handleDelivery(String consumerTag,
-                                                   Envelope envelope,
-                                                   AMQP.BasicProperties properties,
-                                                   byte[] body) throws IOException {
-                            messageDispatcher.handleDispatch(body, envelope.getDeliveryTag(), properties);
-                        }
-                    });
-        } catch (IOException exception) {
-            throw new BallerinaException("Error occurred while consuming messages; " + exception.getMessage(),
-                    exception);
-        }
+    static void startReceivingMessages(ObjectValue service, RabbitMQTransactionContext rabbitMQTransactionContext,
+                                       Channel channel, ObjectValue listenerObjectValue, Scheduler scheduler) {
+        MessageDispatcher messageDispatcher = new MessageDispatcher(listenerObjectValue, rabbitMQTransactionContext,
+                service, channel, getAckMode(service), scheduler);
+        messageDispatcher.receiveMessages();
+
     }
 
-    /**
-     * Request specific "quality of service" settings.
-     *
-     * @param channel       RabbitMQ Channel object.
-     * @param serviceConfig Service config.
-     */
     private static void handleBasicQos(Channel channel, MapValue<String, Object> serviceConfig) {
         long prefetchCount = RabbitMQConstants.DEFAULT_PREFETCH;
 
@@ -152,8 +120,27 @@ public class Start {
         }
     }
 
-    static {
-        console = System.out;
+    static boolean isStarted() {
+        return started;
+    }
+
+    private static boolean getAckMode(ObjectValue service) {
+        boolean autoAck;
+        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
+                RabbitMQConstants.SERVICE_CONFIG);
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+        String ackMode = serviceConfig.getStringValue(RabbitMQConstants.ALIAS_ACK_MODE);
+        switch (ackMode) {
+            case RabbitMQConstants.AUTO_ACKMODE:
+                autoAck = true;
+                break;
+            case RabbitMQConstants.CLIENT_ACKMODE:
+                autoAck = false;
+                break;
+            default:
+                throw RabbitMQUtils.returnErrorValue("Unsupported acknowledgement mode");
+        }
+        return autoAck;
     }
 
     private Start() {

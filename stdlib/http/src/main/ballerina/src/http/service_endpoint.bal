@@ -33,18 +33,33 @@ public type Listener object {
     private ListenerConfiguration config = {};
     private string instanceId;
 
+    # Starts the registered service programmatically.
+    #
+    # + return - An `error` if an error occurred during the listener starting process
     public function __start() returns error? {
         return self.start();
     }
 
+    # Stops the service listener gracefully. Already-accepted requests will be served before connection closure.
+    #
+    # + return - An `error` if an error occurred during the listener stopping process
     public function __gracefulStop() returns error? {
-        return ();
+        return self.gracefulStop();
     }
 
+    # Stops the service listener immediately. It is not implemented yet.
+    #
+    # + return - An `error` if an error occurred during the listener stop process
     public function __immediateStop() returns error? {
-        return self.stop();
+        error err = error("not implemented");
+        return err;
     }
 
+    # Attach a service to the listener.
+    #
+    # + s - The service that needs to be attached
+    # + name - Name of the service
+    # + return - An `error` an error occurred during the service attachment process or else nil
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
     }
@@ -58,6 +73,10 @@ public type Listener object {
         return self.detach(s);
     }
 
+    # Gets invoked during module initialization to initialize the listener.
+    #
+    # + port - Listening port of the HTTP service listener
+    # + c - Configurations for HTTP service listener
     public function __init(int port, public ListenerConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
@@ -97,21 +116,23 @@ public type Listener object {
     #
     # + s - The service that needs to be attached
     # + name - Name of the service
-    # + return - An `error` if there is any error occurred during the service attachment process or else nil
+    # + return - An `error` if an error occurred during the service attachment process or else nil
     function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.
-    # + return - An `error` if there is any error occurred during the listener start process
+    #
+    # + return - An `error` if an error occurred during the listener start process
     function start() returns error? = external;
 
-    # Stops the registered service.
-    # + return - An `error` if there is any error occurred during the listener stop process
-    function stop() returns error? = external;
+    # Stops the service listener gracefully.
+    #
+    # + return - An `error` if an error occurred during the listener stop process
+    function gracefulStop() returns error? = external;
 
     # Disengage an attached service from the listener.
     #
     # + s - The service that needs to be detached
-    # + return - An `error` if there is any error occurred during the service detachment process or else nil
+    # + return - An `error` if an error occurred during the service detachment process or else nil
     function detach(service s) returns error? = external;
 };
 

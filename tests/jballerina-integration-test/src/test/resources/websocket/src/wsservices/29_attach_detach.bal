@@ -30,6 +30,9 @@ service attachDetach on attachDetachEp {
             var err = attachDetachEp.__detach(wsNoPath);
             handleError(err, caller);
             err = attachDetachEp.__detach(wsWithPath);
+        } else if (data == "client_attach") {
+            var err = attachDetachEp.__attach(wsClientService);
+            handleError(err, caller);
         }
     }
 }
@@ -45,6 +48,13 @@ service wsWithPath = @http:WebSocketServiceConfig {path: "/hello"} service {
 service wsNoPath = @http:WebSocketServiceConfig {} service {
 
     resource function onText(http:WebSocketCaller conn, string text, boolean finalFrame) returns error? {
+        check conn->pushText(text);
+    }
+};
+
+service wsClientService = @http:WebSocketServiceConfig {} service {
+
+    resource function onText(http:WebSocketClient conn, string text, boolean finalFrame) returns error? {
         check conn->pushText(text);
     }
 };

@@ -147,4 +147,10 @@ public class DivisionOperationTest {
         final String expected = "5.0";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberOverflow message= int range overflow.*")
+    public void testIntOverflowByDivision() {
+        BRunUtil.invoke(result, "overflowByDivision");
+    }
 }

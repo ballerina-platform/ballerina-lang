@@ -180,7 +180,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `(string|int|boolean)`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `(string|int|boolean)` i  \n  \n**Returns** `(string|int|boolean)`   \n  \n"
         }
       },
       "sortText": "120",

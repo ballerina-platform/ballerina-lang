@@ -1,0 +1,32 @@
+{
+  "arguments": {
+    "node.line": 1,
+    "node.column": 11
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 7,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 7,
+                    "character": 0
+                  }
+                },
+                "newText": "\n\nfunction processResponse(http:Response response){\n\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

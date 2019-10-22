@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,11 +46,32 @@ import java.util.ArrayList;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
 public class RegisterListener {
-    private static final ArrayList<ObjectValue> services = new ArrayList<>();
+    private static ArrayList<ObjectValue> services = new ArrayList<>();
 
     public static Object registerListener(Strand strand, ObjectValue listenerObjectValue, ObjectValue service) {
         ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        RabbitMQTransactionContext rabbitMQTransactionContext = (RabbitMQTransactionContext) channelObject.
+                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
+        if (service != null) {
+            try {
+                declareQueueIfNotExists(service, channel);
+            } catch (IOException e) {
+                return RabbitMQUtils.returnErrorValue("I/O Error occurred while declaring the queue.");
+            }
+            if (Start.isStarted()) {
+                services =
+                        (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
+                Start.startReceivingMessages(service, rabbitMQTransactionContext, channel, listenerObjectValue,
+                        strand.scheduler);
+            }
+            services.add(service);
+            listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
+        }
+        return null;
+    }
+
+    private static void declareQueueIfNotExists(ObjectValue service, Channel channel) throws IOException {
         MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
                 RabbitMQConstants.SERVICE_CONFIG);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
@@ -59,14 +81,7 @@ public class RegisterListener {
         boolean durable = queueConfig.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_DURABLE);
         boolean exclusive = queueConfig.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_EXCLUSIVE);
         boolean autoDelete = queueConfig.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_AUTODELETE);
-        try {
-            channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
-        } catch (IOException exception) {
-            return RabbitMQUtils.returnErrorValue("I/O Error occurred while declaring the queue.");
-        }
-        services.add(service);
-        listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
-        return null;
+        channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
     }
 
     private RegisterListener() {

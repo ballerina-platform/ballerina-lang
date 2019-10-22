@@ -37,6 +37,8 @@ import org.testng.annotations.Test;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
+
 /**
  * Test Native functions in ballerina.model.string.
  */
@@ -173,5 +175,36 @@ public class StringTest {
         BValueArray bByteArray = (BValueArray) returns[0];
         Assert.assertEquals(bByteArray.size(), bytes.length);
         ByteArrayUtils.assertJBytesWithBBytes(bytes, bByteArray.getBytes());
+    }
+
+    @Test
+    public void testMultilineStringLiterals() {
+        CompileResult multilineLiterals = BCompileUtil.compile("test-src/types/string/string_negative.bal");
+        int indx = 0;
+
+        validateError(multilineLiterals, indx++, "token recognition error at: '\"Hello\\n'", 17, 23);
+        validateError(multilineLiterals, indx++,
+                      "mismatched input '!'. expecting {'is', ';', '.', '[', '?', '?.', '+', '-', '*', '/', '%', " +
+                              "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|'," +
+                              " '?:', '->>', '..<', '.@'}", 18, 6);
+        validateError(multilineLiterals, indx++, "token recognition error at: '\";\\n'", 18, 7);
+        validateError(multilineLiterals, indx++, "token recognition error at: '\"Hello\\n'", 21, 17);
+        validateError(multilineLiterals, indx++,
+                      "mismatched input '!'. expecting {'is', ';', '.', '[', '?', '?.', '+', '-', '*', '/', '%', " +
+                              "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|'," +
+                              " '?:', '->>', '..<', '.@'}", 22, 10);
+        validateError(multilineLiterals, indx++, "token recognition error at: '\";\\n'", 22, 11);
+        validateError(multilineLiterals, indx++, "token recognition error at: '\"Another Hello\\n'", 24, 17);
+        validateError(multilineLiterals, indx++,
+                      "mismatched input 'with'. expecting {'is', ';', '.', '[', '?', '?.', '+', '-', '*', '/', '%', " +
+                              "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|'," +
+                              " '?:', '->>', '..<', '.@'}", 25, 19);
+        validateError(multilineLiterals, indx++, "token recognition error at: '\";\\n'", 25, 39);
+        validateError(multilineLiterals, indx++, "mismatched input 's3'. expecting {'(', '[', '?', '|'}", 27, 12);
+        validateError(multilineLiterals, indx++, "token recognition error at: '\"Multiple\\n'", 27, 17);
+        validateError(multilineLiterals, indx++, "mismatched input 'Hello'. expecting {',', ')'}", 29, 5);
+        validateError(multilineLiterals, indx++, "token recognition error at: '\";\\n'", 30, 11);
+
+        Assert.assertEquals(multilineLiterals.getErrorCount(), indx);
     }
 }
