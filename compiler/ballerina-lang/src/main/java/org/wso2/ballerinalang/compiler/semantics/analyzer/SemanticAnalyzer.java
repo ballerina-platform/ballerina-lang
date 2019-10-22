@@ -1310,7 +1310,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(errorVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
                 return false;
             }
-            return validateErrorReasonMatchPatternSyntax(errorVariable);
+            return validateErrorReasonMatchPatternSyntax(errorVariable, true);
         }
 
         if (errorType.detailType.getKind() == TypeKind.RECORD) {
@@ -1332,7 +1332,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType) {
-        if (!validateErrorReasonMatchPatternSyntax(errorVariable)) {
+        if (!validateErrorReasonMatchPatternSyntax(errorVariable, false)) {
             return false;
         }
 
@@ -1377,7 +1377,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable) {
+    // todo: warn parameter is a hack to fix patch compatibility by using dlog.warn, remove for minor release
+    private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable, boolean warn) {
         if (errorVariable.isInMatchStmt
                 && !errorVariable.reasonVarPrefixAvailable
                 && errorVariable.reasonMatchConst == null
@@ -1385,13 +1386,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             BSymbol reasonConst = symResolver.lookupSymbol(
                     this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
-            if (reasonConst == symTable.notFoundSymbol) {
-                dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
-                        errorVariable.reason.name);
+            if (warn) {
+                if (reasonConst == symTable.notFoundSymbol) {
+                    dlog.warning(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
+                            errorVariable.reason.name);
+                } else {
+                    dlog.warning(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
+                }
+                return false;
             } else {
-                dlog.error(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
+                if (reasonConst == symTable.notFoundSymbol) {
+                    dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
+                            errorVariable.reason.name);
+                } else {
+                    dlog.error(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
+                }
+                return false;
             }
-            return false;
         }
         return true;
     }
