@@ -1386,23 +1386,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             BSymbol reasonConst = symResolver.lookupSymbol(
                     this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
-            if (warn) {
-                if (reasonConst == symTable.notFoundSymbol) {
+            if (reasonConst == symTable.notFoundSymbol) {
+                if (warn) {
                     dlog.warning(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
                             errorVariable.reason.name);
-                } else {
-                    dlog.warning(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
+                    return false;
                 }
-                return false;
+                dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
+                        errorVariable.reason.name);
             } else {
-                if (reasonConst == symTable.notFoundSymbol) {
-                    dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
-                            errorVariable.reason.name);
-                } else {
-                    dlog.error(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
-                }
-                return false;
+                dlog.error(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
             }
+            return false;
         }
         return true;
     }
