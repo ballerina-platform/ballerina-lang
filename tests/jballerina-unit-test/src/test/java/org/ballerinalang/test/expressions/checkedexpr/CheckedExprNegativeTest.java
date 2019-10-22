@@ -28,6 +28,9 @@ import org.testng.annotations.Test;
  */
 public class CheckedExprNegativeTest {
 
+    private static final String ERROR_MISMATCH_ERR_MSG = "invalid usage of the 'check' expression " +
+            "operator: no matching error return type(s) in the enclosing invokable";
+
     @Test
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile(
@@ -48,8 +51,7 @@ public class CheckedExprNegativeTest {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 1, compile.toString());
-        BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
-                "operator: no error type return in enclosing invokable", 11, 19);
+        BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 11, 19);
     }
 
     @Test
@@ -57,7 +59,15 @@ public class CheckedExprNegativeTest {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_within_resource_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
-        BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
-                "operator: no error type return in enclosing invokable", 28, 22);
+        BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 28, 22);
+    }
+
+    @Test
+    public void testCheckedErrorvsReturnTypeMismatch() {
+        CompileResult compile = BCompileUtil.compile(
+                "test-src/expressions/checkedexpr/checked_error_return_type_mismatch_negative.bal");
+        Assert.assertEquals(compile.getErrorCount(), 2);
+        BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 24, 13);
+        BAssertUtil.validateError(compile, 1, ERROR_MISMATCH_ERR_MSG, 45, 17);
     }
 }

@@ -438,13 +438,15 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
                     mv.visitJumpInsn(IFNE, afterHandle);
 
                     mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
-                    mv.visitJumpInsn(IFNE, afterHandle);
-
-                    mv.visitInsn(DUP);
                     mv.visitTypeInsn(INSTANCEOF, "java/lang/Byte");
                     mv.visitJumpInsn(IFNE, afterHandle);
                 }
+
+                // if the returned value is a Ballerina Value, do nothing
+                mv.visitInsn(DUP);
+                mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
+                mv.visitJumpInsn(IFNE, afterHandle);
+
                 bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
                 int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
                 mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);

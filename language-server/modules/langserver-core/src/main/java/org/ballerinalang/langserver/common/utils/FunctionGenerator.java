@@ -135,7 +135,7 @@ public class FunctionGenerator {
      */
     public static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                                 BLangNode bLangNode) {
-        if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
+        if (bLangNode instanceof BLangTupleDestructure && bLangNode.type == null) {
             // Check for tuple assignment eg. (int, int)
             List<String> list = new ArrayList<>();
             for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRef.expressions) {
@@ -162,8 +162,8 @@ public class FunctionGenerator {
             });
             return "function (" + params.toString() + ") returns (" + typeSpace[typeSpace.length - 1] + ")";
         }
-        return (bLangNode.type != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type) :
-                null;
+        return (bLangNode != null && bLangNode.type != null)
+                ? generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type) : null;
     }
 
     /**
@@ -287,7 +287,8 @@ public class FunctionGenerator {
                     argNames.add(argName);
                 }
                 if (restParam != null && (restParam.type instanceof BArrayType)) {
-                    list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
+                    list.add(CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false) + "... "
+                            + restParam.getName().getValue());
                 }
             }
         } else {
@@ -300,7 +301,8 @@ public class FunctionGenerator {
                 list.add(CommonUtil.getBTypeName(param.type, ctx, true) + " " + param.getName());
             }
             if (restParam != null && (restParam.type instanceof BArrayType)) {
-                list.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false));
+                list.add(CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false) + "... "
+                        + restParam.getName().getValue());
             }
         }
         return (!list.isEmpty()) ? list : new ArrayList<>();

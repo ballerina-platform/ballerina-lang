@@ -14,7 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 
 package org.ballerinalang.stdlib.task.service;
 
@@ -39,17 +39,6 @@ import static org.ballerinalang.stdlib.task.utils.TaskTestUtils.getFilePath;
  */
 @Test
 public class AppointmentServiceTest {
-    @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
-    public void testCreateAppointment() {
-        CompileResult compileResult = BCompileUtil.compile(true,
-                getFilePath(Paths.get("listener", "appointment", "service_simple.bal")));
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] configs = BRunUtil.invoke(compileResult, "getCount");
-            Assert.assertEquals(configs.length, 1);
-            return (((BInteger) configs[0]).intValue() > 3);
-        });
-    }
-
     @Test(description = "Tests the functionality of initiating a Task Timer Listener with AppointmentData record.")
     public void testAppointmentDataConfigs() {
         CompileResult compileResult = BCompileUtil.compile(true,

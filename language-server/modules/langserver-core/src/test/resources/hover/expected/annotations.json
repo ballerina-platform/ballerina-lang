@@ -1,0 +1,12 @@
+{
+    "result": {
+        "contents": {
+            "kind": "markdown",
+            "value": "**Description**  \n  \nContains the configurations for an HTTP service.  \n  \n**Field**  \n- `string` **host**: Domain name of the service  \n- `string` **basePath**: Service base path  \n- `http:CompressionConfig` **compression**: The status of compression  \n- `(AUTO|ALWAYS|NEVER)` **chunking**: Configures the chunking behaviour for the service  \n- `http:CorsConfig` **cors**: The cross origin resource sharing configurations for the service  \n- `http:Versioning` **versioning**: The version of the service to be used  \n- `http:ServiceResourceAuth` **auth**: Authentication configurations for secure the service  \n  \n"
+        }
+    },
+    "id": {
+        "left": "324"
+    },
+    "jsonrpc": "2.0"
+}
