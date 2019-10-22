@@ -26,9 +26,13 @@ configurations {
     distBal {
         transitive false
     }
+    highlighterLib {
+        transitive false
+    }
 }
 
 dependencies {
+    highlighterLib project(path: ':composer-library', configuration: 'highlighter')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang:annotations')
@@ -81,9 +85,20 @@ shadowJar {
     }
 }
 
-task copyBalo(type: org.gradle.api.tasks.Copy) {
+task copyBalo(type: Copy) {
     from configurations.distBal
     into("$buildDir/lib")
+}
+
+processResources {
+    dependsOn 'copyHighlighter'
+}
+
+task copyHighlighter(type: Copy) {
+    from configurations.highlighterLib {
+        include '*.js'
+    }
+    into("$buildDir/resources/main/syntax-highlighter")
 }
 
 description = 'Ballerina - Docerina'

@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/log;
+import ballerina/stringutils;
 
 # Lexer, tokenize the lexemes.
 # the characters pulled from the bufferReader is passed through
@@ -39,14 +38,14 @@ public type Lexer object {
     }
 
     //consume and return the character from the buffer
-    public function nextLexeme() returns string {
+    public function nextLexeme() returns @tainted string {
         return self.buffer.consume();
     }
 
     # The characters from the buffer stream will be tokenized and a token will be returned.
     #
     # + return - Token
-    public function nextToken() returns Token {
+    public function nextToken() returns @tainted Token {
         //current character
         string currChar = "";
         //while the currChar is not Eof, consume the lexemes and build tokens
@@ -247,7 +246,7 @@ public type Token record {
 # + return - boolean true if the character is a whitespace character.
 function isWhiteSpace(string currentCharacter) returns boolean {
     string spaceRegEx = "[ \t\r\n\f]";
-    return checkpanic currentCharacter.matches(spaceRegEx);
+    return stringutils:matches(currentCharacter, spaceRegEx);
 }
 
 # Checks whether the current character is a Enter.
@@ -255,7 +254,7 @@ function isWhiteSpace(string currentCharacter) returns boolean {
 # + return - boolean true if character is newline whitespace.
 function isEnter(string currentCharacter) returns boolean {
     string enterRegEx = "[\n]";
-    return checkpanic currentCharacter.matches(enterRegEx);
+    return stringutils:matches(currentCharacter, enterRegEx);
 }
 
 # Checks whether the current character is a tab space.
@@ -263,7 +262,7 @@ function isEnter(string currentCharacter) returns boolean {
 # + return - boolean true if character is tab whitespace.
 function isTab(string currentCharacter) returns boolean {
     string tabRegEx = "[\t]";
-    return checkpanic currentCharacter.matches(tabRegEx);
+    return stringutils:matches(currentCharacter, tabRegEx);
 }
 
 # Checks whether the current character is a digit.
@@ -271,7 +270,7 @@ function isTab(string currentCharacter) returns boolean {
 # + return - boolean true if character is a digit.
 function isDigit(string currentChar) returns boolean {
     string regExNumber = "[0-9]";
-    return checkpanic currentChar.matches(regExNumber);
+    return stringutils:matches(currentChar, regExNumber);
 }
 
 # Checks whether the current character is a letter based on regex.
@@ -279,7 +278,7 @@ function isDigit(string currentChar) returns boolean {
 # + return - boolean true if character is a letter.
 function isLetter(string currentChar) returns boolean {
     string regExString = "[a-zA-Z]+";
-    return checkpanic currentChar.matches(regExString);
+    return stringutils:matches(currentChar, regExString);
 }
 
 # Checks whether the built word is a reserved word or not.
@@ -287,12 +286,24 @@ function isLetter(string currentChar) returns boolean {
 # + return - int of the reserved word.
 function getReservedKey(string word) returns int {
     match word {
-        "function" => return FUNCTION;
-        "int" => return INT;
-        "string" => return STRING;
-        "untaint" => return UNTAINT;
-        "final" => return FINAL;
-        "continue" => return CONTINUE;
+        "function" => {
+            return FUNCTION;
+        }
+        "int" => {
+            return INT;
+        }
+        "string" => {
+            return STRING;
+        }
+        "untaint" => {
+            return UNTAINT;
+        }
+        "final" => {
+            return FINAL;
+        }
+        "continue" => {
+            return CONTINUE;
+        }
     }
     return EOF;
 }

@@ -96,7 +96,7 @@ public class DefinitionTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
-        JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonArray("result");
+        JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result").getAsJsonArray("left");
         this.alterExpectedUri(expected, root);
         this.alterActualUri(actual);
         Assert.assertEquals(actual, expected);

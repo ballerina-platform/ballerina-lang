@@ -349,21 +349,6 @@ public type ObjectGenerator object {
         // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 
-        mv.visitTypeInsn(NEW, STRAND);
-        mv.visitInsn(DUP);
-        mv.visitTypeInsn(NEW, SCHEDULER);
-        mv.visitInsn(DUP);
-        //TODO remove this and load the strand from ALOAD
-        mv.visitInsn(ICONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(Z)V", false);
-        mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", io:sprintf("(L%s;)V", SCHEDULER) , false);
-
-        // Invoke the init-functions of referenced types. This is done to initialize the 
-        // defualt values of the fields coming from the referenced types.
-
-        // Invoke the init-function of this type.
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, className, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

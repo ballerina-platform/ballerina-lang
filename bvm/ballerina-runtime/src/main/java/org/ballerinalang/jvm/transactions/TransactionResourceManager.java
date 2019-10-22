@@ -124,7 +124,7 @@ public class TransactionResourceManager {
                                       FPValue aborted, Strand strand) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
-        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         registerCommittedFunction(transactionBlockId, committed);
         registerAbortedFunction(transactionBlockId, aborted);
         transactionLocalContext.beginTransactionBlock(transactionBlockId);

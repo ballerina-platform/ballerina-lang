@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 5,
+    "character": 12
+  },
+  "source": "record/source/recordTest13.bal",
+  "items": [
+    {
+      "label": "path",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "path: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "password",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "password: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "path: \"\",\npassword: \"\"",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

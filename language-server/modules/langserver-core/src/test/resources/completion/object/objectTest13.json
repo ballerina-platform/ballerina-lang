@@ -109,7 +109,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of the Authorization filter\n"
+        "left": "Representation of the Authorization filter.\n"
       },
       "sortText": "221",
       "insertText": "AuthzFilter",
@@ -305,7 +305,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+        "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
       },
       "sortText": "221",
       "insertText": "FollowRedirects",
@@ -338,7 +338,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+        "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
       },
       "sortText": "221",
       "insertText": "HttpFuture",
@@ -525,7 +525,7 @@
       "kind": "Event",
       "detail": "Union",
       "documentation": {
-        "left": "Ballerina Http Union Errors"
+        "left": "Defines the resiliency error types that returned from client"
       },
       "sortText": "221",
       "insertText": "ResiliencyError",
@@ -535,6 +535,9 @@
       "label": "ClientAuthError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the Auth error types that returned from client"
+      },
       "sortText": "221",
       "insertText": "ClientAuthError",
       "insertTextFormat": "Snippet"
@@ -543,6 +546,9 @@
       "label": "OutboundRequestError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the client error types that returned while sending outbound request"
+      },
       "sortText": "221",
       "insertText": "OutboundRequestError",
       "insertTextFormat": "Snippet"
@@ -551,6 +557,9 @@
       "label": "InboundResponseError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the client error types that returned while receiving inbound response"
+      },
       "sortText": "221",
       "insertText": "InboundResponseError",
       "insertTextFormat": "Snippet"
@@ -559,6 +568,9 @@
       "label": "InboundRequestError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the listener error types that returned while receiving inbound request"
+      },
       "sortText": "221",
       "insertText": "InboundRequestError",
       "insertTextFormat": "Snippet"
@@ -567,6 +579,9 @@
       "label": "OutboundResponseError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the listener error types that returned while sending outbound response"
+      },
       "sortText": "221",
       "insertText": "OutboundResponseError",
       "insertTextFormat": "Snippet"
@@ -575,6 +590,9 @@
       "label": "ClientError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible client error types"
+      },
       "sortText": "221",
       "insertText": "ClientError",
       "insertTextFormat": "Snippet"
@@ -583,6 +601,9 @@
       "label": "ListenerError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible listener error types"
+      },
       "sortText": "221",
       "insertText": "ListenerError",
       "insertTextFormat": "Snippet"
@@ -1001,14 +1022,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "WebSocketError",
-      "kind": "Event",
-      "detail": "Union",
-      "sortText": "221",
-      "insertText": "WebSocketError",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "WebSocketCaller",
       "kind": "Interface",
       "detail": "Object",
@@ -1050,6 +1063,17 @@
       },
       "sortText": "221",
       "insertText": "WebSocketConnector",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketError",
+      "kind": "Event",
+      "detail": "Union",
+      "documentation": {
+        "left": "The union of all the WebSocket related errors"
+      },
+      "sortText": "221",
+      "insertText": "WebSocketError",
       "insertTextFormat": "Snippet"
     },
     {

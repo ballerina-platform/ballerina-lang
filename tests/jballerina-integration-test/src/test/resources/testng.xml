@@ -62,7 +62,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.ResourceFunctionReturnTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.HTTPListenerActionsTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPCallerActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
@@ -70,6 +70,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.SslProtocolTest"/>
             <class name="org.ballerinalang.test.service.http.sample.SerializeComplexXmlTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
         </classes>
     </test>
 
@@ -100,6 +101,7 @@
             <class name="org.ballerinalang.test.service.http2.HTTP2ClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
+            <class name="org.ballerinalang.test.service.http2.Http2100ContinueTestCase"/>
         </classes>
     </test>
 
@@ -140,8 +142,9 @@
 
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
-             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
             <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
+            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>
         </classes>
     </test>
 
@@ -163,13 +166,13 @@
             <class name="org.ballerinalang.test.service.websocket.PingPongSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websocket.ResourceFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.UpgradeResourceFailureTest"/>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketAutoPingPongTest"/>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketContinuationAndAggregationTest"/>
+            <class name="org.ballerinalang.test.service.websocket.AutoPingPongTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ContinuationAndAggregationTest"/>
             <class name="org.ballerinalang.test.service.websocket.PushAndOnTextResourceTest"/>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketQueryAndPathParamSupportTestCase"/>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketServiceNotFoundTest"/>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTest"/>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketSslProxyTest"/>
+            <class name="org.ballerinalang.test.service.websocket.QueryAndPathParamSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.ServiceNotFoundTest"/>
+            <class name="org.ballerinalang.test.service.websocket.SimpleProxyTest"/>
+            <class name="org.ballerinalang.test.service.websocket.SslProxyTest"/>
             <class name="org.ballerinalang.test.service.websocket.OnBinaryContinuationTest"/>
             <class name="org.ballerinalang.test.service.websocket.MissingResourcesTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>
@@ -178,6 +181,7 @@
             <class name="org.ballerinalang.test.service.websocket.SslEchoTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
+            <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
         </classes>
     </test>
 
@@ -288,6 +292,7 @@
             <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
         </classes>
     </test>
 

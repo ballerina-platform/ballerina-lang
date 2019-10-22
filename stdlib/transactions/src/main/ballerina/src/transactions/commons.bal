@@ -233,8 +233,12 @@ function registerLocalParticipantWithInitiator(string transactionId, string tran
         return err;
     } else {
         if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
-            error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
-            return err;
+            log:printDebug("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
+            TransactionContext txnCtx = {
+                transactionId:transactionId, transactionBlockId:transactionBlockId,
+                coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL
+            };
+            return txnCtx;
         } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
             error err = error("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
             participantId);
@@ -317,7 +321,7 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
 # + registerAtURL - The URL of the coordinator.
 # + participantProtocols - The coordination protocals supported by the participant.
 # + return - TransactionContext if the registration is successful or an error in case of a failure.
-public function registerParticipantWithRemoteInitiator(string transactionId, string transactionBlockId,
+function registerParticipantWithRemoteInitiator(string transactionId, string transactionBlockId,
                                                        string registerAtURL, RemoteProtocol[] participantProtocols)
     returns TransactionContext|error {
 
@@ -326,8 +330,7 @@ public function registerParticipantWithRemoteInitiator(string transactionId, str
 
     // Register with the coordinator only if the participant has not already done so
     if (participatedTransactions.hasKey(participatedTxnId)) {
-        string msg = "Already registered with initiator for transaction:" + participatedTxnId;
-        log:printInfo(msg);
+        log:printDebug("Already registered with initiator for transaction:" + participatedTxnId);
         TransactionContext txnCtx = {
             transactionId:transactionId, transactionBlockId:transactionBlockId,
             coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL

@@ -649,7 +649,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_CONST_LOAD) {
                     instGen.generateConstantLoadIns(<bir:ConstantLoad> inst);
                 } else if (insKind == bir:INS_KIND_NEW_MAP) {
-                    instGen.generateMapNewIns(<bir:NewMap> inst);
+                    instGen.generateMapNewIns(<bir:NewMap> inst, localVarOffset);
                 } else if (insKind == bir:INS_KIND_NEW_INST) {
                     instGen.generateObjectNewIns(<bir:NewInstance> inst, localVarOffset);
                 } else if (insKind == bir:INS_KIND_MAP_STORE) {

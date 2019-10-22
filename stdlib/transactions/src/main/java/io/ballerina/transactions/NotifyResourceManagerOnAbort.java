@@ -40,7 +40,7 @@ public class NotifyResourceManagerOnAbort {
 
     public static void notifyResourceManagerOnAbort(Strand strand, String transactionBlockId) {
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
-                strand.getLocalTransactionContext();
+                strand.transactionLocalContext;
         org.ballerinalang.jvm.transactions.TransactionResourceManager.getInstance()
                                   .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
     }

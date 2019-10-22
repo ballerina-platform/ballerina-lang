@@ -116,7 +116,7 @@ public abstract class AbstractHTTPAction {
     static void prepareOutboundRequest(Strand strand, String serviceUri, String path, HttpCarbonMessage outboundRequest,
                                        Boolean nonEntityBodyReq) {
         if (strand.isInTransaction()) {
-            TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+            TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
             outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
             outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, transactionLocalContext.getURL());
         }
