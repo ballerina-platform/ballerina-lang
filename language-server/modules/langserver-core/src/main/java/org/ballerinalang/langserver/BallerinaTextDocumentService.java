@@ -17,6 +17,7 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
@@ -87,7 +88,6 @@ import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -623,7 +623,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
                 documentManager.openFile(Paths.get(new URL(docUri).toURI()), content);
-                LanguageClient client = this.languageServer.getClient();
+                ExtendedLanguageClient client = this.languageServer.getClient();
                 LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DID_OPEN);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
                 LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
@@ -659,7 +659,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
 
             // Schedule diagnostics
-            LanguageClient client = this.languageServer.getClient();
+            ExtendedLanguageClient client = this.languageServer.getClient();
             this.diagPushDebouncer.call(compilationPath, () -> {
                 // Need to lock since debouncer triggers later
                 Optional<Lock> nLock = documentManager.lockFile(compilationPath);
