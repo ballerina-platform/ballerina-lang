@@ -625,23 +625,19 @@ public class WebSocketUtil {
      */
     private static void setCountDownLatch(int interval) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        if (wait(countDownLatch, interval)) {
-            countDownLatch.countDown();
+        try {
+            if (!countDownLatch.await(interval, TimeUnit.MILLISECONDS)) {
+               return;
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new WebSocketException("Error occurred: " + e.getMessage());
         }
     }
 
     public static boolean hasRetryConfig(ObjectValue webSocketClient) {
         return webSocketClient.getMapValue(WebSocketConstants.CLIENT_ENDPOINT_CONFIG).
                 getMapValue(WebSocketConstants.RETRY_CONFIG) != null;
-    }
-
-    private static boolean wait(CountDownLatch countDownLatch, int interval) {
-        try {
-            return countDownLatch.await(interval, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new WebSocketException("Error occurred: " + e.getMessage());
-        }
     }
 
     /**

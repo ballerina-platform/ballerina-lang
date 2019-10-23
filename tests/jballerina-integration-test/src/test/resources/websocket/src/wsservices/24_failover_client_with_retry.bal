@@ -23,8 +23,8 @@ service on new http:Listener(21034) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketFailoverClient wsClientEp = new({ callbackService:
             failoverClientWithRetryCallbackService, readyOnConnect: false, targetUrls:
-            ["ws://localhost:15100/websocket", "ws://localhost:15200/websocket"], failoverIntervalInMillis: 900,
-            retryConfig: {intervalInMillis: 500, backOffFactor: 1.2}});
+            ["ws://localhost:15300/websocket", "ws://localhost:15200/websocket"],
+            retryConfig: {}});
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();

@@ -35,10 +35,10 @@ import java.util.concurrent.TimeUnit;
 @Test(groups = {"websocket-test"})
 public class FailoverClientWithRetry extends WebSocketTestCommons {
 
-    private WebSocketRemoteServer remoteServer15100;
+    private WebSocketRemoteServer remoteServer15300;
     private String retryUrl = "ws://localhost:21034";
     private String url = "ws://localhost:21031";
-    private int port = 15100;
+    private int port = 15300;
     private WebSocketRemoteServer remoteServer15200;
     private int time = 2;
 
@@ -73,23 +73,23 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
             BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
-        remoteServer15100 = new WebSocketRemoteServer(port);
-        remoteServer15100.run();
+        remoteServer15300 = new WebSocketRemoteServer(port);
+        remoteServer15300.run();
         WebSocketTestClient client = new WebSocketTestClient(retryUrl);
         client.handshake();
         client.setCountDownLatch(countDownLatch);
         client.sendBinary(bufferSent);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
-        remoteServer15100.stop();
-        CountDownLatch countDownLatchForRetry = new CountDownLatch(1);
-        remoteServer15100.run();
-        countDownLatchForRetry.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer15300.stop();
+        CountDownLatch latchForRestart = new CountDownLatch(1);
+        remoteServer15300.run();
+        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendBinary(bufferSent);
-        countDownLatchForRetry.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
-        remoteServer15100.stop();
+        remoteServer15300.stop();
     }
 
 @Test(description = "Tests the retry function using failover webSocket client (starting the given servers in " +
@@ -101,9 +101,9 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         String text = "hi madam";
         ByteBuffer bufferData = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
-        remoteServer15100 = new WebSocketRemoteServer(port);
+        remoteServer15300 = new WebSocketRemoteServer(port);
         remoteServer15200 = new WebSocketRemoteServer(15200);
-        remoteServer15100.run();
+        remoteServer15300.run();
         remoteServer15200.run();
         WebSocketTestClient client = new WebSocketTestClient(retryUrl);
         client.handshake();
@@ -111,7 +111,7 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
         client.sendText(text);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), text);
-        remoteServer15100.stop();
+        remoteServer15300.stop();
         CountDownLatch countDownLatchForRetry = new CountDownLatch(1);
         countDownLatchForRetry.await(time, TimeUnit.SECONDS);
         client.sendBinary(bufferData);
@@ -119,14 +119,14 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
         Assert.assertEquals(client.getBufferReceived(), bufferData);
         remoteServer15200.stop();
         CountDownLatch latchForRetry = new CountDownLatch(1);
-        remoteServer15100.run();
+        remoteServer15300.run();
         latchForRetry.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         String textSend = "hi";
         client.sendText(textSend);
         latchForRetry.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSend);
         client.shutDown();
-        remoteServer15100.stop();
+        remoteServer15300.stop();
     }
 
     @Test(description = "Tests the failover webSocket client's reconnect function by doesn't start the any server" +
@@ -147,22 +147,22 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
             BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
-        remoteServer15100 = new WebSocketRemoteServer(port);
-        remoteServer15100.run();
+        remoteServer15300 = new WebSocketRemoteServer(port);
+        remoteServer15300.run();
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         client.setCountDownLatch(countDownLatch);
         client.sendBinary(bufferSent);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
-        remoteServer15100.stop();
+        remoteServer15300.stop();
         CountDownLatch latchForRestart = new CountDownLatch(1);
         latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        remoteServer15100.run();
+        remoteServer15300.run();
         client.sendBinary(bufferSent);
         latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertNull(client.getBufferReceived());
         client.shutDown();
-        remoteServer15100.stop();
+        remoteServer15300.stop();
     }
 }
