@@ -212,14 +212,14 @@ public class MatchStructuredErrorPatternsTest {
         BAssertUtil.validateWarning(result, i++,
                 "invalid error reason binding pattern, error reason should be 'var r' according to " +
                         "Ballerina specification version 2019R3. This is currently allowed due to a bug in the " +
-                        "compiler (https://git.io/JeRS5) and will be removed in a future release.", 45, 15);
+                        "compiler (https://git.io/JeRS5) and will be prohibited in a future release.", 45, 15);
         BAssertUtil.validateError(result, i++,
                 "invalid error detail type 'ErrorDataABC', expected a subtype of " +
                         "'record {| string message?; error cause?; (anydata|error)...; |}'", 52, 24);
         BAssertUtil.validateError(result, i++, "unknown type 'ErrorDataABC'", 52, 24);
         BAssertUtil.validateError(result, i++, "undefined symbol 'm'", 57, 62);
         Assert.assertEquals(result.getErrorCount(), i - 1); // i = errors + warning
-        Assert.assertEquals(result.getWarnCount(), 1); // i = errors + warning
+        Assert.assertEquals(result.getWarnCount(), 1);
 
     }
 
