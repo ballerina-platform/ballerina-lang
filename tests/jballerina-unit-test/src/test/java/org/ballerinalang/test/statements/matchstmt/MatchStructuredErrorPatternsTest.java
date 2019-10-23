@@ -223,6 +223,17 @@ public class MatchStructuredErrorPatternsTest {
 
     }
 
+    @Test
+    public void testErrorMatchPatternWarning() {
+        CompileResult resultWithWarning =
+                BCompileUtil.compile("test-src/statements/matchstmt/error_match_pattern_warning_test.bal");
+        Assert.assertEquals(resultWithWarning.getWarnCount(), 1);
+        Assert.assertEquals(resultWithWarning.getErrorCount(), 0);
+
+        BValue[] returns = BRunUtil.invoke(resultWithWarning, "noVarReasonErrorMatch");
+        Assert.assertEquals(returns[0].stringValue(), "error-reason");
+    }
+
     @Test()
     public void testErrorMatchWihtoutReason() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorMatchWihtoutReason");
