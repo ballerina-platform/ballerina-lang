@@ -657,6 +657,10 @@ public class BLangPackageBuilder {
         this.blockNodeStack.push(TreeBuilder.createBlockNode());
     }
 
+    private BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {
+        return createIdentifier(pos, value, null);
+    }
+
     private BLangIdentifier createIdentifier(DiagnosticPos pos, String value, Set<Whitespace> ws) {
         BLangIdentifier node = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         if (value == null) {
@@ -969,7 +973,7 @@ public class BLangPackageBuilder {
     void addFieldBindingMemberVar(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                                   boolean bindingPattern) {
         BLangRecordVariableKeyValue recordKeyValue = new BLangRecordVariableKeyValue();
-        recordKeyValue.key = this.createIdentifier(identifierPos, identifier, ws);
+        recordKeyValue.key = this.createIdentifier(identifierPos, identifier);
         if (!bindingPattern) {
             addBindingPatternMemberVariable(pos, ws, identifier, identifierPos);
         }
@@ -992,7 +996,7 @@ public class BLangPackageBuilder {
         expression = (BLangExpression) this.exprNodeStack.pop();
 
         BLangRecordVarRefKeyValue keyValue = new BLangRecordVarRefKeyValue();
-        keyValue.variableName = createIdentifier(pos, identifier, ws);
+        keyValue.variableName = createIdentifier(pos, identifier);
         keyValue.variableReference = expression;
         keyValue.variableReference.addWS(ws);
         this.recordVarRefListStack.peek().add(keyValue);
@@ -1318,7 +1322,7 @@ public class BLangPackageBuilder {
     void addCatchClause(DiagnosticPos poc, Set<Whitespace> ws, String paramName) {
         BLangSimpleVariable variableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
-        variableNode.name = createIdentifier(variableNode.typeNode.pos, paramName, null);
+        variableNode.name = createIdentifier(variableNode.typeNode.pos, paramName);
         variableNode.pos = variableNode.typeNode.pos;
         variableNode.addWS(removeNthFromLast(ws, 3));
 
@@ -1470,7 +1474,7 @@ public class BLangPackageBuilder {
             BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
             keyExpr.pos = pos;
             BLangTableLiteral.BLangTableColumn key = keyNames.get(index);
-            BLangIdentifier identifierNode = createIdentifier(key.pos, key.columnName, key.getWS());
+            BLangIdentifier identifierNode = createIdentifier(key.pos, key.columnName);
             keyExpr.variableName = identifierNode;
             keyValue.key = new BLangRecordKey(keyExpr);
             //Key-Value pair
@@ -1582,7 +1586,7 @@ public class BLangPackageBuilder {
 
         invocationNode.expr = (BLangExpression) exprNodeStack.pop();
         invocationNode.name = createIdentifier(identifierPos, invocation, ws);
-        invocationNode.pkgAlias = createIdentifier(pos, null, null);
+        invocationNode.pkgAlias = createIdentifier(pos, null);
         addExpressionNode(invocationNode);
     }
 
@@ -1593,7 +1597,7 @@ public class BLangPackageBuilder {
         invocationNode.addWS(invocationWsStack.pop());
 
         invocationNode.name = createIdentifier(pos, invocation, ws);
-        invocationNode.pkgAlias = createIdentifier(pos, null, null);
+        invocationNode.pkgAlias = createIdentifier(pos, null);
         addExpressionNode(invocationNode);
     }
 
@@ -1899,10 +1903,12 @@ public class BLangPackageBuilder {
     private BLangImportPackage getImportPackage(DiagnosticPos pos, Set<Whitespace> ws, String orgName,
                                                 List<String> nameComps, String version, String alias) {
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
-        nameComps.forEach(e -> pkgNameComps.add((BLangIdentifier) this.createIdentifier(pos, e, ws)));
-        BLangIdentifier versionNode = this.createIdentifier(pos, version, ws);
+        for (String component : nameComps) {
+            pkgNameComps.add(this.createIdentifier(pos, component, null));
+        }
+        BLangIdentifier versionNode = this.createIdentifier(pos, version);
         BLangIdentifier aliasNode = (alias != null && !alias.isEmpty()) ?
-                this.createIdentifier(pos, alias, ws) :
+                this.createIdentifier(pos, alias, null) :
                 pkgNameComps.get(pkgNameComps.size() - 1);
 
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
@@ -1910,9 +1916,9 @@ public class BLangPackageBuilder {
         importDcl.addWS(ws);
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.version = versionNode;
-        importDcl.orgName = this.createIdentifier(pos, orgName, ws);
+        importDcl.orgName = this.createIdentifier(pos, orgName);
         importDcl.alias = aliasNode;
-        importDcl.compUnit = this.createIdentifier(pos, this.compUnit.getName(), ws);
+        importDcl.compUnit = this.createIdentifier(pos, this.compUnit.getName());
         return importDcl;
     }
 
@@ -2004,7 +2010,7 @@ public class BLangPackageBuilder {
             // Create a new anonymous type definition.
             BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
             String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
-            IdentifierNode anonTypeGenName = createIdentifier(identifierPos, genName, null);
+            IdentifierNode anonTypeGenName = createIdentifier(identifierPos, genName);
             typeDef.setName(anonTypeGenName);
             typeDef.flagSet.add(Flag.PUBLIC);
             typeDef.flagSet.add(Flag.ANONYMOUS);
@@ -2087,7 +2093,7 @@ public class BLangPackageBuilder {
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
-        IdentifierNode anonTypeGenName = createIdentifier(pos, genName, null);
+        IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
@@ -2164,7 +2170,7 @@ public class BLangPackageBuilder {
                 BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
                 // Generate a name for the anonymous object
                 String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
-                IdentifierNode anonTypeGenName = createIdentifier(identifierPos, genName, null);
+                IdentifierNode anonTypeGenName = createIdentifier(identifierPos, genName);
                 typeDef.setName(anonTypeGenName);
                 typeDef.flagSet.add(Flag.PUBLIC);
                 typeDef.flagSet.add(Flag.ANONYMOUS);
