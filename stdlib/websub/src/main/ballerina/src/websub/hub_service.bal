@@ -24,7 +24,7 @@ import ballerina/stringutils;
 import ballerina/system;
 import ballerina/time;
 
-map<PendingSubscriptionChangeRequest> pendingRequests = {};
+@tainted map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 service hubService =
 @http:ServiceConfig {

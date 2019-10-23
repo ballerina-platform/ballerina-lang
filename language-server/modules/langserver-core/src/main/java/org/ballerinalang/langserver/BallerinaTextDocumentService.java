@@ -18,6 +18,8 @@ package org.ballerinalang.langserver;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.CommandUtil;
@@ -70,6 +72,7 @@ import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -293,22 +296,22 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
+    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition
+                                                                                (TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DEFINITION);
             try {
                 List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
-                                                                                            position.getPosition(),
-                                                                                            context, true);
-                return ReferencesUtil.getDefinition(modules, context, position.getPosition());
+                        position.getPosition(), context, true);
+                return Either.forLeft(ReferencesUtil.getDefinition(modules, context, position.getPosition()));
             } catch (UserErrorException e) {
                 notifyUser("Goto Definition", e);
-                return new ArrayList<>();
+                return Either.forLeft(new ArrayList<>());
             } catch (Throwable e) {
                 String msg = "Operation 'text/definition' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
-                return new ArrayList<>();
+                return Either.forLeft(new ArrayList<>());
             }
         });
     }
@@ -402,7 +405,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 int col = params.getRange().getStart().getCharacter();
                 List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
 
-                String topLevelNodeType = CommonUtil.topLevelNodeInLine(identifier, line, documentManager);
+                CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(identifier, line, documentManager);
 
 //                // Add create test commands
 //                Path modulePath = document.getOwnerModulePath() == null ? document.getProjectRootPath()
@@ -435,8 +438,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
 
                 // Add commands base on node type
-                if (topLevelNodeType != null) {
-                    actions.addAll(getCommandForNodeType(topLevelNodeType, fileUri, line));
+                if (nodeType != null) {
+                    actions.addAll(getCommandForNodeType(nodeType, fileUri, line));
                 }
             } catch (UserErrorException e) {
                 notifyUser("Code Action", e);
@@ -571,7 +574,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<List<? extends Location>> implementation(TextDocumentPositionParams position) {
+    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> implementation
+                                                                                (TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             List<Location> implementationLocations = new ArrayList<>();
@@ -585,9 +589,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
 
             try {
-                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, 
+                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
                         GotoImplementationCustomErrorStrategy.class, false, false);
-                List<Location> locations = GotoImplementationUtil.getImplementationLocation(bLangPackage, context, 
+                List<Location> locations = GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
                         position.getPosition(), lsDocument.getProjectRoot());
                 implementationLocations.addAll(locations);
             } catch (UserErrorException e) {
@@ -600,7 +604,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 lock.ifPresent(Lock::unlock);
             }
 
-            return implementationLocations;
+            return Either.forLeft(implementationLocations);
         });
     }
 

@@ -37,7 +37,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
 
 /**
- * Get the ID of the connection.
+ * Initialize the HTTP listener.
  *
  * @since 0.966
  */

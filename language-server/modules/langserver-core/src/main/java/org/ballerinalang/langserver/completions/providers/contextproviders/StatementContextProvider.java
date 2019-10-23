@@ -103,9 +103,11 @@ public class StatementContextProvider extends LSCompletionProvider {
                     .filterItems(context);
             completionItems.addAll(this.getCompletionItemList(itemList, context));
             completionItems.addAll(this.getTypeguardDestructuredItems(filteredList, context));
+        } else {
+            return this.getProvider(InvocationArgsContextProvider.class).getCompletions(context);
         }
 
-        filteredList.removeIf(this.attachedOrSelfKeywordFilter());
+        filteredList.removeIf(this.attachedSymbolFilter());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         // Now we need to sort the completion items and populate the completion items specific to the scope owner

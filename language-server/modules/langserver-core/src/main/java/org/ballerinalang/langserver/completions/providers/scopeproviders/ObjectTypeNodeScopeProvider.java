@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.providers.scopeproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
@@ -31,17 +31,8 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
-import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.ballerinalang.langserver.index.LSIndexException;
-import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
-import org.ballerinalang.langserver.index.dao.DAOType;
-import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
-import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.model.tree.NodeKind;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -52,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -72,7 +62,6 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode objectNode = context.get(CompletionKeys.SCOPE_NODE_KEY);
-        int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
 
         if (!objectNode.getKind().equals(NodeKind.OBJECT_TYPE)) {
             return completionItems;
@@ -100,10 +89,6 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
 
         if (!lhsDefaultTokens.isEmpty() && lhsDefaultTokens.get(0).getType() == BallerinaParser.MUL) {
             this.fillObjectReferences(completionItems, lhsDefaultTokens, context);
-        } else if (invocationOrDelimiterTokenType > -1) {
-            Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
-                    .get(DelimiterBasedContentFilter.class).filterItems(context);
-            completionItems.addAll(this.getCompletionItemList(eitherList, context));
         } else {
             fillTypes(context, completionItems);
             completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(context));
@@ -133,7 +118,8 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
 
     private void fillObjectReferences(List<CompletionItem> completionItems, List<CommonToken> lhsDefaultTokens,
                                       LSContext ctx) {
-        if (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.COLON) {
+        CommonToken lastItem = CommonUtil.getLastItem(lhsDefaultTokens);
+        if (lastItem != null && lastItem.getType() == BallerinaParser.COLON) {
             String pkgName = lhsDefaultTokens.get(1).getText();
             List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
             Optional<SymbolInfo> pkgSymbolInfo = visibleSymbols.stream()
@@ -144,16 +130,15 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
             if (pkgSymbolInfo.isPresent()) {
                 List<SymbolInfo> filteredSymbolInfo = pkgSymbolInfo.get().getScopeEntry().symbol.scope.entries.values()
                         .stream()
-                        .filter(scopeEntry -> scopeEntry.symbol instanceof BObjectTypeSymbol)
+                        .filter(scopeEntry -> scopeEntry.symbol instanceof BObjectTypeSymbol
+                                && (scopeEntry.symbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT)
                         .map(scopeEntry -> {
                             BObjectTypeSymbol oSymbol = (BObjectTypeSymbol) scopeEntry.symbol;
                             return new SymbolInfo(oSymbol.getName().getValue(), new Scope.ScopeEntry(oSymbol, null));
                         })
                         .collect(Collectors.toList());
                 completionItems.addAll(this.getCompletionItemList(filteredSymbolInfo, ctx));
-                return;
             }
-            fillFromIndex(completionItems, lhsDefaultTokens, ctx);
         } else {
             this.fillVisibleObjectsAndPackages(completionItems, ctx);
         }
@@ -162,34 +147,10 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
     private void fillVisibleObjectsAndPackages(List<CompletionItem> completionItems, LSContext ctx) {
         List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<SymbolInfo> filteredList = visibleSymbols.stream()
-                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
+                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol
+                        && (symbolInfo.getScopeEntry().symbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, ctx));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
-    }
-    
-    private void fillFromIndex(List<CompletionItem> completionItems, List<CommonToken> lhsDefaultTokens,
-                             LSContext ctx) {
-        String pkgName = lhsDefaultTokens.get(1).getText();
-        LSIndexImpl lsIndex = ctx.get(LSGlobalContextKeys.LS_INDEX_KEY);
-        try {
-            BPackageSymbolDTO dto = CommonUtil.getPackageSymbolDTO(ctx, pkgName);
-            List<BPackageSymbolDTO> result = ((BPackageSymbolDAO) lsIndex.getDaoFactory()
-                    .get(DAOType.PACKAGE_SYMBOL)).get(dto);
-
-            if (result.isEmpty()) {
-                return;
-            }
-            HashMap<Integer, ArrayList<CompletionItem>> completionMap = new HashMap<>();
-            BPackageSymbolDAO pkgSymbolDAO = ((BPackageSymbolDAO) lsIndex.getDaoFactory()
-                    .get(DAOType.PACKAGE_SYMBOL));
-            ArrayList<BObjectTypeSymbolDTO> objDTOs = new ArrayList<>(pkgSymbolDAO.getObjects(dto, false));
-            
-            objDTOs.forEach(objDto -> CommonUtil.populateIdCompletionMap(completionMap, objDto.getPackageId(), 
-                    objDto.getCompletionItem()));
-            completionItems.addAll(CommonUtil.fillCompletionWithPkgImport(completionMap, ctx));
-        } catch (LSIndexException e) {
-            LOGGER.warn("Error retrieving Completion Items from Index DB.");
-        }
     }
 }

@@ -40,19 +40,6 @@ public class RecordFieldsAccessNegativeTest {
         BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 1);
         BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 72);
         BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'FooFamily'", 12, 5);
-        // TODO: {enableCodeAnalyzerTests} following won't get captured after (typeChecker, semanticAnalyzer) &
-        //  codeAnalyzer separation.
-        //
-        //        BAssertUtil.validateError(result, i++,
-        //                "attempt to refer to non-accessible symbol 'ChildFoo'", 4, 33);
-        //        BAssertUtil.validateError(result, i++,
-        //                "attempt to refer to non-accessible symbol 'PrivatePerson'", 8, 13);
-        //        BAssertUtil.validateError(result, i++,
-        //                "attempt to refer to non-accessible symbol 'PrivatePerson'", 12, 43);
-        //        BAssertUtil.validateError(result, i++,
-        //                "attempt to refer to non-accessible symbol 'PrivatePerson'", 16, 13);
-        //        BAssertUtil.validateError(result, i++,
-        //                "attempt to refer to non-accessible symbol 'PrivatePerson'", 16, 47);
         BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(result, i++, "invalid literal for type 'other'", 20, 27);
@@ -70,12 +57,5 @@ public class RecordFieldsAccessNegativeTest {
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 1);
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 72);
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'FooFamily'", 12, 5);
-        // TODO: {enableCodeAnalyzerTests} following won't get captured after (typeChecker, semanticAnalyzer) &
-        //  codeAnalyzer separation.
-        //
-        //        BAssertUtil.validateError(compileResult, i++,
-        //                "attempt to refer to non-accessible symbol 'FooFamily'", 5, 13);
-        //        BAssertUtil.validateError(compileResult, i++,
-        //                "attempt to refer to non-accessible symbol 'FooFamily'", 10, 13);
     }
 }

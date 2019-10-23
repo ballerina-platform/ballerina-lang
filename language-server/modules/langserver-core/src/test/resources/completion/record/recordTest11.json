@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 5,
+    "character": 16
+  },
+  "source": "record/source/recordTest11.bal",
+  "items": [
+    {
+      "label": "enabled",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "enabled: ${1:false}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "authHandlers",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "authHandlers: ${1:[]}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "scopes",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "scopes: ${1:[]}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "enabled: false,\nauthHandlers: [],\nscopes: []",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

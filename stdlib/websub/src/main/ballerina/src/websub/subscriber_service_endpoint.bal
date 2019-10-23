@@ -52,15 +52,14 @@ public type Listener object {
     }
 
     public function __gracefulStop() returns error? {
+        http:Listener? sListener = self.serviceEndpoint;
+        if (sListener is http:Listener) {
+            return sListener.__gracefulStop();
+        }
         return ();
     }
 
     public function __immediateStop() returns error? {
-        http:Listener? sListener = self.serviceEndpoint;
-        if (sListener is http:Listener) {
-            return sListener.__immediateStop();
-        }
-        return ();
     }
 
     # Gets called when the endpoint is being initialized during module initialization.

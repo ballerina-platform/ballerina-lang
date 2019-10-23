@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.services.nativeimpl.response;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.util.internal.StringUtil;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -144,7 +145,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while "
                 + "retrieving the xml payload from the response\", cause:{ballerina/mime}ParsingEntityBodyFailed "
-                + "{cause:Unexpected character 'b' (code 98) in prolog; expected '<'\n"
+                + "{cause:Unexpected character 'b' (code 98) in prolog; expected '<'" + StringUtil.NEWLINE
                 + " at [row,col {unknown-source}]: [1,1] {}, message:\"Error occurred while extracting xml "
                 + "data from entity\"}}");
     }
@@ -197,6 +198,6 @@ public class ResponseNativeFunctionNegativeTest {
         BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 4, 22);
         // testInResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1, "undefined field 'method' in object 'ballerina/http:Response'", 9,
-                21);
+                24);
     }
 }
