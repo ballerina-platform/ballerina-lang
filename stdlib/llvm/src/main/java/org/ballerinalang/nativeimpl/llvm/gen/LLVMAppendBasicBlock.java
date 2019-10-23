@@ -17,6 +17,7 @@
 package org.ballerinalang.nativeimpl.llvm.gen;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
@@ -48,7 +49,8 @@ public class LLVMAppendBasicBlock {
     public static Object llvmppendBasicBlock(Strand strand, MapValue<String, Object> fn, String name) {
         LLVM.LLVMValueRef fnRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
         LLVMBasicBlockRef returnValue = LLVM.LLVMAppendBasicBlock(fnRef, name);
-        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMBasicBlockRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;
     }

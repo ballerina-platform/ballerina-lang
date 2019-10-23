@@ -17,6 +17,7 @@
 package org.ballerinalang.nativeimpl.llvm.gen;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
@@ -49,7 +50,8 @@ public class LLVMAddFunction {
         LLVM.LLVMModuleRef mRef = (LLVM.LLVMModuleRef) FFIUtil.getRecodeArgumentNative(m);
         LLVM.LLVMTypeRef functionTyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(functionTy);
         LLVMValueRef returnValue =  LLVM.LLVMAddFunction(mRef, name, functionTyRef);
-        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord();
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMValueRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;
     }
