@@ -18,7 +18,6 @@
 
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.GetResponse;
 import org.ballerinalang.jvm.BallerinaValues;
@@ -56,24 +55,22 @@ public class BasicGet {
         }
         try {
             GetResponse response = channel.basicGet(queueName, autoAck);
-            return createAndPopulateMessageObjectValue(response.getBody(), response.getEnvelope().getDeliveryTag(),
-                    response.getProps(), channel, autoAck);
+            return createAndPopulateMessageObjectValue(response, channel, autoAck);
         } catch (IOException e) {
             return RabbitMQUtils.returnErrorValue("Error occurred while retrieving the message: " +
                     e.getMessage());
         }
     }
 
-    private static ObjectValue createAndPopulateMessageObjectValue(byte[] message, long deliveryTag,
-                                                                   AMQP.BasicProperties properties,
-                                                                   Channel channel, boolean autoAck) {
+    private static ObjectValue createAndPopulateMessageObjectValue(GetResponse response, Channel channel,
+                                                                   boolean autoAck) {
         ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                 RabbitMQConstants.MESSAGE_OBJECT);
-        messageObjectValue.addNativeData(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
+        messageObjectValue.addNativeData(RabbitMQConstants.DELIVERY_TAG, response.getEnvelope().getDeliveryTag());
         messageObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
-        messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, message);
+        messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, response.getBody());
         messageObjectValue.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
-        messageObjectValue.addNativeData(RabbitMQConstants.BASIC_PROPERTIES, properties);
+        messageObjectValue.addNativeData(RabbitMQConstants.BASIC_PROPERTIES, response.getProps());
         messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
         return messageObjectValue;
     }
