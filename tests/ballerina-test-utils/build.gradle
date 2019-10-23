@@ -61,6 +61,7 @@ shadowJar {
         exclude(dependency('org.wso2.eclipse.osgi:org.eclipse.osgi.services'))
         exclude(dependency('org.slf4j:slf4j-log4j12'))
         exclude(dependency('org.slf4j:slf4j-simple'))
+        exclude(dependency('org.slf4j:slf4j-jdk14'))
         exclude(dependency('org.codehaus.woodstox:woodstox-core-asl'))
         exclude(dependency('org.codehaus.woodstox:stax2-api'))
         exclude(dependency('io.netty:netty-common'))
