@@ -39,7 +39,7 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
     private String retryUrl = "ws://localhost:21034";
     private String url = "ws://localhost:21031";
     private int port = 15100;
-    private WebSocketRemoteServer remoteServer15200 = new WebSocketRemoteServer(15200);
+    private WebSocketRemoteServer remoteServer15200;
     private int time = 2;
 
     @Test(description = "Tests the retry function using failover webSocket client (starting the second server " +
@@ -47,6 +47,7 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
     public void testFailoverRetryWithSecondServer() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
+        remoteServer15200 = new WebSocketRemoteServer(15200);
         remoteServer15200.run();
         String textSent = "hi all";
         WebSocketTestClient client = new WebSocketTestClient(retryUrl);
@@ -101,6 +102,7 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
         String text = "hi madam";
         ByteBuffer bufferData = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
         remoteServer15100 = new WebSocketRemoteServer(port);
+        remoteServer15200 = new WebSocketRemoteServer(15200);
         remoteServer15100.run();
         remoteServer15200.run();
         WebSocketTestClient client = new WebSocketTestClient(retryUrl);
