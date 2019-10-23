@@ -81,6 +81,8 @@ public class ProjectDirConstants {
     public static final String JAVA_MAIN = "main";
 
     public static final String FILE_NAME_DELIMITER = "-";
+    
+    public static final String BIR_BALLERINA_VERSION_CACHE_FILE_NAME = "ballerina-version";
 
     // Balo specific constants
     public static final String BALO_METADATA_DIR_NAME = "metadata";
