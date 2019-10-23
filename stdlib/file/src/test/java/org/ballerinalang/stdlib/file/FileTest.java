@@ -340,6 +340,7 @@ public class FileTest {
         try {
             BValue[] args = {new BString(srcFilePath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(false)};
+            log.info("Source file content: " + new String(Files.readAllBytes(srcFilePath)));
             BRunUtil.invoke(compileResult, "testCopy", args);
             assertTrue(Files.exists(tempDestPath));
             assertTrue(Files.exists(srcFilePath));
@@ -350,6 +351,7 @@ public class FileTest {
                     new BBoolean(false)};
             long modifiedTime = tempDestPath.toFile().lastModified();
             BRunUtil.invoke(compileResult, "testCopy", args1);
+            log.info("Modified without replace file content: " + new String(Files.readAllBytes(srcFilePath)));
             long modifiedTimeWithoutReplace = tempDestPath.toFile().lastModified();
             assertEquals(modifiedTimeWithoutReplace, modifiedTime);
 
@@ -358,6 +360,7 @@ public class FileTest {
                     new BBoolean(true)};
             Thread.sleep(5000);
             BRunUtil.invoke(compileResult, "testCopy", args2);
+            log.info("Modified with replace file content: " + new String(Files.readAllBytes(tempDestPath)));
             long modifiedTimeWithReplace = tempDestPath.toFile().lastModified();
             assertNotEquals(modifiedTimeWithReplace, modifiedTime);
         } finally {
