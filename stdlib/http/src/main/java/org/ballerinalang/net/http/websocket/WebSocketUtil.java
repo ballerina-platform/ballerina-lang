@@ -84,6 +84,7 @@ public class WebSocketUtil {
             "greater than -1. ";
     private static final String STATEMENT_FOR_FAILOVER_INTERVAL = "The maxInterval's value set for the configuration " +
             "needs to be greater than -1. ";
+    private static final String STATEMENT = "{} {}";
 
     public static ObjectValue createAndPopulateWebSocketCaller(WebSocketConnection webSocketConnection,
                                                                 WebSocketServerService wsService,
@@ -305,9 +306,9 @@ public class WebSocketUtil {
         setInterval(Integer.parseInt(retryConfig.get(WebSocketConstants.INTERVAL).toString()), retryConnectorConfig);
         setBackOfFactor(Float.parseFloat(retryConfig.get(WebSocketConstants.BACK_OF_FACTOR).toString()),
                 retryConnectorConfig);
-        setMaxInterval(Integer.parseInt(retryConfig.get(WebSocketConstants.MAX_COUNT).toString()),
+        setMaxInterval(Integer.parseInt(retryConfig.get(WebSocketConstants.MAX_INTERVAL).toString()),
                 retryConnectorConfig);
-        setMaxAttempts(Integer.parseInt(retryConfig.get(WebSocketConstants.MAX_INTERVAL).toString()),
+        setMaxAttempts(Integer.parseInt(retryConfig.get(WebSocketConstants.MAX_COUNT).toString()),
                 retryConnectorConfig);
     }
 
@@ -492,12 +493,12 @@ public class WebSocketUtil {
         // if it equals, return false
         if (((noOfReconnectAttempts < maxAttempts) && maxAttempts > 0) || maxAttempts == 0) {
             retryConnectorConfig.setReconnectAttempts(noOfReconnectAttempts + 1);
-            logger.debug(formatter.format(date.getTime()), WebSocketConstants.RECONNECTING);
+            logger.debug(STATEMENT, formatter.format(date.getTime()), WebSocketConstants.RECONNECTING);
             setCountDownLatch(getWaitTime(interval, maxInterval, backOfFactor, noOfReconnectAttempts));
             establishWebSocketConnection(webSocketClient, wsService);
             return true;
         }
-        logger.debug("{} {}", WebSocketConstants.STATEMENT_FOR_RECONNECT , webSocketClient.
+        logger.debug(STATEMENT, WebSocketConstants.STATEMENT_FOR_RECONNECT , webSocketClient.
                 getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
         return false;
     }
@@ -602,7 +603,7 @@ public class WebSocketUtil {
         // Check the current url index equals with previous connected url index or not.
         // If it is equal, update the no of reconnection attempt by one
         if (currentIndex == failoverConfig.getInitialIndex()) {
-            logger.debug("{} {}", formatter.format(date.getTime()), WebSocketConstants.RECONNECTING);
+            logger.debug(STATEMENT, formatter.format(date.getTime()), WebSocketConstants.RECONNECTING);
             noOfReconnectAttempts++;
             retryConnectorConfig.setReconnectAttempts(noOfReconnectAttempts);
         }
@@ -627,7 +628,7 @@ public class WebSocketUtil {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         try {
             if (!countDownLatch.await(interval, TimeUnit.MILLISECONDS)) {
-               return;
+                countDownLatch.countDown();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

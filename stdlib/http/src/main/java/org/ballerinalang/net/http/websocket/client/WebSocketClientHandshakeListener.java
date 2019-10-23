@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketService;
@@ -36,7 +35,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
  *
  * @since 0.983.1
  */
-public class WebSocketClientHandshakeListener implements ClientHandshakeListener {
+public abstract class WebSocketClientHandshakeListener implements ClientHandshakeListener {
 
     private final WebSocketService wsService;
     private final WebSocketClientListener clientConnectorListener;
@@ -71,17 +70,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
     }
 
     @Override
-    public void onError(Throwable throwable, HttpCarbonResponse response) {
-        if (response != null) {
-            webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
-        }
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
-                WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null,
-                webSocketConnector);
-        WebSocketUtil.countDownForHandshake(webSocketClient);
-        WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
-    }
+    public abstract void onError(Throwable throwable, HttpCarbonResponse response);
 
     WebSocketOpenConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
                                                                ObjectValue webSocketConnector) {
