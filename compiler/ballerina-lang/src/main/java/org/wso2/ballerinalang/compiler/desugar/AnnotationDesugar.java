@@ -305,12 +305,11 @@ public class AnnotationDesugar {
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
-        IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
-        if (identifierNode instanceof BLangIdentifier) {
-            annoAttachment.annotationName = (BLangIdentifier) identifierNode;
-        }
+        BLangIdentifier identifierNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        annoAttachment.annotationName = identifierNode;
         annoAttachment.annotationName.value = DEFAULTABLE_ANN;
         annoAttachment.pos = pos;
+        annoAttachment.annotationName.pos = pos;
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
 
         annoAttachment.expr = literalNode;
