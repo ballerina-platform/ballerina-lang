@@ -56,7 +56,7 @@ public class BasicGet {
         }
         try {
             GetResponse response = channel.basicGet(queueName, autoAck);
-            return getMessageObjectValue(response.getBody(), response.getEnvelope().getDeliveryTag(),
+            return createAndPopulateMessageObjectValue(response.getBody(), response.getEnvelope().getDeliveryTag(),
                     response.getProps(), channel, autoAck);
         } catch (IOException e) {
             return RabbitMQUtils.returnErrorValue("Error occurred while retrieving the message: " +
@@ -64,8 +64,9 @@ public class BasicGet {
         }
     }
 
-    private static ObjectValue getMessageObjectValue(byte[] message, long deliveryTag, AMQP.BasicProperties properties,
-                                                     Channel channel, boolean autoAck) {
+    private static ObjectValue createAndPopulateMessageObjectValue(byte[] message, long deliveryTag,
+                                                                   AMQP.BasicProperties properties,
+                                                                   Channel channel, boolean autoAck) {
         ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                 RabbitMQConstants.MESSAGE_OBJECT);
         messageObjectValue.addNativeData(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
