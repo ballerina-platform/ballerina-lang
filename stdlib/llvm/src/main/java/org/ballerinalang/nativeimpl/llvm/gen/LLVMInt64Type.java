@@ -16,7 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -40,8 +42,9 @@ public class LLVMInt64Type {
 
     public static Object llvmInt64Type(Strand strand) {
         LLVMTypeRef returnValue = LLVM.LLVMInt64Type();
-        MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord();
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        return  rerunWrapperRecode;
+        MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
+                "llvm"), "LLVMTypeRef");
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return  returnWrappedRecord;
     }
 }

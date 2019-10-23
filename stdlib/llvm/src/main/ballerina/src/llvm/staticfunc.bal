@@ -119,7 +119,7 @@ public function llvmInt1TypeInContext(LLVMContextRef c) returns LLVMTypeRef = ex
 //public function llvmInt128TypeInContext(LLVMContextRef c) returns LLVMTypeRef = external;
 //public function llvmIntTypeInContext(LLVMContextRef c, int numBits) returns LLVMTypeRef = external;
 public function llvmInt1Type() returns LLVMTypeRef = external;
-//public function llvmInt8Type() returns LLVMTypeRef = external;
+public function llvmInt8Type() returns LLVMTypeRef = external;
 //public function llvmInt16Type() returns LLVMTypeRef = external;
 //public function llvmInt32Type() returns LLVMTypeRef = external;
 public function llvmInt64Type() returns LLVMTypeRef = external;
@@ -166,7 +166,7 @@ public function llvmFunctionType1(LLVMTypeRef returnType, LLVMTypeRef[] paramTyp
 //public function llvmGetNumContainedTypes(LLVMTypeRef tp) returns int = external;
 //public function llvmArrayType(LLVMTypeRef elementType, int elementCount) returns LLVMTypeRef = external;
 //public function llvmGetArrayLength(LLVMTypeRef arrayTy) returns int = external;
-//public function llvmPointerType(LLVMTypeRef elementType, int addressSpace) returns LLVMTypeRef = external;
+public function llvmPointerType(LLVMTypeRef elementType, int addressSpace) returns LLVMTypeRef = external;
 //public function llvmGetPointerAddressSpace(LLVMTypeRef pointerTy) returns int = external;
 //public function llvmVectorType(LLVMTypeRef elementType, int elementCount) returns LLVMTypeRef = external;
 //public function llvmGetVectorSize(LLVMTypeRef vectorTy) returns int = external;
@@ -553,7 +553,7 @@ public function llvmAppendBasicBlock(LLVMValueRef fn, string name) returns LLVMB
 //public function llvmGetNumIndices(LLVMValueRef inst) returns int = external;
 //public function llvmGetIndices(LLVMValueRef inst) returns IntPointer = external;
 //public function llvmCreateBuilderInContext(LLVMContextRef c) returns LLVMBuilderRef = external;
-//public function llvmCreateBuilder() returns LLVMBuilderRef = external;
+public function llvmCreateBuilder() returns LLVMBuilderRef = external;
 //public function llvmPositionBuilder(LLVMBuilderRef builder, LLVMBasicBlockRef block, LLVMValueRef instr) = external;
 //public function llvmPositionBuilderBefore(LLVMBuilderRef builder, LLVMValueRef instr) = external;
 public function llvmPositionBuilderAtEnd(LLVMBuilderRef builder, LLVMBasicBlockRef block) = external;
