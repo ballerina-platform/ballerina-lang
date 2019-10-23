@@ -28,7 +28,7 @@ import ballerina/time;
 map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 # This cache is used for caching HTTP clients against the subscriber callbacks.
-cache:Cache subscriberCallbackClientCache = new;
+cache:Cache subscriberCallbackClientCache = new(expiryTimeInMillis = DEFAULT_CACHE_EXPIRY_MILLIS);
 
 service hubService =
 @http:ServiceConfig {
