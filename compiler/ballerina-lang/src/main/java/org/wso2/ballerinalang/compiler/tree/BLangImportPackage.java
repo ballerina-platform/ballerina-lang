@@ -130,8 +130,8 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
             versionStr = " version " + versionStr;
         }
 
-        String aliasStr = (this.version.value != null) ? this.version.value : "";
-        if (!aliasStr.isEmpty()) {
+        String aliasStr = (this.alias.value != null) ? this.alias.value : "";
+        if (!aliasStr.isEmpty() & !aliasStr.equals(pkgName)) {
             aliasStr = " as " + aliasStr;
         }
 
