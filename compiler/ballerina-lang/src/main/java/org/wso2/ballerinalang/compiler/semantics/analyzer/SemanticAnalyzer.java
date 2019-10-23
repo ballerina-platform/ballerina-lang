@@ -1390,7 +1390,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (warn) {
                     dlog.warning(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
                             errorVariable.reason.name);
-                    return false;
+                    return true;
                 }
                 dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
                         errorVariable.reason.name);
