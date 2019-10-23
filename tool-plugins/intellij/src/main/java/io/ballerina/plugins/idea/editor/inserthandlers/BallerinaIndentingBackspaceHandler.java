@@ -18,11 +18,13 @@ package io.ballerina.plugins.idea.editor.inserthandlers;
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import io.ballerina.plugins.idea.BallerinaLanguage;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -51,32 +53,49 @@ public class BallerinaIndentingBackspaceHandler extends BackspaceHandlerDelegate
         LogicalPosition position = editor.getCaretModel().getLogicalPosition();
         int lineStartOff = doc.getLineStartOffset(position.line);
         int lineEndOff = doc.getLineEndOffset(position.line);
-        String line = doc.getText(new TextRange(lineStartOff, lineEndOff)).trim();
-
-        // if the line is empty, caret should be moved to the previous line.
-        if (line.isEmpty() && position.line > 1) {
-            int prevLineEndOff = doc.getLineEndOffset(position.line - 1);
-            doc.deleteString(prevLineEndOff, lineEndOff);
-
-            lineStartOff = doc.getLineStartOffset(position.line - 1);
-            lineEndOff = doc.getLineEndOffset(position.line - 1);
-            line = doc.getText(new TextRange(lineStartOff, lineEndOff)).trim();
-
-            if (!line.isEmpty()) {
-                // if the previous line is not empty, caret should be moved to the end of that line.
-                editor.getCaretModel().moveToOffset(lineEndOff);
-            } else {
-                // if the previous line is empty, caret should be moved to the previous line while preserving
-                // indentation.
-                editor.getCaretModel().moveToLogicalPosition(new LogicalPosition(position.line - 1,
-                        position.column + 1));
-            }
-
-            // Commit the document.
-            PsiDocumentManager.getInstance(file.getProject()).commitDocument(doc);
-            return true;
+        int caretOffset = editor.getCaretModel().getPrimaryCaret().getOffset();
+        if (caretOffset < lineStartOff || caretOffset > lineEndOff) {
+            return false;
         }
 
-        return false;
+        String textBeforeCaret = doc.getText(new TextRange(lineStartOff, caretOffset)).trim();
+        String textToBeMoved = doc.getText(new TextRange(caretOffset, lineEndOff)).trim();
+        // only if the text before the caret position is empty in a given line, caret should be moved to the previous
+        // line.
+        if (!textBeforeCaret.trim().isEmpty() || position.line <= 1) {
+            return false;
+        }
+
+        // if the text before the caret is empty in a given line, caret should be moved to the previous line.
+        int prevLineStartOff = doc.getLineStartOffset(position.line - 1);
+        int prevLineEndOff = doc.getLineEndOffset(position.line - 1);
+        doc.deleteString(prevLineEndOff, lineEndOff);
+        String prevLine = doc.getText(new TextRange(prevLineStartOff, prevLineEndOff)).trim();
+
+        if (!prevLine.isEmpty()) {
+            // if the previous line is not empty, caret should be moved to the end of that line.
+            editor.getCaretModel().moveToOffset(prevLineEndOff);
+        } else {
+            // if the previous line is empty, caret should be moved to the previous line while preserving
+            // indentation.
+            int lineToBeMoved = position.line - 1;
+            int columnToBeMoved = position.column + 1;
+            editor.getCaretModel().moveToLogicalPosition(new LogicalPosition(lineToBeMoved,
+                    columnToBeMoved, position.leansForward));
+
+            // This verification is needed since the column number might not be currently available. In that case, we
+            // need to add the required indentation manually.
+            int curColumn = editor.getCaretModel().getCurrentCaret().getLogicalPosition().column;
+            if (curColumn < columnToBeMoved) {
+                EditorModificationUtil.insertStringAtCaret(editor, StringUtils.repeat(" ",
+                        columnToBeMoved - curColumn));
+            }
+        }
+
+        EditorModificationUtil.insertStringAtCaret(editor, textToBeMoved, false, 0);
+        // Commit the document.
+        PsiDocumentManager.getInstance(file.getProject()).commitDocument(doc);
+        return true;
+
     }
 }
