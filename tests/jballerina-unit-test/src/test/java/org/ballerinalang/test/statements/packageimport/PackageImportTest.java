@@ -37,7 +37,7 @@ public class PackageImportTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/math as math'", 4, 1);
+        BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/math'", 4, 1);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class PackageImportTest {
     public void testInvalidImport1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cannot resolve module 'abcd as abcd'", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve module 'abcd'", 1, 1);
     }
 
     @Test()
@@ -75,7 +75,7 @@ public class PackageImportTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-1", "invalid-imports");
         Assert.assertEquals(result.getErrorCount(), 6);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "redeclared import module 'ballerina/io as io'",
+        BAssertUtil.validateError(result, i++, "redeclared import module 'ballerina/io'",
                 "src/file-negative1.bal", 3, 1);
         BAssertUtil.validateError(result, i++, "undefined module 'http'", "src/file-negative2.bal", 3, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'Client'", "src/file-negative2.bal", 3, 5);
@@ -89,7 +89,7 @@ public class PackageImportTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/unused-imports-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io as io'", 1, 1);
+        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io'", 1, 1);
         BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io as otherIO'", 2, 1);
     }
 
