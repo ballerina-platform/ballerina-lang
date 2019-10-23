@@ -2246,7 +2246,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         analyzeExpr(checkedExpr.expr);
-        boolean enclInvokableHasErrorReturn = false;
 
         if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
@@ -2255,8 +2254,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
 
-        if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
-            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        if (!hasError(exprType)) {
+            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        } else if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
+            dlog.warning(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
         returnTypes.peek().add(exprType);
@@ -2349,6 +2350,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(constant.typeNode, env);
         analyzeNode(constant.expr, env);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
+    }
+
+    private boolean hasError(BType type) {
+        switch (type.tag) {
+            case TypeTags.ERROR:
+                return true;
+            case TypeTags.UNION:
+                return ((BUnionType) type).getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.ERROR);
+            default:
+                return false;
+        }
     }
 
     /**
