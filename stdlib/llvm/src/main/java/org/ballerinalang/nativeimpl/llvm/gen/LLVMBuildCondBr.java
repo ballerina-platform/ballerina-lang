@@ -26,37 +26,34 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
 import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 
-import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildICmp;
+import static org.bytedeco.javacpp.LLVM.LLVMBuildCondBr;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildICmp",
+        functionName = "LLVMBuildCondBr",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
-                @Argument(name = "op", type = INT),
-                @Argument(name = "lhs", type = RECORD, structType = "LLVMValueRef"),
-                @Argument(name = "rhs", type = RECORD, structType = "LLVMValueRef"),
-                @Argument(name = "name", type = STRING),
+                @Argument(name = "ifValue", type = RECORD, structType = "LLVMValueRef"),
+                @Argument(name = "then", type = RECORD, structType = "LLVMBasicBlockRef"),
+                @Argument(name = "elseValue", type = RECORD, structType = "LLVMBasicBlockRef"),
         },
         returnType = {
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildICmp {
+public class LLVMBuildCondBr{
 
-    public static MapValue<String, Object> llvmBuildICmp(Strand strand, MapValue<String, Object> arg0, long op, MapValue<String, Object> lhs,
-            MapValue<String, Object> rhs, String name) {
+    public MapValue<String, Object> llvmBuildCondBr(Strand strand, MapValue<String, Object> arg0,
+            MapValue<String, Object> ifValue, MapValue<String, Object>  then, MapValue<String, Object>  elseValue) {
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
-        int opRef = (int) op;
-        LLVMValueRef lhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(lhs);
-        LLVMValueRef rhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(rhs);
-        LLVMValueRef returnValue = LLVMBuildICmp(arg0Ref, opRef, lhsRef, rhsRef, name);
+        LLVM.LLVMValueRef ifValueRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ifValue);
+        LLVM.LLVMBasicBlockRef thenRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(then);
+        LLVM.LLVMBasicBlockRef elseValueRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(elseValue);
+        LLVMValueRef returnValue = LLVMBuildCondBr(arg0Ref, ifValueRef, thenRef, elseValueRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMValueRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);

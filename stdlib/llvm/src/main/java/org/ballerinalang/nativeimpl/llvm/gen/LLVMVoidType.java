@@ -40,7 +40,7 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
 )
 public class LLVMVoidType {
 
-    public static Object llvmVoidType(Strand strand) {
+    public static MapValue<String, Object> llvmVoidType(Strand strand) {
         LLVMTypeRef returnValue = LLVM.LLVMVoidType();
         MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
                 "llvm"), "LLVMTypeRef");

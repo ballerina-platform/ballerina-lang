@@ -52,7 +52,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMFunctionType;
 )
 public class LLVMFunctionType1 {
 
-    public static Object llvmFunctionType1(Strand strand, MapValue<String, Object> returnType, ArrayValue paramTypes, long paramCount,
+    public static MapValue<String, Object> llvmFunctionType1(Strand strand, MapValue<String, Object> returnType, ArrayValue paramTypes, long paramCount,
                                             long isVarArg) {
         LLVM.LLVMTypeRef returnTypeRef = (LLVM.LLVMTypeRef)FFIUtil.getRecodeArgumentNative(returnType);
         LLVMTypeRef[] paramTypesRef = (LLVMTypeRef[]) FFIUtil.getRecodeArrayArgumentNative(paramTypes);

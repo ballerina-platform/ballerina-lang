@@ -47,7 +47,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMGetParam;
 )
 public class LLVMGetParam {
 
-    public static Object llvmGetParam(Strand strand, MapValue<String, Object> fn, long index) {
+    public static MapValue<String, Object> llvmGetParam(Strand strand, MapValue<String, Object> fn, long index) {
         LLVM.LLVMValueRef fnRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
         int indexRef = (int) index;
         LLVMValueRef returnValue = LLVM.LLVMGetParam(fnRef, indexRef);

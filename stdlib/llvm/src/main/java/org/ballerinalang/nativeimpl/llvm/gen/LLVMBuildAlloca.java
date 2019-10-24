@@ -46,7 +46,7 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
 )
 public class LLVMBuildAlloca {
 
-    public static Object llvmBuildAlloca(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> ty, String name) {
+    public static MapValue<String, Object> llvmBuildAlloca(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> ty, String name) {
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVM.LLVMTypeRef tyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(ty);
         LLVMValueRef returnValue = LLVM.LLVMBuildAlloca(arg0Ref, tyRef, name);

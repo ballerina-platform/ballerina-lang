@@ -16,35 +16,44 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
+import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
+import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.bytedeco.javacpp.LLVM.LLVMBuildGlobalStringPtr;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMInt64Type",
+        functionName = "LLVMBuildGlobalStringPtr",
+        args = {
+                @Argument(name = "b", type = RECORD, structType = "LLVMBuilderRef"),
+                @Argument(name = "str", type = STRING),
+                @Argument(name = "name", type = STRING),
+        },
         returnType = {
-                @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
+                @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMInt64Type {
+public class LLVMBuildGlobalStringPtr {
 
-    public static MapValue<String, Object> llvmInt64Type(Strand strand) {
-        LLVMTypeRef returnValue = LLVM.LLVMInt64Type();
-        MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
-                "llvm"), "LLVMTypeRef");
+    public MapValue<String, Object> llvmBuildGlobalStringPtr(Strand strand, MapValue<String, Object> b,
+            String str, String name) {
+        LLVM.LLVMBuilderRef bRef = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(b);
+        LLVMValueRef returnValue = LLVMBuildGlobalStringPtr(bRef, str, name);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMValueRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
-        return  returnWrappedRecord;
+        return returnWrappedRecord;
     }
 }

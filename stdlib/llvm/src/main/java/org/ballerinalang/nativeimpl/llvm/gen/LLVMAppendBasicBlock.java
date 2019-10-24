@@ -46,7 +46,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMAppendBasicBlock;
 )
 public class LLVMAppendBasicBlock {
 
-    public static Object llvmppendBasicBlock(Strand strand, MapValue<String, Object> fn, String name) {
+    public static MapValue<String, Object> llvmppendBasicBlock(Strand strand, MapValue<String, Object> fn, String name) {
         LLVM.LLVMValueRef fnRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
         LLVMBasicBlockRef returnValue = LLVM.LLVMAppendBasicBlock(fnRef, name);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",

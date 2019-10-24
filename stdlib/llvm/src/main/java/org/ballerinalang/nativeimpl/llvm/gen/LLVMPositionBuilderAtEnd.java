@@ -42,6 +42,6 @@ public class LLVMPositionBuilderAtEnd {
                                                 MapValue<String, Object> block) {
         LLVM.LLVMBuilderRef builderRef = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(builder);
         LLVM.LLVMBasicBlockRef blockRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(block);
-        LLVM.LLVMPositionBuilderAtEnd(builderRef, blockRef);
+        LLVMPositionBuilderAtEnd(builderRef, blockRef);
     }
 }
