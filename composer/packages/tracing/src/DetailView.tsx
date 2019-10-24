@@ -102,10 +102,11 @@ export default class DetailView extends React.Component<DetailViewProps> {
                     </pre>
                 </code>
                 }
-                {
-                    this.renderPayload(trace)
-                }
-
+                <div className="payload">
+                    {
+                        this.renderPayload(trace)
+                    }
+                </div>
             </Segment>
         );
     }

@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -98,5 +100,16 @@ public class StaticMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "testAcceptThreeParamsAndReturnSomething", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BHandleValue) returns[0]).getValue(), 6);
+    }
+
+    @Test(description = "Test static java method that returns error value as objects")
+    public void testReturnObjectValueOrError() {
+        BValue[] returns = BRunUtil.invoke(result, "getObjectOrError");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "some reason");
+    }
+
+    public static Object returnObjectOrError() {
+        return new ErrorValue("some reason", null);
     }
 }

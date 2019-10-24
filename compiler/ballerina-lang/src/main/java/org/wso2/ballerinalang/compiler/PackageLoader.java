@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.PathBaloRepo;
@@ -51,7 +50,6 @@ import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
-import org.wso2.ballerinalang.compiler.packaging.repo.ZipRepo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -176,8 +174,6 @@ public class PackageLoader {
      * @return Repository Hierarchy.
      */
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
-        Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
-        Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         Converter<Path> converter = sourceDirectory.getConverter();
     
         String ballerinaHome = System.getProperty(ProjectDirConstants.BALLERINA_HOME);
@@ -188,30 +184,22 @@ public class PackageLoader {
                 this.dependencyManifests));
         Repo homeBaloCache = new HomeBaloRepo(this.dependencyManifests);
         Repo homeBirRepo = new HomeBirRepo();
-        Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
-        Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir, compilerPhase) : new ZipRepo(balHomeDir);
-        Repo projectCacheRepo = new CacheRepo(projectHiddenDir,
-                ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
-        Repo projectRepo = shouldReadBalo ? new BinaryRepo(projectHiddenDir, compilerPhase)
-                : new ZipRepo(projectHiddenDir);
         Repo secondarySystemRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
 
         RepoNode homeCacheNode;
 
         if (offline) {
             homeCacheNode = node(homeBaloCache,
-                                node(homeCacheRepo,
-                                    node(systemBirRepo,
-                                        node(systemZipRepo))));
+                                node(systemBirRepo,
+                                    node(systemZipRepo)));
         } else {
             homeCacheNode = node(homeBaloCache,
-                                node(homeCacheRepo,
-                                    node (systemBirRepo,
-                                        node(systemZipRepo,
-                                            node(remoteRepo,
-                                                node(homeBaloCache,
-                                                    node(systemBirRepo,
-                                                        node(secondarySystemRepo))))))));
+                                node (systemBirRepo,
+                                    node(systemZipRepo,
+                                        node(remoteRepo,
+                                            node(homeBaloCache,
+                                                node(systemBirRepo,
+                                                    node(secondarySystemRepo)))))));
         }
         
         if (null != this.manifest) {
@@ -233,18 +221,14 @@ public class PackageLoader {
             homeCacheNode = node(remoteDryRepo, homeCacheNode);
         }
         
-        RepoNode nonLocalRepos = node(projectRepo,
-                                      node(projectCacheRepo, homeCacheNode),
-                                      node(homeRepo, homeCacheNode));
         RepoNode fullRepoGraph;
         if (converter != null) {
             Repo programingSource = new ProgramingSourceRepo(converter);
             Repo projectSource = new ProjectSourceRepo(converter, this.manifest, testEnabled);
             fullRepoGraph = node(programingSource,
-                                 node(projectSource,
-                                      nonLocalRepos));
+                                 node(projectSource, homeCacheNode));
         } else {
-            fullRepoGraph = nonLocalRepos;
+            fullRepoGraph = homeCacheNode;
         }
         return RepoHierarchyBuilder.build(fullRepoGraph);
 
@@ -440,8 +424,15 @@ public class PackageLoader {
         }
 
         PackageEntity pkgEntity = loadPackageEntity(packageId, enclPackageId, encPkgRepoHierarchy);
+
         if (pkgEntity == null) {
             return null;
+        }
+
+        // lookup symbol cache again as the updated pkg from repo resolving can reside in the cache
+        packageSymbol = this.packageCache.getSymbol(pkgEntity.getPackageId());
+        if (packageSymbol != null) {
+            return packageSymbol;
         }
 
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {

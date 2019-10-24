@@ -35,14 +35,14 @@ import org.testng.annotations.Test;
  */
 public class IfElseStmtTest {
 
-    private CompileResult result;
-    private CompileResult negativeResult;
+    private CompileResult result, negativeResult, semanticsNegativeResult;
     private final String funcName = "testIfStmt";
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/ifelse/if-stmt.bal");
         negativeResult = BCompileUtil.compile("test-src/statements/ifelse/if-stmt-negative.bal");
+        semanticsNegativeResult = BCompileUtil.compile("test-src/statements/ifelse/if-stmt-semantics-negative.bal");
     }
 
     @Test(description = "Check a == b")
@@ -246,17 +246,24 @@ public class IfElseStmtTest {
 
     @Test()
     public void ifStmtNegativeTest() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 6);
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'boolean', found 'int'", 2, 7);
-        // TODO: {enableCodeAnalyzerTests} following won't get captured after (typeChecker, semanticAnalyzer) &
-        //  codeAnalyzer separation.
-        //
-        //        BAssertUtil.validateError(negativeResult, 1, "this function must return a result", 19, 1);
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'boolean', found 'string'", 22, 16);
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'boolean', found 'string'", 28, 9);
-        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'boolean', found 'string'", 35, 8);
-        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'boolean', found 'int'", 37, 15);
-        BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'boolean', found '(int|string)[]'",
-                41, 8);
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        BAssertUtil.validateError(negativeResult, 0, "this function must return a result", 1, 1);
+    }
+
+    @Test()
+    public void ifStmtNegativeTestSemanticsNegative() {
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 6);
+        BAssertUtil.validateError(semanticsNegativeResult, 0,
+                "incompatible types: expected 'boolean', found 'int'", 2, 7);
+        BAssertUtil.validateError(semanticsNegativeResult, 1,
+                "incompatible types: expected 'boolean', found 'string'", 22, 16);
+        BAssertUtil.validateError(semanticsNegativeResult, 2,
+                "incompatible types: expected 'boolean', found 'string'", 28, 9);
+        BAssertUtil.validateError(semanticsNegativeResult, 3,
+                "incompatible types: expected 'boolean', found 'string'", 35, 8);
+        BAssertUtil.validateError(semanticsNegativeResult, 4,
+                "incompatible types: expected 'boolean', found 'int'", 37, 15);
+        BAssertUtil.validateError(semanticsNegativeResult, 5,
+                "incompatible types: expected 'boolean', found '(int|string)[]'", 41, 8);
     }
 }

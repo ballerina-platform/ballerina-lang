@@ -1,6 +1,6 @@
 {
-  "nodeType": "function",
-  "nodeLine": "24",
+  "nodeType": "OBJECT_FUNCTION",
+  "nodeLine": "31",
   "expected": {
     "result": {
       "edit": {
@@ -10,11 +10,11 @@
               {
                 "range": {
                   "start": {
-                    "line": 24,
+                    "line": 31,
                     "character": 4
                   },
                   "end": {
-                    "line": 24,
+                    "line": 31,
                     "character": 4
                   }
                 },

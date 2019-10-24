@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Error reason to specify the time error that occurs in the module"
         }
       },
       "sortText": "221",
@@ -26,7 +26,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Specifies the time format defined by the RFC-1123"
         }
       },
       "sortText": "221",
@@ -37,6 +37,9 @@
       "label": "Error",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents Time module related error"
+      },
       "sortText": "221",
       "insertText": "Error",
       "insertTextFormat": "Snippet"

@@ -16,7 +16,7 @@
 
 import ballerina/config;
 
-# The Client endpoint configuration for SQL databases.
+# Provides a set of configurations for the JDBC Client.
 #
 # + url - URL of the database to connect
 # + username - Username for the database connection
@@ -83,10 +83,10 @@ public type PoolOptions record {|
 |};
 
 // This is a container object that holds the global pool config and initilizes the internal map of connection pools
-public type GlobalPoolConfigContainer object {
+type GlobalPoolConfigContainer object {
      private PoolOptions poolConfig = {};
 
-     public function __init() {
+     function __init() {
          // poolConfig record is frozen so that it cannot be modified during runtime
          PoolOptions frozenConfig = self.poolConfig.cloneReadOnly();
          self.initGlobalPoolContainer(frozenConfig);
@@ -94,7 +94,7 @@ public type GlobalPoolConfigContainer object {
 
      function initGlobalPoolContainer(PoolOptions poolConfig) = external;
 
-     public function getGlobalPoolConfig() returns PoolOptions {
+     function getGlobalPoolConfig() returns PoolOptions {
         return self.poolConfig;
      }
 };
@@ -106,11 +106,11 @@ final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 
 # The SQL Datatype of the parameter.
 #
-# `VARCHAR` - Small, variable length character string
-# `CHAR` - Small, fixed length character string
-# `LONGVARCHAR` - Large, variable length character string
-# `NCHAR` - Small, fixed length character string with unicode support
-# `LONGNVARCHAR` - Large, variable length character string with unicode support
+# `VARCHAR` - Small, variable-length character string
+# `CHAR` - Small, fixed-length character string
+# `LONGVARCHAR` - Large, variable-length character string
+# `NCHAR` - Small, fixed-length character string with unicode support
+# `LONGNVARCHAR` - Large, variable-length character string with Unicode support
 #
 # `BIT` - Single bit value that can be zero or one, or nil
 # `BOOLEAN` - Boolean value either True or false
@@ -127,8 +127,8 @@ final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 #
 # `BINARY` - Small, fixed-length binary value
 # `BLOB` - Binary Large Object
-# `LONGVARBINARY` - Large, variable length binary value
-# `VARBINARY` - Small, variable length binary value
+# `LONGVARBINARY` - Large, variable-length binary value
+# `VARBINARY` - Small, variable-length binary value
 #
 # `CLOB` - Character Large Object.
 # `NCLOB` - Character large objects in multibyte national character set
@@ -139,7 +139,7 @@ final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 # `TIMESTAMP` - Both DATE and TIME with additional a nanosecond field
 #
 # `ARRAY` - Composite data value that consists of zero or more elements of a specified data type
-# `STRUCT` - User defined structured type, consists of one or more attributes
+# `STRUCT` - User-defined structured type, consists of one or more attributes
 # `REFCURSOR` - Cursor value
 public type SQLType TYPE_VARCHAR|TYPE_CHAR|TYPE_LONGVARCHAR|TYPE_NCHAR|TYPE_LONGNVARCHAR|TYPE_NVARCHAR|TYPE_BIT|
 TYPE_BOOLEAN|TYPE_TINYINT|TYPE_SMALLINT|TYPE_INTEGER|TYPE_BIGINT|TYPE_NUMERIC|TYPE_DECIMAL|TYPE_REAL|TYPE_FLOAT|
@@ -188,7 +188,8 @@ public const DIRECTION_IN = "IN";
 public const DIRECTION_OUT = "OUT";
 public const DIRECTION_INOUT = "INOUT";
 
-# `Parameter` represents a parameter for the SQL remote functions when a variable parameter needs to be passed to the remote function.
+# Represents a parameter for the JDBC Client remote functions when a variable needs to be passed
+# to the remote function.
 #
 # + sqlType - The data type of the corresponding SQL parameter
 # + value - Value of paramter passed into the SQL statement
@@ -202,7 +203,7 @@ public type Parameter record {|
     typedesc<record{}> recordType?;
 |};
 
-# `UpdateResult` represents the output of the `update` remote function.
+# Represents the output of the `update` remote function.
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 # + generatedKeys - A map of auto generated key values during the sql statement execution
@@ -211,7 +212,7 @@ public type UpdateResult record {|
     map<anydata> generatedKeys;
 |};
 
-# `BatchUpdateResult` represents the output of the `batchUpdate` remote function.
+# Represents the output of the `batchUpdate` remote function.
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 #            A number greater than or equal to zero - indicates that the command was processed successfully

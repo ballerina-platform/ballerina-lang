@@ -140,8 +140,9 @@ class JMethodResolver {
             }
         }
 
-        boolean returnsErrorValue = method instanceof Method &&
-                ErrorValue.class.isAssignableFrom(((Method) method).getReturnType());
+        boolean returnsErrorValue = method instanceof Method && (
+                ErrorValue.class.isAssignableFrom(((Method) method).getReturnType()) ||
+                        Object.class.isAssignableFrom(((Method) method).getReturnType()));
 
         if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
                 (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {

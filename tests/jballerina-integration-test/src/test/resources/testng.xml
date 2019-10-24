@@ -101,6 +101,7 @@
             <class name="org.ballerinalang.test.service.http2.HTTP2ClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
+            <class name="org.ballerinalang.test.service.http2.Http2100ContinueTestCase"/>
         </classes>
     </test>
 
@@ -141,8 +142,9 @@
 
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
-             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
             <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
+            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>
         </classes>
     </test>
 
@@ -290,6 +292,7 @@
             <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
         </classes>
     </test>
 

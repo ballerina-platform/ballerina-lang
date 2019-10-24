@@ -237,7 +237,7 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 17);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 18);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
@@ -245,10 +245,10 @@ public class ErrorTest {
                                   "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
         BAssertUtil.validateError(negativeCompileResult, i++,
                                   "invalid error reason type 'int', expected a subtype of 'string'", 41, 28);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'map', expected a subtype of "
-                + "'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 41, 33);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'map<any>', "
+                + "expected a subtype of 'record {| string message?; error cause?; (anydata|error)...; |}'", 41, 33);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'boolean', expected a subtype "
-                + "of 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 42, 36);
+                + "of 'record {| string message?; error cause?; (anydata|error)...; |}'", 42, 36);
         BAssertUtil.validateError(negativeCompileResult, i++,
                                   "invalid error reason type '1.0f', expected a subtype of 'string'", 45, 7);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -270,6 +270,9 @@ public class ErrorTest {
                 "error reason is mandatory for direct error constructor", 112, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error', found '(error|int)'", 118, 11);
+        BAssertUtil.validateError(negativeCompileResult, i,
+                "incompatible types: expected 'error<string, " +
+                        "record {| string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 73);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
