@@ -3574,54 +3574,60 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatRecordLiteralKeyValueNode(JsonObject node) {
-        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
-            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+        if (node.has(FormattingConstants.FORMATTING_CONFIG)) {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, false);
 
-            // Update whitespace for colon of the record literal key value pair.
-            this.preserveHeight(ws, indentation);
+            if (node.has(FormattingConstants.WS)) {
+                JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+                // Update whitespace for colon of the record literal key value pair.
+                this.preserveHeight(ws, indentation);
 
-            boolean colonVisited = false;
-            boolean calculatedKey = false;
+                boolean colonVisited = false;
+                boolean calculatedKey = false;
 
-            for (JsonElement wsItem : ws) {
-                JsonObject currentWS = wsItem.getAsJsonObject();
-                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                for (JsonElement wsItem : ws) {
+                    JsonObject currentWS = wsItem.getAsJsonObject();
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
 
-                if (text.equals(Tokens.COLON)) {
-                    colonVisited = true;
-                } else if (text.equals(Tokens.OPENING_BRACKET) && !colonVisited) {
-                    calculatedKey = true;
-                }
+                    if (text.equals(Tokens.COLON)) {
+                        colonVisited = true;
+                    } else if (text.equals(Tokens.OPENING_BRACKET) && !colonVisited) {
+                        calculatedKey = true;
+                    }
 
-                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
-                    if (text.equals(Tokens.COLON) || text.equals(Tokens.CLOSING_BRACKET)) {
-                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    } else if (text.equals(Tokens.OPENING_BRACKET)) {
-                        currentWS.addProperty(FormattingConstants.WS, this.getWhiteSpaces(formatConfig
-                                .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                    if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                        if (text.equals(Tokens.COLON) || text.equals(Tokens.CLOSING_BRACKET)) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        } else if (text.equals(Tokens.OPENING_BRACKET)) {
+                            currentWS.addProperty(FormattingConstants.WS, this.getWhiteSpaces(formatConfig
+                                    .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                        }
                     }
                 }
-            }
-            // Update whitespace for key value of record literal.
-            if (node.has("key")) {
-                JsonObject keyNode = node.getAsJsonObject("key");
-                if (calculatedKey) {
-                    keyNode.add(FormattingConstants.FORMATTING_CONFIG,
-                            this.getFormattingConfig(0, 0, 0, false,
-                                    formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt(),
-                                    formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()));
-                } else {
-                    keyNode.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+
+                // Update whitespace for key value of record literal.
+                if (node.has("key")) {
+                    JsonObject keyNode = node.getAsJsonObject("key");
+                    if (calculatedKey) {
+                        keyNode.add(FormattingConstants.FORMATTING_CONFIG,
+                                this.getFormattingConfig(0, 0, 0, false,
+                                        formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt(),
+                                        formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()));
+                    } else {
+                        keyNode.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+                    }
                 }
             }
 
             // Update whitespace for value of record literal.
             if (node.has(FormattingConstants.VALUE)) {
                 JsonObject valueNode = node.getAsJsonObject(FormattingConstants.VALUE);
-                JsonObject valueNodeFormatConfig = this.getFormattingConfig(0, 1,
-                        0, false, this.getWhiteSpaceCount(indentation), true);
+                JsonObject valueNodeFormatConfig = formatConfig;
+                if (node.has(FormattingConstants.WS)) {
+                    valueNodeFormatConfig = this.getFormattingConfig(0, 1,
+                            0, false, this.getWhiteSpaceCount(indentation), true);
+                }
                 valueNode.add(FormattingConstants.FORMATTING_CONFIG, valueNodeFormatConfig);
             }
         }
