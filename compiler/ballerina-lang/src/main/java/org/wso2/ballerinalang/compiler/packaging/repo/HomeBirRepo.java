@@ -37,7 +37,8 @@ public class HomeBirRepo implements Repo<Path> {
     private PathConverter pathConverter;
     
     public HomeBirRepo() {
-        Path repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+        Path repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME + "-" +
+                                                                          RepoUtils.getBallerinaVersion());
         this.pathConverter = new PathConverter(repoLocation);
     }
     
