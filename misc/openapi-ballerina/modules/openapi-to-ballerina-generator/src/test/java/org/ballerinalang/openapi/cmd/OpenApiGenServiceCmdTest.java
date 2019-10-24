@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -222,5 +224,56 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         }
     }
 
+    @Test(description = "Test openapi gen-service for successful service generation with inline request body type")
+    public void testInlineRequestBodyServiceGen() throws IOException {
+        petProject = OpenAPICommandTest.createBalProject(tmpDir.toString(), "inlineModule");
+        Path inlineYaml = RES_DIR.resolve(Paths.get("inline-request-body.yaml"));
+        String[] args = {"inlineModule:inlineService", inlineYaml.toString()};
+
+        OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
+        new CommandLine(cmd).parseArgs(args);
+
+        String output = "";
+        try {
+            cmd.execute();
+        } catch (BLauncherException e) {
+            output = e.getDetailedMessages().get(0);
+        }
+
+        Path expectedServiceFile = RES_DIR.resolve(Paths.get("expected_gen",
+                "inline-request-expected.bal"));
+
+        Stream<String> expectedServiceLines = Files.lines(expectedServiceFile);
+        String expectedServiceContent = expectedServiceLines.collect(Collectors.joining("\n"));
+
+
+
+        if (Files.exists(petProject.getResourcePath().resolve(inlineYaml.getFileName()))
+                && Files.exists(petProject.getSrcPath().resolve("inlineModule").resolve("inlineService.bal"))) {
+
+            Stream<String> serviceLines = Files.lines(petProject.getSrcPath()
+                    .resolve("inlineModule").resolve("inlineService.bal"));
+            String generatedService = serviceLines.collect(Collectors.joining("\n"));
+            serviceLines.close();
+
+            Pattern pattern = Pattern.compile("\\bcontract\\b: \"(.*?)\"");
+            Matcher matcher = pattern.matcher(generatedService);
+            matcher.find();
+
+            String contractPath = "contract: " + "\"" + matcher.group(1)  + "\"";
+            expectedServiceContent = expectedServiceContent.replaceAll("\\bcontract\\b: \"(.*?)\"", contractPath);
+            expectedServiceLines.close();
+
+            if (expectedServiceContent.trim().equals(generatedService.trim())) {
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail("Expected content and actual generated content is mismatched for: "
+                        + inlineYaml.toString());
+            }
+
+        } else {
+            Assert.fail("Service generation for inline request body type failed.");
+        }
+    }
 
 }
