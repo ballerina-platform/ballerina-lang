@@ -562,7 +562,7 @@ public function llvmPositionBuilderAtEnd(LLVMBuilderRef builder, LLVMBasicBlockR
 //public function llvmInsertIntoBuilder(LLVMBuilderRef builder, LLVMValueRef instr) = external;
 //public function llvmInsertIntoBuilderWithName(LLVMBuilderRef builder, LLVMValueRef instr, string name) = external;
 ////public function llvmInsertIntoBuilderWithName(LLVMBuilderRef builder, LLVMValueRef instr, BytePointer name) = external;
-//public function llvmDisposeBuilder(LLVMBuilderRef builder) = external;
+public function llvmDisposeBuilder(LLVMBuilderRef builder) = external;
 //public function llvmSetCurrentDebugLocation(LLVMBuilderRef builder, LLVMValueRef l) = external;
 //public function llvmGetCurrentDebugLocation(LLVMBuilderRef builder) returns LLVMValueRef = external;
 //public function llvmSetInstDebugLocation(LLVMBuilderRef builder, LLVMValueRef inst) = external;

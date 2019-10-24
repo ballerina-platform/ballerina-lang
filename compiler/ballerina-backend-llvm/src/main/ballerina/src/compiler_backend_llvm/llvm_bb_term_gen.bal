@@ -4,17 +4,18 @@ import ballerina/bir;
 type BbTermGenrator object {
 
     llvm:LLVMBuilderRef builder;
-    FuncGenrator parent;
     bir:BasicBlock bb;
     llvm:LLVMBasicBlockRef bbRef;
+    FuncGenrator parent;
 
-    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:BasicBlock bb,
-                    llvm:LLVMBasicBlockRef bbRef) {
+    function __init(llvm:LLVMBuilderRef builder, bir:BasicBlock bb, llvm:LLVMBasicBlockRef bbRef,
+                FuncGenrator parent) {
         self.builder = builder;
-        self.parent = parent;
         self.bb = bb;
         self.bbRef = bbRef;
+        self.parent = parent;
     }
+
 
     function genBasicBlockTerminator(map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbGenrators) {
         llvm:llvmPositionBuilderAtEnd(self.builder, self.bbRef);
@@ -105,6 +106,7 @@ type BbTermGenrator object {
 
     }
 };
+
 
 function stringMul(string str, int factor) returns string {
     int i;

@@ -32,8 +32,17 @@ function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns 
 function genFunctions(llvm:LLVMModuleRef mod, bir:Function?[] funcs) {
     var builder = llvm:llvmCreateBuilder();
 
-    map<FuncGenrator> funcGenrators = mapFuncsToNameAndGenrator(mod, builder, funcs);
     genPrintfDeclration(mod);
+
+    map<FuncGenrator> funcGenrators = mapFuncsToNameAndGenrator(mod, builder, funcs);
+
+    foreach var g in funcGenrators  {
+        g.genFunctionDecl();
+    }
+    foreach var g in funcGenrators  {
+        g.genFunctionBody(funcGenrators);
+    }
+    llvm:llvmDisposeBuilder(builder);
     io:println("Hello genFunctions !");
 }
 
@@ -59,6 +68,7 @@ function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef b
     return genrators;
 }
 
+// TODO : Should revamp this method again
 function genBType(bir:BType? bType) returns llvm:LLVMTypeRef {
     if (bType is bir:BTypeInt) {
         return llvm:llvmInt64Type();
@@ -68,8 +78,25 @@ function genBType(bir:BType? bType) returns llvm:LLVMTypeRef {
         return llvm:llvmVoidType();
     } else if (bType is ()) {
         return llvm:llvmVoidType();
+    } else if (bType is bir:BUnionType) {
+        return llvm:llvmVoidType();
+    } else if (bType is bir:BArrayType) {
+        return llvm:llvmVoidType();
     }
     typedesc<any> T = typeof bType;
     error err = error( "Undefined type :" + T.toString());
     panic err;
+}
+
+function localVarName(bir:VariableDcl? localVar) returns string {
+    string? temp = localVar["name"]?.value;
+    if (temp is string) {
+        return localVarNameFromId(temp);
+    }
+    error err = error( "Not a string");
+    panic err;
+}
+
+function localVarNameFromId(string localVarStr) returns string {
+    return "local" + localVarStr.substring(1, localVarStr.length());
 }
