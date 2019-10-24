@@ -37,10 +37,15 @@ public class HandleValue implements RefValue {
 
     private Object value;
 
+    @Deprecated
     public HandleValue(Object value) {
         this.value = value;
     }
 
+    /**
+     * Returns the internal value of the handle.
+     * @return {@code Object} value
+     */
     public Object getValue() {
         return value;
     }

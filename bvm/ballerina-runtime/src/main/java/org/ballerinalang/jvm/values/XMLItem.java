@@ -85,6 +85,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     /**
      * Create an empty XMLValue.
      */
+    @Deprecated
     public XMLItem() {
         omNode = new OMElementImpl();
         setXMLNodeType();
@@ -95,6 +96,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      *
      * @param xmlValue A XML string
      */
+    @Deprecated
     public XMLItem(String xmlValue) {
         if (xmlValue == null) {
             return;
@@ -113,6 +115,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      *
      * @param value xml object
      */
+    @Deprecated
     public XMLItem(OMNode value) {
         this.omNode = value;
         setXMLNodeType();
@@ -123,6 +126,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      *
      * @param inputStream Input Stream
      */
+    @Deprecated
     public XMLItem(InputStream inputStream) {
         if (inputStream == null) {
             return;

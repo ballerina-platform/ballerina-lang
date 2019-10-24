@@ -46,12 +46,14 @@ public final class XMLQName implements RefValue {
      * @param uri Namespace URI
      * @param prefix Namespace prefix
      */
+    @Deprecated
     public XMLQName(String localName, String uri, String prefix) {
         this.localName = localName;
         this.uri = uri;
         this.prefix = prefix;
     }
 
+    @Deprecated
     public XMLQName(String qNameStr) {
         int parenEndIndex = qNameStr.indexOf('}');
         if (qNameStr.startsWith("{") && parenEndIndex > 0) {

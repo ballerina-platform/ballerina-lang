@@ -44,11 +44,13 @@ public class FPValue<T, R> implements RefValue {
     Function<T, R> function;
     Consumer<T> consumer;
 
+    @Deprecated
     public FPValue(Function<T, R> function, BType type) {
         this.function = function;
         this.type = type;
     }
 
+    @Deprecated
     public FPValue(Consumer<T> consumer, BType type) {
         this.consumer = consumer;
         this.type = type;

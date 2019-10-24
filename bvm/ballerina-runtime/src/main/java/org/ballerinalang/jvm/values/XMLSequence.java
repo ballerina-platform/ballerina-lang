@@ -60,15 +60,17 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     /**
      * Create an empty xml sequence.
      */
+    @Deprecated
     public XMLSequence() {
         sequence = new ArrayValue(new BArrayType(BTypes.typeXML), 0);
     }
 
-    /**q
+    /**
      * Initialize a {@link XMLSequence} from a {@link org.apache.axiom.om.OMNode} object.
      *
      * @param sequence xml object
      */
+    @Deprecated
     public XMLSequence(ArrayValue sequence) {
         this.sequence = sequence;
     }

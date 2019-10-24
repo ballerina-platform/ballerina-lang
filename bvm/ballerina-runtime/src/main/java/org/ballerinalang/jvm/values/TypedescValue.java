@@ -42,11 +42,16 @@ public class TypedescValue implements RefValue {
     final BType type;
     final BType describingType; // Type of the value describe by this typedesc.
 
+    @Deprecated
     public TypedescValue(BType describingType) {
         this.type = BTypes.typeTypedesc;
         this.describingType = describingType;
     }
 
+    /**
+     * Returns the {@code BType} of the value describe by this type descriptor.
+     * @return describing type
+     */
     public BType getDescribingType() {
         return describingType;
     }

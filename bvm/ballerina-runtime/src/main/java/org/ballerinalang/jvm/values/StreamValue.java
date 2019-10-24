@@ -46,8 +46,10 @@ public class StreamValue implements RefValue {
     /**
      * The name of the underlying broker topic representing the stream object.
      */
+    @Deprecated
     public String streamId;
 
+    @Deprecated
     public StreamValue(BType type) {
         this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
@@ -55,10 +57,14 @@ public class StreamValue implements RefValue {
         this.streamId = UUID.randomUUID().toString();
     }
 
+    @Deprecated
     public String getStreamId() {
         return streamId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String stringValue(Strand strand) {
         return "stream " + streamId + " " + getType().toString();
     }

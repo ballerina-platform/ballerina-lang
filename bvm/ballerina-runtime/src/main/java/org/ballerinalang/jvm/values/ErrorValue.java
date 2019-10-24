@@ -57,6 +57,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
     private final String reason;
     private final Object details;
 
+    @Deprecated
     public ErrorValue(String reason, Object details) {
         super(reason);
         this.type = new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
@@ -65,6 +66,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
         this.details = details;
     }
 
+    @Deprecated
     public ErrorValue(BType type, String reason, Object details) {
         super(reason);
         this.type = type;
@@ -121,10 +123,18 @@ public class ErrorValue extends RuntimeException implements RefValue {
         return stringValue();
     }
 
+    /**
+     * Returns error reason.
+     * @return reason string
+     */
     public String getReason() {
         return reason;
     }
 
+    /**
+     * Returns error details.
+     * @return detail record
+     */
     public Object getDetails() {
         if (details instanceof RefValue) {
             return ((RefValue) details).copy(new HashMap<>());
@@ -137,6 +147,10 @@ public class ErrorValue extends RuntimeException implements RefValue {
         ErrorHandlerUtils.printError(ERROR_PRINT_PREFIX + getPrintableStackTrace());
     }
 
+    /**
+     * Print error stack trace to the given {@code PrintWriter}.
+     * @param printWriter {@code PrintWriter} to be used
+     */
     public void printStackTrace(PrintWriter printWriter) {
         printWriter.print(ERROR_PRINT_PREFIX + getPrintableStackTrace());
     }
@@ -155,6 +169,10 @@ public class ErrorValue extends RuntimeException implements RefValue {
         return filteredStack.toArray(filteredStackArray);
     }
 
+    /**
+     * Returns error stack trace as a string.
+     * @return stack trace string
+     */
     public String getPrintableStackTrace() {
         String errorMsg = getErrorMessage();
         StringBuilder sb = new StringBuilder();
