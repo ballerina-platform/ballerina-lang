@@ -6,6 +6,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.bytedeco.javacpp.Pointer;
 
 /**
  * sss.
@@ -29,11 +30,11 @@ public class FFIUtil {
         return value.getNativeData(NATIVE_KEY);
     }
 
-    public static Object[] getRecodeArrayArgumentNative(ArrayValue value) {
-        Object[] objectArray = new Object[value.size()];
+    public static Pointer[] getRecodeArrayArgumentNative(ArrayValue value) {
+        Pointer[] objectArray = new Pointer[value.size()];
         for (int counter = 0; counter < value.size(); counter++) {
-            MapValue<String, Object> partition = (MapValue<String, Object>) value.get(counter);
-            Object object = partition.get(NATIVE_KEY);
+            MapValue<String, Object> partition = (MapValue<String, Object>) value.getRefValue(counter);
+            Pointer object = (Pointer) partition.getNativeData(NATIVE_KEY);
             objectArray[counter] = object;
         }
         return objectArray;

@@ -34,7 +34,7 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMAddFunction",
+        functionName = "llvmAddFunction",
         args = {
                 @Argument(name = "m", type = RECORD, structType = "LLVMModuleRef"),
                 @Argument(name = "name", type = STRING),

@@ -33,7 +33,7 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMInt1Type",
+        functionName = "llvmInt1Type",
         returnType = {
                 @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
         }

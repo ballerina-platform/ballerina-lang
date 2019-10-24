@@ -20,35 +20,34 @@ import ballerina/bir;
 
 type FuncGenrator object {
     bir:Function func;
-    llvm:LLVMValueRef funcRef;
+    llvm:LLVMValueRef? funcRef = ();
     llvm:LLVMModuleRef mod;
-    map<llvm:LLVMValueRef> localVarRefs;
-    llvm:LLVMValueRef varAllocBB;
+    map<llvm:LLVMValueRef>? localVarRefs = ();
+    llvm:LLVMValueRef? varAllocBB = ();
     llvm:LLVMBuilderRef builder;
 
-    function __init(bir:Function func, llvm:LLVMValueRef funcRef, llvm:LLVMModuleRef mod,
-                    map<llvm:LLVMValueRef> localVarRefs, llvm:LLVMValueRef varAllocBB, llvm:LLVMBuilderRef builder) {
+    function __init(bir:Function func, llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder) {
         self.func = func;
-        self.funcRef = funcRef;
+        //self.funcRef = funcRef;
         self.mod = mod;
-        self.localVarRefs = localVarRefs;
-        self.varAllocBB = varAllocBB;
+        //self.localVarRefs = localVarRefs;
+        //self.varAllocBB = varAllocBB;
         self.builder = builder;
     }
 
     function genFunctionDecl() {
         var name = self.func.name.value;
         llvm:LLVMTypeRef[] argTypes = self.genFunctionArgTypes(self.func.argsCount);
-        var retTypeRef = genBType(self.func.typeValue.retType);
+        var retTypeRef = genBType(self.func.typeValue?.retType);
         var functionType = llvm:llvmFunctionType1(retTypeRef, argTypes, self.func.argsCount, 0);
         self.funcRef = llvm:llvmAddFunction(self.mod, name, functionType);
     }
 
     function genFunctionArgTypes(int argsCount) returns llvm:LLVMTypeRef[] {
-        if (self.func.argsCount == 0){
-            return self.genVoidFunctionArgTypes();
+        if (func.argsCount == 0){
+            return genVoidFunctionArgTypes();
         } else {
-            return self.genNonVoidFunctionArgTypes(argsCount);
+            return genNonVoidFunctionArgTypes(argsCount);
         }
     }
 
@@ -65,7 +64,6 @@ type FuncGenrator object {
         }
         return argTypes;
     }
-
     function genFunctionBody(map<FuncGenrator> funcGenrators) {
         self.genLocalVarAllocationBbBody();
         var bbTermGenrators = self.genBbBodies();
