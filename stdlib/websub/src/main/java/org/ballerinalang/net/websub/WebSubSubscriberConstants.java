@@ -116,4 +116,8 @@ public class WebSubSubscriberConstants {
 
     public static final String SERVICE_CONFIG_TOPIC_PAYLOAD_KEYS = "topicPayloadKeys";
     public static final String SERVICE_CONFIG_TOPIC_RESOURCE_MAP = "topicResourceMap";
+
+    // WebSub error types related constants
+    public static final String ERROR_DETAIL_RECORD = "Detail";
+    public static final String ERROR_REASON_WEBSUB_LISTENER_STARTUP_FAILURE = "{ballerina/websub}ListenerStartupError";
 }
