@@ -41,8 +41,8 @@ dependencies {
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
-    testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-simple'
+    testCompile 'org.testng:testng:6.13.1'
+    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
 }
 
 createBalo {
