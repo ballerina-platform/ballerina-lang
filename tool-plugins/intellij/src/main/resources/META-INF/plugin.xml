@@ -115,14 +115,16 @@
                       className="io.ballerina.plugins.idea.editor.BallerinaQuoteHandler"/>
 
         <!-- Enter Handlers-->
-        <enterHandlerDelegate order="last"
-                              implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
         <enterHandlerDelegate
-                implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterInDocumentationHandler"/>
+                implementation="io.ballerina.plugins.idea.editor.inserthandlers.BallerinaEnterBetweenBracesHandler"/>
+        <enterHandlerDelegate
+                implementation="io.ballerina.plugins.idea.editor.inserthandlers.BallerinaEnterInDocumentationHandler"/>
+        <enterHandlerDelegate
+                implementation="io.ballerina.plugins.idea.editor.inserthandlers.BallerinaEnterInStringHandler"/>
 
         <!-- Backspace Handlers-->
         <backspaceHandlerDelegate id="BallerinaBackspaceHandler" order="first"
-                                  implementation="io.ballerina.plugins.idea.formatter.BallerinaIndentingBackspaceHandler"/>
+                                  implementation="io.ballerina.plugins.idea.editor.inserthandlers.BallerinaIndentingBackspaceHandler"/>
 
         <!-- sdk -->
         <sdkType implementation="io.ballerina.plugins.idea.sdk.BallerinaSdkType"/>
