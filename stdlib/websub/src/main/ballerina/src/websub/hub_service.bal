@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/cache;
 import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
@@ -25,6 +26,9 @@ import ballerina/system;
 import ballerina/time;
 
 @tainted map<PendingSubscriptionChangeRequest> pendingRequests = {};
+
+# This cache is used for caching HTTP clients against the subscriber callbacks.
+cache:Cache subscriberCallbackClientCache = new(expiryTimeInMillis = DEFAULT_CACHE_EXPIRY_MILLIS);
 
 service hubService =
 @http:ServiceConfig {
@@ -273,7 +277,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + topic - The topic specified in the new subscription/unsubscription request
 # + params - Parameters specified in the new subscription/unsubscription request
 function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
-    http:Client callbackEp = new http:Client(callback, hubClientConfig);
+    http:Client callbackEp = getSubcriberCallbackClient(callback);
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
     var result = langint:fromString(strLeaseSeconds);
@@ -441,7 +445,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 # + return - Nil if successful, error in case of invalid content-type
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
 returns error? {
-    http:Client callbackEp = new http:Client(callback, hubClientConfig);
+    http:Client callbackEp = getSubcriberCallbackClient(callback);
     http:Request request = new;
     request.setPayload(webSubContent.payload);
     check request.setContentType(webSubContent.contentType);
@@ -502,6 +506,26 @@ returns error? {
         }
     }
     return;
+}
+
+# Function to retrieve cached subscriberCallbackClient for a given callback.
+#
+# + callback - The callback URL registered for the subscriber
+# + return - `http:Client` indicating the client for a given callback from cache or new client
+function getSubcriberCallbackClient(string callback) returns http:Client {
+    http:Client subscriberCallbackClient;
+    if (subscriberCallbackClientCache.hasKey(callback)) {
+        return <http:Client>subscriberCallbackClientCache.get(callback);
+    } else {
+        lock {
+            if (subscriberCallbackClientCache.hasKey(callback)) {
+                return <http:Client>subscriberCallbackClientCache.get(callback);
+            }
+            subscriberCallbackClient = new http:Client(callback, hubClientConfig);
+            subscriberCallbackClientCache.put(callback, <@untainted> subscriberCallbackClient);
+            return subscriberCallbackClient;
+        }
+    }
 }
 
 // TODO: validate if no longer necessary
