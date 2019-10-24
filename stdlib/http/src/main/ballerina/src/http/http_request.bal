@@ -20,11 +20,13 @@ import ballerina/stringutils;
 
 # Represents an HTTP request.
 #
-# + rawPath - Resource path of the request URL
+# + rawPath - The complete request URL including parameters(query,matrix), but the domain(host and port) is excluded
 # + method - The HTTP request method
 # + httpVersion - The HTTP version supported by the client
 # + userAgent - The user-agent. This value is used when setting the `user-agent` header
-# + extraPathInfo - Additional information associated with the URL provided by the client
+# + extraPathInfo - The part of a URL that represented by astrisk(*) in the path config when the request dispatched
+#                   to a wildcard path. This is the additional information associated with the URL excluding parameters
+#                   (query,matrix)
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
 # + mutualSslHandshake - A record providing mutual ssl handshake results.

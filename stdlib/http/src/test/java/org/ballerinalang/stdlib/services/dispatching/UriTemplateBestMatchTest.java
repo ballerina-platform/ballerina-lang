@@ -549,7 +549,7 @@ public class UriTemplateBestMatchTest {
 
     @Test(description = "Test rest uri post fix. /echo66/a/b/c")
     public void testRestUriPostFix() {
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo66/a/b/c", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo66/a/b/c?a=c", "GET");
         HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
