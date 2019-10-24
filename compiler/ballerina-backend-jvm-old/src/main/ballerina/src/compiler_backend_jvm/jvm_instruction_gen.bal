@@ -885,28 +885,21 @@ type InstructionGenerator object {
         string methodClass = lookupFullQualifiedClassName(lookupKey);
 
         bir:BType returnType = inst.lhsOp.typeValue;
-        boolean isVoid = false;
-        if (returnType is bir:BInvokableType) {
-            isVoid = returnType?.retType is bir:BTypeNil;
-        } else {
+        if !(returnType is bir:BInvokableType) {
             error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
             panic err;
         }
+
         foreach var v in inst.closureMaps {
             if (v is bir:VarRef) {
                 self.loadVar(v.variableDcl);
             }
         }
 
-        self.mv.visitInvokeDynamicInsn(currentClass, lambdaName, isVoid, inst.closureMaps.length());
+        self.mv.visitInvokeDynamicInsn(currentClass, lambdaName, inst.closureMaps.length());
         loadType(self.mv, returnType);
-        if (isVoid) {
-            self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                                    io:sprintf("(L%s;L%s;)V", CONSUMER, BTYPE), false);
-        } else {
-            self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                                    io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
-        }
+        self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+                                io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
 
         self.storeToVar(inst.lhsOp.variableDcl);
         lambdas[lambdaName] = inst;

@@ -105,6 +105,7 @@ public class Scheduler {
         return schedule(params, fp.getFunction(), parent, null, null, returnType);
     }
 
+    @Deprecated
     public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
         return schedule(params, fp.getConsumer(), parent, null);
     }
@@ -126,6 +127,20 @@ public class Scheduler {
         return schedule(params, function, parent, future);
     }
 
+    /**
+     * Add a task to the runnable list, which will eventually be executed by the Scheduler.
+     *
+     * @param params   - parameters to be passed to the function
+     * @param function - function to be executed
+     * @param parent   - parent strand that makes the request to schedule another
+     * @param callback - to notify any listener when ever the execution of the given function is finished
+     * @return - Reference to the scheduled task
+     */
+    public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback) {
+        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull);
+        return schedule(params, function, parent, future);
+    }
+
     private FutureValue schedule(Object[] params, Function function, Strand parent, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
@@ -144,6 +159,7 @@ public class Scheduler {
      * @param callback - to notify any listener when ever the execution of the given function is finished
      * @return - Reference to the scheduled task
      */
+    @Deprecated
     public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback) {
         FutureValue future = createFuture(parent, callback, null, BTypes.typeNull);
         params[0] = future.strand;
