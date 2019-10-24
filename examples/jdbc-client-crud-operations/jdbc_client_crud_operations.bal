@@ -49,8 +49,8 @@ public function main() {
     // The query parameters are given as arguments of the type `jdbc:Parameter`
     // for the `update` remote function.
     // Default direction is IN.
-    jdbc:Parameter p1 = { sqlType: jdbc:TYPE_INTEGER, value: 25 };
-    jdbc:Parameter p2 = { sqlType: jdbc:TYPE_VARCHAR, value: "James" };
+    jdbc:Parameter p1 = {sqlType: jdbc:TYPE_INTEGER, value: 25};
+    jdbc:Parameter p2 = {sqlType: jdbc:TYPE_VARCHAR, value: "James"};
     ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
         p1, p2);
     handleUpdate(ret, "Insert to student table with jdbc:parameter values");
@@ -113,7 +113,7 @@ public function main() {
     // The query parameters are given as arguments of the type `jdbc:Parameter`
     // for the `select` remote function.
     // Default direction is IN.
-    jdbc:Parameter p3 = { sqlType: jdbc:TYPE_INTEGER, value: 35 };
+    jdbc:Parameter p3 = {sqlType: jdbc:TYPE_INTEGER, value: 35};
 
     var selectRet2 = testDB->select("SELECT * FROM student where age < ?", Student, p3);
     if (selectRet2 is table<Student>) {
