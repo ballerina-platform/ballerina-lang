@@ -34,7 +34,7 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildAlloca",
+        functionName = "llvmBuildAlloca",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "ty", type = RECORD, structType = "LLVMTypeRef"),

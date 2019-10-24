@@ -34,7 +34,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildCondBr;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildCondBr",
+        functionName = "llvmBuildCondBr",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "ifValue", type = RECORD, structType = "LLVMValueRef"),

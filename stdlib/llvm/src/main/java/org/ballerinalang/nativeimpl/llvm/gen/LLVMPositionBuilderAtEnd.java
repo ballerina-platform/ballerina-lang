@@ -31,7 +31,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMPositionBuilderAtEnd;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMPositionBuilderAtEnd",
+        functionName = "llvmPositionBuilderAtEnd",
         args = {
                 @Argument(name = "builder", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "block", type = RECORD, structType = "LLVMBasicBlockRef"),

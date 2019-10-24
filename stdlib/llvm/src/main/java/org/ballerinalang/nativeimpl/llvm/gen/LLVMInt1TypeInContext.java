@@ -34,7 +34,7 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMInt1TypeInContext",
+        functionName = "llvmInt1TypeInContext",
         args = {
                 @Argument(name = "c", type = RECORD, structType = "LLVMContextRef"),
         },

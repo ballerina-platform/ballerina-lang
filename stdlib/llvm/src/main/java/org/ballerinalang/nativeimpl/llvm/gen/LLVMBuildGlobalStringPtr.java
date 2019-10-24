@@ -35,7 +35,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildGlobalStringPtr;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildGlobalStringPtr",
+        functionName = "llvmBuildGlobalStringPtr",
         args = {
                 @Argument(name = "b", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "str", type = STRING),

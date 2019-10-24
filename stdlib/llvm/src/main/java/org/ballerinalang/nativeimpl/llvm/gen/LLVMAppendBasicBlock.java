@@ -35,7 +35,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMAppendBasicBlock;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMAppendBasicBlock",
+        functionName = "llvmAppendBasicBlock",
         args = {
                 @Argument(name = "fn", type = RECORD, structType = "LLVMValueRef"),
                 @Argument(name = "name", type = STRING),

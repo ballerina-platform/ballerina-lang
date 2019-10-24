@@ -35,7 +35,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildMul;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildMul",
+        functionName = "llvmBuildMul",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "lhs", type = RECORD, structType = "LLVMValueRef"),

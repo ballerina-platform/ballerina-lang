@@ -36,7 +36,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildICmp;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildICmp",
+        functionName = "llvmBuildICmp",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "op", type = INT),

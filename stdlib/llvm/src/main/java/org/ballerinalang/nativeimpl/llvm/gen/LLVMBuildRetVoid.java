@@ -34,7 +34,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildRetVoid;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildRetVoid",
+        functionName = "llvmBuildRetVoid",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
         },

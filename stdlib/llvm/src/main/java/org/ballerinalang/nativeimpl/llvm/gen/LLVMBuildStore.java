@@ -34,7 +34,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildStore;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildStore",
+        functionName = "llvmBuildStore",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "val", type = RECORD, structType = "LLVMValueRef"),

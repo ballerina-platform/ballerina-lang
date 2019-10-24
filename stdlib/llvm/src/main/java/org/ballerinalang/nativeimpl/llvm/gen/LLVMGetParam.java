@@ -36,7 +36,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMGetParam;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMGetParam",
+        functionName = "llvmGetParam",
         args = {
                 @Argument(name = "fn", type = RECORD, structType = "LLVMValueRef"),
                 @Argument(name = "index", type = INT),

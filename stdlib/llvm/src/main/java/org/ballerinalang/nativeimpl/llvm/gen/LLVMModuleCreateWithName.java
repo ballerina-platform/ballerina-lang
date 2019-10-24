@@ -44,8 +44,6 @@ import static org.bytedeco.javacpp.LLVM.LLVMModuleCreateWithName;
 public class LLVMModuleCreateWithName {
     public static MapValue<String, Object> llvmModuleCreateWithName(Strand strand, String moduleID) {
         LLVM.LLVMModuleRef returnValue = LLVMModuleCreateWithName(moduleID);
-            MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
-                    "llvm"), "LLVMTypeRef");
         MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
                 "llvm"), "LLVMModuleRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
