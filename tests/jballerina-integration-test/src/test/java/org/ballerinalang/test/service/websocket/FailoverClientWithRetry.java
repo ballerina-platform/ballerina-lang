@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.websocket;
 
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
@@ -137,8 +138,11 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
         client.handshake();
         client.setCountDownLatch(countDownLatch);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        client.sendBinary(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
-        Assert.assertNull(client.getBufferReceived());
+        CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
+        Assert.assertNotNull(closeWebSocketFrame);
+        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
+        Assert.assertTrue(closeWebSocketFrame.reasonText().contains("Unexpected condition"));
+        closeWebSocketFrame.release();
     }
 
     @Test(description = "Tests the retry function using webSocket client (starting the server " +
