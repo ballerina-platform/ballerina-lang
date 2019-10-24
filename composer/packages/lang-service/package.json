@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/lang-service",
-  "version": "1.0.2-SNAPSHOT",
+  "version": "1.0.2",
   "description": "lang-service",
   "license": "Apache-2.0",
   "files": [
@@ -31,7 +31,7 @@
     "ws": "^6.1.0"
   },
   "devDependencies": {
-    "@ballerina/composer-cli": "^1.0.2-SNAPSHOT",
+    "@ballerina/composer-cli": "^1.0.2",
     "@types/fs-extra": "^5.0.4",
     "@types/glob": "^7.1.1",
     "@types/jest": "^22.0.1",
