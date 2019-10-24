@@ -44,7 +44,7 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
 )
 public class LLVMInt1TypeInContext {
 
-    public static Object llvmInt1TypeInContext(Strand strand, MapValue<String, Object> c) {
+    public static MapValue<String, Object> llvmInt1TypeInContext(Strand strand, MapValue<String, Object> c) {
         LLVM.LLVMContextRef cRef = (LLVM.LLVMContextRef) FFIUtil.getRecodeArgumentNative(c);
         LLVMTypeRef returnValue = LLVM.LLVMInt1TypeInContext(cRef);
         MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",

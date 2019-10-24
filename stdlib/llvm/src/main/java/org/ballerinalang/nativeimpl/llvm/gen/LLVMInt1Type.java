@@ -40,7 +40,7 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
 )
 public class LLVMInt1Type {
 
-    public static Object llvmInt1Type(Strand strand) {
+    public static MapValue<String, Object> llvmInt1Type(Strand strand) {
         LLVMTypeRef returnValue = LLVM.LLVMInt1Type();
         MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
                 "llvm"), "LLVMTypeRef");

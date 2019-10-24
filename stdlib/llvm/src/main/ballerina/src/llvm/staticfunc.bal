@@ -566,12 +566,12 @@ public function llvmPositionBuilderAtEnd(LLVMBuilderRef builder, LLVMBasicBlockR
 //public function llvmSetCurrentDebugLocation(LLVMBuilderRef builder, LLVMValueRef l) = external;
 //public function llvmGetCurrentDebugLocation(LLVMBuilderRef builder) returns LLVMValueRef = external;
 //public function llvmSetInstDebugLocation(LLVMBuilderRef builder, LLVMValueRef inst) = external;
-//public function llvmBuildRetVoid(LLVMBuilderRef arg0) returns LLVMValueRef = external;
-//public function llvmBuildRet(LLVMBuilderRef arg0, LLVMValueRef v) returns LLVMValueRef = external;
+public function llvmBuildRetVoid(LLVMBuilderRef arg0) returns LLVMValueRef = external;
+public function llvmBuildRet(LLVMBuilderRef arg0, LLVMValueRef v) returns LLVMValueRef = external;
 //public function llvmBuildAggregateRet0(LLVMBuilderRef arg0, PointerPointer retVals, int n) returns LLVMValueRef = external;
 //public function llvmBuildAggregateRet1(LLVMBuilderRef arg0, LLVMValueRef retVals, int n) returns LLVMValueRef = external;
 public function llvmBuildBr(LLVMBuilderRef arg0, LLVMBasicBlockRef dest) returns LLVMValueRef = external;
-//public function llvmBuildCondBr(LLVMBuilderRef arg0, LLVMValueRef ifValue, LLVMBasicBlockRef then, LLVMBasicBlockRef elseValue) returns LLVMValueRef = external;
+public function llvmBuildCondBr(LLVMBuilderRef arg0, LLVMValueRef ifValue, LLVMBasicBlockRef then, LLVMBasicBlockRef elseValue) returns LLVMValueRef = external;
 //public function llvmBuildSwitch(LLVMBuilderRef arg0, LLVMValueRef v, LLVMBasicBlockRef elseValue, int numCases) returns LLVMValueRef = external;
 //public function llvmBuildIndirectBr(LLVMBuilderRef b, LLVMValueRef addr, int numDests) returns LLVMValueRef = external;
 ////public function llvmBuildInvoke(LLVMBuilderRef arg0, LLVMValueRef fn, LLVMValueRef args, int numArgs, LLVMBasicBlockRef then, LLVMBasicBlockRef catchValue, BytePointer name) returns LLVMValueRef = external;
@@ -672,7 +672,7 @@ public function llvmBuildStore(LLVMBuilderRef arg0, LLVMValueRef val, LLVMValueR
 ////public function llvmBuildGlobalString(LLVMBuilderRef b, BytePointer str, BytePointer name) returns LLVMValueRef = external;
 //public function llvmBuildGlobalString(LLVMBuilderRef b, string str, string name) returns LLVMValueRef = external;
 ////public function llvmBuildGlobalStringPtr(LLVMBuilderRef b, BytePointer str, BytePointer name) returns LLVMValueRef = external;
-//public function llvmBuildGlobalStringPtr(LLVMBuilderRef b, string str, string name) returns LLVMValueRef = external;
+public function llvmBuildGlobalStringPtr(LLVMBuilderRef b, string str, string name) returns LLVMValueRef = external;
 //public function llvmGetVolatile(LLVMValueRef memoryAccessInst) returns int = external;
 //public function llvmSetVolatile(LLVMValueRef memoryAccessInst, int isVolatile) = external;
 //public function llvmGetOrdering(LLVMValueRef memoryAccessInst) returns int = external;
@@ -724,7 +724,7 @@ public function llvmBuildICmp(LLVMBuilderRef arg0, int op, LLVMValueRef lhs, LLV
 //public function llvmBuildPhi(LLVMBuilderRef arg0, LLVMTypeRef ty, string name) returns LLVMValueRef = external;
 ////public function llvmBuildPhi(LLVMBuilderRef arg0, LLVMTypeRef ty, BytePointer name) returns LLVMValueRef = external;
 ////public function llvmBuildCall(LLVMBuilderRef arg0, LLVMValueRef fn, PointerPointer args, int numArgs, string name) returns LLVMValueRef = external;
-//public function llvmBuildCall(LLVMBuilderRef arg0, LLVMValueRef fn, LLVMValueRef[] args, int numArgs, string name) returns LLVMValueRef = external;
+public function llvmBuildCall(LLVMBuilderRef arg0, LLVMValueRef fn, LLVMValueRef[] args, int numArgs, string name) returns LLVMValueRef = external;
 ////public function llvmBuildSelect(LLVMBuilderRef arg0, LLVMValueRef ifValue, LLVMValueRef then, LLVMValueRef elseValue, BytePointer name) returns LLVMValueRef = external;
 //public function llvmBuildSelect(LLVMBuilderRef arg0, LLVMValueRef ifValue, LLVMValueRef then, LLVMValueRef elseValue, string name) returns LLVMValueRef = external;
 //public function llvmBuildVAArg(LLVMBuilderRef arg0, LLVMValueRef list, LLVMTypeRef ty, string name) returns LLVMValueRef = external;

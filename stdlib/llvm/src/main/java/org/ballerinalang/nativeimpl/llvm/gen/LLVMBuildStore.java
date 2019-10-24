@@ -46,7 +46,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildStore;
 )
 public class LLVMBuildStore {
 
-    public static Object llvmBuildStore(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> val,
+    public static MapValue<String, Object> llvmBuildStore(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> val,
                                         MapValue<String, Object> ptr) {
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVM.LLVMValueRef valRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(val);

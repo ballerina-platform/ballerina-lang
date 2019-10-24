@@ -48,7 +48,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildMul;
 )
 public class LLVMBuildMul{
 
-        public static Object llvmBuildSDiv(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> lhs,
+        public static MapValue<String, Object> llvmBuildSDiv(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> lhs,
                 MapValue<String, Object> rhs, String name) {
                 LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
                 LLVMValueRef lhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(lhs);

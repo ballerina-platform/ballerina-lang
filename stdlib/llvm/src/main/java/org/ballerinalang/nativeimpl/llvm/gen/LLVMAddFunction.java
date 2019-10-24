@@ -46,7 +46,7 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
 )
 public class LLVMAddFunction {
 
-    public static Object llvmAddFunction(Strand strand, MapValue<String, Object> m, String name, MapValue<String, Object> functionTy) {
+    public static MapValue<String, Object> llvmAddFunction(Strand strand, MapValue<String, Object> m, String name, MapValue<String, Object> functionTy) {
         LLVM.LLVMModuleRef mRef = (LLVM.LLVMModuleRef) FFIUtil.getRecodeArgumentNative(m);
         LLVM.LLVMTypeRef functionTyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(functionTy);
         LLVMValueRef returnValue =  LLVM.LLVMAddFunction(mRef, name, functionTyRef);
