@@ -66,7 +66,7 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
         try {
             serverConnectorFuture.sync();
         } catch (Exception ex) {
-            return WebSubUtils.createError(WebSubSubscriberConstants.ERROR_REASON_WEBSUB_LISTENER_STARTUP_FAILURE,
+            return WebSubUtils.createError(WebSubSubscriberConstants.WEBSUB_LISTENER_STARTUP_FAILURE,
                                            "failed to start server connector '" + serverConnector.getConnectorID() +
                                                    "': " + ex.getMessage());
         }

@@ -119,5 +119,5 @@ public class WebSubSubscriberConstants {
 
     // WebSub error types related constants
     public static final String ERROR_DETAIL_RECORD = "Detail";
-    public static final String ERROR_REASON_WEBSUB_LISTENER_STARTUP_FAILURE = "{ballerina/websub}ListenerStartupError";
+    public static final String WEBSUB_LISTENER_STARTUP_FAILURE = "{ballerina/websub}ListenerStartupError";
 }

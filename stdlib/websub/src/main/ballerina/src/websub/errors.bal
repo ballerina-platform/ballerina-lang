@@ -14,19 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/websub;
+# Holds the details of an WebSub error
+#
+# + message - Specific error message for the error
+# + cause - Cause of the error; If this error occurred due to another error (Probably from another module)
+public type Detail record {
+    string message;
+    error cause?;
+};
 
-function startSubscriberService() returns string {
-    websub:Listener l1 = new(8387);
-    websub:Listener l2 = new(8387);
+// Ballerina WebSub Listener Error Types
 
-    var l1Error = l1.__start();
-    if (l1Error is error) {
-        return l1Error.detail()?.message ?: "l1 error unavailable";
-    }
-    var l2Error = l2.__start();
-    if (l2Error is error) {
-        return <string>l2Error.detail()?.message;
-    }
-    return "no error";
-}
+# Represents the reason string for the `websub:ListenerStartupError`
+public const LISTENER_STARTUP_ERROR = "{ballerina/websub}ListenerStartupError";
+# Represents a listener startup error
+public type ListenerStartupError error<LISTENER_STARTUP_ERROR, Detail>;

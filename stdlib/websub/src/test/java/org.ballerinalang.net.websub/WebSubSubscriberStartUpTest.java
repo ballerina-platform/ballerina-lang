@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Class to test WebSub Subscriber service startup.
+ * Class to test WebSub listener startup.
  */
 public class WebSubSubscriberStartUpTest {
 
@@ -42,6 +42,7 @@ public class WebSubSubscriberStartUpTest {
     public void testMultipleSubscribersStartUpInSamePort() {
         BValue[] returns = BRunUtil.invoke(result, "startSubscriberService");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),  "http://localhost:/websub/hub");
+        Assert.assertEquals(returns[0].stringValue(),
+                            "failed to start server connector '0.0.0.0:8387': Address already in use");
     }
 }
