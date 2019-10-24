@@ -58,7 +58,7 @@ public class WebSocketConstants {
     public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
     public static final String RESOURCE_NAME_ON_ERROR = "onError";
 
-    public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
+    public static final String WEBSOCKET_HANDSHAKER = "WEBSOCKET_MESSAGE";
 
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_INFO = "NATIVE_DATA_WEBSOCKET_CONNECTION_INFO";
     public static final String NATIVE_DATA_BASE_PATH = "BASE_PATH";

@@ -108,7 +108,7 @@ export interface GetBallerinaProjectParams {
 }
 
 export interface BallerinaAstOasChangeResponse {
-    oasAST?: string
+    oasAST?: string;
 }
 
 export interface BallerinaServiceListRequest {
@@ -121,6 +121,14 @@ export interface BallerinaServiceListResponse {
     services: string[];
 }
 
+export interface BallerinaSynResponse {
+    syn?: String;
+}
+
+export interface GetSynRequest {
+    Params : string;
+}
+
 export class ExtendedLangClient extends LanguageClient {
 
     getProjectAST(sourceRoot: string): Thenable<BallerinaASTResponse> {
@@ -128,6 +136,12 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("ballerinaProject/modules", req);
     }
 
+    getSyntaxHighlighter(params: string): Thenable<BallerinaSynResponse> {
+        const req: GetSynRequest = {
+            Params: params};
+        return this.sendRequest("ballerinaSyntaxHighlighter/list",req);
+    }
+    
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
         const req: GetASTRequest = {
             documentIdentifier: {
@@ -166,7 +180,7 @@ export class ExtendedLangClient extends LanguageClient {
                 uri: uri.toString()
             },
             ballerinaService: oasService
-        }
+        };
         return this.sendRequest("ballerinaDocument/openApiDefinition", req);
     }
 

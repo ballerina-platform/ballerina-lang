@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.websocket.client;
 
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
-import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
+import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -35,10 +35,10 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
  * @since 0.93
  */
 public class WebSocketClientConnectorListener implements WebSocketConnectorListener {
-    private WebSocketOpenConnectionInfo connectionInfo;
+    private WebSocketConnectionInfo connectionInfo;
 
 
-    public void setConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
+    public void setConnectionInfo(WebSocketConnectionInfo connectionInfo) {
         this.connectionInfo = connectionInfo;
     }
 

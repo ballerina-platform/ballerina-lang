@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
+/**
+ * The ServerHandshakeListener that dispatches the onOpen resource onSuccess.
+ */
 class UpgradeListener implements ServerHandshakeListener {
     private static final Logger logger = LoggerFactory.getLogger(UpgradeListener.class);
 
