@@ -7,8 +7,7 @@ type BbBodyGenrator object {
     FuncGenrator parent;
     bir:BasicBlock bb;
 
-    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent,
-                    bir:BasicBlock bb) {
+    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:BasicBlock bb) {
         self.builder = builder;
         self.parent = parent;
         self.bb = bb;
@@ -76,7 +75,6 @@ type BbBodyGenrator object {
         } else if (kind == bir:BINARY_SUB) {
             binaryGen.genSub();
         }
-
     }
 
     function genConstantLoadIns(bir:ConstantLoad constLoad) {
@@ -88,7 +86,6 @@ type BbBodyGenrator object {
         var constRef = llvm:llvmConstInt(llvm:llvmInt64Type(), <int>constLoad.value, 0);
         var loaded = llvm:llvmBuildStore(self.builder, constRef, lhsRef);
     }
-
 };
 
 function findBbRefById(map<BbTermGenrator> bbGenrators, string id) returns llvm:LLVMBasicBlockRef {
@@ -114,4 +111,5 @@ function findFuncRefByName(map<FuncGenrator> funcGenrators, bir:Name name) retur
             panic err;
     }
 }
+
 
