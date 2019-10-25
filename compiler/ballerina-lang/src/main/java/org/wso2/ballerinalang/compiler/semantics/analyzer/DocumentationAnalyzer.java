@@ -264,6 +264,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 if (documentableNode.getKind() == NodeKind.FUNCTION) {
                     BLangFunction funcNode = (BLangFunction) documentableNode;
                     env = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
+                    tag = SymTag.VARIABLE;
                     break;
                 } else {
                      return DocReferenceErrorType.PARAMETER_REFERENCE_ERROR;

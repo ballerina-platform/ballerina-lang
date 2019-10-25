@@ -27,17 +27,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WebSocketConnectionManager {
 
-    private final Map<String, WebSocketOpenConnectionInfo> wsConnectionsMap = new ConcurrentHashMap<>();
+    private final Map<String, WebSocketConnectionInfo> wsConnectionsMap = new ConcurrentHashMap<>();
 
-    public WebSocketOpenConnectionInfo getConnectionInfo(String connectionID) {
+    public WebSocketConnectionInfo getConnectionInfo(String connectionID) {
         return wsConnectionsMap.get(connectionID);
     }
 
-    public void addConnection(String connectionID, WebSocketOpenConnectionInfo wsConnection) {
+    public void addConnection(String connectionID, WebSocketConnectionInfo wsConnection) {
         wsConnectionsMap.put(connectionID, wsConnection);
     }
 
-    public WebSocketOpenConnectionInfo removeConnectionInfo(String connectionID) {
+    public WebSocketConnectionInfo removeConnectionInfo(String connectionID) {
         return wsConnectionsMap.remove(connectionID);
     }
 }
