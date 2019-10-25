@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
-import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
+import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class Ready {
 
     public static Object ready(Strand strand, ObjectValue wsConnector) {
         try {
-            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnector
+            WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnector
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             boolean isReady = wsConnector.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {

@@ -22,7 +22,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
-import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
+import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -35,25 +35,25 @@ import java.io.IOException;
  *
  * @since 1.1.0
  */
-public class WebSocketFailoverClientListener extends WebSocketClientListener {
+public class WebSocketFailoverClientListener extends WebSocketClientConnectorListener {
 
-    private WebSocketOpenConnectionInfo connectionInfo;
+    private WebSocketConnectionInfo connectionInfo;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketFailoverClientListener.class);
 
-    public void setConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
+    public void setConnectionInfo(WebSocketConnectionInfo connectionInfo) {
         super.setConnectionInfo(connectionInfo);
         this.connectionInfo = connectionInfo;
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        ObjectValue webSocketClient = connectionInfo.getWebSocketCaller();
+        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
         int statusCode = webSocketCloseMessage.getCloseCode();
         if (statusCode == WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE) {
             WebSocketUtil.determineFailoverOrReconnect(connectionInfo, null, webSocketCloseMessage);
         } else {
             if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
-                logger.debug(WebSocketConstants.STATEMENT);
+                logger.debug(WebSocketConstants.STATEMENT_FOR_CLOSE_CONNECTION);
             }
             WebSocketUtil.dispatchOnClose(connectionInfo, webSocketCloseMessage);
         }

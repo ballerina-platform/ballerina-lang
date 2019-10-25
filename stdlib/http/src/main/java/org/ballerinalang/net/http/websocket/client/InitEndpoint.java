@@ -27,8 +27,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
-import org.ballerinalang.net.http.websocket.server.WebSocketService;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
@@ -75,9 +75,9 @@ public class InitEndpoint {
         WebSocketUtil.populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
         // Create the client connector
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(clientConnectorConfig);
-        WebSocketClientListenerImpl clientConnectorListener = new WebSocketClientListenerImpl();
-        // Add the client connector as the native data, when client is not as a failover client
-        // Because Here, using one url So no need to create the client connector again
+        WebSocketClientListener clientConnectorListener = new WebSocketClientListener();
+        // Add client connector as a native data, when client is not as a failover client
+        // Because when using one url  no need to create the client connector again
         webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
         webSocketClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, clientConnectorListener);
         WebSocketUtil.establishWebSocketConnection(webSocketClient, wsService);

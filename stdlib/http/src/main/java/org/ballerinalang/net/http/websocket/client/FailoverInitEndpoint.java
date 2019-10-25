@@ -97,7 +97,7 @@ public class FailoverInitEndpoint {
         webSocketClient.addNativeData(WebSocketConstants.FAILOVER_CONFIG, failoverConfig);
         // Calls the function with the first URL in the target URLs set.
         WebSocketUtil.establishFailoverConnection(WebSocketUtil.
-                        getWebSocketClientConnector(newTargetUrls.get(0), webSocketClient), webSocketClient,
+                        createWebSocketClientConnector(newTargetUrls.get(0), webSocketClient), webSocketClient,
                 WebSocketUtil.validateAndCreateWebSocketService(clientEndpointConfig, strand));
         WebSocketUtil.waitForHandshake(webSocketClient);
     }

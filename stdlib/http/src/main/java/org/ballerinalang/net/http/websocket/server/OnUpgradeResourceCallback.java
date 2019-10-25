@@ -50,9 +50,10 @@ public class OnUpgradeResourceCallback implements CallableUnitCallback {
                     wsService.getMaxFrameSize());
             future.setHandshakeListener(new UpgradeListener(wsService, connectionManager));
         } else {
+            // If the acceptWebSocketUpgrade function has not been called inside the upgrade resource
             if (!webSocketHandshaker.isCancelled()) {
 
-                WebSocketOpenConnectionInfo connectionInfo =
+                WebSocketConnectionInfo connectionInfo =
                         connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
                 WebSocketConnection webSocketConnection = null;
                 try {
@@ -60,7 +61,7 @@ public class OnUpgradeResourceCallback implements CallableUnitCallback {
                 } catch (IllegalAccessException e) {
                     // Ignore as it is not possible have an Illegal access
                 }
-                WebSocketResourceDispatcher.dispatchOnOpen(webSocketConnection, connectionInfo.getWebSocketCaller(),
+                WebSocketResourceDispatcher.dispatchOnOpen(webSocketConnection, connectionInfo.getWebSocketEndpoint(),
                                                            wsService);
             }
         }
@@ -69,7 +70,7 @@ public class OnUpgradeResourceCallback implements CallableUnitCallback {
     @Override
     public void notifyFailure(ErrorValue error) {
         ErrorHandlerUtils.printError(error.getPrintableStackTrace());
-        WebSocketOpenConnectionInfo connectionInfo =
+        WebSocketConnectionInfo connectionInfo =
                 connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
         if (connectionInfo != null) {
             try {

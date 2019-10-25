@@ -63,7 +63,7 @@ public class WebSocketConstants {
     public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
     public static final String RESOURCE_NAME_ON_ERROR = "onError";
 
-    public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
+    public static final String WEBSOCKET_HANDSHAKER = "WEBSOCKET_MESSAGE";
 
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_INFO = "NATIVE_DATA_WEBSOCKET_CONNECTION_INFO";
     public static final String NATIVE_DATA_BASE_PATH = "BASE_PATH";
@@ -135,7 +135,8 @@ public class WebSocketConstants {
             " the targets: ";
     public static final String STATEMENT_FOR_FAILOVDER_RECONNECT = "Maximum retry attempts but couldn't connect " +
             "to the one of the server in the targets: ";
-    public static final String STATEMENT = "Reconnect attempt not made because of close initiated by the server: ";
+    public static final String STATEMENT_FOR_CLOSE_CONNECTION = "Reconnect attempt not made because of " +
+            "close initiated by the server: ";
 
     private WebSocketConstants() {
     }
