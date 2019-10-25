@@ -84,7 +84,7 @@ public function main() {
     int | error count = tb.remove(isHigherSalary);
     io:println("Deleted Count:", count);
 
-    //Contains employee records which is having salary less than 300.0
+    // Contains records of employees with salaries less than 300.0.
     io:println(tb);
 }
 
