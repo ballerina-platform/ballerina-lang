@@ -15,7 +15,7 @@ public function main() {
     table<Employee> tbEmployee = table {
         {key id, name, salary},
         [
-            { 1, "Mary",  300.5},
+            {1, "Mary",  300.5},
             { 2, "John",  200.5},
             { 3, "Jim", 330.5}
         ]
