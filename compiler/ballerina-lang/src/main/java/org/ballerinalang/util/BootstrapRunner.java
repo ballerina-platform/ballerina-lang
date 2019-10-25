@@ -56,7 +56,7 @@ public class BootstrapRunner {
     private static final PrintStream out = System.out;
     private static final PrintStream err = System.err;
     private static final String TMP_OBJECT_FILE_NAME = "ballerina_native_objf.o";
-    
+
     public static void loadTargetAndGenerateJarBinary(Path tmpDir, String entryBir, String jarOutputPath,
                                                       boolean dumpBir, boolean skipJarLoading,
                                                       String... birCachePaths) {
@@ -71,21 +71,7 @@ public class BootstrapRunner {
             }
         }
 
-        // TODO : get this value from the method parameters
-        boolean isNative = true;
-        if (isNative) {
-            // TODO : get the last parameter from the method parameters
-            Path osTempDirPath = Paths.get(System.getProperty("java.io.tmpdir"));
-            Path objectFilePath = osTempDirPath.resolve(TMP_OBJECT_FILE_NAME);
-            genObjectFile(entryBir, objectFilePath.toString(), true);
-
-            // TODO : add = Target file name
-            genExecutable(objectFilePath, "add");
-
-            Runtime.getRuntime().exit(0);
-        } else {
-            generateJarBinary(entryBir, jarOutputPath, dumpBir, birCachePaths);
-        }
+        generateJarBinary(entryBir, jarOutputPath, dumpBir, birCachePaths);
     }
 
     private static void genExecutable(Path objectFilePath, String execFilename) {
@@ -145,10 +131,14 @@ public class BootstrapRunner {
                     e.getMessage(), e);
         }
     }
-    
+
     public static void loadTargetAndGenerateJarBinary(Path tmpDir, String entryBir, String jarOutputPath,
                                                       boolean dumpBir, String... birCachePaths) {
         loadTargetAndGenerateJarBinary(tmpDir, entryBir, jarOutputPath, dumpBir, false, birCachePaths);
+    }
+
+    public static void genNativeCode(String entryBir, String objFileOutputPath, boolean dumpLLVM) {
+        genObjectFile(entryBir, objFileOutputPath, dumpLLVM);
     }
 
     private static void genObjectFile(String entryBir, String objFileOutputPath, boolean dumpLLVM) {
