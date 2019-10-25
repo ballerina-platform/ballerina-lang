@@ -23,9 +23,7 @@ public type Detail record {
     error cause?;
 };
 
-// Ballerina WebSub Listener Error Types
-
-# Represents the reason string for the `websub:ListenerStartupError`
+# Represents the reason string for the `websub:ListenerStartupError`.
 public const LISTENER_STARTUP_ERROR = "{ballerina/websub}ListenerStartupError";
-# Represents a listener startup error
+# Represents a listener startup error.
 public type ListenerStartupError error<LISTENER_STARTUP_ERROR, Detail>;
