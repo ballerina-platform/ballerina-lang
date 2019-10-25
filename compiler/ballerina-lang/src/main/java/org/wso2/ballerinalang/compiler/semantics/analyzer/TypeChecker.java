@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -177,6 +178,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isTypeChecked;
     private TypeNarrower typeNarrower;
     private TypeParamAnalyzer typeParamAnalyzer;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     /**
      * Expected types or inherited types.
@@ -206,6 +208,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -1244,8 +1247,9 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
         List<BField> fields = new ArrayList<>();
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
-                null, env.scope.owner);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0,
+                names.fromString(this.anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.symbol.pkgID)),
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
         boolean unresolvedReference = false;
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
             ((BLangVariableReference) recordRefField.variableReference).lhsVar = true;
@@ -1275,10 +1279,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BRecordType bRecordType = new BRecordType(recordSymbol);
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
-        varRefExpr.symbol = new BVarSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
+        varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name,
+                env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
 
         if (varRefExpr.restParam == null) {
             bRecordType.sealed = true;
+            bRecordType.restFieldType = symTable.noType;
         } else {
             bRecordType.restFieldType = symTable.mapType;
         }
