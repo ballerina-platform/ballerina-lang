@@ -83,22 +83,16 @@ type BbTermGenrator object {
         llvm:LLVMValueRef callReturn = llvm:llvmBuildCall(self.builder, calleFuncRef, args, args.length(), "");
         if (callIns.lhsOp is bir:VarRef) {
             bir:VarRef lhsOpVar = <bir:VarRef>callIns.lhsOp;
-            llvm:LLVMValueRef|error lhsRef = self.parent.getLocalVarRefById(lhsOpVar.variableDcl.name.value);
-            if (lhsRef is error) {
-                panic lhsRef;
-            }
-            var loaded = llvm:llvmBuildStore(self.builder, callReturn, <llvm:LLVMValueRef>lhsRef);
+            llvm:LLVMValueReflhsRef = self.parent.getLocalVarRefById(lhsOpVar.variableDcl.name.value);
+            var loaded = llvm:llvmBuildStore(self.builder, callReturn, lhsRef);
 
         }
     }
 
     function genReturnTerm() {
         if (self.parent.isVoidFunc()){
-            llvm:LLVMValueRef|error lhsRef = self.parent.getLocalVarRefById("%0");
-            if (lhsRef is error) {
-                panic lhsRef;
-            }
-            var retValueRef = llvm:llvmBuildLoad(self.builder, <llvm:LLVMValueRef>lhsRef, "retrun_temp");
+            llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById("%0");
+            var retValueRef = llvm:llvmBuildLoad(self.builder, lhsRef, "retrun_temp");
             var ret = llvm:llvmBuildRet(self.builder, retValueRef);
         } else {
             var ret = llvm:llvmBuildRetVoid(self.builder);

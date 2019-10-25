@@ -7,89 +7,111 @@ type BbBodyGenrator object {
     FuncGenrator parent;
     bir:BasicBlock bb;
 
-    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:BasicBlock bb) {
+    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent,
+                    bir:BasicBlock bb) {
         self.builder = builder;
         self.parent = parent;
         self.bb = bb;
     }
 
     function genBasicBlockBody() returns BbTermGenrator {
-        llvm:LLVMValueRef? funcRefTemp = self.parent.funcRef;
-        if (funcRefTemp is llvm:LLVMValueRef) {
-            llvm:LLVMBasicBlockRef bbRef = llvm:llvmAppendBasicBlock(funcRefTemp, self.bb.id.value);
-            llvm:llvmPositionBuilderAtEnd(self.builder, bbRef);
-            foreach var i in self.bb.instructions {
-                genInstruction(i);
+        if (self.parent.funcRef is ()) {
+            error funcRefErr =  error("funcRefIsNullError", message = "funcref doesnt exist in" + self.parent.func.name.value);
+            panic funcRefErr;
+        }
+        llvm:LLVMBasicBlockRef bbRef = llvm:llvmAppendBasicBlock(<llvm:LLVMValueRef>self.parent.funcRef, self.bb.id.value);
+        llvm:llvmPositionBuilderAtEnd(self.builder, bbRef);
+        foreach var i in self.bb.instructions {
+            if (i is ()) {
+                continue;
             }
-            return new(self.builder, self.bb, bbRef, self.parent);
+            self.genInstruction(<bir:Instruction>i);
+        }
+        return new(self.builder, self.parent, self.bb, bbRef);
+    }
+
+    function genInstruction(bir:Instruction instruction) {
+        if (instruction is bir:Move) {
+            self.genMoveIns(instruction);
+        } else if (instruction is bir:BinaryOp) {
+            self.genBinaryOpIns(instruction);
+        } else if (instruction is bir:ConstantLoad) {
+            self.genConstantLoadIns(instruction);
         }
     }
 
-
-    function genInstruction(bir:Instruction instruction) {
-        match instruction {
-            bir:Move moveIns => genMoveIns(moveIns);
-            bir:BinaryOp binaryIns => genBinaryOpIns(binaryIns);
-            bir:ConstantLoad constIns => genConstantLoadIns(constIns);
-        }
-    };
-
     function genMoveIns(bir:Move moveIns) {
-        llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(moveIns.lhsOp.variableDcl.name.value);
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(moveIns.lhsOp.variableDcl.name.value);
         var rhsVarOp = moveIns.rhsOp;
-        llvm:LLVMValueRef rhsVarOpRef = parent.genLoadLocalToTempVar(rhsVarOp);
-        var loaded = llvm:LLVMBuildStore(builder, rhsVarOpRef, lhsRef);
+        llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
+        var loaded = llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
     }
 
     function genBinaryOpIns(bir:BinaryOp binaryIns) {
         var lhsTmpName = localVarName(binaryIns.lhsOp.variableDcl) + "_temp";
-        var lhsRef = parent.getLocalVarRefById(binaryIns.lhsOp.variableDcl.name.value);
-        var rhsOp1 = parent.genLoadLocalToTempVar(binaryIns.rhsOp1);
-        var rhsOp2 = parent.genLoadLocalToTempVar(binaryIns.rhsOp2);
+        var lhsRef = self.parent.getLocalVarRefById(binaryIns.lhsOp.variableDcl.name.value);
+        var rhsOp1 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp1);
+        var rhsOp2 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp2);
         var kind = binaryIns.kind;
 
-        BinaryInsGenrator binaryGen = new(builder, lhsTmpName, lhsRef, rhsOp1, rhsOp2);
-        match kind {
-            bir:ADD => binaryGen.genAdd();
-            bir:DIV => binaryGen.genDiv();
-            bir:EQUAL => binaryGen.genEqual();
-            bir:GREATER_EQUAL => binaryGen.genGreaterEqual();
-            bir:GREATER_THAN => binaryGen.genGreaterThan();
-            bir:LESS_EQUAL => binaryGen.genLessEqual();
-            bir:LESS_THAN => binaryGen.genLessThan();
-            bir:MUL => binaryGen.genMul();
-            bir:NOT_EQUAL => binaryGen.genNotEqual();
-            bir:SUB => binaryGen.genSub();
+        BinaryInsGenrator binaryGen = new(self.builder, lhsTmpName, lhsRef, rhsOp1, rhsOp2);
+        if (kind == bir:BINARY_ADD) {
+            binaryGen.genAdd();
+        } else if (kind == bir:BINARY_DIV) {
+            binaryGen.genDiv();
+        } else if (kind == bir:BINARY_EQUAL) {
+            binaryGen.genEqual();
+        } else if (kind == bir:BINARY_GREATER_EQUAL) {
+            binaryGen.genGreaterEqual();
+        } else if (kind == bir:BINARY_GREATER_THAN) {
+            binaryGen.genGreaterThan();
+        } else if (kind == bir:BINARY_LESS_EQUAL) {
+            binaryGen.genLessEqual();
+        } else if (kind == bir:BINARY_LESS_THAN) {
+            binaryGen.genLessThan();
+        } else if (kind == bir:BINARY_MUL) {
+            binaryGen.genMul();
+        } else if (kind == bir:BINARY_NOT_EQUAL) {
+            binaryGen.genNotEqual();
+        } else if (kind == bir:BINARY_SUB) {
+            binaryGen.genSub();
         }
 
     }
 
     function genConstantLoadIns(bir:ConstantLoad constLoad) {
-        llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
-        var constRef = llvm:LLVMConstInt(llvm:LLVMInt64Type(), constLoad.value, 0);
-        var loaded = llvm:LLVMBuildStore(builder, constRef, lhsRef);
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
+        if (!(constLoad.value is int)) {
+            error err = error("NotIntErr", message = "invalid value in constLoad");
+            panic err;
+        }
+        var constRef = llvm:llvmConstInt(llvm:llvmInt64Type(), <int>constLoad.value, 0);
+        var loaded = llvm:llvmBuildStore(self.builder, constRef, lhsRef);
     }
+
 };
 
-
 function findBbRefById(map<BbTermGenrator> bbGenrators, string id) returns llvm:LLVMBasicBlockRef {
-    match bbGenrators[id] {
-        BbTermGenrator foundBB => return foundBB.bbRef;
-        () => {
-            error err = { message: "bb '" + id + "' dosn't exist" };
-            throw err;
-        }
+    if (bbGenrators[id] is BbTermGenrator) {
+        BbTermGenrator genrator = <BbTermGenrator>bbGenrators[id];
+        return genrator.bbRef;
+    } else {
+            error err = error("NotBbTermGenratorError", message = "bb '" + id + "' dosn't exist");
+            panic err;
     }
 }
 
 function findFuncRefByName(map<FuncGenrator> funcGenrators, bir:Name name) returns llvm:LLVMValueRef {
-    match funcGenrators[name.value] {
-        FuncGenrator foundFunc => return foundFunc.funcRef;
-        any => {
-            error err = { message: "function '" + name.value + "' dosn't exist" };
-            throw err;
+    if (funcGenrators[name.value] is FuncGenrator) {
+        FuncGenrator genrator = <FuncGenrator> funcGenrators[name.value];
+        if (genrator.funcRef is ()) {
+            error err = error("FuncRefIsNull", message = "Func genrator does not have funcRef");
+            panic err;
         }
+        return <llvm:LLVMValueRef>genrator.funcRef;
+    } else {
+            error err = error("NotFuncGenratorTypeError", message = "function '" + name.value + "' dosn't exist");
+            panic err;
     }
 }
-
 
