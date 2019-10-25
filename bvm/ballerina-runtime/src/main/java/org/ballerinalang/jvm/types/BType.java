@@ -91,10 +91,15 @@ public abstract class BType {
                 return namesEqual;
             }
 
-            if (this.pkg.getName() == null && other.pkg.getName() == null) {
-                return namesEqual;
-            } else if (this.pkg.getName() != null && other.pkg.getName() != null) {
-                return this.pkg.getName().equals(other.pkg.getName()) && namesEqual;
+            String thisPkgName = this.pkg.getName();
+            String otherPkgName = other.pkg.getName();
+
+            if (otherPkgName == null) {
+                if (thisPkgName == null) {
+                    return namesEqual;
+                }
+            } else if (thisPkgName != null) {
+                return namesEqual && thisPkgName.equals(otherPkgName);
             }
         }
         return false;

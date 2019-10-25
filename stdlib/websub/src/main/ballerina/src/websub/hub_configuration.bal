@@ -25,6 +25,7 @@ const string HUB_PATH = "/hub";
 const string DEFAULT_HOST = "0.0.0.0";
 const int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
 const string DEFAULT_SIGNATURE_METHOD = "SHA256";
+const int DEFAULT_CACHE_EXPIRY_MILLIS = 172800000;
 
 //TODO: Fix persistence configs, H2?
 const string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
