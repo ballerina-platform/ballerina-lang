@@ -18,6 +18,9 @@ import ballerina/llvm;
 import ballerina/bir;
 import ballerina/io;
 
+// TODO: make non-global
+llvm:LLVMValueRef? printfRef = ();
+
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
     genFunctions(mod, pkg.functions);
@@ -53,7 +56,7 @@ function genPrintfDeclration(llvm:LLVMModuleRef mod) {
     io:println("pointer_to_char_type : ");
     io:print(pointer_to_char_type);
     llvm:LLVMTypeRef printfType = llvm:llvmFunctionType1(llvm:llvmInt32Type(), pointer_to_char_type, 1, 1);
-    llvm:LLVMValueRef printfRef = llvm:llvmAddFunction(mod, "printf", printfType);
+    printfRef = llvm:llvmAddFunction(mod, "printf", printfType);
 }
 
 function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function?[] funcs)
@@ -99,4 +102,12 @@ function localVarName(bir:VariableDcl? localVar) returns string {
 
 function localVarNameFromId(string localVarStr) returns string {
     return "local" + localVarStr.substring(1, localVarStr.length());
+}
+
+function appendAllTo(any[] toArr, any[] fromArr) {
+    int i = toArr.length();
+    foreach var bI in fromArr {
+        toArr[i] = bI;
+        i = i + 1;
+    }
 }

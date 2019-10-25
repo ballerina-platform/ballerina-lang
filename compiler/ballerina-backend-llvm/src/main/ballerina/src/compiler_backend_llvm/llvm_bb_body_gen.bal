@@ -1,5 +1,6 @@
 import ballerina/llvm;
 import ballerina/bir;
+import ballerina/io;
 
 type BbBodyGenrator object {
 
@@ -26,7 +27,7 @@ type BbBodyGenrator object {
             }
             self.genInstruction(<bir:Instruction>i);
         }
-        return new(self.builder, self.parent, self.bb, bbRef);
+        return new(self.builder, self.bb, bbRef, self.parent);
     }
 
     function genInstruction(bir:Instruction instruction) {
@@ -40,10 +41,12 @@ type BbBodyGenrator object {
     }
 
     function genMoveIns(bir:Move moveIns) {
-        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(moveIns.lhsOp.variableDcl.name.value);
+        llvm:LLVMValueRef|error lhsRef = self.parent.getLocalVarRefById(moveIns.lhsOp.variableDcl.name.value);
         var rhsVarOp = moveIns.rhsOp;
         llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
-        var loaded = llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
+        if (lhsRef is llvm:LLVMValueRef) {
+            var loaded = <llvm:LLVMValueRef> llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
+        }
     }
 
     function genBinaryOpIns(bir:BinaryOp binaryIns) {
@@ -53,7 +56,11 @@ type BbBodyGenrator object {
         var rhsOp2 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp2);
         var kind = binaryIns.kind;
 
-        BinaryInsGenrator binaryGen = new(self.builder, lhsTmpName, lhsRef, rhsOp1, rhsOp2);
+        if (lhsRef is error) {
+            error err = error("NotBinaryInsGenratorErr", message = "invalid value in genBinaryOpIns");
+            panic err;
+        }
+        BinaryInsGenrator binaryGen = new(self.builder, lhsTmpName, <llvm:LLVMValueRef>lhsRef, rhsOp1, rhsOp2);
         if (kind == bir:BINARY_ADD) {
             binaryGen.genAdd();
         } else if (kind == bir:BINARY_DIV) {
@@ -78,13 +85,19 @@ type BbBodyGenrator object {
     }
 
     function genConstantLoadIns(bir:ConstantLoad constLoad) {
-        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
-        if (!(constLoad.value is int)) {
+        if !(constLoad.value is int) {
             error err = error("NotIntErr", message = "invalid value in constLoad");
             panic err;
         }
+        llvm:LLVMValueRef|error lhsRef = self.parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
+        if (lhsRef is error) {
+            io:println("Error: ", lhsRef.reason(),
+                            ", Message: ", lhsRef.detail()?.message);
+            error err = error("NotLLVMValueRefErr", message = "invalid value in constLoad");
+            panic err;
+        }
         var constRef = llvm:llvmConstInt(llvm:llvmInt64Type(), <int>constLoad.value, 0);
-        var loaded = llvm:llvmBuildStore(self.builder, constRef, lhsRef);
+        var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
     }
 };
 

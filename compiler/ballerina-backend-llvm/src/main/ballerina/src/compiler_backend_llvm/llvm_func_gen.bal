@@ -22,16 +22,13 @@ type FuncGenrator object {
     bir:Function func;
     llvm:LLVMValueRef? funcRef = ();
     llvm:LLVMModuleRef mod;
-    map<llvm:LLVMValueRef>? localVarRefs = ();
+    map<llvm:LLVMValueRef>? localVarRefs = {};
     llvm:LLVMValueRef? varAllocBB = ();
     llvm:LLVMBuilderRef builder;
 
     function __init(bir:Function func, llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder) {
         self.func = func;
-        //self.funcRef = funcRef;
         self.mod = mod;
-        //self.localVarRefs = localVarRefs;
-        //self.varAllocBB = varAllocBB;
         self.builder = builder;
     }
 
@@ -119,7 +116,9 @@ type FuncGenrator object {
 
 
     function genLocalVarAllocationBBTerminator(map<BbTermGenrator> bbTermGenrators) {
-        llvm:llvmPositionBuilderAtEnd(self.builder, self.varAllocBB);
+        if (self.varAllocBB is llvm:LLVMValueRef) {
+            llvm:llvmPositionBuilderAtEnd(self.builder, <llvm:LLVMValueRef> self.varAllocBB);
+        }
         var brInsRef = llvm:llvmBuildBr(self.builder, findBbRefById(bbTermGenrators, "bb0"));
     }
 
@@ -161,6 +160,8 @@ type FuncGenrator object {
     }
 
     function isVoidFunc() returns boolean {
-        return self.func.typeValue.retType != "()";
+        return !(self.func.typeValue["retType"] is ());
     }
 };
+        //BType? tempRetType = self.func["typeValue"].retType;
+        //return !(tempRetType is ());

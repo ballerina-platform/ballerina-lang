@@ -58,14 +58,15 @@ type BbTermGenrator object {
 
     function mapOverGenVarLoad(bir:VarRef?[] ops) returns llvm:LLVMValueRef[] {
         llvm:LLVMValueRef[] loaddedVars = [];
-        if (!(ops is ())) {
             var argsCount = ops.length();
             int i = 0;
             while (i < argsCount) {
-                loaddedVars[i] = self.parent.genLoadLocalToTempVar(ops[i]);
+                if (ops[i] is bir:VarRef) {
+                    loaddedVars[i] = self.parent.genLoadLocalToTempVar(<bir:VarRef> ops[i]);
+                }
                 i += 1;
             }
-        }
+
         return loaddedVars;
     }
 
@@ -75,7 +76,9 @@ type BbTermGenrator object {
         var printLnIntPatten = llvm:llvmBuildGlobalStringPtr(self.builder, printfPatten, "");
         llvm:LLVMValueRef[] printArgs = [printLnIntPatten];
         appendAllTo(printArgs, args);
-        llvm:LLVMValueRef callReturn = llvm:llvmBuildCall(self.builder, printfRef, printArgs, printArgs.length(), "");
+        if (printfRef is llvm:LLVMValueRef) {
+            llvm:LLVMValueRef callReturn = llvm:llvmBuildCall(self.builder, <llvm:LLVMValueRef>printfRef, printArgs, printArgs.length(), "");
+        }
     }
 
     function genCallToSamePkgFunc(map<FuncGenrator> funcGenrators, bir:Call callIns, llvm:LLVMValueRef[] args) {
@@ -83,16 +86,23 @@ type BbTermGenrator object {
         llvm:LLVMValueRef callReturn = llvm:llvmBuildCall(self.builder, calleFuncRef, args, args.length(), "");
         if (callIns.lhsOp is bir:VarRef) {
             bir:VarRef lhsOpVar = <bir:VarRef>callIns.lhsOp;
-            llvm:LLVMValueReflhsRef = self.parent.getLocalVarRefById(lhsOpVar.variableDcl.name.value);
-            var loaded = llvm:llvmBuildStore(self.builder, callReturn, lhsRef);
-
+            var lhsRef = self.parent.getLocalVarRefById(lhsOpVar.variableDcl.name.value);
+            if (lhsRef is error) {
+                error err = error("NotLLVMValueRefErr", message = "invalid value in genCallToSamePkgFunc");
+                panic err;
+            }
+            var loaded = llvm:llvmBuildStore(self.builder, callReturn, <llvm:LLVMValueRef> lhsRef);
         }
     }
 
     function genReturnTerm() {
         if (self.parent.isVoidFunc()){
-            llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById("%0");
-            var retValueRef = llvm:llvmBuildLoad(self.builder, lhsRef, "retrun_temp");
+            var lhsRef = self.parent.getLocalVarRefById("%0");
+            if (lhsRef is error) {
+                error err = error("NotLLVMValueRefErr", message = "invalid value in genReturnTerm");
+                panic err;
+            }
+            var retValueRef = llvm:llvmBuildLoad(self.builder, <llvm:LLVMValueRef> lhsRef, "retrun_temp");
             var ret = llvm:llvmBuildRet(self.builder, retValueRef);
         } else {
             var ret = llvm:llvmBuildRetVoid(self.builder);
@@ -103,8 +113,8 @@ type BbTermGenrator object {
 
 
 function stringMul(string str, int factor) returns string {
-    int i;
-    string result;
+    int i = 0;
+    string result = "";
     while i < factor {
         result = result + str;
         i += 1;
