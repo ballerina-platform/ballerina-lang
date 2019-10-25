@@ -19,14 +19,12 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
