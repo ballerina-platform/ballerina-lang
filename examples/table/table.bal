@@ -17,7 +17,7 @@ public function main() {
         [
             {1, "Mary",  300.5},
             {2, "John",  200.5},
-            { 3, "Jim", 330.5}
+            {3, "Jim", 330.5}
         ]
     };
     // This prints the `table` data.
