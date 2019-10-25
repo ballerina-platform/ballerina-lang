@@ -43,14 +43,14 @@ public class ForEach {
 
     public static void forEach(Strand strand, XMLValue<?> x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            func.apply(new Object[]{strand, x, true});
+            func.call(new Object[]{strand, x, true});
             return;
         }
 
         IteratorValue iterator = ((XMLSequence) x).getIterator();
         while (iterator.hasNext()) {
             Object xmlOrStringVal = iterator.next();
-            func.apply(new Object[]{strand, xmlOrStringVal, true});
+            func.call(new Object[]{strand, xmlOrStringVal, true});
         }
     }
 }

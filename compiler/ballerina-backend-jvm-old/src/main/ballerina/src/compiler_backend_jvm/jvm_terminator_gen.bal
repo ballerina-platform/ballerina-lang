@@ -688,7 +688,7 @@ type TerminatorGenerator object {
             self.loadVar(fpCall.fp.variableDcl);
             self.submitToScheduler(fpCall.lhsOp, localVarOffset);           
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
             // store reult
             bir:BType? lhsType = fpCall.lhsOp?.typeValue;
             if (lhsType is bir:BType) {

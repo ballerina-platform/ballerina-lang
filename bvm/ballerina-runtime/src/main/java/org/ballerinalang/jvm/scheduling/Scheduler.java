@@ -107,7 +107,7 @@ public class Scheduler {
 
     @Deprecated
     public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
-        return schedule(params, fp.getConsumer(), parent, null);
+        return schedule(params, fp.getFunction(), parent, (CallableUnitCallback) null);
     }
 
     /**
@@ -396,7 +396,6 @@ public class Scheduler {
  */
 class SchedulerItem {
     private Function function;
-    private Consumer consumer;
     private Object[] params;
     final FutureValue future;
     boolean parked;
@@ -409,9 +408,13 @@ class SchedulerItem {
         this.params = params;
     }
 
+    @Deprecated
     public SchedulerItem(Consumer consumer, Object[] params, FutureValue future) {
         this.future = future;
-        this.consumer = consumer;
+        this.function = val -> {
+            consumer.accept(val);
+            return null;
+        };
         this.params = params;
     }
 
@@ -420,12 +423,7 @@ class SchedulerItem {
     }
 
     public Object execute() {
-        if (this.consumer != null) {
-            this.consumer.accept(this.params);
-            return null;
-        } else {
-            return this.function.apply(this.params);
-        }
+        return this.function.apply(this.params);
     }
 
     public boolean isYielded() {

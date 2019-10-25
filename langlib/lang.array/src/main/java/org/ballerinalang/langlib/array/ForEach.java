@@ -47,7 +47,7 @@ public class ForEach {
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
 
         for (int i = 0; i < size; i++) {
-            func.apply(new Object[]{strand, getFn.get(arr, i), true});
+            func.call(new Object[]{strand, getFn.get(arr, i), true});
         }
     }
 }
