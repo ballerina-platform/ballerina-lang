@@ -139,13 +139,13 @@ type FuncGenrator object {
         }
     }
 
-    function getLocalVarRefById(string id) returns llvm:LLVMValueRef|error {
+    function getLocalVarRefById(string id) returns llvm:LLVMValueRef {
         llvm:LLVMValueRef? tempVarRef = self.localVarRefs[id];
         if (tempVarRef is llvm:LLVMValueRef) {
             return tempVarRef;
         }
         else {
-            return error("SimpleErrorType", message = "Local var by name '" + id + "' dosn't exist in " + self.func.name.value);
+            panic error("SimpleErrorType", message = "Local var by name '" + id + "' dosn't exist in " + self.func.name.value);
         }
     }
 
