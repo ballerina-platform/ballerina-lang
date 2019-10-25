@@ -60,8 +60,7 @@ function process(io:ReadableTextRecordChannel srcRecordChannel,
 function closeRc(io:ReadableTextRecordChannel rc) {
     var closeResult = rc.close();
     if (closeResult is error) {
-        log:printError("Error occurred while closing the channel: ",
-                       err = closeResult);
+        log:printError("Error occurred while closing the channel: ", closeResult);
     }
 }
 
@@ -69,8 +68,7 @@ function closeRc(io:ReadableTextRecordChannel rc) {
 function closeWc(io:WritableTextRecordChannel wc) {
     var closeResult = wc.close();
     if (closeResult is error) {
-        log:printError("Error occurred while closing the channel: ",
-                       err = closeResult);
+        log:printError("Error occurred while closing the channel: ", closeResult);
     }
 }
 
@@ -82,10 +80,11 @@ public function main() {
     // The record separator of the `.CSV` file is a
     // new line and the field separator is a comma (,).
     io:ReadableTextRecordChannel srcRecordChannel;
-    var readableChannel = getReadableRecordChannel(srcFileName, "UTF-8", "\\r?\\n", ",");
+    var readableChannel = getReadableRecordChannel(srcFileName,
+                                                        "UTF-8", "\\r?\\n", ",");
     if (readableChannel is error) {
         log:printError("An error occurred while creating readable record channel. ",
-                        err = readableChannel);
+                        readableChannel);
         return;
     } else {
         srcRecordChannel = readableChannel;
@@ -94,10 +93,11 @@ public function main() {
     //The record separator of the text file
     //is a new line and the field separator is a pipe (|).
     io:WritableTextRecordChannel dstRecordChannel;
-    var writableChannel = getWritableRecordChannel(dstFileName, "UTF-8", "\r\n", "|");
+    var writableChannel = getWritableRecordChannel(dstFileName,
+                                                        "UTF-8", "\r\n", "|");
     if (writableChannel is error) {
         log:printError("An error occurred while creating writable record channel. ",
-                        err = writableChannel);
+                        writableChannel);
         return;
     } else {
         dstRecordChannel = writableChannel;
@@ -107,8 +107,7 @@ public function main() {
                " to the text file in " + dstFileName);
     var result = process(srcRecordChannel, dstRecordChannel);
     if (result is error) {
-        log:printError("An error occurred while processing the records: ",
-                       err = result);
+        log:printError("An error occurred while processing the records: ", result);
     } else {
         io:println("Processing completed. The processed file is located in ",
                     dstFileName);
