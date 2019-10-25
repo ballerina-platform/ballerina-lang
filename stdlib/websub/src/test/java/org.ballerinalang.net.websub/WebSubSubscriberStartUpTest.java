@@ -42,7 +42,7 @@ public class WebSubSubscriberStartUpTest {
     public void testMultipleSubscribersStartUpInSamePort() {
         BValue[] returns = BRunUtil.invoke(result, "startSubscriberService");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
-                            "failed to start server connector '0.0.0.0:8387': Address already in use");
+        Assert.assertTrue(returns[0].stringValue().contains("failed to start server connector '0.0.0.0:8387': " +
+                                                                    "Address already in use"));
     }
 }
