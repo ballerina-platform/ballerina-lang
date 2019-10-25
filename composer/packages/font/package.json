@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/font",
-  "version": "1.0.2-SNAPSHOT",
+  "version": "1.0.2",
   "description": "Ballerina Diagram Font",
   "main": "build/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@ballerina/composer-cli": "^1.0.2-SNAPSHOT",
+    "@ballerina/composer-cli": "^1.0.2",
     "watch": "^1.0.2",
     "webfont": "^8.1.4"
   }
