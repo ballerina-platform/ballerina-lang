@@ -79,7 +79,7 @@ public function main() {
     xml retValXml = xmlutils:fromTable(tb);
     io:println("XML: ", retValXml);
 
-    //Removes employees who is having salary higher than 300.0
+    // Removes employees with salaries higher than 300.0
     //from the table.
     int | error count = tb.remove(isHigherSalary);
     io:println("Deleted Count:", count);
