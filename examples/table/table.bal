@@ -88,7 +88,7 @@ public function main() {
     io:println(tb);
 }
 
-//Checks whether a given Employee's salary is higher than 300.0.
+// Checks whether a given employee's salary is higher than 300.0.
 function isHigherSalary(Employee p) returns (boolean) {
     return p.salary > 300.0;
 }
