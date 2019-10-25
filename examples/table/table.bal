@@ -80,7 +80,7 @@ public function main() {
     io:println("XML: ", retValXml);
 
     // Removes employees with salaries higher than 300.0
-    //from the table.
+    // from the table.
     int | error count = tb.remove(isHigherSalary);
     io:println("Deleted Count:", count);
 
