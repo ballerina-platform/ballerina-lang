@@ -67,6 +67,8 @@ public class BallerinaEnterInStringHandler extends EnterHandlerDelegateAdapter {
         int lineEndOffset = doc.getLineEndOffset(editor.getCaretModel().getLogicalPosition().line);
 
         // Adds the missing double quotes and + operator to the splitted text.
+        // Note - Don't replace the "\n" with the "System.lineSeparator()" as Docuemnt.insertString() method only
+        // accepts the unix line separator.
         String lText = doc.getText(new TextRange(startOffset, caretOff)) + "\" + \n";
         String rText = "\"" + doc.getText(new TextRange(caretOff, endOffset)) + doc.getText(new TextRange(endOffset,
                 lineEndOffset));
