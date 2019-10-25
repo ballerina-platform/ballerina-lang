@@ -40,9 +40,11 @@ import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.
 public class CreateJarTask implements Task {
 
     private boolean dumpBir;
+    private boolean isNative;
 
-    public CreateJarTask(boolean dumpBir) {
+    public CreateJarTask(boolean dumpBir, boolean isNative) {
         this.dumpBir = dumpBir;
+        this.isNative = isNative;
     }
     
     @Override
@@ -67,10 +69,14 @@ public class CreateJarTask implements Task {
             
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
-    
-            BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir, entryBir.toString(), jarOutput.toString(),
-                    this.dumpBir, buildContext.getSourceType() == SINGLE_BAL_FILE, projectBIRCache.toString(),
-                    homeBIRCache.toString(), systemBIRCache.toString());
+
+            if (isNative) {
+                BootstrapRunner.genNativeCode(entryBir.toString(), jarOutput.toString(), this.dumpBir);
+            } else {
+                BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir, entryBir.toString(), jarOutput.toString(),
+                        this.dumpBir, buildContext.getSourceType() == SINGLE_BAL_FILE,
+                        projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+            }
 
             // If there is a testable package we will create testable jar.
             if (module.hasTestablePackage()) {
