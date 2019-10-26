@@ -47,7 +47,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildCondBr;
 )
 public class LLVMBuildCondBr{
 
-    public MapValue<String, Object> llvmBuildCondBr(Strand strand, MapValue<String, Object> arg0,
+    public static MapValue<String, Object> llvmBuildCondBr(Strand strand, MapValue<String, Object> arg0,
             MapValue<String, Object> ifValue, MapValue<String, Object>  then, MapValue<String, Object>  elseValue) {
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVM.LLVMValueRef ifValueRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ifValue);

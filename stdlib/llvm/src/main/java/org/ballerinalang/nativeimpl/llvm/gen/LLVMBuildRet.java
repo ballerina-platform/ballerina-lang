@@ -45,7 +45,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildRet;
 )
 public class LLVMBuildRet{
 
-    public MapValue<String, Object> llvmBuildRet(Strand strand, MapValue<String, Object> arg0,
+    public static MapValue<String, Object> llvmBuildRet(Strand strand, MapValue<String, Object> arg0,
             MapValue<String, Object> v) {
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVM.LLVMValueRef vRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(v);

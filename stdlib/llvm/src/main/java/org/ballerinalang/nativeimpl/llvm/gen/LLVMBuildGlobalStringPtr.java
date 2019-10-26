@@ -47,7 +47,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildGlobalStringPtr;
 )
 public class LLVMBuildGlobalStringPtr {
 
-    public MapValue<String, Object> llvmBuildGlobalStringPtr(Strand strand, MapValue<String, Object> b,
+    public static MapValue<String, Object> llvmBuildGlobalStringPtr(Strand strand, MapValue<String, Object> b,
             String str, String name) {
         LLVM.LLVMBuilderRef bRef = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(b);
         LLVMValueRef returnValue = LLVMBuildGlobalStringPtr(bRef, str, name);

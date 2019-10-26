@@ -79,7 +79,7 @@ public function llvmModuleCreateWithName(string moduleID) returns LLVMModuleRef 
 //public function llvmGetTarget(LLVMModuleRef m) returns BytePointer = external;
 //public function llvmSetTarget(LLVMModuleRef m, string triple) = external;
 ////public function llvmSetTarget(LLVMModuleRef m, BytePointer triple) = external;
-//public function llvmDumpModule(LLVMModuleRef m) = external;
+public function llvmDumpModule(LLVMModuleRef m) = external;
 ////public function llvmPrintModuleToFile(LLVMModuleRef m, BytePointer filename, byte[] errorMessage) returns int = external;
 ////public function llvmPrintModuleToFile(LLVMModuleRef m, string filename, ByteBuffer errorMessage) returns int = external;
 ////public function llvmPrintModuleToFile(LLVMModuleRef m, string filename, BytePointer errorMessage) returns int = external;

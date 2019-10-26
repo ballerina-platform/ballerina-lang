@@ -26,6 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
 import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
@@ -53,12 +54,12 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildCall;
 )
 public class LLVMBuildCall{
 
-    public MapValue<String, Object> llvmBuildCall(Strand strand, MapValue<String, Object> arg0,
+    public static MapValue<String, Object> llvmBuildCall(Strand strand, MapValue<String, Object> arg0,
             MapValue<String, Object> fn, ArrayValue args, long  numArgs, String name) {
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVM.LLVMValueRef fnRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
-        LLVMValueRef[] argsRef = (LLVMValueRef[]) FFIUtil.getRecodeArrayArgumentNative(args);
-        PointerPointer<LLVMValueRef> argsWrapped = new PointerPointer<LLVMValueRef>(argsRef);
+        Pointer[] argsRef = FFIUtil.getRecodeArrayArgumentNative(args);
+        PointerPointer<LLVMValueRef> argsWrapped = new PointerPointer(argsRef);
         int numArgsRef = (int) numArgs;
         LLVMValueRef returnValue = LLVMBuildCall(arg0Ref, fnRef, argsWrapped, numArgsRef, name);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",

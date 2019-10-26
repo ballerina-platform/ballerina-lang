@@ -24,6 +24,11 @@ llvm:LLVMValueRef? printfRef = ();
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
     genFunctions(mod, pkg.functions);
+    //optimize(mod);
+    //createObjectFile(targetObjectFilePath, mod);
+    if(dumpLLVMIR) {
+        llvm:llvmDumpModule(mod);
+    }
     io:print(mod);
 }
 
@@ -48,6 +53,19 @@ function genFunctions(llvm:LLVMModuleRef mod, bir:Function?[] funcs) {
     llvm:llvmDisposeBuilder(builder);
     io:println("Hello genFunctions !");
 }
+
+//function createObjectFile(string targetObjectFilePath, llvm:LLVMModuleRef mod) {
+//    llvm:LLVMTargetMachineRef targetMachine;
+//    try {
+//        targetMachine = createTargetMachine();
+//        var filenameBytes = createNullTermiatedString(targetObjectFilePath);
+//        byte[] errorMsg;
+//        int i = llvm:LLVMTargetMachineEmitToFile(targetMachine, mod, filenameBytes, 1, errorMsg);
+//        // TODO error reporting
+//    } finally {
+//        llvm:LLVMDisposeTargetMachine(targetMachine);
+//    }
+//}
 
 function readFileFully(string path) returns byte[] = external;
 
