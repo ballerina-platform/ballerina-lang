@@ -27,6 +27,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:annotations')
+    implementation project(':ballerina-core')
 }
 
 createBalo {

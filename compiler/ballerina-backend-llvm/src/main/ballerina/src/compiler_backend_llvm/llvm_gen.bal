@@ -24,7 +24,7 @@ llvm:LLVMValueRef? printfRef = ();
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
     genFunctions(mod, pkg.functions);
-    //optimize(mod);
+    optimize(mod);
     //createObjectFile(targetObjectFilePath, mod);
     if(dumpLLVMIR) {
         llvm:llvmDumpModule(mod);
@@ -87,6 +87,23 @@ function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef b
         }
     }
     return genrators;
+}
+
+function optimize(llvm:LLVMModuleRef mod) {
+    var passBuilder = llvm:llvmPassManagerBuilderCreate();
+    llvm:llvmPassManagerBuilderSetOptLevel(passBuilder, 3);
+
+    var pass = llvm:llvmCreatePassManager();
+    llvm:llvmPassManagerBuilderPopulateFunctionPassManager(passBuilder, pass);
+    llvm:llvmPassManagerBuilderPopulateModulePassManager(passBuilder, pass);
+    // comment above two lines and uncomment below when debuing
+    //llvm:LLVMAddPromoteMemoryToRegisterPass(pass);
+
+    var optResult = llvm:llvmRunPassManager(pass, mod);
+
+    // TODO error reporting
+    llvm:llvmPassManagerBuilderDispose(passBuilder);
+    llvm:llvmDisposePassManager(pass);
 }
 
 // TODO : Should revamp this method again
