@@ -9,7 +9,7 @@ public function main() {
     // Specifies the port that the internal Ballerina hub needs to start on and start the hub.
     io:println("Starting up the Ballerina Hub Service");
 
-    var result = websub:startHub(new http:Listener(9191));
+    var result = websub:startHub(new http:Listener(9191), "/websub", "/hub");
     websub:WebSubHub webSubHub = result is websub:HubStartedUpError ?
                                                 result.startedUpHub : result;
 

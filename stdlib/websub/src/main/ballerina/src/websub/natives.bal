@@ -22,6 +22,8 @@ import ballerina/io;
 ///////////////////////////////////////////////////////////////////
 # Starts up the internal Ballerina Hub.
 #
+# + basePath - The base path of the hub service
+# + resourcePath - The resource path of the hub
 # + topicRegistrationRequired - Whether a topic needs to be registered at the hub prior to publishing/subscribing
 #                               to the topic
 # + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
@@ -30,8 +32,8 @@ import ballerina/io;
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
-function startUpHubService(boolean topicRegistrationRequired, string publicUrl, http:Listener hubListener)
-                                                                        returns WebSubHub|HubStartedUpError = external;
+function startUpHubService(string basePath, string resourcePath, boolean topicRegistrationRequired,
+                           string publicUrl, http:Listener hubListener) returns WebSubHub|HubStartedUpError = external;
 
 # Stop the Ballerina Hub, if started.
 #

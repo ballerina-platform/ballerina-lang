@@ -19,8 +19,6 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/stringutils;
 
-const string BASE_PATH = "/websub";
-const string HUB_PATH = "/hub";
 
 const string DEFAULT_HOST = "0.0.0.0";
 const int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
@@ -33,6 +31,8 @@ const string DEFAULT_DB_NAME = "HUB_DB";
 const string DEFAULT_DB_USERNAME = "sa";
 const string DEFAULT_DB_PASSWORD = "";
 
+string hubBasePath = "/";
+string hubResourcePath = "/";
 int hubLeaseSeconds = DEFAULT_LEASE_SECONDS_VALUE;
 string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
 RemotePublishConfig remotePublishConfig = {};
@@ -48,7 +48,7 @@ boolean hubPersistenceEnabled = false;
 # + hubServiceListener - The `http:Listener` to which the service is attached
 function startHubService(http:Listener hubServiceListener) {
     // TODO : handle errors
-    checkpanic hubServiceListener.__attach(hubService);
+    checkpanic hubServiceListener.__attach(getHubService());
     checkpanic hubServiceListener.__start();
 }
 

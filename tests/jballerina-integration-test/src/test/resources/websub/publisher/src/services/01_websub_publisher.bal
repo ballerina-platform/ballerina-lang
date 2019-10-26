@@ -212,7 +212,8 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
 }
 
 function startWebSubHub() returns websub:WebSubHub {
-    var result = websub:startHub(new http:Listener(23191), { remotePublish : { enabled : true }});
+    var result = websub:startHub(new http:Listener(23191), "/websub", "/hub",
+                                 hubConfiguration = { remotePublish : { enabled : true }});
     if (result is websub:WebSubHub) {
         return result;
     } else {

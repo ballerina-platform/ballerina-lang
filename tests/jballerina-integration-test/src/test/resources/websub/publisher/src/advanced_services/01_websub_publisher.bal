@@ -205,7 +205,7 @@ function startWebSubHub() returns websub:WebSubHub {
                 password: "ballerina"
             }
         }
-    }), { remotePublish : { enabled : true }});
+    }), "/websub", "/hub", { remotePublish : { enabled : true }});
     if (result is websub:WebSubHub) {
         return result;
     } else {

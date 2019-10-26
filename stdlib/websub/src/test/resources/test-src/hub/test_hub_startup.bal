@@ -18,7 +18,7 @@ import ballerina/websub;
 import ballerina/http;
 
 function startupHub(int hubPort) returns websub:WebSubHub|websub:HubStartedUpError {
-    return websub:startHub(new http:Listener(hubPort));
+    return websub:startHub(new http:Listener(hubPort), "/websub", "/hub");
 }
 
 //TODO change function to accept websub:WebSubHub|websub:HubStartedUpError hubStartUpResult once test migration is done

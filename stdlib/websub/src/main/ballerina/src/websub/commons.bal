@@ -454,7 +454,7 @@ public type HubConfiguration record {|
 
 # Record representing remote publishing allowance.
 #
-# + enabled - Whether remote publishers should be allowed to publish to this hub (HTTP requests)
+# + enabled - Whether remote publishers should be allowed to publish to this hub (HTTP requests) // todo remove
 # + mode - If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
 #                          the notification payload specified or `fetch` - the hub fetches the topic URL
 #                          specified in the "publish" request to identify the payload
@@ -466,12 +466,17 @@ public type RemotePublishConfig record {|
 # Starts up the Ballerina Hub.
 #
 # + hubServiceListener - The `http:Listener` to which the hub service is attached
+# + basePath - The base path of the hub service
+# + resourcePath - The resource path of the hub
 # + hubConfiguration - The hub specific configuration
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
-public function startHub(http:Listener hubServiceListener, HubConfiguration hubConfiguration = {})
-                                                                    returns WebSubHub|HubStartedUpError {
+public function startHub(http:Listener hubServiceListener, public string basePath = "/",
+                         public string resourcePath = "/", public HubConfiguration hubConfiguration = {})
+                                returns WebSubHub|HubStartedUpError {
+    hubBasePath = config:getAsString("b7a.websub.hub.basepath", basePath);
+    hubResourcePath = config:getAsString("b7a.websub.hub.resourcepath", resourcePath);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
                                       hubConfiguration.leaseSeconds);
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
@@ -489,8 +494,14 @@ public function startHub(http:Listener hubServiceListener, HubConfiguration hubC
         hubPersistenceEnabled = true;
     }
 
-    startHubService(hubServiceListener);
-    return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl, hubServiceListener);
+
+    WebSubHub|HubStartedUpError res = startUpHubService(hubBasePath, hubResourcePath, hubTopicRegistrationRequired,
+                                                        hubPublicUrl, hubServiceListener);
+    if (res is WebSubHub) {
+        startHubService(hubServiceListener);
+    }
+
+    return res;
 }
 
 # Object representing a Ballerina WebSub Hub.

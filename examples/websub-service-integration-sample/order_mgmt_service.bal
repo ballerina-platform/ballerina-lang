@@ -50,7 +50,7 @@ service orderMgt on httpListener {
         var orderReq = req.getJsonPayload();
         if (orderReq is json) {
             string orderId = orderReq.Order.ID.toString();
-            orderMap[orderId] = orderReq;
+            orderMap[orderId] = <@untainted> orderReq;
 
             // Creates the response message indicating successful order creation.
             http:Response response = new;
@@ -80,7 +80,7 @@ service orderMgt on httpListener {
 // Starts up a Ballerina WebSub Hub on port 9191 and registers the topic against
 // which updates will be published.
 function startHubAndRegisterTopic() returns websub:WebSubHub {
-    var hubStartUpResult = websub:startHub(new http:Listener(9191));
+    var hubStartUpResult = websub:startHub(new http:Listener(9191), "/websub", "/hub");
     websub:WebSubHub internalHub = hubStartUpResult is websub:HubStartedUpError
                     ? hubStartUpResult.startedUpHub : hubStartUpResult;
 

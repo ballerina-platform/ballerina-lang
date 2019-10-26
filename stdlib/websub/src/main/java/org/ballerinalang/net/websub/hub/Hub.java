@@ -61,9 +61,11 @@ public class Hub {
     private List<HubSubscriber> subscribers = new ArrayList<>();
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
-    private static final String BASE_PATH = "/websub";
-    private static final String HUB_PATH = "/hub";
+    private String basePath = "/";
+    private String resourcePath = "/";
     private static final String HUB_SERVICE = "hub_service";
+
+    private static final String SLASH = "/";
 
     public static Hub getInstance() {
         return instance;
@@ -195,13 +197,16 @@ public class Hub {
      * Method to start up the default Ballerina WebSub Hub.
      *
      * @param strand                    current strand
+     * @param basePath                  the base path of the hub service
+     * @param resourcePath              the resource path of the hub
      * @param topicRegistrationRequired whether a topic needs to be registered at the hub prior to
      *                                  publishing/subscribing to the topic
      * @param publicUrl                 the URL for the hub to be included in content delivery requests
      * @param hubListener               the http:Listener to which the hub service is attached
      */
     @SuppressWarnings("unchecked")
-    public void startUpHubService(Strand strand, boolean topicRegistrationRequired, String publicUrl,
+    public void startUpHubService(Strand strand, String basePath, String resourcePath,
+                                  boolean topicRegistrationRequired, String publicUrl,
                                   ObjectValue hubListener) {
         synchronized (this) {
             if (!isStarted()) {
@@ -210,6 +215,8 @@ public class Hub {
                 } catch (Exception e) {
                     throw new BallerinaException("Error starting up internal broker for WebSub Hub");
                 }
+                this.basePath = basePath.startsWith(SLASH) ? basePath : SLASH.concat(basePath);
+                this.resourcePath = resourcePath.startsWith(SLASH) ? resourcePath : SLASH.concat(resourcePath);
                 hubTopicRegistrationRequired = topicRegistrationRequired;
                 String hubUrl = populateHubUrl(publicUrl, hubListener);
                 //TODO: change once made public and available as a param
@@ -235,8 +242,10 @@ public class Hub {
         if (hubUrl.isEmpty()) {
             String hubPort = String.valueOf(hubListener.get("port"));
             Object secureSocket = ((MapValue<String, Object>) hubListener.get("config")).get("secureSocket");
-            hubUrl = secureSocket != null ? ("https://localhost:" + hubPort + BASE_PATH + HUB_PATH)
-                    : ("http://localhost:" + hubPort + BASE_PATH + HUB_PATH);
+
+            String path = basePath.equals(SLASH) ? resourcePath : basePath.concat(resourcePath);
+            hubUrl = secureSocket != null ? ("https://localhost:" + hubPort + path)
+                    : ("http://localhost:" + hubPort + path);
         }
         return hubUrl;
     }
