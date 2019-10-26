@@ -467,16 +467,19 @@ public type RemotePublishConfig record {|
 #
 # + hubServiceListener - The `http:Listener` to which the hub service is attached
 # + basePath - The base path of the hub service
-# + resourcePath - The resource path of the hub
+# + subscriptionResourcePath - The resource path for subscription changes
+# + publishResourcePath - The resource path for publishing and topic registration
 # + hubConfiguration - The hub specific configuration
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
 public function startHub(http:Listener hubServiceListener, public string basePath = "/",
-                         public string resourcePath = "/", public HubConfiguration hubConfiguration = {})
-                                returns WebSubHub|HubStartedUpError {
+                         public string subscriptionResourcePath = "/", public string publishResourcePath = "/publish",
+                         public HubConfiguration hubConfiguration = {}) returns WebSubHub|HubStartedUpError {
     hubBasePath = config:getAsString("b7a.websub.hub.basepath", basePath);
-    hubResourcePath = config:getAsString("b7a.websub.hub.resourcepath", resourcePath);
+    hubSubscriptionResourcePath = config:getAsString("b7a.websub.hub.resourcepath.subscription",
+                                                     subscriptionResourcePath);
+    hubPublishResourcePath = config:getAsString("b7a.websub.hub.resourcepath.publish", publishResourcePath);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
                                       hubConfiguration.leaseSeconds);
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
@@ -495,7 +498,8 @@ public function startHub(http:Listener hubServiceListener, public string basePat
     }
 
 
-    WebSubHub|HubStartedUpError res = startUpHubService(hubBasePath, hubResourcePath, hubTopicRegistrationRequired,
+    WebSubHub|HubStartedUpError res = startUpHubService(hubBasePath, hubSubscriptionResourcePath,
+                                                        hubPublishResourcePath, hubTopicRegistrationRequired,
                                                         hubPublicUrl, hubServiceListener);
     if (res is WebSubHub) {
         startHubService(hubServiceListener);
@@ -506,24 +510,39 @@ public function startHub(http:Listener hubServiceListener, public string basePat
 
 # Object representing a Ballerina WebSub Hub.
 #
-# + hubUrl - The URL of the started up Ballerina WebSub Hub
+# + subscriptionUrl - The URL for subscription changes
+# + publishUrl - The URL for publishing and topic registration
 public type WebSubHub object {
 
-    public string hubUrl;
+    public string subscriptionUrl;
+    public string publishUrl;
     private http:Listener hubHttpListener;
 
-    public function __init(string hubUrl, http:Listener hubHttpListener) {
-         self.hubUrl = hubUrl;
+    public function __init(string subscriptionUrl, string publishUrl, http:Listener hubHttpListener) {
+         self.subscriptionUrl = subscriptionUrl;
+         self.publishUrl = publishUrl;
          self.hubHttpListener = hubHttpListener;
     }
 
     # Stops the started up Ballerina WebSub Hub.
     #
     # + return - `boolean` indicating whether the internal Ballerina Hub was stopped
-    public function stop() returns boolean {
-        // TODO: return error
+    public function stop() returns error? {
         var stopResult = self.hubHttpListener.__immediateStop();
-        return stopHubService(self.hubUrl) && !(stopResult is error);
+        var stopHubServiceResult = stopHubService(self);
+
+        if (stopResult is () && stopHubServiceResult is ()) {
+            return;
+        }
+
+        if (stopResult is error) {
+            if (stopHubServiceResult is error) {
+                error[] causes = [stopResult, stopHubServiceResult];
+                return error(WEBSUB_ERROR_CODE, causes = causes);
+            }
+            return error(WEBSUB_ERROR_CODE, cause = stopResult);
+        }
+        return error(WEBSUB_ERROR_CODE, cause = <error> stopHubServiceResult);
     }
 
     # Publishes an update against the topic in the initialized Ballerina Hub.
@@ -534,7 +553,7 @@ public type WebSubHub object {
     # + return - `error` if the hub is not initialized or does not represent the internal hub
     public function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
-        if (self.hubUrl == "") {
+        if (self.publishUrl == "") {
             error webSubError = error(WEBSUB_ERROR_CODE,
                                     message = "Internal Ballerina Hub not initialized or incorrectly referenced");
             return webSubError;
@@ -562,7 +581,7 @@ public type WebSubHub object {
             }
         }
 
-        return validateAndPublishToInternalHub(self.hubUrl, topic, content);
+        return validateAndPublishToInternalHub(self.publishUrl, topic, content);
     }
 
     # Registers a topic in the Ballerina Hub.

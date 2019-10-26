@@ -39,7 +39,7 @@ auth:OutboundBasicAuthProvider OutBoundbasicAuthProvider = new({
 
 http:BasicAuthHandler outboundBasicAuthHandler = new(OutBoundbasicAuthProvider);
 
-websub:PublisherClient websubHubClientEP = new (webSubHub.hubUrl, {
+websub:PublisherClient websubHubClientEP = new (webSubHub.publishUrl, {
     auth: { authHandler: outboundBasicAuthHandler },
     secureSocket: {
         trustStore: {
@@ -56,7 +56,7 @@ service publisher on publisherServiceEP {
     resource function discover(http:Caller caller, http:Request req) {
         http:Response response = new;
         // Add a link header indicating the hub and topic
-        websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_PERSISTENCE_TOPIC_ONE);
+        websub:addWebSubLinkHeader(response, [webSubHub.subscriptionUrl], WEBSUB_PERSISTENCE_TOPIC_ONE);
         var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on discovery", err);
@@ -94,7 +94,7 @@ service publisherTwo on publisherServiceEP {
     resource function discover(http:Caller caller, http:Request req) {
         http:Response response = new;
         // Add a link header indicating the hub and topic
-        websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_PERSISTENCE_TOPIC_TWO);
+        websub:addWebSubLinkHeader(response, [webSubHub.subscriptionUrl], WEBSUB_PERSISTENCE_TOPIC_TWO);
         var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on discovery", err);
@@ -131,7 +131,7 @@ service publisherThree on publisherServiceEP {
     resource function discover(http:Caller caller, http:Request req) {
         http:Response response = new;
         // Add a link header indicating the hub and topic
-        websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
+        websub:addWebSubLinkHeader(response, [webSubHub.subscriptionUrl], WEBSUB_TOPIC_ONE);
         var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on discovery", err);
@@ -165,9 +165,7 @@ service helperService on publisherServiceEP {
         methods: ["POST"]
     }
     resource function restartHub(http:Caller caller, http:Request req) {
-        if (!webSubHub.stop()) {
-            log:printError("hub shutdown failed!");
-        }
+        checkpanic webSubHub.stop();
         webSubHub = startHubAndRegisterTopic();
         checkpanic caller->accepted();
     }
@@ -205,7 +203,7 @@ function startWebSubHub() returns websub:WebSubHub {
                 password: "ballerina"
             }
         }
-    }), "/websub", "/hub", { remotePublish : { enabled : true }});
+    }), "/websub", "/hub", hubConfiguration = { remotePublish : { enabled : true }});
     if (result is websub:WebSubHub) {
         return result;
     } else {

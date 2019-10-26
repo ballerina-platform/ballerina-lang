@@ -48,16 +48,16 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
 )
 public class StartUpHubService {
 
-    public static Object startUpHubService(Strand strand, String basePath, String resourcePath,
-                                           boolean topicRegistrationRequired, String publicUrl,
-                                           ObjectValue hubListener) {
+    public static Object startUpHubService(Strand strand, String basePath, String subscriptionResourcePath,
+                                           String publishResourcePath, boolean topicRegistrationRequired,
+                                           String publicUrl, ObjectValue hubListener) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted()) {
             return getHubStartedUpError(hubInstance);
         }
         try {
-            hubInstance.startUpHubService(strand, basePath, resourcePath, topicRegistrationRequired, publicUrl,
-                                          hubListener);
+            hubInstance.startUpHubService(strand, basePath, subscriptionResourcePath, publishResourcePath,
+                                          topicRegistrationRequired, publicUrl, hubListener);
         } catch (BallerinaWebSubException e) {
             return getHubStartedUpError(hubInstance);
         }

@@ -31,7 +31,7 @@ boolean remoteTopicRegistered = false;
 
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
-websub:PublisherClient websubHubClientEP = new (webSubHub.hubUrl);
+websub:PublisherClient websubHubClientEP = new (webSubHub.publishUrl);
 
 listener http:Listener publisherServiceEP = new http:Listener(23080);
 
@@ -42,7 +42,7 @@ service publisher on publisherServiceEP {
     resource function discover(http:Caller caller, http:Request req) {
         http:Response response = new;
         // Add a link header indicating the hub and topic
-        websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
+        websub:addWebSubLinkHeader(response, [webSubHub.subscriptionUrl], WEBSUB_TOPIC_ONE);
         var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on ordering", err);
@@ -119,7 +119,7 @@ service publisherTwo on publisherServiceEP {
     resource function discover(http:Caller caller, http:Request req) {
         http:Response response = new;
         // Add a link header indicating the hub and topic
-        websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_FOUR);
+        websub:addWebSubLinkHeader(response, [webSubHub.subscriptionUrl], WEBSUB_TOPIC_FOUR);
         var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on ordering", err);

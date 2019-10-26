@@ -32,7 +32,8 @@ const string DEFAULT_DB_USERNAME = "sa";
 const string DEFAULT_DB_PASSWORD = "";
 
 string hubBasePath = "/";
-string hubResourcePath = "/";
+string hubSubscriptionResourcePath = "/";
+string hubPublishResourcePath = "/";
 int hubLeaseSeconds = DEFAULT_LEASE_SECONDS_VALUE;
 string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
 RemotePublishConfig remotePublishConfig = {};
