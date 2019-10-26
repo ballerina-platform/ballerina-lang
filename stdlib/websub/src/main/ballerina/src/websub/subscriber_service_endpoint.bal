@@ -259,7 +259,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:ClientConfiguration? hubClientConfig,
                                               map<any> subscriptionDetails) {
-    Client websubHubClientEP = new Client(hub, hubClientConfig);
+    SubscriptionClient websubHubClientEP = new (hub, hubClientConfig);
     [string, string][_, topic] = <[string, string]> subscriptionDetails[ANNOT_FIELD_TARGET];
     string callback = <string> subscriptionDetails[ANNOT_FIELD_CALLBACK];
 

@@ -39,7 +39,7 @@ auth:OutboundBasicAuthProvider OutBoundbasicAuthProvider = new({
 
 http:BasicAuthHandler outboundBasicAuthHandler = new(OutBoundbasicAuthProvider);
 
-websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, {
+websub:PublisherClient websubHubClientEP = new (webSubHub.hubUrl, {
     auth: { authHandler: outboundBasicAuthHandler },
     secureSocket: {
         trustStore: {

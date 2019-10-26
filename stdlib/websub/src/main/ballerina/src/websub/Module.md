@@ -247,14 +247,14 @@ public function main() {
 }
 ```
 
-Ballerina publishers can also use the hub client endpoint to register topics at Ballerina WebSub hubs 
+Ballerina publishers can also use the publisher client to register topics at Ballerina WebSub hubs 
 and publish/notify updates to the remote hubs.
 ```ballerina
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/websub;
 
-websub:Client websubHubClientEP = new("https://localhost:9191/websub/hub");
+websub:PublisherClient websubHubClientEP = new ("https://localhost:9191/websub/hub");
 
 public function main() {
 
@@ -279,12 +279,12 @@ public function main() {
 }
 ```
 
-The hub client endpoint can also be used by subscribers to send subscription and unsubscription requests explicitly.
+The subscription client can be used by subscribers to send subscription and unsubscription requests explicitly.
 ```ballerina
 import ballerina/log;
 import ballerina/websub;
 
-websub:Client websubHubClientEP = new("<HUB_URL>");
+websub:SubscriptionClient websubHubClientEP = new("<HUB_URL>");
 
 public function main() {
 

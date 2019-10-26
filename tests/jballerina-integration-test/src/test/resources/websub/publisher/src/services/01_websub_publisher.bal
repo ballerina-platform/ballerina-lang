@@ -31,7 +31,7 @@ boolean remoteTopicRegistered = false;
 
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
-websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl);
+websub:PublisherClient websubHubClientEP = new (webSubHub.hubUrl);
 
 listener http:Listener publisherServiceEP = new http:Listener(23080);
 
