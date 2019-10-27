@@ -24,8 +24,9 @@ llvm:LLVMValueRef? printfRef = ();
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
     genFunctions(mod, pkg.functions);
-    optimize(mod);
-    //createObjectFile(targetObjectFilePath, mod);
+    //optimize(mod);
+    createObjectFile(targetObjectFilePath, mod);
+    io:println("targetObjectFilePath : " + targetObjectFilePath);
     if(dumpLLVMIR) {
         llvm:llvmDumpModule(mod);
     }
@@ -54,27 +55,51 @@ function genFunctions(llvm:LLVMModuleRef mod, bir:Function?[] funcs) {
     io:println("Hello genFunctions !");
 }
 
-//function createObjectFile(string targetObjectFilePath, llvm:LLVMModuleRef mod) {
-//    llvm:LLVMTargetMachineRef targetMachine;
-//    try {
-//        targetMachine = createTargetMachine();
-//        var filenameBytes = createNullTermiatedString(targetObjectFilePath);
-//        byte[] errorMsg;
-//        int i = llvm:LLVMTargetMachineEmitToFile(targetMachine, mod, filenameBytes, 1, errorMsg);
-//        // TODO error reporting
-//    } finally {
-//        llvm:LLVMDisposeTargetMachine(targetMachine);
-//    }
-//}
+function createObjectFile(string targetObjectFilePath, llvm:LLVMModuleRef mod) {
+    llvm:LLVMTargetMachineRef targetMachine;
+    targetMachine = createTargetMachine();
+    var filenameBytes = createNullTermiatedString(targetObjectFilePath);
+    byte[] errorMsg = [];
+    int|error i = llvm:llvmTargetMachineEmitToFile(targetMachine, mod, filenameBytes, 1, errorMsg);
+    if (i is int) {
+        llvm:llvmDisposeTargetMachine(targetMachine);
+    } else {
+        error err = error("NollvmTargetMachineEmitToFileErr", message = "cannot emit to target machine");
+        panic err;
+    }
+}
+
+function createNullTermiatedString(string str) returns byte[] {
+    byte[] filenameBytes = str.toBytes();
+    filenameBytes[filenameBytes.length()] = 0;
+    return filenameBytes;
+}
+
+function createTargetMachine() returns llvm:LLVMTargetMachineRef {
+    initAllTargets();
+
+    llvm:BytePointer targetTripleBP = llvm:llvmGetDefaultTargetTriple();
+    llvm:LLVMTargetRef targetRef = llvm:llvmGetFirstTarget();
+    llvm:BytePointer cpu = {};
+    llvm:BytePointer features = {};
+
+    return llvm:llvmCreateTargetMachine(targetRef, targetTripleBP, cpu, features, 0, 0, 0);
+}
+
+function initAllTargets() {
+    llvm:llvmInitializeAllTargetInfos();
+    llvm:llvmInitializeAllTargetMCs();
+    llvm:llvmInitializeAllTargets();
+    llvm:llvmInitializeAllAsmParsers();
+    llvm:llvmInitializeAllAsmPrinters();
+}
 
 function readFileFully(string path) returns byte[] = external;
 
 function genPrintfDeclration(llvm:LLVMModuleRef mod) {
     llvm:LLVMTypeRef[] pointer_to_char_type = [llvm:llvmPointerType(llvm:llvmInt8Type(), 0)];
-    io:println("pointer_to_char_type : ");
     io:print(pointer_to_char_type);
     llvm:LLVMTypeRef printfType = llvm:llvmFunctionType1(llvm:llvmInt32Type(), pointer_to_char_type, 1, 1);
-    printfRef = llvm:llvmAddFunction(mod, "printf", printfType);
 }
 
 function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function?[] funcs)

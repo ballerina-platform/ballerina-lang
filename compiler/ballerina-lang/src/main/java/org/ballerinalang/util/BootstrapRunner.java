@@ -35,14 +35,18 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Creates jars in file system using bootstrap pack and create class loader hierarchy for them.
@@ -51,6 +55,7 @@ public class BootstrapRunner {
 
     private static final PrintStream out = System.out;
     private static final PrintStream err = System.err;
+    private static final String TMP_OBJECT_FILE_NAME = "ballerina_native_objf.o";
     
     public static void loadTargetAndGenerateJarBinary(Path tmpDir, String entryBir, String jarOutputPath,
                                                       boolean dumpBir, boolean skipJarLoading,
@@ -70,9 +75,74 @@ public class BootstrapRunner {
         boolean isNative = true;
         if (isNative) {
             // TODO : get the last parameter from the method parameters
-            genObjectFile(entryBir, jarOutputPath, true);
+            Path osTempDirPath = Paths.get(System.getProperty("java.io.tmpdir"));
+            Path objectFilePath = osTempDirPath.resolve(TMP_OBJECT_FILE_NAME);
+            genObjectFile(entryBir, objectFilePath.toString(), true);
+
+            // TODO : add = Target file name
+            genExecutable(objectFilePath, "add");
+
+            Runtime.getRuntime().exit(0);
         } else {
             generateJarBinary(entryBir, jarOutputPath, dumpBir, birCachePaths);
+        }
+    }
+
+    private static void genExecutable(Path objectFilePath, String execFilename) {
+        // Check whether gcc is installed
+        checkGCCAvailability();
+
+        // Create the os-specific gcc command
+        ProcessBuilder gccProcessBuilder = createOSSpecificGCCCommand(objectFilePath, execFilename);
+
+        try {
+            // Execute gcc
+            Process gccProcess = gccProcessBuilder.start();
+            int exitCode = gccProcess.waitFor();
+            if (exitCode != 0) {
+                throw new BLangCompilerException("linker failed: " + getProcessErrorOutput(gccProcess));
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new BLangCompilerException("linker failed: " + e.getMessage(), e);
+        }
+    }
+
+    private static String getProcessErrorOutput(Process process) throws IOException {
+        //TODO: check win https://stackoverflow.com/questions/8398277/which-encoding-does-process-getinputstream-use
+        InputStreamReader in = new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8);
+        try (BufferedReader errReader = new BufferedReader(in)) {
+            return errReader.lines().collect(Collectors.joining(", "));
+        }
+    }
+
+    private static ProcessBuilder createOSSpecificGCCCommand(Path objectFilePath, String execFilename) {
+        String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+        ProcessBuilder gccProcessBuilder = new ProcessBuilder();
+        if (osName.startsWith("windows")) {
+            // TODO Window environment
+            gccProcessBuilder.command("cmd.exe", "/c", "dir");
+        } else if (osName.startsWith("mac os x")) {
+            // Mac OS X environment
+            gccProcessBuilder.command("gcc", objectFilePath.toString(), "-o", execFilename);
+        } else {
+            // TODO Is this assumption correct?
+            // Linux environment
+            gccProcessBuilder.command("gcc", objectFilePath.toString(), "-static", "-o", execFilename);
+        }
+        return gccProcessBuilder;
+    }
+
+    private static void checkGCCAvailability() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process gccCheckProc = rt.exec("gcc -v");
+            int exitVal = gccCheckProc.waitFor();
+            if (exitVal != 0) {
+                throw new BLangCompilerException("'gcc' is not installed in your environment");
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new BLangCompilerException("probably, 'gcc' is not installed in your environment: " +
+                    e.getMessage(), e);
         }
     }
     
@@ -161,7 +231,6 @@ public class BootstrapRunner {
     private static List<String> createArgsForCompilerBackend(String entryBir, String objFileOutputPath, boolean dumpLLVM) {
         List<String> commands = new ArrayList<>();
         commands.add(entryBir);
-        commands.add(getMapPath());
         commands.add(objFileOutputPath);
         commands.add(dumpLLVM ? "true" : "false"); // dump LLVM-IR
         return commands;
