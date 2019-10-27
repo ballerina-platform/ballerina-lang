@@ -216,8 +216,10 @@ function startWebSubHub() returns websub:WebSubHub {
                                  hubConfiguration = { remotePublish : { enabled : true }});
     if (result is websub:WebSubHub) {
         return result;
-    } else {
+    } else if (result is websub:HubStartedUpError) {
         return result.startedUpHub;
+    } else {
+        panic result;
     }
 }
 

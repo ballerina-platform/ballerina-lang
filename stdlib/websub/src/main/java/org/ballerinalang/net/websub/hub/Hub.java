@@ -19,6 +19,7 @@
 package org.ballerinalang.net.websub.hub;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
@@ -28,6 +29,7 @@ import org.ballerinalang.net.websub.broker.BallerinaBroker;
 import org.ballerinalang.net.websub.broker.BallerinaBrokerByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -54,7 +56,6 @@ public class Hub {
     private String publishUrl;
     private String subscribeUrl;
     private boolean hubTopicRegistrationRequired;
-    private boolean hubPersistenceEnabled;
     private volatile boolean started = false;
 
     // TODO: 9/23/18 make CopyOnWriteArrayList?
@@ -84,32 +85,20 @@ public class Hub {
         return hubObject;
     }
 
-    public void registerTopic(Strand strand, String topic, boolean loadingOnStartUp) throws BallerinaWebSubException {
+    public void registerTopic(String topic) throws BallerinaWebSubException {
         if (isTopicRegistered(topic)) {
             throw new BallerinaWebSubException("Topic registration not allowed at the Hub: topic already exists");
         } else if (topic == null || topic.isEmpty()) {
             throw new BallerinaWebSubException("Topic unavailable/invalid for registration at Hub");
-        } else {
-            topics.add(topic);
-            if (hubPersistenceEnabled && !loadingOnStartUp) {
-                Object[] args = {"register", topic};
-                executeFunction(strand.scheduler, classLoader, BALLERINA, WEBSUB, HUB_SERVICE,
-                                "persistTopicRegistrationChange", args);
-            }
         }
+        topics.add(topic);
     }
 
-    public void unregisterTopic(Strand strand, String topic) throws BallerinaWebSubException {
+    public void unregisterTopic(String topic) throws BallerinaWebSubException {
         if (topic == null || !isTopicRegistered(topic)) {
             throw new BallerinaWebSubException("Topic unavailable/invalid for unregistration at Hub");
-        } else {
-            topics.remove(topic);
-            if (hubPersistenceEnabled) {
-                Object[] args = {"unregister", topic};
-                executeFunction(strand.scheduler, classLoader, BALLERINA, WEBSUB, HUB_SERVICE,
-                                "persistTopicRegistrationChange", args);
-            }
         }
+        topics.remove(topic);
     }
 
     public boolean isTopicRegistered(String topic) {
@@ -206,9 +195,10 @@ public class Hub {
      *                                  publishing/subscribing to the topic
      * @param publicUrl                 the URL for the hub to be included in content delivery requests
      * @param hubListener               the http:Listener to which the hub service is attached
+     * @return the hub object if the hub was started up successfully, error if not
      */
     @SuppressWarnings("unchecked")
-    public void startUpHubService(Strand strand, String basePath, String subscriptionResourcePath,
+    public Object startUpHubService(Strand strand, String basePath, String subscriptionResourcePath,
                                   String publishResourcePath, boolean topicRegistrationRequired, String publicUrl,
                                   ObjectValue hubListener) {
         synchronized (this) {
@@ -226,20 +216,25 @@ public class Hub {
                 hubTopicRegistrationRequired = topicRegistrationRequired;
                 String publishUrl = populatePublishUrl(publicUrl, hubListener);
                 String subscribeUrl = populateSubscribeUrl(publicUrl, hubListener);
-                //TODO: change once made public and available as a param
-                Object returnValue = executeFunction(strand.scheduler, classLoader, BALLERINA, WEBSUB,
-                                                     "hub_configuration", "isHubPersistenceEnabled");
-                hubPersistenceEnabled = Boolean.parseBoolean(returnValue.toString());
+
+                Object setupResult = executeFunction(strand.scheduler, classLoader, BALLERINA, WEBSUB, HUB_SERVICE,
+                        "setupOnStartup");
+                if (TypeChecker.getType(setupResult).getTag() == TypeTags.ERROR) {
+                    return setupResult;
+                }
 
                 PrintStream console = System.err;
                 console.println("[ballerina/websub] Ballerina WebSub Hub started up.\n[ballerina/websub] Publish URL:" +
                                         " " + publishUrl + "\n[ballerina/websub] Subscription URL: " + subscribeUrl);
                 started = true;
-                executeFunction(strand.scheduler, classLoader, BALLERINA, WEBSUB, HUB_SERVICE, "setupOnStartup");
                 setPublishUrl(publishUrl);
                 setSubscribeUrl(subscribeUrl);
-                setHubObject(BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID, STRUCT_WEBSUB_BALLERINA_HUB,
-                                                               subscribeUrl, publishUrl, hubListener));
+
+                ObjectValue hubObject = BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID,
+                                                                          STRUCT_WEBSUB_BALLERINA_HUB,
+                                                                          subscribeUrl, publishUrl, hubListener);
+                setHubObject(hubObject);
+                return hubObject;
             } else {
                 throw new BallerinaWebSubException("Hub Service already started up");
             }
@@ -283,7 +278,6 @@ public class Hub {
                 setSubscribeUrl(null);
                 setPublishUrl(null);
                 hubTopicRegistrationRequired = false;
-                hubPersistenceEnabled = false;
                 topics = new ArrayList<>();
                 for (HubSubscriber subscriber : getSubscribers()) {
                     brokerInstance.removeSubscription(subscriber);

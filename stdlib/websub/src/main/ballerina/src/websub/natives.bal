@@ -35,7 +35,7 @@ import ballerina/io;
 #            already started up hub
 function startUpHubService(string basePath, string subscriptionResourcePath, string publishResourcePath,
                            boolean topicRegistrationRequired, string publicUrl, http:Listener hubListener)
-                                    returns WebSubHub|HubStartedUpError = external;
+                                    returns WebSubHub|HubStartedUpError|HubStartupError = external;
 
 # Stop the Ballerina Hub, if started.
 #
@@ -64,15 +64,14 @@ function removeSubscription(string topic, string callback) = external;
 # Registers a topic in the Ballerina Hub.
 #
 # + topic - The topic to register
-# + loadingOnStartUp - Whether registration is being called on loading from the database at start up
 # + return - `error` if an error occurred with registration
-function registerTopicAtHub(string topic, boolean loadingOnStartUp = false) returns error? = external;
+function registerTopicAtNativeHub(string topic) returns error? = external;
 
 # Unregisters a topic in the Ballerina Hub.
 #
 # + topic - The topic to unregister
 # + return - `error` if an error occurred with unregistration
-function unregisterTopicAtHub(string topic) returns error? = external;
+function unregisterTopicAtNativeHub(string topic) returns error? = external;
 
 # Retrieves whether a topic is registered with the Ballerina Hub.
 #

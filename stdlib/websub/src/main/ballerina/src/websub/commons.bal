@@ -482,7 +482,8 @@ public function startHub(http:Listener hubServiceListener,
                          public http:ServiceResourceAuth serviceAuth = {enabled:false},
                          public http:ServiceResourceAuth subscriptionResourceAuth = {enabled:false},
                          public http:ServiceResourceAuth publisherResourceAuth = {enabled:false},
-                         public HubConfiguration hubConfiguration = {}) returns WebSubHub|HubStartedUpError {
+                         public HubConfiguration hubConfiguration = {})
+                            returns WebSubHub|HubStartedUpError|HubStartupError {
 
     hubBasePath = basePath;
     hubSubscriptionResourcePath = subscriptionResourcePath;
@@ -508,9 +509,10 @@ public function startHub(http:Listener hubServiceListener,
     }
 
 
-    WebSubHub|HubStartedUpError res = startUpHubService(hubBasePath, hubSubscriptionResourcePath,
-                                                        hubPublishResourcePath, hubTopicRegistrationRequired,
-                                                        hubPublicUrl, hubServiceListener);
+    WebSubHub|HubStartedUpError|HubStartupError res = startUpHubService(hubBasePath, hubSubscriptionResourcePath,
+                                                                        hubPublishResourcePath,
+                                                                        hubTopicRegistrationRequired, hubPublicUrl,
+                                                                        hubServiceListener);
     if (res is WebSubHub) {
         startHubService(hubServiceListener);
     }
@@ -603,7 +605,7 @@ public type WebSubHub object {
             error e = error(WEBSUB_ERROR_CODE, message = "Topic registration not allowed/not required at the Hub");
             return e;
         }
-        return registerTopicAtHub(topic);
+        return registerTopic(topic);
     }
 
     # Unregisters a topic in the Ballerina Hub.
@@ -615,7 +617,7 @@ public type WebSubHub object {
             error e = error(WEBSUB_ERROR_CODE, message = "Topic unregistration not allowed/not required at the Hub");
             return e;
         }
-        return unregisterTopicAtHub(topic);
+        return unregisterTopic(topic);
     }
 
     # Retrieves topics currently recognized by the Hub.
@@ -666,6 +668,20 @@ function retrieveSubscriberServiceAnnotations(service serviceType) returns Subsc
     return serviceTypedesc.@SubscriberServiceConfig;
 }
 
+function registerTopic(string topic, boolean loadingOnStartUp = false) returns error? {
+    check registerTopicAtNativeHub(topic);
+    if (hubPersistenceEnabled && !loadingOnStartUp) {
+        return persistTopicRegistrationChange(MODE_REGISTER, topic);
+    }
+}
+
+function unregisterTopic(string topic) returns error? {
+    check unregisterTopicAtNativeHub(topic);
+    if (hubPersistenceEnabled) {
+        return persistTopicRegistrationChange(MODE_UNREGISTER, topic);
+    }
+}
+
 # Record to represent a WebSub content delivery.
 #
 # + payload - The payload to be sent
@@ -705,3 +721,7 @@ type WebSubError record {
     string message = "";
 };
 
+# Represents the reason string for the `websub:HubStartupError`.
+public const HUB_STARTUP_REASON = "{ballerina/websub}HubStartupError";
+# Represents a hub startup error.
+public type HubStartupError error<HUB_STARTUP_REASON>;

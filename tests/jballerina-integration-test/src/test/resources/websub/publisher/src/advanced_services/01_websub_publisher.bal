@@ -260,8 +260,10 @@ function startWebSubHub() returns websub:WebSubHub {
     );
     if (result is websub:WebSubHub) {
         return result;
-    } else {
+    } else if (result is websub:HubStartedUpError) {
         return result.startedUpHub;
+    } else {
+        panic result;
     }
 }
 

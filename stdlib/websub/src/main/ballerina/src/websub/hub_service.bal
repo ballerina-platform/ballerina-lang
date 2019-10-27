@@ -68,7 +68,7 @@ function getHubService() returns service {
                     return;
                 }
 
-                var registerStatus = registerTopicAtHub(topic);
+                var registerStatus = registerTopic(topic);
                 if (registerStatus is error) {
                     string errorMessage = <string>registerStatus.detail()?.message;
                     response.statusCode = http:STATUS_BAD_REQUEST;
@@ -94,7 +94,7 @@ function getHubService() returns service {
                     return;
                 }
 
-                var unregisterStatus = unregisterTopicAtHub(topic);
+                var unregisterStatus = unregisterTopic(topic);
                 if (unregisterStatus is error) {
                     string errorMessage = <string>unregisterStatus.detail()?.message;
                     response.statusCode = http:STATUS_BAD_REQUEST;
@@ -334,7 +334,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                     subscriptionDetails.createdAt = createdAt;
                     subscriptionDetails.secret = params[HUB_SECRET] ?: "";
                     if (!isTopicRegistered(topic)) {
-                        var registerStatus = registerTopicAtHub(topic);
+                        var registerStatus = registerTopic(topic);
                         if (registerStatus is error) {
                             string errCause = <string> registerStatus.detail()?.message;
                             log:printError("Error registering topic for subscription: " + errCause);
@@ -345,11 +345,14 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                     removeSubscription(topic, callback);
                 }
 
-                if (hubPersistenceEnabled) {
-                    persistSubscriptionChange(mode, subscriptionDetails);
-                }
                 log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
                         + callback + "]");
+                if (hubPersistenceEnabled) {
+                    error? res = persistSubscriptionChange(mode, subscriptionDetails);
+                    if (res is error) {
+                        log:printError("Error persisting subscription change", res);
+                    }
+                }
             }
         } else {
             error err = respStringPayload;
@@ -360,7 +363,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     } else {
         error err = subscriberResponse;
         string errCause = <string> err.detail()?.message;
-        log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
+        log:printError("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
     string key = generateKey(topic, callback);
@@ -376,13 +379,14 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 #
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
-function persistTopicRegistrationChange(string mode, string topic) {
+# + return - `error` if an error occurred while persisting the change, `()` otherwise
+function persistTopicRegistrationChange(string mode, string topic) returns error? {
     HubPersistenceStore? hubStoreImpl = hubPersistenceStoreImpl;
     if (hubStoreImpl is HubPersistenceStore) {
         if (mode == MODE_REGISTER) {
-            hubStoreImpl.addTopic(topic);
+            check hubStoreImpl.addTopic(topic);
         } else {
-            hubStoreImpl.removeTopic(topic);
+            check hubStoreImpl.removeTopic(topic);
         }
     }
 }
@@ -391,50 +395,58 @@ function persistTopicRegistrationChange(string mode, string topic) {
 #
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
-function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) {
+# + return - `error` if an error occurred while persisting the change, `()` otherwise
+function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) returns error? {
     HubPersistenceStore? hubStoreImpl = hubPersistenceStoreImpl;
     if (hubStoreImpl is HubPersistenceStore) {
         if (mode == MODE_SUBSCRIBE) {
-            hubStoreImpl.addSubscription(subscriptionDetails);
+            check hubStoreImpl.addSubscription(subscriptionDetails);
         } else {
-            hubStoreImpl.removeSubscription(subscriptionDetails);
+            check hubStoreImpl.removeSubscription(subscriptionDetails);
         }
     }
 }
 
-# Function to initiate set up activities on startup/restart.
-function setupOnStartup() {
-    if (hubPersistenceEnabled) {
-        HubPersistenceStore hubServicePersistenceImpl = <HubPersistenceStore> hubPersistenceStoreImpl;
-        addTopicRegistrationsOnStartup(hubServicePersistenceImpl);
-        addSubscriptionsOnStartup(hubServicePersistenceImpl); //TODO:verify against topics
+function setupOnStartup() returns error? {
+    if (!hubPersistenceEnabled) {
+        return;
     }
-    return;
+    HubPersistenceStore hubServicePersistenceImpl = <HubPersistenceStore> hubPersistenceStoreImpl;
+    check addTopicRegistrationsOnStartup(hubServicePersistenceImpl);
+    check addSubscriptionsOnStartup(hubServicePersistenceImpl); //TODO:verify against topics
 }
 
-# Function to load persisted topic registrations.
-function addTopicRegistrationsOnStartup(HubPersistenceStore persistenceStore) {
-    string[] topics = persistenceStore.retrieveTopics();
-    foreach string topic in topics {
-        var registerStatus = registerTopicAtHub(topic, loadingOnStartUp = true);
-        if (registerStatus is error) {
-            string errCause = <string> registerStatus.detail()?.message;
-            log:printError("Error registering retrieved topic details: " + errCause);
+function addTopicRegistrationsOnStartup(HubPersistenceStore persistenceStore) returns error? {
+    string[]|error topics = persistenceStore.retrieveTopics();
+
+    if (topics is string[]) {
+        foreach string topic in topics {
+            var registerStatus = registerTopic(topic, loadingOnStartUp = true);
+            if (registerStatus is error) {
+                string errCause = <string> registerStatus.detail()?.message;
+                log:printError("Error registering retrieved topic details: " + errCause);
+            }
         }
+    } else {
+        return HubStartupError(message = "Error retrieving persisted topics", cause = topics);
     }
 }
 
-# Function to add subscriptions to the broker on startup, if persistence is enabled.
-function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) {
-    SubscriptionDetails[] subscriptions = persistenceStore.retrieveAllSubscribers();
+function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) returns error? {
+    SubscriptionDetails[]|error subscriptions = persistenceStore.retrieveAllSubscribers();
 
-    foreach SubscriptionDetails subscription in subscriptions {
-        int time = time:currentTime().time;
-        if (time - subscription.leaseSeconds > subscription.createdAt) {
-            persistenceStore.removeSubscription(subscription);
-            continue;
+    if (subscriptions is SubscriptionDetails[]) {
+        foreach SubscriptionDetails subscription in subscriptions {
+            int time = time:currentTime().time;
+            if (time - subscription.leaseSeconds > subscription.createdAt) {
+                error? remResult = persistenceStore.removeSubscription(subscription);
+                log:printError("Error removing expired subscription", remResult);
+                continue;
+            }
+            addSubscription(subscription);
         }
-        addSubscription(subscription);
+    } else {
+        return HubStartupError(message = "Error retrieving persisted subscriptions", cause = subscriptions);
     }
 }
 
@@ -456,13 +468,11 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 # + callback - The callback URL registered for the subscriber
 # + subscriptionDetails - The subscription details for the particular subscriber
 # + webSubContent - The content to be sent to subscribers
-# + return - Nil if successful, error in case of invalid content-type
-function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
-returns error? {
+function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent) {
     http:Client callbackEp = getSubcriberCallbackClient(callback);
     http:Request request = new;
     request.setPayload(webSubContent.payload);
-    check request.setContentType(webSubContent.contentType);
+    checkpanic request.setContentType(webSubContent.contentType);
 
     int currentTime = time:currentTime().time;
     int createdAt = subscriptionDetails.createdAt;
@@ -472,7 +482,10 @@ returns error? {
         //TODO: introduce a separate periodic task, and modify select to select only active subs
         removeSubscription(subscriptionDetails.topic, callback);
         if (hubPersistenceEnabled) {
-            persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
+            error? remResult = persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
+	    if (remResult is error) {
+		log:printError("Error removing expired subscription", remResult);
+	    }
         }
     } else {
         var result = request.getTextPayload();
@@ -504,7 +517,10 @@ returns error? {
             } else if (respStatusCode == http:STATUS_GONE) {
                 removeSubscription(subscriptionDetails.topic, callback);
                 if (hubPersistenceEnabled) {
-                    persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
+                    error? remResult = persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
+                    if (remResult is error) {
+			log:printError("Error removing gone subscription", remResult);
+		    }
                 }
                 log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
                                 + "], topic[" + subscriptionDetails.topic + "]");
