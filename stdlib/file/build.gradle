@@ -16,6 +16,7 @@
  */
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -31,6 +32,7 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-lang:internal')
     implementation project(':ballerina-io')
+    implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
@@ -47,6 +49,12 @@ dependencies {
 
 createBalo {
     jvmTarget = 'true'
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 description = 'Ballerina - File'
