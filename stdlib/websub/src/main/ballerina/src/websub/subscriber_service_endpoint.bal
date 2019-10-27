@@ -46,8 +46,8 @@ public type Listener object {
     }
 
     public function __start() returns error? {
+        check self.startWebSubSubscriberServiceEndpoint();
         // TODO: handle data and return error on error
-        self.startWebSubSubscriberServiceEndpoint();
         self.sendSubscriptionRequests();
     }
 
@@ -153,7 +153,9 @@ public type Listener object {
     }
 
     # Start the registered WebSub Subscriber service.
-    function startWebSubSubscriberServiceEndpoint() = external;
+    #
+    # + return - An `error` if there is any error occurred during the listener start process
+    function startWebSubSubscriberServiceEndpoint() returns error? = external;
 
     # Sets the topic to which this service is subscribing, for auto intent verification.
     #
