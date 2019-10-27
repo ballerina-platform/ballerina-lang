@@ -87,8 +87,7 @@ public class WebSubHubStartUpTest {
 
     @AfterClass
     public void tearDown() {
-        //TODO Uncomment following once test suite is migrated to jBal types and values
-//        BRunUtil.invoke(result, "stopHub", new BValue[]{hubStartUpObject});
+        BRunUtil.invoke(result, "stopHub", new BValue[]{hubStartUpObject});
     }
 
 }

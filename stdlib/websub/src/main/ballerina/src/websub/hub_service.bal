@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
@@ -33,16 +32,14 @@ cache:Cache subscriberCallbackClientCache = new (expiryTimeInMillis = DEFAULT_CA
 function getHubService() returns service {
     return @http:ServiceConfig {
         basePath: hubBasePath,
-        auth: {
-            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", false),
-            scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
-        }
+        auth: hubServiceAuth
     }
     service {
 
         @http:ResourceConfig {
             methods: ["POST"],
-            path: hubPublishResourcePath
+            path: hubPublishResourcePath,
+            auth: hubPublisherResourceAuth
         }
         resource function publish(http:Caller httpCaller, http:Request request) {
             http:Response response = new;
@@ -211,7 +208,8 @@ function getHubService() returns service {
 
         @http:ResourceConfig {
             methods: ["POST"],
-            path: hubSubscriptionResourcePath
+            path: hubSubscriptionResourcePath,
+            auth: hubSubscriptionResourceAuth
         }
         resource function subscribe(http:Caller httpCaller, http:Request request) {
             http:Response response = new;

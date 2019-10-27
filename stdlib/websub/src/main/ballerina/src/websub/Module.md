@@ -66,18 +66,14 @@ http:ServiceEndpointConfiguration hubListenerConfig = {
 
 var val = websub:startHub(new http:Listener(9191, hubListenerConfig));
 ```
-In addition to the `BasicAuthHandler` for the listener, a user also has to specify the `authConfig` properties at the service
-config level. 
+In addition to the `BasicAuthHandler` for the listener, a user also has to specify the `authConfig` properties at the service or resource levels. 
 
  
-It can be populated by providing the `authConfig` via a TOML file under the `b7a.websub.hub.auth` alias.
-Recognized users can also be mentioned in the same file, which permits the auth providers to read it. 
+They can be set by passing arguments for the `serviceAuth`, `subscriptionResourceAuth` or `publisherResourceAuth` parameters when starting up the hub.
+
+Recognized users can be specified in a `.toml` file, which can be passed as a configuration file when running the program. 
 
 ```
-[b7a.websub.hub.auth]
-enabled=true  # enables the authentication
-scopes="scope1" # defines the scope of possible users
-
 [b7a.users]
 
 [b7a.users.tom]
@@ -318,18 +314,6 @@ public function main() {
     }
 }
 ```
-
-## Configuration Parameters
-The Ballerina WebSub implementation allows specifying the following properties/parameters via the Ballerina Config API,
-where the values specified via the Config API would override values specified as params on hub start up.
-
-
-| Configuration Key              | Default Value | Description                                                        |
-|--------------------------------| --------------|--------------------------------------------------------------------|
-| b7a.websub.hub.leasetime       | 86400         | The default lease period, if not specified in a request            |
-| b7a.websub.hub.signaturemethod | "SHA256"      | The signature method to use for authenticated content distribution |
-| b7a.websub.hub.remotepublish   | false         | Whether publishing updates against the topics in the hub could be done by remote publishers via HTTP requests with `hub.mode` set to `publish`  |
-| b7a.websub.hub.topicregistration | true      | Whether a topic needs to be registered at the hub for publishers to publish updates against the topic and for subscribers to send subscription requests for the topic |
 
 ## Introducing Specific Subscriber Services (Webhook Callback Services)
 

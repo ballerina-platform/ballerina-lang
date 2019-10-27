@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
@@ -454,7 +453,7 @@ public type HubConfiguration record {|
 
 # Record representing remote publishing allowance.
 #
-# + enabled - Whether remote publishers should be allowed to publish to this hub (HTTP requests) // todo remove
+# + enabled - Whether remote publishers should be allowed to publish to this hub (HTTP requests)
 # + mode - If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
 #                          the notification payload specified or `fetch` - the hub fetches the topic URL
 #                          specified in the "publish" request to identify the payload
@@ -469,27 +468,38 @@ public type RemotePublishConfig record {|
 # + basePath - The base path of the hub service
 # + subscriptionResourcePath - The resource path for subscription changes
 # + publishResourcePath - The resource path for publishing and topic registration
+# + serviceAuth - The auth configuration for the hub service
+# + subscriptionResourceAuth - The auth configuration for the subscription resource of the hub service
+# + publisherResourceAuth - The auth configuration for the publisher resource of the hub service
 # + hubConfiguration - The hub specific configuration
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
-public function startHub(http:Listener hubServiceListener, public string basePath = "/",
-                         public string subscriptionResourcePath = "/", public string publishResourcePath = "/publish",
+public function startHub(http:Listener hubServiceListener,
+                         public string basePath = "/",
+                         public string subscriptionResourcePath = "/",
+                         public string publishResourcePath = "/publish",
+                         public http:ServiceResourceAuth serviceAuth = {enabled:false},
+                         public http:ServiceResourceAuth subscriptionResourceAuth = {enabled:false},
+                         public http:ServiceResourceAuth publisherResourceAuth = {enabled:false},
                          public HubConfiguration hubConfiguration = {}) returns WebSubHub|HubStartedUpError {
-    hubBasePath = config:getAsString("b7a.websub.hub.basepath", basePath);
-    hubSubscriptionResourcePath = config:getAsString("b7a.websub.hub.resourcepath.subscription",
-                                                     subscriptionResourcePath);
-    hubPublishResourcePath = config:getAsString("b7a.websub.hub.resourcepath.publish", publishResourcePath);
-    hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
-                                      hubConfiguration.leaseSeconds);
+
+    hubBasePath = basePath;
+    hubSubscriptionResourcePath = subscriptionResourcePath;
+    hubPublishResourcePath = publishResourcePath;
+
+    hubServiceAuth = serviceAuth;
+    hubSubscriptionResourceAuth = subscriptionResourceAuth;
+    hubPublisherResourceAuth = publisherResourceAuth;
+
+    hubLeaseSeconds = hubConfiguration.leaseSeconds;
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
-    hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                    hubConfiguration.topicRegistrationRequired);
+    hubTopicRegistrationRequired = hubConfiguration.topicRegistrationRequired;
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", hubConfiguration["publicUrl"] ?: "");
+    hubPublicUrl = hubConfiguration["publicUrl"] ?: "";
     hubClientConfig = hubConfiguration["clientConfig"];
     hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
 

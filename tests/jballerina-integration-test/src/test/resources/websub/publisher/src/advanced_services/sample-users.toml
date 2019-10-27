@@ -1,7 +1,3 @@
-[b7a.websub.hub.auth]
-enabled=true
-scopes="scope1"
-
 [b7a.users]
 
 [b7a.users.tom]

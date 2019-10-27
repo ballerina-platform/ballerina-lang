@@ -40,7 +40,9 @@ auth:OutboundBasicAuthProvider OutBoundbasicAuthProvider = new({
 http:BasicAuthHandler outboundBasicAuthHandler = new(OutBoundbasicAuthProvider);
 
 websub:PublisherClient websubHubClientEP = new (webSubHub.publishUrl, {
-    auth: { authHandler: outboundBasicAuthHandler },
+    auth: {
+        authHandler: outboundBasicAuthHandler
+    },
     secureSocket: {
         trustStore: {
             path: config:getAsString("truststore"),
@@ -190,20 +192,23 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
 
 function startWebSubHub() returns websub:WebSubHub {
     var result = websub:startHub(new http:Listener(23191, config =  {
-        auth: {
-            authHandlers: [basicAuthHandler]
-        },
-        secureSocket: {
-            keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-                password: "ballerina"
-            },
-            trustStore: {
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password: "ballerina"
-            }
-        }
-    }), "/websub", "/hub", hubConfiguration = { remotePublish : { enabled : true }});
+                auth: {
+                    authHandlers: [basicAuthHandler]
+                },
+                secureSocket: {
+                    keyStore: {
+                        path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                        password: "ballerina"
+                    },
+                    trustStore: {
+                        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                        password: "ballerina"
+                    }
+                }
+            }), "/websub", "/hub",
+                serviceAuth = {enabled:true}, subscriptionResourceAuth = {enabled:true, scopes:["scope1"]},
+                hubConfiguration = { remotePublish : { enabled : true }}
+    );
     if (result is websub:WebSubHub) {
         return result;
     } else {
