@@ -32,16 +32,48 @@ websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
 listener http:Listener publisherServiceEP = new http:Listener(23080);
 
-auth:OutboundBasicAuthProvider OutBoundbasicAuthProvider = new({
-    username: "peter",
-    password: "pqr"
-});
-
-http:BasicAuthHandler outboundBasicAuthHandler = new(OutBoundbasicAuthProvider);
+http:BasicAuthHandler outboundBasicAuthHandler = new(new auth:OutboundBasicAuthProvider({
+                                                         username: "anne",
+                                                         password: "abc"
+                                                     }));
 
 websub:PublisherClient websubHubClientEP = new (webSubHub.publishUrl, {
     auth: {
         authHandler: outboundBasicAuthHandler
+    },
+    secureSocket: {
+        trustStore: {
+            path: config:getAsString("truststore"),
+            password: "ballerina"
+        }
+    }
+});
+
+http:BasicAuthHandler authnFailingHandler = new(new auth:OutboundBasicAuthProvider({
+                                                         username: "anne",
+                                                         password: "cba"
+                                               }));
+
+websub:PublisherClient authnFailingClient = new (webSubHub.publishUrl, {
+    auth: {
+        authHandler: authnFailingHandler
+    },
+    secureSocket: {
+        trustStore: {
+            path: config:getAsString("truststore"),
+            password: "ballerina"
+        }
+    }
+});
+
+http:BasicAuthHandler authzFailingHandler = new(new auth:OutboundBasicAuthProvider({
+                                                         username: "peter",
+                                                         password: "pqr"
+                                               }));
+
+websub:PublisherClient authzFailingClient = new (webSubHub.publishUrl, {
+    auth: {
+        authHandler: authzFailingHandler
     },
     secureSocket: {
         trustStore: {
@@ -149,13 +181,28 @@ service publisherThree on publisherServiceEP {
             panic <error> payload;
         }
         checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:23484/websubFour");
+
+        string publishErrorMessagesConcatenated = "";
+
         var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);
         if (err is error) {
+            publishErrorMessagesConcatenated += err.detail()?.message ?: "";
             log:printError("Error publishing update remotely", err);
         }
 
-        http:Response response = new;
-        err = caller->accepted(response);
+        err = authnFailingClient->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);
+        if (err is error) {
+            publishErrorMessagesConcatenated += err.detail()?.message ?: "";
+            log:printError("Error publishing update remotely", err);
+        }
+
+        err = authzFailingClient->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);
+        if (err is error) {
+            publishErrorMessagesConcatenated += err.detail()?.message ?: "";
+            log:printError("Error publishing update remotely", err);
+        }
+
+        err = caller->accepted(<@untainted> publishErrorMessagesConcatenated);
         if (err is error) {
             log:printError("Error responding on notify request", err);
         }
@@ -206,7 +253,9 @@ function startWebSubHub() returns websub:WebSubHub {
                     }
                 }
             }), "/websub", "/hub",
-                serviceAuth = {enabled:true}, subscriptionResourceAuth = {enabled:true, scopes:["scope1"]},
+                serviceAuth = {enabled:true},
+                subscriptionResourceAuth = {enabled:true, scopes:["subscribe"]},
+                publisherResourceAuth = {enabled:true, scopes:["publish"]},
                 hubConfiguration = { remotePublish : { enabled : true }}
     );
     if (result is websub:WebSubHub) {

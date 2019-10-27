@@ -2,7 +2,7 @@
 
 [b7a.users.tom]
 password="1234"
-scopes="scope1"
+scopes="subscribe"
 
 [b7a.users.mary]
 password="xyz"
@@ -10,4 +10,8 @@ scopes="scope2"
 
 [b7a.users.peter]
 password="pqr"
-scopes="scope1"
+scopes="subscribe"
+
+[b7a.users.anne]
+password="abc"
+scopes="publish"
