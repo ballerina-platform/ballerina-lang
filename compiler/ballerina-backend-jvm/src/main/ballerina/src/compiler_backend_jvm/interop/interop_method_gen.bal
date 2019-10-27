@@ -30,7 +30,8 @@ type JFieldFunctionWrapper record {|
 
 type JInteropFunctionWrapper JMethodFunctionWrapper | JFieldFunctionWrapper;
 
-function createJInteropFunctionWrapper(jvm:InteropValidationRequest jInteropValidationReq,
+function createJInteropFunctionWrapper(jvm:InteropValidator interopValidator,
+                                       jvm:InteropValidationRequest jInteropValidationReq,
                                        bir:Function birFunc,
                                        string orgName,
                                        string moduleName,
@@ -43,15 +44,15 @@ function createJInteropFunctionWrapper(jvm:InteropValidationRequest jInteropVali
                                                 versionValue, birModuleClassName);
     if (jInteropValidationReq is jvm:MethodValidationRequest) {
         jInteropValidationReq.restParamExist = birFunc.restParamExist;
-        return createJMethodWrapper(jInteropValidationReq, birFuncWrapper);
+        return createJMethodWrapper(interopValidator, jInteropValidationReq, birFuncWrapper);
     } else {
-        return createJFieldWrapper(jInteropValidationReq, birFuncWrapper);
+        return createJFieldWrapper(interopValidator, jInteropValidationReq, birFuncWrapper);
     }
 }
 
-function createJMethodWrapper(jvm:MethodValidationRequest jMethodValidationReq,
+function createJMethodWrapper(jvm:InteropValidator interopValidator, jvm:MethodValidationRequest jMethodValidationReq,
                               BIRFunctionWrapper birFuncWrapper) returns JMethodFunctionWrapper | error {
-    var jMethod = check jvm:validateAndGetJMethod(jMethodValidationReq);
+    var jMethod = check interopValidator.validateAndGetJMethod(jMethodValidationReq);
 
     return  {
         orgName : birFuncWrapper.orgName,
@@ -64,9 +65,9 @@ function createJMethodWrapper(jvm:MethodValidationRequest jMethodValidationReq,
     };
 }
 
-function createJFieldWrapper(jvm:FieldValidationRequest jFieldValidationReq,
+function createJFieldWrapper(jvm:InteropValidator interopValidator, jvm:FieldValidationRequest jFieldValidationReq,
                              BIRFunctionWrapper birFuncWrapper) returns JFieldFunctionWrapper | error  {
-    var jField = check jvm:validateAndGetJField(jFieldValidationReq);
+    var jField = check interopValidator.validateAndGetJField(jFieldValidationReq);
 
     return  {
         orgName : birFuncWrapper.orgName,
@@ -438,15 +439,13 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
                     mv.visitJumpInsn(IFNE, afterHandle);
 
                     mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
                     mv.visitTypeInsn(INSTANCEOF, "java/lang/Byte");
                     mv.visitJumpInsn(IFNE, afterHandle);
                 }
-
-                // if the returned value is a Ballerina Value, do nothing
-                mv.visitInsn(DUP);
-                mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
-                mv.visitJumpInsn(IFNE, afterHandle);
-
                 bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
                 int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
                 mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
