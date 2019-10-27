@@ -37,7 +37,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -47,7 +46,6 @@ import java.util.HashSet;
 import java.util.Optional;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Task for creating the executable jar file.
@@ -75,7 +73,6 @@ public class CreateExecutableTask implements Task {
                     try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
                         assembleExecutable(module, buildContext.moduleDependencyPathMap.get(module.packageID), toFs);
                     } catch (IOException e) {
-                        e.printStackTrace();
                         throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
                     }
                 }
@@ -122,7 +119,6 @@ public class CreateExecutableTask implements Task {
             // Executable is created at give location.
             // If no entry point is found we do nothing.
         } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
             throw createLauncherException("unable to create the executable: " + e.getMessage());
         }
     }

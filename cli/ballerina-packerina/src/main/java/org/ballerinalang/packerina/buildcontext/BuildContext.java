@@ -71,7 +71,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private transient PrintStream out;
     private transient PrintStream err;
 
-    public Map<PackageID, HashSet<Path>> moduleDependencyPathMap = new HashMap<>();
+    public transient Map<PackageID, HashSet<Path>> moduleDependencyPathMap = new HashMap<>();
     
     /**
      * Create a build context with context fields.

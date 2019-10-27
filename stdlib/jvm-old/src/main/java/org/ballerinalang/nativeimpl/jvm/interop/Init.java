@@ -29,6 +29,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.INTEROP_VALIDATOR;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
@@ -57,11 +59,14 @@ public class Init {
                 urls[i] = Paths.get(jarPath).toUri().toURL();
                 i++;
             }
-            if (useSystemClassLoader) {
-                interopValidatorStruct.addNativeData(CLASS_LOADER_DATA, new URLClassLoader(urls));
-            } else {
-                interopValidatorStruct.addNativeData(CLASS_LOADER_DATA, new URLClassLoader(urls, null));
-            }
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                if (useSystemClassLoader) {
+                    interopValidatorStruct.addNativeData(CLASS_LOADER_DATA, new URLClassLoader(urls));
+                } else {
+                    interopValidatorStruct.addNativeData(CLASS_LOADER_DATA, new URLClassLoader(urls, null));
+                }
+                return null;
+            });
         } catch (MalformedURLException e) {
             throw new JInteropException(JInteropException.CLASS_LOADER_INIT_FAILED_REASON,
                                         e.getMessage());
