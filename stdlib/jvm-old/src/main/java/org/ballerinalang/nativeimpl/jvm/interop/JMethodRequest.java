@@ -72,13 +72,13 @@ class JMethodRequest {
     private JMethodRequest() {
     }
 
-    static JMethodRequest build(MapValue jMethodReqBValue) {
+    static JMethodRequest build(MapValue jMethodReqBValue, ClassLoader classLoader) {
         JMethodRequest jMethodReq = new JMethodRequest();
         jMethodReq.kind = JMethodKind.getKind((String) jMethodReqBValue.get(KIND_FIELD));
         jMethodReq.methodName = (String) jMethodReqBValue.get(NAME_FIELD);
-        jMethodReq.declaringClass = JInterop.loadClass((String) jMethodReqBValue.get(CLASS_FIELD));
+        jMethodReq.declaringClass = JInterop.loadClass((String) jMethodReqBValue.get(CLASS_FIELD), classLoader);
         jMethodReq.paramTypeConstraints = JInterop.buildParamTypeConstraints(
-                (ArrayValue) jMethodReqBValue.get(PARAM_TYPE_CONSTRAINTS_FIELD));
+                (ArrayValue) jMethodReqBValue.get(PARAM_TYPE_CONSTRAINTS_FIELD), classLoader);
 
         MapValue bFuncType = (MapValue) jMethodReqBValue.get(B_FUNC_TYPE_FIELD);
         ArrayValue paramTypes = (ArrayValue) bFuncType.get(PARAM_TYPES_FIELD);
