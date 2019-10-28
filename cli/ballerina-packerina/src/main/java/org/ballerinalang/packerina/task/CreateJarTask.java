@@ -136,7 +136,7 @@ public class CreateJarTask implements Task {
 
     private Path getRuntimeAllJar(BuildContext buildContext) {
 
-        if (!skipCopyLibsFromDist) {
+        if (skipCopyLibsFromDist) {
             return null;
         }
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
