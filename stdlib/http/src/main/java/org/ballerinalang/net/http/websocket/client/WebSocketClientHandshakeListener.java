@@ -58,9 +58,14 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
 
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
-        WebSocketUtil.setWebSocketClient(webSocketClient, carbonResponse, webSocketConnection);
+        RetryContext retryConfig = null;
+        if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
+            retryConfig = (RetryContext) webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG);
+        }
+        WebSocketUtil.setWebSocketClient(webSocketClient, carbonResponse, webSocketConnection, retryConfig,
+                null);
         clientConnectorListener.setConnectionInfo(WebSocketUtil.getWebSocketOpenConnectionInfo(
-                webSocketConnection, wsService, webSocketClient));
+                webSocketConnection, wsService, webSocketClient, readyOnConnect));
         if (readyOnConnect || (WebSocketUtil.hasRetryConfig(webSocketClient)
                 && ((RetryContext) webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG)).
                 isConnectionMade())) {
@@ -72,9 +77,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         // The following are created for future connections.
         // Checks whether the config has retry config or not.
         // If it has a retry config, set these variables to the default variable.
-        RetryContext retryConfig;
-        if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
-            retryConfig = (RetryContext) webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG);
+        if (retryConfig != null) {
             setWebSocketEndpoint(retryConfig, webSocketClient, webSocketConnection);
             setReconnectContexValue(retryConfig);
         }
@@ -86,7 +89,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }
         WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(null,
-               wsService, webSocketClient);
+               wsService, webSocketClient, readyOnConnect);
         if (throwable instanceof IOException) {
             if (WebSocketUtil.hasRetryConfig(webSocketClient) && WebSocketUtil.reconnect(connectionInfo)) {
                 return;

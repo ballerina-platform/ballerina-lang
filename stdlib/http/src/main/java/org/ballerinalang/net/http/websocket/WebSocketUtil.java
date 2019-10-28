@@ -712,9 +712,11 @@ public class WebSocketUtil {
 
     public static WebSocketConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
                                                                          WebSocketService wsService,
-                                                                         ObjectValue webSocketClient) {
+                                                                         ObjectValue webSocketClient,
+                                                                         boolean readyOnConnect) {
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                 WebSocketConstants.WEBSOCKET_CONNECTOR);
+        webSocketConnector.set(WebSocketConstants.CONNECTOR_IS_READY_FIELD, readyOnConnect);
         WebSocketConnectionInfo connectionInfo = new WebSocketConnectionInfo(wsService, webSocketConnection,
                 webSocketClient);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
@@ -723,10 +725,16 @@ public class WebSocketUtil {
     }
 
     public static void setWebSocketClient(ObjectValue webSocketClient, HttpCarbonResponse carbonResponse,
-                                             WebSocketConnection webSocketConnection) {
+                                             WebSocketConnection webSocketConnection, RetryContext retryConfig,
+                                          FailoverContext failoverConfig) {
         //using only one service endpoint in the client as there can be only one connection.
         webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(carbonResponse));
-        WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);
+        if ((retryConfig != null && retryConfig.isConnectionMade()) ||
+                (failoverConfig != null && failoverConfig.isConnectionMade())) {
+            webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
+        } else {
+            WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);
+        }
 
     }
 

@@ -58,11 +58,12 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
 
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
-        WebSocketUtil.setWebSocketClient(webSocketClient, carbonResponse, webSocketConnection);
-        clientConnectorListener.setConnectionInfo(WebSocketUtil.getWebSocketOpenConnectionInfo(
-                webSocketConnection, wsService, webSocketClient));
         FailoverContext failoverConfig = (FailoverContext) webSocketClient.getNativeData(WebSocketConstants.
                 FAILOVER_CONFIG);
+        WebSocketUtil.setWebSocketClient(webSocketClient, carbonResponse, webSocketConnection, null,
+                failoverConfig);
+        clientConnectorListener.setConnectionInfo(WebSocketUtil.getWebSocketOpenConnectionInfo(
+                webSocketConnection, wsService, webSocketClient, readyOnConnect));
         if (readyOnConnect || failoverConfig.isConnectionMade()) {
             webSocketConnection.readNextFrame();
         }
@@ -89,7 +90,7 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }
         WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(null,
-                wsService, webSocketClient);
+                wsService, webSocketClient, readyOnConnect);
         if (throwable instanceof IOException) {
             WebSocketUtil.determineFailoverOrReconnect(connectionInfo, throwable, null);
         } else {
