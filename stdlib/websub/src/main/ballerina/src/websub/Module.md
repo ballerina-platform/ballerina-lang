@@ -243,7 +243,7 @@ public function main() {
 }
 ```
 
-Ballerina publishers can also use the publisher client to register topics at Ballerina WebSub hubs 
+Ballerina publishers can also use the `websub:PublisherClient` to register topics at Ballerina WebSub hubs 
 and publish/notify updates to the remote hubs.
 ```ballerina
 import ballerina/log;
@@ -275,7 +275,7 @@ public function main() {
 }
 ```
 
-The subscription client can be used by subscribers to send subscription and unsubscription requests explicitly.
+The `websub:SubscriptionClient` can be used by subscribers to send subscription and unsubscription requests explicitly.
 ```ballerina
 import ballerina/log;
 import ballerina/websub;

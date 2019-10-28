@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test WebSub listener startup.
  */
-public class WebSubSubscriberStartUpTest {
+public class WebSubSubscriberStartTest {
 
     private CompileResult result;
 

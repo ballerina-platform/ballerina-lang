@@ -17,14 +17,30 @@
 import ballerina/websub;
 import ballerina/http;
 
-function startupHub(int hubPort) returns websub:WebSubHub|websub:HubStartedUpError {
+function startupHub(int hubPort) returns websub:WebSubHub|websub:HubStartedUpError|websub:HubStartupError {
     return websub:startHub(new http:Listener(hubPort), "/websub", "/hub");
 }
 
-function stopHub(websub:WebSubHub|websub:HubStartedUpError hubStartUpResult) {
+function stopHub(websub:WebSubHub|websub:HubStartedUpError|websub:HubStartupError hubStartUpResult) {
     if (hubStartUpResult is websub:WebSubHub) {
         checkpanic hubStartUpResult.stop();
-    } else {
+    } else if (hubStartUpResult is  websub:HubStartedUpError) {
         checkpanic hubStartUpResult.startedUpHub.stop();
+    } else {
+        panic hubStartUpResult;
     }
+}
+
+function testPublisherAndSubscriptionInvalidSameResourcePath() returns boolean {
+    http:Listener lis = new (9393);
+    websub:WebSubHub|websub:HubStartedUpError|websub:HubStartupError res =
+        websub:startHub(lis, "/websub", "/hub", "/hub");
+
+    var err = lis.__immediateStop();
+
+    if (res is websub:HubStartupError) {
+        return res.reason() == "{ballerina/websub}HubStartupError" &&
+            res.detail().message == "publisher and subscription resource paths cannot be the same";
+    }
+    return false;
 }

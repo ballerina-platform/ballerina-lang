@@ -489,6 +489,10 @@ public function startHub(http:Listener hubServiceListener,
     hubSubscriptionResourcePath = subscriptionResourcePath;
     hubPublishResourcePath = publishResourcePath;
 
+    if (hubSubscriptionResourcePath == hubPublishResourcePath) {
+        return HubStartupError(message = "publisher and subscription resource paths cannot be the same");
+    }
+
     hubServiceAuth = serviceAuth;
     hubSubscriptionResourceAuth = subscriptionResourceAuth;
     hubPublisherResourceAuth = publisherResourceAuth;
@@ -716,12 +720,3 @@ public type SubscriberDetails record {|
     int leaseSeconds = 0;
     int createdAt = 0;
 |};
-
-type WebSubError record {
-    string message = "";
-};
-
-# Represents the reason string for the `websub:HubStartupError`.
-public const HUB_STARTUP_REASON = "{ballerina/websub}HubStartupError";
-# Represents a hub startup error.
-public type HubStartupError error<HUB_STARTUP_REASON>;
