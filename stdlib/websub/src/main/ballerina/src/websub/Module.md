@@ -498,7 +498,7 @@ public type WebhookListener object {
         if (sListener is http:Listener) {
             return sListener.__immediateStop();
         }
-        return ();
+        return self.websubListener.__immediateStop();
 };
 ```
 
