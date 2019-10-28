@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.jvm.values.api.BDecimal;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -37,7 +38,7 @@ import java.math.MathContext;
  * </p> 
  * @since 0.995.0
  */
-public class DecimalValue {
+public class DecimalValue implements BDecimal {
 
     private static final DecimalValue POSITIVE_INF =
             new DecimalValue("9.999999999999999999999999999999999E6144", DecimalValueKind.POSITIVE_INFINITY);
@@ -456,6 +457,31 @@ public class DecimalValue {
             default:
                 return this;
         }
+    }
+
+    @Override
+    public BDecimal add(BDecimal augend) {
+        return add((DecimalValue) augend);
+    }
+
+    @Override
+    public BDecimal subtract(BDecimal subtrahend) {
+        return subtract((DecimalValue) subtrahend);
+    }
+
+    @Override
+    public BDecimal multiply(BDecimal multiplicand) {
+        return multiply((DecimalValue) multiplicand);
+    }
+
+    @Override
+    public BDecimal divide(BDecimal divisor) {
+        return divide((DecimalValue) divisor);
+    }
+
+    @Override
+    public BDecimal remainder(BDecimal divisor) {
+        return remainder((DecimalValue) divisor);
     }
 
     /**

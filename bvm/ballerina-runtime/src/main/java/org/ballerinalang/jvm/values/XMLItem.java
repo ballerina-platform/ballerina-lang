@@ -37,6 +37,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -450,6 +451,10 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
+    public void setChildren(BXml<?> seq) {
+        setChildren((XMLValue<?>) seq);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -484,6 +489,10 @@ public final class XMLItem extends XMLValue<OMNode> {
         } else {
             currentNode.addChild((OMNode) seq.value());
         }
+    }
+
+    public void addChildren(BXml<?> seq) {
+        addChildren((XMLValue) seq);
     }
 
     /**

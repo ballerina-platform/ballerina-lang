@@ -29,6 +29,9 @@ import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.values.api.BFunctionPointer;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -49,7 +52,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
  *  
  * @since 0.995.0
  */
-public class TableValue implements RefValue, CollectionValue {
+public class TableValue implements RefValue, CollectionValue, BTable {
 
     protected DataIterator iterator;
     private boolean hasNextVal;
@@ -213,14 +216,20 @@ public class TableValue implements RefValue, CollectionValue {
     }
 
     /**
-     * Get the next record..
-     * @return
+     * Get the next record.
+     *
+     * @return {@code MapValue}
      */
     public MapValueImpl<String, Object> getNext() {
         // Make next row the current row
         moveToNext();
         // Create BStruct from current row
         return (MapValueImpl<String, Object>) iterator.generateNext();
+    }
+
+    @Override
+    public Object performAddOperation(BMap<String, Object> data) {
+        return performAddOperation((MapValueImpl<String, Object>) data);
     }
 
     /**
@@ -261,6 +270,10 @@ public class TableValue implements RefValue, CollectionValue {
         reset();
     }
 
+    public void addData(BMap<String, Object> data) {
+        addData((MapValueImpl<String, Object>) data);
+    }
+
     /**
      * Remove records that cause true return from given function pointer.
      * @param strand strand to be used for function execution
@@ -289,6 +302,10 @@ public class TableValue implements RefValue, CollectionValue {
             }
         }
         return deletedCount;
+    }
+
+    public Object performRemoveOperation(Strand strand, BFunctionPointer<Object, Boolean> func) {
+        return performRemoveOperation(strand, (FPValue<Object, Boolean>) func);
     }
 
     /**

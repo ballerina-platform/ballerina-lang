@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -296,6 +297,14 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
+    public void setChildren(BXml<?> seq) {
+        setChildren((XMLValue) seq);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void addChildren(XMLValue<?> seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
@@ -308,6 +317,14 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         ((XMLItem) sequence.getRefValue(0)).addChildren(seq);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addChildren(BXml<?> seq) {
+        addChildren((XMLValue) seq);
     }
 
     /**

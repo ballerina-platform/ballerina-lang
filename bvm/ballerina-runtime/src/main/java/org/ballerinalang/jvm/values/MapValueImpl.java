@@ -38,6 +38,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -83,7 +84,8 @@ import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdat
  * @since 0.995.0
  */
 @Deprecated
-public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V> {
+public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V>,
+        BMap<K, V> {
 
     private static final long serialVersionUID = 1L;
     private BType type;
@@ -228,38 +230,12 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public Object merge(MapValue v2, boolean checkMergeability) {
-        writeLock.lock();
-        try {
-            ((MapValueImpl) v2).writeLock.lock();
+        return merge((MapValueImpl) v2, checkMergeability);
+    }
 
-            if (checkMergeability) {
-                ErrorValue errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
-                if (errorIfUnmergeable != null) {
-                    return errorIfUnmergeable;
-                }
-            }
-
-            MapValue<String, Object> m1 = (MapValue<String, Object>) this;
-            MapValue<String, Object> m2 = (MapValue<String, Object>) v2;
-
-            for (Map.Entry<String, Object> entry : m2.entrySet()) {
-                String key = entry.getKey();
-
-                if (!m1.containsKey(key)) {
-                    m1.put(key, entry.getValue());
-                    continue;
-                }
-
-                // Set checkMergeability to false to avoid rechecking mergeability.
-                // Since write locks are acquired, the initial check should suffice, and merging will always succeed.
-                m1.put(key, mergeJson(m1.get(key), entry.getValue(), false));
-            }
-
-            return this;
-        } finally {
-            ((MapValueImpl) v2).writeLock.unlock();
-            writeLock.unlock();
-        }
+    @Override
+    public Object merge(BMap v2, boolean checkMergeability) {
+        return merge((MapValueImpl) v2, checkMergeability);
     }
 
     /**
@@ -704,4 +680,41 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public Map<String, Object> getNativeDataMap() {
         return this.nativeData;
     }
+
+
+    private Object merge(MapValueImpl v2, boolean checkMergeability) {
+        writeLock.lock();
+        try {
+            v2.writeLock.lock();
+
+            if (checkMergeability) {
+                ErrorValue errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
+                if (errorIfUnmergeable != null) {
+                    return errorIfUnmergeable;
+                }
+            }
+
+            MapValue<String, Object> m1 = (MapValue<String, Object>) this;
+            MapValue<String, Object> m2 = (MapValue<String, Object>) v2;
+
+            for (Map.Entry<String, Object> entry : m2.entrySet()) {
+                String key = entry.getKey();
+
+                if (!m1.containsKey(key)) {
+                    m1.put(key, entry.getValue());
+                    continue;
+                }
+
+                // Set checkMergeability to false to avoid rechecking mergeability.
+                // Since write locks are acquired, the initial check should suffice, and merging will always succeed.
+                m1.put(key, mergeJson(m1.get(key), entry.getValue(), false));
+            }
+
+            return this;
+        } finally {
+            v2.writeLock.unlock();
+            writeLock.unlock();
+        }
+    }
+
 }

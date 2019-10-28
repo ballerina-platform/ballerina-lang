@@ -15,13 +15,24 @@
   *  specific language governing permissions and limitations
   *  under the License.
   */
- package org.ballerinalang.jvm.values;
+ package org.ballerinalang.jvm.values.api;
 
  import org.apache.axiom.om.OMNode;
  import org.ballerinalang.jvm.DecimalValueKind;
  import org.ballerinalang.jvm.JSONDataSource;
  import org.ballerinalang.jvm.types.BStructureType;
  import org.ballerinalang.jvm.types.BType;
+ import org.ballerinalang.jvm.values.ArrayValue;
+ import org.ballerinalang.jvm.values.DecimalValue;
+ import org.ballerinalang.jvm.values.ErrorValue;
+ import org.ballerinalang.jvm.values.FPValue;
+ import org.ballerinalang.jvm.values.StreamValue;
+ import org.ballerinalang.jvm.values.StreamingJsonValue;
+ import org.ballerinalang.jvm.values.TableValue;
+ import org.ballerinalang.jvm.values.TypedescValue;
+ import org.ballerinalang.jvm.values.XMLItem;
+ import org.ballerinalang.jvm.values.XMLQName;
+ import org.ballerinalang.jvm.values.XMLSequence;
 
  import java.io.InputStream;
  import java.math.BigDecimal;
@@ -33,7 +44,7 @@
   *
   * @since 1.1.0
   */
- public class ValueGen {
+ public class BValueCreator {
      //------------------------ ArrayValue -------------------------------------------------------------------
 
      /**
@@ -43,7 +54,7 @@
       *             type of the array
       * @return the new array
       */
-     public static ArrayValue createArrayValue(BType type) {
+     public static BArray createArrayValue(BType type) {
          return new ArrayValue(type);
      }
 
@@ -53,7 +64,7 @@
       * @param values initial array values
       * @return integer array
       */
-     public static ArrayValue createArrayValue(long[] values) {
+     public static BArray createArrayValue(long[] values) {
          return new ArrayValue(values);
      }
 
@@ -63,7 +74,7 @@
       * @param values initial array values
       * @return boolean array
       */
-     public static ArrayValue createArrayValue(boolean[] values) {
+     public static  BArray createArrayValue(boolean[] values) {
          return new ArrayValue(values);
      }
 
@@ -73,7 +84,7 @@
       * @param values initial array values
       * @return byte array
       */
-     public static ArrayValue createArrayValue(byte[] values) {
+     public static BArray createArrayValue(byte[] values) {
          return new ArrayValue(values);
      }
 
@@ -83,7 +94,7 @@
       * @param values initial array values
       * @return float array
       */
-     public static ArrayValue createArrayValue(double[] values) {
+     public static BArray createArrayValue(double[] values) {
          return new ArrayValue(values);
      }
 
@@ -93,7 +104,7 @@
       * @param values initial array values
       * @return string array
       */
-     public static ArrayValue createArrayValue(String[] values) {
+     public static BArray createArrayValue(String[] values) {
          return new ArrayValue(values);
      }
 
@@ -104,7 +115,7 @@
       * @param type {@code BType} of the array. Do not use for primitive types.
       * @return ref Value array
       */
-     public static ArrayValue createArrayValue(Object[] values, BType type) {
+     public static BArray createArrayValue(Object[] values, BType type) {
          return new ArrayValue(values, type);
      }
 
@@ -116,7 +127,7 @@
       * @param length maximum length
       * @return fixed length ref value array
       */
-     public static ArrayValue createArrayValue(Object[] values, BType type, int length) {
+     public static BArray createArrayValue(Object[] values, BType type, int length) {
          return new ArrayValue(type, length);
      }
 
@@ -128,7 +139,7 @@
       * @param value the value of the decimal
       * @return decimal value
       */
-     public static DecimalValue createDecimalValue(BigDecimal value) {
+     public static BDecimal createDecimalValue(BigDecimal value) {
          return new DecimalValue(value);
      }
 
@@ -138,7 +149,7 @@
       * @param value string value
       * @return decimal value
       */
-     public static DecimalValue createDecimalValue(String value) {
+     public static BDecimal createDecimalValue(String value) {
          return new DecimalValue(value);
      }
 
@@ -147,9 +158,9 @@
       *
       * @param value string value
       * @param valueKind value kind
-      * @return
+      * @return decimal value
       */
-     public static DecimalValue createDecimalValue(String value, DecimalValueKind valueKind) {
+     public static BDecimal createDecimalValue(String value, DecimalValueKind valueKind) {
          return new DecimalValue(value, valueKind);
      }
 
@@ -160,7 +171,7 @@
       * @param details error detail
       * @return error value
       */
-     public static ErrorValue createErrorValue(String reason, Object details) {
+     public static BError createErrorValue(String reason, Object details) {
          return new ErrorValue(reason, details);
      }
 
@@ -172,7 +183,7 @@
       * @param details error details
       * @return error value
       */
-     public static ErrorValue createErrorValue(BType type, String reason, Object details) {
+     public static BError createErrorValue(BType type, String reason, Object details) {
          return new ErrorValue(type, reason, details);
      }
 
@@ -183,7 +194,7 @@
       * @param type {@code BType} of the function pointer
       * @return function pointer
       */
-     public static FPValue createFPValue(Function function, BType type) {
+     public static BFunctionPointer createFPValue(Function function, BType type) {
          return new FPValue(function, type);
      }
 
@@ -194,7 +205,7 @@
       * @param type {@code BType} of the function pointer
       * @return function pointer
       */
-     public static FPValue createFPValue(Consumer consumer, BType type) {
+     public static BFunctionPointer createFPValue(Consumer consumer, BType type) {
          return new FPValue(consumer, type);
      }
 
@@ -204,7 +215,7 @@
       * @param datasource {@code JSONDataSource} to be used
       * @return created {@code StreamingJsonValue}
       */
-     public static StreamingJsonValue createStreamingJsonValue(JSONDataSource datasource) {
+     public static BStreamingJson createStreamingJsonValue(JSONDataSource datasource) {
          return new StreamingJsonValue(datasource);
      }
 
@@ -214,7 +225,7 @@
       * @param type constraint type
       * @return stream value
       */
-     public static StreamValue createStreamValue(BType type) {
+     public static BStream createStreamValue(BType type) {
          return new StreamValue(type);
      }
 
@@ -223,7 +234,7 @@
       *
       * @return {@code TableValue}
       */
-     public static TableValue createTableValue() {
+     public static BTable createTableValue() {
          return new TableValue();
      }
 
@@ -234,7 +245,7 @@
       * @param constraintType structure type of the table
       * @return {@code TableValue}
       */
-     public static TableValue createTableValue(String tableName, BStructureType constraintType) {
+     public static BTable createTableValue(String tableName, BStructureType constraintType) {
          return new TableValue(tableName, constraintType);
      }
 
@@ -244,7 +255,7 @@
       * @param constraintType structure type of the table
       * @return {@code TableValue}
       */
-     public static TableValue createTableValue(BStructureType constraintType) {
+     public static BTable createTableValue(BStructureType constraintType) {
          return new TableValue(constraintType);
      }
 
@@ -258,7 +269,7 @@
       * @param params parameters for the query
       * @return {@code TableValue}
       */
-     public static TableValue createTableValue(String query, TableValue fromTable, TableValue joinTable,
+     public static BTable createTableValue(String query, TableValue fromTable, TableValue joinTable,
                                                BStructureType constraintType, ArrayValue params) {
          return new TableValue(query, fromTable, joinTable, constraintType, params);
      }
@@ -271,7 +282,7 @@
       * @param dataRows initial daya set
       * @return {@code TableValue} with initial data
       */
-     public static TableValue createTableValue(BType constraintType, ArrayValue keyColumns, ArrayValue dataRows) {
+     public static BTable createTableValue(BType constraintType, ArrayValue keyColumns, ArrayValue dataRows) {
          return new TableValue(constraintType, keyColumns, dataRows);
      }
 
@@ -281,7 +292,7 @@
       * @param describingType {@code BType} of the value describe by this value
       * @return type descriptor
       */
-     public static TypedescValue createTypedescValue(BType describingType) {
+     public static BTypedesc createTypedescValue(BType describingType) {
          return new TypedescValue(describingType);
      }
 
@@ -290,7 +301,7 @@
       *
       * @return {@code XMLItem}
       */
-     public static XMLItem createXMLItem() {
+     public static BXml createXMLItem() {
          return new XMLItem();
      }
 
@@ -298,8 +309,9 @@
       * Cretae a {@code XMLItem} from a XML string.
       *
       * @param xmlValue A XML string
+      * @return {@code XMLItem}
       */
-     public static XMLItem createXMLItem(String xmlValue) {
+     public static BXml<OMNode> createXMLItem(String xmlValue) {
          return new XMLItem(xmlValue);
      }
 
@@ -307,8 +319,9 @@
       * Create a {@code XMLItem} from a {@link org.apache.axiom.om.OMNode} object.
       *
       * @param value xml object
+      * @return {@code XMLItem}
       */
-     public static XMLItem createXMLItem(OMNode value) {
+     public static BXml<OMNode> createXMLItem(OMNode value) {
          return new XMLItem(value);
      }
 
@@ -316,8 +329,9 @@
       * Create a {@code XMLItem} from a {@link InputStream}.
       *
       * @param inputStream Input Stream
+      * @return {@code XMLItem}
       */
-     public static XMLItem ctreateXMLItem(InputStream inputStream) {
+     public static BXml<OMNode> ctreateXMLItem(InputStream inputStream) {
          return new XMLItem(inputStream);
      }
 
@@ -329,7 +343,7 @@
       * @param prefix Namespace prefix
       * @return XML qualified name
       */
-     public static XMLQName createXMLQName(String localName, String uri, String prefix) {
+     public static BXmlQName createXMLQName(String localName, String uri, String prefix) {
          return new XMLQName(localName, uri, prefix);
      }
 
@@ -339,7 +353,7 @@
       * @param qNameStr qualified name string
       * @return  XML qualified name
       */
-     public static XMLQName createXMLQName(String qNameStr) {
+     public static BXmlQName createXMLQName(String qNameStr) {
          return new XMLQName(qNameStr);
      }
 
@@ -348,7 +362,7 @@
       *
       * @return xml sequence
       */
-     public static XMLSequence createXMLSequence() {
+     public static BXml createXMLSequence() {
          return new XMLSequence();
      }
 
@@ -358,7 +372,7 @@
       * @param sequence xml sequence array
       * @return xml sequence
       */
-     public static XMLSequence createXMLSequence(ArrayValue sequence) {
+     public static BXml createXMLSequence(ArrayValue sequence) {
          return new XMLSequence(sequence);
      }
 

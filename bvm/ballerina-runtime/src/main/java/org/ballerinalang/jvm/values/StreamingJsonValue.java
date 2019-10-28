@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BStreamingJson;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,7 +41,7 @@ import java.util.Map;
  *  
  * @since 0.981.0
  */
-public class StreamingJsonValue extends ArrayValue {
+public class StreamingJsonValue extends ArrayValue implements BStreamingJson {
 
     JSONDataSource datasource;
 

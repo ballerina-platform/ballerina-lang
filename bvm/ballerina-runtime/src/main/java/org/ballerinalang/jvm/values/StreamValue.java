@@ -22,6 +22,8 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.api.BStream;
+import org.ballerinalang.jvm.values.api.BStreamingJson;
 
 import java.util.Map;
 import java.util.UUID;
@@ -36,7 +38,7 @@ import java.util.UUID;
  * 
  * @since 0.995.0
  */
-public class StreamValue implements RefValue {
+public class StreamValue implements RefValue, BStream {
 
     private BType type;
     private BType constraintType;

@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BTypedesc;
 
 import java.util.Map;
 
@@ -37,7 +38,7 @@ import java.util.Map;
  *  
  * @since 0.995.0
  */
-public class TypedescValue implements RefValue {
+public class TypedescValue implements RefValue, BTypedesc {
 
     final BType type;
     final BType describingType; // Type of the value describe by this typedesc.

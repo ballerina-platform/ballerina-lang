@@ -20,6 +20,7 @@
  import org.ballerinalang.jvm.scheduling.Strand;
  import org.ballerinalang.jvm.types.BFutureType;
  import org.ballerinalang.jvm.types.BType;
+ import org.ballerinalang.jvm.values.api.BFuture;
  import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
  import java.util.Map;
@@ -35,7 +36,7 @@
  * 
  * @since 0.995.0
  */
- public class FutureValue implements RefValue {
+ public class FutureValue implements BFuture, RefValue {
 
      @Deprecated
      public Strand strand;

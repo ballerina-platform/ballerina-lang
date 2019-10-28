@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BHandle;
 
 import java.util.Map;
 
@@ -33,7 +34,7 @@ import java.util.Map;
  *  
  * @since 1.0
  */
-public class HandleValue implements RefValue {
+public class HandleValue implements BHandle, RefValue {
 
     private Object value;
 

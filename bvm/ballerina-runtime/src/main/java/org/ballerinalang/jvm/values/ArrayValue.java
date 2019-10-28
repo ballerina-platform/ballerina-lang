@@ -36,6 +36,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -73,7 +74,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * 
  * @since 0.995.0
  */
-public class ArrayValue implements RefValue, CollectionValue {
+public class ArrayValue implements RefValue, CollectionValue, BArray {
 
     static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
     protected BType arrayType;
@@ -486,6 +487,11 @@ public class ArrayValue implements RefValue, CollectionValue {
      */
     public void unshift(ArrayValue values) {
         unshift(0, values);
+    }
+
+    @Override
+    public void unshift(BArray values) {
+        unshift(0, (ArrayValue) values);
     }
 
     @Deprecated

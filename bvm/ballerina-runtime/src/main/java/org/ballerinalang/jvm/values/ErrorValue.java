@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
@@ -50,7 +51,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
  * 
  * @since 0.995.0
  */
-public class ErrorValue extends RuntimeException implements RefValue {
+public class ErrorValue extends BError implements RefValue {
 
     private static final long serialVersionUID = 1L;
     private final BType type;
