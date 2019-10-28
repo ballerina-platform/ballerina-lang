@@ -38,6 +38,7 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -136,8 +137,13 @@ public class BootstrapRunner {
         loadTargetAndGenerateJarBinary(tmpDir, entryBir, jarOutputPath, dumpBir, false, birCachePaths);
     }
 
-    public static void genNativeCode(String entryBir, String objFileOutputPath, boolean dumpLLVM) {
-        genObjectFile(entryBir, objFileOutputPath, dumpLLVM);
+    public static void genNativeCode(String entryBir) {
+        Path osTempDirPath = Paths.get(System.getProperty("java.io.tmpdir"));
+        Path objectFilePath = osTempDirPath.resolve(TMP_OBJECT_FILE_NAME);
+        genObjectFile(entryBir, objectFilePath.toString(), true);
+        genExecutable(objectFilePath, "add");
+
+        Runtime.getRuntime().exit(0);
     }
 
     private static void genObjectFile(String entryBir, String objFileOutputPath, boolean dumpLLVM) {

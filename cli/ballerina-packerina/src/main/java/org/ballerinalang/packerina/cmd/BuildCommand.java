@@ -172,14 +172,14 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
         
-        if (this.nativeBinary) {
+        /*if (this.nativeBinary) {
             CommandUtil.printError(this.errStream,
                     "LLVM native generation is not supported.",
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
-        }
+        }*/
     
         // if -a or --all flag is not given, then it is mandatory to give a module name or ballerina file as arg.
         if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
