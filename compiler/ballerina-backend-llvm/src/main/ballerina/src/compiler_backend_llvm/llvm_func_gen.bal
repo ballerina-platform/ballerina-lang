@@ -132,11 +132,7 @@ type FuncGenrator object {
         bir:VarRef refOprand = oprand;
         string tempName = localVarName(refOprand.variableDcl) + "_temp";
         var localVarRef = self.getLocalVarRefById(refOprand.variableDcl.name.value);
-        if (localVarRef is error) {
-            panic error("SimpleErrorType", message = "Error in getLocalVarRefById");
-        } else {
-            return llvm:llvmBuildLoad(self.builder, localVarRef, tempName);
-        }
+        return llvm:llvmBuildLoad(self.builder, localVarRef, tempName);
     }
 
     function getLocalVarRefById(string id) returns llvm:LLVMValueRef {
