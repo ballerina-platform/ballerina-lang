@@ -16,7 +16,6 @@
 
 import ballerina/llvm;
 import ballerina/bir;
-import ballerina/io;
 
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
@@ -26,11 +25,9 @@ function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLL
     genFunctions(mod, pkg.functions);
     //optimize(mod);
     createObjectFile(targetObjectFilePath, mod);
-    io:println("targetObjectFilePath : " + targetObjectFilePath);
     if(dumpLLVMIR) {
         llvm:llvmDumpModule(mod);
     }
-    io:print(mod);
 }
 
 function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns llvm:LLVMModuleRef {
@@ -52,7 +49,6 @@ function genFunctions(llvm:LLVMModuleRef mod, bir:Function?[] funcs) {
         g.genFunctionBody(funcGenrators);
     }
     llvm:llvmDisposeBuilder(builder);
-    io:println("Hello genFunctions !");
 }
 
 function createObjectFile(string targetObjectFilePath, llvm:LLVMModuleRef mod) {
@@ -98,8 +94,8 @@ function readFileFully(string path) returns byte[] = external;
 
 function genPrintfDeclration(llvm:LLVMModuleRef mod) {
     llvm:LLVMTypeRef[] pointer_to_char_type = [llvm:llvmPointerType(llvm:llvmInt8Type(), 0)];
-    io:print(pointer_to_char_type);
     llvm:LLVMTypeRef printfType = llvm:llvmFunctionType1(llvm:llvmInt32Type(), pointer_to_char_type, 1, 1);
+    printfRef = llvm:llvmAddFunction(mod, "printf", printfType);
 }
 
 function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function?[] funcs)
