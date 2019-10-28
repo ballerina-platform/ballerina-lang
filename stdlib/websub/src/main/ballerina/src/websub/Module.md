@@ -218,7 +218,7 @@ public function main() {
 
     log:printInfo("Starting up the Ballerina Hub Service");
     var result = websub:startHub(new http:Listener(9191));
-    websub:WebSubHub webSubHub = result is websub:WebSubHub ? result : result.startedUpHub;
+    websub:Hub webSubHub = result is websub:Hub ? result : result.startedUpHub;
 
     var registrationResponse = webSubHub.registerTopic("<TOPIC_URL>");
     if (registrationResponse is error) {

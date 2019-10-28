@@ -28,7 +28,7 @@ const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 auth:InboundBasicAuthProvider basicAuthProvider = new;
 http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
-websub:WebSubHub webSubHub = startHubAndRegisterTopic();
+websub:Hub webSubHub = startHubAndRegisterTopic();
 
 listener http:Listener publisherServiceEP = new http:Listener(23080);
 
@@ -220,8 +220,8 @@ service helperService on publisherServiceEP {
     }
 }
 
-function startHubAndRegisterTopic() returns websub:WebSubHub {
-    websub:WebSubHub internalHub = startWebSubHub();
+function startHubAndRegisterTopic() returns websub:Hub {
+    websub:Hub internalHub = startWebSubHub();
     var err = internalHub.registerTopic(WEBSUB_PERSISTENCE_TOPIC_ONE);
     if (err is error) {
         log:printError("Error registering topic", err);
@@ -237,7 +237,7 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
     return internalHub;
 }
 
-function startWebSubHub() returns websub:WebSubHub {
+function startWebSubHub() returns websub:Hub {
     var result = websub:startHub(new http:Listener(23191, config =  {
                 auth: {
                     authHandlers: [basicAuthHandler]
@@ -258,7 +258,7 @@ function startWebSubHub() returns websub:WebSubHub {
                 publisherResourceAuth = {enabled:true, scopes:["publish"]},
                 hubConfiguration = { remotePublish : { enabled : true }}
     );
-    if (result is websub:WebSubHub) {
+    if (result is websub:Hub) {
         return result;
     } else if (result is websub:HubStartedUpError) {
         return result.startedUpHub;

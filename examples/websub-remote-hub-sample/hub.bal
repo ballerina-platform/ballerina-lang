@@ -14,7 +14,7 @@ public function main() {
                 remotePublish : {
                     enabled : true
                 }});
-    websub:WebSubHub webSubHub = result is websub:HubStartedUpError ?
+    websub:Hub webSubHub = result is websub:HubStartedUpError ?
                                                result.startedUpHub : result;
 
     // Waits for the subscriber to subscribe at this hub and for the publisher to publish the notifications.

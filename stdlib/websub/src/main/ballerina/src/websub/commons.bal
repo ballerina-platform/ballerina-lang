@@ -472,8 +472,8 @@ public type RemotePublishConfig record {|
 # + subscriptionResourceAuth - The auth configuration for the subscription resource of the hub service
 # + publisherResourceAuth - The auth configuration for the publisher resource of the hub service
 # + hubConfiguration - The hub specific configuration
-# + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
-#            that the hub is already started, and including the WebSubHub object representing the
+# + return - `Hub` The WebSub Hub object representing the newly started up hub, or `HubStartedUpError` indicating
+#            that the hub is already started, and including the `websub:Hub` object representing the
 #            already started up hub
 public function startHub(http:Listener hubServiceListener,
                          public string basePath = "/",
@@ -483,7 +483,7 @@ public function startHub(http:Listener hubServiceListener,
                          public http:ServiceResourceAuth subscriptionResourceAuth = {enabled:false},
                          public http:ServiceResourceAuth publisherResourceAuth = {enabled:false},
                          public HubConfiguration hubConfiguration = {})
-                            returns WebSubHub|HubStartedUpError|HubStartupError {
+                            returns Hub|HubStartedUpError|HubStartupError {
 
     hubBasePath = basePath;
     hubSubscriptionResourcePath = subscriptionResourcePath;
@@ -513,11 +513,11 @@ public function startHub(http:Listener hubServiceListener,
     }
 
 
-    WebSubHub|HubStartedUpError|HubStartupError res = startUpHubService(hubBasePath, hubSubscriptionResourcePath,
+    Hub|HubStartedUpError|HubStartupError res = startUpHubService(hubBasePath, hubSubscriptionResourcePath,
                                                                         hubPublishResourcePath,
                                                                         hubTopicRegistrationRequired, hubPublicUrl,
                                                                         hubServiceListener);
-    if (res is WebSubHub) {
+    if (res is Hub) {
         startHubService(hubServiceListener);
     }
 
@@ -528,7 +528,7 @@ public function startHub(http:Listener hubServiceListener,
 #
 # + subscriptionUrl - The URL for subscription changes
 # + publishUrl - The URL for publishing and topic registration
-public type WebSubHub object {
+public type Hub object {
 
     public string subscriptionUrl;
     public string publishUrl;
@@ -707,7 +707,7 @@ function isSuccessStatusCode(int statusCode) returns boolean {
 public type HubStartedUpError record {|
     string message = "";
     error? cause = ();
-    WebSubHub startedUpHub;
+    Hub startedUpHub;
 |};
 
 # Record to represent Subscriber Details.

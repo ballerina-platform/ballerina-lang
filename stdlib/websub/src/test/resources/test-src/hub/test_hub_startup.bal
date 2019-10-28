@@ -17,12 +17,12 @@
 import ballerina/websub;
 import ballerina/http;
 
-function startupHub(int hubPort) returns websub:WebSubHub|websub:HubStartedUpError|websub:HubStartupError {
+function startupHub(int hubPort) returns websub:Hub|websub:HubStartedUpError|websub:HubStartupError {
     return websub:startHub(new http:Listener(hubPort), "/websub", "/hub");
 }
 
-function stopHub(websub:WebSubHub|websub:HubStartedUpError|websub:HubStartupError hubStartUpResult) {
-    if (hubStartUpResult is websub:WebSubHub) {
+function stopHub(websub:Hub|websub:HubStartedUpError|websub:HubStartupError hubStartUpResult) {
+    if (hubStartUpResult is websub:Hub) {
         checkpanic hubStartUpResult.stop();
     } else if (hubStartUpResult is  websub:HubStartedUpError) {
         checkpanic hubStartUpResult.startedUpHub.stop();
@@ -33,7 +33,7 @@ function stopHub(websub:WebSubHub|websub:HubStartedUpError|websub:HubStartupErro
 
 function testPublisherAndSubscriptionInvalidSameResourcePath() returns boolean {
     http:Listener lis = new (9393);
-    websub:WebSubHub|websub:HubStartedUpError|websub:HubStartupError res =
+    websub:Hub|websub:HubStartedUpError|websub:HubStartupError res =
         websub:startHub(lis, "/websub", "/hub", "/hub");
 
     var err = lis.__immediateStop();

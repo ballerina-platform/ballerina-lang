@@ -30,18 +30,18 @@ import ballerina/io;
 # + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
 #               `http(s)://localhost:{port}/websub/hub` if unspecified
 # + hubListener - The `http:Listener` to which the hub service is attached
-# + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
-#            that the hub is already started, and including the WebSubHub object representing the
+# + return - `Hub` The WebSub Hub object representing the newly started up hub, or `HubStartedUpError` indicating
+#            that the hub is already started, and including the WebSub Hub object representing the
 #            already started up hub
 function startUpHubService(string basePath, string subscriptionResourcePath, string publishResourcePath,
                            boolean topicRegistrationRequired, string publicUrl, http:Listener hubListener)
-                                    returns WebSubHub|HubStartedUpError|HubStartupError = external;
+                                    returns Hub|HubStartedUpError|HubStartupError = external;
 
 # Stop the Ballerina Hub, if started.
 #
-# + hub - The WebSubHub object returned when starting the hub
+# + hub - The `websub:Hub` object returned when starting the hub
 # + return - `()` if the Ballerina Hub had been started up and was stopped now, `error` if not
-function stopHubService(WebSubHub hub) returns error? = external;
+function stopHubService(Hub hub) returns error? = external;
 
 # Adds a new subscription for the specified topic in the Ballerina Hub.
 #
@@ -84,7 +84,7 @@ function isTopicRegistered(string topic) returns boolean = external;
 ///////////////////////////////////////////////////////////////////
 # Publishes an update against the topic in the Ballerina Hub.
 #
-# + publishUrl - The publisher URL of the Ballerina WebSub Hub as included in the WebSubHub object
+# + publishUrl - The publisher URL of the Ballerina WebSub Hub as included in the `websub:Hub` object
 # + topic - The topic for which the update should happen
 # + content - The content to send to subscribers, with the payload and content-type specified
 # + return - `error` if an error occurred during publishing

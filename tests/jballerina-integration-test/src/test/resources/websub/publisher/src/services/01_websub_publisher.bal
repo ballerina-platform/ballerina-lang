@@ -29,7 +29,7 @@ const string WEBSUB_TOPIC_SIX = "http://two.redir.topic.com";
 
 boolean remoteTopicRegistered = false;
 
-websub:WebSubHub webSubHub = startHubAndRegisterTopic();
+websub:Hub webSubHub = startHubAndRegisterTopic();
 
 websub:PublisherClient websubHubClientEP = new (webSubHub.publishUrl);
 
@@ -186,8 +186,8 @@ function checkSubscrberAvailabilityAndPublishDirectly(string topic, string subsc
     }
 }
 
-function startHubAndRegisterTopic() returns websub:WebSubHub {
-    websub:WebSubHub internalHub = startWebSubHub();
+function startHubAndRegisterTopic() returns websub:Hub {
+    websub:Hub internalHub = startWebSubHub();
     var err = internalHub.registerTopic(WEBSUB_TOPIC_ONE);
     if (err is error) {
         log:printError("Error registering topic directly", err);
@@ -211,10 +211,10 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
     return internalHub;
 }
 
-function startWebSubHub() returns websub:WebSubHub {
+function startWebSubHub() returns websub:Hub {
     var result = websub:startHub(new http:Listener(23191), "/websub", "/hub",
                                  hubConfiguration = { remotePublish : { enabled : true }});
-    if (result is websub:WebSubHub) {
+    if (result is websub:Hub) {
         return result;
     } else if (result is websub:HubStartedUpError) {
         return result.startedUpHub;
