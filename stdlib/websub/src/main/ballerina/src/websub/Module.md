@@ -500,6 +500,7 @@ public type WebhookListener object {
     public function __gracefulStop() returns error? {
         return self.websubListener.__gracefulStop();
     }
+};    
 ```
 
 A service can now be introduced for the above service provider as follows.
