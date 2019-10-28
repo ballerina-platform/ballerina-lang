@@ -28,7 +28,7 @@ public type SubscriptionClient client object {
 
     # Initializer function for the client.
     #
-    # + url    - The URL to publish/notify updates to
+    # + url    - The URL to change subscription at
     # + config - The `http:ClientConfiguration` for the underlying client or `()`
     public function __init(string url, http:ClientConfiguration? config = ()) {
         self.url = url;

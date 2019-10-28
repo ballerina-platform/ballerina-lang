@@ -78,7 +78,6 @@ public type PublisherClient client object {
             error webSubError = error(WEBSUB_ERROR_CODE, message = "Error sending topic unregistration request: " + errCause);
             return webSubError;
         }
-        return;
     }
 
     # Publishes an update to a remote Ballerina WebSub Hub.
@@ -117,7 +116,6 @@ public type PublisherClient client object {
             error webSubError = error(WEBSUB_ERROR_CODE, message = "Publish failed for topic [" + topic + "]");
             return webSubError;
         }
-        return;
     }
 
     # Notifies a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
@@ -151,7 +149,6 @@ public type PublisherClient client object {
                                         message = "Update availability notification failed for topic [" + topic + "]");
             return webSubError;
         }
-        return;
     }
 };
 

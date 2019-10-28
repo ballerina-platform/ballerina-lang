@@ -31,8 +31,8 @@ public type ListenerStartupError error<LISTENER_STARTUP_ERROR, Detail>;
 
 
 # Represents the reason string for the `websub:HubStartupError`.
-public const HUB_STARTUP_REASON = "{ballerina/websub}HubStartupError";
+public const HUB_STARTUP_ERROR_REASON = "{ballerina/websub}HubStartupError";
 
 # Represents a hub startup error.
-public type HubStartupError error<HUB_STARTUP_REASON, Detail>;
+public type HubStartupError error<HUB_STARTUP_ERROR_REASON, Detail>;
 
