@@ -67,7 +67,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
             webSocketConnection.readNextFrame();
         }
         WebSocketUtil.countDownForHandshake(webSocketClient);
-        logger.debug(WebSocketConstants.CONNECTED_TO + webSocketClient.getStringValue(
+        logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.CONNECTED_TO, webSocketClient.getStringValue(
                 WebSocketConstants.CLIENT_URL_CONFIG));
         // The following are created for future connections.
         // Checks whether the config has retry config or not.

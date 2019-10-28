@@ -84,7 +84,6 @@ public class WebSocketUtil {
             "greater than -1. ";
     private static final String STATEMENT_FOR_FAILOVER_INTERVAL = "The maxInterval's value set for the configuration " +
             "needs to be greater than -1. ";
-    private static final String LOG_MESSAGE = "{} {}";
 
     public static ObjectValue createAndPopulateWebSocketCaller(WebSocketConnection webSocketConnection,
                                                                 WebSocketServerService wsService,
@@ -128,9 +127,9 @@ public class WebSocketUtil {
         });
     }
 
-    public static void readFirstFrame(WebSocketConnection webSocketConnection, ObjectValue wsClient) {
+    public static void readFirstFrame(WebSocketConnection webSocketConnection, ObjectValue webSocketConnector) {
         webSocketConnection.readNextFrame();
-        wsClient.set(WebSocketConstants.CONNECTOR_IS_READY_FIELD, true);
+        webSocketConnector.set(WebSocketConstants.CONNECTOR_IS_READY_FIELD, true);
     }
 
     /**
@@ -493,12 +492,13 @@ public class WebSocketUtil {
         // if it equals, return false
         if (((noOfReconnectAttempts < maxAttempts) && maxAttempts > 0) || maxAttempts == 0) {
             retryConnectorConfig.setReconnectAttempts(noOfReconnectAttempts + 1);
-            logger.debug(LOG_MESSAGE, formatter.format(date.getTime()), WebSocketConstants.RECONNECTING);
-            setCountDownLatch(getWaitTime(interval, maxInterval, backOfFactor, noOfReconnectAttempts));
+            logger.debug(WebSocketConstants.LOG_MESSAGE, formatter.format(date.getTime()),
+                    WebSocketConstants.RECONNECTING);
+            setCountDownLatch(calculateWaitingTime(interval, maxInterval, backOfFactor, noOfReconnectAttempts));
             establishWebSocketConnection(webSocketClient, wsService);
             return true;
         }
-        logger.debug(LOG_MESSAGE, WebSocketConstants.STATEMENT_FOR_RECONNECT , webSocketClient.
+        logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.STATEMENT_FOR_RECONNECT , webSocketClient.
                 getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
         return false;
     }
@@ -603,7 +603,8 @@ public class WebSocketUtil {
         // Check the current url index equals with previous connected url index or not.
         // If it is equal, update the no of reconnection attempt by one
         if (currentIndex == failoverConfig.getInitialIndex()) {
-            logger.debug(LOG_MESSAGE, formatter.format(date.getTime()), WebSocketConstants.RECONNECTING);
+            logger.debug(WebSocketConstants.LOG_MESSAGE, formatter.format(date.getTime()),
+                    WebSocketConstants.RECONNECTING);
             noOfReconnectAttempts++;
             retryConnectorConfig.setReconnectAttempts(noOfReconnectAttempts);
         }
@@ -611,7 +612,7 @@ public class WebSocketUtil {
         // If it isn't equal, call the initialiseWebSocketConnection()
         // if it equals, return false
         if (((noOfReconnectAttempts < maxAttempts) && maxAttempts > 0) || maxAttempts == 0) {
-            setCountDownLatch(getWaitTime(interval, maxInterval, backOfFactor, noOfReconnectAttempts));
+            setCountDownLatch(calculateWaitingTime(interval, maxInterval, backOfFactor, noOfReconnectAttempts));
             establishFailoverConnection(createWebSocketClientConnector(targets.get(currentIndex).toString(),
                     webSocketClient), webSocketClient, wsService);
             return true;
@@ -622,6 +623,7 @@ public class WebSocketUtil {
 
     /**
      * Set waiting time before attempting to next doReconnect/failover.
+     *
      * @param interval interval
      */
     private static void setCountDownLatch(int interval) {
@@ -643,13 +645,14 @@ public class WebSocketUtil {
 
     /**
      * Calculate the waiting time.
+     * 
      * @param interval interval
      * @param maxInterval maximum Interval
      * @param backOfFactor back of factor
      * @param reconnectAttempts no of doReconnect attempts
      * @return waiting time
      */
-    private static int getWaitTime(int interval, int maxInterval, float backOfFactor, int reconnectAttempts) {
+    private static int calculateWaitingTime(int interval, int maxInterval, float backOfFactor, int reconnectAttempts) {
         interval = (int) (interval * Math.pow(backOfFactor, reconnectAttempts));
         if (interval > maxInterval) {
             interval = maxInterval;

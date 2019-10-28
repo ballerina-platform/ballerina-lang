@@ -137,6 +137,7 @@ public class WebSocketConstants {
             "to the one of the server in the targets: ";
     public static final String STATEMENT_FOR_CLOSE_CONNECTION = "Reconnect attempt not made because of " +
             "close initiated by the server: ";
+    public static final String LOG_MESSAGE = "{} {}";
 
     private WebSocketConstants() {
     }

@@ -76,7 +76,8 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
             ((RetryContext) webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG)).setReconnectAttempts(0);
         }
         int currentIndex = failoverConfig.getCurrentIndex();
-        logger.debug(WebSocketConstants.CONNECTED_TO + failoverConfig.getTargetUrls().get(currentIndex));
+        logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.CONNECTED_TO ,
+                failoverConfig.getTargetUrls().get(currentIndex));
         // Set failover context variable's value
         failoverConfig.setInitialIndex(currentIndex);
         failoverConfig.setConnectionMade();
