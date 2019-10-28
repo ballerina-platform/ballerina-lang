@@ -10,8 +10,8 @@ public function main() {
     // Starts the internal Ballerina Hub.
     io:println("Starting up the Ballerina Hub Service");
 
-    var result = websub:startHub(new http:Listener(9191));
-    websub:WebSubHub webSubHub = result is websub:HubStartedUpError
+    var result = websub:startHub(new http:Listener(9191), "/websub", "/hub");
+    websub:Hub webSubHub = result is websub:HubStartedUpError
                                                 ? result.startedUpHub : result;
     // Registers a topic at the hub.
     var registrationResponse = webSubHub.registerTopic(

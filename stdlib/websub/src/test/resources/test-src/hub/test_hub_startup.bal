@@ -17,16 +17,30 @@
 import ballerina/websub;
 import ballerina/http;
 
-function startupHub(int hubPort) returns websub:WebSubHub|websub:HubStartedUpError {
-    return websub:startHub(new http:Listener(hubPort));
+function startupHub(int hubPort) returns websub:Hub|websub:HubStartedUpError|websub:HubStartupError {
+    return websub:startHub(new http:Listener(hubPort), "/websub", "/hub");
 }
 
-//TODO change function to accept websub:WebSubHub|websub:HubStartedUpError hubStartUpResult once test migration is done
-function stopHub(int hubPort) returns boolean {
-    var hubStartUpResult = websub:startHub(new http:Listener(hubPort));
-    if (hubStartUpResult is websub:WebSubHub) {
-        return hubStartUpResult.stop();
+function stopHub(websub:Hub|websub:HubStartedUpError|websub:HubStartupError hubStartUpResult) {
+    if (hubStartUpResult is websub:Hub) {
+        checkpanic hubStartUpResult.stop();
+    } else if (hubStartUpResult is  websub:HubStartedUpError) {
+        checkpanic hubStartUpResult.startedUpHub.stop();
     } else {
-        return hubStartUpResult.startedUpHub.stop();
+        panic hubStartUpResult;
     }
+}
+
+function testPublisherAndSubscriptionInvalidSameResourcePath() returns boolean {
+    http:Listener lis = new (9393);
+    websub:Hub|websub:HubStartedUpError|websub:HubStartupError res =
+        websub:startHub(lis, "/websub", "/hub", "/hub");
+
+    var err = lis.__immediateStop();
+
+    if (res is websub:HubStartupError) {
+        return res.reason() == "{ballerina/websub}HubStartupError" &&
+            res.detail().message == "publisher and subscription resource paths cannot be the same";
+    }
+    return false;
 }

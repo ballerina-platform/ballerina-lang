@@ -60,7 +60,7 @@ public class WebSubSubscriberConstants {
     public static final String TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
     public static final String TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 
-    public static final String STRUCT_WEBSUB_BALLERINA_HUB = "WebSubHub";
+    public static final String STRUCT_WEBSUB_BALLERINA_HUB = "Hub";
     public static final String STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR = "HubStartedUpError";
 
     static final String PARAM_HUB_MODE = "hub.mode";
