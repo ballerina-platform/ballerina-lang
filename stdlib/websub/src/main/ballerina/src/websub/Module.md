@@ -489,10 +489,18 @@ public type WebhookListener object {
         return self.websubListener.__start();
     }
     
-    public function __stop() returns error? {
-        return self.websubListener.__stop();
+    public function __detach(service s) returns error? {
+        return self.websubListener.__detach(s);
     }
-};
+    
+    public function __immediateStop() returns error? {
+        return self.websubListener.__immediateStop();
+    }
+
+    public function __gracefulStop() returns error? {
+        return self.websubListener.__gracefulStop();
+    }
+};    
 ```
 
 A service can now be introduced for the above service provider as follows.
