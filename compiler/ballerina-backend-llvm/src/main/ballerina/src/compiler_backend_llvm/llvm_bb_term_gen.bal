@@ -16,7 +16,6 @@ type BbTermGenrator object {
         self.parent = parent;
     }
 
-
     function genBasicBlockTerminator(map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbGenrators) {
         llvm:llvmPositionBuilderAtEnd(self.builder, self.bbRef);
 

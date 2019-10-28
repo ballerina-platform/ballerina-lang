@@ -41,10 +41,12 @@ public class CreateJarTask implements Task {
 
     private boolean dumpBir;
     private boolean isNative;
+    private boolean dumpLLVMIR;
 
-    public CreateJarTask(boolean dumpBir, boolean isNative) {
+    public CreateJarTask(boolean dumpBir, boolean isNative, boolean dumpLLVMIR) {
         this.dumpBir = dumpBir;
         this.isNative = isNative;
+        this.dumpLLVMIR = dumpLLVMIR;
     }
     
     @Override
@@ -71,7 +73,7 @@ public class CreateJarTask implements Task {
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
 
             if (isNative) {
-                BootstrapRunner.genNativeCode(entryBir.toString(), jarOutput.toString(), this.dumpBir);
+                BootstrapRunner.genNativeCode(entryBir.toString(), this.dumpLLVMIR);
             } else {
                 BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir, entryBir.toString(), jarOutput.toString(),
                         this.dumpBir, buildContext.getSourceType() == SINGLE_BAL_FILE,

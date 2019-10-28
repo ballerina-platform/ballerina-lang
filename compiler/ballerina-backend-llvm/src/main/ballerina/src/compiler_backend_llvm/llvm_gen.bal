@@ -16,6 +16,8 @@
 
 import ballerina/llvm;
 import ballerina/bir;
+import ballerina/io;
+import ballerina/lang.'string as strings;
 
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
@@ -24,10 +26,12 @@ function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLL
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
     genFunctions(mod, pkg.functions);
     //optimize(mod);
-    createObjectFile(targetObjectFilePath, mod);
+    io:println("targetObjectFilePath : " + targetObjectFilePath);
     if(dumpLLVMIR) {
         llvm:llvmDumpModule(mod);
     }
+    io:print(mod);
+    createObjectFile(targetObjectFilePath, mod);
 }
 
 function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns llvm:LLVMModuleRef {
@@ -49,6 +53,7 @@ function genFunctions(llvm:LLVMModuleRef mod, bir:Function?[] funcs) {
         g.genFunctionBody(funcGenrators);
     }
     llvm:llvmDisposeBuilder(builder);
+    io:println("Hello genFunctions !");
 }
 
 function createObjectFile(string targetObjectFilePath, llvm:LLVMModuleRef mod) {
@@ -103,11 +108,26 @@ function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef b
     map<FuncGenrator> genrators = {};
     foreach var func in funcs {
         if (!(func is ())) {
+            boolean validFunction = checkForValidFunctions(func.name.value);
+            if (!validFunction) {
+                continue;
+            }
             FuncGenrator funcGen = new(func, mod, builder);
             genrators[func.name.value] = funcGen;
         }
     }
     return genrators;
+}
+
+function checkForValidFunctions(string functionName) returns boolean {
+    int? indexOfInit = strings:indexOf(functionName, "init");
+    int? indexOfStart = strings:indexOf(functionName, "start");
+    int? indexOfStop = strings:indexOf(functionName, "stop");
+
+    if(!(indexOfInit is ()) || !(indexOfStart is ()) || !(indexOfStop is ())) {
+        return false;
+    }
+    return true;
 }
 
 function optimize(llvm:LLVMModuleRef mod) {

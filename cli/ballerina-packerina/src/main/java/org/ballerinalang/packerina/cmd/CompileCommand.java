@@ -137,9 +137,9 @@ public class CompileCommand implements BLauncherCmd {
                                                         "to skip with '--skip-tests'.");
         }
     
-        if (this.nativeBinary) {
+        /*if (this.nativeBinary) {
             throw LauncherUtils.createLauncherException("llvm native generation is not supported");
-        }
+        }*/
     
         // validation and decide source root and source full path
         Path sourcePath = null;
