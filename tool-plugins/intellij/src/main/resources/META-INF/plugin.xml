@@ -111,8 +111,9 @@
         <langCodeStyleSettingsProvider
                 implementation="io.ballerina.plugins.idea.formatter.settings.BallerinaLanguageCodeStyleSettingsProvider"/>
 
-        <quoteHandler fileType="Ballerina file"
-                      className="io.ballerina.plugins.idea.editor.BallerinaQuoteHandler"/>
+        <!--Quotes Matching Handler-->
+        <typedHandler
+                implementation="io.ballerina.plugins.idea.editor.inserthandlers.BallerinaQuotesInsertHandler"/>
 
         <!-- Enter Handlers-->
         <enterHandlerDelegate
