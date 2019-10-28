@@ -104,7 +104,6 @@ public class CopyNativeLibTask implements Task {
             // Copy jars from imported modules.
             copyImportedLibs(pkg.symbol.imports, buildContext.moduleDependencyPathMap.get(pkg.packageID),
                              buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
-            buildContext.moduleDependencyPathMap.get(pkg.packageID).forEach(System.out::println);
         }
     }
 
