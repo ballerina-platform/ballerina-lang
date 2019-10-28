@@ -489,7 +489,7 @@ public type WebhookListener object {
         return self.websubListener.__start();
     }
     
-    public function __detach(service s) returns error?  {
+    public function __detach(service s) returns error? {
         return self.websubListener.__detach(s);
     }
     
