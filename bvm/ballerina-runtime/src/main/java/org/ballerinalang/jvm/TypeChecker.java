@@ -967,7 +967,10 @@ public class TypeChecker {
                     List<BType> compatibleTypesWithNumConversion = new ArrayList<>();
                     List<BType> compatibleTypesWithoutNumConversion = new ArrayList<>();
                     for (BType type : ((BUnionType) targetType).getMemberTypes()) {
-                        if (checkIsLikeType(sourceValue, type, unresolvedValues, false)) {
+                        List<TypeValuePair> tempList = new ArrayList<>(unresolvedValues.size());
+                        tempList.addAll(unresolvedValues);
+
+                        if (checkIsLikeType(sourceValue, type, tempList, false)) {
                             compatibleTypesWithoutNumConversion.add(type);
                         }
 
