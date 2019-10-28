@@ -56,10 +56,6 @@ type BbBodyGenrator object {
         var rhsOp2 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp2);
         var kind = binaryIns.kind;
 
-        if (lhsRef is error) {
-            error err = error("NotBinaryInsGenratorErr", message = "invalid value in genBinaryOpIns");
-            panic err;
-        }
         BinaryInsGenrator binaryGen = new(self.builder, lhsTmpName, <llvm:LLVMValueRef>lhsRef, rhsOp1, rhsOp2);
         if (kind == bir:BINARY_ADD) {
             binaryGen.genAdd();

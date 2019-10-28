@@ -38,7 +38,6 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -218,7 +217,8 @@ public class BootstrapRunner {
         return commands;
     }
 
-    private static List<String> createArgsForCompilerBackend(String entryBir, String objFileOutputPath, boolean dumpLLVM) {
+    private static List<String> createArgsForCompilerBackend(String entryBir, String objFileOutputPath,
+            boolean dumpLLVM) {
         List<String> commands = new ArrayList<>();
         commands.add(entryBir);
         commands.add(objFileOutputPath);
