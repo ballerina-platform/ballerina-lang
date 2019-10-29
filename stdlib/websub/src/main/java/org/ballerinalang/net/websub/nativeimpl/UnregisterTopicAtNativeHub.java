@@ -28,23 +28,22 @@ import org.ballerinalang.net.websub.WebSubUtils;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Extern function to register a topic in the Ballerina Hub, to accept subscription requests against.
+ * Extern function to unregister a topic in the Ballerina Hub.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
-        functionName = "registerTopicAtHub",
-        args = {@Argument(name = "topic", type = TypeKind.STRING),
-                @Argument(name = "loadingOnStartUp", type = TypeKind.BOOLEAN)},
+        functionName = "unregisterTopicAtNativeHub",
+        args = {@Argument(name = "topic", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
-public class RegisterTopicAtHub {
+public class UnregisterTopicAtNativeHub {
 
-    public static Object registerTopicAtHub(Strand strand, String topic, boolean loadingOnStartUp) {
+    public static Object unregisterTopicAtNativeHub(Strand strand, String topic) {
         try {
-            Hub.getInstance().registerTopic(strand, topic, loadingOnStartUp);
+            Hub.getInstance().unregisterTopic(topic);
         } catch (BallerinaWebSubException e) {
             return WebSubUtils.createError(e.getMessage());
         }
