@@ -146,7 +146,7 @@ public class DecimalValue implements BDecimal {
     /**
      * Get the int value of the decimal.
      * May result in a {@code ErrorValue}
-     * @return
+     * @return the integer value
      */
     public long intValue() {
         switch (valueKind) {
