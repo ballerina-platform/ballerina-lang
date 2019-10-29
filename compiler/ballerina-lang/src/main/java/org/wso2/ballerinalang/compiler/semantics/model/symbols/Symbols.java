@@ -146,12 +146,12 @@ public class Symbols {
         return new BTypeSymbol(symTag, flags, name, pkgID, type, owner);
     }
 
-    public static BInvokableTypeSymbol createBInvokableTypeSymbol(int symTag,
-                                               int flags,
-                                               Name name,
-                                               PackageID pkgID,
-                                               BType type,
-                                               BSymbol owner) {
+    public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
+                                                                 int flags,
+                                                                 Name name,
+                                                                 PackageID pkgID,
+                                                                 BType type,
+                                                                 BSymbol owner) {
         return new BInvokableTypeSymbol(symTag, flags, name, pkgID, type, owner);
     }
 

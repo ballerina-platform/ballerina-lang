@@ -1398,7 +1398,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
 
-        BInvokableTypeSymbol functionTypeSymbol = Symbols.createBInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+        BInvokableTypeSymbol functionTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                 invokableSymbol.flags,
                 Names.EMPTY, env.enclPkg.symbol.pkgID,
                 invokableSymbol.type, env.scope.owner);

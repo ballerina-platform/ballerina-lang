@@ -3408,7 +3408,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     // A warning is printed here for the above scenario mentioning this will fixed in a future release.
                     if (hasRestParamAndArg && i == nonRestArgs.size() - 1
                             && types.isAssignable(arg.type, expectedType)) {
-                        dlog.warning(iExpr.pos, DiagnosticCode.FUNCTION_POINTER_REST_ARG_ARRAY_PASSED);
+                        dlog.warning(iExpr.pos, DiagnosticCode.ARRAY_PASSED_TO_REST_ARG);
                     }
                     if (nonRestParams.size() > i) {
                         requiredParams.remove(nonRestParams.get(i));

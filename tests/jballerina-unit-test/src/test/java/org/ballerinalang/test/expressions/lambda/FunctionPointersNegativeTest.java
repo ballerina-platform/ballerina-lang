@@ -109,9 +109,11 @@ public class FunctionPointersNegativeTest {
                 "/fp_rest_warning_test.bal");
         Assert.assertEquals(result.getWarnCount(), 2);
         int i = 0;
-        BAssertUtil.validateWarning(result, i++, "passing an array in place of rest parameter is allowed due to a " +
-                "bug in the compiler (https://git.io/Je0oe) and will be fixed in a future release.", 3, 8);
-        BAssertUtil.validateWarning(result, i, "passing an array in place of rest parameter is allowed due to a " +
-                "bug in the compiler (https://git.io/Je0oe) and will be fixed in a future release.", 4, 8);
+        BAssertUtil.validateWarning(result, i++, "invalid argument: passing an array argument for a rest parameter " +
+                "is currently allowed due to a bug in the compiler (https://git.io/Je0oe) and will be fixed in a " +
+                "future release.", 3, 8);
+        BAssertUtil.validateWarning(result, i, "invalid argument: passing an array argument for a rest parameter " +
+                "is currently allowed due to a bug in the compiler (https://git.io/Je0oe) and will " +
+                "be fixed in a future release.", 4, 8);
     }
 }
