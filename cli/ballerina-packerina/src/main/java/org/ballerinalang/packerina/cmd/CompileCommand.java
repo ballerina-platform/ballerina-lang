@@ -239,7 +239,7 @@ public class CompileCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask())  // create the balos for modules
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())   // copy the native libs
-                .addTask(new CreateJarTask(this.dumpBIR, this.nativeBinary))   // create the jar
+                .addTask(new CreateJarTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR))   // create the jar
                 .addTask(new CopyModuleJarTask())
                 .addTask(new RunTestsTask(), this.skipTests)  // run tests
                 .addTask(new CreateLockFileTask())  // create a lock file
