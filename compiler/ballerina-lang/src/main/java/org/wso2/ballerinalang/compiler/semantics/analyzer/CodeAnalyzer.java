@@ -2505,7 +2505,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             types.checkType(send.pos, receive.matchingSendsError, send.expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);
         }
 
-        types.checkType(receive, send.type, receive.type);
+        // The warning needs to be removed and the following line needs to be uncommented, for the minor release.
+//        types.checkType(receive, send.type, receive.type);
+        if (!types.isAssignable(send.type, receive.type)) {
+            dlog.warning(receive.pos, DiagnosticCode.SEND_RECEIVE_TYPE_MISMATCH, receive.type, send.type);
+        }
+
         addImplicitCast(send.type, receive);
         NodeKind kind = receive.parent.getKind();
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
