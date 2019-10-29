@@ -25,6 +25,58 @@ export function getServerOptions(ballerinaHome: string, experimental: boolean, d
     debug(`Using Ballerina installation at ${ballerinaHome} for Language server.`);
 
     let cmd;
+    const cwd = path.join(ballerinaHome, 'bin');
+    let args = [];
+    if (process.platform === 'win32') {
+        cmd = path.join(cwd, 'ballerina.bat');
+    } else {
+        cmd = 'sh';
+        args.push(path.join(cwd, 'ballerina'));
+    }
+
+    args.push("start-language-server");
+
+    let opt: ExecutableOptions = {cwd: cwd};
+    opt.env = Object.assign({}, process.env);
+    if (process.platform === "darwin") {
+        opt.env.BALLERINA_HOME = ballerinaHome;
+    }
+    if (process.env.LSDEBUG === "true") {
+        debug('Language Server is starting in debug mode.');
+        args.push('--debug');
+        args.push('5005');
+    }
+    if (debugLogsEnabled || traceLogsEnabled) {
+        let str = [];
+        if (debugLogsEnabled) {
+            str.push('debug');
+            args.push('--debug-log');
+        }
+        if (traceLogsEnabled) {
+            str.push('trace');
+            args.push('--trace-log');
+        }
+        debug('Language Server ' + str.join(', ') +' logs enabled.');
+    }
+    if (process.env.LS_CUSTOM_CLASSPATH) {
+        args.push('--classpath', process.env.LS_CUSTOM_CLASSPATH);
+    }
+    if (experimental) {
+        args.push('--experimental');
+    }
+
+    return {
+        command: cmd,
+        args,
+        options: opt
+    };
+}
+
+export function getOldServerOptions(ballerinaHome: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean) : ServerOptions {
+    // Fallback into old way, TODO: Remove this in a later verison
+    debug(`Using Ballerina installation at ${ballerinaHome} for Language server.`);
+
+    let cmd;
     const cwd = path.join(ballerinaHome, 'lib', 'tools', 'lang-server', 'launcher');
     let args = [];
     if (process.platform === 'win32') {

@@ -31,7 +31,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams } from "vscode-languageclient";
-import { getServerOptions } from '../server/server';
+import { getServerOptions, getOldServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
@@ -52,6 +52,7 @@ export interface ConstructIdentifier {
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
+    public isNewCLICmdSupported: boolean = true;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
@@ -124,10 +125,16 @@ export class BallerinaExtension {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${ballerinaVersion}`);
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
+
+                // versions less than 1.0.2 are incapable of handling cli commands for langserver and debug-adapter
+                this.isNewCLICmdSupported = this.compareVersions(ballerinaVersion, "1.0.3", true) >= 0;
+
                 // if Home is found load Language Server.
-                this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
-                    getServerOptions(this.getBallerinaHome(), this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled()),
-                                                         this.clientOptions, false);
+                let serverOptions = getServerOptions(this.getBallerinaHome(), this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
+                if (!this.isNewCLICmdSupported) {
+                    serverOptions = getOldServerOptions(this.getBallerinaHome(), this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
+                }
+                this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions, this.clientOptions, false);
 
                 // 0.983.0 and 0.982.0 versions are incapable of handling client capabilities 
                 if (ballerinaVersion !== "0.983.0" && ballerinaVersion !== "0.982.0") {
@@ -229,14 +236,14 @@ export class BallerinaExtension {
      *
      * @returns {number}
      */
-    compareVersions(pluginVersion: string, ballerinaVersion: string): number {
+    compareVersions(pluginVersion: string, ballerinaVersion: string, comparePatchVer: boolean = false): number {
         const toInt = (i: string) => {
             return parseInt(i, 10);
         };
         const numMatchRegexp = /\d+/g;
-        
-        const [pluginMajor, pluginMinor] = pluginVersion.match(numMatchRegexp)!.map(toInt);
-        const [ballerinaMajor, ballerinaMinor] = ballerinaVersion.match(numMatchRegexp)!.map(toInt);
+
+        const [pluginMajor, pluginMinor, pluginPatch] = pluginVersion.match(numMatchRegexp)!.map(toInt);
+        const [ballerinaMajor, ballerinaMinor, ballerinaPatch] = ballerinaVersion.match(numMatchRegexp)!.map(toInt);
 
         if (pluginMajor > ballerinaMajor) {
             return 1;
@@ -252,6 +259,16 @@ export class BallerinaExtension {
 
         if (pluginMinor < ballerinaMinor) {
             return -1;
+        }
+
+        if (comparePatchVer) {
+            if (pluginPatch > ballerinaPatch) {
+                return 1;
+            }
+
+            if (pluginPatch < ballerinaPatch) {
+                return -1;
+            }
         }
 
         return 0;
@@ -293,8 +310,8 @@ export class BallerinaExtension {
                 try {
                     const parsedVersion = cmdOutput.split('\n')[0].replace(/Ballerina /, '').replace(/[\n\t\r]/g, '');
                     resolve(parsedVersion);
-                } catch (error) {   
-                    reject(error); 
+                } catch (error) {
+                    reject(error);
                 }
             });
         });
@@ -441,10 +458,10 @@ export class BallerinaExtension {
             isBallerinaNotFound = message.includes('command not found')
                 || message.includes('unknown command')
                 || message.includes('is not recognized as an internal or external command');
-            log("Error executing `ballerina home`. " + "\n<---- cmd output ---->\n" 
+            log("Error executing `ballerina home`. " + "\n<---- cmd output ---->\n"
                 + message + "<---- cmd output ---->\n");
         }
-       
+
         return {
             home: isBallerinaNotFound || isOldBallerinaDist ? '' : balHomeOutput,
             isBallerinaNotFound,
@@ -468,7 +485,7 @@ export class BallerinaExtension {
 
     public addWebviewPanel(name: string, panel: WebviewPanel) {
         this.webviewPanels[name] = panel;
-        
+
         panel.onDidDispose(() => {
             delete this.webviewPanels[name];
         });
