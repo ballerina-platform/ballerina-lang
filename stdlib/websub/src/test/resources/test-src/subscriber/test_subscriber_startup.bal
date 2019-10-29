@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,15 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//# The object representing the WebSub Subscriber Service.
-//public type Service object {
-//
-//    # Returns the WebSub Listener endpoint to which this service binds.
-//    #
-//    # + return - WebSub `Listener` endpoint
-//    public function getEndpoint() returns Listener {
-//        Listener ep = new;
-//        return ep;
-//    }
-//
-//};
+import ballerina/websub;
+
+function startSubscriberService() returns string {
+    websub:Listener l1 = new(8387);
+    websub:Listener l2 = new(8387);
+
+    var l1Error = l1.__start();
+    if (l1Error is error) {
+        return l1Error.detail()?.message ?: "l1 error unavailable";
+    }
+    var l2Error = l2.__start();
+    if (l2Error is error) {
+        return <string>l2Error.detail()?.message;
+    }
+    return "no error";
+}

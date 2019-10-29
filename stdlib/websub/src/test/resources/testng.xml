@@ -22,8 +22,12 @@
 <suite name="ballerina-test-suite">
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
-        <packages>
-             <package name="org.ballerinalang.net.websub.*"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.net.websub.WebSubCompilationTest"/>
+            <class name="org.ballerinalang.net.websub.WebSubDiscoveryResponseParserTest"/>
+<!--            <class name="org.ballerinalang.net.websub.WebSubHubStartTest"/>-->
+            <class name="org.ballerinalang.net.websub.WebSubSpecificSubscriberValidationTest"/>
+            <class name="org.ballerinalang.net.websub.WebSubSubscriberStartTest"/>
+        </classes>
     </test>
 </suite>

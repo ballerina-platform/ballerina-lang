@@ -25,11 +25,7 @@
     </listeners>
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.stdlib.file.DirectoryListenerConnectorTest">
-                <methods>
-                    <exclude name="testValidLocalFileSystemServerConnectorSyntax"/>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.stdlib.file.DirectoryListenerConnectorTest"/>
             <class name="org.ballerinalang.stdlib.file.FileTest"/>
         </classes>
     </test>

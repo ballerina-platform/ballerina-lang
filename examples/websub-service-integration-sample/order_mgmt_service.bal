@@ -16,7 +16,7 @@ map<json> orderMap = {};
 // Invokes the function that starts up a Ballerina WebSub Hub, registers the topic
 // against which updates will be published, and maintains a reference to the
 // returned hub object to publish updates.
-websub:WebSubHub webSubHub = startHubAndRegisterTopic();
+websub:Hub webSubHub = startHubAndRegisterTopic();
 
 @http:ServiceConfig {
     basePath: "/ordermgt"
@@ -50,7 +50,7 @@ service orderMgt on httpListener {
         var orderReq = req.getJsonPayload();
         if (orderReq is json) {
             string orderId = orderReq.Order.ID.toString();
-            orderMap[orderId] = orderReq;
+            orderMap[orderId] = <@untainted> orderReq;
 
             // Creates the response message indicating successful order creation.
             http:Response response = new;
@@ -79,9 +79,9 @@ service orderMgt on httpListener {
 
 // Starts up a Ballerina WebSub Hub on port 9191 and registers the topic against
 // which updates will be published.
-function startHubAndRegisterTopic() returns websub:WebSubHub {
-    var hubStartUpResult = websub:startHub(new http:Listener(9191));
-    websub:WebSubHub internalHub = hubStartUpResult is websub:HubStartedUpError
+function startHubAndRegisterTopic() returns websub:Hub {
+    var hubStartUpResult = websub:startHub(new http:Listener(9191), "/websub", "/hub");
+    websub:Hub internalHub = hubStartUpResult is websub:HubStartedUpError
                     ? hubStartUpResult.startedUpHub : hubStartUpResult;
 
     var result = internalHub.registerTopic(ORDER_TOPIC);

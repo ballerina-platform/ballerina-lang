@@ -79,7 +79,8 @@ public class DirectoryListenerConnectorTest {
 
     @Test(description = "Check the valid successful use case.")
     public void testValidLocalFileSystemServerConnectorSyntax() {
-        CompileResult compileResult = BCompileUtil.compile(testResourceRoot.resolve("file-system.bal").toString());
+        CompileResult compileResult = BCompileUtil
+                .compile(true, testResourceRoot.resolve("file-system.bal").toString());
         try {
             final Path file = Files.createFile(Paths.get("src", "test", "resources", "fs", "temp.txt"));
             Awaitility.await().atMost(1, MINUTES).until(() -> {

@@ -3,8 +3,8 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
-websub:Client websubHubClientEP = new
-                            websub:Client("http://localhost:9191/websub/hub");
+websub:SubscriptionClient websubHubClientEP =
+                            new ("http://localhost:9191/websub/hub");
 
 public function main() {
 

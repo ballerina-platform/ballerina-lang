@@ -20,21 +20,24 @@ function name3() {
             int h = 0;
       } onretry {
              a = a + " retry";
-  } aborted {
+  }      aborted{
       a = a + " committed";
-  } committed {
+  }committed    {
                   a = a + " aborted";
-       }
+           }
 }
 
 function name4() {
     transaction with retries = 0 {
         int h = 0;
-    } onretry {
-    a = a + " retry";
-  } committed {
+    }
+ onretry{
+   a = a + " retry";
+     }
+committed    {
            a = a + " committed";
-      } aborted {
+         }
+          aborted{
                a = a + " aborted";
-       }
+   }
 }

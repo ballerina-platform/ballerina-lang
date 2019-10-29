@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
+import org.ballerinalang.net.websub.WebSubUtils;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
@@ -33,21 +34,25 @@ import org.ballerinalang.net.websub.hub.Hub;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "stopHubService",
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        returnType = {@ReturnType(type = TypeKind.ERROR), @ReturnType(type = TypeKind.NIL)},
         isPublic = true
 )
 public class StopHubService {
 
-    public static boolean stopHubService(Strand strand, String hubUrl) {
+    public static Object stopHubService(Strand strand, Object hub) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted()) {
             try {
+                if (hubInstance.getHubObject() != hub) {
+                    return WebSubUtils.createError("error stopping the hub service: hub object does not match the " +
+                                                           "started hub");
+                }
                 hubInstance.stopHubService();
-                return true;
+                return null;
             } catch (BallerinaWebSubException e) {
-                return false;
+                return WebSubUtils.createError(e.getMessage());
             }
         }
-        return false;
+        return WebSubUtils.createError("error stopping the hub service: hub service not started");
     }
 }
