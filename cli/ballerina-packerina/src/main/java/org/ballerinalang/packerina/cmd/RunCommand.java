@@ -93,6 +93,9 @@ public class RunCommand implements BLauncherCmd {
             description = "Compile Ballerina program to a native binary")
     private boolean nativeBinary;
 
+    @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
+    private boolean dumpLLVMIR;
+
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
 
@@ -263,7 +266,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
-                .addTask(new CreateJarTask(this.dumpBIR, this.nativeBinary))  // create the jar
+                .addTask(new CreateJarTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR))  // create the jar
                 .addTask(new CopyModuleJarTask())
                 .addTask(new CreateExecutableTask())  // create the executable .jar file
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable

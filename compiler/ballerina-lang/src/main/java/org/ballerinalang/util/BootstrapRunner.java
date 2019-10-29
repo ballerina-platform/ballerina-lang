@@ -137,10 +137,10 @@ public class BootstrapRunner {
         loadTargetAndGenerateJarBinary(tmpDir, entryBir, jarOutputPath, dumpBir, false, birCachePaths);
     }
 
-    public static void genNativeCode(String entryBir) {
+    public static void genNativeCode(String entryBir, boolean dumpLLVM) {
         Path osTempDirPath = Paths.get(System.getProperty("java.io.tmpdir"));
         Path objectFilePath = osTempDirPath.resolve(TMP_OBJECT_FILE_NAME);
-        genObjectFile(entryBir, objectFilePath.toString(), true);
+        genObjectFile(entryBir, objectFilePath.toString(), dumpLLVM);
         genExecutable(objectFilePath, "add");
 
         Runtime.getRuntime().exit(0);

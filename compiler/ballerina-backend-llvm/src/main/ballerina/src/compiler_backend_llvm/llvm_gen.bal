@@ -53,7 +53,6 @@ function genFunctions(llvm:LLVMModuleRef mod, bir:Function?[] funcs) {
         g.genFunctionBody(funcGenrators);
     }
     llvm:llvmDisposeBuilder(builder);
-    io:println("Hello genFunctions !");
 }
 
 function createObjectFile(string targetObjectFilePath, llvm:LLVMModuleRef mod) {
