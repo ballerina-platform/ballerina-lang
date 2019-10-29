@@ -70,11 +70,11 @@ public type InboundJwtAuthProvider object {
 };
 
 function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken) returns JwtPayload? {
-    var cachedJwt = trap <CachedJwt>jwtValidatorConfig.jwtCache.get(jwtToken);
-    if (cachedJwt is CachedJwt) {
+    var cachedJwtInfo = trap <CachedJwtInfo>jwtValidatorConfig.jwtCache.get(jwtToken);
+    if (cachedJwtInfo is CachedJwtInfo) {
         // convert to current time and check the expiry time
-        if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
-            JwtPayload payload = cachedJwt.jwtPayload;
+        if (cachedJwtInfo.expiryTime > (time:currentTime().time / 1000)) {
+            JwtPayload payload = cachedJwtInfo.jwtPayload;
             string? sub = payload?.sub;
             if (sub is string) {
                 string printMsg = sub;
@@ -90,8 +90,8 @@ function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwt
 }
 
 function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken, int? exp, JwtPayload payload) {
-    CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
-    jwtValidatorConfig.jwtCache.put(jwtToken, cachedJwt);
+    CachedJwtInfo cachedJwtInfo = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
+    jwtValidatorConfig.jwtCache.put(jwtToken, cachedJwtInfo);
     string? sub = payload?.sub;
     if (sub is string) {
         string printMsg = sub;
