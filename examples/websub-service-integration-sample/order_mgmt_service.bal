@@ -33,7 +33,7 @@ service orderMgt on httpListener {
     resource function discoverPlaceOrder(http:Caller caller, http:Request req) {
         http:Response response = new;
         // Adds a link header indicating the hub and topic.
-        websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], ORDER_TOPIC);
+        websub:addWebSubLinkHeader(response, [webSubHub.subscriptionUrl], ORDER_TOPIC);
         response.statusCode = 202;
         var result = caller->respond(response);
         if (result is error) {
@@ -81,9 +81,16 @@ service orderMgt on httpListener {
 // which updates will be published.
 function startHubAndRegisterTopic() returns websub:Hub {
     var hubStartUpResult = websub:startHub(new http:Listener(9191), "/websub", "/hub");
-    websub:Hub internalHub = hubStartUpResult is websub:HubStartedUpError
-                    ? hubStartUpResult.startedUpHub : hubStartUpResult;
 
+    websub:Hub? hubVar = ();
+    if hubStartUpResult is websub:HubStartupError {
+        panic hubStartUpResult;
+    } else {
+        hubVar = hubStartUpResult is websub:HubStartedUpError
+                            ? hubStartUpResult.startedUpHub : hubStartUpResult;
+    }
+
+    websub:Hub internalHub = <websub:Hub> hubVar;
     var result = internalHub.registerTopic(ORDER_TOPIC);
     if (result is error) {
         log:printError("Error registering topic", result);

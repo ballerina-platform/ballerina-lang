@@ -217,16 +217,17 @@ public class Hub {
                 String publishUrl = populatePublishUrl(publicUrl, hubListener);
                 String subscribeUrl = populateSubscribeUrl(publicUrl, hubListener);
 
+                started = true;
                 Object setupResult = executeFunction(strand.scheduler, classLoader, BALLERINA, WEBSUB, HUB_SERVICE,
                         "setupOnStartup");
                 if (TypeChecker.getType(setupResult).getTag() == TypeTags.ERROR) {
+                    started = false;
                     return setupResult;
                 }
 
                 PrintStream console = System.err;
                 console.println("[ballerina/websub] Ballerina WebSub Hub started up.\n[ballerina/websub] Publish URL:" +
                                         " " + publishUrl + "\n[ballerina/websub] Subscription URL: " + subscribeUrl);
-                started = true;
                 setPublishUrl(publishUrl);
                 setSubscribeUrl(subscribeUrl);
 
