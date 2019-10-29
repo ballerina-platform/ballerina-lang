@@ -204,7 +204,7 @@ public class ErrorVariableReferenceTest {
     public void testErrorVariablesSemanticsNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/error_variable_reference_semantics_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 16);
+        Assert.assertEquals(resultNegative.getErrorCount(), 17);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
@@ -230,6 +230,8 @@ public class ErrorVariableReferenceTest {
                 incompatibleTypes + "expected 'boolean', found 'string'", 94, 20);
         BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference " +
                 "'results[res1][reason]' cannot be used with binding pattern", 111, 12);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference 'results[rec]' " +
+                "cannot be used with binding pattern", 111, 42);
         BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference " +
                 "'results[res2][reason]' cannot be used with binding pattern", 112, 12);
         BAssertUtil.validateError(resultNegative, ++i,
