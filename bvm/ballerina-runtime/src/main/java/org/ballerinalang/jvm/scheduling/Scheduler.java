@@ -17,7 +17,6 @@
 package org.ballerinalang.jvm.scheduling;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
@@ -39,8 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.GLOBAL_TRANSACTION_ID;
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.TRANSACTION_URL;
 import static org.ballerinalang.jvm.scheduling.SchedulerItem.POISON_PILL;
 
 /**
@@ -108,8 +105,9 @@ public class Scheduler {
         return schedule(params, fp.getFunction(), parent, null, null, returnType);
     }
 
+    @Deprecated
     public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
-        return schedule(params, fp.getConsumer(), parent, null);
+        return schedule(params, fp.getFunction(), parent, (CallableUnitCallback) null);
     }
 
     /**
@@ -126,6 +124,20 @@ public class Scheduler {
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
                                 Map<String, Object> properties, BType returnType) {
         FutureValue future = createFuture(parent, callback, properties, returnType);
+        return schedule(params, function, parent, future);
+    }
+
+    /**
+     * Add a task to the runnable list, which will eventually be executed by the Scheduler.
+     *
+     * @param params   - parameters to be passed to the function
+     * @param function - function to be executed
+     * @param parent   - parent strand that makes the request to schedule another
+     * @param callback - to notify any listener when ever the execution of the given function is finished
+     * @return - Reference to the scheduled task
+     */
+    public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback) {
+        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull);
         return schedule(params, function, parent, future);
     }
 
@@ -147,6 +159,7 @@ public class Scheduler {
      * @param callback - to notify any listener when ever the execution of the given function is finished
      * @return - Reference to the scheduled task
      */
+    @Deprecated
     public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback) {
         FutureValue future = createFuture(parent, callback, null, BTypes.typeNull);
         params[0] = future.strand;
@@ -252,8 +265,8 @@ public class Scheduler {
                     if (item.future.callback != null) {
                         if (item.future.panic != null) {
                             item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
-                            if (item.future.transactionLocalContext != null) {
-                                item.future.transactionLocalContext.notifyLocalRemoteParticipantFailure();
+                            if (item.future.strand.transactionLocalContext != null) {
+                                item.future.strand.transactionLocalContext.notifyLocalRemoteParticipantFailure();
                             }
                         } else {
                             item.future.callback.notifySuccess();
@@ -365,7 +378,6 @@ public class Scheduler {
             newStrand.observerContext = parent.observerContext;
         }
         FutureValue future = new FutureValue(newStrand, callback, constraint);
-        infectResourceFunction(newStrand, future);
         future.strand.frames = new Object[100];
         return future;
     }
@@ -373,17 +385,6 @@ public class Scheduler {
     public void poison() {
         for (int i = 0; i < numThreads; i++) {
             runnableList.add(POISON_PILL);
-        }
-    }
-
-    private void infectResourceFunction(Strand strand, FutureValue futureValue) {
-        String gTransactionId = (String) strand.getProperty(GLOBAL_TRANSACTION_ID);
-        if (gTransactionId != null) {
-            String url = strand.getProperty(TRANSACTION_URL).toString();
-            TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(gTransactionId,
-                                                                                             url, "2pc");
-            strand.setLocalTransactionContext(transactionLocalContext);
-            futureValue.transactionLocalContext = transactionLocalContext;
         }
     }
 }
@@ -395,7 +396,6 @@ public class Scheduler {
  */
 class SchedulerItem {
     private Function function;
-    private Consumer consumer;
     private Object[] params;
     final FutureValue future;
     boolean parked;
@@ -408,9 +408,13 @@ class SchedulerItem {
         this.params = params;
     }
 
+    @Deprecated
     public SchedulerItem(Consumer consumer, Object[] params, FutureValue future) {
         this.future = future;
-        this.consumer = consumer;
+        this.function = val -> {
+            consumer.accept(val);
+            return null;
+        };
         this.params = params;
     }
 
@@ -419,12 +423,7 @@ class SchedulerItem {
     }
 
     public Object execute() {
-        if (this.consumer != null) {
-            this.consumer.accept(this.params);
-            return null;
-        } else {
-            return this.function.apply(this.params);
-        }
+        return this.function.apply(this.params);
     }
 
     public boolean isYielded() {

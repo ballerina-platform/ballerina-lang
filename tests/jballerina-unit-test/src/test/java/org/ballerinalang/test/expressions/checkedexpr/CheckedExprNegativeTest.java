@@ -28,8 +28,13 @@ import org.testng.annotations.Test;
  */
 public class CheckedExprNegativeTest {
 
-    private static final String ERROR_MISMATCH_ERR_MSG = "invalid usage of the 'check' expression " +
-            "operator: no matching error return type(s) in the enclosing invokable";
+    private static final String NO_ERROR_ERR_MSG = "invalid usage of the 'check' expression operator: no error " +
+            "type return in enclosing invokable";
+
+    private static final String ERROR_MISMATCH_ERR_MSG = "invalid usage of the 'check' expression operator: no " +
+            "matching error return type(s) in the enclosing invokable. This is currently allowed due to a bug in " +
+            "the compiler (https://git.io/JeR1p) and will be removed in a future release. If the expression/action " +
+            "evaluates to error, this would result in abrupt completion with panic.";
 
     @Test
     public void testSemanticErrors() {
@@ -51,7 +56,7 @@ public class CheckedExprNegativeTest {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 1, compile.toString());
-        BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 11, 19);
+        BAssertUtil.validateError(compile, 0, NO_ERROR_ERR_MSG, 11, 19);
     }
 
     @Test
@@ -59,15 +64,15 @@ public class CheckedExprNegativeTest {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_within_resource_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
-        BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 28, 22);
+        BAssertUtil.validateError(compile, 0, NO_ERROR_ERR_MSG, 28, 22);
     }
 
     @Test
     public void testCheckedErrorvsReturnTypeMismatch() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_error_return_type_mismatch_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 2);
-        BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 24, 13);
-        BAssertUtil.validateError(compile, 1, ERROR_MISMATCH_ERR_MSG, 45, 17);
+        Assert.assertEquals(compile.getWarnCount(), 2);
+        BAssertUtil.validateWarning(compile, 0, ERROR_MISMATCH_ERR_MSG, 24, 13);
+        BAssertUtil.validateWarning(compile, 1, ERROR_MISMATCH_ERR_MSG, 45, 17);
     }
 }

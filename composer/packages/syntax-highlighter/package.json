@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/syntax-highlighter",
-  "version": "1.0.2-SNAPSHOT",
+  "version": "1.0.2",
   "description": "A frontend syntax highlighter for Ballerina based on monaco.",
   "main": "lib/highlighter.js",
   "scripts": {

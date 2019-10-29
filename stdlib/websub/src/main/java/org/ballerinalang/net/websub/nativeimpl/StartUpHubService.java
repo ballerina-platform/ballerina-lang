@@ -26,7 +26,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR;
@@ -43,23 +42,20 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
         args = {@Argument(name = "topicRegistrationRequired", type = TypeKind.BOOLEAN),
                 @Argument(name = "publicUrl", type = TypeKind.STRING),
                 @Argument(name = "hubListener", type = TypeKind.OBJECT)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT)},
+        returnType = {@ReturnType(type = TypeKind.OBJECT), @ReturnType(type = TypeKind.ERROR)},
         isPublic = true
 )
 public class StartUpHubService {
 
-    public static Object startUpHubService(Strand strand, boolean topicRegistrationRequired, String publicUrl,
-                                           ObjectValue hubListener) {
+    public static Object startUpHubService(Strand strand, String basePath, String subscriptionResourcePath,
+                                           String publishResourcePath, boolean topicRegistrationRequired,
+                                           String publicUrl, ObjectValue hubListener) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted()) {
             return getHubStartedUpError(hubInstance);
         }
-        try {
-            hubInstance.startUpHubService(strand, topicRegistrationRequired, publicUrl, hubListener);
-        } catch (BallerinaWebSubException e) {
-            return getHubStartedUpError(hubInstance);
-        }
-        return hubInstance.getHubObject();
+        return hubInstance.startUpHubService(strand, basePath, subscriptionResourcePath, publishResourcePath,
+                                             topicRegistrationRequired, publicUrl, hubListener);
     }
 
     private static MapValue<String, Object> getHubStartedUpError(Hub hubInstance) {
