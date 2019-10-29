@@ -29,7 +29,7 @@ import ballerina/time;
 # + audience - Expected audience
 # + clockSkewInSeconds - Clock skew in seconds
 # + trustStoreConfig - JWT trust store configurations
-# + jwtCache - Cache used to store parsed JWT information as CachedJwt
+# + jwtCache - Cache used to store parsed JWT information as CachedJwtInfo
 public type JwtValidatorConfig record {|
     string issuer?;
     string|string[] audience?;
@@ -47,11 +47,11 @@ public type JwtTrustStoreConfig record {|
     string certificateAlias;
 |};
 
-# Represents parsed and cached JWT.
+# Represents parsed and cached JWT information.
 #
 # + jwtPayload - Parsed JWT payload
 # + expiryTime - Expiry time of the JWT
-public type CachedJwt record {|
+public type CachedJwtInfo record {|
     JwtPayload jwtPayload;
     int expiryTime;
 |};
