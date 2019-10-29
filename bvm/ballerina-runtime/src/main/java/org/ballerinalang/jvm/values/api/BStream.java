@@ -19,14 +19,9 @@
 package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
-import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.RefValue;
-
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * <p>

@@ -37,7 +37,7 @@ public interface BXmlQName extends RefValue {
      */
 
     /**
-     * Returns local part of the qualified name
+     * Returns local part of the qualified name.
      *
      * @return local part string of the qualified name
      */
@@ -58,7 +58,7 @@ public interface BXmlQName extends RefValue {
     String getUri();
 
     /**
-     * Set the namespace URI of the qualified name
+     * Set the namespace URI of the qualified name.
      *
      * @param uri namespace URI to be set
      */

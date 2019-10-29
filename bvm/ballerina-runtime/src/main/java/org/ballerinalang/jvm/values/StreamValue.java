@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BStream;
-import org.ballerinalang.jvm.values.api.BStreamingJson;
 
 import java.util.Map;
 import java.util.UUID;

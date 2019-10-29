@@ -17,29 +17,11 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.commons.TypeValuePair;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.types.BErrorType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.freeze.Status;
-import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * <p>

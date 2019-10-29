@@ -19,19 +19,8 @@ package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.JSONDataSource;
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.RefValue;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Writer;
-import java.util.Map;
 
 /**
  * <p>

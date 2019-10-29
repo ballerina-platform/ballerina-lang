@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.RefValue;
 
 import java.util.HashMap;
 

@@ -17,12 +17,8 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.RefValue;
 
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 

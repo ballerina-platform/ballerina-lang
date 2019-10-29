@@ -34,14 +34,12 @@ import java.math.BigDecimal;
  */
 public interface BDecimal {
 
-    DecimalValueKind valueKind = DecimalValueKind.OTHER;
-
     /**
      * Returns {@code BigDecimal} value.
      *
      * @return {@code BigDecimal} value
      */
-    public BigDecimal decimalValue();
+    BigDecimal decimalValue();
 
     /**
      * Returns int value.
@@ -49,7 +47,7 @@ public interface BDecimal {
      *
      * @return integer representation of the decimal
      */
-    public long intValue();
+    long intValue();
 
     /**
      * Check the given value is in int range.
@@ -57,7 +55,7 @@ public interface BDecimal {
      * @param decimalValue value to be checked
      * @return true if the value is in int range
      */
-    public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
+    static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
         return decimalValue.compareTo(BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
                decimalValue.compareTo(BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
     }
@@ -68,42 +66,42 @@ public interface BDecimal {
      *
      * @return the byte value
      */
-    public int byteValue();
+    int byteValue();
 
     /**
      * Returns the float value.
      *
      * @return the double value
      */
-    public double floatValue();
+    double floatValue();
 
     /**
      * Check the given value represents true or false.
      *
      * @return true if the value is non zero
      */
-    public boolean booleanValue();
+    boolean booleanValue();
 
     /**
      * Returns the string value.
      *
      * @return string value
      */
-    public String stringValue();
+    String stringValue();
 
     /**
      * Returns the  {@code BigDecimal} value.
      *
      * @return the decimal value
      */
-    public BigDecimal value();
+    BigDecimal value();
 
     /**
      * Returns the {@code BType} of the value.
      *
      * @return the type
      */
-    public BType getType();
+    BType getType();
 
 
     /**
@@ -112,7 +110,7 @@ public interface BDecimal {
      * @param augend value to be added.
      * @return new value
      */
-    public BDecimal add(BDecimal augend);
+    BDecimal add(BDecimal augend);
 
     /**
      * Returns a decimal whose value is {@code (this - subtrahend)}.
@@ -120,7 +118,7 @@ public interface BDecimal {
      * @param subtrahend value to be subtracted
      * @return value after subtraction
      */
-    public BDecimal subtract(BDecimal subtrahend);
+    BDecimal subtract(BDecimal subtrahend);
 
     /**
      * Returns a decimal whose value is <tt>(this &times;
@@ -129,7 +127,7 @@ public interface BDecimal {
      * @param multiplicand value to be multiplied
      * @return value after multiplication
      */
-    public BDecimal multiply(BDecimal multiplicand);
+    BDecimal multiply(BDecimal multiplicand);
 
     /**
      * Returns a decimal whose value is {@code (this /
@@ -138,7 +136,7 @@ public interface BDecimal {
      * @param divisor value by which this decimal is to be divided
      * @return value after division
      */
-    public BDecimal divide(BDecimal divisor);
+    BDecimal divide(BDecimal divisor);
 
     /**
      * Returns a decimal whose value is {@code (this %
@@ -147,21 +145,21 @@ public interface BDecimal {
      * @param divisor value by which this decimal is to be divided
      * @return {@code this % divisor}
      */
-    public BDecimal remainder(BDecimal divisor);
+    BDecimal remainder(BDecimal divisor);
 
     /**
      * Returns a decimal whose value is {@code (-this)}.
      *
      * @return {@code -this}
      */
-    public BDecimal negate();
+    BDecimal negate();
 
     /**
      * Returns value kind of {@code (-this)}.
      *
      * @return value kind
      */
-    public DecimalValueKind getValueKind();
+    DecimalValueKind getValueKind();
 
     /**
      * Returns decimal of given int value.
@@ -169,7 +167,7 @@ public interface BDecimal {
      * @param value integer value
      * @return decimal value
      */
-    public static BDecimal valueOf(int value) {
+    static BDecimal valueOf(int value) {
         return DecimalValue.valueOf(value);
     }
 
@@ -179,7 +177,7 @@ public interface BDecimal {
      * @param value long value
      * @return decimal value
      */
-    public static BDecimal valueOf(long value) {
+    static BDecimal valueOf(long value) {
         return DecimalValue.valueOf(value);
     }
 
@@ -189,7 +187,7 @@ public interface BDecimal {
      * @param value double value
      * @return decimal value
      */
-    public static BDecimal valueOf(double value) {
+    static BDecimal valueOf(double value) {
         return DecimalValue.valueOf(value);
     }
 
@@ -199,7 +197,7 @@ public interface BDecimal {
      * @param value boolean value
      * @return decimal value
      */
-    public static BDecimal valueOf(boolean value) {
+    static BDecimal valueOf(boolean value) {
         return DecimalValue.valueOf(value);
     }
 }

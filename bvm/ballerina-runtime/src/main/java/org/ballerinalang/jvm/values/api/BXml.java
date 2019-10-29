@@ -16,27 +16,12 @@
 
 package org.ballerinalang.jvm.values.api;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.commons.TypeValuePair;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.CollectionValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.freeze.State;
-import org.ballerinalang.jvm.values.freeze.Status;
-
-import java.util.Iterator;
-import java.util.List;
-import javax.xml.namespace.QName;
 
 /**
  * {@code BXML} represents an XML in Ballerina. An XML could be one of:
@@ -55,8 +40,6 @@ import javax.xml.namespace.QName;
  * @since 0.995.0
  */
 public interface BXml<T> extends RefValue, CollectionValue {
-
-    BType type = BTypes.typeXML;
 
     /**
      * Start of a XML comment.
