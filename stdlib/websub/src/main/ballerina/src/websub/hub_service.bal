@@ -440,7 +440,9 @@ function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) returns
             int time = time:currentTime().time;
             if (time - subscription.leaseSeconds > subscription.createdAt) {
                 error? remResult = persistenceStore.removeSubscription(subscription);
-                log:printError("Error removing expired subscription", remResult);
+                if (remResult is error) {
+                    log:printError("Error removing expired subscription", remResult);
+                }
                 continue;
             }
             addSubscription(subscription);
@@ -483,9 +485,9 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
         removeSubscription(subscriptionDetails.topic, callback);
         if (hubPersistenceEnabled) {
             error? remResult = persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
-	    if (remResult is error) {
-		log:printError("Error removing expired subscription", remResult);
-	    }
+            if (remResult is error) {
+                log:printError("Error removing expired subscription", remResult);
+            }
         }
     } else {
         var result = request.getTextPayload();
@@ -519,8 +521,8 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
                 if (hubPersistenceEnabled) {
                     error? remResult = persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
                     if (remResult is error) {
-			log:printError("Error removing gone subscription", remResult);
-		    }
+                        log:printError("Error removing gone subscription", remResult);
+                    }
                 }
                 log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
                                 + "], topic[" + subscriptionDetails.topic + "]");
