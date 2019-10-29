@@ -27,6 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -48,7 +49,8 @@ public class ImportsTests {
         Path tempDir = Files.createTempDirectory("temp-bal-home");
         Path tempBir = Paths.get(System.getProperty("user.dir"), "build", "test-bir-temp");
         Path imports = Paths.get("test-src", "balo", "imports");
-        Path homeBirCache = tempDir.resolve(Paths.get(".ballerina", "bir_cache"));
+        Path homeBirCache = tempDir.resolve(Paths.get(".ballerina", "bir_cache" + "-" +
+                RepoUtils.getBallerinaVersion()));
         List<Path> birFiles;
 
         previousUserHome = System.getProperty(USER_HOME);
