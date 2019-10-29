@@ -432,10 +432,6 @@
                 "url": "byte-io"
             },
             {
-                "name": "Character I/O",
-                "url": "character-io"
-            },
-            {
                 "name": "Record I/O",
                 "url": "record-io"
             },
@@ -450,6 +446,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "Read/Write Files",
+                "url": "character-io"
             },
             {
                 "name": "JSON to CSV Transform",
