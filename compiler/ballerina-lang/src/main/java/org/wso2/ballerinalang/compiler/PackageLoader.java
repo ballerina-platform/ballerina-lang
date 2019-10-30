@@ -309,7 +309,6 @@ public class PackageLoader {
     private void updateModuleIDVersion(PackageID moduleID, PackageID enclPackageId) {
         String orgName = moduleID.orgName.value;
         String moduleName = moduleID.name.value;
-        String moduleVersion;
 
         // Set the version from the Ballerina.lock file found in the current project.
         if (enclPackageId != null && this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
