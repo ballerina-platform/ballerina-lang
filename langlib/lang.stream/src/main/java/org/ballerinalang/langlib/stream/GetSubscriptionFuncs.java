@@ -28,7 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-
 /**
  * Native implementation of lang.stream.StreamManager:getSubscriptionFuncs().
  *

@@ -19,7 +19,6 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 
@@ -41,15 +40,12 @@ public class StreamValue implements RefValue {
     private BType type;
     private BType constraintType;
 
-    private StreamSubscriptionManager streamSubscriptionManager;
-
     /**
      * The name of the underlying broker topic representing the stream object.
      */
     public String streamId;
 
     public StreamValue(BType type) {
-        this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         this.streamId = UUID.randomUUID().toString();
@@ -82,25 +78,5 @@ public class StreamValue implements RefValue {
 
     public BType getConstraintType() {
         return constraintType;
-    }
-
-    /**
-     * Method to publish to a topic representing the stream in the broker.
-     *
-     * @param strand the strand in which the data being published
-     * @param data the data to publish to the stream
-     */
-    public void publish(Strand strand, Object data) {
-        streamSubscriptionManager.sendMessage(this, strand, data);
-    }
-
-    /**
-     * Method to register a subscription to the underlying topic representing the stream in the broker.
-     *
-     * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
-     *                        messages
-     */
-    public void subscribe(FPValue<Object[], Object> functionPointer) {
-        streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
     }
 }
