@@ -15,22 +15,28 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/cache;
 import ballerina/http;
+import ballerina/log;
 import ballerina/mime;
 import ballerina/stringutils;
+import ballerina/time;
 
 # Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
+# + introspectionServerConfig - Introspection server configuration
 # + introspectionClient - Introspection client endpoint
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
 public type InboundOAuth2Provider object {
 
     *auth:InboundAuthProvider;
 
+    public IntrospectionServerConfig introspectionServerConfig;
     public http:Client introspectionClient;
     public string? tokenTypeHint;
 
     public function __init(IntrospectionServerConfig config) {
+        self.introspectionServerConfig = config;
         self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
     }
@@ -43,9 +49,17 @@ public type InboundOAuth2Provider object {
         if (credential == "") {
             return false;
         }
-        boolean authenticated = false;
-        string username = "";
-        string scopes = "";
+
+        if (self.introspectionServerConfig.oauth2Cache.hasKey(credential)) {
+            var cachedOAuth2Info = authenticateFromCache(self.introspectionServerConfig, credential);
+            if (cachedOAuth2Info is CachedOAuth2Info) {
+                auth:setAuthenticationContext("oauth2", credential);
+                auth:setPrincipal(cachedOAuth2Info.username, cachedOAuth2Info.username, getScopes(cachedOAuth2Info.scopes));
+                return true;
+            } else {
+                return false;
+            }
+        }
 
         // Build the request to be send to the introspection endpoint.
         // Refer: https://tools.ietf.org/html/rfc7662#section-2.1
@@ -59,33 +73,70 @@ public type InboundOAuth2Provider object {
         var response = self.introspectionClient->post("", req);
         if (response is http:Response) {
             json|error result = response.getJsonPayload();
-
             if (result is error) {
                 return <@untainted> auth:Error(message = result.reason(), cause = result);
             }
-
-            json payload = <json> result;
+            json payload = <json>result;
             boolean active = <boolean>payload.active;
             if (active) {
-                authenticated = true;
+                string username = "";
+                string scopes = "";
+                int exp;
+
                 if (payload.username is string) {
-                    username = <string>payload.username;
+                    username = <@untainted> <string>payload.username;
                 }
                 if (payload.scope is string) {
-                    scopes = <string>payload.scope;
+                    scopes = <@untainted> <string>payload.scope;
                 }
+                if (payload.exp is int) {
+                    exp = <@untainted> <int>payload.exp;
+                } else {
+                    exp = time:currentTime().time / 1000;
+                }
+
+                addToAuthenticationCache(self.introspectionServerConfig, credential, username, scopes, exp);
+                auth:setAuthenticationContext("oauth2", credential);
+                auth:setPrincipal(username, username, getScopes(scopes));
+                return true;
             }
+            return false;
         } else {
             return auth:prepareError("Failed to call the introspection endpoint.", response);
         }
-
-        if (authenticated) {
-            auth:setAuthenticationContext("oauth2", credential);
-            auth:setPrincipal(username, username, getScopes(scopes));
-        }
-        return authenticated;
     }
 };
+
+function authenticateFromCache(IntrospectionServerConfig introspectionServerConfig, string token) returns CachedOAuth2Info? {
+    var cachedOAuth2Info = trap <CachedOAuth2Info>introspectionServerConfig.oauth2Cache.get(token);
+    if (cachedOAuth2Info is CachedOAuth2Info) {
+        if (cachedOAuth2Info.expiryTime > (time:currentTime().time / 1000)) {
+            return cachedOAuth2Info;
+        } else {
+            introspectionServerConfig.oauth2Cache.remove(token);
+        }
+    }
+}
+
+function addToAuthenticationCache(IntrospectionServerConfig introspectionServerConfig, string token, string username,
+                                  string scopes, int exp) {
+    CachedOAuth2Info cachedOAuth2Info = {username: username, scopes: scopes, expiryTime: exp};
+    introspectionServerConfig.oauth2Cache.put(token, cachedOAuth2Info);
+    log:printDebug(function() returns string {
+        return "Add authenticated user :" + username + " to the cache.";
+    });
+}
+
+# Represents cached OAuth2 information.
+#
+# + username - Username of the OAuth2 validated user
+# + scopes - Scopes of the OAuth2 validated user
+# + expiryTime - Expiration time, identifies the expiration time on or after which the OAuth2 token must not be accepted
+public type CachedOAuth2Info record {|
+    string username;
+    string scopes;
+    int expiryTime;
+|};
 
 # Reads the scope(s) for the user with the given username.
 #
@@ -93,6 +144,9 @@ public type InboundOAuth2Provider object {
 # + return - Array of groups for the user denoted by the username
 public function getScopes(string scopes) returns string[] {
     string scopeVal = scopes.trim();
+    if (scopeVal == "") {
+        return [];
+    }
     return stringutils:split(scopeVal, " ");
 }
 
@@ -100,10 +154,13 @@ public function getScopes(string scopes) returns string[] {
 #
 # + url - URL of the introspection server
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
+# + oauth2Cache - Cache used to store parsed OAuth2 token information as CachedOAuth2Token
+# + expTimeInSeconds - Expiration time of the tokens if introspection response does not contain `exp` field
 # + clientConfig - HTTP client configurations which calls the introspection server
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
+    cache:Cache oauth2Cache = new(900000, 1000, 0.25);
+    int expTimeInSeconds = 3600;
     http:ClientConfiguration clientConfig = {};
 |};
-
