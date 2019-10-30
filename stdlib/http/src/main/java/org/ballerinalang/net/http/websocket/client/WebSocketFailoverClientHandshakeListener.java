@@ -32,7 +32,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.io.IOException;
-import java.io.PrintStream;
 
 /**
  * The handshake listener of the failover client.
@@ -47,7 +46,6 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
     private final ObjectValue webSocketClient;
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketFailoverClientHandshakeListener.class);
-    private static final PrintStream console = System.out;
 
     public WebSocketFailoverClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
                                              WebSocketFailoverClientListener clientConnectorListener,

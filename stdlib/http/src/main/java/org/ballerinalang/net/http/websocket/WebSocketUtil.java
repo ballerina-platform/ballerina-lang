@@ -749,7 +749,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Call the readNextFrame()
+     * Call the readNextFrame().
      *
      * @param readyOnConnect ready on connect
      * @param webSocketClient webSocket client
