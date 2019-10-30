@@ -73,11 +73,11 @@ import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createEntityObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createRequestObject;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichEntityWithDefaultMsg;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntity;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntityHeaders;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestObject;
 
 /**
  * Test cases for ballerina/http request success native functions.

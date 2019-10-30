@@ -40,7 +40,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class RollbackTransaction {
 
     public static void rollbackTransaction(Strand strand, String transactionBlockId) {
-        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         transactionLocalContext.rollbackTransaction(transactionBlockId);
     }
 }

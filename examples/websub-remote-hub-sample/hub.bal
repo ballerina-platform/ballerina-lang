@@ -10,11 +10,11 @@ public function main() {
     // updates of the topics.
     io:println("Starting up the Ballerina Hub Service");
 
-    var result = websub:startHub(new http:Listener(9191), {
+    var result = websub:startHub(new http:Listener(9191), "/websub", "/hub", {
                 remotePublish : {
                     enabled : true
                 }});
-    websub:WebSubHub webSubHub = result is websub:HubStartedUpError ?
+    websub:Hub webSubHub = result is websub:HubStartedUpError ?
                                                result.startedUpHub : result;
 
     // Waits for the subscriber to subscribe at this hub and for the publisher to publish the notifications.
