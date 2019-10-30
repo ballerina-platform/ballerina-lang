@@ -34,7 +34,6 @@ import java.util.List;
 public class BLangForever extends BLangExpressionStmt implements ForeverNode {
 
     private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
-    private SymbolEnv env;
     public List<BLangSimpleVariable> params;
 
     @Override
@@ -65,13 +64,5 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
     @Override
     public void addParameter(SimpleVariableNode param) {
         this.getParameters().add((BLangSimpleVariable) param);
-    }
-
-    public SymbolEnv getEnv() {
-        return env;
-    }
-
-    public void setEnv(SymbolEnv env) {
-        this.env = env;
     }
 }
