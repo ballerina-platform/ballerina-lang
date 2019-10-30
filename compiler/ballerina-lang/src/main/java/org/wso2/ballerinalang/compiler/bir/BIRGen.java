@@ -1909,11 +1909,13 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB.terminator = new BIRTerminator.GOTO(continueStmt.pos, this.env.enclLoopBB);
     }
 
+    //TODO: fix
     @Override
     public void visit(BLangFunctionVarRef fpVarRef) {
         generateFPVarRef(fpVarRef, (BInvokableSymbol) fpVarRef.symbol);
     }
 
+    //TODO: fix
     @Override
     public void visit(BLangStructFunctionVarRef structFpVarRef) {
         generateFPVarRef(structFpVarRef, (BInvokableSymbol) structFpVarRef.symbol);
