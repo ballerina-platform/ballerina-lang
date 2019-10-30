@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public function print(int value) = external;
 //public function llvmLoadLibraryPermanently(string filename) returns int = external;
 ////public function llvmLoadLibraryPermanently(BytePointer filename) returns int = external;
 ////public function llvmParseCommandLineOptions(int argc, byte[] argv, BytePointer overview) = external;

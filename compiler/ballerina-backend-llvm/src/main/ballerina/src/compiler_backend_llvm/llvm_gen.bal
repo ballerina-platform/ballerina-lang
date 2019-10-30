@@ -26,11 +26,9 @@ function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLL
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
     genFunctions(mod, pkg.functions);
     //optimize(mod);
-    io:println("targetObjectFilePath : " + targetObjectFilePath);
     if(dumpLLVMIR) {
         llvm:llvmDumpModule(mod);
     }
-    io:print(mod);
     createObjectFile(targetObjectFilePath, mod);
 }
 
@@ -107,26 +105,11 @@ function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef b
     map<FuncGenrator> genrators = {};
     foreach var func in funcs {
         if (!(func is ())) {
-            boolean validFunction = checkForValidFunctions(func.name.value);
-            if (!validFunction) {
-                continue;
-            }
             FuncGenrator funcGen = new(func, mod, builder);
             genrators[func.name.value] = funcGen;
         }
     }
     return genrators;
-}
-
-function checkForValidFunctions(string functionName) returns boolean {
-    int? indexOfInit = strings:indexOf(functionName, "init");
-    int? indexOfStart = strings:indexOf(functionName, "start");
-    int? indexOfStop = strings:indexOf(functionName, "stop");
-
-    if(!(indexOfInit is ()) || !(indexOfStart is ()) || !(indexOfStop is ())) {
-        return false;
-    }
-    return true;
 }
 
 function optimize(llvm:LLVMModuleRef mod) {

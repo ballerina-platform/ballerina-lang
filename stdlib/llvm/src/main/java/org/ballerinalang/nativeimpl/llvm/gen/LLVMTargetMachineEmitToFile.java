@@ -3,6 +3,7 @@ package org.ballerinalang.nativeimpl.llvm.gen;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -22,7 +23,7 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
                 @Argument(name = "m", type = RECORD, structType = "LLVMModuleRef"),
                 @Argument(name = "filename", type = ARRAY, elementType = BYTE),
                 @Argument(name = "codegen", type = INT),
-                @Argument(name = "errorMessage", type = ARRAY, elementType = BYTE),
+                @Argument(name = "errorMessage", type = RECORD, structType = "PointerPointer"),
         },
         returnType = {
                 @ReturnType(type = INT, structPackage = "ballerina/llvm"),
