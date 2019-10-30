@@ -195,10 +195,10 @@ public class Types {
     }
 
     public boolean isSameType(BType source, BType target) {
-        return isSameType(source, target, new ArrayList<>());
+        return isSameType(source, target, new HashSet<>());
     }
 
-    private boolean isSameType(BType source, BType target, List<TypePair> unresolvedTypes) {
+    private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(source, target);
@@ -331,7 +331,7 @@ public class Types {
      * @return true if source type is assignable to the target type.
      */
     public boolean isAssignable(BType source, BType target) {
-        return isAssignable(source, target, new ArrayList<>());
+        return isAssignable(source, target, new HashSet<>());
     }
 
     boolean isStampingAllowed(BType source, BType target) {
@@ -492,7 +492,7 @@ public class Types {
         return true;
     }
 
-    private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
+    private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
 
         if (isSameType(source, target)) {
             return true;
@@ -519,8 +519,7 @@ public class Types {
 
         if (target.tag == TypeTags.MAP && source.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
-            BMapType mapType = (BMapType) target;
-            return isAssignableRecordType(recordType, mapType);
+            return isAssignableRecordType(recordType, (BMapType) target);
         }
 
         if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
@@ -615,19 +614,27 @@ public class Types {
         }
 
         if (source.tag == TypeTags.INVOKABLE && target.tag == TypeTags.INVOKABLE) {
-            return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new ArrayList<>());
+            return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
         }
 
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
 
-    private boolean isAssignableRecordType(BRecordType recordType, BMapType mapType) {
-        return  recordType.fields.stream().allMatch(field -> isAssignable(field.type, mapType.constraint)) &&
-                isAssignable(recordType.restFieldType, mapType.constraint);
+    private boolean isAssignableRecordType(BRecordType recordType, BMapType targetMapType) {
+        if (recordType.sealed) {
+            return recordFieldsAssignableToMap(recordType, targetMapType);
+        } else {
+            return isAssignable(recordType.restFieldType, targetMapType.constraint)
+                    && recordFieldsAssignableToMap(recordType, targetMapType);
+        }
     }
 
-    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, List<TypePair> unresolvedTypes) {
+    private boolean recordFieldsAssignableToMap(BRecordType recordType, BMapType targetMapType) {
+        return recordType.fields.stream().allMatch(field -> isAssignable(field.type, targetMapType.constraint));
+    }
+
+    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
         if (target == symTable.errorType) {
             return true;
         }
@@ -640,7 +647,7 @@ public class Types {
                 isAssignable(source.detailType, target.detailType, unresolvedTypes);
     }
 
-    private boolean isTupleTypeAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
+    private boolean isTupleTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
         if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
             return false;
         }
@@ -673,7 +680,7 @@ public class Types {
     }
 
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
-                                                     List<TypePair> unresolvedTypes) {
+                                                     Set<TypePair> unresolvedTypes) {
         if (target.state != BArrayState.UNSEALED
                 && (source.restType != null || source.tupleTypes.size() != target.size)) {
             return false;
@@ -688,7 +695,7 @@ public class Types {
     }
 
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
-                                                     List<TypePair> unresolvedTypes) {
+                                                     Set<TypePair> unresolvedTypes) {
         if (!target.tupleTypes.isEmpty()) {
             if (source.state == BArrayState.UNSEALED) {
                 // [int, int, int...] = int[] || [int, int] = int[]
@@ -715,7 +722,7 @@ public class Types {
                 .allMatch(tupleElemType -> isAssignable(source.eType, tupleElemType, unresolvedTypes));
     }
 
-    public boolean isArrayTypesAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
+    public boolean isArrayTypesAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
         if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
             // Both types are array types
             BArrayType lhsArrayType = (BArrayType) target;
@@ -761,7 +768,7 @@ public class Types {
     }
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
-                                             List<TypePair> unresolvedTypes) {
+                                             Set<TypePair> unresolvedTypes) {
         // For invokable types with typeParam parameters, we have to check whether the source param types are
         // covariant with the target param types.
         if (containsTypeParams(target)) {
@@ -821,12 +828,12 @@ public class Types {
         return TypeParamAnalyzer.isTypeParam(type.retType);
     }
 
-    private boolean isSameFunctionType(BInvokableType source, BInvokableType target, List<TypePair> unresolvedTypes) {
+    private boolean isSameFunctionType(BInvokableType source, BInvokableType target, Set<TypePair> unresolvedTypes) {
         return checkFunctionTypeEquality(source, target, unresolvedTypes, this::isSameType);
     }
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
-                                              List<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
+                                              Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
         if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
@@ -848,7 +855,7 @@ public class Types {
         return isAssignable(source.retType, target.retType, unresolvedTypes);
     }
 
-    public boolean checkArrayEquality(BType source, BType target, List<TypePair> unresolvedTypes) {
+    public boolean checkArrayEquality(BType source, BType target, Set<TypePair> unresolvedTypes) {
         if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
             // Both types are array types
             BArrayType lhsArrayType = (BArrayType) target;
@@ -869,10 +876,10 @@ public class Types {
     }
 
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {
-        return checkStructEquivalency(rhsType, lhsType, new ArrayList<>());
+        return checkStructEquivalency(rhsType, lhsType, new HashSet<>());
     }
 
-    private boolean checkStructEquivalency(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
+    private boolean checkStructEquivalency(BType rhsType, BType lhsType, Set<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(rhsType, lhsType);
@@ -892,7 +899,7 @@ public class Types {
         return false;
     }
 
-    public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, List<TypePair> unresolvedTypes) {
+    public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, Set<TypePair> unresolvedTypes) {
         BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
         BObjectTypeSymbol rhsStructSymbol = (BObjectTypeSymbol) rhsType.tsymbol;
         List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
@@ -948,7 +955,7 @@ public class Types {
         return sym.attachedFuncs.size();
     }
 
-    public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, List<TypePair> unresolvedTypes) {
+    public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, Set<TypePair> unresolvedTypes) {
         // If the LHS record is closed and the RHS record is open, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
@@ -1276,7 +1283,7 @@ public class Types {
                 return false;
             }
 
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, new ArrayList<>());
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, new HashSet<>());
             if (rhsFunc == null || !Symbols.isPublic(rhsFunc.symbol)) {
                 return false;
             }
@@ -1310,13 +1317,12 @@ public class Types {
 
     private class BSameTypeVisitor implements BTypeVisitor<BType, Boolean> {
 
-        List<TypePair> unresolvedTypes;
+        Set<TypePair> unresolvedTypes;
 
-        BSameTypeVisitor(List<TypePair> unresolvedTypes) {
+        BSameTypeVisitor(Set<TypePair> unresolvedTypes) {
             this.unresolvedTypes = unresolvedTypes;
         }
 
-//    private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
         @Override
         public Boolean visit(BType t, BType s) {
 
@@ -1384,7 +1390,7 @@ public class Types {
 
         @Override
         public Boolean visit(BArrayType t, BType s) {
-            return s.tag == TypeTags.ARRAY && checkArrayEquality(s, t, new ArrayList<>());
+            return s.tag == TypeTags.ARRAY && checkArrayEquality(s, t, new HashSet<>());
         }
 
         @Override
@@ -1463,7 +1469,7 @@ public class Types {
 
         @Override
         public Boolean visit(BInvokableType t, BType s) {
-            return s.tag == TypeTags.INVOKABLE && isSameFunctionType((BInvokableType) s, t, new ArrayList<>());
+            return s.tag == TypeTags.INVOKABLE && isSameFunctionType((BInvokableType) s, t, new HashSet<>());
         }
 
         @Override
@@ -1538,7 +1544,7 @@ public class Types {
 
     };
 
-    private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, List<TypePair> unresolvedTypes) {
+    private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, Set<TypePair> unresolvedTypes) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(Collectors.toMap(BField::getName, f -> f));
 
         // Check if the RHS record has corresponding fields to those of the LHS record.
@@ -1570,7 +1576,7 @@ public class Types {
     }
 
     private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList, BAttachedFunction lhsFunc,
-                                                       List<TypePair> unresolvedTypes) {
+                                                       Set<TypePair> unresolvedTypes) {
         return rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> isFunctionTypeAssignable(rhsFunc.type, lhsFunc.type, unresolvedTypes))
@@ -1588,7 +1594,7 @@ public class Types {
         return !Symbols.isPrivate(rhsSym) && !Symbols.isPublic(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID);
     }
 
-    private boolean isAssignableToUnionType(BType source, BType target, List<TypePair> unresolvedTypes) {
+    private boolean isAssignableToUnionType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         Set<BType> sourceTypes = new LinkedHashSet<>();
         Set<BType> targetTypes = new LinkedHashSet<>();
 
@@ -1612,7 +1618,7 @@ public class Types {
                         (s.tag == TypeTags.FINITE  && isAssignable(s, target, unresolvedTypes)));
     }
 
-    private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, List<TypePair> unresolvedTypes) {
+    private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
         if (targetType.tag == TypeTags.FINITE) {
             return finiteType.valueSpace.stream()
                     .allMatch(expression -> isAssignableToFiniteType(targetType, (BLangLiteral) expression));
@@ -2342,6 +2348,6 @@ public class Types {
      * @since 0.995.0
      */
     private interface TypeEqualityPredicate {
-        boolean test(BType source, BType target, List<TypePair> unresolvedTypes);
+        boolean test(BType source, BType target, Set<TypePair> unresolvedTypes);
     }
 }

@@ -49,8 +49,7 @@ service serializer on listenerEP {
             }
         } else {
             http:Response response = new;
-            response.setPayload("Error occurred while sending multipart
-                                    request!");
+            response.setPayload("Error occurred while sending multipart request!");
             response.statusCode = 500;
             var result = caller->respond(response);
             if (result is error) {

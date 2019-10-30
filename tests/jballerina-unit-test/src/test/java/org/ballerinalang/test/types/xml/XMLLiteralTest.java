@@ -108,6 +108,10 @@ public class XMLLiteralTest {
         // XML elements with mismatching start and end tags
         BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
                                   73, 18);
+        // XML interpolation is not allowed to interpolate XML namespace attributes
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 82, 29);
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 82, 47);
+        Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
     @Test
@@ -302,11 +306,6 @@ public class XMLLiteralTest {
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(),
                 "<foo xmlns=\"http://wso2.com\" xmlns:nsx=\"http://wso2.com/aaa\" "
-                        + "xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
-
-        Assert.assertTrue(returns[2] instanceof BXML);
-        Assert.assertEquals(returns[2].stringValue(),
-                "<foo xmlns=\"http://ballerina.com\" xmlns:nsx=\"http://wso2.com/aaa\" "
                         + "xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
     }
 

@@ -1,32 +1,32 @@
 {
   "arguments": {
-    "node.line" : 4,
-    "node.column" : 12
+    "node.line": 4,
+    "node.column": 12
   },
   "expected": {
-    "result":{
-      "edit":{
-        "documentChanges":[
+    "result": {
+      "edit": {
+        "documentChanges": [
           {
-            "edits":[
+            "edits": [
               {
-                "range":{
-                  "start":{
-                    "line":6,
-                    "character":1
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 0
                   },
-                  "end":{
-                    "line":9,
-                    "character":0
+                  "end": {
+                    "line": 6,
+                    "character": 0
                   }
                 },
-                "newText":"\n\nfunction addTwoIntegers2(int a, int b) returns int {\n    return 0;\n}\n"
+                "newText": "\n\nfunction addTwoIntegers2(int a, int b) returns int {\n    return 0;\n}\n"
               }
             ]
           }
         ]
       }
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }

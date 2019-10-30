@@ -36,6 +36,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class IsNestedTransaction {
 
     public static boolean isNestedTransaction(Strand strand) {
-        return strand.getLocalTransactionContext() != null;
+        return strand.transactionLocalContext != null;
     }
 }

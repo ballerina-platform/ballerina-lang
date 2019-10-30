@@ -24,8 +24,8 @@ public function main() {
     // statement execution is successful, the `update` remote function
     // returns 0.
     io:println("The update operation - Creating a table");
-    var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT,
-                         age INT, name VARCHAR(255), PRIMARY KEY (id))");
+    var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, " +
+                         "age INT, name VARCHAR(255), PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
     // Insert data to the table using the `update` remote function. If the DML
@@ -33,8 +33,8 @@ public function main() {
     // the updated row count. The query parameters are given in the query
     // statement itself.
     io:println("\nThe update operation - Inserting data to a table");
-    ret = testDB->update("INSERT INTO student(age, name) values
-                          (23, 'john')");
+    ret = testDB->update("INSERT INTO student(age, name) values " +
+                          "(23, 'john')");
     handleUpdate(ret, "Insert to student table with no parameters");
 
     // The query parameters are given as variables for the `update` remote
@@ -49,8 +49,8 @@ public function main() {
     // The query parameters are given as arguments of the type `jdbc:Parameter`
     // for the `update` remote function.
     // Default direction is IN.
-    jdbc:Parameter p1 = { sqlType: jdbc:TYPE_INTEGER, value: 25 };
-    jdbc:Parameter p2 = { sqlType: jdbc:TYPE_VARCHAR, value: "James" };
+    jdbc:Parameter p1 = {sqlType: jdbc:TYPE_INTEGER, value: 25};
+    jdbc:Parameter p2 = {sqlType: jdbc:TYPE_VARCHAR, value: "James"};
     ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
         p1, p2);
     handleUpdate(ret, "Insert to student table with jdbc:parameter values");
@@ -77,8 +77,8 @@ public function main() {
     io:println("\nThe Update operation - Inserting data");
     age = 31;
     name = "Kate";
-    var retWithKey = testDB->update("INSERT INTO student
-                        (age, name) values (?, ?)", age, name);
+    var retWithKey = testDB->update("INSERT INTO student " +
+                        "(age, name) values (?, ?)", age, name);
     if (retWithKey is jdbc:UpdateResult) {
         int count = retWithKey.updatedRowCount;
         int generatedKey = <int>retWithKey.generatedKeys["GENERATED_KEY"];
@@ -93,8 +93,7 @@ public function main() {
     // function returns a `table`. See the `table` ballerina example for
     // more details on how to access data.
     io:println("\nThe select operation - Select data from a table");
-    var selectRet = testDB->select("SELECT * FROM student", Student);
-    table<Student> dt;
+    var selectRet = testDB->select("SELECT * FROM student where age < ?", Student, 35);
     if (selectRet is table<Student>) {
         // `table` can be converted to either `json` or `xml`. The actual
         // conversion happens on-demand. When a service client makes a request,
@@ -110,6 +109,23 @@ public function main() {
         io:println("Select data from student table failed: ",
                 <string> err.detail()["message"]);
     }
+
+    // The query parameters are given as arguments of the type `jdbc:Parameter`
+    // for the `select` remote function.
+    // Default direction is IN.
+    jdbc:Parameter p3 = {sqlType: jdbc:TYPE_INTEGER, value: 35};
+
+    var selectRet2 = testDB->select("SELECT * FROM student where age < ?", Student, p3);
+    if (selectRet2 is table<Student>) {
+        json jsonConversionRet = jsonutils:fromTable(selectRet2);
+        io:print("JSON: ");
+        io:println(jsonConversionRet.toJsonString());
+    } else {
+        error err = selectRet2;
+        io:println("Select data from student table failed: ",
+                <string> err.detail()["message"]);
+    }
+
     // Drop the table and procedures.
     io:println("\nThe update operation - Drop the student table");
     ret = testDB->update("DROP TABLE student");
