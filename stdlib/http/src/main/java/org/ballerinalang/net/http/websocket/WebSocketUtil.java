@@ -713,10 +713,20 @@ public class WebSocketUtil {
     public static WebSocketConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
                                                                          WebSocketService wsService,
                                                                          ObjectValue webSocketClient,
-                                                                         boolean readyOnConnect) {
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
-                WebSocketConstants.WEBSOCKET_CONNECTOR);
-        webSocketConnector.set(WebSocketConstants.CONNECTOR_IS_READY_FIELD, readyOnConnect);
+                                                                         boolean readyOnConnect,
+                                                                         RetryContext retryConfig,
+                                                                         FailoverContext failoverConfig) {
+        ObjectValue webSocketConnector;
+        if ((retryConfig != null && !retryConfig.isConnectionMade()) ||
+                (failoverConfig != null && !failoverConfig.isConnectionMade())) {
+            webSocketConnector = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
+                    WebSocketConstants.WEBSOCKET_CONNECTOR);
+            // Sets readyOnConnect's value to the created webSocketConnector's isReady field
+            // It uses to check whether readNextFrame function already called or not When call the ready() function
+            webSocketConnector.set(WebSocketConstants.CONNECTOR_IS_READY_FIELD, readyOnConnect);
+        } else {
+            webSocketConnector = (ObjectValue) webSocketClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD);
+        }
         WebSocketConnectionInfo connectionInfo = new WebSocketConnectionInfo(wsService, webSocketConnection,
                 webSocketClient);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
@@ -727,7 +737,7 @@ public class WebSocketUtil {
     public static void setWebSocketClient(ObjectValue webSocketClient, HttpCarbonResponse carbonResponse,
                                              WebSocketConnection webSocketConnection, RetryContext retryConfig,
                                           FailoverContext failoverConfig) {
-        //using only one service endpoint in the client as there can be only one connection.
+        //Using only one service endpoint in the client as there can be only one connection.
         webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(carbonResponse));
         if ((retryConfig != null && retryConfig.isConnectionMade()) ||
                 (failoverConfig != null && failoverConfig.isConnectionMade())) {
@@ -736,6 +746,22 @@ public class WebSocketUtil {
             WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);
         }
 
+    }
+
+    /**
+     * Call the readNextFrame()
+     *
+     * @param readyOnConnect ready on connect
+     * @param webSocketClient webSocket client
+     * @param webSocketConnection webSocket connection
+     */
+    public static void readNextFrame(boolean readyOnConnect, ObjectValue webSocketClient,
+                                 WebSocketConnection webSocketConnection) {
+        if (readyOnConnect || (webSocketClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD) != null &&
+                ((boolean) ((ObjectValue) webSocketClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD)).
+                        get(WebSocketConstants.CONNECTOR_IS_READY_FIELD)))) {
+            webSocketConnection.readNextFrame();
+        }
     }
 
     private WebSocketUtil() {

@@ -32,6 +32,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.io.IOException;
+import java.io.PrintStream;
 
 /**
  * The handshake listener of the failover client.
@@ -46,6 +47,7 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
     private final ObjectValue webSocketClient;
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketFailoverClientHandshakeListener.class);
+    private static final PrintStream console = System.out;
 
     public WebSocketFailoverClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
                                              WebSocketFailoverClientListener clientConnectorListener,
@@ -63,10 +65,9 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
         WebSocketUtil.setWebSocketClient(webSocketClient, carbonResponse, webSocketConnection, null,
                 failoverConfig);
         clientConnectorListener.setConnectionInfo(WebSocketUtil.getWebSocketOpenConnectionInfo(
-                webSocketConnection, wsService, webSocketClient, readyOnConnect));
-        if (readyOnConnect || failoverConfig.isConnectionMade()) {
-            webSocketConnection.readNextFrame();
-        }
+                webSocketConnection, wsService, webSocketClient, readyOnConnect, null, failoverConfig));
+        // Read the next frame when readyOnConnect is true or isReady is true
+        WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);
         WebSocketUtil.countDownForHandshake(webSocketClient);
         setFailoverWebSocketEndpoint(failoverConfig, webSocketClient, webSocketConnection);
         failoverConfig.setFailoverFinished(false);
@@ -90,7 +91,8 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }
         WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(null,
-                wsService, webSocketClient, readyOnConnect);
+                wsService, webSocketClient, readyOnConnect, null, (FailoverContext) webSocketClient.
+                        getNativeData(WebSocketConstants.FAILOVER_CONFIG));
         if (throwable instanceof IOException) {
             WebSocketUtil.determineFailoverOrReconnect(connectionInfo, throwable, null);
         } else {

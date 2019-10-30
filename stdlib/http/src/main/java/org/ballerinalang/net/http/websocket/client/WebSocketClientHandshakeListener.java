@@ -32,6 +32,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.io.IOException;
+import java.io.PrintStream;
 
 /**
  * The handshake listener for the client.
@@ -45,6 +46,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
     private final ObjectValue webSocketClient;
     private final boolean readyOnConnect;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketClientHandshakeListener.class);
+    private static final PrintStream console = System.out;
 
     public WebSocketClientHandshakeListener(ObjectValue webSocketClient,
                                             WebSocketService wsService,
@@ -65,12 +67,9 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         WebSocketUtil.setWebSocketClient(webSocketClient, carbonResponse, webSocketConnection, retryConfig,
                 null);
         clientConnectorListener.setConnectionInfo(WebSocketUtil.getWebSocketOpenConnectionInfo(
-                webSocketConnection, wsService, webSocketClient, readyOnConnect));
-        if (readyOnConnect || (WebSocketUtil.hasRetryConfig(webSocketClient)
-                && ((RetryContext) webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG)).
-                isConnectionMade())) {
-            webSocketConnection.readNextFrame();
-        }
+                webSocketConnection, wsService, webSocketClient, readyOnConnect, retryConfig, null));
+        // Read the next frame when readyOnConnect is true or isReady is true
+        WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);
         WebSocketUtil.countDownForHandshake(webSocketClient);
         logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.CONNECTED_TO, webSocketClient.getStringValue(
                 WebSocketConstants.CLIENT_URL_CONFIG));
@@ -89,7 +88,8 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }
         WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(null,
-               wsService, webSocketClient, readyOnConnect);
+               wsService, webSocketClient, readyOnConnect, (RetryContext) webSocketClient.
+                        getNativeData(WebSocketConstants.RETRY_CONFIG), null);
         if (throwable instanceof IOException) {
             if (WebSocketUtil.hasRetryConfig(webSocketClient) && WebSocketUtil.reconnect(connectionInfo)) {
                 return;
