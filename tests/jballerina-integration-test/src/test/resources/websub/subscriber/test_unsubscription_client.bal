@@ -19,7 +19,7 @@ import ballerina/runtime;
 import ballerina/websub;
 
 // This is the client used to send subscription and unsubscription requests.
-websub:Client websubHubClientEP = new websub:Client("http://localhost:23191/websub/hub");
+websub:SubscriptionClient websubHubClientEP = new ("http://localhost:23191/websub/hub");
 
 public function main(string... args) {
 
