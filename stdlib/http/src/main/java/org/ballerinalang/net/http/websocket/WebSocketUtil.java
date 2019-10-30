@@ -617,7 +617,7 @@ public class WebSocketUtil {
                     webSocketClient), webSocketClient, wsService);
             return true;
         }
-        logger.debug(WebSocketConstants.STATEMENT_FOR_FAILOVDER_RECONNECT + targets);
+        logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.STATEMENT_FOR_FAILOVDER_RECONNECT, targets);
         return false;
     }
 

@@ -55,7 +55,7 @@ public class WebSocketClientListener extends WebSocketClientConnectorListener {
                 return;
             } else {
                 if (statusCode != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE) {
-                    logger.debug(WebSocketConstants.STATEMENT_FOR_CLOSE_CONNECTION +
+                    logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.STATEMENT_FOR_CLOSE_CONNECTION,
                             webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
                 }
             }
