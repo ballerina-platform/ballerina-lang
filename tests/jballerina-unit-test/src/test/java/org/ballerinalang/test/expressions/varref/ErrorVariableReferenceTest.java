@@ -204,7 +204,7 @@ public class ErrorVariableReferenceTest {
     public void testErrorVariablesSemanticsNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/error_variable_reference_semantics_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 17);
+        Assert.assertEquals(resultNegative.getErrorCount(), 25);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
@@ -244,6 +244,14 @@ public class ErrorVariableReferenceTest {
                                   "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 32);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 145, 19);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'r'", 157, 11);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message'", 157, 24);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'abc'", 157, 39);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'r2'", 160, 11);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message2'", 160, 25);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'rest'", 160, 38);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message3'", 164, 21);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'abc3'", 164, 37);
     }
 
     @Test
