@@ -302,7 +302,7 @@ public class RunCommand implements BLauncherCmd {
     public void printUsage(StringBuilder out) {
         out.append("  ballerina run [--offline]\n" +
                            "                [--sourceroot]\n" +
-                           "                {<balfile> | module-name | executable-jar} [configs (--key=value)...] " 
+                           "                {<balfile> | module-name | executable-jar} [(--key=value)...] "
                            + "[--] [args...] \n");
     }
 
