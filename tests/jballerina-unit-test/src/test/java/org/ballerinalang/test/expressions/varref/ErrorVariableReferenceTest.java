@@ -200,6 +200,32 @@ public class ErrorVariableReferenceTest {
                 "\"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
     }
 
+    @Test(description = "Test error varref inside a tupple ref")
+    public void testErrorDestructuringInATuppleDestructuring() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorDestructuringInATuppleDestructuring");
+        int i = 0;
+        Assert.assertEquals(returns[i++].stringValue(), "r2");
+        Assert.assertEquals(returns[i++].stringValue(), "msg");
+    }
+
+    @Test(description = "Test indirect error varref inside a tupple ref")
+    public void testIndirectErrorVarRefInTuppleRef() {
+        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorVarRefInTuppleRef");
+        int i = 0;
+        Assert.assertEquals(returns[i++].stringValue(), "Msg One");
+        Assert.assertEquals(returns[i++].stringValue(), "Detail Msg");
+        Assert.assertEquals(returns[i++].stringValue(), "1");
+    }
+
+    @Test(description = "Test error ctor in tupple var ref statement")
+    public void testErrorRefAndCtorInSameStatement() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorRefAndCtorInSameStatement");
+        int i = 0;
+        Assert.assertEquals(returns[i++].stringValue(), "r2");
+        Assert.assertEquals(returns[i++].stringValue(), "Detail Msg");
+        Assert.assertEquals(returns[i++].stringValue(), "1");
+    }
+
     @Test
     public void testErrorVariablesSemanticsNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
