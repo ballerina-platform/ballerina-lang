@@ -62,8 +62,10 @@ service hello on new http:Listener(9090) {
         //Accesses the fields of the record `Student`.
         string name = student.Name;
         int grade = student.Grade;
+        string english = <string> student.Marks["English"];
         http:Response res = new;
-        res.setPayload({ Name: <@untainted> name, Grade: <@untainted> grade });
+        res.setPayload({ Name: <@untainted> name, Grade: <@untainted> grade,
+                            English: <@untained> english});
 
         var result = caller->respond(res);
         if (result is error) {
