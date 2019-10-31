@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
+import ballerina/cache;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
@@ -26,47 +26,214 @@ import ballerina/time;
 
 @tainted map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
-service hubService =
-@http:ServiceConfig {
-    basePath: BASE_PATH,
-    auth: {
-        enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", false),
-        scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
+# This cache is used for caching HTTP clients against the subscriber callbacks.
+cache:Cache subscriberCallbackClientCache = new (expiryTimeInMillis = DEFAULT_CACHE_EXPIRY_MILLIS);
+
+function getHubService() returns service {
+    return @http:ServiceConfig {
+        basePath: hubBasePath,
+        auth: hubServiceAuth
     }
-}
-service {
+    service {
 
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: HUB_PATH
-    }
-    resource function status(http:Caller httpCaller, http:Request request) {
-        http:Response response = new;
-        response.statusCode = http:STATUS_ACCEPTED;
-        response.setTextPayload("Ballerina Hub Service - Up and Running!");
-        checkpanic httpCaller->respond(response);
-    }
+        @http:ResourceConfig {
+            methods: ["POST"],
+            path: hubPublishResourcePath,
+            auth: hubPublisherResourceAuth
+        }
+        resource function publish(http:Caller httpCaller, http:Request request) {
+            http:Response response = new;
+            string topic = "";
 
-    @http:ResourceConfig {
-        methods: ["POST"],
-        path: HUB_PATH
-    }
-    resource function hub(http:Caller httpCaller, http:Request request) {
-        http:Response response = new;
-        string topic = "";
+            var reqFormParamMap = request.getFormParams();
+            map<string> params = reqFormParamMap is map<string> ? reqFormParamMap : {};
 
-        var reqFormParamMap = request.getFormParams();
-        map<string> params = reqFormParamMap is map<string> ? reqFormParamMap : {};
+            string mode = params[HUB_MODE] ?: "";
 
-        string mode = params[HUB_MODE] ?: "";
+            var topicFromParams = params[HUB_TOPIC];
+            if topicFromParams is string {
+                var decodedValue = encoding:decodeUriComponent(topicFromParams, "UTF-8");
+                topic = decodedValue is string ? decodedValue : topicFromParams;
+            }
 
-        var topicFromParams = params[HUB_TOPIC];
-        if topicFromParams is string {
-            var decodedValue = encoding:decodeUriComponent(topicFromParams, "UTF-8");
-            topic = decodedValue is string ? decodedValue : topicFromParams;
+            if (mode == MODE_REGISTER) {
+                if (!remotePublishConfig.enabled || !hubTopicRegistrationRequired) {
+                    response.statusCode = http:STATUS_BAD_REQUEST;
+                    response.setTextPayload("Remote topic registration not allowed/not required at the Hub");
+                    log:printWarn("Remote topic registration denied at Hub");
+                    var responseError = httpCaller->respond(response);
+                    if (responseError is error) {
+                        log:printError("Error responding on remote topic registration failure", responseError);
+                    }
+                    return;
+                }
+
+                var registerStatus = registerTopic(topic);
+                if (registerStatus is error) {
+                    string errorMessage = <string>registerStatus.detail()?.message;
+                    response.statusCode = http:STATUS_BAD_REQUEST;
+                    response.setTextPayload(errorMessage);
+                    log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
+                } else {
+                    response.statusCode = http:STATUS_ACCEPTED;
+                    log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
+                }
+                var responseError = httpCaller->respond(response);
+                if (responseError is error) {
+                    log:printError("Error responding remote topic registration status", responseError);
+                }
+            } else if (mode == MODE_UNREGISTER) {
+                if (!remotePublishConfig.enabled || !hubTopicRegistrationRequired) {
+                    response.statusCode = http:STATUS_BAD_REQUEST;
+                    response.setTextPayload("Remote unregistration not allowed/not required at the Hub");
+                    log:printWarn("Remote topic unregistration denied at Hub");
+                    var responseError = httpCaller->respond(response);
+                    if (responseError is error) {
+                        log:printError("Error responding on remote topic unregistration failure", responseError);
+                    }
+                    return;
+                }
+
+                var unregisterStatus = unregisterTopic(topic);
+                if (unregisterStatus is error) {
+                    string errorMessage = <string>unregisterStatus.detail()?.message;
+                    response.statusCode = http:STATUS_BAD_REQUEST;
+                    response.setTextPayload(errorMessage);
+                    log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
+                } else {
+                    response.statusCode = http:STATUS_ACCEPTED;
+                    log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
+                }
+                var responseError = httpCaller->respond(response);
+                if (responseError is error) {
+                    log:printError("Error responding remote topic unregistration status", responseError);
+                }
+            } else {
+                if (mode != MODE_PUBLISH) {
+                    mode = request.getQueryParamValue(HUB_MODE) ?: "";
+                    string topicValue = request.getQueryParamValue(HUB_TOPIC) ?: "";
+                    var decodedTopic = encoding:decodeUriComponent(topicValue, "UTF-8");
+                    topic = decodedTopic is string ? decodedTopic : topicValue;
+                }
+
+                if (mode == MODE_PUBLISH && remotePublishConfig.enabled) {
+                    if (!hubTopicRegistrationRequired || isTopicRegistered(topic)) {
+                        byte[0] arr = [];
+                        byte[] | error binaryPayload = arr;
+                        string stringPayload;
+                        string contentType = "";
+                        if (remotePublishConfig.mode == PUBLISH_MODE_FETCH) {
+                            var fetchResponse = fetchTopicUpdate(topic);
+                            if (fetchResponse is http:Response) {
+                                binaryPayload = fetchResponse.getBinaryPayload();
+                                if (fetchResponse.hasHeader(CONTENT_TYPE)) {
+                                    contentType = fetchResponse.getHeader(CONTENT_TYPE);
+                                }
+                                var fetchedPayload = fetchResponse.getTextPayload();
+                                stringPayload = fetchedPayload is string ? fetchedPayload : "";
+                            } else {
+                                string errorCause = <string>fetchResponse.detail()?.message;
+                                string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
+                                + errorCause;
+                                log:printError(errorMessage);
+                                response.setTextPayload(<@untaintedstring>errorMessage);
+                                response.statusCode = http:STATUS_BAD_REQUEST;
+                                var responseError = httpCaller->respond(response);
+                                if (responseError is error) {
+                                    log:printError("Error responding on update fetch failure", responseError);
+                                }
+                                return;
+                            }
+                        } else {
+                            binaryPayload = request.getBinaryPayload();
+                            if (request.hasHeader(CONTENT_TYPE)) {
+                                contentType = request.getHeader(CONTENT_TYPE);
+                            }
+                            var result = request.getTextPayload();
+                            stringPayload = result is string ? result : "";
+                        }
+
+                        error? publishStatus = ();
+                        if (binaryPayload is byte[]) {
+                            WebSubContent notification = {payload: binaryPayload, contentType: contentType};
+                            publishStatus = publishToInternalHub(topic, notification);
+                        } else {
+                            string errorCause = <string>binaryPayload.detail()?.message;
+                            string errorMessage = "Error extracting payload: " + <@untaintedstring>errorCause;
+                            log:printError(errorMessage);
+                            response.statusCode = http:STATUS_BAD_REQUEST;
+                            response.setTextPayload(errorMessage);
+                            var responseError = httpCaller->respond(response);
+                            if (responseError is error) {
+                                log:printError("Error responding on payload extraction failure for"
+                                + " publish request", responseError);
+                            }
+                            return;
+                        }
+
+                        if (publishStatus is error) {
+                            string errorCause = <string>publishStatus.detail()?.message;
+                            string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
+                            response.setTextPayload(<@untaintedstring>errorMessage);
+                            log:printError(errorMessage);
+                        } else {
+                            log:printInfo("Update notification done for Topic [" + topic + "]");
+                            response.statusCode = http:STATUS_ACCEPTED;
+                            var responseError = httpCaller->respond(response);
+                            if (responseError is error) {
+                                log:printError("Error responding on update notification for topic[" + topic
+                                + "]", responseError);
+                            }
+                            return;
+                        }
+                    } else {
+                        string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
+                        log:printDebug(errorMessage);
+                        response.setTextPayload(<@untaintedstring>errorMessage);
+                    }
+                    response.statusCode = http:STATUS_BAD_REQUEST;
+                    var responseError = httpCaller->respond(response);
+                    if (responseError is error) {
+                        log:printError("Error responding to publish request", responseError);
+                    }
+                } else {
+                    response.statusCode = http:STATUS_BAD_REQUEST;
+                    var responseError = httpCaller->respond(response);
+                    if (responseError is error) {
+                        log:printError("Error responding to request", responseError);
+                    }
+                }
+            }
         }
 
-        if (mode == MODE_SUBSCRIBE || mode == MODE_UNSUBSCRIBE) {
+        @http:ResourceConfig {
+            methods: ["POST"],
+            path: hubSubscriptionResourcePath,
+            auth: hubSubscriptionResourceAuth
+        }
+        resource function subscribe(http:Caller httpCaller, http:Request request) {
+            http:Response response = new;
+            string topic = "";
+
+            var reqFormParamMap = request.getFormParams();
+            map<string> params = reqFormParamMap is map<string> ? reqFormParamMap : {};
+
+            string mode = params[HUB_MODE] ?: "";
+
+            var topicFromParams = params[HUB_TOPIC];
+            if topicFromParams is string {
+                var decodedValue = encoding:decodeUriComponent(topicFromParams, "UTF-8");
+                topic = decodedValue is string ? decodedValue : topicFromParams;
+            }
+
+            if (mode != MODE_SUBSCRIBE && mode != MODE_UNSUBSCRIBE) {
+                response.statusCode = http:STATUS_BAD_REQUEST;
+                var responseError = httpCaller->respond(response);
+                if (responseError is error) {
+                    log:printError("Error responding to request", responseError);
+                }
+            }
+
             boolean validSubscriptionChangeRequest = false;
             // TODO: check the non-existing key at this point and return the 400
             var result = params[HUB_CALLBACK];
@@ -76,7 +243,7 @@ service {
             var validationStatus = validateSubscriptionChangeRequest(mode, topic, callback);
             if (validationStatus is error) {
                 response.statusCode = http:STATUS_BAD_REQUEST;
-                string errorMessage = <string> validationStatus.detail()?.message;
+                string errorMessage = <string>validationStatus.detail()?.message;
                 response.setTextPayload(errorMessage);
             } else {
                 validSubscriptionChangeRequest = true;
@@ -86,162 +253,13 @@ service {
             var responseError = httpCaller->respond(response);
             if (responseError is error) {
                 log:printError("Error responding to subscription change request", responseError);
-            } else {
-                if (validSubscriptionChangeRequest) {
-                    verifyIntentAndAddSubscription(callback, topic, params);
-                }
-            }
-            return;
-        } else if (mode == MODE_REGISTER) {
-            if (!remotePublishConfig.enabled || !hubTopicRegistrationRequired) {
-                response.statusCode = http:STATUS_BAD_REQUEST;
-                response.setTextPayload("Remote topic registration not allowed/not required at the Hub");
-                log:printWarn("Remote topic registration denied at Hub");
-                var responseError = httpCaller->respond(response);
-                if (responseError is error) {
-                    log:printError("Error responding on remote topic registration failure", responseError);
-                }
-                return;
-            }
-
-            var registerStatus = registerTopicAtHub(topic);
-            if (registerStatus is error) {
-                string errorMessage = <string> registerStatus.detail()?.message;
-                response.statusCode = http:STATUS_BAD_REQUEST;
-                response.setTextPayload(errorMessage);
-                log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
-            } else {
-                response.statusCode = http:STATUS_ACCEPTED;
-                log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
-            }
-            var responseError = httpCaller->respond(response);
-            if (responseError is error) {
-                log:printError("Error responding remote topic registration status", responseError);
-            }
-        } else if (mode == MODE_UNREGISTER) {
-            if (!remotePublishConfig.enabled || !hubTopicRegistrationRequired) {
-                response.statusCode = http:STATUS_BAD_REQUEST;
-                response.setTextPayload("Remote unregistration not allowed/not required at the Hub");
-                log:printWarn("Remote topic unregistration denied at Hub");
-                var responseError = httpCaller->respond(response);
-                if (responseError is error) {
-                    log:printError("Error responding on remote topic unregistration failure", responseError);
-                }
-                return;
-            }
-
-            var unregisterStatus = unregisterTopicAtHub(topic);
-            if (unregisterStatus is error) {
-                string errorMessage = <string> unregisterStatus.detail()?.message;
-                response.statusCode = http:STATUS_BAD_REQUEST;
-                response.setTextPayload(errorMessage);
-                log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
-            } else {
-                response.statusCode = http:STATUS_ACCEPTED;
-                log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
-            }
-            var responseError = httpCaller->respond(response);
-            if (responseError is error) {
-                log:printError("Error responding remote topic unregistration status", responseError);
-            }
-        } else {
-            if (mode != MODE_PUBLISH) {
-                mode = request.getQueryParamValue(HUB_MODE) ?: "";
-                string topicValue = request.getQueryParamValue(HUB_TOPIC) ?: "";
-                var decodedTopic = encoding:decodeUriComponent(topicValue, "UTF-8");
-                topic = decodedTopic is string ? decodedTopic : topicValue;
-            }
-
-            if (mode == MODE_PUBLISH && remotePublishConfig.enabled) {
-                if (!hubTopicRegistrationRequired || isTopicRegistered(topic)) {
-                    byte [0] arr = [];
-                    byte[]|error binaryPayload = arr;
-                    string stringPayload;
-                    string contentType = "";
-                    if (remotePublishConfig.mode == PUBLISH_MODE_FETCH) {
-                        var fetchResponse = fetchTopicUpdate(topic);
-                        if (fetchResponse is http:Response) {
-                            binaryPayload = fetchResponse.getBinaryPayload();
-                            if (fetchResponse.hasHeader(CONTENT_TYPE)) {
-                                contentType = fetchResponse.getHeader(CONTENT_TYPE);
-                            }
-                            var fetchedPayload = fetchResponse.getTextPayload();
-                            stringPayload = fetchedPayload is string ? fetchedPayload : "";
-                        } else {
-                            string errorCause = <string> fetchResponse.detail()?.message;
-                            string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
-                                                    + errorCause;
-                            log:printError(errorMessage);
-                            response.setTextPayload(<@untainted string> errorMessage);
-                            response.statusCode = http:STATUS_BAD_REQUEST;
-                            var responseError = httpCaller->respond(response);
-                            if (responseError is error) {
-                                log:printError("Error responding on update fetch failure", responseError);
-                            }
-                            return;
-                        }
-                    } else {
-                        binaryPayload = request.getBinaryPayload();
-                        if (request.hasHeader(CONTENT_TYPE)) {
-                            contentType = request.getHeader(CONTENT_TYPE);
-                        }
-                        var result = request.getTextPayload();
-                        stringPayload = result is string ? result : "";
-                    }
-
-                    error? publishStatus = ();
-                    if (binaryPayload is byte[]) {
-                        WebSubContent notification = { payload:binaryPayload, contentType:contentType };
-                        publishStatus = publishToInternalHub(topic, notification);
-                    } else {
-                        string errorCause = <string> binaryPayload.detail()?.message;
-                        string errorMessage = "Error extracting payload: " + <@untainted string> errorCause;
-                        log:printError(errorMessage);
-                        response.statusCode = http:STATUS_BAD_REQUEST;
-                        response.setTextPayload(errorMessage);
-                        var responseError = httpCaller->respond(response);
-                        if (responseError is error) {
-                            log:printError("Error responding on payload extraction failure for"
-                                                    + " publish request", responseError);
-                        }
-                        return;
-                    }
-
-                    if (publishStatus is error) {
-                        string errorCause = <string> publishStatus.detail()?.message;
-                        string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
-                        response.setTextPayload(<@untainted string> errorMessage);
-                        log:printError(errorMessage);
-                    } else {
-                        log:printInfo("Update notification done for Topic [" + topic + "]");
-                        response.statusCode = http:STATUS_ACCEPTED;
-                        var responseError = httpCaller->respond(response);
-                        if (responseError is error) {
-                            log:printError("Error responding on update notification for topic[" + topic
-                                                    + "]", responseError);
-                        }
-                        return;
-                    }
-                } else {
-                    string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
-                    log:printDebug(errorMessage);
-                    response.setTextPayload(<@untainted string> errorMessage);
-                }
-                response.statusCode = http:STATUS_BAD_REQUEST;
-                var responseError = httpCaller->respond(response);
-                if (responseError is error) {
-                    log:printError("Error responding to publish request", responseError);
-                }
-            } else {
-                response.statusCode = http:STATUS_BAD_REQUEST;
-                var responseError = httpCaller->respond(response);
-                if (responseError is error) {
-                    log:printError("Error responding to request", responseError);
-                }
+            } else if (validSubscriptionChangeRequest) {
+                verifyIntentAndAddSubscription(callback, topic, params);
             }
         }
-    }
-};
+    };
+}
+
 
 # Function to validate a subscription/unsubscription request, by validating the mode, topic and callback specified.
 #
@@ -273,7 +291,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + topic - The topic specified in the new subscription/unsubscription request
 # + params - Parameters specified in the new subscription/unsubscription request
 function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
-    http:Client callbackEp = new http:Client(callback, hubClientConfig);
+    http:Client callbackEp = getSubcriberCallbackClient(callback);
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
     var result = langint:fromString(strLeaseSeconds);
@@ -316,7 +334,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                     subscriptionDetails.createdAt = createdAt;
                     subscriptionDetails.secret = params[HUB_SECRET] ?: "";
                     if (!isTopicRegistered(topic)) {
-                        var registerStatus = registerTopicAtHub(topic);
+                        var registerStatus = registerTopic(topic);
                         if (registerStatus is error) {
                             string errCause = <string> registerStatus.detail()?.message;
                             log:printError("Error registering topic for subscription: " + errCause);
@@ -327,11 +345,14 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                     removeSubscription(topic, callback);
                 }
 
-                if (hubPersistenceEnabled) {
-                    persistSubscriptionChange(mode, subscriptionDetails);
-                }
                 log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
                         + callback + "]");
+                if (hubPersistenceEnabled) {
+                    error? res = persistSubscriptionChange(mode, subscriptionDetails);
+                    if (res is error) {
+                        log:printError("Error persisting subscription change", res);
+                    }
+                }
             }
         } else {
             error err = respStringPayload;
@@ -342,7 +363,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     } else {
         error err = subscriberResponse;
         string errCause = <string> err.detail()?.message;
-        log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
+        log:printError("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
     string key = generateKey(topic, callback);
@@ -358,13 +379,14 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 #
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
-function persistTopicRegistrationChange(string mode, string topic) {
+# + return - `error` if an error occurred while persisting the change, `()` otherwise
+function persistTopicRegistrationChange(string mode, string topic) returns error? {
     HubPersistenceStore? hubStoreImpl = hubPersistenceStoreImpl;
     if (hubStoreImpl is HubPersistenceStore) {
         if (mode == MODE_REGISTER) {
-            hubStoreImpl.addTopic(topic);
+            check hubStoreImpl.addTopic(topic);
         } else {
-            hubStoreImpl.removeTopic(topic);
+            check hubStoreImpl.removeTopic(topic);
         }
     }
 }
@@ -373,50 +395,60 @@ function persistTopicRegistrationChange(string mode, string topic) {
 #
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
-function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) {
+# + return - `error` if an error occurred while persisting the change, `()` otherwise
+function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) returns error? {
     HubPersistenceStore? hubStoreImpl = hubPersistenceStoreImpl;
     if (hubStoreImpl is HubPersistenceStore) {
-      if (mode == MODE_SUBSCRIBE) {
-            hubStoreImpl.addSubscription(subscriptionDetails);
+        if (mode == MODE_SUBSCRIBE) {
+            check hubStoreImpl.addSubscription(subscriptionDetails);
         } else {
-            hubStoreImpl.removeSubscription(subscriptionDetails);
+            check hubStoreImpl.removeSubscription(subscriptionDetails);
         }
     }
 }
 
-# Function to initiate set up activities on startup/restart.
-function setupOnStartup() {
-    if (hubPersistenceEnabled) {
-        HubPersistenceStore hubServicePersistenceImpl = <HubPersistenceStore> hubPersistenceStoreImpl;
-        addTopicRegistrationsOnStartup(hubServicePersistenceImpl);
-        addSubscriptionsOnStartup(hubServicePersistenceImpl); //TODO:verify against topics
+function setupOnStartup() returns error? {
+    if (!hubPersistenceEnabled) {
+        return;
     }
-    return;
+    HubPersistenceStore hubServicePersistenceImpl = <HubPersistenceStore> hubPersistenceStoreImpl;
+    check addTopicRegistrationsOnStartup(hubServicePersistenceImpl);
+    check addSubscriptionsOnStartup(hubServicePersistenceImpl); //TODO:verify against topics
 }
 
-# Function to load persisted topic registrations.
-function addTopicRegistrationsOnStartup(HubPersistenceStore persistenceStore) {
-    string[] topics = persistenceStore.retrieveTopics();
-    foreach string topic in topics {
-        var registerStatus = registerTopicAtHub(topic, loadingOnStartUp = true);
-        if (registerStatus is error) {
-            string errCause = <string> registerStatus.detail()?.message;
-            log:printError("Error registering retrieved topic details: "+ errCause);
+function addTopicRegistrationsOnStartup(HubPersistenceStore persistenceStore) returns error? {
+    string[]|error topics = persistenceStore.retrieveTopics();
+
+    if (topics is string[]) {
+        foreach string topic in topics {
+            var registerStatus = registerTopic(topic, loadingOnStartUp = true);
+            if (registerStatus is error) {
+                string errCause = <string> registerStatus.detail()?.message;
+                log:printError("Error registering retrieved topic details: " + errCause);
+            }
         }
+    } else {
+        return HubStartupError(message = "Error retrieving persisted topics", cause = topics);
     }
 }
 
-# Function to add subscriptions to the broker on startup, if persistence is enabled.
-function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) {
-    SubscriptionDetails[] subscriptions = persistenceStore.retrieveAllSubscribers();
+function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) returns error? {
+    SubscriptionDetails[]|error subscriptions = persistenceStore.retrieveAllSubscribers();
 
-    foreach SubscriptionDetails subscription in subscriptions {
-        int time = time:currentTime().time;
-        if (time - subscription.leaseSeconds > subscription.createdAt) {
-            persistenceStore.removeSubscription(subscription);
-            continue;
+    if (subscriptions is SubscriptionDetails[]) {
+        foreach SubscriptionDetails subscription in subscriptions {
+            int time = time:currentTime().time;
+            if (time - subscription.leaseSeconds > subscription.createdAt) {
+                error? remResult = persistenceStore.removeSubscription(subscription);
+                if (remResult is error) {
+                    log:printError("Error removing expired subscription", remResult);
+                }
+                continue;
+            }
+            addSubscription(subscription);
         }
-        addSubscription(subscription);
+    } else {
+        return HubStartupError(message = "Error retrieving persisted subscriptions", cause = subscriptions);
     }
 }
 
@@ -438,13 +470,11 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 # + callback - The callback URL registered for the subscriber
 # + subscriptionDetails - The subscription details for the particular subscriber
 # + webSubContent - The content to be sent to subscribers
-# + return - Nil if successful, error in case of invalid content-type
-function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
-returns error? {
-    http:Client callbackEp = new http:Client(callback, hubClientConfig);
+function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent) {
+    http:Client callbackEp = getSubcriberCallbackClient(callback);
     http:Request request = new;
     request.setPayload(webSubContent.payload);
-    check request.setContentType(webSubContent.contentType);
+    checkpanic request.setContentType(webSubContent.contentType);
 
     int currentTime = time:currentTime().time;
     int createdAt = subscriptionDetails.createdAt;
@@ -454,7 +484,10 @@ returns error? {
         //TODO: introduce a separate periodic task, and modify select to select only active subs
         removeSubscription(subscriptionDetails.topic, callback);
         if (hubPersistenceEnabled) {
-            persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
+            error? remResult = persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
+            if (remResult is error) {
+                log:printError("Error removing expired subscription", remResult);
+            }
         }
     } else {
         var result = request.getTextPayload();
@@ -486,7 +519,10 @@ returns error? {
             } else if (respStatusCode == http:STATUS_GONE) {
                 removeSubscription(subscriptionDetails.topic, callback);
                 if (hubPersistenceEnabled) {
-                    persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
+                    error? remResult = persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
+                    if (remResult is error) {
+                        log:printError("Error removing gone subscription", remResult);
+                    }
                 }
                 log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
                                 + "], topic[" + subscriptionDetails.topic + "]");
@@ -502,6 +538,26 @@ returns error? {
         }
     }
     return;
+}
+
+# Function to retrieve cached subscriberCallbackClient for a given callback.
+#
+# + callback - The callback URL registered for the subscriber
+# + return - `http:Client` indicating the client for a given callback from cache or new client
+function getSubcriberCallbackClient(string callback) returns http:Client {
+    http:Client subscriberCallbackClient;
+    if (subscriberCallbackClientCache.hasKey(callback)) {
+        return <http:Client>subscriberCallbackClientCache.get(callback);
+    } else {
+        lock {
+            if (subscriberCallbackClientCache.hasKey(callback)) {
+                return <http:Client>subscriberCallbackClientCache.get(callback);
+            }
+            subscriberCallbackClient = new http:Client(callback, hubClientConfig);
+            subscriberCallbackClientCache.put(callback, <@untainted> subscriberCallbackClient);
+            return subscriberCallbackClient;
+        }
+    }
 }
 
 // TODO: validate if no longer necessary
@@ -524,9 +580,9 @@ type PendingSubscriptionChangeRequest object {
     public string callback;
 
     public function __init(string mode, string topic, string callback) {
-         self.mode = mode;
-         self.topic = topic;
-         self.callback = callback;
+        self.mode = mode;
+        self.topic = topic;
+        self.callback = callback;
     }
 
     # Function to check if two pending subscription change requests are equal.

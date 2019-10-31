@@ -26,14 +26,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BIR_BALLERINA_VERSION_CACHE_FILE_NAME;
 
 /**
  * Write a bir to cache.
@@ -99,27 +95,15 @@ public class BirFileWriter {
     }
 
     public void writeBIRToPath(CompiledBinaryFile.BIRPackageFile birPackageFile, PackageID id, Path birFilePath) {
-        writeBIRToPath(birPackageFile, id, birFilePath, false);
-    }
-    
-    public void writeBIRToPath(CompiledBinaryFile.BIRPackageFile birPackageFile, PackageID id, Path birFilePath,
-                               boolean createBalVersionCache) {
+
         try {
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
             Files.write(birFilePath, pkgBirBinaryContent);
-    
-            Path versionDir = birFilePath.getParent();
-            if (createBalVersionCache && versionDir != null) {
-                Path moduleDir = versionDir.getParent();
-                if (moduleDir != null) {
-                    Files.write(moduleDir.resolve(BIR_BALLERINA_VERSION_CACHE_FILE_NAME),
-                            RepoUtils.getBallerinaVersion().getBytes(Charset.defaultCharset()));
-                }
-            }
         } catch (IOException e) {
             String msg = "error writing the compiled module(bir) of '" +
-                         id + "' to '" + birFilePath + "': " + e.getMessage();
+                    id + "' to '" + birFilePath + "': " + e.getMessage();
             throw new BLangCompilerException(msg, e);
         }
     }
+
 }

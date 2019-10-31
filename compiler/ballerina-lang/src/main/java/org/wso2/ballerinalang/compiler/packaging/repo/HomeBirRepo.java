@@ -25,64 +25,36 @@ import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.LATEST_VERSION_DIR;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BIR_BALLERINA_VERSION_CACHE_FILE_NAME;
 
 /**
  * Repo for bir_cache in home repository.
  */
 public class HomeBirRepo implements Repo<Path> {
-    private Path birCache;
     private PathConverter pathConverter;
     
     public HomeBirRepo() {
-        this.birCache = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
-        this.pathConverter = new PathConverter(this.birCache);
+        Path repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME + "-" +
+                                                                          RepoUtils.getBallerinaVersion());
+        this.pathConverter = new PathConverter(repoLocation);
     }
     
     @Override
     public Patten calculate(PackageID moduleID) {
-        try {
-            String orgName = moduleID.getOrgName().getValue();
-            String pkgName = moduleID.getName().getValue();
-            Patten.Part version;
-            String versionStr = moduleID.getPackageVersion().getValue();
-            if (versionStr.isEmpty()) {
-                version = LATEST_VERSION_DIR;
-            } else {
-                version = path(versionStr);
-            }
-        
-            Path ballerinaVersionCachePath = this.birCache.resolve(orgName).resolve(pkgName)
-                    .resolve(BIR_BALLERINA_VERSION_CACHE_FILE_NAME);
-            
-            // if ballerina version cache file does not exists,
-            // then consider it that the current ballerina version it not
-            // compatible with the bir(if such exists)
-            if (Files.notExists(ballerinaVersionCachePath)) {
-                return Patten.NULL;
-            }
-        
-            if (Files.exists(ballerinaVersionCachePath)) {
-                String ballerinaVersion = new String(Files.readAllBytes(ballerinaVersionCachePath),
-                        StandardCharsets.UTF_8);
-                // if ballerina version cache file exists but its a different version, then consider it that the
-                // current ballerina version it not compatible with the bir(if such exists)
-                if (!RepoUtils.getBallerinaVersion().equals(ballerinaVersion)) {
-                    return Patten.NULL;
-                }
-            }
-        
-            return new Patten(path(orgName, pkgName), version, path(pkgName + ".bir"));
-        } catch (IOException e) {
-            return Patten.NULL;
+        String orgName = moduleID.getOrgName().getValue();
+        String pkgName = moduleID.getName().getValue();
+        Patten.Part version;
+        String versionStr = moduleID.getPackageVersion().getValue();
+        if (versionStr.isEmpty()) {
+            version = LATEST_VERSION_DIR;
+        } else {
+            version = path(versionStr);
         }
+        
+        return new Patten(path(orgName, pkgName), version, path(pkgName + ".bir"));
     }
     
     @Override
