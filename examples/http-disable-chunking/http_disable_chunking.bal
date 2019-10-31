@@ -13,14 +13,12 @@ service chunkingSample on new http:Listener(9092) {
     @http:ResourceConfig {
         path: "/"
     }
-    //Parameters include a reference to the caller endpoint and an object containing the request data.
     resource function invokeEndpoint(http:Caller caller, http:Request req) {
         //Create a new outbound request and set the payload.
         http:Request newReq = new;
         newReq.setPayload({ "name": "Ballerina" });
         var clientResponse = clientEndpoint->post("/echo/", newReq);
         if (clientResponse is http:Response) {
-            //Send the response back to the caller.
             var result = caller->respond(clientResponse);
             if (result is error) {
                log:printError("Error sending response", err = result);
