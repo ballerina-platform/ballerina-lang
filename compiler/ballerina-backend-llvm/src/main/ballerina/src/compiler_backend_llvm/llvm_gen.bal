@@ -16,8 +16,6 @@
 
 import ballerina/llvm;
 import ballerina/bir;
-import ballerina/io;
-import ballerina/lang.'string as strings;
 
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
