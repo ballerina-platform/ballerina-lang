@@ -88,6 +88,11 @@ dependencies {
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
 
     dist 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:linux-x86'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:windows-x86'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:macosx-x86_64'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:windows-x86_64'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:linux-x86_64'
     dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2'
 
     dist project(':ballerina-cli-utils')
