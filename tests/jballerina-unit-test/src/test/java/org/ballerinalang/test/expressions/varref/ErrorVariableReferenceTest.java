@@ -230,7 +230,7 @@ public class ErrorVariableReferenceTest {
     public void testErrorVariablesSemanticsNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/error_variable_reference_semantics_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 16);
+        Assert.assertEquals(resultNegative.getErrorCount(), 17);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
@@ -245,7 +245,9 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found '(string|boolean)?'", 42, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "error constructor expression is not supported for error binding pattern", 43, 81);
+                "incompatible types: expected 'string', found '(anydata|error)'", 43, 43);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'any', found '(anydata|error)'", 43, 62);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
