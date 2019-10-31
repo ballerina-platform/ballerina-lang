@@ -479,6 +479,12 @@ public class PathDependencyTestCase extends BaseTest {
         balClient.runMain("run", new String[]{interopBalJarFileName}, envVariables, new String[0],
                           new LogLeecher[]{bazRunLeecher}, caseResources.toString());
         bazRunLeecher.waitForText(10000);
+
+        // ballerina run bal command
+        LogLeecher balRunLeecher = new LogLeecher(msg);
+        balClient.runMain("run", new String[]{interopBalFileName}, envVariables, new String[]{},
+                          new LogLeecher[]{balRunLeecher}, caseResources.toString());
+        balRunLeecher.waitForText(10000);
     }
 
     /**
