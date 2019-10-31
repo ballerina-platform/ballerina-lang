@@ -46,8 +46,10 @@ function genJMethodForBExternalFunc(bir:Function birFunc,
 
     if extFuncWrapper is OldStyleExternalFunctionWrapper {
         genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
+    } else if  extFuncWrapper is JMethodFunctionWrapper {
+        genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
     } else {
-        genJMethodForBExternalFuncInterop(extFuncWrapper, cw, birModule);
+        genJFieldForInteropField(extFuncWrapper, cw, birModule);
     }
 }
 
@@ -66,6 +68,9 @@ function injectDefaultParamInits(bir:Package module) {
             var extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, attachedType = ());
             if extFuncWrapper is OldStyleExternalFunctionWrapper {
                 desugarOldExternFuncs(module, extFuncWrapper, birFunc);
+                enrichWithDefaultableParamInits(birFunc);
+	    } else if (extFuncWrapper is JMethodFunctionWrapper) {
+                desugarInteropFuncs(module, extFuncWrapper, birFunc);
                 enrichWithDefaultableParamInits(birFunc);
             } else if (!(extFuncWrapper is JMethodFunctionWrapper) && !(extFuncWrapper is JFieldFunctionWrapper)) {
                 enrichWithDefaultableParamInits(birFunc);

@@ -17,8 +17,11 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -26,6 +29,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
@@ -226,5 +230,20 @@ public class StaticMethods {
             throws JavaInteropTestCheckedException {
         e.put("name", newVal);
         return e;
+    }
+
+    public static ArrayValue getArrayValue() throws BallerinaException {
+        String name = null;
+        String type = null;
+        try {
+            return new ArrayValue(new String[]{name, type}, new BTupleType(new ArrayList<BType>() {
+                {
+                    add(BTypes.typeString);
+                    add(BTypes.typeString);
+                }
+            }));
+        } catch (BallerinaException e) {
+            throw new BallerinaException("Error occurred while creating ArrayValue.", e);
+        }
     }
 }

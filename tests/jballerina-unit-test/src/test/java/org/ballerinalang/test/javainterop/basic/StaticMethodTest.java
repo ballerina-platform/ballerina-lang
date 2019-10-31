@@ -112,4 +112,11 @@ public class StaticMethodTest {
     public static Object returnObjectOrError() {
         return new ErrorValue("some reason", null);
     }
+
+    @Test(description = "Test tuple return with null values")
+    public void testTupleReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorOrTupleReturn");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNull(returns[0]);
+    }
 }

@@ -64,11 +64,6 @@ function testUnionWithErrorReturnHandle(handle receiver) returns error|int|boole
      return unionWithErrorReturnHandle(receiver);
 }
 
-function testErrorOrTupleReturn() returns error|[string,string] {
-   [string,string] ret = check getArrayValue();
-   return ret;
-}
-
 // Interop functions
 
 public function increaseCounterByOne(handle receiver) = @java:Method{
@@ -164,6 +159,3 @@ public function uncheckedErrorDetail(handle receiver) returns int = @java:Method
     class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 
-function getArrayValue() returns [string, string] | error = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
-} external;

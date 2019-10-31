@@ -75,6 +75,7 @@ public type ErrorEntry record {|
     BasicBlock trapBB;
     VarRef errorOp;
     BasicBlock targetBB;
+    anydata...; // This is to type match with platform specific error entries
 |};
 
 public type ChannelDetail record {|
@@ -174,6 +175,8 @@ public const INS_KIND_TYPEOF = 56;
 public const INS_KIND_NOT = 57;
 public const INS_KIND_NEW_TYPEDESC = 58;
 public const INS_KIND_NEGATE = 59;
+// Below number won't get serialized as this is used for platform specific instructions in each back ends
+public const INS_KIND_PLATFORM = 5000;
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
@@ -185,7 +188,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
                                 INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_STRING_LOAD | INS_KIND_NEW_TABLE |
                                 INS_KIND_TYPEOF | INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM |
-                                INS_KIND_NEGATE;
+                                INS_KIND_NEGATE | INS_KIND_PLATFORM;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -331,6 +334,7 @@ public type BXMLType TYPE_XML;
 
 const HANDLE_TYPE_NAME = "handle";
 const SERVICE_TYPE_NAME = "service";
+public const PLATFORM_TYPE_NAME = "platform";
 const RECORD_TYPE_NAME = "record";
 const MAP_TYPE_NAME = "map";
 const STREAM_TYPE_NAME = "stream";
@@ -343,6 +347,12 @@ const TUPLE_TYPE_NAME = "tuple";
 const FUTURE_TYPE_NAME = "future";
 const FINITE_TYPE_NAME = "finite";
 const TYPEDESC_TYPE_NAME = "typedesc";
+
+public type BPlatformType record {|
+    PLATFORM_TYPE_NAME typeName = PLATFORM_TYPE_NAME;
+    // Below is to make it possible to define custom types in each back end as required
+    anydata...;
+|};
 
 public type BServiceType record {|
     SERVICE_TYPE_NAME typeName = SERVICE_TYPE_NAME;
@@ -464,7 +474,7 @@ public type BFiniteType record {|
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BFiniteType | BTableType | BStreamType | BTypeDecimal | BTypeHandle;
+                  BPlatformType | BFiniteType | BTableType | BStreamType | BTypeDecimal | BTypeHandle;
 
 public type ModuleID record {|
     string org = "";

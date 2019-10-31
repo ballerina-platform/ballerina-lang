@@ -24,6 +24,10 @@ function testAcceptThreeParamsAndReturnSomething(handle h1, handle h2, handle h3
     return acceptThreeParamsAndReturnSomething(h1, h2, h3);
 }
 
+function testErrorOrTupleReturn() returns error|[string,string] {
+   [string,string] ret = check getArrayValue();
+   return ret;
+}
 
 // Interop functions
 public function acceptNothingAndReturnNothing() = @java:Method {
@@ -109,4 +113,8 @@ public type Person object {
 public function getObjectOrError() returns Person|error = @java:Method {
     name: "returnObjectOrError",
     class: "org.ballerinalang.test.javainterop.basic.StaticMethodTest"
+} external;
+
+function getArrayValue() returns [string, string] | error = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
