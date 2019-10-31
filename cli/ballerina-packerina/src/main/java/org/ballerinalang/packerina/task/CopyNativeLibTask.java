@@ -192,7 +192,8 @@ public class CopyNativeLibTask implements Task {
                                                 fileName.substring(0, fileName.lastIndexOf(".")));
         File destFile = baloFileUnzipDirectory.toFile();
         // Read from .balo file if directory not exist.
-        if (!destFile.mkdir()) {// Read from already unzipped balo directory.
+        if (!destFile.mkdir()) {
+            // Read from already unzipped balo directory.
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(destFile.toString()))) {
                 for (Path path : stream) {
                     moduleDependencySet.add(path);
