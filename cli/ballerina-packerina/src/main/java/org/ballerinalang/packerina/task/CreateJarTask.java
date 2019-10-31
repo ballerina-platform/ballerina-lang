@@ -26,6 +26,7 @@ import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -140,7 +141,7 @@ public class CreateJarTask implements Task {
             return null;
         }
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
-        String ballerinaVersion = System.getProperty("ballerina.version");
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         return Paths.get(balHomePath, "bre", "lib", runtimeJarName);
     }

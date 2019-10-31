@@ -47,7 +47,8 @@ public function main(string... args) {
         birCacheDirs[i] = <@untainted> args[6 + i];
         i = i + 1;
     }
-    
+    // main will receive the no of cache directories as 6th arg. Then we read the rest of the args as cache directories
+    // based on 6th arg value.
     int argsCount = 6 + numCacheDirs;
     int dependentJarCnt = args.length() - argsCount;
     i = 0;

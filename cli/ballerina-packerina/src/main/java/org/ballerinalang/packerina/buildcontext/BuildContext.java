@@ -70,7 +70,6 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private SourceType srcType;
     private transient PrintStream out;
     private transient PrintStream err;
-
     public transient Map<PackageID, HashSet<Path>> moduleDependencyPathMap = new HashMap<>();
     
     /**

@@ -28,6 +28,7 @@ import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -235,7 +236,7 @@ public class RunExecutableTask implements Task {
 
     private Path getRuntimeAllJar(BuildContext buildContext) {
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
-        String ballerinaVersion = System.getProperty("ballerina.version");
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         return Paths.get(balHomePath, "bre", "lib", runtimeJarName);
     }

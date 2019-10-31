@@ -192,38 +192,36 @@ public class CopyNativeLibTask implements Task {
                                                 fileName.substring(0, fileName.lastIndexOf(".")));
         File destFile = baloFileUnzipDirectory.toFile();
         // Read from .balo file if directory not exist.
-        if (destFile.mkdir()) {
-            try (JarFile jar = new JarFile(baloFilePath.toFile())) {
-                java.util.Enumeration enumEntries = jar.entries();
-                while (enumEntries.hasMoreElements()) {
-                    JarEntry file = (JarEntry) enumEntries.nextElement();
-                    if (file.getName().endsWith(BLANG_COMPILED_JAR_EXT)) {
-                        File f = Paths.get(baloFileUnzipDirectory.toString(),
-                                           file.getName().split(BALO_PLATFORM_LIB_DIR_NAME)[1]).toFile();
-                        if (!f.exists()) { // if file already copied or its a directory, ignore
-                            // get the input stream
-                            try (InputStream is = jar.getInputStream(file)) {
-                                Files.copy(is, f.toPath());
-                            }
-                        }
-                        moduleDependencySet.add(f.toPath());
-                    }
+        if (!destFile.mkdir()) {// Read from already unzipped balo directory.
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(destFile.toString()))) {
+                for (Path path : stream) {
+                    moduleDependencySet.add(path);
                 }
             } catch (IOException e) {
                 throw createLauncherException("unable to copy native jar: " + e.getMessage());
             }
-            return;
-        }
-
-        // Read from already unzipped balo directory.
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(destFile.toString()))) {
-            for (Path path : stream) {
-                moduleDependencySet.add(path);
+        } else {
+            try (JarFile jar = new JarFile(baloFilePath.toFile())) {
+                java.util.Enumeration enumEntries = jar.entries();
+                while (enumEntries.hasMoreElements()) {
+                    JarEntry file = (JarEntry) enumEntries.nextElement();
+                    if (!file.getName().endsWith(BLANG_COMPILED_JAR_EXT)) {
+                        continue;
+                    }
+                    File f = Paths.get(baloFileUnzipDirectory.toString(),
+                                       file.getName().split(BALO_PLATFORM_LIB_DIR_NAME)[1]).toFile();
+                    if (!f.exists()) { // if file already copied or its a directory, ignore
+                        // get the input stream
+                        try (InputStream is = jar.getInputStream(file)) {
+                            Files.copy(is, f.toPath());
+                        }
+                    }
+                    moduleDependencySet.add(f.toPath());
+                }
+            } catch (IOException e) {
+                throw createLauncherException("unable to copy native jar: " + e.getMessage());
             }
-        } catch (IOException e) {
-            throw createLauncherException("unable to copy native jar: " + e.getMessage());
         }
-
     }
 
     private void copyDependenciesFromToml(BPackageSymbol importz, String balHomePath,
