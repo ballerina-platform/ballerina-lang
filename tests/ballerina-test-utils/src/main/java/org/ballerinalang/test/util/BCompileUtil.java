@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
@@ -495,6 +496,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(LOCK_ENABLED, Boolean.toString(true));
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, false);
