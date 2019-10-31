@@ -155,7 +155,7 @@ public type PodTolerationConfiguration record {|
 # + image - Docker image name with tag. Default is `"<OUTPUT_FILE_NAME>:latest"`. If field `registry` is set then it will be prepended to the docker image name as `<registry>/<OUTPUT_FILE_NAME>:latest`.
 # + buildImage - Docker image to be build or not. Default is `true`.
 # + push - Enable pushing docker image to registry. Field `buildImage` must be set to `true` to be effective. Default value is `false`.
-# + cmd - Value for CMD for the generated Dockerfile. Default is `CMD java -jar <JAR_FILE> [--b7a.config.file=<CONFIG_FILE>] [--debug]`.
+# + cmd - Value for CMD for the generated Dockerfile. Default is `CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`.
 # + copyFiles - Array of [External files](kubernetes#FileConfig) for docker image.
 # + singleYAML - Generate a single yaml file with all kubernetes artifacts (services, deployment, ingress and etc). Default is `true`.
 # + namespace - Kubernetes namespace to be used on all artifacts.
@@ -378,7 +378,7 @@ public type RestartPolicy "OnFailure"|"Always"|"Never";
 # + image - Docker image name with tag. Default is `"<OUTPUT_FILE_NAME>:latest"`. If field `registry` is set then it will be prepended to the docker image name as `<registry>/<OUTPUT_FILE_NAME>:latest`.
 # + buildImage - Docker image to be build or not. Default is `true`.
 # + push - Enable pushing docker image to registry. Field `buildImage` must be set to `true`. Default value is `false`.
-# + cmd - Value for CMD for the generated Dockerfile. Default is `CMD java -jar <JAR_FILE> [--b7a.config.file=<CONFIG_FILE>] [--debug]`.
+# + cmd - Value for CMD for the generated Dockerfile. Default is `CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`.
 # + copyFiles - Array of [External files](kubernetes#FileConfig) for docker image.
 # + singleYAML - Generate a single yaml file with all kubernetes artifacts (ingress, configmaps, secrets and etc). Default is `true`.
 # + namespace - Kubernetes namespace to be used on all artifacts.
