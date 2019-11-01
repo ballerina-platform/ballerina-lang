@@ -151,7 +151,8 @@ public class Hub {
             }
             return;
         } else {
-            for (HubSubscriber subscriber: getSubscribers()) {
+            List<HubSubscriber> currentSubscriberList = getSubscribers();
+            for (HubSubscriber subscriber: currentSubscriberList) {
                 if (subscriber.equals(subscriberToUnregister)) {
                     subscriberToUnregister = subscriber;
                     break;
