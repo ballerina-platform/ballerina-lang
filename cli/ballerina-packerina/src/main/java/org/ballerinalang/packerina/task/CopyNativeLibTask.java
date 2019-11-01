@@ -201,27 +201,27 @@ public class CopyNativeLibTask implements Task {
             } catch (IOException e) {
                 throw createLauncherException("unable to copy native jar: " + e.getMessage());
             }
-        } else {
-            try (JarFile jar = new JarFile(baloFilePath.toFile())) {
-                java.util.Enumeration enumEntries = jar.entries();
-                while (enumEntries.hasMoreElements()) {
-                    JarEntry file = (JarEntry) enumEntries.nextElement();
-                    if (!file.getName().endsWith(BLANG_COMPILED_JAR_EXT)) {
-                        continue;
-                    }
-                    File f = Paths.get(baloFileUnzipDirectory.toString(),
-                                       file.getName().split(BALO_PLATFORM_LIB_DIR_NAME)[1]).toFile();
-                    if (!f.exists()) { // if file already copied or its a directory, ignore
-                        // get the input stream
-                        try (InputStream is = jar.getInputStream(file)) {
-                            Files.copy(is, f.toPath());
-                        }
-                    }
-                    moduleDependencySet.add(f.toPath());
+            return;
+        }
+        try (JarFile jar = new JarFile(baloFilePath.toFile())) {
+            java.util.Enumeration enumEntries = jar.entries();
+            while (enumEntries.hasMoreElements()) {
+                JarEntry file = (JarEntry) enumEntries.nextElement();
+                if (!file.getName().endsWith(BLANG_COMPILED_JAR_EXT)) {
+                    continue;
                 }
-            } catch (IOException e) {
-                throw createLauncherException("unable to copy native jar: " + e.getMessage());
+                File f = Paths.get(baloFileUnzipDirectory.toString(),
+                                   file.getName().split(BALO_PLATFORM_LIB_DIR_NAME)[1]).toFile();
+                if (!f.exists()) { // if file already copied or its a directory, ignore
+                    // get the input stream
+                    try (InputStream is = jar.getInputStream(file)) {
+                        Files.copy(is, f.toPath());
+                    }
+                }
+                moduleDependencySet.add(f.toPath());
             }
+        } catch (IOException e) {
+            throw createLauncherException("unable to copy native jar: " + e.getMessage());
         }
     }
 
