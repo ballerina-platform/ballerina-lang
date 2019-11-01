@@ -15,7 +15,8 @@ type BbBodyGenrator object {
 
     function genBasicBlockBody() returns BbTermGenrator {
         if (self.parent.funcRef is ()) {
-            error funcRefErr =  error("funcRefIsNullError", message = "function reference doesnt exist for" + self.parent.func.name.value);
+            error funcRefErr =  error("funcRefIsNullError", message = "funcref doesnt exist in" +
+                self.parent.func.name.value);
             panic funcRefErr;
         }
         llvm:LLVMBasicBlockRef bbRef = llvm:llvmAppendBasicBlock(<llvm:LLVMValueRef>self.parent.funcRef, self.bb.id.value);

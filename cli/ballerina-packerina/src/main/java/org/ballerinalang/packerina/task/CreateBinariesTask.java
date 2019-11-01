@@ -37,16 +37,18 @@ import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.
 /**
  * Task for creating jar file.
  */
-public class CreateJarTask implements Task {
+public class CreateBinariesTask implements Task {
 
     private boolean dumpBir;
     private boolean isNative;
     private boolean dumpLLVMIR;
+    private boolean noOptimizeLLVM;
 
-    public CreateJarTask(boolean dumpBir, boolean isNative, boolean dumpLLVMIR) {
+    public CreateBinariesTask(boolean dumpBir, boolean isNative, boolean dumpLLVMIR, boolean noOptimizeLLVM) {
         this.dumpBir = dumpBir;
         this.isNative = isNative;
         this.dumpLLVMIR = dumpLLVMIR;
+        this.noOptimizeLLVM = noOptimizeLLVM;
     }
     
     @Override
@@ -73,7 +75,7 @@ public class CreateJarTask implements Task {
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
 
             if (isNative) {
-                BootstrapRunner.genNativeCode(entryBir.toString(), this.dumpLLVMIR);
+                BootstrapRunner.genNativeCode(entryBir.toString(), this.dumpLLVMIR, this.noOptimizeLLVM);
             } else {
                 BootstrapRunner.loadTargetAndGenerateJarBinary(tmpDir, entryBir.toString(), jarOutput.toString(),
                         this.dumpBir, buildContext.getSourceType() == SINGLE_BAL_FILE,
